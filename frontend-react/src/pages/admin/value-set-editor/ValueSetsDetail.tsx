@@ -54,35 +54,6 @@ interface SenderAutomationDataRow extends ValueSetRow {
     id?: number;
 }
 
-// This is displaying all of what seems to be the relevant data from the meta call
-// As well as hardcoded info from the designs. This needs a review
-const ValueSetsLegend = ({ meta }: { meta: LookupTable }) => (
-    <>
-        <div>
-            <b>Name: </b>
-            {meta.tableName}
-        </div>
-        <div>
-            <b>Table Version: </b>
-            {meta.tableVersion}
-        </div>
-        <div>
-            <b>Version ID: </b>
-            {meta.lookupTableVersionId}
-        </div>
-        <div>
-            <b>Version: </b>2.5.1
-        </div>
-        <div>
-            <b>System: </b>HL7
-        </div>
-        <div>
-            <b>Reference: </b>
-            <a href="https://unknown">HL7 Guidance for {meta.tableName}</a>
-        </div>
-    </>
-);
-
 // currently a placeholder based on design doc
 // This needs a review, especially since we don't have update meta, only creation
 const ValueSetsDetailHeader = ({
@@ -96,14 +67,6 @@ const ValueSetsDetailHeader = ({
     return (
         <>
             <h1>{name}</h1>
-            <p>
-                File will fail if numeric values or test values are not entered
-                using accepted values or field is left blank.
-            </p>
-            <p>
-                Accepted values come from values mapped to LOINC codes you can
-                find in the PHN VADS system (needs link).
-            </p>
             <p>
                 <b>Last update:</b> {createdAt}
             </p>
@@ -171,7 +134,7 @@ export const ValueSetsDetailTable = ({
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
     valueSetData: ValueSetRow[];
     error?: Error;
-    Legend?: ReactNode;
+    Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
     const { saveData } = useValueSetUpdate();
     const { activateTable } = useValueSetActivation();
@@ -248,7 +211,7 @@ const ValueSetsDetail = () => {
 
     const { valueSetArray, error } =
         useValueSetsTable<ValueSetRow[]>(valueSetName);
-    const { valueSetMeta, error: metaError } = useValueSetsMeta();
+    const { valueSetMeta, error: metaError } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
         () => toHumanReadable(valueSetName),
@@ -287,7 +250,6 @@ const ValueSetsDetail = () => {
                     setAlert={setAlert}
                     valueSetData={valueSetArray || []}
                     error={error}
-                    Legend={<ValueSetsLegend meta={valueSetMeta} />}
                 />
             </section>
         </>

@@ -99,10 +99,6 @@ describe("ValueSetsDetail", () => {
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
-        // mockUseValueSetsTable = jest.fn(() => ({
-        //     valueSetArray: mockEmptyArray,
-        //     error: mockError,
-        // }));
         const mockSetAlert = jest.fn();
         renderWithQueryProvider(
             <ValueSetsDetailTable
@@ -120,10 +116,6 @@ describe("ValueSetsDetailTable", () => {
     });
 
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
-        // mockUseValueSetsTable = jest.fn(() => ({
-        //     valueSetArray: fakeRows,
-        //     error: null,
-        // }));
         mockSaveData = jest.fn(() => {
             // to avoid unnecessary console error
             return Promise.resolve({ tableVersion: 2 });
@@ -181,4 +173,4 @@ describe("ValueSetsDetailTable", () => {
     });
 });
 
-// TODO: tests for header and legend
+// TODO: tests for header
