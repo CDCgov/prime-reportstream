@@ -6,13 +6,22 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
-import { useValueSetsTable } from "../../../hooks/UseValueSets";
+import {
+    useValueSetsMeta,
+    useValueSetsTable,
+} from "../../../hooks/UseValueSets";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { LookupTables, ValueSet } from "../../../config/endpoints/lookupTables";
+import {
+    LookupTable,
+    LookupTables,
+    ValueSet,
+} from "../../../config/endpoints/lookupTables";
+
+const PAGE_TITLE = process.env.REACT_APP_TITLE; // TODO: move to config
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -53,25 +62,31 @@ const valueSetColumnConfig: ColumnConfig[] = [
     },
 ];
 
+const toValueSetWithMeta = (
+    valueSetArray: ValueSet[] = [],
+    valueSetMeta: LookupTable
+) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
+
 const ValueSetsTable = () => {
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    const { valueSetArray, error } = useValueSetsTable<ValueSet[]>(
+    const { valueSetMeta, error: metaError } = useValueSetsMeta();
+    const { valueSetArray, error: dataError } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
 
     useEffect(() => {
-        if (error) {
+        if (dataError || metaError) {
             handleErrorWithAlert({
                 logMessage: "Error occurred fetching value sets",
-                error,
+                error: dataError || metaError, // this isn't perfect but likely good enough for now
                 setAlert,
             });
         }
-    }, [error]);
+    }, [metaError, dataError]);
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: valueSetArray,
+        rows: toValueSetWithMeta(valueSetArray, valueSetMeta),
     };
 
     return (
@@ -92,9 +107,7 @@ const ValueSetsIndex = () => {
     return (
         <>
             <Helmet>
-                <title>
-                    Value Sets | Admin | {process.env.REACT_APP_TITLE}
-                </title>
+                <title>Value Sets | Admin | {PAGE_TITLE}</title>
             </Helmet>
             <section className="grid-container">
                 <ValueSetsTable />

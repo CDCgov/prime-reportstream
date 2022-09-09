@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
-import { ValueSet } from "../../../config/endpoints/lookupTables";
+import { LookupTable, ValueSet } from "../../../config/endpoints/lookupTables";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -9,22 +9,25 @@ const fakeRows = [
     {
         name: "any name",
         system: "your very own system",
-        createdAt: "Tuesday",
-        createdBy: "you",
     },
     {
         name: "engelbert anyname",
         system: "a very different system",
-        createdAt: "Wednesday",
-        createdBy: "me",
     },
 ];
 
+const fakeMeta = {
+    createdAt: "Tuesday",
+    createdBy: "you",
+};
+
 let mockUseValueSetsTable = jest.fn();
+let mockUseValueSetsMeta = jest.fn();
 
 jest.mock("../../../hooks/UseValueSets", () => {
     return {
         useValueSetsTable: () => mockUseValueSetsTable(),
+        useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
 
@@ -32,6 +35,11 @@ describe("ValueSetsIndex tests", () => {
     test("Renders with no errors", () => {
         mockUseValueSetsTable = jest.fn(() => ({
             valueSetArray: [] as ValueSet[],
+            error: null,
+        }));
+
+        mockUseValueSetsMeta = jest.fn(() => ({
+            valueSetArray: {} as LookupTable,
             error: null,
         }));
         renderWithFullAppContext(<ValueSetsIndex />);
@@ -49,6 +57,12 @@ describe("ValueSetsIndex tests", () => {
             valueSetArray: fakeRows,
             error: null,
         }));
+
+        mockUseValueSetsMeta = jest.fn(() => ({
+            valueSetMeta: fakeMeta,
+            error: null,
+        }));
+
         renderWithFullAppContext(<ValueSetsIndex />);
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(3); // +1 for header
