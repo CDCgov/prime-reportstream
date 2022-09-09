@@ -27,7 +27,7 @@ function ReportDetails(props: Props) {
                     </h4>
                     <p className="text-bold margin-top-0">
                         {moment
-                            .utc(report!.sent)
+                            .utc(report!.batchReadyAt)
                             .local()
                             .format("dddd, MMM DD, YYYY  HH:mm")}
                     </p>
