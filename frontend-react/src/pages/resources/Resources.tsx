@@ -17,7 +17,6 @@ const rootProps: IATemplateProps<IACardGridProps> = {
         directories: resourcesDirectories,
     },
     includeRouter: true,
-    directories: resourcesDirectories,
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */

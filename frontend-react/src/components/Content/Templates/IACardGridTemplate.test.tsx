@@ -32,7 +32,7 @@ const testDirectories: ContentDirectory[] = [
     new ElementDirectory()
         .setTitle(TestDirPages.ONE) // Name it
         .setDescription("Item One") // Describe it
-        .setSlug(dirTools.getSlug(TestDirPages.ONE)), // Page's path, use `ContentDirectoryTools.prependRoot()`
+        .setSlug(dirTools.getSlug(TestDirPages.ONE)),
     new ElementDirectory()
         .setTitle(TestDirPages.TWO)
         .setDescription("Item Two")

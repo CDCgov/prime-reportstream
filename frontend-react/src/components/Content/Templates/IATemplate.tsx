@@ -1,7 +1,5 @@
 import { useCallback } from "react";
 
-import { ContentDirectory } from "../MarkdownDirectory";
-
 import { IACardGridTemplate } from "./IACardGridTemplate";
 import IASideNavTemplate from "./IASideNavTemplate";
 import { IAMeta, IARouter } from "./IAMeta";
@@ -21,8 +19,6 @@ export interface IATemplateProps<P> {
     /* For use in cases where the template doesn't have routing built in
      * (for example, in `IASideNavTemplate`) */
     includeRouter?: boolean;
-    /* Directories accompanying your index. */
-    directories?: ContentDirectory[];
 }
 /** Takes in props to hydrate and render the right template */
 export const IATemplate = ({
@@ -31,7 +27,6 @@ export const IATemplate = ({
     templateKey,
     templateProps,
     includeRouter,
-    directories,
 }: IATemplateProps<any>) => {
     const template = useCallback((key: TemplateName) => {
         switch (key) {
@@ -53,10 +48,10 @@ export const IATemplate = ({
             {/* In cases where your template index doesn't include a router,
              we provide the IARouter component, and use your template as the
              index of this section */}
-            {includeRouter && directories ? (
+            {includeRouter && templateProps.directories ? (
                 <IARouter
                     indexElement={template(templateKey)}
-                    directories={directories}
+                    directories={templateProps.directories}
                 />
             ) : (
                 /* When your template has its own routing, we just render the
