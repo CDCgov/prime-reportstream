@@ -3,7 +3,7 @@ constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 elements:
   - name: specimen-set-ID
-    value: [ '''1''' ]
+    value: [ '"1"' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
   - name: specimen-identifier-placer
