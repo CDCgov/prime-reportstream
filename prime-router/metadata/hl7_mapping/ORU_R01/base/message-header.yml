@@ -1,11 +1,13 @@
 name: ORU-R01-message-header
 elements:
   - name: sending-application-namespace-id
-    value: [ '%resource.source.name' ]
+    # Original value is in %resource.extension(%`rsext-assigning-authority-namespace-id`).value
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id
-    value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.getId()' ]
+    # Original value is in %resource.source.extension(%`rsext-source-identifier-system`).value
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ MSH-3-2 ]
 
   - name: sending-application-universal-id-type
