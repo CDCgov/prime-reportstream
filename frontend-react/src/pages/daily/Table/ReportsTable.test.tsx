@@ -49,9 +49,9 @@ describe("ReportsTable", () => {
         test("renders with no error", async () => {
             // Column headers render
             expect(await screen.findByText("Report ID")).toBeInTheDocument();
-            expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+            expect(await screen.findByText("Available")).toBeInTheDocument();
             expect(await screen.findByText("Expires")).toBeInTheDocument();
-            expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+            expect(await screen.findByText("Items")).toBeInTheDocument();
             expect(await screen.findByText("File")).toBeInTheDocument();
         });
 

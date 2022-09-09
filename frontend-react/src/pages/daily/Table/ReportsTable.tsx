@@ -132,7 +132,7 @@ function ReportsTable() {
             },
             {
                 dataAttr: "batchReadyAt",
-                columnHeader: "Ready",
+                columnHeader: "Available",
                 sortable: true,
                 localSort: true,
                 transform: (s: string) => {

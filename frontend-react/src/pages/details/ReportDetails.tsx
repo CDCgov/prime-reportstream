@@ -23,7 +23,7 @@ function ReportDetails(props: Props) {
                     </h4>
                     <p className="text-bold margin-top-0">{report!.fileType}</p>
                     <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Report sent
+                        Available to download
                     </h4>
                     <p className="text-bold margin-top-0">
                         {moment
