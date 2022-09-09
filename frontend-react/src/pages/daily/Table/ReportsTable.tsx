@@ -131,8 +131,8 @@ function ReportsTable() {
                 },
             },
             {
-                dataAttr: "sent",
-                columnHeader: "Date Sent",
+                dataAttr: "batchReadyAt",
+                columnHeader: "Ready",
                 sortable: true,
                 localSort: true,
                 transform: (s: string) => {
@@ -149,8 +149,8 @@ function ReportsTable() {
                 },
             },
             {
-                dataAttr: "total",
-                columnHeader: "Total Tests",
+                dataAttr: "reportItemCount",
+                columnHeader: "Items",
             },
             {
                 dataAttr: "fileType",
