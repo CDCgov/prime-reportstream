@@ -19,11 +19,11 @@ import {
     LookupTable,
     LookupTables,
     ValueSet,
-} from "../../../config/endpoints/lookupTables";
-
-const PAGE_TITLE = process.env.REACT_APP_TITLE; // TODO: move to config
+} from "../../../config/endpoints/lookupTables"; // TODO: move to config
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
+
+const PAGE_TITLE = process.env.REACT_APP_TITLE;
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (

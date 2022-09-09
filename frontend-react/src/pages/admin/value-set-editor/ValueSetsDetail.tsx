@@ -6,8 +6,8 @@ import React, {
     useMemo,
 } from "react";
 import { Helmet } from "react-helmet";
-import { useValidParams } from "../../../hooks/UseValidParams";
 
+import { useValidParams } from "../../../hooks/UseValidParams";
 import Table, {
     ColumnConfig,
     DatasetAction,
@@ -28,7 +28,6 @@ import {
 } from "../../../utils/ErrorUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
-import { useValidParams } from "../../../hooks/UseValidParams";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -112,9 +111,6 @@ const prepareRowsForSave = (
     if (row === null) {
         throw new Error("A null row was encountered in saveData");
     }
-
-    const endpointHeaderUpdate =
-        lookupTableApi.saveTableData<ValueSetRow[]>(valueSetName);
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
