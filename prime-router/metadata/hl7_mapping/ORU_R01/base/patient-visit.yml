@@ -3,7 +3,7 @@ constants:
   hl7PV1Field: /PATIENT_RESULT/PATIENT/VISIT/PV1
 elements:
   - name: set-id
-    value: [ '''1''' ]
+    value: [ '"1"' ]
     hl7Spec: [ '%{hl7PV1Field}-1' ]
 
   - name: patient-class
@@ -68,7 +68,7 @@ elements:
 
   - name: patient-type
     condition: '%resource.class.code = "IMP"'
-    value: [ '''IN''' ]
+    value: [ '"IN"' ]
     hl7Spec: [ '%{hl7PV1Field}-18' ]
 
   - name: patient-financial-class
