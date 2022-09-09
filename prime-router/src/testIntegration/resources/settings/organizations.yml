@@ -1,0 +1,68 @@
+---
+#
+# This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
+#
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: hl7test
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/test-covid-19
+      format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
+- name: nh-dphs
+  description: New Hampshire Division of Public Health Services
+  jurisdiction: STATE
+  stateCode: NH
+  receivers:
+    - name: elr
+      organizationName: nh-dphs
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NH, patient_state, NH)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+        receivingFacilityName: NH_DHHS
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]
+          MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
+          MSH-21: [ "*": "PHLabReport-Batch&&&^^2.16.840.1.113883.9.11^ISO" ]
+          OBX-17: [ "*": "DEVICE ID 1^^99ELR~DEVICE ID 2^^99ELR" ]
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
+        replaceDiiWithOid: true
+        usePid14ForPatientEmail: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
