@@ -24,10 +24,6 @@ elements:
     value: [ '%resource.code.text' ]
     hl7Spec: [ '%{hl7OBXField}-3-2' ]
 
-#  - name: observation-identifier-coding-system
-#    value: [ '%resource.code.coding.version' ]
-#    hl7Spec: [ '%{hl7OBXField}-3-3' ]
-
   - name: observation-identifier-coding-system
     value: [ '%resource.code.coding.system' ]
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
@@ -132,8 +128,6 @@ elements:
 
   - name: observation-note
     resource: '%resource.note.text.split(''\n'')'
-#    condition: >-
-#      Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].result[%observationIndex].resolve().note.exists()
     schema: note
     resourceIndex: noteIndex
     constants:
