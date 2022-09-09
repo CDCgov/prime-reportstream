@@ -7,7 +7,7 @@ elements:
 
   - name: xtn-system
     condition: '%resource.system.exists() and %resource.system = "phone"'
-    value: [ '''PH''' ]
+    value: [ '"PH"' ]
     hl7Spec: [ '%{hl7TelecomField}-3' ]
 
   - name: xtn-country-code

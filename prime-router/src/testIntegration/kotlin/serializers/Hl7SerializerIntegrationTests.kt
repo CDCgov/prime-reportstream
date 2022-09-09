@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.cli.main
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -323,6 +324,83 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(patientZipCode?.get(2) ?: "Null value").isEqualTo("00000") // 05912-1423
         assertThat(patientZipCode?.get(3) ?: "Null value").isEqualTo("00000") // 10263
         assertThat(patientZipCode?.get(4) ?: "Null value").isEqualTo("95500") // 95531
+        println(" done\n")
+    }
+
+    /**
+     * InTOfReplaceValueAwithBSettingFeature - Integration Test for the replaceValueAwithB setting for
+     *  the ReportStream.  Note, the test case uses the ./setting/orgnization.yml file for the setting
+     *  and the ./src/testIntegration/resources/datatests/CSV_to_HL7/sample-pdi-covid-19-nh.csv file for the test
+     *  message(s).  It tests data flow between all classes in the execution path of the prime cli command
+     *  below:
+     *      ./prime data --input [FILE PATH OF TEST MESSAGE] --input-schema [FILE PATH OF SCHEMA TO USE]
+     *          --output [FILE PATH OF TEST OUTPUT] --route
+     *  Testing steps:
+     *      1. Prepare the testInputFile - test message(s)
+     *      2. Set the output file name and path
+     *      3. Prepare assertThat("HL7 FIELD").isEqualTo("EXPECTED VALUE")
+     *      4. Run the test case
+     *  For more technical architecture detail (see: ./docs/playbooks/replaceValueAwithB-integration-test.md
+     */
+    @Test
+    fun `InTOfReplaceValueAwithBSettingFeature`() {
+        // Input and Output test files
+        val testInputFile = "src/testIntegration/resources/datatests/CSV_to_HL7/sample-pdi-covid-19-nh.csv"
+        val testSettingDir = "src/testIntegration/resources/settings"
+        val testOutputFile = "build/tmp/testIntegration/pdi-covid-19-nh-InT-output.hl7"
+
+        // Prepare test arguments
+        val args: Array<String> = arrayOf(
+            "data", "--input", testInputFile,
+            "--test-dir-setting", testSettingDir,
+            "--input-schema", "primedatainput/pdi-covid-19", "--output", testOutputFile, "--route"
+        )
+
+        // Execute primeCLI command.  Note, upon success, it will generate the HL7 output file in $testOutputFile
+        main(args)
+
+        val message = File(testOutputFile).readLines().drop(2).joinToString("\r")
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        val hapiMsg = parser.parse(message)
+        val terser = Terser(hapiMsg)
+
+        // Verify MSH Segment replacement
+        assertThat(terser.get("/MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+        assertThat(terser.get("/MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+        assertThat(terser.get("/MSH-3-3")).isEqualTo("ISO")
+        // MSH-4
+        assertThat(terser.get("/MSH-4-1")).isEqualTo("CDC PRIME")
+        assertThat(terser.get("/MSH-4-2")).isEqualTo("11D2030855")
+        assertThat(terser.get("/MSH-4-3")).isEqualTo("CLIA")
+        // MSH-5
+        assertThat(terser.get("/MSH-5-1")).isEqualTo("NH_ELR")
+        assertThat(terser.get("/MSH-5-2")).isEqualTo("2.16.840.1.114222.4.3.2.2.3.600.4")
+        assertThat(terser.get("/MSH-5-3")).isEqualTo("ISO")
+        // MSH-6
+        assertThat(terser.get("/MSH-6-1")).isEqualTo("NH_DHHS")
+        assertThat(terser.get("/MSH-6-2")).isEqualTo("2.16.840.1.114222.4.1.3669")
+        assertThat(terser.get("/MSH-6-3")).isEqualTo("ISO")
+        // MSH-21
+        assertThat(terser.get("/MSH-21-1")).isEqualTo("PHLabReport-Batch")
+        assertThat(terser.get("/MSH-21-3")).isEqualTo("2.16.840.1.113883.9.11")
+        assertThat(terser.get("/MSH-21-4")).isEqualTo("ISO")
+
+        // Verify OBX Segment replacement
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(0)-1"))
+            .isEqualTo("DEVICE ID 1")
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(0)-2"))
+            .isEqualTo(null)
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(0)-3"))
+            .isEqualTo("99ELR")
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(1)-1"))
+            .isEqualTo("DEVICE ID 2")
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(1)-2"))
+            .isEqualTo(null)
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-17(1)-3"))
+            .isEqualTo("99ELR")
+
         println(" done\n")
     }
 

@@ -135,7 +135,8 @@ class FhirToHl7Converter(
         var retVal = ""
         run findValue@{
             element.value.forEach {
-                val value = FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                val value = if (it.isBlank()) ""
+                else FhirPathUtils.evaluateString(context, focusResource, bundle, it)
                 if (value.isNotBlank()) {
                     retVal = value
                     return@findValue
