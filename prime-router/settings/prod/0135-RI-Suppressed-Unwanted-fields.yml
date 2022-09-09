@@ -76,6 +76,12 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
+      transport: !<SFTP>
+        host: "sftp-east.inductivehealth.com"
+        port: "22"
+        filePath: "/ELR/SimpleReport/Prod"
+        credentialName: null
+        type: "SFTP"
       transport: null
       externalName: null
       timeZone: EASTERN
