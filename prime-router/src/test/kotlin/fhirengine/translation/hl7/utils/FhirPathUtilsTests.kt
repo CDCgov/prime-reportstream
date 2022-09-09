@@ -40,6 +40,9 @@ class FhirPathUtilsTests {
 
         // Null
         assertThat(FhirPathUtils.parsePath(null)).isNull()
+
+        // Empty string
+        assertThat(FhirPathUtils.parsePath("")).isNull()
     }
 
     @Test
@@ -58,6 +61,9 @@ class FhirPathUtilsTests {
         path = "Bundle.entry[0].resource.extension('blah')"
         assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isSuccess()
         assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+
+        // Empty string
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, "")).isFalse()
     }
 
     @Test
@@ -86,6 +92,9 @@ class FhirPathUtilsTests {
         path = "Bundle.extension('blah').value"
         assertThat { FhirPathUtils.evaluate(null, bundle, bundle, path) }.isSuccess()
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
+
+        // Empty string
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, "")).isEmpty()
     }
 
     @Test
@@ -142,6 +151,9 @@ class FhirPathUtilsTests {
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-10", result) }.isSuccess()
+
+        // Empty string
+        assertThat(FhirPathUtils.evaluateString(null, bundle, bundle, "")).isEmpty()
     }
 
     @Test

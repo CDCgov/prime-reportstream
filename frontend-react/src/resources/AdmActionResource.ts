@@ -35,7 +35,7 @@ export default class AdmAction extends AuthResource {
             return true; // no search returns EVERYTHING
         }
         // combine all elements to be searched.
-        return `${this.actionParams} ${this.actionResponse}`
+        return `${this.actionParams} ${this.actionResponse} ${this.actionResult}`
             .toLowerCase()
             .includes(`${search.toLowerCase()}`);
     }

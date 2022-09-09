@@ -110,6 +110,17 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: bzdlabs
+  description: BZD labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: bzdlabs
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -2124,7 +2135,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,.*bzdlabs.*)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3452,13 +3463,13 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: ri-doh
+- name: ri-phd
   description: Rhode Island Public Health Department
   jurisdiction: STATE
   stateCode: RI
   receivers:
     - name: elr
-      organizationName: ri-doh
+      organizationName: ri-phd
       topic: covid-19
       customerStatus: inactive
       jurisdictionalFilter:
