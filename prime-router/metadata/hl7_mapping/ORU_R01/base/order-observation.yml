@@ -5,7 +5,7 @@ constants:
   service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
 elements:
   - name: request-set-ID
-    value: [ '%orderIndex.toInteger() + 1' ]
+    value: [ '%orderIndex + 1' ]
     hl7Spec: [ '%{hl7Order}/OBR-1' ]
 
   - name: order-segment
