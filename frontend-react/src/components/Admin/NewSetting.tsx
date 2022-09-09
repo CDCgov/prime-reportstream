@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -11,6 +11,7 @@ import Spinner from "../Spinner";
 import { getErrorDetailFromResponse } from "../../utils/misc";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { useValidParams } from "../../hooks/UseValidParams";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 
@@ -21,7 +22,7 @@ type NewSettingProps = {
 
 export function NewSetting() {
     const navigate = useNavigate();
-    const { orgname, settingtype } = useParams<NewSettingProps>();
+    const { orgname, settingtype } = useValidParams<NewSettingProps>([]);
     /* useParams now returns possible undefined. This will error up to a boundary
      * if the url param is undefined */
     if (orgname === undefined || settingtype === undefined)

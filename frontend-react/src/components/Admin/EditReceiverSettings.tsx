@@ -346,12 +346,19 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     );
 };
 
+type EditReceiverSettingsProps = {
+    orgname: string;
+    receivername: string;
+    action: "edit" | "clone";
+};
+
 export function EditReceiverSettings() {
-    const { orgname, receivername, action } = useValidParams([
-        "orgname",
-        "receivername",
-        "action",
-    ]);
+    const { orgname, receivername, action } =
+        useValidParams<EditReceiverSettingsProps>([
+            "orgname",
+            "receivername",
+            "action",
+        ]);
 
     return (
         <AdminFormWrapper
