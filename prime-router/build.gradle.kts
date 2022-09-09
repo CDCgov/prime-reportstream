@@ -102,7 +102,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.0.3"
-val kotlinVersion = "1.7.0"
+val kotlinVersion = "1.7.10"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -686,11 +686,11 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.4.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.4.6") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.6") {
+    implementation("com.azure:azure-identity:1.5.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -756,8 +756,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.2.1")
-    implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
+    implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
+    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")

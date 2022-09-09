@@ -6,6 +6,34 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## September 6, 2022
+
+### Additional Lookuptable API Endpoint
+
+This release adds a new content download endpoint, and other improvements, to the ReportStream _LookupTable API_.
+
+#### What is the LookupTable API?
+
+In ReportStream, LookupTables are used to store standardized SNOMED and LOINC valuesets, providing 
+simple mappings between coded values and human readable names.
+LookupTables are also used to store many other kinds of such simple mappings, for example, we use LookupTables to 
+ expose Covid-19 "LIVD" data in a way that we can map between different columns in that spreadsheet.
+We also use LookupTables to store mappings between non-standard values and standard values, in cases where
+a customer is unable do that mapping themselves.
+
+All LookupTable data is available read-only in the LookupTable API, to any authenticated user of ReportStream.
+
+#### New Features added to the LookupTable API 
+
+This release contains the following improvements to the ReportStream LookupTable API:
+
+1. Both human users and servers can now access the LookupTable API.  Humans use Okta authentication, and Servers use server-to-server authentication.
+2. An `authentication-type: okta` header parameter is no longer required to use Okta authentication.  If you were using it, you can remove it.
+3. A new LookupTable API endpoint `/api/lookuptables/{tableName}/content` has been added.  This will return the full contents of the _**active**_ version of `tableName`, or an error if there is no active version.  This complements the existing `/api/lookuptables/{tableName}/{tableVersion}/content` endpoint, which required you to know the version number prior to querying.
+
+For detailed information on the LookupTable API, consult [the LookupTable OpenApi Spec](./api/lookup-tables-openapi.yaml).
+
+
 ## April 28, 2022
 
 ### Added Server-to-Server Authentication Option the ReportStream History API

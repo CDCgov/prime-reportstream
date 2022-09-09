@@ -1,6 +1,6 @@
 import { GovBanner } from "@trussworks/react-uswds";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { Security, useOktaAuth } from "@okta/okta-react";
+import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import React, { Suspense } from "react";
@@ -18,18 +18,12 @@ import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { DAPHeader } from "./components/header/DAPHeader";
-import SessionProvider from "./contexts/SessionContext";
 import { AppRouter } from "./AppRouter";
+import { AppWrapper } from "./components/AppWrapper";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
-    // This is for sanity checking and can be removed
-    console.log(
-        `process.env.REACT_APP_CLIENT_ENV='${
-            process.env?.REACT_APP_CLIENT_ENV || "missing"
-        }'`
-    );
     const navigate = useNavigate();
     const customAuthHandler = (): void => {
         navigate("/login");
@@ -77,35 +71,32 @@ const App = () => {
 
     if (isIE) return <ErrorPage code={CODES.UNSUPPORTED_BROWSER} />;
     return (
-        <Security
+        <AppWrapper
             oktaAuth={OKTA_AUTH}
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
+            oktaHook={useOktaAuth}
         >
-            <SessionProvider oktaHook={useOktaAuth}>
-                <Suspense fallback={<Spinner size={"fullpage"} />}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="page" />}
-                    >
-                        <DAPHeader
-                            env={process.env.REACT_APP_ENV?.toString()}
-                        />
-                        <GovBanner aria-label="Official government website" />
-                        <SenderModeBanner />
-                        <ReportStreamHeader />
-                        {/* Changed from main to div to fix weird padding issue at the top
+            <Suspense fallback={<Spinner size={"fullpage"} />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="page" />}
+                >
+                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
+                    <GovBanner aria-label="Official government website" />
+                    <SenderModeBanner />
+                    <ReportStreamHeader />
+                    {/* Changed from main to div to fix weird padding issue at the top
                             caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                        <main id="main-content">
-                            <AppRouter />
-                        </main>
-                        <ToastContainer limit={4} />
-                        <footer className="usa-identifier footer">
-                            <ReportStreamFooter />
-                        </footer>
-                    </NetworkErrorBoundary>
-                </Suspense>
-            </SessionProvider>
-        </Security>
+                    <main id="main-content">
+                        <AppRouter />
+                    </main>
+                    <ToastContainer limit={4} />
+                    <footer className="usa-identifier footer">
+                        <ReportStreamFooter />
+                    </footer>
+                </NetworkErrorBoundary>
+            </Suspense>
+        </AppWrapper>
     );
 };
 

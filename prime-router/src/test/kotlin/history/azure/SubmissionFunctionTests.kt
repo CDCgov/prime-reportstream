@@ -159,7 +159,7 @@ class SubmissionFunctionTests : Logging {
                 "simple success"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fads", "authentication-type" to "okta"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -320,7 +320,6 @@ class SubmissionFunctionTests : Logging {
         val httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.httpHeaders += mapOf(
             "authorization" to "Bearer 111.222.333",
-            "authentication-type" to "okta"
         )
         return httpRequestMessage
     }

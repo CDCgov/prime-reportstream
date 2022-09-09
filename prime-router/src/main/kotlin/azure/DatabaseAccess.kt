@@ -966,6 +966,29 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchInto(ListSendFailures::class.java)
     }
 
+    /**
+     * Returns all resend
+     * Nothing found returns empty Result
+     */
+    fun fetchResends(
+        since: OffsetDateTime,
+        txn: DataAccessTransaction? = null
+    ): List<Action> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(ACTION.asterisk())
+            .from(ACTION)
+            .where(
+                ACTION.ACTION_NAME.eq(TaskAction.resend)
+                    .and(ACTION.CREATED_AT.ge(since))
+            )
+            .orderBy(
+                ACTION.CREATED_AT.desc()
+            )
+            .limit(MAX_RECORDS_TO_RETURN)
+            .fetchInto(Action::class.java)
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */

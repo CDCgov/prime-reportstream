@@ -2,40 +2,71 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import {
-    lookupTableApi,
+    lookupTablesEndpoints,
     LookupTable,
-    ValueSet,
-} from "../network/api/LookupTableApi";
+    ApiValueSet,
+} from "../config/endpoints/lookupTables";
 
-const tableList = lookupTableApi.getTableList();
-const tableData = lookupTableApi.getTableData<LookupTable>(
-    2,
-    "sender_automation_value_set"
-);
-
-const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
-    lookupTableVersionId: i,
+const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();
+const tableDataUrl = lookupTablesEndpoints.getTableData.toDynamicUrl({
     tableName: "sender_automation_value_set",
-    tableVersion: i,
-    isActive: i !== 3,
-    createdBy: "test@example.com",
-    createdAt: "now",
-    tableSha256Checksum: "checksum",
-})) as LookupTable[];
+});
+const tableDataUrlAlt = lookupTablesEndpoints.getTableData.toDynamicUrl({
+    tableName: "sender_automation_value_set_row",
+});
+const updateTableDataUrl = lookupTablesEndpoints.updateTable.toDynamicUrl({
+    tableName: "any",
+});
+const activateTableDataUrl = lookupTablesEndpoints.activateTable.toDynamicUrl({
+    version: "1",
+    tableName: "any",
+});
 
-const lookupTableData: ValueSet[] = [1, 2, 3].map((i) => ({
+const lookupTables: LookupTable[] = [
+    {
+        lookupTableVersionId: 1,
+        tableName: "sender_automation_value_set",
+        tableVersion: 1,
+        isActive: true,
+        createdBy: "test@example.com",
+        createdAt: "now",
+        tableSha256Checksum: "checksum",
+    },
+    {
+        lookupTableVersionId: 2,
+        tableName: "sender_automation_value_set_row",
+        tableVersion: 2,
+        isActive: true,
+        createdBy: "again@example.com",
+        createdAt: "later",
+        tableSha256Checksum: "checksum",
+    },
+];
+
+const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
-    createdBy: `test${i}@example.com`,
-    createdAt: "now",
+    created_by: "",
+    created_at: "",
     system: "LOCAL",
-})) as ValueSet[];
+    reference: "unused",
+    referenceURL: "https://unused",
+}));
 
 const handlers = [
-    rest.get(tableList.url, (_req, res, ctx) => {
+    rest.get(tableListUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTables), ctx.status(200));
     }),
-    rest.get(tableData.url, (_req, res, ctx) => {
+    rest.get(tableDataUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
+    }),
+    rest.get(tableDataUrlAlt, (_req, res, ctx) => {
+        return res(ctx.json(lookupTableData), ctx.status(200));
+    }),
+    rest.post(updateTableDataUrl, (_req, res, ctx) => {
+        return res(ctx.json(lookupTables[1]), ctx.status(200));
+    }),
+    rest.put(activateTableDataUrl, (_req, res, ctx) => {
+        return res(ctx.json(lookupTables[1]), ctx.status(200));
     }),
 ];
 

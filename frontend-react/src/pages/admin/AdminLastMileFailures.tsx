@@ -1,8 +1,6 @@
-import { NetworkErrorBoundary } from "rest-hooks";
 import { Helmet } from "react-helmet";
 import React, { Suspense } from "react";
 
-import { ErrorPage } from "../error/ErrorPage";
 import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
@@ -11,9 +9,7 @@ import { AuthElement } from "../../components/AuthElement";
 
 export function AdminLastMileFailures() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <>
             <Helmet>
                 <title>Admin | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -22,16 +18,10 @@ export function AdminLastMileFailures() {
                     <Suspense fallback={<Spinner />} />
                 </h3>
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <section className="grid-container margin-top-0" />
-                    <AdminLastMileFailuresTable />
-                </Suspense>
-            </NetworkErrorBoundary>
+            <section className="grid-container margin-top-0" />
+            <AdminLastMileFailuresTable />
             <HipaaNotice />
-        </NetworkErrorBoundary>
+        </>
     );
 }
 

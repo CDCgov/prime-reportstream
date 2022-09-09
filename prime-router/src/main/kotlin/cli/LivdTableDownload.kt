@@ -6,6 +6,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.LivdTableColumns
 import it.skrape.core.htmlDocument
@@ -27,6 +29,7 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.net.URL
 
@@ -50,6 +53,11 @@ import java.net.URL
  *  ./prime livd-table-download
  *
  */
+interface LivdTableInterface {
+
+    fun downloadFile(outputDir: String): File
+}
+
 class LivdTableDownload : CliktCommand(
     name = "livd-table-download",
     help = """
@@ -95,8 +103,7 @@ class LivdTableDownload : CliktCommand(
 
         // Download the file from CDC website.
         val downloadedFile = downloadFile(defaultOutputDir)
-        // Extract the data from the Excel and output to the specified output CSV format file.
-        val tempRawLivdOutFile = extractLivdTable(sheetName, downloadedFile)
+        val tempRawLivdOutFile = extractLivdTable(sheetName, downloadedFile, defaultOutputDir)
         // Merge the supplemental LIVD table with the raw.
         val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
@@ -116,10 +123,10 @@ class LivdTableDownload : CliktCommand(
      *      ANd, it returns the string "Directory/downloadedFile".  If unsuccessful download, it will return and
      *      empty string ("").  If the option is not specified, it will download the file to ./build directory.
      */
-    private fun downloadFile(outputDir: String): File {
+    fun downloadFile(outputDir: String): File {
         // Get the link to the LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file
         val livdFile = searchForTableFile(loincMappingPageUrl, livdSARSCov2FilenamePrefix)
-        if (livdFile.isEmpty()) {
+        if (livdFile.isEmpty() || livdFile[0].equals("")) {
             error("Unable to find LOINC code data file matching LIVD-SARS-CoV-2-yyyy-MM-dd to download!")
         }
         val livdFileUrl = URL("$loincMappingBaseUrl${livdFile[0]}")
@@ -130,17 +137,21 @@ class LivdTableDownload : CliktCommand(
         )
 
         // Read the file from the website and store it in local directory
-        livdFileUrl.openStream().use { input ->
-            try {
-                FileOutputStream(outputFile).use { output ->
-                    input.copyTo(output)
+        try {
+            livdFileUrl.openStream().use { input ->
+                try {
+                    FileOutputStream(outputFile).use { output ->
+                        input?.copyTo(output)
+                    }
+                } catch (e: Exception) {
+                    error("Unable to write the downloaded file - $e")
                 }
-            } catch (e: Exception) {
-                error("Unable to write the downloaded file - $e")
             }
+        } catch (e: FileNotFoundException) {
+            error("Unable to find connection - $e")
         }
 
-        if (outputFile.length() == 0L) error("Downloaded LIVD table file is empty.")
+        if (outputFile.length() == 0L) echo("Downloaded LIVD table file is empty.")
         return outputFile
     }
 
@@ -150,7 +161,7 @@ class LivdTableDownload : CliktCommand(
      * @param - partialHref is the substring that we are searching for.
      * @return - List of the URI that contain the substring
      */
-    private fun searchForTableFile(urlToSearch: URL, partialHref: String): List<String> {
+    fun searchForTableFile(urlToSearch: URL, partialHref: String): List<String> {
         val allLinks =
             skrape(HttpFetcher) {
                 request {
@@ -177,7 +188,7 @@ class LivdTableDownload : CliktCommand(
      * @param inputfile is the output CSV file name.
      * @return the CSV formatted file with the LIVD data
      */
-    private fun extractLivdTable(sheetName: String, inputfile: File): File {
+    fun extractLivdTable(sheetName: String, inputfile: File, outputDir: String): File {
         // Check for input file exist
         if (!inputfile.exists()) {
             error("$inputfile file does not exist.")
@@ -189,77 +200,81 @@ class LivdTableDownload : CliktCommand(
             error("$inputfile is unsupported since it is not Excel xlsx format file.")
         }
 
-        val workbook: Workbook = XSSFWorkbook(inputfile)
+        try {
+            val workbook: Workbook = XSSFWorkbook(inputfile)
 
-        val outputfile = File.createTempFile(
-            livdSARSCov2FilenamePrefix, "_orig.csv",
-            File(defaultOutputDir)
-        )
-        val fileOutputStream = FileOutputStream(outputfile)
+            val outputfile = File.createTempFile(
+                livdSARSCov2FilenamePrefix, "_orig.csv",
+                File(outputDir)
+            )
+            val fileOutputStream = FileOutputStream(outputfile)
 
-        // Get the LOINC Mapping sheet
-        val sheet: Sheet = workbook.getSheet(sheetName)
-            ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-        workbook.close()
-        val rowStart = sheet.firstRowNum // Get starting row number
-        val rowEnd = sheet.lastRowNum // Get ending row number
+            // Get the LOINC Mapping sheet
+            val sheet: Sheet = workbook.getSheet(sheetName)
+                ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
+            val rowStart = sheet.firstRowNum // Get starting row number
+            val rowEnd = sheet.lastRowNum // Get ending row number
 
-        val lastColumn: Short = sheet.getRow(0).lastCellNum
+            val lastColumn: Short = sheet.getRow(0).lastCellNum
 
-        // Start scan each row of the sheet.
-        for (rowNum in rowStart until rowEnd + 1) {
-            val row: Row = sheet.getRow(rowNum) ?: continue // Skip the empty row.
+            // Start scan each row of the sheet.
+            for (rowNum in rowStart until rowEnd + 1) {
+                val row: Row = sheet.getRow(rowNum) ?: continue // Skip the empty row.
 
-            // Scan each column of the sheet
+                // Scan each column of the sheet
 
-            for (cn in 0 until lastColumn) {
-                var delimiterChar = ","
-                if (cn + 1 == lastColumn.toInt()) delimiterChar = "" // Use blank delimiter after the last column
-                // Get cell object from the sheet.
-                val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
+                for (cn in 0 until lastColumn) {
+                    var delimiterChar = ","
+                    if (cn + 1 == lastColumn.toInt()) delimiterChar = "" // Use blank delimiter after the last column
+                    // Get cell object from the sheet.
+                    val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
 
-                val cellValue = if (cell == null) "" // Insert blank if cell is null.
-                else {
-                    // Fill in string csv data according the cell type.
-                    when (cell.cellType) {
-                        CellType.BOOLEAN -> cell.booleanCellValue.toString()
-                        CellType.NUMERIC -> cell.numericCellValue.toString()
-                        CellType.STRING -> {
-                            // Do some sanitation of the strings
-                            var stringValue = cell.stringCellValue
+                    val cellValue = if (cell == null) "" // Insert blank if cell is null.
+                    else {
+                        // Fill in string csv data according the cell type.
+                        when (cell.cellType) {
+                            CellType.BOOLEAN -> cell.booleanCellValue.toString()
+                            CellType.NUMERIC -> cell.numericCellValue.toString()
+                            CellType.STRING -> {
+                                // Do some sanitation of the strings
+                                var stringValue = cell.stringCellValue
 
-                            // Drop '*' if it is at the end of the string.'
-                            if (cell.stringCellValue.last() == '*') stringValue = cell.stringCellValue.dropLast(1)
+                                // Drop '*' if it is at the end of the string.'
+                                if (cell.stringCellValue.last() == '*') stringValue = cell.stringCellValue.dropLast(1)
 
-                            // Add " to a string that contains quoted strings (i.e ""string"")
-                            if (stringValue.contains("\n") || stringValue.contains(",") ||
-                                (stringValue.contains("\""))
-                            ) {
-                                // String that contain special character(s)
-                                stringValue = "\"" + stringValue.replace("\"", "\"\"") +
-                                    "\""
+                                // Add " to a string that contains quoted strings (i.e ""string"")
+                                if (stringValue.contains("\n") || stringValue.contains(",") ||
+                                    (stringValue.contains("\""))
+                                ) {
+                                    // String that contain special character(s)
+                                    stringValue = "\"" + stringValue.replace("\"", "\"\"") +
+                                        "\""
+                                }
+
+                                // Trim whitespaces
+                                // Strings may have non-breaking-white-space (NBSP) codes in them
+                                stringValue = stringValue.replace('\u00A0', ' ').trim()
+
+                                stringValue
                             }
 
-                            // Trim whitespaces
-                            // Strings may have non-breaking-white-space (NBSP) codes in them
-                            stringValue = stringValue.replace('\u00A0', ' ').trim()
-
-                            stringValue
+                            CellType.BLANK -> ""
+                            else -> "$cell"
                         }
-                        CellType.BLANK -> ""
-                        else -> "$cell"
                     }
+                    data.append(cellValue + delimiterChar)
                 }
-                data.append(cellValue + delimiterChar)
+                data.append(System.lineSeparator()) // End of each row
             }
-            data.append(System.lineSeparator()) // End of each row
+
+            // Write to CSV file.
+            fileOutputStream.write(data.toString().toByteArray())
+            fileOutputStream.close()
+
+            return removeBlankRowFromCsv(outputfile)
+        } catch (e: Exception) {
+            error("Extract Livd Table failed: $e.")
         }
-
-        // Write to CSV file.
-        fileOutputStream.write(data.toString().toByteArray())
-        fileOutputStream.close()
-
-        return outputfile
     }
 
     /**
@@ -267,7 +282,7 @@ class LivdTableDownload : CliktCommand(
      * file.
      * @return the CSV formatted file with the merged LIVD data
      */
-    private fun mergeLivdSupplementalTable(rawLivdFile: File): File {
+    fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile)
             .columnTypesToDetect(listOf(ColumnType.STRING))
@@ -294,7 +309,9 @@ class LivdTableDownload : CliktCommand(
             try {
                 rawLivdTable.stringColumn(supplCol.name()) // This is the test to see if the column exists
                 commonColList.add(supplCol.name())
-            } catch (e: IllegalStateException) { missingColList.add(supplCol.name()) }
+            } catch (e: IllegalStateException) {
+                missingColList.add(supplCol.name())
+            }
         }
         missingColList.forEach { missingColName ->
             val col = StringColumn.create(missingColName)
@@ -325,6 +342,7 @@ class LivdTableDownload : CliktCommand(
                     echo(supplRow)
                     badRows++
                 }
+
                 selector!!.isEmpty -> {
                     // A new row is needed
                     val newRow = rawLivdTable.appendRow()
@@ -366,11 +384,31 @@ class LivdTableDownload : CliktCommand(
     }
 
     /**
+     * removeBlankRowFromCsv moves/cleans blank row(s) from the given cvs file.  And, it returns
+     * the cleaned file without blank.
+     */
+    private fun removeBlankRowFromCsv(downloadFile: File): File {
+        val rows: List<List<String>> = csvReader().readAll(downloadFile)
+        val nonEmptyRows: MutableList<List<String>>? = mutableListOf()
+        rows.forEach {
+            for (tmp in it) {
+                if (tmp.isNotEmpty()) {
+                    nonEmptyRows!!.add(it)
+                    break
+                }
+            }
+        }
+        csvWriter().writeAll(nonEmptyRows!!.toList(), downloadFile)
+        return downloadFile
+    }
+
+    /**
      * Updates the LIVD lookup table name [livdLookupTable] of CSV file to set up PRIME CLI Lookup Table Create
      * Command line options.  And then, it calls the create lookup table command to create the new version of lookup
      * table.  Note, it always creates the new version regardless since it uses -f option.
      */
-    private fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
+    fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
+
         // The environment the command needs to run on.
         val environment = Environment.get(env)
 
@@ -392,6 +430,7 @@ class LivdTableDownload : CliktCommand(
 
     companion object {
         private val loincMappingBaseUrl = URL("https://www.cdc.gov")
+
         /**
          * cdcLOINCTestCodeMappingPageUrl is the CDC URL that contains the LIVD-SARS-CoV-2-yyyyMMdd.xlsx file.
          */
