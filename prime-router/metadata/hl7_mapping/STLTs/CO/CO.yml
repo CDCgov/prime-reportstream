@@ -1,0 +1,65 @@
+name: CO
+hl7Type: ORU_R01
+hl7Version: 2.5.1
+extends: ../../ORU_R01/ORU_R01-base
+elements:
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-application-namespace-id
+    value: [ '''CO-ELR''' ]
+
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-application-universal-id
+    condition: false
+
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-application-universal-id-type
+    condition: false
+
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-facility-namespace-id
+    value: [ '''CO''' ]
+
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-facility-universal-id
+    condition: false
+
+  # Source: ReportStream CO Requirements from settings
+  - name: receiving-facility-universal-id-type
+    condition: false
+
+  # Reporting facility name: CO requested to keep original MSH-4 from HCA.  ReportStream hard codes it to
+  # CDC PRIME^11D2030855^CLIA
+  # TODO - How does this change for other senders?
+
+  # TODO - These are HCA specific configs that should go in the sender transformation, but these may be CO specific too
+  # Source: HCA CO Requirements
+  # Always replace ORC-21.8 with NULL
+  - name: co-ordering-facility-assigning-facility
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-8' ]
+
+  # Source: HCA CO Requirements
+  # Always replace ORC-21.9 with NULL
+  - name: co-ordering-facility-name-code
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-9' ]
+
+  # Source: HCA CO Requirements
+  # If ORC-21.6 is populated then replace ORC-21.10 with value present in ORC-21.6.1
+  - name: co-ordering-facility-organization-id
+    value:
+      # ORC-21.6.1
+      - '%resource.extension(%`rsext-assigning-authority-namespace-id`).value'
+      # Default ORC-21.10 value
+      - '%resource.identifier[0].value'
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10' ]
+
+  # Source: HCA CO Requirements
+  # Always replace ORC-10 with NULL
+  - name: order-entered-by
+    condition: false
+
+  # Source: HCA CO Requirements
+  # Suppress all instances of the TQ1 segment
+  - name: timing-segment
+    condition: false
