@@ -38,5 +38,5 @@ resource "azurerm_storage_share" "sftp_scripts" {
 resource "azurerm_storage_share_file" "sftp" {
   name             = "startup.sh"
   storage_share_id = azurerm_storage_share.sftp_scripts.id
-  source           = "${local.sftp_dir}/startup.sh"
+  source           = "${var.sftp_dir}/startup.sh"
 }

@@ -32,7 +32,8 @@ jobs:
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
-          terraform-version: 1.1.9
+          terraform-version: 1.2.0
+          add-args: "-refresh=false"
       - name: Format outputs for slack
         if: steps.stats1.outputs.change-count > 0
         run: |
