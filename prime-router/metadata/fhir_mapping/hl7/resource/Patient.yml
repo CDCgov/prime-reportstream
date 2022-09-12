@@ -11,8 +11,6 @@ identifier_1:
   generateList: true
   expressionType: resource
   specs: PID.3
-  vars:
-    assignerSystem: String, PID.3.4
 
 # When the Coverage.subscriber from IN1.17 is NOT self use PID.19 for SSN identifier
 identifier_2a:
@@ -409,7 +407,7 @@ extension:
           expressionType: resource
           condition: $annotationText NOT_NULL
           vars:
-            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
 communication:
   condition: $language NOT_NULL

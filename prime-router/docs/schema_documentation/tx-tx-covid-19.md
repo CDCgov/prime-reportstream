@@ -946,6 +946,10 @@ The city of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country of the provider
+
 ---
 
 **Name**: ordering_provider_county
@@ -1234,7 +1238,7 @@ The SimpleReport concept of organization. It refers to organization for the orde
 
 **Type**: NUMBER
 
-**PII**: No
+**PII**: Yes
 
 **LOINC Code**: 30525-0
 

@@ -1,42 +1,53 @@
 name: ORU-R01-xcn-contact
 constants:
-  fieldPath: /PATIENT_RESULT/PATIENT/VISIT/(%{hl7Field})(%{orderIndex})
+  hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
+# Practitioner to XCN mapping
 elements:
-  - name: id-number
+  - name: xcn-id-number
     value: [ '%resource.identifier.value' ]
-    hl7Spec: [ '%{fieldPath}-1' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-1' ]
 
-  - name: family-name
+  - name: xcn-family-name
     value: [ '%resource.name.family' ]
-    hl7Spec: [ '%{fieldPath}-2' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-2' ]
 
-  - name: given-name
+  - name: xcn-given-name
     value: [ '%resource.name.given[0]' ]
-    hl7Spec: [ '%{fieldPath}-3' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-3' ]
 
-  - name: other-given-names
+  - name: xcn-other-given-names
     value: [ '%resource.name.given.tail()' ]
-    hl7Spec: [ '%{fieldPath}-4' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: degree
+  - name: xcn-suffix
     value: [ '%resource.name.suffix' ]
-    hl7Spec: [ '%{fieldPath}-7' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
 
-  - name: assigning-auth-namespace-id
-    value: [ '%resource.identifier.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
-    hl7Spec: [ '%{fieldPath}-9-1' ]
+  - name: xcn-assigning-authority
+    resource: '%resource.identifier[0]'
+    condition: '%resource.exists()'
+    constants:
+      hl7HDField: '%{hl7XCNFieldPath}-9'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+    schema: hd-hierarchic-designator
 
-  - name: assigning-auth-universal-id
-    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
-    value: [ '%resource.replace(''urn:oid:'', '''')' ]
-    hl7Spec: [ '%{fieldPath}-9-2' ]
+  - name: xcn-name-type-code
+    condition: '%resource.name.use.exists() and %resource.name.use = "official"'
+    value: [ '"L"']
+    hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
-  - name: assigning-auth-universal-id-type
-    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
-    condition: '%resource.startsWith("urn:oid")'
-    value: [ '''ISO''' ]
-    hl7Spec: [ '%{fieldPath}-9-3' ]
-
-  - name: type
+  - name: xcn-type
     value: [ '%resource.identifier.type.coding.code' ]
-    hl7Spec: [ '%{fieldPath}-13' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
+
+  - name: xcn-assigning-facility
+    resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
+    condition: '%resource.exists()'
+    constants:
+      hl7HDField: '%{hl7XCNFieldPath}-14'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+    schema: hd-hierarchic-designator

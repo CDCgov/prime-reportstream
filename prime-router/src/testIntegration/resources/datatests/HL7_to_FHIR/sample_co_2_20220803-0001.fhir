@@ -1,0 +1,3328 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "4bc42a6f-bc6f-4631-8fb7-57fc8a59b830",
+  "meta" : {
+    "lastUpdated" : "2022-09-06T11:34:21.719-04:00"
+  },
+  "identifier" : {
+    "value" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+  },
+  "type" : "message",
+  "timestamp" : "2022-08-03T06:07:05.000-04:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/f13b2ed3-fdf0-3939-b505-6dd0daf19cd6",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "f13b2ed3-fdf0-3939-b505-6dd0daf19cd6",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+      },
+      "destination" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-facility-identifier",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-application-identifier",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144.2.5"
+        } ],
+        "name" : "DCEED.ELR",
+        "endpoint" : "CDPHE"
+      } ],
+      "sender" : {
+        "reference" : "Organization/e980ff6b-f097-4c85-b1b7-12e8a38142a9"
+      },
+      "source" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org",
+          "valueReference" : {
+            "reference" : "Organization/4318a8e3-0050-43b0-914d-cdfa56760757"
+          }
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date",
+          "valueDateTime" : "2022-08-03"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id",
+          "valueString" : "20220803"
+        } ],
+        "name" : "MEDITECH MIC",
+        "software" : "Laboratory Applicati",
+        "version" : "5.67"
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/e980ff6b-f097-4c85-b1b7-12e8a38142a9",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "e980ff6b-f097-4c85-b1b7-12e8a38142a9",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "urn:id:06D0514637"
+      } ],
+      "name" : "North Suburban Medical Center"
+    }
+  }, {
+    "fullUrl" : "Organization/4318a8e3-0050-43b0-914d-cdfa56760757",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "4318a8e3-0050-43b0-914d-cdfa56760757",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+        "valueOid" : "urn:oid:1.3.6.1.4.1.24310"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "MEDITECH"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "MEDITECH"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "MEDITECH, Inc."
+    }
+  }, {
+    "fullUrl" : "Provenance/48c3847a-6871-4ecf-8c48-a8101962307c",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "48c3847a-6871-4ecf-8c48-a8101962307c",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "occurredDateTime" : "2022-08-03T04:07:05-06:00",
+      "recorded" : "2022-08-03T04:07:05-06:00",
+      "activity" : {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/3850515f-28eb-45d4-bb57-e756440a5c63"
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/716d7773-8995-469c-b3e2-beffda88bca6"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/3850515f-28eb-45d4-bb57-e756440a5c63",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "3850515f-28eb-45d4-bb57-e756440a5c63",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "name" : "North Suburban Medical Center",
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/716d7773-8995-469c-b3e2-beffda88bca6",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "716d7773-8995-469c-b3e2-beffda88bca6",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "deviceName" : [ {
+        "name" : "MEDITECH MIC",
+        "type" : "user-friendly-name"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/158420c4-62da-4c8d-890d-865a81419598",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "158420c4-62da-4c8d-890d-865a81419598",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+        "valueReference" : {
+          "reference" : "Organization/344e6292-e48d-4d53-a951-df9cf81492aa"
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "22:NB:B0016908S.2"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "COVID19",
+              "display" : "Novel Coronavirus 2019"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "41458-1"
+        } ],
+        "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "performer" : [ {
+        "reference" : "PractitionerRole/2d86d63e-cbfd-4184-aa62-957b82920407"
+      } ],
+      "valueCodeableConcept" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "NEGATIVE",
+              "display" : "NEGATIVE"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Negative"
+      },
+      "method" : {
+        "coding" : [ {
+          "system" : "99ELR",
+          "code" : "ID NOW COVID-19_Sen#"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Location/44c10da3-b565-4e8f-8c5d-074404269036",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "44c10da3-b565-4e8f-8c5d-074404269036",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "name" : "N. SUBURBAN MED. CEN"
+    }
+  }, {
+    "fullUrl" : "Practitioner/7ecd0825-0541-4bbd-8840-17fc20bf15dc",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "7ecd0825-0541-4bbd-8840-17fc20bf15dc",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FI"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/44c10da3-b565-4e8f-8c5d-074404269036"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+          "valueString" : "ML"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+            "code" : "MDIR"
+          } ]
+        },
+        "system" : "urn:id:ML",
+        "value" : "*********7"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Dr. A. Ezenekwe",
+        "family" : "Ezenekwe",
+        "given" : [ "A." ],
+        "prefix" : [ "Dr." ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/b2a1be4e-361b-43f2-be65-a7e7db6d1d63",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "b2a1be4e-361b-43f2-be65-a7e7db6d1d63",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0514637"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/2d86d63e-cbfd-4184-aa62-957b82920407",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "2d86d63e-cbfd-4184-aa62-957b82920407",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/7ecd0825-0541-4bbd-8840-17fc20bf15dc"
+      },
+      "organization" : {
+        "reference" : "Organization/b2a1be4e-361b-43f2-be65-a7e7db6d1d63"
+      },
+      "code" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+          "code" : "MDIR"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/344e6292-e48d-4d53-a951-df9cf81492aa",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "344e6292-e48d-4d53-a951-df9cf81492aa",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Observation/e4dfedef-15e0-4a6f-802f-5cfa38f48203",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "e4dfedef-15e0-4a6f-802f-5cfa38f48203",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+        "valueReference" : {
+          "reference" : "Organization/1fcbd761-9e46-4b6d-a949-4e330c4dfe0d"
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "22:NB:B0016908S.3"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLUAPCR",
+              "display" : "INFLUENZA A PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "34487-9"
+        } ],
+        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "performer" : [ {
+        "reference" : "PractitionerRole/32902f99-f39e-4e79-8377-6c7eced08529"
+      } ],
+      "valueCodeableConcept" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "NEGATIVE",
+              "display" : "NEGATIVE"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Negative"
+      }
+    }
+  }, {
+    "fullUrl" : "Location/8f3835f8-18f6-4810-8f1c-eaf96a9b2ed6",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "8f3835f8-18f6-4810-8f1c-eaf96a9b2ed6",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "name" : "N. SUBURBAN MED. CEN"
+    }
+  }, {
+    "fullUrl" : "Practitioner/9391c307-8bac-44e8-91ee-359c6ab80bbe",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "9391c307-8bac-44e8-91ee-359c6ab80bbe",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FI"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/8f3835f8-18f6-4810-8f1c-eaf96a9b2ed6"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+          "valueString" : "ML"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+            "code" : "MDIR"
+          } ]
+        },
+        "system" : "urn:id:ML",
+        "value" : "*********7"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Dr. A. Ezenekwe",
+        "family" : "Ezenekwe",
+        "given" : [ "A." ],
+        "prefix" : [ "Dr." ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/b7dd395c-0dad-4fea-a65b-9acad38df1d1",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "b7dd395c-0dad-4fea-a65b-9acad38df1d1",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0514637"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/32902f99-f39e-4e79-8377-6c7eced08529",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "32902f99-f39e-4e79-8377-6c7eced08529",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/9391c307-8bac-44e8-91ee-359c6ab80bbe"
+      },
+      "organization" : {
+        "reference" : "Organization/b7dd395c-0dad-4fea-a65b-9acad38df1d1"
+      },
+      "code" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+          "code" : "MDIR"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1fcbd761-9e46-4b6d-a949-4e330c4dfe0d",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1fcbd761-9e46-4b6d-a949-4e330c4dfe0d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Observation/b1f7fe7b-0845-49c6-b622-a2f5178fcbd9",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "b1f7fe7b-0845-49c6-b622-a2f5178fcbd9",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+        "valueReference" : {
+          "reference" : "Organization/30d2f4ab-5c17-41dd-8152-51394c4b4bc3"
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "22:NB:B0016908S.4"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLUBPCR",
+              "display" : "INFLUENZA B PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "40982-1"
+        } ],
+        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "performer" : [ {
+        "reference" : "PractitionerRole/a9cecf7a-10a4-41d5-b481-cf4387ab90f0"
+      } ],
+      "valueCodeableConcept" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "NEGATIVE",
+              "display" : "NEGATIVE"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Negative"
+      }
+    }
+  }, {
+    "fullUrl" : "Location/78db10bc-92ee-4a9f-ac3c-b64ce5f52f20",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "78db10bc-92ee-4a9f-ac3c-b64ce5f52f20",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "name" : "N. SUBURBAN MED. CEN"
+    }
+  }, {
+    "fullUrl" : "Practitioner/bc9fade0-2673-4f44-84a9-fdc6ab93e5c3",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "bc9fade0-2673-4f44-84a9-fdc6ab93e5c3",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FI"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/78db10bc-92ee-4a9f-ac3c-b64ce5f52f20"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+          "valueString" : "ML"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+            "code" : "MDIR"
+          } ]
+        },
+        "system" : "urn:id:ML",
+        "value" : "*********7"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Dr. A. Ezenekwe",
+        "family" : "Ezenekwe",
+        "given" : [ "A." ],
+        "prefix" : [ "Dr." ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/ef1fd319-bcb8-4af8-abd3-05432333a951",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "ef1fd319-bcb8-4af8-abd3-05432333a951",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0514637"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/a9cecf7a-10a4-41d5-b481-cf4387ab90f0",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "a9cecf7a-10a4-41d5-b481-cf4387ab90f0",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/bc9fade0-2673-4f44-84a9-fdc6ab93e5c3"
+      },
+      "organization" : {
+        "reference" : "Organization/ef1fd319-bcb8-4af8-abd3-05432333a951"
+      },
+      "code" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
+          "code" : "MDIR"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/30d2f4ab-5c17-41dd-8152-51394c4b4bc3",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "30d2f4ab-5c17-41dd-8152-51394c4b4bc3",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Specimen/7e2797af-5937-4c9e-b3bf-cd042f41112a",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "7e2797af-5937-4c9e-b3bf-cd042f41112a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FGN"
+          } ]
+        },
+        "value" : "M7586249"
+      } ],
+      "type" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
+                "valueString" : "5.67"
+              } ],
+              "system" : "L",
+              "version" : "**********",
+              "code" : "NASAL/NP",
+              "display" : "NASAL/NP SWAB"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Specimen from nasal fossae"
+      },
+      "receivedTime" : "2022-06-21T13:41:00-06:00",
+      "collection" : {
+        "collectedPeriod" : {
+          "start" : "2022-06-21T13:36:00-06:00",
+          "end" : "2022-06-21T13:36:00-06:00"
+        }
+      },
+      "container" : [ {
+        "type" : {
+          "text" : "NASOPHARYNGEAL SWAB"
+        },
+        "specimenQuantity" : {
+          "value" : 0.5
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Specimen/0ad97dfe-210f-4f00-9ed7-111082d1907e",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "0ad97dfe-210f-4f00-9ed7-111082d1907e",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FGN"
+          } ]
+        },
+        "value" : "M7586249"
+      } ],
+      "type" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
+                "valueString" : "5.67"
+              } ],
+              "system" : "L",
+              "version" : "**********",
+              "code" : "NASAL/NP",
+              "display" : "NASAL/NP SWAB"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Specimen from nasal fossae"
+      },
+      "receivedTime" : "2022-06-21T13:41:00-06:00",
+      "collection" : {
+        "collectedPeriod" : {
+          "start" : "2022-06-21T13:36:00-06:00",
+          "end" : "2022-06-21T13:36:00-06:00"
+        }
+      },
+      "container" : [ {
+        "type" : {
+          "text" : "NASAL WASHING"
+        },
+        "specimenQuantity" : {
+          "value" : 1.0
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Specimen/01dea85b-87f7-4bb6-a4b4-389fc1be5d23",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "01dea85b-87f7-4bb6-a4b4-389fc1be5d23",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FGN"
+          } ]
+        },
+        "value" : "M7586249"
+      } ],
+      "type" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
+                "valueString" : "5.67"
+              } ],
+              "system" : "L",
+              "version" : "**********",
+              "code" : "NASAL/NP",
+              "display" : "NASAL/NP SWAB"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://snomed.info/sct",
+          "code" : "*********"
+        } ],
+        "text" : "Specimen from nasal fossae"
+      },
+      "receivedTime" : "2022-06-21T13:41:00-06:00",
+      "collection" : {
+        "collectedPeriod" : {
+          "start" : "2022-06-21T13:36:00-06:00",
+          "end" : "2022-06-21T13:36:00-06:00"
+        }
+      },
+      "container" : [ {
+        "type" : {
+          "text" : "NASAL WASHING"
+        },
+        "specimenQuantity" : {
+          "value" : 1.0
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/c857a0e6-84fa-4381-b29c-7a04ddfbfccc",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "c857a0e6-84fa-4381-b29c-7a04ddfbfccc",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+            "code" : "N"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20220803040705-0600"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.2",
+        "value" : "22:NB:B0016908S.2"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.2",
+        "value" : "05187084"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/f43dc8b2-b038-428e-8aec-816e0f68ec2a"
+      } ],
+      "status" : "final",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "COVID19IHCE",
+              "display" : "Novel Coronavirus 2019 PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "94500-6"
+        } ],
+        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectivePeriod" : {
+        "start" : "2022-06-21T13:36:00-06:00",
+        "end" : "2022-06-21T13:36:00-06:00"
+      },
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/7e2797af-5937-4c9e-b3bf-cd042f41112a"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/158420c4-62da-4c8d-890d-865a81419598"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/a31cc58a-096f-4943-ac6f-d262b30fc1a4",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "a31cc58a-096f-4943-ac6f-d262b30fc1a4",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/ca78b0b4-65ed-4215-ba7b-fe6bbe5107aa",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "ca78b0b4-65ed-4215-ba7b-fe6bbe5107aa",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/a31cc58a-096f-4943-ac6f-d262b30fc1a4"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/5256a3ba-7ac1-47bf-862f-2e03f4ab7d1f",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "5256a3ba-7ac1-47bf-862f-2e03f4ab7d1f",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/bdcc499e-7958-4cde-8a78-fb9bee870e29",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "bdcc499e-7958-4cde-8a78-fb9bee870e29",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/5256a3ba-7ac1-47bf-862f-2e03f4ab7d1f"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "LEUJE"
+      } ],
+      "name" : [ {
+        "text" : "Jediah Leuschke",
+        "family" : "Leuschke",
+        "given" : [ "Jediah" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St Ste 312A" ],
+        "city" : "Greenwood Village",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/5df36dbb-4a24-486c-ae05-f6d0be84b57c",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "5df36dbb-4a24-486c-ae05-f6d0be84b57c",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "N. SUBURBAN MED. CEN"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 999 450 4476"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/cb91698e-09bb-41e4-a0b3-bb6b219bb4da",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "cb91698e-09bb-41e4-a0b3-bb6b219bb4da",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/bdcc499e-7958-4cde-8a78-fb9bee870e29"
+      },
+      "organization" : {
+        "reference" : "Organization/5df36dbb-4a24-486c-ae05-f6d0be84b57c"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/f43dc8b2-b038-428e-8aec-816e0f68ec2a",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "f43dc8b2-b038-428e-8aec-816e0f68ec2a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
+        "valueString" : "05187084"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-1",
+        "valueString" : "22:NB:B0016908Sm7586249"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information",
+        "valueString" : "HEADACHE"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
+        "valueReference" : {
+          "reference" : "Practitioner/ca78b0b4-65ed-4215-ba7b-fe6bbe5107aa"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2",
+        "valueString" : "******************************"
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20220803040705-0600"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.2",
+        "value" : "05187084"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueString" : "urn:id:06D0514637"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.2",
+        "value" : "22:NB:B0016908S.2"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "COVID19IHCE",
+              "display" : "Novel Coronavirus 2019 PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "94500-6"
+        } ],
+        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "occurrenceDateTime" : "2022-06-21T13:36:00Z",
+      "authoredOn" : "2022-08-03T04:07:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/cb91698e-09bb-41e4-a0b3-bb6b219bb4da"
+      }
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/a1d1f1cf-cf53-4a1f-b5c4-2cc8862e9727",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "a1d1f1cf-cf53-4a1f-b5c4-2cc8862e9727",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+            "code" : "N"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20220803040705-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.3",
+        "value" : "22:NB:B0016908S.3"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.3",
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/cb2b1c63-fb3e-45da-bb51-88288ab5d777"
+      } ],
+      "status" : "final",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLAPCR",
+              "display" : "INFLUENZA A VIRUS PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "34487-9"
+        } ],
+        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectivePeriod" : {
+        "start" : "2022-06-21T13:36:00-06:00",
+        "end" : "2022-06-21T13:36:00-06:00"
+      },
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/0ad97dfe-210f-4f00-9ed7-111082d1907e"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/e4dfedef-15e0-4a6f-802f-5cfa38f48203"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/bb51d7aa-1a2f-4266-a1e0-65a1e7b9e3ea",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "bb51d7aa-1a2f-4266-a1e0-65a1e7b9e3ea",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/65d95a0a-3e93-4d7b-b5e0-44e9d7919e03",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "65d95a0a-3e93-4d7b-b5e0-44e9d7919e03",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/bb51d7aa-1a2f-4266-a1e0-65a1e7b9e3ea"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/02fbae5d-f690-4922-80ab-fbf5b22e4e13",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "02fbae5d-f690-4922-80ab-fbf5b22e4e13",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/7e5ecebb-d5ba-44e4-8dab-5d7d04d5f960",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "7e5ecebb-d5ba-44e4-8dab-5d7d04d5f960",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/02fbae5d-f690-4922-80ab-fbf5b22e4e13"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "LEUJE"
+      } ],
+      "name" : [ {
+        "text" : "Jediah Leuschke",
+        "family" : "Leuschke",
+        "given" : [ "Jediah" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St Ste 312A" ],
+        "city" : "Greenwood Village",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/8b81d688-c8cc-4a00-9b67-04f2148fde7b",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "8b81d688-c8cc-4a00-9b67-04f2148fde7b",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "N. SUBURBAN MED. CEN"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 999 450 4476"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/84ba2053-4b5b-48fe-b950-c4a833825d8c",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "84ba2053-4b5b-48fe-b950-c4a833825d8c",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/7e5ecebb-d5ba-44e4-8dab-5d7d04d5f960"
+      },
+      "organization" : {
+        "reference" : "Organization/8b81d688-c8cc-4a00-9b67-04f2148fde7b"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/cb2b1c63-fb3e-45da-bb51-88288ab5d777",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "cb2b1c63-fb3e-45da-bb51-88288ab5d777",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
+        "valueString" : "05187084"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-1",
+        "valueString" : "22:NB:B0016908Sm7586249"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information",
+        "valueString" : "HEADACHE"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
+        "valueReference" : {
+          "reference" : "Practitioner/65d95a0a-3e93-4d7b-b5e0-44e9d7919e03"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2",
+        "valueString" : "******************************"
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20220803040705-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.3",
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.3",
+        "value" : "22:NB:B0016908S.3"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLAPCR",
+              "display" : "INFLUENZA A VIRUS PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "34487-9"
+        } ],
+        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "occurrenceDateTime" : "2022-06-21T13:36:00Z",
+      "authoredOn" : "2022-08-03T04:07:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/84ba2053-4b5b-48fe-b950-c4a833825d8c"
+      }
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/cef3d998-5449-4cb0-b05e-c9a21528dd08",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "cef3d998-5449-4cb0-b05e-c9a21528dd08",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+            "code" : "N"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20220803040705-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.4",
+        "value" : "22:NB:B0016908S.4"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.4",
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/d7458d01-57cf-4f5a-af7f-9908ee35c22f"
+      } ],
+      "status" : "final",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLBPCR",
+              "display" : "INFLUENZA B VIRUS PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "40982-1"
+        } ],
+        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "encounter" : {
+        "reference" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6"
+      },
+      "effectivePeriod" : {
+        "start" : "2022-06-21T13:36:00-06:00",
+        "end" : "2022-06-21T13:36:00-06:00"
+      },
+      "issued" : "2022-08-03T04:06:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/01dea85b-87f7-4bb6-a4b4-389fc1be5d23"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/b1f7fe7b-0845-49c6-b622-a2f5178fcbd9"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/15277fa5-caeb-4683-957f-9b85adfe12e9",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "15277fa5-caeb-4683-957f-9b85adfe12e9",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/e20c36d6-e622-4480-8903-eb57a9e29278",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "e20c36d6-e622-4480-8903-eb57a9e29278",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/15277fa5-caeb-4683-957f-9b85adfe12e9"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/981265f8-e002-40d2-9bbb-22741f49af17",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "981265f8-e002-40d2-9bbb-22741f49af17",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/7b6db1ab-7024-453d-888b-6bb9f3c1d8b8",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "7b6db1ab-7024-453d-888b-6bb9f3c1d8b8",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/981265f8-e002-40d2-9bbb-22741f49af17"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "LEUJE"
+      } ],
+      "name" : [ {
+        "text" : "Jediah Leuschke",
+        "family" : "Leuschke",
+        "given" : [ "Jediah" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St Ste 312A" ],
+        "city" : "Greenwood Village",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "***"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/42d59951-5578-4349-bfd6-215604539e78",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "42d59951-5578-4349-bfd6-215604539e78",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "N. SUBURBAN MED. CEN"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "******************************",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "9191 GRANT STREET", "LABORATORY" ],
+        "city" : "THORNTON",
+        "district" : "PA",
+        "state" : "CO",
+        "postalCode" : "80229",
+        "country" : "***"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 999 450 4476"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/3e7781ea-4ec1-4fac-886d-45f282301e39",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "3e7781ea-4ec1-4fac-886d-45f282301e39",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/7b6db1ab-7024-453d-888b-6bb9f3c1d8b8"
+      },
+      "organization" : {
+        "reference" : "Organization/42d59951-5578-4349-bfd6-215604539e78"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/d7458d01-57cf-4f5a-af7f-9908ee35c22f",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "d7458d01-57cf-4f5a-af7f-9908ee35c22f",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
+        "valueString" : "05187084"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-1",
+        "valueString" : "22:NB:B0016908Sm7586249"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information",
+        "valueString" : "HEADACHE"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
+        "valueReference" : {
+          "reference" : "Practitioner/e20c36d6-e622-4480-8903-eb57a9e29278"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "N. SUBURBAN MED. CEN"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
+            "code" : "F"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2",
+        "valueString" : "******************************"
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20220803040705-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M7586249",
+        "value" : "22:NB:B0016908S"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.4",
+        "value" : "05187084"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M7586249.4",
+        "value" : "22:NB:B0016908S.4"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "L",
+              "code" : "INFLBPCR",
+              "display" : "INFLUENZA B VIRUS PCR"
+            } ]
+          }
+        } ],
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "40982-1"
+        } ],
+        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+      },
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "occurrenceDateTime" : "2022-06-21T13:36:00Z",
+      "authoredOn" : "2022-08-03T04:07:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/3e7781ea-4ec1-4fac-886d-45f282301e39"
+      }
+    }
+  }, {
+    "fullUrl" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation",
+            "code" : "1041",
+            "display" : "Roman Catholic Church"
+          } ]
+        }
+      }, {
+        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "L",
+            "code" : "W"
+          } ],
+          "text" : "White"
+        }
+      }, {
+        "url" : "http://terminology.hl7.org/ValueSet/v2-0189",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "code" : "1"
+          } ]
+        }
+      }, {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
+        "valueCodeableConcept" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+            "valueCodeableConcept" : {
+              "coding" : [ {
+                "system" : "L",
+                "code" : "Human",
+                "display" : "Human"
+              } ]
+            }
+          } ],
+          "coding" : [ {
+            "system" : "http://snomed.info/sct",
+            "version" : "L",
+            "code" : "337915000"
+          } ],
+          "text" : "Homo sapiens (organism)"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCNB"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "MR",
+            "display" : "Medical record number"
+          } ]
+        },
+        "value" : "A0995844505"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCNB"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "SS",
+            "display" : "Social Security number"
+          } ]
+        },
+        "value" : "A09958445050"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCNB"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PI",
+            "display" : "Patient internal identifier"
+          } ]
+        },
+        "value" : "A09958445051"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCNB"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "AN",
+            "display" : "Account number"
+          } ]
+        },
+        "value" : "A09958445052"
+      } ],
+      "name" : [ {
+        "text" : "Bernese L Willms",
+        "family" : "Willms",
+        "given" : [ "Bernese", "L" ]
+      } ],
+      "telecom" : [ {
+        "system" : "phone",
+        "value" : "679-112-5593",
+        "use" : "home"
+      }, {
+        "system" : "phone",
+        "value" : "872-777-4334",
+        "use" : "work"
+      } ],
+      "gender" : "female",
+      "birthDate" : "1966-04-21",
+      "deceasedBoolean" : false,
+      "address" : [ {
+        "line" : [ "0 Witting Circles", "Suite 579" ],
+        "city" : "Dove Creek",
+        "state" : "CO",
+        "postalCode" : "81324"
+      } ],
+      "maritalStatus" : {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+          "code" : "S",
+          "display" : "Never Married"
+        } ]
+      },
+      "contact" : [ {
+        "relationship" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
+            "valueCodeableConcept" : {
+              "coding" : [ {
+                "system" : "L",
+                "code" : "SO",
+                "display" : "SON"
+              } ]
+            }
+          } ],
+          "coding" : [ {
+            "system" : "UNKNOWN",
+            "version" : "L",
+            "code" : "SO"
+          } ],
+          "text" : "SON"
+        } ],
+        "name" : {
+          "text" : "Kin Connelly",
+          "family" : "Connelly",
+          "given" : [ "Kin" ]
+        },
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "774-316-6251"
+        } ],
+        "address" : {
+          "line" : [ "4 Precious Pines", "Apt. 613" ],
+          "city" : "Warren",
+          "state" : "AR",
+          "postalCode" : "71671"
+        },
+        "organization" : {
+          "reference" : "Organization/9ea943e5-ac04-416b-9a75-b93c8ccb1803"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/9ea943e5-ac04-416b-9a75-b93c8ccb1803",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "9ea943e5-ac04-416b-9a75-b93c8ccb1803",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCNB"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2022-07-08T11:02:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "Encounter/8b648bca-ab9d-4d4e-a374-be0036f15bf6",
+    "resource" : {
+      "resourceType" : "Encounter",
+      "id" : "8b648bca-ab9d-4d4e-a374-be0036f15bf6",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/account-status",
+        "valueString" : "DE"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/servicing-facility",
+        "valueString" : "COCNB"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/financial-class",
+        "valueString" : "03"
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20220803040705-0600"
+      } ],
+      "status" : "unknown",
+      "class" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+        "code" : "EMER",
+        "display" : "emergency"
+      },
+      "type" : [ {
+        "coding" : [ {
+          "code" : "EM"
+        } ]
+      } ],
+      "subject" : {
+        "reference" : "Patient/1e5ddd5e-2697-42b6-ae1c-1c19ea260a4e"
+      },
+      "participant" : [ {
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+            "code" : "REF",
+            "display" : "referrer"
+          } ]
+        } ],
+        "individual" : {
+          "reference" : "Practitioner/d9bb875b-43c1-4393-882a-91c211708369"
+        }
+      }, {
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+            "code" : "CON",
+            "display" : "consultant"
+          } ]
+        } ],
+        "individual" : {
+          "reference" : "Practitioner/3ef4c183-e6b4-4d6e-935d-763573ed4ec1"
+        }
+      }, {
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+            "code" : "ATND",
+            "display" : "attender"
+          } ]
+        } ],
+        "individual" : {
+          "reference" : "Practitioner/9af2098e-f81a-4b90-9a41-67fcaf354c35"
+        }
+      } ],
+      "hospitalization" : {
+        "admitSource" : {
+          "coding" : [ {
+            "code" : "PR"
+          } ]
+        }
+      },
+      "location" : [ {
+        "location" : {
+          "reference" : "Location/d4fdc574-3915-44ba-b83f-71afb8937467"
+        },
+        "status" : "active"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/b43fed83-552c-4a45-a065-7fcd211ed144",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "b43fed83-552c-4a45-a065-7fcd211ed144",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/d9bb875b-43c1-4393-882a-91c211708369",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "d9bb875b-43c1-4393-882a-91c211708369",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/b43fed83-552c-4a45-a065-7fcd211ed144"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "BECLE"
+      } ],
+      "name" : [ {
+        "text" : "Lesmer F Becker",
+        "family" : "Becker",
+        "given" : [ "Lesmer", "F" ],
+        "suffix" : [ "MD" ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/1cc15ce0-776d-4d19-8bf6-0d959dd094ea",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "1cc15ce0-776d-4d19-8bf6-0d959dd094ea",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/3ef4c183-e6b4-4d6e-935d-763573ed4ec1",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "3ef4c183-e6b4-4d6e-935d-763573ed4ec1",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/1cc15ce0-776d-4d19-8bf6-0d959dd094ea"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "BECLE"
+      } ],
+      "name" : [ {
+        "text" : "Lesmer F Becker",
+        "family" : "Becker",
+        "given" : [ "Lesmer", "F" ],
+        "suffix" : [ "MD" ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/920daf18-c2c8-41ba-b853-5fb0be4a1fe3",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "920daf18-c2c8-41ba-b853-5fb0be4a1fe3",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/9af2098e-f81a-4b90-9a41-67fcaf354c35",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "9af2098e-f81a-4b90-9a41-67fcaf354c35",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/920daf18-c2c8-41ba-b853-5fb0be4a1fe3"
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "MCLSH"
+      } ],
+      "name" : [ {
+        "text" : "Shaunderrios T McLaughlin",
+        "family" : "McLaughlin",
+        "given" : [ "Shaunderrios", "T" ],
+        "suffix" : [ "MD" ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/d4fdc574-3915-44ba-b83f-71afb8937467",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "d4fdc574-3915-44ba-b83f-71afb8937467",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCNB_ORU_NBPHELR.1.5348467"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/location-point-of-care",
+        "valueString" : "F.ER"
+      } ],
+      "mode" : "instance"
+    }
+  } ]
+}

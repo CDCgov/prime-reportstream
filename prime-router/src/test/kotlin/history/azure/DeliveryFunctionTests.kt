@@ -169,7 +169,7 @@ class DeliveryFunctionTests : Logging {
                 "simple success"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fads", "authentication-type" to "okta"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -358,7 +358,6 @@ class DeliveryFunctionTests : Logging {
         val httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.httpHeaders += mapOf(
             "authorization" to "Bearer 111.222.333",
-            "authentication-type" to "okta"
         )
         return httpRequestMessage
     }

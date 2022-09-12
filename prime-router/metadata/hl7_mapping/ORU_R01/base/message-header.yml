@@ -1,17 +1,17 @@
 name: ORU-R01-message-header
 elements:
   - name: sending-application-namespace-id
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
-    value: [ '%resource.extension(%`rsext-assigning-authority-namespace-id`).value' ]
+    # Original value is in %resource.extension(%`rsext-assigning-authority-namespace-id`).value
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id
-    condition: '%resource.extension(%`source-identifier-system`).value is Oid'
-    value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.toString().replace(''urn:oid:'','''')' ]
+    # Original value is in %resource.source.extension(%`rsext-source-identifier-system`).value
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ MSH-3-2 ]
 
   - name: sending-application-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.getIdType()' ]
     hl7Spec: [ MSH-3-3 ]
 
   - name: sending-facility_namespace-id
@@ -19,12 +19,11 @@ elements:
     hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
-    condition: '%resource.sender.resolve().identifier.value is Oid'
-    value: [ '%resource.sender.resolve().identifier.value.toString().replace(''urn:oid:'','''')' ]
+    value: [ '%resource.sender.resolve().identifier[0].value.getId()' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '%resource.sender.resolve().identifier[0].value.getIdType()' ]
     hl7Spec: [ MSH-4-3 ]
 
   - name: receiving-application-namespace-id
@@ -32,12 +31,11 @@ elements:
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    condition: '%resource.extension(%`rsext-receiving-application-identifier`).value is Oid'
-    value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.toString().replace(''urn:oid:'','''')' ]
+    value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.getId()' ]
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.getIdType()' ]
     hl7Spec: [ MSH-5-3]
 
   - name: receiving-facility-namespace-id
@@ -45,16 +43,15 @@ elements:
     hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
-    condition: '%resource.extension(%`rsext-receiving-facility-identifier`).value is Oid'
-    value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.toString().replace(''urn:oid:'','''')' ]
+    value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.getId()' ]
     hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.getIdType()' ]
     hl7Spec: [ MSH-6-3 ]
 
   - name: message-date-time
-    value: [ 'Bundle.timestamp' ]
+    value: [ 'Bundle.entry.resource.ofType(Provenance).recorded' ]
     required: true
     hl7Spec: [ MSH-7 ]
 
