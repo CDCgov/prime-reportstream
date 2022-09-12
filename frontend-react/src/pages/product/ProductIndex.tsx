@@ -17,6 +17,7 @@ const rootProps: IATemplateProps<IASideNavProps> = {
     templateKey: TemplateName.SIDE_NAV,
     templateProps: {
         directories: productDirectories,
+        rootRedirect: "/product/overview",
     },
 };
 export const Product = () => <IATemplate {...rootProps} />;

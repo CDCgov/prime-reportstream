@@ -15,7 +15,7 @@ const testDirectories = [
 
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
-    useRouteMatch: () => ({ path: "/test" }),
+    Navigate: () => <></>,
 }));
 
 describe("StaticPageFromDirectories", () => {

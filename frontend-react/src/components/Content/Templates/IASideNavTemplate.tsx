@@ -6,9 +6,10 @@ import GeneratedSideNav from "./GeneratedSideNav";
 
 export interface IASideNavProps {
     directories: ContentDirectory[];
+    rootRedirect?: string;
 }
 
-const IASideNavTemplate = ({ directories }: IASideNavProps) => {
+const IASideNavTemplate = ({ directories, rootRedirect }: IASideNavProps) => {
     return (
         <section className="grid-container tablet:margin-top-6 margin-bottom-5">
             <div className="grid-row grid-gap">
@@ -20,7 +21,7 @@ const IASideNavTemplate = ({ directories }: IASideNavProps) => {
                         <Route
                             path={"/"}
                             element={
-                                <Navigate to={"/product/overview"} replace />
+                                <Navigate to={rootRedirect || ""} replace />
                             }
                         />
                         {directories.map((dir, idx) => (
