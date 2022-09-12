@@ -8,7 +8,6 @@ import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
-    onAuthRequired: () => void;
     restoreOriginalUri: (_oktaAuth: any, originalUri: string) => void;
     oktaHook: OktaHook;
 }
@@ -18,16 +17,11 @@ const queryClient = new QueryClient();
 export const AppWrapper = ({
     children,
     oktaAuth,
-    onAuthRequired,
     restoreOriginalUri,
     oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
     return (
-        <Security
-            oktaAuth={oktaAuth}
-            onAuthRequired={onAuthRequired}
-            restoreOriginalUri={restoreOriginalUri}
-        >
+        <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
             <SessionProvider oktaHook={oktaHook}>
                 <QueryClientProvider client={queryClient}>
                     <AuthorizedFetchProvider>

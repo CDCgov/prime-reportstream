@@ -25,9 +25,6 @@ const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
     const navigate = useNavigate();
-    const customAuthHandler = (): void => {
-        navigate("/login");
-    };
     const handleIdle = (): void => {
         logout(OKTA_AUTH);
     };
@@ -73,7 +70,6 @@ const App = () => {
     return (
         <AppWrapper
             oktaAuth={OKTA_AUTH}
-            onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
             oktaHook={useOktaAuth}
         >
