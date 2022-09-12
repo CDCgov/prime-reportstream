@@ -194,3 +194,6 @@
 # Sub ID
 - id: "sub-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id"
+# Comparator
+- id: "comparator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator"

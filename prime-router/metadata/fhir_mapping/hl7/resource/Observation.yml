@@ -161,26 +161,17 @@ valueTime:
     obx2: STRING, OBX.2
 
 valueRatio_1:
-  condition: $obx2 EQUALS SN && $separator NOT_NULL && $separator EQUALS ':'
+  condition: $obx2 EQUALS SN
   valueOf: datatype/Ratio
   expressionType: resource
-  specs: OBX.5
+  specs: OBX.6
   vars:
-    numerator: SN.2
-    denominator: SN.4
+    comparator: STRING, OBX.5.1
+    numerator: OBX.5.2
+    separator: OBX.5.3
+    denominator: OBX.5.4
     obx2: STRING, OBX.2
-    separator: STRING, SN.3
-
-valueRatio_2:
-  condition: $obx2 EQUALS SN && $separator NOT_NULL && $separator EQUALS '/'
-  valueOf: datatype/Ratio
-  expressionType: resource
-  specs: OBX.5
-  vars:
-    numerator: SN.2
-    denominator: SN.4
-    obx2: STRING, OBX.2
-    separator: STRING, SN.3
+    units: OBX.6
 
 interpretation:
   valueOf: datatype/CodeableConcept
