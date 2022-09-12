@@ -45,6 +45,7 @@ period:
        start: $start
        end: $end
 
+# For OIDs
 extension_1:
   generateList: true
   valueOf: extension/Extension
@@ -53,8 +54,23 @@ extension_1:
   vars:
     idStr: String, $universalId
     value: $oidUrlPrefix + $universalId
-    systemStr: String, $universalIdSystem
+    systemStr: String, $universalIdType
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
+
+# For all other ID types
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+  vars:
+    idStr: String, $universalId
+    value: $idUrlPrefix + $universalId
+    systemStr: String, $universalIdType
+  constants:
+    idUrlPrefix: "urn:id:"
+    KEY_NAME_SUFFIX: String
     urlValue: universal-id
