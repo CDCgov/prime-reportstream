@@ -1,0 +1,37 @@
+name: ORU-R01-note
+elements:
+  - name: note-id
+    value: [ '%noteIndex + 1' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-1' ]
+
+  - name: note-source
+    value: [ '''L''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
+
+  - name: note-comment
+    value: [ '%resource' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-3' ]
+
+  - name: note-comment-type-identifier
+    value: [ '''RE''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-1' ]
+
+  - name: note-comment-type-text
+    value: [ '''Remark''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-2' ]
+
+  - name: note-comment-type-coding-system
+    value: [ '''HL70364''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-3' ]
+
+  - name: note-comment-type-alt-identifier
+    value: [ '''C''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-4' ]
+
+  - name: note-comment-type-alt-text
+    value: [ '''Comment''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-5' ]
+
+  - name: note-comment-type-alt-coding-system
+    value: [ '''L''' ]
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-6' ]
