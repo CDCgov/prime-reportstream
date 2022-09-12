@@ -346,8 +346,11 @@ elements:
 
   - name: ordering_provider_country
     type: TEXT
-    pii: false
+    natFlatFileField: Ordering_provider_country
+    hhsGuidanceField:
+    hl7Field: ORC-24-6
     default: USA
+    documentation: The country of the provider
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
@@ -1211,6 +1214,9 @@ elements:
 
   - name: testing_lab_country
     type: TEXT
+    natFlatFileField: Testing_lab_country
+    hhsGuidanceField:
+    hl7Field: OBX-24-6
     default: USA
     documentation: The country for the testing lab. Currently defaults to USA
 

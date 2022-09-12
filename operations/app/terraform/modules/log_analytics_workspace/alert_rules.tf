@@ -14,6 +14,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
       // 2022-03-31: Exclude co-phd.elr-test -- this is a known error per Rick Hood
       FunctionAppLogs
       | where Message contains 'FATAL-ALERT' and not(Message contains 'co-phd.elr-test')
+      and not(Message contains 'IGNORE--')
   EOT
   throttling     = 120
   severity       = 2
