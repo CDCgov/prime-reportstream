@@ -5,6 +5,8 @@ on:
     branches:
       - master
       - production
+    paths:
+      - '**.tf'
 
 jobs:
   pre_job:
@@ -54,6 +56,7 @@ jobs:
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
           terraform-version: 1.2.0
+          add-args: "-refresh=false"
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
