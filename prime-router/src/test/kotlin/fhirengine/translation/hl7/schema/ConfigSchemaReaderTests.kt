@@ -130,4 +130,32 @@ class ConfigSchemaReaderTests {
             )
         }.isFailure()
     }
+
+    @Test
+    fun `test read extended schema from file`() {
+        // This is a good schema
+        val schema = ConfigSchemaReader.readSchemaTreeFromFile(
+            "ORU_R01-extended",
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+        )
+
+        assertThat(schema.errors).isEmpty()
+        assertThat(schema.name).isEqualTo("ORU-R01-extended")
+        assertThat(schema.hl7Type).isEqualTo("ORU_R01")
+        assertThat(schema.hl7Version).isEqualTo("2.7")
+        assertThat(schema.elements).isNotEmpty()
+
+        val patientLastNameElement = schema.findElement("patient-last-name")
+        assertThat(patientLastNameElement).isNotNull()
+        assertThat(patientLastNameElement!!.condition).isEqualTo("true")
+        assertThat(patientLastNameElement.value).isNotEmpty()
+        assertThat(patientLastNameElement.value[0]).isEqualTo("DUMMY")
+
+        val orderElement = schema.findElement("order-observations")
+        assertThat(orderElement).isNotNull()
+        assertThat(orderElement!!.condition).isEqualTo("false")
+
+        val newElement = schema.findElement("new-element")
+        assertThat(newElement).isNotNull()
+    }
 }
