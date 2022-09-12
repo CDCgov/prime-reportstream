@@ -48,3 +48,15 @@ variable "nat_gateway_id" {
   type        = string
   description = "NAT gateway resource id"
 }
+
+variable "sshnames" {
+  description = "SSH Names"
+}
+
+variable "sshinstances" {
+  description = "SSH Instances"
+}
+
+variable "sftp_dir" {
+  description = "SFTP Script Directory"
+}
