@@ -6,8 +6,8 @@ import React, {
     useMemo,
 } from "react";
 import { Helmet } from "react-helmet";
+import { useParams } from "react-router-dom";
 
-import { useValidParams } from "../../../hooks/UseValidParams";
 import Table, {
     ColumnConfig,
     DatasetAction,
@@ -224,9 +224,7 @@ export const ValueSetsDetailTable = ({
 };
 
 const ValueSetsDetail = () => {
-    const { valueSetName } = useValidParams<{ valueSetName: string }>([
-        "valueSetName",
-    ]);
+    const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
@@ -237,7 +235,7 @@ const ValueSetsDetail = () => {
             </Helmet>
             <section className="grid-container">
                 {/* valueSetsDetailHeader would go here */}
-                <h1>{toHumanReadable(valueSetName)}</h1>
+                <h1>{toHumanReadable(valueSetName || "")}</h1>
                 {alert && (
                     <StaticAlert
                         type={alert.type}
@@ -246,7 +244,7 @@ const ValueSetsDetail = () => {
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName}
+                    valueSetName={valueSetName || ""}
                     setAlert={setAlert}
                 />
             </section>

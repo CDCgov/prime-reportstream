@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -20,7 +20,6 @@ import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { useValidParams } from "../../hooks/UseValidParams";
 
 import {
     DropdownComponent,
@@ -261,11 +260,7 @@ export type EditSenderSettingsProps = {
 
 export function EditSenderSettings() {
     const { orgname, sendername, action } =
-        useValidParams<EditSenderSettingsProps>([
-            "orgname",
-            "sendername",
-            "action",
-        ]);
+        useParams<EditSenderSettingsProps>();
 
     return (
         <AdminFormWrapper
@@ -277,9 +272,9 @@ export function EditSenderSettings() {
             }
         >
             <EditSenderSettingsForm
-                orgname={orgname}
-                sendername={sendername}
-                action={action}
+                orgname={orgname || ""}
+                sendername={sendername || ""}
+                action={action || ""}
             />
         </AdminFormWrapper>
     );

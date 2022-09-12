@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
@@ -25,7 +25,6 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { useValidParams } from "../../hooks/UseValidParams";
 
 import {
     ConfirmSaveSettingModal,
@@ -354,11 +353,7 @@ type EditReceiverSettingsProps = {
 
 export function EditReceiverSettings() {
     const { orgname, receivername, action } =
-        useValidParams<EditReceiverSettingsProps>([
-            "orgname",
-            "receivername",
-            "action",
-        ]);
+        useParams<EditReceiverSettingsProps>();
 
     return (
         <AdminFormWrapper
@@ -370,9 +365,9 @@ export function EditReceiverSettings() {
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname}
-                receivername={receivername}
-                action={action}
+                orgname={orgname || ""}
+                receivername={receivername || ""}
+                action={action || ""}
             />
         </AdminFormWrapper>
     );
