@@ -67,6 +67,8 @@ export const getDirectoryElement = (dir: ContentDirectory) => {
     } else if (dir instanceof ElementDirectory) {
         return dir.element();
     } else {
-        console.error("Given directory is not a valid content directory");
+        const message = `${dir.title} is not a valid content directory type.`;
+        console.error(message);
+        throw Error(message);
     }
 };
