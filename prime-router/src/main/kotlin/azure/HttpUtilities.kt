@@ -210,7 +210,7 @@ class HttpUtilities {
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
          */
-        fun payloadSizeCheck(request: HttpRequestMessage<String?>) {
+        fun payloadSizeCheck(request: HttpRequestMessage<String?>, maxPayloadSize: Long = PAYLOAD_MAX_BYTES) {
             val contentLengthStr = request.headers["content-length"]
                 ?: throw HttpException(
                     "ERROR: No content-length header found.  Refusing this request.", HttpStatus.LENGTH_REQUIRED
@@ -224,9 +224,9 @@ class HttpUtilities {
                 contentLength < 0 -> {
                     throw HttpException("ERROR: negative content-length $contentLength", HttpStatus.LENGTH_REQUIRED)
                 }
-                contentLength > PAYLOAD_MAX_BYTES -> {
+                contentLength > maxPayloadSize -> {
                     throw HttpException(
-                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES",
+                        "ERROR: content-length $contentLength is larger than max $maxPayloadSize",
                         HttpStatus.PAYLOAD_TOO_LARGE
                     )
                 }

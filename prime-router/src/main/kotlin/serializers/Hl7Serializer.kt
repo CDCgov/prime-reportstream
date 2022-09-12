@@ -397,12 +397,16 @@ class Hl7Serializer(
         val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
 
+        // Generate the action log
+        val actionLogs = ActionLogger()
+
+        // throw an error if the max items limit is exceeded
+        SerializerValidation.throwMaxItemsError(mappedRows.size, actionLogs)
+
         mapping.mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
 
-        // Generate the action log
-        val actionLogs = ActionLogger()
         mapping.items.forEachIndexed { index, messageResult ->
             val messageIndex = index + 1
             var trackingId = if (schema.trackingElement != null && messageResult.item.contains(schema.trackingElement))

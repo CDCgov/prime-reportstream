@@ -146,19 +146,16 @@ class ValidateFunctionTests {
     }
 
     @Test
-    fun `test validate endpoint with server2server auth - claim does not match`() {
+    fun `test validate endpoint with no auth`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("scope" to "bogus_org.default.report", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
         )
         // Invoke the waters function run
         reportFunc.run(req)
-        // processFunction should never be called
-        verify(exactly = 0) { reportFunc.processRequest(any(), any()) }
+        // processFunction should be called
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
     }
 
     /**

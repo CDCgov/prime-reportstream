@@ -6,6 +6,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
@@ -59,9 +60,9 @@ abstract class RequestFunction(
      * Take the request and parse it into a [ValidatedRequest] object with some
      * sensible default values
      */
-    internal fun validateRequest(request: HttpRequestMessage<String?>): ValidatedRequest {
+    internal fun validateRequest(request: HttpRequestMessage<String?>, maxPayloadSize: Long = PAYLOAD_MAX_BYTES): ValidatedRequest {
         val actionLogs = ActionLogger()
-        HttpUtilities.payloadSizeCheck(request)
+        HttpUtilities.payloadSizeCheck(request, maxPayloadSize)
 
         val topic = request.queryParameters.getOrDefault(TOPIC_PARAMETER, "covid-19")
 

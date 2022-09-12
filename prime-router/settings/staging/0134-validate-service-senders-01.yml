@@ -1,0 +1,21 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0134-validate-service-sender-01
+# NOTE: Updated from UI
+---
+- name: "validation-service-senders"
+  description: "The validation service CSV and HL7 senders"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "csv"
+      organizationName: "validation-service-senders"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      processingType: "sync"
+    - name: "hl7"
+      organizationName: "validation-service-senders"
+      format: "HL7"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      processingType: "sync"

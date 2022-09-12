@@ -11,8 +11,6 @@ import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.REPORT_MAX_ITEMS
-import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -70,24 +68,12 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             try {
                 readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
                     rows.add(row)
-                    if (rows.size > REPORT_MAX_ITEMS) {
-                        actionLogs.error(
-                            InvalidReportMessage(
-                                "Your file's row size of ${rows.size} exceeds the maximum of " +
-                                    "$REPORT_MAX_ITEMS rows per file. Reduce the amount of rows in this file."
-                            )
-                        )
-                        throw actionLogs.exception
-                    }
-                    if (row.size > REPORT_MAX_ITEM_COLUMNS) {
-                        actionLogs.error(
-                            InvalidReportMessage(
-                                "Number of columns in your report exceeds the maximum of " +
-                                    "$REPORT_MAX_ITEM_COLUMNS allowed. Adjust the excess columnar data in your report."
-                            )
-                        )
-                        throw actionLogs.exception
-                    }
+
+                    // throw an error if the max items limit is exceeded
+                    SerializerValidation.throwMaxItemsError(rows.size, actionLogs)
+
+                    // throw an error if the max columns limit is exceeded
+                    SerializerValidation.throwMaxItemColumnsError(row.size, actionLogs)
                 }
             } catch (ex: CSVFieldNumDifferentException) {
                 actionLogs.error(

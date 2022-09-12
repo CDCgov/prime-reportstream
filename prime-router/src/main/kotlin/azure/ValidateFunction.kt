@@ -21,9 +21,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 
@@ -54,16 +51,11 @@ class ValidateFunction(
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
         return try {
-            val claims = AuthenticatedClaims.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Sender should eventually be obtained directly from who is authenticated
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-            if (!claims.authorizedForSendOrReceive(sender, request)) {
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
             actionHistory.trackActionParams(request)
 
             processRequest(request, sender)
@@ -94,7 +86,10 @@ class ValidateFunction(
             try {
                 val options = Options.valueOfOrNone(optionsText)
                 val payloadName = extractPayloadName(request)
+
+                // TODO: We can now send in a payload size for this request if we want
                 val validatedRequest = validateRequest(request)
+
                 val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
