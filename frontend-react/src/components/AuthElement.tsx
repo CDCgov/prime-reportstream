@@ -43,13 +43,7 @@ export const AuthElement = ({
             return;
         } // Not authorized as current member type
         if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag)) {
-            if (activeMembership.memberType === MemberType.PRIME_ADMIN) {
-                navigate("/admin/features");
-                return;
-            } else {
-                navigate("/");
-                return;
-            }
+            navigate("/");
         } // Does not have feature flag enabled
     }, [
         activeMembership,
