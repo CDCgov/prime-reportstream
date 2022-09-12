@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
@@ -26,7 +26,7 @@ export const AuthElement = ({
         [activeMembership]
     );
     // Dynamically authorize user from single or multiple allowed user types
-    const authorizeMemberType = useCallback(() => {
+    const authorizeMemberType = useMemo(() => {
         if (memberType === MemberType.PRIME_ADMIN) return true; // Admin authentication always
         return requiredUserType instanceof Array
             ? requiredUserType.includes(memberType)
@@ -38,7 +38,7 @@ export const AuthElement = ({
             navigate("/login");
             return;
         } // Not logged in, needs to log in.
-        if (requiredUserType && !authorizeMemberType()) {
+        if (requiredUserType && !authorizeMemberType) {
             navigate("/");
             return;
         } // Not authorized as current member type
