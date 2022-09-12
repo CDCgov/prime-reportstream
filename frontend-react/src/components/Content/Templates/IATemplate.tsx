@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useMemo } from "react";
 
 import { IACardGridTemplate } from "./IACardGridTemplate";
 import IASideNavTemplate from "./IASideNavTemplate";
@@ -28,8 +28,8 @@ export const IATemplate = ({
     templateProps,
     includeRouter,
 }: IATemplateProps<any>) => {
-    const template = useCallback((key: TemplateName) => {
-        switch (key) {
+    const template = useMemo(() => {
+        switch (templateKey) {
             case TemplateName.CARD_GRID:
                 return <IACardGridTemplate {...templateProps} />;
             case TemplateName.SIDE_NAV:
@@ -50,13 +50,13 @@ export const IATemplate = ({
              index of this section */}
             {includeRouter && templateProps.directories ? (
                 <IARouter
-                    indexElement={template(templateKey)}
+                    indexElement={template}
                     directories={templateProps.directories}
                 />
             ) : (
                 /* When your template has its own routing, we just render the
                  * template */
-                template(templateKey)
+                template
             )}
         </>
     );
