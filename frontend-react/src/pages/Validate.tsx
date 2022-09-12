@@ -30,7 +30,7 @@ export default Validate;
 
 export const ValidateWithAuth = () => (
     <AuthElement
-        element={Validate}
+        element={<Validate />}
         requiredUserType={MemberType.PRIME_ADMIN}
         requiredFeatureFlag={FeatureFlagName.VALIDATION_SERVICE}
     />

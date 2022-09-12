@@ -59,5 +59,5 @@ export const Upload = () => {
 };
 
 export const UploadWithAuth = () => (
-    <AuthElement element={Upload} requiredUserType={MemberType.SENDER} />
+    <AuthElement element={<Upload />} requiredUserType={MemberType.SENDER} />
 );

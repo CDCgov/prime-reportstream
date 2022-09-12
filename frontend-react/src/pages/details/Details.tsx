@@ -62,5 +62,5 @@ export const Details = () => {
 };
 
 export const DetailsWithAuth = () => (
-    <AuthElement element={Details} requiredUserType={MemberType.RECEIVER} />
+    <AuthElement element={<Details />} requiredUserType={MemberType.RECEIVER} />
 );

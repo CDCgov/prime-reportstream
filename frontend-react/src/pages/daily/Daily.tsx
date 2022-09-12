@@ -37,5 +37,5 @@ function Daily() {
 }
 
 export const DailyWithAuth = () => (
-    <AuthElement element={Daily} requiredUserType={MemberType.RECEIVER} />
+    <AuthElement element={<Daily />} requiredUserType={MemberType.RECEIVER} />
 );

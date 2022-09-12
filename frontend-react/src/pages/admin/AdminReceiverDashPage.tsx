@@ -22,7 +22,7 @@ export function AdminReceiverDashPage() {
 export function AdminReceiverDashWithAuth() {
     return (
         <AuthElement
-            element={AdminReceiverDashPage}
+            element={<AdminReceiverDashPage />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

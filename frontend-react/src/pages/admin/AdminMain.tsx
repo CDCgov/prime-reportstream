@@ -38,7 +38,7 @@ export function AdminMain() {
 export function AdminMainWithAuth() {
     return (
         <AuthElement
-            element={AdminMain}
+            element={<AdminMain />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

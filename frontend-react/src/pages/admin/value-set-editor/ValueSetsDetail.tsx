@@ -256,7 +256,7 @@ export default ValueSetsDetail;
 
 export const ValueSetsDetailWithAuth = () => (
     <AuthElement
-        element={ValueSetsDetail}
+        element={<ValueSetsDetail />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );

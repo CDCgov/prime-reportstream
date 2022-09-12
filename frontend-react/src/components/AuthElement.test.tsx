@@ -17,31 +17,7 @@ const TestElement = () => <h1>Test Passed</h1>;
 const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;
 
 describe("AuthElement unit tests", () => {
-    test("Renders component when all checks pass (Element as function)", () => {
-        mockSessionContext.mockReturnValueOnce({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.PRIME_ADMIN,
-                parsedName: "PrimeAdmins",
-            },
-            dispatch: () => {},
-        });
-        mockCheckFeatureFlag.mockImplementation((arg: string) => {
-            return arg === FeatureFlagName.FOR_TEST;
-        });
-        render(
-            <AuthElement
-                element={TestElement}
-                requiredFeatureFlag={FeatureFlagName.FOR_TEST}
-                requiredUserType={MemberType.PRIME_ADMIN}
-            />
-        );
-        expect(screen.getByText("Test Passed")).toBeInTheDocument();
-        expect(mockUseNavigate).not.toHaveBeenCalled();
-    });
-    test("Renders component when all checks pass (Element as jsx)", () => {
+    test("Renders component when all checks pass", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -73,7 +49,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
             />
         );
@@ -92,7 +68,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
             />
         );
@@ -114,7 +90,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
             />
         );
@@ -136,7 +112,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
             />
         );
@@ -158,7 +134,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
             />
         );
@@ -178,7 +154,7 @@ describe("AuthElement unit tests", () => {
         });
         render(
             <AuthElement
-                element={TestElement}
+                element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
             />
         );

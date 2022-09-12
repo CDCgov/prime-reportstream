@@ -28,7 +28,7 @@ export function AdminLastMileFailures() {
 export function AdminLMFWithAuth() {
     return (
         <AuthElement
-            element={AdminLastMileFailures}
+            element={<AdminLastMileFailures />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

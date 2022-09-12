@@ -122,7 +122,7 @@ export default ValueSetsIndex;
 
 export const ValueSetsIndexWithAuth = () => (
     <AuthElement
-        element={ValueSetsIndex}
+        element={<ValueSetsIndex />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );

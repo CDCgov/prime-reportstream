@@ -117,7 +117,7 @@ export function AdminOrgNew() {
 export function AdminOrgNewWithAuth() {
     return (
         <AuthElement
-            element={AdminOrgNew}
+            element={<AdminOrgNew />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

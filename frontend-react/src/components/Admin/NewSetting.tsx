@@ -133,7 +133,7 @@ export function NewSetting() {
 
 export const NewSettingWithAuth = () => (
     <AuthElement
-        element={NewSetting}
+        element={<NewSetting />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );

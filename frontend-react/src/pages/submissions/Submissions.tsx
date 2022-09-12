@@ -33,5 +33,8 @@ function Submissions() {
 export default Submissions;
 
 export const SubmissionsWithAuth = () => (
-    <AuthElement element={Submissions} requiredUserType={MemberType.SENDER} />
+    <AuthElement
+        element={<Submissions />}
+        requiredUserType={MemberType.SENDER}
+    />
 );

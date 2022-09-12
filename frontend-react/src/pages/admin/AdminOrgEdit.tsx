@@ -245,7 +245,7 @@ export function AdminOrgEdit() {
 export function AdminOrgEditWithAuth() {
     return (
         <AuthElement
-            element={AdminOrgEdit}
+            element={<AdminOrgEdit />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

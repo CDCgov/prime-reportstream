@@ -376,7 +376,7 @@ export function EditReceiverSettings() {
 export function EditReceiverSettingsWithAuth() {
     return (
         <AuthElement
-            element={EditReceiverSettings}
+            element={<EditReceiverSettings />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

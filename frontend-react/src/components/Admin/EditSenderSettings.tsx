@@ -283,7 +283,7 @@ export function EditSenderSettings() {
 export function EditSenderSettingsWithAuth() {
     return (
         <AuthElement
-            element={EditSenderSettings}
+            element={<EditSenderSettings />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

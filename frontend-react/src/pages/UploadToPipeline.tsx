@@ -33,7 +33,7 @@ export default UploadToPipeline;
 
 export const UploadToPipelineWithAuth = () => (
     <AuthElement
-        element={UploadToPipeline}
+        element={<UploadToPipeline />}
         requiredUserType={MemberType.PRIME_ADMIN}
         requiredFeatureFlag={FeatureFlagName.USER_UPLOAD}
     />

@@ -164,7 +164,7 @@ export function FeatureFlagUIComponent() {
 export function FeatureFlagUIWithAuth() {
     return (
         <AuthElement
-            element={FeatureFlagUIComponent}
+            element={<FeatureFlagUIComponent />}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );
