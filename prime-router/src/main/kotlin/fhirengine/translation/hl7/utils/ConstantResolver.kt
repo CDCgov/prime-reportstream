@@ -111,6 +111,7 @@ enum class CustomFHIRFunctionNames {
     GetYesNoValue,
     GetObservationResultsStatus,
     GetCodingSystemMapping,
+    Split,
     GetId,
     GetIdType
 }
@@ -277,6 +278,26 @@ object CustomFHIRFunctions {
             // Unknown could be multiple values. Will map to empty using the else clause
             else -> mutableListOf()
         }
+    }
+
+    /**
+     * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
+     * @returns list of strings
+     */
+    fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+        return if (!parameters.isNullOrEmpty() &&
+            parameters.size == 1 &&
+            parameters.first().size == 1 &&
+            focus.size == 1 &&
+            focus.first() is StringType
+        ) {
+
+            val delimeter = (parameters.first().first()).primitiveValue()
+            val stringToSplit = focus.first().primitiveValue()
+
+            stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
+        } else
+            mutableListOf()
     }
 
     /**
@@ -467,6 +488,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                 FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
             }
+            CustomFHIRFunctionNames.Split -> {
+                FunctionDetails("splits a string by provided delimeter", 1, 1)
+            }
             CustomFHIRFunctionNames.GetId -> {
                 FunctionDetails("extracts an ID from a resource property", 0, 0)
             }
@@ -526,6 +550,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
                 }
                 CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                     CustomFHIRFunctions.getCodingSystemMapping(focus)
+                }
+                CustomFHIRFunctionNames.Split -> {
+                    CustomFHIRFunctions.split(focus, parameters)
                 }
                 CustomFHIRFunctionNames.GetId -> {
                     CustomFHIRFunctions.getId(focus)
