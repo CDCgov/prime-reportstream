@@ -47,7 +47,6 @@ const valueSetColumnConfig: ColumnConfig[] = [
         columnHeader: "Valueset Name",
         feature: {
             link: true,
-            linkBasePath: "value-sets/",
         },
     },
     {
