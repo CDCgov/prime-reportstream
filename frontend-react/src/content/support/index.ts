@@ -12,7 +12,7 @@ import { Contact, ServiceRequest, Faq } from "../../pages/support/index-legacy";
 
 enum SupportTitles {
     CONTACT = "Contact",
-    SERVICEREQUEST = "Service request",
+    SERVICEREQUEST = "Service request form",
     FAQ = "Frequently asked questions",
 }
 const slugs: SlugParams[] = [
@@ -34,7 +34,7 @@ export const supportDirectories: ContentDirectory[] = [
         .setTitle(SupportTitles.CONTACT)
         .setSlug(SupportDirectoryTools.getSlug(SupportTitles.CONTACT))
         .setDescription(
-            "Questions, issues, or a bug to report? We're happy to help!"
+            "For general inquiries, questions, or issues. Reach out, we're happy to help!"
         )
         .addElement(
             contentContainer(
@@ -47,7 +47,9 @@ export const supportDirectories: ContentDirectory[] = [
         .setSlug(
             SupportDirectoryTools.prependRoot(SupportTitles.SERVICEREQUEST)
         )
-        .setDescription("Submit a support ticket something something foo foo")
+        .setDescription(
+            "Have an issue with an existing connection? Use this form to open a ticket with our support team."
+        )
         .addElement(
             contentContainer(
                 ServiceRequest,

@@ -12,7 +12,10 @@ export const Contact = () => {
             </Helmet>
 
             <h1>Contact us</h1>
-            <h2>Questions, issues, or a bug to report? We're happy to help!</h2>
+            <h2>
+                For general inquiries, questions, or issues. Reach out, we're
+                happy to help!
+            </h2>
             <section>
                 <h3>Interested in partnering with ReportStream? </h3>
                 <p>
@@ -59,6 +62,14 @@ export const Contact = () => {
                         CSV upload
                     </a>
                     .
+                </p>
+                <p>
+                    If you are having issues with an existing connection, use
+                    our{" "}
+                    <a className="usa-link" href="/support/service-request">
+                        service request form
+                    </a>{" "}
+                    to open a ticket with our support team.
                 </p>
                 <p>
                     For all other issues, contact us at{" "}

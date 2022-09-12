@@ -1,4 +1,7 @@
 import { Helmet } from "react-helmet";
+import { Alert } from "@trussworks/react-uswds";
+
+import site from "../../../content/site.json";
 
 export const ServiceRequest = () => {
     return (
@@ -10,14 +13,23 @@ export const ServiceRequest = () => {
             </Helmet>
 
             <h1>Service request</h1>
-            <h2>Foo foo help here text</h2>
+            <h2>
+                Have an issue with an existing connection? Use this form to open
+                a ticket with our support team.
+            </h2>
+
+            <Alert type="info" slim>
+                Unable to view or submit this form? Have a general question
+                about ReportStream? You can also{" "}
+                <a className="usa-link" href="/support/contact">
+                    contact us
+                </a>{" "}
+                by email at {site.orgs.RS.email}.
+            </Alert>
 
             <iframe
-                title="ReportStream support form iFrame"
-                className="form-support__smartsheet"
-                width="100%"
-                height="1200"
-                frameBorder="0"
+                title="ReportStream service request form"
+                className="form-smartsheet__support"
                 src="https://app.smartsheetgov.com/b/form/52036af51e6e42fbb4e058423185b304"
             ></iframe>
         </>
