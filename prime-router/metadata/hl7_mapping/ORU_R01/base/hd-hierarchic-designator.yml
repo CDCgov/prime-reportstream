@@ -32,11 +32,9 @@ elements:
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: designator-universal-id
-    condition: '%resource.extension(%`universalIdExtName`).value is Oid'
-    value: [ '%resource.extension(%`universalIdExtName`).value.toString().replace(''urn:oid:'','''')' ]
+    value: [ '%resource.extension(%`universalIdExtName`).value.getId()' ]
     hl7Spec: [ '%{hl7HDField}-2' ]
 
   - name: designator-universal-id-type
-    condition: '%resource.extension(%`universalIdExtName`).value is Oid'
-    value: [ '''ISO''' ]
+    value: [ '%resource.extension(%`universalIdExtName`).value.getIdType()' ]
     hl7Spec: [ '%{hl7HDField}-3' ]

@@ -1,9 +1,10 @@
 name: ORU-R01-patient
 constants:
   hl7PIDField: /PATIENT_RESULT/PATIENT/PID
+  hl7PatientField: /PATIENT_RESULT/PATIENT
 elements:
   - name: set-id
-    value: [ '''1''' ]
+    value: [ '"1"' ]
     hl7Spec: [ '%{hl7PIDField}-1' ]
 
   - name: patient-identifier-list
@@ -39,7 +40,7 @@ elements:
 
   # this value just confirms that this segment part is HL7-Race
   - name: patient-race-coding-system
-    value: [ '''HL70005''' ]
+    value: [ '"HL70005"' ]
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
 
   - name: patient-race-alternate-identifier
@@ -90,7 +91,7 @@ elements:
     condition: >
       %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code.exists().not() and
       %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text = "Nonreligious"
-    value: [ '''NOE''' ]
+    value: [ '"NOE"' ]
     hl7Spec: [ '%{hl7PIDField}-17-1' ]
 
   - name: patient-religion-text
@@ -99,7 +100,7 @@ elements:
 
   # this value just confirms that this segment part is HL7-Religion
   - name: patient-religion-text
-    value: [ '''HL70006''' ]
+    value: [ '"HL70006"' ]
     hl7Spec: [ '%{hl7PIDField}-17-3' ]
 
   # ethnic group
@@ -113,7 +114,7 @@ elements:
 
   # this value just confirms that this segment part is HL7-Ethnic Group
   - name: patient-ethnic-coding-system
-    value: [ '''HL70189''' ]
+    value: [ '"HL70189"' ]
     hl7Spec: [ '%{hl7PIDField}-22-3' ]
 
   - name: patient-ethnic-alternate-identifier
@@ -158,7 +159,7 @@ elements:
 
   # need to check why the value we get here is SCT instead of HL70446
   - name: patient-species-coding-system
-    value: [ '''SCT''' ]
+    value: [ '"SCT"' ]
     hl7Spec: [ '%{hl7PIDField}-35-3' ]
 
   - name: patient-species-alternate-identifier
@@ -175,3 +176,11 @@ elements:
     resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
     value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7PIDField}-35-6' ]
+
+  - name: patient-note
+    resource: '%resource.extension(%`rsext-patient-notes`).value.text.split(''\n'')'
+    condition: '%resource.exists()'
+    schema: note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7PatientField}'
