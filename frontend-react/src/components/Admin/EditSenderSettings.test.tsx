@@ -25,20 +25,17 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("../../hooks/UseValidParams", () => ({
-    useValidParams: () => {
+// TODO: Auto mock module?
+jest.mock("react-router-dom", () => ({
+    useNavigate: () => {
+        return jest.fn();
+    },
+    useParams: () => {
         return {
             orgName: "abbott",
             senderName: "user1234",
             action: "edit",
         };
-    },
-}));
-
-// TODO: Auto mock module?
-jest.mock("react-router-dom", () => ({
-    useNavigate: () => {
-        return jest.fn();
     },
 }));
 

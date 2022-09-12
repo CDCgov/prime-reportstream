@@ -74,7 +74,7 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
-    test("Redirects when non-admin user lacks feature flag", () => {
+    test("Redirects when user lacks feature flag", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -95,31 +95,6 @@ describe("AuthElement unit tests", () => {
             />
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
-    });
-    test("Redirects when admin lacks feature flag", () => {
-        mockSessionContext.mockReturnValueOnce({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.PRIME_ADMIN,
-                parsedName: "PrimeAdmins",
-            },
-            dispatch: () => {},
-        });
-        mockCheckFeatureFlag.mockImplementation((arg: string) => {
-            return arg !== FeatureFlagName.FOR_TEST;
-        });
-        render(
-            <AuthElement
-                element={<TestElement />}
-                requiredFeatureFlag={FeatureFlagName.FOR_TEST}
-            />
-        );
-        expect(mockCheckFeatureFlag).toHaveBeenCalledWith(
-            FeatureFlagName.FOR_TEST
-        );
-        expect(mockUseNavigate).toHaveBeenCalledWith("/admin/features");
     });
     test("Considers all given authorized user types (affirmative)", () => {
         mockSessionContext.mockReturnValueOnce({
