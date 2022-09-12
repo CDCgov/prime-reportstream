@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
@@ -10,18 +10,8 @@ import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
-    const { oktaAuth, authState } = useOktaAuth();
+    const { oktaAuth } = useOktaAuth();
     const { dispatch } = useSessionContext();
-
-    const navigate = useNavigate();
-    useEffect(() => {
-        if (authState && authState.isAuthenticated) {
-            // TODO (router-refactor): Dynamically navigate users
-            // Admins -> Admin Org List
-            // Receivers -> Daily Data List
-            navigate("/");
-        }
-    }, [authState, navigate]);
 
     const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
