@@ -46,10 +46,10 @@ To create a custom throwable that works within the `RSErrorBoundary` ecosystem, 
 - `parseCode` - a method for taking in a code whether hard-coded or sent from a server, and returning the right enumerated error name. Alternatively, you could instantiate your class with a single default code by returning it from this method
 - `constructor` - should be easy, just read in the required variables and pass them to `super()`
 
-## Add a new `ErrorName` value(s) to enum
+### Add a new `ErrorName` value(s) to enum
 
 The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSError.ts` file.
 
 ## Add new error page content
 
-Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent`
+Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent.tsx`
