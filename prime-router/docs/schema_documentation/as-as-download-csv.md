@@ -537,7 +537,7 @@ The zip code of the provider
 
 **PII**: Yes
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -1373,7 +1373,7 @@ The patient's second address line
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -1572,7 +1572,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 ---
 
-**Name**: specimen_collection_date_time
+**Name**: specimen_collection_date
 
 **ReportStream Internal Name**: specimen_collection_date_time
 
@@ -1596,7 +1596,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
-**Name**: specimen_source_site_code
+**Name**: specimen_type
 
 **ReportStream Internal Name**: specimen_source_site_code
 
