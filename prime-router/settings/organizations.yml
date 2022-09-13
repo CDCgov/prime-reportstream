@@ -2698,7 +2698,7 @@
           PID-22-3: CDCREC
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
+        numberPerDay: 1 #
         initialTime: 00:00
         timeZone: EASTERN
       transport:
@@ -2713,20 +2713,24 @@
   jurisdiction: STATE
   stateCode: AS
   receivers:
-    - name: elr
+    - name: elr-download
       organizationName: as-phd
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, AS, patient_state, AS)
       translation:
-        type: HL7
-        useBatchHeaders: true
+        schemaName: AS/as-download-csv
+        format: CSV
+        defaults: {}
+        nameFormat: STANDARD
+        receivingOrganization: null
+        type: CUSTOM
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: EASTERN
+        timeZone: SAMOA
       transport:
         type: SFTP
         host: sftp
