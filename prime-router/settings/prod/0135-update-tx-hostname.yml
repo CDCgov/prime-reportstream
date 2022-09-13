@@ -1,0 +1,81 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0135-update-tx-hostname.yml
+---
+- name: "tx-doh"
+  description: "Texas Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "TX"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "tx-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "NEDSS"
+        receivingApplicationOID: null
+        receivingFacilityName: "TX-ELR"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-3:
+          - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5:
+          - '*': "NEDSS"
+          MSH-6:
+          - '*': "TX-ELR"
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: true
+        replaceUnicdeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHL7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "TEXAS"
+        receivingOrganization: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, TX, patient_state, TX)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:35"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-labs.dshs.texas.gov"
+        port: "22"
+        filePath: "./"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
