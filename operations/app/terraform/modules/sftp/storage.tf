@@ -25,10 +25,6 @@ resource "azurerm_storage_share" "sftp_admin" {
   name                 = "${var.resource_prefix}-sftp-admin-share"
   storage_account_name = azurerm_storage_account.sftp.name
   quota                = 1
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # SFTP startup scripts share
@@ -36,10 +32,6 @@ resource "azurerm_storage_share" "sftp_scripts" {
   name                 = "${var.resource_prefix}-sftp-scripts-share"
   storage_account_name = azurerm_storage_account.sftp.name
   quota                = 1
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # SFTP startup script
