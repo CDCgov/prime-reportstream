@@ -1,6 +1,12 @@
 import React, { ErrorInfo, ReactNode, Suspense } from "react";
 
-import { ErrorName, ErrorUI, isRSError, RSError } from "../utils/RSError";
+import {
+    ERROR_UI_DEFAULT,
+    ErrorName,
+    ErrorUI,
+    isRSError,
+    RSError,
+} from "../utils/RSError";
 import { ErrorPage } from "../pages/error/ErrorPage";
 
 import Spinner from "./Spinner";
@@ -40,7 +46,7 @@ export default class RSErrorBoundary extends React.Component<
         return {
             hasError: true,
             code: useLegacy ? ErrorName.NON_RS_ERROR : error.code,
-            type: useLegacy ? "page" : error.displayAs,
+            type: useLegacy ? ERROR_UI_DEFAULT : error.displayAs,
         };
     }
     /** Any developer logging needed (i.e. log the error in console, push to
@@ -57,7 +63,7 @@ export default class RSErrorBoundary extends React.Component<
         return this.props.children;
     }
 }
-/** Just a nice way to keep individual uses of RSErrorBoundary out of jsx since it
+/** A nice way to keep individual uses of RSErrorBoundary out of jsx since it
  * does not take props but may live at many levels of the tree.
  * @example
  * // As proxy

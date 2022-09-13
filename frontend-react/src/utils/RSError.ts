@@ -1,4 +1,5 @@
 export type ErrorUI = "message" | "page";
+export const ERROR_UI_DEFAULT: ErrorUI = "message";
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
 export enum ErrorName {
@@ -17,7 +18,7 @@ export abstract class RSError extends Error {
     /* Used for identifying unique content to display for error */
     code: ErrorName;
     /* Used to determine if this error should render as a message or full page */
-    displayAs: ErrorUI = "page";
+    displayAs: ErrorUI = ERROR_UI_DEFAULT;
 
     /** @param message {string} Passed to `Error.constructor()`
      * @param status {number?} Used to parse `RSError.code` value

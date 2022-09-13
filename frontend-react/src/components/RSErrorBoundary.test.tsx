@@ -26,12 +26,20 @@ jest.spyOn(global.console, "log");
 describe("RSErrorBoundary", () => {
     test("Catches RSError", () => {
         render(<ThrowsRSErrorWrapped />);
-        expect(screen.getByText("An error has occurred")).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
+        ).toBeInTheDocument();
     });
 
     test("Catches legacy errors", () => {
         render(<ThrowsGenericErrorWrapped />);
-        expect(screen.getByText("An error has occurred")).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
+        ).toBeInTheDocument();
     });
 
     test("Renders component when no error", () => {

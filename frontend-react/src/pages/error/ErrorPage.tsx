@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-import { ErrorName } from "../../utils/RSError";
+import { ErrorName, ErrorUI } from "../../utils/RSError";
 
 import { GenericMessage, GenericPage } from "./content-elements/Generic";
 import { UnsupportedBrowser } from "./content-elements/UnsupportedBrowser";
@@ -9,7 +9,7 @@ import { NotFound } from "./content-elements/NotFound";
 interface ErrorPageProps {
     code?: ErrorName;
     errorInfo?: React.ErrorInfo;
-    type?: "page" | "message";
+    type?: ErrorUI;
 }
 /** Handles mapping to the right page or message content */
 export const errorContent = (code?: ErrorName, asPage?: boolean) => {
