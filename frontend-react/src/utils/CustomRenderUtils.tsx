@@ -9,6 +9,7 @@ import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 
 import { mockToken } from "./TestUtils";
+import { testClient } from "./QueryClients";
 
 /* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
  * This serves as our way of mocking different token, auth, and claims values */
@@ -53,7 +54,7 @@ const SessionWrapper =
     };
 
 export const QueryWrapper =
-    (client: QueryClient = new QueryClient()) =>
+    (client: QueryClient = testClient) =>
     ({ children }: PropsWithChildren<{}>) =>
         (
             <QueryClientProvider client={client}>

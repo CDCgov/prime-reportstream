@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import { QueryClient } from "@tanstack/react-query";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
@@ -15,12 +14,7 @@ import {
 describe("useValueSetsTable", () => {
     const renderWithQueryWrapper = (tableName: LookupTables) =>
         renderHook(() => useValueSetsTable<ValueSet[]>(tableName), {
-            wrapper: QueryWrapper(
-                new QueryClient({
-                    // to allow for faster testable failures
-                    defaultOptions: { queries: { retry: false } },
-                })
-            ),
+            wrapper: QueryWrapper(),
         });
 
     beforeAll(() => lookupTableServer.listen());
@@ -40,14 +34,9 @@ describe("useValueSetsTable", () => {
 });
 
 describe("useValueSetsMeta", () => {
-    const renderWithQueryWrapper = (tableName?: LookupTables) =>
+    const renderWithQueryWrapper = (tableName?: string | LookupTables) =>
         renderHook(() => useValueSetsMeta(tableName), {
-            wrapper: QueryWrapper(
-                new QueryClient({
-                    // to allow for faster testable failures
-                    defaultOptions: { queries: { retry: false } },
-                })
-            ),
+            wrapper: QueryWrapper(),
         });
 
     beforeAll(() => lookupTableServer.listen());
@@ -72,6 +61,12 @@ describe("useValueSetsMeta", () => {
         const { createdAt, createdBy } = result.current.valueSetMeta;
         expect(createdAt).toEqual("later");
         expect(createdBy).toEqual("again@example.com");
+    });
+
+    test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
+        const { result, waitFor } = renderWithQueryWrapper("unknown_table");
+        await waitFor(() => !!result.current.valueSetMeta);
+        expect(result.current.valueSetMeta).toEqual({});
     });
 });
 

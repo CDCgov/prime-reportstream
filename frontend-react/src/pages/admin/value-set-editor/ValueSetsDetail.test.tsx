@@ -20,9 +20,6 @@ const fakeRows = [
     },
 ];
 
-const mockEmptyArray: unknown[] = [];
-const mockError = new Error();
-
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
@@ -83,25 +80,6 @@ describe("ValueSetsDetail", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles fetch related errors", () => {
-        mockUseValueSetsTable = jest.fn(() => ({
-            valueSetArray: mockEmptyArray,
-            error: mockError,
-        }));
-        const mockSetAlert = jest.fn();
-        renderWithQueryProvider(
-            <ValueSetsDetailTable
-                valueSetName={"error"}
-                setAlert={mockSetAlert}
-            />
-        );
-        expect(mockSetAlert).toHaveBeenCalled();
-        expect(mockSetAlert).toHaveBeenCalledWith({
-            type: "error",
-            message: "Error",
-        });
-    });
-
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockUseValueSetsTable = jest.fn(() => ({
             valueSetArray: fakeRows,

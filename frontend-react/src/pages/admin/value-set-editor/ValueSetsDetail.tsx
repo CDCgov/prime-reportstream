@@ -1,10 +1,4 @@
-import React, {
-    useState,
-    useEffect,
-    Dispatch,
-    SetStateAction,
-    useMemo,
-} from "react";
+import React, { useState, Dispatch, SetStateAction, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 
@@ -26,6 +20,7 @@ import {
     ReportStreamAlert,
     handleErrorWithAlert,
 } from "../../../utils/ErrorUtils";
+import { withNetworkCall } from "../../../components/RSErrorBoundary";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -152,21 +147,10 @@ export const ValueSetsDetailTable = ({
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
 }) => {
-    const { valueSetArray, error: dataError } =
-        useValueSetsTable<ValueSetRow[]>(valueSetName);
+    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName);
 
     const { saveData } = useValueSetUpdate();
     const { activateTable } = useValueSetActivation();
-
-    useEffect(() => {
-        if (dataError) {
-            handleErrorWithAlert({
-                logMessage: "Error occurred fetching value set",
-                error: dataError,
-                setAlert,
-            });
-        }
-    }, [dataError, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetArray),
@@ -189,7 +173,7 @@ export const ValueSetsDetailTable = ({
         <Table
             title="ReportStream Core Values"
             // assume we don't want to allow creating a row if initial fetch failed
-            datasetAction={dataError ? undefined : datasetActionItem}
+            datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
@@ -221,7 +205,7 @@ export const ValueSetsDetailTable = ({
     );
 };
 
-const ValueSetsDetail = () => {
+const ValueSetsDetailContent = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
@@ -249,5 +233,7 @@ const ValueSetsDetail = () => {
         </>
     );
 };
+
+const ValueSetsDetail = () => withNetworkCall(<ValueSetsDetailContent />);
 
 export default ValueSetsDetail;
