@@ -28,7 +28,7 @@ export const NotFound = () => {
                 <div className="margin-y-5">
                     <ul className="usa-button-group">
                         <li className="usa-button-group__item">
-                            <a href=".." className="usa-button">
+                            <a href="./" className="usa-button">
                                 Visit homepage
                             </a>
                         </li>

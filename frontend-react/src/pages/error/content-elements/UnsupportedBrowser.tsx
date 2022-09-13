@@ -12,19 +12,15 @@ export const UnsupportedBrowser = () => {
             </p>
             <ul>
                 <li>
-                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
-                        Google Chrome
-                    </a>
+                    <a href="https://www.google.com/chrome/">Google Chrome</a>
                 </li>
                 <li>
-                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
+                    <a href="https://www.mozilla.org/en-US/firefox/new/">
                         Mozilla Firefox
                     </a>
                 </li>
                 <li>
-                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
-                        Apple Safari
-                    </a>
+                    <a href="https://www.apple.com/safari/">Apple Safari</a>
                 </li>
                 <li>
                     <a href="https://www.microsoft.com/en-us/edge">
