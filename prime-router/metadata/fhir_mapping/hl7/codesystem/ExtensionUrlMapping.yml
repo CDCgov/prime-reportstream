@@ -197,3 +197,9 @@
 # Comparator
 - id: "comparator"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator"
+# Units
+- id: "units"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/units"
+# Effective Date of Reference Range
+- id: "effective-reference-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/effective-reference-range"

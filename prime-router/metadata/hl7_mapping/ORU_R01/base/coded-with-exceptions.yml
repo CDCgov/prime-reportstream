@@ -14,8 +14,3 @@ elements:
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]
-
-  - name: cwe-original-text
-    resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding'
-    value: [ '%resource.display' ]
-    hl7Spec: [ '%{cweFieldPath}-9' ]

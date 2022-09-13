@@ -44,7 +44,7 @@ extension_2:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: alternate-identifier
+      value: units
     valueCodeableConcept:
       valueOf: datatype/CodeableConcept
       specs: $units

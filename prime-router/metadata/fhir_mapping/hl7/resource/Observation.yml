@@ -71,7 +71,7 @@ effectiveDateTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBX.14 | OBX.19
+    dateTimeIn: OBX.14
 
 issued:
   type: STRING
@@ -294,7 +294,6 @@ category:
     display: "Laboratory"
 
 extension_1:
-#  condition: $producerId NOT_NULL
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -315,3 +314,31 @@ extension_2:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: sub-id
+
+extension_3:
+  condition: $obx6 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    obx6: OBX.6
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: units
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: OBX.6
+
+extension_4:
+  condition: $obx7 NOT_NULL && $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: OBX.12, GeneralUtils.dateTimeWithZoneId(value,ZONEID)
+    obx7: OBX.7
+    obx12: OBX.12
+  constants:
+    KEY_NAME_SUFFIX: DateTime
+    urlValue: effective-reference-range

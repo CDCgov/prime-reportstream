@@ -1,25 +1,25 @@
 name: ORU-R01-observation-result
 constants:
-  hl7ObservationPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})
-  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
 elements:
   - name: result-set-ID
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-st
-    condition: '%resource.value NOT_NULL'
-    value: [ '''ST''' ]
+    condition: '%resource.value is String or %resource.value.exists().not()'
+    value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
     condition: '%resource.value is CodeableConcept'
-    value: [ '''CWE''' ]
+    value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
     condition: '%resource.value is Ratio'
-    value: [ '''SN''' ]
+    value: [ '"SN"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: observation-identifier-code
@@ -38,7 +38,7 @@ elements:
   - name: observation-identifier-coding-system-ln
     resource: '%resource.code.coding'
     condition: '%resource.system = "http://loinc.org" and %resource.version = "L"'
-    value: [ '''LN''' ]
+    value: [ '"LN"' ]
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
 
   - name: observation-identifier-alternate-code
@@ -69,54 +69,40 @@ elements:
       cweFieldPath: '%{hl7OBXField}-5'
     schema: coded-with-exceptions
 
-  # due to an issue with HL7 to FHIR mapping, the comparators "=" and "!="
-  # need to be passed via extension
-  - name: observation-value-sn-comparator-1
-    resource: '%resource.value.numerator.extension(%`rsext-comparator`)'
-    condition: '%resource.value NOT_NULL'
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7OBXField}-5-1' ]
-
-  - name: observation-value-sn-comparator-2
-    condition: '%resource.value.numerator.comparator.exists()'
-    value: [ '%resource.value.numerator.comparator' ]
-    hl7Spec: [ '%{hl7OBXField}-5-1' ]
-
-  - name: observation-value-sn-value
-    condition: '%resource.value.numerator.exists()'
-    value: [ '%resource.value.numerator.value' ]
-    hl7Spec: [ '%{hl7OBXField}-5-2' ]
+  - name: observation-value-numeric
+    resource: '%resource.value'
+    condition: '%resource is Ratio'
+    schema: structured-numeric
 
   - name: observation-units-identifier
-    condition: '%resource.value.numerator.exists()'
-    value: [ '%resource.value.numerator.unit' ]
-    hl7Spec: [ '%{hl7OBXField}-6.1' ]
+    value: [ '%resource.extension(%`rsext-units`).value.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-6-1' ]
 
   - name: observation-units-text
-    condition: '%resource.value.numerator.exists()'
-    value: [ '%resource.value.numerator.unit' ]
-    hl7Spec: [ '%{hl7OBXField}-6.2' ]
+    value: [ '%resource.extension(%`rsext-units`).value.text' ]
+    hl7Spec: [ '%{hl7OBXField}-6-2' ]
 
   - name: observation-units-system
-    resource: '%resource.value.numerator.extension(%`rsext-alternate-identifier`).value.coding'
-    condition: '%resource.system = "http://unitsofmeasure.org"'
-    value: [ '''UCUM''' ]
-    hl7Spec: [ '%{hl7OBXField}-6.3' ]
+    condition: >
+      %resource.extension(%`rsext-units`).exists() and 
+      %resource.extension(%`rsext-units`).value.coding.system = "http://unitsofmeasure.org"
+    value: [ '"UCUM"' ]
+    hl7Spec: [ '%{hl7OBXField}-6-3' ]
 
   - name: observation-units-alternate-identifier
-    resource: '%resource.value.numerator.extension(%`rsext-alternate-identifier`).value.extension(%`rsext-alternate-identifier`).value'
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-6.4' ]
+    hl7Spec: [ '%{hl7OBXField}-6-4' ]
 
   - name: observation-units-alternate-text
-    resource: '%resource.value.numerator.extension(%`rsext-alternate-identifier`).value.extension(%`rsext-alternate-identifier`).value'
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.display' ]
-    hl7Spec: [ '%{hl7OBXField}-6.5' ]
+    hl7Spec: [ '%{hl7OBXField}-6-5' ]
 
   - name: observation-units-alternate-system
-    resource: '%resource.value.numerator.extension(%`rsext-alternate-identifier`).value..extension(%`rsext-alternate-identifier`).value'
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-6.6' ]
+    hl7Spec: [ '%{hl7OBXField}-6-6' ]
 
   - name: observation-abnormal-flag
     value: [ '%resource.interpretation.coding.code' ]
@@ -124,12 +110,17 @@ elements:
 
   - name: observation-result-status-preliminary
     condition: '%resource.status = "preliminary"'
-    value: [ '''P''' ]
+    value: [ '"P"' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
   - name: observation-result-status-corrected
     condition: '%resource.status = "corrected"'
-    value: [ '''C''' ]
+    value: [ '"C"' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-corrected
+    condition: '%resource.status = "final"'
+    value: [ '"F"' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
   - name: observation-date-time
