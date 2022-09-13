@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
 import { Alert } from "@trussworks/react-uswds";
 
 import site from "../../../content/site.json";
@@ -20,11 +21,14 @@ export const ServiceRequest = () => {
 
             <Alert type="info" slim>
                 Unable to view or submit this form? Have a general question
-                about ReportStream? You can also{" "}
-                <a className="usa-link" href="/support/contact">
-                    contact us
-                </a>{" "}
-                by email at {site.orgs.RS.email}.
+                about ReportStream? You can also contact us by email at{" "}
+                <a
+                    href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}
+                    className="usa-link"
+                >
+                    {site.orgs.RS.email}
+                </a>
+                .
             </Alert>
 
             <iframe
