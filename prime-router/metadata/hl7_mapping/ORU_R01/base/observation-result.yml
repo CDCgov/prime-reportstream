@@ -2,6 +2,7 @@ name: ORU-R01-observation-result
 constants:
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
   hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+  observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
   - name: result-set-ID
     value: [ '%resultIndex + 1' ]
@@ -173,8 +174,10 @@ elements:
     resourceIndex: contactIndex
 
   - name: observation-note
+    condition: '%observation.note.exists()'
     resource: '%resource.note.text.split(''\n'')'
     schema: note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationPath}'
+      noteDetails: '%observation.note'

@@ -33,8 +33,8 @@ elements:
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-9'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
-      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
     schema: hd-hierarchic-designator
 
   - name: xcn-name-type-code
@@ -52,6 +52,6 @@ elements:
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-14'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
-      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
     schema: hd-hierarchic-designator
