@@ -37,18 +37,16 @@ const App = () => {
 };
 ```
 
-> This function also wraps the component with `<Suspense>` since these are network errors we're catching for now. **IF** we seek to catch non-network errors, we should consider splitting the suspense wrapper out to cut down on the DOM size.
-
 Now, any throws that happen from that point in the tree, all the way down, will be caught by this boundary and not affect anything above it in the tree. 
 
 ## Add a custom error type
 
 To create a custom throwable that works within the `RSErrorBoundary` ecosystem, extend the `RSError` abstract custom error class. Intellisence or other code scanning tools should recognize that you need to implement:
 
-- `parseCode` - a method for taking in a code whether hard-coded or sent from a server, and returning the right enumerated error name
+- `parseCode` - a method for taking in a code whether hard-coded or sent from a server, and returning the right enumerated error name. Alternatively, you could instantiate your class with a single default code by returning it from this method
 - `constructor` - should be easy, just read in the required variables and pass them to `super()`
 
-## Add a new `ErrorName`
+## Add a new `ErrorName` value(s) to enum
 
 The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSError.ts` file.
 
@@ -58,12 +56,11 @@ Once your codes are parsed, and your name is enumerated, you can create your own
 
 ```typescript jsx
 /** Handles mapping to the right page or message content */
-    const errorContent = useMemo(() => {
-        switch (code) {
-            case ErrorName.MY_NEW_ERROR:
-                return asPage? <MyErrorPage /> : <MyErrorMessage />
-            default:
-                return asPage ? <GenericPage /> : <GenericMessage />;
-        }
-    }, [asPage, code]);
+export const errorContent = (code?: ErrorName, asPage?: boolean) => {
+    switch (code) {
+        case ErrorName.UNKNOWN:
+        default:
+            return asPage ? <GenericPage /> : <GenericMessage />;
+    }
+};
 ```
