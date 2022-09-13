@@ -101,7 +101,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.0.3"
+val ktorVersion = "2.1.1"
 val kotlinVersion = "1.7.10"
 jacoco.toolVersion = "0.8.7"
 
@@ -679,7 +679,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.32.0")
-    implementation("com.azure:azure-core-http-netty:1.12.2")
+    implementation("com.azure:azure-core-http-netty:1.12.5")
     implementation("com.azure:azure-storage-blob:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
     }

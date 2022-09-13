@@ -71,7 +71,7 @@ effectiveDateTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBX.14 | OBX.19
+    dateTimeIn: OBX.14
 
 issued:
   type: STRING
@@ -161,26 +161,17 @@ valueTime:
     obx2: STRING, OBX.2
 
 valueRatio_1:
-  condition: $obx2 EQUALS SN && $separator NOT_NULL && $separator EQUALS ':'
+  condition: $obx2 EQUALS SN
   valueOf: datatype/Ratio
   expressionType: resource
-  specs: OBX.5
+  specs: OBX.6
   vars:
-    numerator: SN.2
-    denominator: SN.4
+    comparator: STRING, OBX.5.1
+    numerator: OBX.5.2
+    separator: OBX.5.3
+    denominator: OBX.5.4
     obx2: STRING, OBX.2
-    separator: STRING, SN.3
-
-valueRatio_2:
-  condition: $obx2 EQUALS SN && $separator NOT_NULL && $separator EQUALS '/'
-  valueOf: datatype/Ratio
-  expressionType: resource
-  specs: OBX.5
-  vars:
-    numerator: SN.2
-    denominator: SN.4
-    obx2: STRING, OBX.2
-    separator: STRING, SN.3
+    units: OBX.6
 
 interpretation:
   valueOf: datatype/CodeableConcept
@@ -303,7 +294,6 @@ category:
     display: "Laboratory"
 
 extension_1:
-#  condition: $producerId NOT_NULL
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -314,3 +304,41 @@ extension_1:
       valueOf: resource/Organization
       expressionType: reference
       specs: OBX.15
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBX.4
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: sub-id
+
+extension_3:
+  condition: $obx6 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    obx6: OBX.6
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: units
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: OBX.6
+
+extension_4:
+  condition: $obx7 NOT_NULL && $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: OBX.12, GeneralUtils.dateTimeWithZoneId(value,ZONEID)
+    obx7: OBX.7
+    obx12: OBX.12
+  constants:
+    KEY_NAME_SUFFIX: DateTime
+    urlValue: effective-reference-range

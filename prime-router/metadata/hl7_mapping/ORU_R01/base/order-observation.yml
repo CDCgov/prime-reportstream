@@ -4,6 +4,7 @@ constants:
   diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
   service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
   hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
 elements:
   - name: order-segment
     # Only create the segment if we have data for it
@@ -13,16 +14,6 @@ elements:
   - name: observation-request
     # Condition from ORU_RO1 covers this schema as well
     schema: observation-request
-
-  - name: order-note
-    resource: '%service.note.text.split(''\n'')'
-    condition: '%service.note.exists()'
-    schema: note
-    resourceIndex: noteIndex
-    constants:
-      hl7NotePath: '%{hl7Order}'
-      # Cannot use %resource here as this constant will be resolved in the note schema
-      noteDetails: '%service.note'
 
   - name: specimen
     resource: '%resource.specimen.resolve()'
@@ -38,8 +29,17 @@ elements:
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
 
-  - name: observation
-    # resource is the collection of Observations within the DiagnosticReport
-    resource: '%resource.result'
-    schema: observation
-    resourceIndex: observationIndex
+  - name: observation-result
+    resource: '%resource.result.resolve()'
+    schema: observation-result
+    resourceIndex: resultIndex
+
+  - name: order-note
+    resource: '%service.note.text.split(''\n'')'
+    condition: '%service.note.exists()'
+    schema: note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7Order}'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: '%service.note'
