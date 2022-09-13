@@ -4,9 +4,8 @@ import { RSNetworkError } from "../utils/RSError";
 
 import RSErrorBoundary from "./RSErrorBoundary";
 
-const TestComponent = () => {
+const TestComponent = (): JSX.Element => {
     throw new RSNetworkError("");
-    return <p>Test Failed</p>;
 };
 const WrappedTestComponent = () => {
     return (
