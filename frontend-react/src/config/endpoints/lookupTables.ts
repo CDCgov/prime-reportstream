@@ -44,7 +44,7 @@ export enum LookupTables {
 Lookup Table Endpoints
 
 * getTableList -> returns metadata for all lookuptables
-* getTableData -> given a table name and version, returns all data rows in the lookup table of that name, for that version
+* getTableData -> given a table name, returns all data rows in the lookup table of that name, for the active version
 * updateTable -> with a payload of ALL table rows, updates a table with new data, creating a new version of the table
 * activateTable -> given a table name and version, activates the specified version of the lookup table of that name
 */
@@ -57,7 +57,7 @@ export const lookupTablesEndpoints: RSApiEndpoints = {
     }),
     getTableData: new RSEndpoint({
         // notice the react-router style colon demarcated dynamic path segments
-        path: "/lookuptables/:tableName/:version/content",
+        path: "/lookuptables/:tableName/content",
         method: HTTPMethods.GET,
         queryKey: "lookupTable",
     }),

@@ -34,8 +34,8 @@ elements:
     schema: hd-hierarchic-designator
 
   - name: xcn-name-type-code
-    condition: '%resource.name.use.exists() and %resource.name.use = ''official'''
-    value: [ '''L''']
+    condition: '%resource.name.use.exists() and %resource.name.use = "official"'
+    value: [ '"L"']
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
   - name: xcn-type

@@ -8,7 +8,7 @@ elements:
     value: [ '%resource.extension(%`rsext-order-control`).value.coding.code' ]
     hl7Spec: [ '%{hl7Order}-1' ]
 
-  - name: placer-order-number
+  - name: order-placer-order-number
     resource: >
       %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'PLAC')
@@ -18,7 +18,7 @@ elements:
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
-  - name: filler-order-number
+  - name: order-filler-order-number
     resource: >
       %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'FILL')
@@ -28,7 +28,7 @@ elements:
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
-  - name: placer-group-number
+  - name: order-placer-group-number
     resource: >
       %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'PGN')
@@ -38,25 +38,30 @@ elements:
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
-  - name: response-flag
+  - name: order-response-flag
     resource: '%resource.extension(%`rsext-response-flag`)'
     condition: '%resource.exists()'
     value: [ '%resource.value.coding[0].code' ]
     hl7Spec: [ '%{hl7Order}-6' ]
 
-  - name: transaction-time
+  - name: order-transaction-time
     resource: '%resource.basedOn.resolve()'
     value: [ '%resource.authoredOn' ]
     hl7Spec: [ '%{hl7Order}-9' ]
 
-  - name: ordering-provider
+  - name: order-entered-by
+    condition: false
+    value: [ '' ] # Don't have data yet
+    hl7Spec: [ '%{hl7Order}-10' ]
+
+  - name: order-ordering-provider
     resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{hl7Order}-12'
     schema: xcn-contact
     resourceIndex: contactIndex
 
-  - name: callback-phone-number
+  - name: order-callback-phone-number
     resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
     condition: '%resource.exists()'
     constants:
