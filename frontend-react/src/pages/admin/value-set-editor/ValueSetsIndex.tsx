@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import Table, {
     ColumnConfig,
@@ -10,16 +10,12 @@ import {
     useValueSetsMeta,
     useValueSetsTable,
 } from "../../../hooks/UseValueSets";
-import { StaticAlert } from "../../../components/StaticAlert";
-import {
-    handleErrorWithAlert,
-    ReportStreamAlert,
-} from "../../../utils/ErrorUtils";
 import {
     LookupTable,
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
+import { withNetworkCall } from "../../../components/RSErrorBoundary";
 
 const PAGE_TITLE = process.env.REACT_APP_TITLE; // TODO: move to config
 
@@ -68,39 +64,17 @@ const toValueSetWithMeta = (
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    const { valueSetMeta, error: metaError } = useValueSetsMeta();
-    const { valueSetArray, error: dataError } = useValueSetsTable<ValueSet[]>(
+    const { valueSetMeta } = useValueSetsMeta();
+    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
-
-    useEffect(() => {
-        if (dataError || metaError) {
-            handleErrorWithAlert({
-                logMessage: "Error occurred fetching value sets",
-                error: dataError || metaError, // this isn't perfect but likely good enough for now
-                setAlert,
-            });
-        }
-    }, [metaError, dataError]);
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
         rows: toValueSetWithMeta(valueSetArray, valueSetMeta),
     };
 
-    return (
-        <>
-            {alert && (
-                <StaticAlert
-                    type={alert.type}
-                    heading={alert.type.toUpperCase()}
-                    message={alert.message}
-                />
-            )}
-            <Table title="ReportStream Value Sets" config={tableConfig} />
-        </>
-    );
+    return <Table title="ReportStream Value Sets" config={tableConfig} />;
 };
 
 const ValueSetsIndex = () => {
@@ -110,7 +84,7 @@ const ValueSetsIndex = () => {
                 <title>Value Sets | Admin | {PAGE_TITLE}</title>
             </Helmet>
             <section className="grid-container">
-                <ValueSetsTable />
+                {withNetworkCall(<ValueSetsTable />)}
             </section>
         </>
     );
