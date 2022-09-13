@@ -352,6 +352,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: providence
+  description: Providence
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: providence
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
