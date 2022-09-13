@@ -50,7 +50,7 @@ interface ErrorPageProps {
     ui?: ErrorUI;
 }
 /** Generates page content for error pages and messages */
-export const ErrorPage = ({
+export const ErrorComponent = ({
     code,
     ui,
 }: React.PropsWithChildren<ErrorPageProps>) => {

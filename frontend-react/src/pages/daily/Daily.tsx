@@ -5,7 +5,7 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../hooks/UseOrgName";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import Title from "../../components/Title";
 
 import ReportsTable from "./Table/ReportsTable";
@@ -13,7 +13,9 @@ import ReportsTable from "./Table/ReportsTable";
 function Daily() {
     const orgName: string = useOrgName();
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -21,7 +23,7 @@ function Daily() {
                 <Title preTitle={orgName} title="COVID-19" />
             </section>
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage ui="message" />}
+                fallbackComponent={() => <ErrorComponent ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <ReportsTable />

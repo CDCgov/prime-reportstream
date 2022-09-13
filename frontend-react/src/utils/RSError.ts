@@ -1,7 +1,7 @@
 export type ErrorUI = "message" | "page";
 export const ERROR_UI_DEFAULT: ErrorUI = "message";
 /** For consistency, when passing the code prop, please use these values
- * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
+ * e.g. <ErrorComponent code={RSError.NOT_FOUND} /> */
 export enum ErrorName {
     // TODO: Update App.tsx to throw on bad browser, wrap with boundary in index.ts?
     UNSUPPORTED_BROWSER = "unsupported-browser",
@@ -32,7 +32,7 @@ export abstract class RSError extends Error {
     abstract parseStatus(status?: any): ErrorName;
 }
 /** Throw from any failing network calls, and pass in the status code to
- * match it with the right RSErrorPage */
+ * match it with the right display */
 export class RSNetworkError extends RSError {
     constructor(message: string, status?: number, display?: ErrorUI) {
         super(message, status, display);

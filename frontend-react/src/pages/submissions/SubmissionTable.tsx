@@ -2,7 +2,7 @@ import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import React, { Suspense, useCallback, useEffect } from "react";
 
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import usePagination from "../../hooks/UsePagination";
 import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
@@ -240,7 +240,7 @@ function SubmissionTable() {
     );
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage ui="message" />}
+            fallbackComponent={() => <ErrorComponent ui="message" />}
         >
             <Suspense fallback={<Spinner />}>
                 {isNumberedPaginationOn && (

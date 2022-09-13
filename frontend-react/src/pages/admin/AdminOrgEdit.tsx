@@ -7,7 +7,7 @@ import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
@@ -146,7 +146,9 @@ export function AdminOrgEdit({
     };
 
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <Helmet>
                 <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -158,7 +160,7 @@ export function AdminOrgEdit({
                 />
             </section>
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage ui="message" />}
+                fallbackComponent={() => <ErrorComponent ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0">

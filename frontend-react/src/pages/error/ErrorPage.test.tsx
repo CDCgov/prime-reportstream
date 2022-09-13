@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 
 import { ErrorName } from "../../utils/RSError";
 
-import { errorContent, ErrorPage } from "./ErrorPage";
+import { errorContent, ErrorComponent } from "./ErrorComponent";
 
 describe("testing ErrorPage", () => {
     test("Renders content without code", () => {
-        render(<ErrorPage />);
+        render(<ErrorComponent />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -16,19 +16,19 @@ describe("testing ErrorPage", () => {
     });
 
     test("Renders content with code", () => {
-        render(<ErrorPage code={ErrorName.NOT_FOUND} />);
+        render(<ErrorComponent code={ErrorName.NOT_FOUND} />);
         expect(screen.getByText("Page not found")).toBeInTheDocument();
     });
 
     test("Wraps with page wrapper", () => {
-        render(<ErrorPage ui={"page"} />);
+        render(<ErrorComponent ui={"page"} />);
         const element = screen.getByTestId("error-page-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("usa-section padding-top-6");
     });
 
     test("Wraps with message wrapper", () => {
-        render(<ErrorPage ui={"message"} />);
+        render(<ErrorComponent ui={"message"} />);
         const element = screen.getByTestId("error-message-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("grid-container");

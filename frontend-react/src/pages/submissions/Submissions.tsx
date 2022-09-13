@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { useOrgName } from "../../hooks/UseOrgName";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 
@@ -12,7 +12,9 @@ function Submissions() {
     const orgName: string = useOrgName();
 
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <Helmet>
                 <title>Submissions | {process.env.REACT_APP_TITLE}</title>
             </Helmet>

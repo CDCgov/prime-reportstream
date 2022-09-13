@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import ReportResource from "../../resources/ReportResource";
 
 import Summary from "./Summary";
@@ -35,7 +35,7 @@ const DetailsContent = () => {
             <Summary report={report} />
             <ReportDetails report={report} />
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage ui="message" />}
+                fallbackComponent={() => <ErrorComponent ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <FacilitiesTable reportId={reportId} />
@@ -49,7 +49,9 @@ const DetailsContent = () => {
 /** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <Suspense fallback={<Spinner size="fullpage" />}>
                 <DetailsContent />
             </Suspense>

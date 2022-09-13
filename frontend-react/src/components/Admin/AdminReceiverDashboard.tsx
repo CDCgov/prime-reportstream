@@ -25,7 +25,7 @@ import {
 import { formatDate } from "../../utils/misc";
 import { StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { ErrorComponent } from "../../pages/error/ErrorComponent";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -990,7 +990,7 @@ export function AdminReceiverDashboard() {
             </form>
             <Suspense fallback={<Spinner />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage ui="message" />}
+                    fallbackComponent={() => <ErrorComponent ui="message" />}
                 >
                     <MainRender
                         datesRange={[

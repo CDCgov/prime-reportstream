@@ -52,15 +52,4 @@ The `ErrorName` enum drives the error page rendering system. Every code can be l
 
 ## Add new error page content
 
-Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorPage`
-
-```typescript jsx
-/** Handles mapping to the right page or message content */
-export const errorContent = (code?: ErrorName, asPage?: boolean) => {
-    switch (code) {
-        case ErrorName.UNKNOWN:
-        default:
-            return asPage ? <GenericPage /> : <GenericMessage />;
-    }
-};
-```
+Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent`

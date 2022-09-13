@@ -20,7 +20,7 @@ import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import AdmAction from "../../resources/AdmActionResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { ErrorComponent } from "../../pages/error/ErrorComponent";
 import Spinner from "../Spinner";
 
 interface DataForDialog {
@@ -442,7 +442,9 @@ ${data.receiver}`;
             <div className={"grid-row margin-0 rs-container-unbounded"}>
                 <Suspense fallback={<Spinner />}>
                     <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage ui="message" />}
+                        fallbackComponent={() => (
+                            <ErrorComponent ui="message" />
+                        )}
                     >
                         <DataLoadRenderTable
                             daysToShow={daysToShow}

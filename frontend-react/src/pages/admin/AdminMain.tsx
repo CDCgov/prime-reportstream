@@ -4,12 +4,14 @@ import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import { OrgsTable } from "../../components/Admin/OrgsTable";
 
 export function AdminMain() {
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <Helmet>
                 <title>Admin | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -19,7 +21,7 @@ export function AdminMain() {
                 </h3>
             </section>
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage ui="message" />}
+                fallbackComponent={() => <ErrorComponent ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0" />

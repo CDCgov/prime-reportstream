@@ -7,7 +7,7 @@ import {
     isRSError,
     RSError,
 } from "../utils/RSError";
-import { ErrorPage } from "../pages/error/ErrorPage";
+import { ErrorComponent } from "../pages/error/ErrorComponent";
 
 import Spinner from "./Spinner";
 
@@ -58,7 +58,9 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            return <ErrorPage code={this.state.code} ui={this.state.type} />;
+            return (
+                <ErrorComponent code={this.state.code} ui={this.state.type} />
+            );
         }
         return this.props.children;
     }

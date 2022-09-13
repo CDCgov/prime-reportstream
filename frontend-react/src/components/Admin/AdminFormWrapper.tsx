@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { ErrorComponent } from "../../pages/error/ErrorComponent";
 import Spinner from "../Spinner";
 
 interface AdminFormWrapperProps {
@@ -13,7 +13,9 @@ export function AdminFormWrapper({
     children,
 }: React.PropsWithChildren<AdminFormWrapperProps>) {
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorComponent ui="page" />}
+        >
             <section className="grid-container margin-bottom-5">
                 {header}
             </section>

@@ -9,7 +9,7 @@ import ActionDetailsResource, {
     Destination,
 } from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
-import { ErrorPage } from "../error/ErrorPage";
+import { ErrorComponent } from "../error/ErrorComponent";
 import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 
 /* Custom types */
@@ -112,7 +112,7 @@ function SubmissionDetailsContent() {
             : undefined;
 
     if (!actionDetails) {
-        return <ErrorPage ui="page" />;
+        return <ErrorComponent ui="page" />;
     } else {
         return (
             <div
@@ -153,7 +153,7 @@ function SubmissionDetails() {
         <>
             <Crumbs crumbList={crumbs} />
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage ui="page" />}
+                fallbackComponent={() => <ErrorComponent ui="page" />}
             >
                 <Suspense fallback={<Spinner size="fullpage" />}>
                     <SubmissionDetailsContent />
