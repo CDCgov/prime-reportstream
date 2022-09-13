@@ -6,16 +6,13 @@ elements:
     hl7Spec: [ '%{entityIdFieldPath}-1' ]
 
   - name: entity-namespace-id
-    condition: '%resource.system.exists()'
-    value: [ '%resource.system.replace(''urn:id:'','''')' ]
+    value: [ '%resource.system.getId()' ]
     hl7Spec: [ '%{entityIdFieldPath}-2' ]
 
   - name: entity-universal-id
-    condition: '%resource.extension(%`rsext-universal-id`).value is Oid'
-    value: [ '%resource.extension(%`rsext-universal-id`).value.toString().replace(''urn:oid:'','''')' ]
+    value: [ '%resource.extension(%`rsext-universal-id`).value.getId()' ]
     hl7Spec: [ '%{entityIdFieldPath}-3' ]
 
-  - name: entity-id-system
-    condition: '%resource.extension(%`rsext-universal-id`).value is Oid'
-    value: [ '''ISO''' ]
+  - name: entity-id-type
+    value: [ '%resource.extension(%`rsext-universal-id`).value.getIdType()' ]
     hl7Spec: [ '%{entityIdFieldPath}-4' ]

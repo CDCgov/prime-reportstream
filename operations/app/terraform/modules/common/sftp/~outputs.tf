@@ -17,3 +17,8 @@ output "shares" {
   value       = azurerm_storage_share.sftp
   description = "File shares for sftp"
 }
+
+output "share_names" {
+  value       = values(azurerm_storage_share.sftp)[*].name
+  description = "File share names for sftp"
+}

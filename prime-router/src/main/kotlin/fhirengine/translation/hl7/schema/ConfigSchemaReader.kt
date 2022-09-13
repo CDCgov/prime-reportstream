@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.InputStream
@@ -17,12 +18,40 @@ object ConfigSchemaReader : Logging {
      * @throws Exception if the schema is invalid
      */
     fun fromFile(schemaName: String, folder: String? = null): ConfigSchema {
-        val rawSchema = readSchemaTreeFromFile(schemaName, folder)
-
-        if (!rawSchema.isValid()) {
-            throw SchemaException("Invalid schema $schemaName: \n${rawSchema.errors.joinToString("\n")}")
+        // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
+        val schemaList = mutableListOf<ConfigSchema>()
+        schemaList.add(readSchemaTreeFromFile(schemaName, folder))
+        while (!schemaList.last().extends.isNullOrBlank()) {
+            // Make sure there are no circular dependencies
+            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            ) {
+                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
+            }
+            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
+            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
+            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder))
         }
-        return rawSchema
+
+        // Now merge the parent with all the child schemas
+        val mergedSchema = mergeSchemas(schemaList)
+
+        if (!mergedSchema.isValid()) {
+            throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
+        }
+        return mergedSchema
+    }
+
+    /**
+     * Merge the parent and child schemas provided in the [schemaList].  Note that [schemaList] MUST be ordered
+     * from the lowest child to parent.
+     * @return a merged schema
+     */
+    private fun mergeSchemas(schemaList: List<ConfigSchema>): ConfigSchema {
+        val parentSchema = schemaList.last()
+        for (i in (schemaList.size - 2) downTo 0) {
+            parentSchema.merge(schemaList[i])
+        }
+        return parentSchema
     }
 
     /**

@@ -95,11 +95,40 @@ class AdminApiFunctions(
                 HttpUtilities.okResponse(request, jsonb ?: "[]")
             } catch (e: Exception) {
                 logger.error(e)
-                // admin calling so it's ok to reveal more info in error
+                // admin calling so, it's ok to reveal more info in error
                 HttpUtilities.badRequestResponse(
                     request,
                     "Invalid/missing cgi parameter. Check date formats."
                 )
+            }
+        }
+    }
+
+    /**
+     * Fetch the list of "resent". Spans orgs, so should ONLY be done
+     * with admin permissions this.getOktaAuthenticator() defaults to SYSTEM_ADMIN above
+     */
+    @FunctionName("getresend")
+    fun getSendRetries(
+        @HttpTrigger(
+            name = "getresend",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "adm/getresend" // this can NOT be "admin/" or it fails.
+        )
+        request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        logger.info("Entering adm/getresend api")
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+            try {
+                val daysToShow = request.queryParameters[daysBackSpanParameter]
+                    ?.toIntOrDefault(30) ?: 30
+                val results = db.fetchResends(OffsetDateTime.now().minusDays(daysToShow.toLong()))
+                val jsonb = mapper.writeValueAsString(results)
+                HttpUtilities.okResponse(request, jsonb ?: "[]")
+            } catch (e: Exception) {
+                logger.error("Unable to fetch send failures", e)
+                HttpUtilities.internalErrorResponse(request)
             }
         }
     }
@@ -109,7 +138,14 @@ class AdminApiFunctions(
          * Name of the query parameter to specify how many days back to show.
          */
         const val daysBackSpanParameter = "days_to_show"
+
+        /**
+         * Days back is not very flexible. Moving calls to start and end dated.
+         */
         const val startDateParam = "start_date"
+        /**
+         * End date *may* be optional. If missing assumes current date.
+         */
         const val endDateParam = "end_date"
     }
 }
