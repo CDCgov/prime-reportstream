@@ -11,6 +11,23 @@ interface ErrorPageProps {
     errorInfo?: React.ErrorInfo;
     type?: "page" | "message";
 }
+/** Handles mapping to the right page or message content */
+export const errorContent = (code?: ErrorName, asPage?: boolean) => {
+    if (code === undefined)
+        return asPage ? <GenericPage /> : <GenericMessage />;
+    // Code exists
+    switch (code) {
+        case ErrorName.NOT_FOUND:
+            // TODO: Needs message UI
+            return <NotFound />;
+        case ErrorName.UNSUPPORTED_BROWSER:
+            // TODO: Needs message UI
+            return <UnsupportedBrowser />;
+        case ErrorName.UNKNOWN:
+        default:
+            return asPage ? <GenericPage /> : <GenericMessage />;
+    }
+};
 /** Provides proper page wrapping for error pages. Includes padding for nav compensation,
  * grid-container, and a single grid row. */
 const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
@@ -36,24 +53,10 @@ export const ErrorPage = ({
 }: React.PropsWithChildren<ErrorPageProps>) => {
     /** Easy for ternary checks in the errorContent memo hook */
     const asPage = useMemo(() => type === "page", [type]);
-    /** Handles mapping to the right page or message content */
-    const errorContent = useMemo(() => {
-        switch (code) {
-            case ErrorName.NOT_FOUND:
-                // TODO: Needs message UI
-                return <NotFound />;
-            case ErrorName.UNSUPPORTED_BROWSER:
-                // TODO: Needs message UI
-                return <UnsupportedBrowser />;
-            case ErrorName.UNKNOWN:
-            default:
-                return asPage ? <GenericPage /> : <GenericMessage />;
-        }
-    }, [asPage, code]);
-
+    const content = useMemo(() => errorContent(code, asPage), [code, asPage]);
     return asPage ? (
-        <ErrorPageWrapper>{errorContent}</ErrorPageWrapper>
+        <ErrorPageWrapper>{content}</ErrorPageWrapper>
     ) : (
-        <ErrorMessageWrapper>{errorContent}</ErrorMessageWrapper>
+        <ErrorMessageWrapper>{content}</ErrorMessageWrapper>
     );
 };

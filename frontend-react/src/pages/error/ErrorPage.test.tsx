@@ -1,83 +1,57 @@
 /* eslint-disable no-restricted-globals */
-import { ReactElement } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { render, screen } from "@testing-library/react";
 
 import { ErrorName } from "../../utils/RSError";
 
-import { ErrorPage } from "./ErrorPage";
+import { errorContent, ErrorPage } from "./ErrorPage";
 
 describe("testing ErrorPage", () => {
-    // types of errors we can throw
-    function Throw500(): ReactElement {
-        const error: any = new Error("500");
-        error.status = 500;
-        throw error;
-    }
-
-    // intercept error handling mechanism since we WANT to generate errors
-    function onError(e: any) {
-        e.preventDefault();
-    }
-
-    beforeEach(() => {
-        if (typeof addEventListener === "function")
-            addEventListener("error", onError);
-    });
-
-    afterEach(() => {
-        if (typeof removeEventListener === "function")
-            removeEventListener("error", onError);
-    });
-
-    // actual tests
-    it("checks basic error", () => {
-        render(
-            <ErrorPage>
-                <div>child component</div>
-            </ErrorPage>
-        );
-
+    test("Renders content without code", () => {
+        render(<ErrorPage type={"page"} />);
+        expect(screen.getByText("An error has occurred")).toBeInTheDocument();
+        render(<ErrorPage type={"message"} />);
         expect(
-            screen.getByText(/application has encountered an unknown error/i)
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
         ).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
-    it("check UNSUPPORTED_BROWSER", () => {
-        render(
-            <ErrorPage code={ErrorName.UNSUPPORTED_BROWSER}>
-                <div>child component</div>
-            </ErrorPage>
-        );
+    test("Renders content with code", () => {
+        render(<ErrorPage code={ErrorName.NOT_FOUND} type={"page"} />);
+        expect(screen.getByText("Page not found")).toBeInTheDocument();
+    });
+});
+
+describe("errorContent", () => {
+    const genericMessageContent = errorContent(ErrorName.UNKNOWN);
+    const genericPageContent = errorContent(ErrorName.UNKNOWN, true);
+    const notFoundContent = errorContent(ErrorName.NOT_FOUND);
+    const unsupportedBrowserContent = errorContent(
+        ErrorName.UNSUPPORTED_BROWSER
+    );
+    test("GenericMessage", () => {
+        render(genericMessageContent);
         expect(
-            screen.getByText(/does not support your browser/i)
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
         ).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
-
-    it("check NOT_FOUND_404", () => {
-        render(
-            <ErrorPage code={ErrorName.NOT_FOUND}>
-                <div>child component</div>
-            </ErrorPage>
-        );
-        expect(screen.getByText(/Page not found/i)).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
+    test("GenericPage", () => {
+        render(genericPageContent);
+        expect(screen.getByText("An error has occurred")).toBeInTheDocument();
     });
-
-    it("NetworkErrorBoundary 500", () => {
-        render(
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
-                <Throw500 />
-                <div>never renders</div>
-            </NetworkErrorBoundary>
-        );
-        expect(screen.queryByText(/never renders/i)).not.toBeInTheDocument();
+    test("NotFoundPage", () => {
+        render(notFoundContent);
+        expect(screen.getByText("Page not found")).toBeInTheDocument();
+    });
+    test("UnsupportedBrowserPage", () => {
+        render(unsupportedBrowserContent);
         expect(
-            screen.getByText(/application has encountered an unknown error/i)
+            screen.getByText(
+                "Sorry! ReportStream does not support your browser"
+            )
         ).toBeInTheDocument();
     });
 });
