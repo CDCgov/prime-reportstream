@@ -14,7 +14,9 @@ export enum ErrorName {
 
 /** All custom errors should extend this class */
 export abstract class RSError extends Error {
+    /* Used for identifying unique content to display for error */
     code: ErrorName;
+    /* Used to determine if this error should render as a message or full page */
     displayAs: ErrorUI = "page";
 
     /** @param message {string} Passed to `Error.constructor()`
@@ -25,7 +27,8 @@ export abstract class RSError extends Error {
         this.code = this.parseStatus(status); // Sets code using child's parseStatus
         if (display) this.displayAs = display; // Updates display from default if present
     }
-    abstract parseStatus(status?: number): ErrorName;
+    /** Used to turn a status into an {@link ErrorName} */
+    abstract parseStatus(status?: any): ErrorName;
 }
 /** Throw from any failing network calls, and pass in the status code to
  * match it with the right RSErrorPage */
@@ -34,7 +37,7 @@ export class RSNetworkError extends RSError {
         super(message, status, display);
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
-    /** Feed it a status, and get back the proper enumerated name */
+    /** Map response status code to error name */
     parseStatus(status?: number) {
         if (status === undefined) return ErrorName.UNKNOWN;
         switch (status) {

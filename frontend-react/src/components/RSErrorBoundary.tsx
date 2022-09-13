@@ -46,7 +46,7 @@ export default class RSErrorBoundary extends React.Component<
     /** Any developer logging needed (i.e. log the error in console, push to
      * analytics, etc.) */
     componentDidCatch(error: RSError, errorInfo: ErrorInfo) {
-        console.log(error, errorInfo);
+        console.error(error, errorInfo);
     }
     /** Renders the right error page for the right error type, OR the wrapped
      * component if no error is thrown */

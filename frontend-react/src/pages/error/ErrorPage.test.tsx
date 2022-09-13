@@ -7,9 +7,7 @@ import { errorContent, ErrorPage } from "./ErrorPage";
 
 describe("testing ErrorPage", () => {
     test("Renders content without code", () => {
-        render(<ErrorPage type={"page"} />);
-        expect(screen.getByText("An error has occurred")).toBeInTheDocument();
-        render(<ErrorPage type={"message"} />);
+        render(<ErrorPage />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -18,8 +16,22 @@ describe("testing ErrorPage", () => {
     });
 
     test("Renders content with code", () => {
-        render(<ErrorPage code={ErrorName.NOT_FOUND} type={"page"} />);
+        render(<ErrorPage code={ErrorName.NOT_FOUND} />);
         expect(screen.getByText("Page not found")).toBeInTheDocument();
+    });
+
+    test("Wraps with page wrapper", () => {
+        render(<ErrorPage type={"page"} />);
+        const element = screen.getByTestId("error-page-wrapper");
+        expect(element).toBeInTheDocument();
+        expect(element).toHaveClass("usa-section padding-top-6");
+    });
+
+    test("Wraps with message wrapper", () => {
+        render(<ErrorPage type={"message"} />);
+        const element = screen.getByTestId("error-message-wrapper");
+        expect(element).toBeInTheDocument();
+        expect(element).toHaveClass("grid-container");
     });
 });
 

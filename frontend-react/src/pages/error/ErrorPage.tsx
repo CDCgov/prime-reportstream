@@ -32,7 +32,10 @@ export const errorContent = (code?: ErrorName, asPage?: boolean) => {
  * grid-container, and a single grid row. */
 const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
     return (
-        <div className="usa-section padding-top-6">
+        <div
+            data-testid={"error-page-wrapper"}
+            className="usa-section padding-top-6"
+        >
             <div className="grid-container">
                 <div className="grid-row grid-gap">{props.children}</div>
             </div>
@@ -44,7 +47,11 @@ const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
 const ErrorMessageWrapper = (
     props: React.PropsWithChildren<ErrorPageProps>
 ) => {
-    return <div className="grid-container">{props.children}</div>;
+    return (
+        <div data-testid={"error-message-wrapper"} className="grid-container">
+            {props.children}
+        </div>
+    );
 };
 /** Generates page content for error pages and messages */
 export const ErrorPage = ({
