@@ -19,6 +19,10 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
+  - name: xcn-prefix
+    value: [ '%resource.name.prefix' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
+
   - name: xcn-suffix
     value: [ '%resource.name.suffix' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
@@ -38,8 +42,8 @@ elements:
     value: [ '"L"']
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
-  - name: xcn-type
-    value: [ '%resource.identifier.type.coding.code' ]
+  - name: xcn-identifier-type
+    value: [ '%resource.extension(%`rsext-identifier-type`).value.coding.code' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
 
   - name: xcn-assigning-facility
