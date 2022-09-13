@@ -108,9 +108,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
     };
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
             <section className="grid-container margin-bottom-5">
                 <Suspense
                     fallback={

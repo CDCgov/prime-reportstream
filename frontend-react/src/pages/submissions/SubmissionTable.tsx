@@ -240,7 +240,7 @@ function SubmissionTable() {
     );
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="message" />}
+            fallbackComponent={() => <ErrorPage ui="message" />}
         >
             <Suspense fallback={<Spinner />}>
                 {isNumberedPaginationOn && (

@@ -990,7 +990,7 @@ export function AdminReceiverDashboard() {
             </form>
             <Suspense fallback={<Spinner />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="message" />}
+                    fallbackComponent={() => <ErrorPage ui="message" />}
                 >
                     <MainRender
                         datesRange={[

@@ -114,7 +114,7 @@ const App = () => {
         >
             <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
+                    fallbackComponent={() => <ErrorPage ui="page" />}
                 >
                     <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
@@ -247,7 +247,10 @@ const App = () => {
                             {/* Handles any undefined route */}
                             <Route
                                 render={() => (
-                                    <ErrorPage code={ErrorName.NOT_FOUND} />
+                                    <ErrorPage
+                                        code={ErrorName.NOT_FOUND}
+                                        ui={"page"}
+                                    />
                                 )}
                             />
                         </Switch>

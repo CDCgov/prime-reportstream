@@ -112,7 +112,7 @@ function SubmissionDetailsContent() {
             : undefined;
 
     if (!actionDetails) {
-        return <ErrorPage type="page" />;
+        return <ErrorPage ui="page" />;
     } else {
         return (
             <div
@@ -153,7 +153,7 @@ function SubmissionDetails() {
         <>
             <Crumbs crumbList={crumbs} />
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
+                fallbackComponent={() => <ErrorPage ui="page" />}
             >
                 <Suspense fallback={<Spinner size="fullpage" />}>
                     <SubmissionDetailsContent />

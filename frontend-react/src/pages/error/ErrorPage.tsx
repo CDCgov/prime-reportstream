@@ -6,16 +6,8 @@ import { GenericMessage, GenericPage } from "./content-elements/Generic";
 import { UnsupportedBrowser } from "./content-elements/UnsupportedBrowser";
 import { NotFound } from "./content-elements/NotFound";
 
-interface ErrorPageProps {
-    code?: ErrorName;
-    errorInfo?: React.ErrorInfo;
-    type?: ErrorUI;
-}
 /** Handles mapping to the right page or message content */
 export const errorContent = (code?: ErrorName, asPage?: boolean) => {
-    if (code === undefined)
-        return asPage ? <GenericPage /> : <GenericMessage />;
-    // Code exists
     switch (code) {
         case ErrorName.NOT_FOUND:
             // TODO: Needs message UI
@@ -30,7 +22,7 @@ export const errorContent = (code?: ErrorName, asPage?: boolean) => {
 };
 /** Provides proper page wrapping for error pages. Includes padding for nav compensation,
  * grid-container, and a single grid row. */
-const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
+const ErrorPageWrapper = (props: React.PropsWithChildren<{}>) => {
     return (
         <div
             data-testid={"error-page-wrapper"}
@@ -44,22 +36,26 @@ const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
 };
 /** For lighter, smaller error messages. Uses grid-container to wrap and that's
  * it. Useful for error messages that don't render the whole page useless (i.e. a banner) */
-const ErrorMessageWrapper = (
-    props: React.PropsWithChildren<ErrorPageProps>
-) => {
+const ErrorMessageWrapper = (props: React.PropsWithChildren<{}>) => {
     return (
         <div data-testid={"error-message-wrapper"} className="grid-container">
             {props.children}
         </div>
     );
 };
+
+interface ErrorPageProps {
+    code?: ErrorName;
+    errorInfo?: React.ErrorInfo;
+    ui?: ErrorUI;
+}
 /** Generates page content for error pages and messages */
 export const ErrorPage = ({
     code,
-    type,
+    ui,
 }: React.PropsWithChildren<ErrorPageProps>) => {
     /** Easy for ternary checks in the errorContent memo hook */
-    const asPage = useMemo(() => type === "page", [type]);
+    const asPage = useMemo(() => ui === "page", [ui]);
     const content = useMemo(() => errorContent(code, asPage), [code, asPage]);
     return asPage ? (
         <ErrorPageWrapper>{content}</ErrorPageWrapper>

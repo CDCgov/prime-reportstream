@@ -241,9 +241,7 @@ describe("AdminReceiverDashboard tests", () => {
                 <Route>
                     <Suspense fallback={<></>}>
                         <NetworkErrorBoundary
-                            fallbackComponent={() => (
-                                <ErrorPage type="message" />
-                            )}
+                            fallbackComponent={() => <ErrorPage ui="message" />}
                         >
                             {/*eslint-disable-next-line react/jsx-pascal-case*/}
                             <_exportForTesting.MainRender

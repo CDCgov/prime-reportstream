@@ -21,14 +21,14 @@ describe("testing ErrorPage", () => {
     });
 
     test("Wraps with page wrapper", () => {
-        render(<ErrorPage type={"page"} />);
+        render(<ErrorPage ui={"page"} />);
         const element = screen.getByTestId("error-page-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("usa-section padding-top-6");
     });
 
     test("Wraps with message wrapper", () => {
-        render(<ErrorPage type={"message"} />);
+        render(<ErrorPage ui={"message"} />);
         const element = screen.getByTestId("error-message-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("grid-container");

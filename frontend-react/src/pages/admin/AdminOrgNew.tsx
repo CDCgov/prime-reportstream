@@ -94,9 +94,7 @@ export function AdminOrgNew() {
     };
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
             <section className="grid-container margin-bottom-5">
                 <Suspense
                     fallback={

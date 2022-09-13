@@ -13,9 +13,7 @@ import ReportsTable from "./Table/ReportsTable";
 function Daily() {
     const orgName: string = useOrgName();
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
@@ -23,7 +21,7 @@ function Daily() {
                 <Title preTitle={orgName} title="COVID-19" />
             </section>
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
+                fallbackComponent={() => <ErrorPage ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <ReportsTable />

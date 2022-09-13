@@ -35,7 +35,7 @@ const DetailsContent = () => {
             <Summary report={report} />
             <ReportDetails report={report} />
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
+                fallbackComponent={() => <ErrorPage ui="message" />}
             >
                 <Suspense fallback={<Spinner />}>
                     <FacilitiesTable reportId={reportId} />
@@ -49,9 +49,7 @@ const DetailsContent = () => {
 /** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage ui="page" />}>
             <Suspense fallback={<Spinner size="fullpage" />}>
                 <DetailsContent />
             </Suspense>

@@ -442,7 +442,7 @@ ${data.receiver}`;
             <div className={"grid-row margin-0 rs-container-unbounded"}>
                 <Suspense fallback={<Spinner />}>
                     <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
+                        fallbackComponent={() => <ErrorPage ui="message" />}
                     >
                         <DataLoadRenderTable
                             daysToShow={daysToShow}
