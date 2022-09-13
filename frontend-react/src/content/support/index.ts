@@ -12,13 +12,13 @@ import { Contact, ServiceRequest, Faq } from "../../pages/support/index-legacy";
 
 enum SupportTitles {
     CONTACT = "Contact",
-    SERVICEREQUEST = "Service request form",
+    SERVICE_REQUEST = "Service request form",
     FAQ = "Frequently asked questions",
 }
 const slugs: SlugParams[] = [
     { key: SupportTitles.CONTACT, slug: "contact" },
     { key: SupportTitles.FAQ, slug: "faq" },
-    { key: SupportTitles.SERVICEREQUEST, slug: "service-request" },
+    { key: SupportTitles.SERVICE_REQUEST, slug: "service-request" },
 ];
 
 /* Tools to help generate Directories */
@@ -43,9 +43,9 @@ export const supportDirectories: ContentDirectory[] = [
             )
         ),
     new ElementDirectory()
-        .setTitle(SupportTitles.SERVICEREQUEST)
+        .setTitle(SupportTitles.SERVICE_REQUEST)
         .setSlug(
-            SupportDirectoryTools.prependRoot(SupportTitles.SERVICEREQUEST)
+            SupportDirectoryTools.prependRoot(SupportTitles.SERVICE_REQUEST)
         )
         .setDescription(
             "Have an issue with an existing connection? Use this form to open a ticket with our support team."
@@ -53,7 +53,7 @@ export const supportDirectories: ContentDirectory[] = [
         .addElement(
             contentContainer(
                 ServiceRequest,
-                SupportDirectoryTools.makeCrumb(SupportTitles.SERVICEREQUEST)
+                SupportDirectoryTools.makeCrumb(SupportTitles.SERVICE_REQUEST)
             )
         ),
     new ElementDirectory()
