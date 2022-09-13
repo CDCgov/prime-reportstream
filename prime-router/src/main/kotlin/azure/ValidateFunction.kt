@@ -22,6 +22,7 @@ import gov.cdc.prime.router.history.Destination
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -103,7 +104,7 @@ class ValidateFunction(
                 }
 
                 val receiver = ValidationReceiver(workflowEngine, actionHistory)
-                routedTo = receiver.validateAndRouteOnly(
+                routedTo = receiver.validateAndRoute(
                     sender,
                     validatedRequest.content,
                     validatedRequest.defaults,
@@ -147,17 +148,17 @@ class ValidateFunction(
         )
 
         // add destinations
-        routedTo.forEach {
+        routedTo.forEach { it ->
             submission.destinations.add(
                 Destination(
-                    "ORG",
                     it.receiver.organizationName,
-                    itemCount = 1,
-                    sentReports = mutableListOf<DetailedReport>(),
-                    downloadedReports = mutableListOf<DetailedReport>(),
-                    filteredReportItems = null,
-                    filteredReportRows = null,
-                    itemCountBeforeQualFilter = null,
+                    it.receiver.name,
+                    itemCount = it.report.itemCount,
+                    sentReports = mutableListOf(),
+                    downloadedReports = mutableListOf(),
+                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) },
+                    filteredReportRows = it.report.filteringResults.map { it.message },
+                    itemCountBeforeQualFilter = it.report.itemCountBeforeQualFilter,
                     sendingAt = null
                 )
             )

@@ -401,7 +401,7 @@ class WorkflowEngine(
         routeTo: List<String>,
         actionHistory: ActionHistory,
     ): List<ActionLog> {
-        val (warnings, emptyReports, preparedReports) = doTranslationAndRoutingAsAnAtomicUnit(report, defaults, routeTo)
+        val (warnings, emptyReports, preparedReports) = translateAndRouteReport(report, defaults, routeTo)
 
         emptyReports.forEach { (filteredReport, receiver) ->
             if (!filteredReport.filteringResults.isEmpty()) {
@@ -423,7 +423,7 @@ class WorkflowEngine(
         return warnings
     }
 
-    internal fun doTranslationAndRoutingAsAnAtomicUnit(
+    internal fun translateAndRouteReport(
         report: Report,
         defaults: Map<String, String>,
         routeTo: List<String>,

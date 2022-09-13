@@ -38,7 +38,7 @@ abstract class SubmissionReceiver(
      * [payloadName] optional sender-determined name of the payload
      * [metadata] mockable metadata to use in report creation
      */
-    abstract fun validateAndMoveToProcessing(
+    open fun validateAndMoveToProcessing(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
@@ -49,7 +49,9 @@ abstract class SubmissionReceiver(
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata? = null
-    )
+    ) {
+        throw NotImplementedError("Subclass must implement method validateAndMoveToProcessing()")
+    }
 
     companion object {
         /**
@@ -342,25 +344,7 @@ class ValidationReceiver : SubmissionReceiver {
         actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
     ) : super(workflowEngine, actionHistory)
 
-    /**
-     * This validates, but does *not* move to processing
-     */
-    override fun validateAndMoveToProcessing(
-        sender: Sender,
-        content: String,
-        defaults: Map<String, String>,
-        options: Options,
-        routeTo: List<String>,
-        isAsync: Boolean,
-        allowDuplicates: Boolean,
-        rawBody: ByteArray,
-        payloadName: String?,
-        metadata: Metadata?
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    fun validateAndRouteOnly(
+    fun validateAndRoute(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
@@ -385,11 +369,11 @@ class ValidationReceiver : SubmissionReceiver {
             throw actionLogs.exception
         }
 
-        val (_, _, preparedReports) =
-            workflowEngine.doTranslationAndRoutingAsAnAtomicUnit(report, defaults, routeTo)
+        val (_, emptyReports, preparedReports) =
+            workflowEngine.translateAndRouteReport(report, defaults, routeTo)
 
         actionHistory.trackLogs(actionLogs.logs)
 
-        return preparedReports
+        return preparedReports.plus(emptyReports)
     }
 }
