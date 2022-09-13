@@ -18,23 +18,30 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+      - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
         with:
-          env-name: ${{ matrix.env }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-          tf-auth: true
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+      - name: Terraform Auth
+        env:
+          AZURE_CREDENTIALS: $${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+        run: |
+          # Parse Azure secret into Terraform variables
+          $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).Replace('\\n','\n')
+          $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+          $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+          $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+          $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+            
+          # Save environment variable setup for subsequent steps
+          Get-ChildItem -Path Env: -Recurse -Include ARM_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
+        shell: pwsh
       - name: Collect Terraform stats
         uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
           terraform-version: 1.2.0
-          add-args: "-refresh=false"
+          #add-args: "-refresh=false"
       - name: Format outputs for slack
         if: steps.stats1.outputs.change-count > 0
         run: |
@@ -42,18 +49,18 @@ jobs:
             | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
             | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
-      - name: Send custom JSON data to Slack workflow
-        if: steps.stats1.outputs.change-count > 0
-        id: slack
-        uses: slackapi/slack-github-action@936158bbe252e9a6062e793ea4609642c966e302
-        with:
-          payload: |
-            {
-              "change-count": "${{ steps.stats1.outputs.change-count }}",
-              "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-              "resource-changes": "${{ env.resource-changes }}",
-              "resource-drifts": "${{ env.resource-drifts }}",
-              "env": "prime-reportstream ${{ matrix.env }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
+      # - name: Send custom JSON data to Slack workflow
+      #   if: steps.stats1.outputs.change-count > 0
+      #   id: slack
+      #   uses: slackapi/slack-github-action@936158bbe252e9a6062e793ea4609642c966e302
+      #   with:
+      #     payload: |
+      #       {
+      #         "change-count": "${{ steps.stats1.outputs.change-count }}",
+      #         "drift-count": "${{ steps.stats1.outputs.drift-count }}",
+      #         "resource-changes": "${{ env.resource-changes }}",
+      #         "resource-drifts": "${{ env.resource-drifts }}",
+      #         "env": "prime-reportstream ${{ matrix.env }}"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
