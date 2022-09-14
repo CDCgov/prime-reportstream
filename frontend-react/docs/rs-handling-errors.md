@@ -2,7 +2,7 @@
 
 To catch errors like a `catch` block would in React, we use a component called an `ErrorBoundary`. React provides a baseline component that reads in an error, sets the component's state according to that data, and handles rendering either a fallback UI for errors, OR the child if no errors are thrown.
 
-The system is simple: we throw errors from anywhere in our app, and the first boundary on the way up the tree will catch and render it. This functionality has been extended by adding `RSError` and some custom logic that lets us render _different_ UIs depending on an error's enumerated code.
+The system is simple: we throw errors from anywhere in our app, and the first boundary on the way up the tree will catch and render it. This functionality has been extended by adding `RSNetworkError` and some custom logic that lets us render _different_ UIs depending on an error's enumerated code.
 
 Steps to use:
 
@@ -12,7 +12,10 @@ Steps to use:
 
 ## Set up a boundary
 
-To begin using the error boundary, you can wrap components in your jsx using the included `withNetworkCall` funciton:
+To begin using the error boundary, you can wrap components in your jsx using the included helper functions:
+
+- `withThrowableError`: Wraps your component with boundary
+- `withNetworkCall`: Wraps your component with boundary and suspense
 
 ```typescript jsx
 import {withNetworkCall} from "./RSErrorBoundary";
@@ -41,10 +44,29 @@ Now, any throws that happen from that point in the tree, all the way down, will 
 
 ## Add a custom error type
 
-To create a custom throwable that works within the `RSErrorBoundary` ecosystem, extend the `RSError` abstract custom error class. Intellisence or other code scanning tools should recognize that you need to implement:
+Custom error types help us name and display errors according to members not present on a default `Error`. Currently, there are two extensions:
 
-- `parseCode` - a method for taking in a code whether hard-coded or sent from a server, and returning the right enumerated error name. Alternatively, you could instantiate your class with a single default code by returning it from this method
-- `constructor` - should be easy, just read in the required variables and pass them to `super()`
+- `code` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
+- `displayAs` (default: `"message"`) will tell the boundary if this error should display as a non-intrusive message banner or replace the entire page with an error ui
+
+#### Boilerplate
+
+```typescript
+/** Throw from any failing network calls, and pass in the status code to
+ * match it with the right display */
+export class RSMyNewError extends Error {
+    /* Used for identifying unique content to display for error */
+    code: ErrorName;
+    /* Used to determine if this error should render as a message or full page */
+    displayAs: ErrorUI = ERROR_UI_DEFAULT;
+    /* Build a new RSMyNewError */
+    constructor(message: string, code: ErrorName, display?: ErrorUI) {
+        super(message); // Sets message
+        this.code = code;
+        Object.setPrototypeOf(this, RSMyNewError.prototype);
+    }
+}
+```
 
 ### Add a new `ErrorName` value(s) to enum
 

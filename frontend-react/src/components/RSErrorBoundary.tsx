@@ -4,8 +4,8 @@ import {
     ERROR_UI_DEFAULT,
     ErrorName,
     ErrorUI,
-    isRSError,
-    RSError,
+    isRSNetworkError,
+    RSNetworkError,
 } from "../utils/RSError";
 import { ErrorComponent } from "../pages/error/ErrorComponent";
 
@@ -34,10 +34,10 @@ export default class RSErrorBoundary extends React.Component<
         this.state = initState;
     }
     /** Handles parsing error and setting up state accordingly */
-    static getDerivedStateFromError(error: RSError): ErrorBoundaryState {
-        /* We throw a lot of errors, so refactoring seems out of scope, but the system built relies on
-         * RSError functionality to render unique error pages */
-        const useLegacy = !isRSError(error);
+    static getDerivedStateFromError(error: RSNetworkError): ErrorBoundaryState {
+        /* This WILL catch non-RS errors despite our typescript type definition in the method params.
+         * This is a runtime check to help with non RS errors */
+        const useLegacy = !isRSNetworkError(error);
         if (useLegacy) {
             console.warn(
                 "Please work to migrate all non RSError throws to use an RSError-extending error type."
@@ -51,7 +51,7 @@ export default class RSErrorBoundary extends React.Component<
     }
     /** Any developer logging needed (i.e. log the error in console, push to
      * analytics, etc.) */
-    componentDidCatch(error: RSError, errorInfo: ErrorInfo) {
+    componentDidCatch(error: RSNetworkError, errorInfo: ErrorInfo) {
         console.error(error, errorInfo);
     }
     /** Renders the right error page for the right error type, OR the wrapped
