@@ -191,3 +191,15 @@
 # Filler assigned identifier
 - id: "filler-assigned-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier"
+# Sub ID
+- id: "sub-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id"
+# Comparator
+- id: "comparator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator"
+# Units
+- id: "units"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/units"
+# Effective Date of Reference Range
+- id: "effective-reference-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/effective-reference-range"
