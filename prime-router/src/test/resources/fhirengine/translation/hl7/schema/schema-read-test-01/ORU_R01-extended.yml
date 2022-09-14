@@ -1,0 +1,14 @@
+name: ORU-R01-extended
+hl7Type: ORU_R01
+hl7Version: 2.7
+elements:
+  - name: patient-last-name
+    condition: true
+    value: [ 'DUMMY' ]
+
+  - name: order-observations
+    condition: false
+
+  - name: new-element
+    value: [ 'some value']
+    hl7Spec: [ 'MSH-9']

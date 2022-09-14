@@ -1,0 +1,149 @@
+name: ORU-R01-observation-request
+constants:
+  fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+elements:
+  - name: request-set-ID
+    value: [ '%orderIndex  + 1' ]
+    hl7Spec: [ '%{fieldPath}-1' ]
+
+  - name: placer-order
+    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: filler-order
+    resource: '%resource.identifier.where(type.coding.code = "FILL")'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: universal-service
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{fieldPath}-4'
+    schema: coded-element
+
+  - name: observation-date-time
+    condition: '%resource.effective is dateTime'
+    value: [ '%resource.effective' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
+  - name: observation-date-time-start
+    condition: '%resource.effective is Period'
+    value: [ '%resource.effective.start' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
+  - name: observation-date-time-end
+    condition: '%resource.effective is Period'
+    value: [ '%resource.effective.end' ]
+    hl7Spec: [ '%{fieldPath}-8' ]
+
+  - name: collector-identifier
+    resource: '%resource.basedOn.resolve().extension(%`rsext-collector-identifier`).value.resolve()'
+    constants:
+      hl7XCNField: '%{fieldPath}-10'
+    schema: xcn-contact
+    resourceIndex: contactIndex
+
+  - name: relevant-clinical-information
+    resource: '%resource.basedOn.resolve().extension(%`rsext-clinical-information`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-13' ]
+
+  - name: ordering-provider
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve()'
+    constants:
+      hl7XCNField: '%{fieldPath}-16'
+    schema: xcn-contact
+    resourceIndex: contactIndex
+
+  - name: callback-phone-number
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '%{fieldPath}-17'
+    schema: xtn-telecom
+
+  - name: placer-field
+    resource: '%resource.basedOn.resolve().extension(%`rsext-placer-field-1`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-18' ]
+
+  - name: placer-field-2
+    resource: '%resource.basedOn.resolve().extension(%`rsext-placer-field-2`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-19' ]
+
+  - name: filler-field-2
+    resource: '%resource.basedOn.resolve().extension(%`rsext-filler-field-1`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-20' ]
+
+  - name: filler-field-2
+    resource: '%resource.basedOn.resolve().extension(%`rsext-filler-field-2`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-21' ]
+
+  - name: results-reported-at
+    value: [ '%resource.issued' ]
+    hl7Spec: [ '%{fieldPath}-22' ]
+
+  - name: diganostic-serv-sect-id
+    value: [ '%resource.category' ]
+    hl7Spec: [ '%{fieldPath}-24' ]
+
+  - name: result-status
+    resource: '%resource.status'
+    condition: '%resource.exists()'
+    value: [ '%resource.getObservationResultsStatus()' ]
+    hl7Spec: [ '%{fieldPath}-25' ]
+
+  - name: parent-observation-link
+    resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'
+    constants:
+      ceFieldPath: '%{fieldPath}-26-1'
+    schema: coded-element
+
+  - name: parent-observation-sub-id
+    resource: '%resource.extension(%`rsext-parent-observation-sub-id`)'
+    condition: '%resource.exists()'
+    value: ['%resource.value']
+    hl7Spec: [ '%{fieldPath}-26-2' ]
+
+  - name: parent-observation-value-descriptor
+    resource: '%resource.extension(%`rsext-parent-observation-value-descriptor`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-26-3' ]
+
+  - name: placer-assigned-identifier
+    resource: '%resource.extension(%`rsext-placer-assigned-identifier`).value'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-1'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: filler-assigned-identifier
+    resource: '%resource.extension(%`rsext-filler-assigned-identifier`).value'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-2'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: reason-for-study
+    resource: '%resource.basedOn.resolve().reasonCode'
+    constants:
+      ceFieldPath: '%{fieldPath}-31'
+    schema: coded-element

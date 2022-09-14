@@ -35,7 +35,7 @@ identifier_2a:
     valueIn: ORC.3.1
     systemCX: ORC.3.2
     universalId: ORC.3.3
-    universalIdSystem: ORC.3.4
+    universalIdType: ORC.3.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "FILL"
@@ -66,7 +66,7 @@ identifier_3a:
     valueIn: ORC.2.1
     systemCX: ORC.2.2
     universalId: ORC.2.3
-    universalIdSystem: ORC.2.4
+    universalIdType: ORC.2.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
@@ -83,7 +83,7 @@ identifier_3b:
     systemCX: OBR.2.2
     valueInORC: ORC.2.1
     universalId: ORC.2.3
-    universalIdSystem: ORC.2.4
+    universalIdType: ORC.2.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
@@ -98,7 +98,7 @@ identifier_4:
     valueIn: ORC.4.1
     systemCX: ORC.4.2
     universalId: ORC.4.3
-    universalIdSystem: ORC.4.4
+    universalIdType: ORC.4.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PGN"
@@ -172,7 +172,7 @@ note:
   condition: $annotationText NOT_NULL
   expressionType: resource
   vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
 extension_1:
   generateList: true
@@ -231,13 +231,49 @@ extension_5:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: placer-field
+      value: placer-field-1
     valueString:
       type: STRING
       valueOf: OBR.18
       expressionType: HL7Spec
 
 extension_6:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: placer-field-2
+    valueString:
+      type: STRING
+      valueOf: OBR.19
+      expressionType: HL7Spec
+
+extension_7:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-field-1
+    valueString:
+      type: STRING
+      valueOf: OBR.20
+      expressionType: HL7Spec
+
+extension_8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-field-2
+    valueString:
+      type: STRING
+      valueOf: OBR.21
+      expressionType: HL7Spec
+
+extension_9:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -253,7 +289,7 @@ extension_6:
       constants:
         system_code: "v2-0123"
 
-extension_7:
+extension_10:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -267,7 +303,7 @@ extension_7:
       vars:
         dateTimeIn: TQ1.7
 
-extension_8:
+extension_11:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -281,7 +317,7 @@ extension_8:
       vars:
         dateTimeIn: TQ1.8
 
-extension_9:
+extension_12:
   generateList: true
   expressionType: nested
   expressionsMap:

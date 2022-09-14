@@ -1,0 +1,51 @@
+value :
+  type: FLOAT
+  valueOf: $value
+comparator :
+  type: String
+  # Hl7 supports an equal sign as a comparator that FHIR does not, making sure its a supported comparator.
+  # see extensions on this config for handling of unsupported comparators
+  condition: $comparator EQUALS_STRING '<' || $comparator EQUALS_STRING '<=' || $comparator EQUALS_STRING '>=' || $comparator EQUALS_STRING '>'
+  valueOf: $comparator
+unit :
+  type: String
+  valueOf: $unit
+system_1 :
+  type: URI
+  valueOf: $system
+system_2:
+  type: STRING
+  valueOf: $resolvedSystem
+system_3:
+  condition: $sys NOT_NULL
+  valueOf: $systemCWE
+  vars:
+    systemCWE: $urn + $sys
+code:
+  condition: $system NOT_NULL || $resolvedSystem NOT_NULL || $sys NOT_NULL
+  type: String
+  valueOf: $code
+
+extension_1:
+  generateList: true
+  condition: $comparator NOT_EQUALS_STRING '<' && $comparator NOT_EQUALS_STRING '<=' && $comparator NOT_EQUALS_STRING '>=' && $comparator NOT_EQUALS_STRING '>'
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: comparator
+    valueString:
+      valueOf: $comparator
+      expressionType: HL7Spec
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: units
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      specs: $units
+      expressionType: resource

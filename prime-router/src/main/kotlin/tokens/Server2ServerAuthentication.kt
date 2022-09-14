@@ -151,7 +151,7 @@ class Server2ServerAuthentication : Logging {
             }
             logger.info("AccessToken $subject : authenticated.")
             // convert the JWS Claims obj to our ReportStream AuthenticatedClaims obj
-            return AuthenticatedClaims(jws.body, isOktaAuth = false)
+            return AuthenticatedClaims(jws.body, AuthenticationType.Server2Server)
         } catch (ex: JwtException) {
             logger.error("AccessToken not authenticated: $ex")
             return null
