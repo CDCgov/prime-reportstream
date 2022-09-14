@@ -138,9 +138,6 @@ export const ValueSetsDetailTable = ({
     error?: Error;
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { valueSetArray, error: dataError } =
-        useValueSetsTable<ValueSetRow[]>(valueSetName);
-
     const { saveData } = useValueSetUpdate();
     const { activateTable } = useValueSetActivation();
 
@@ -214,12 +211,13 @@ const ValueSetsDetail = () => {
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray, error } =
-        useValueSetsTable<ValueSetRow[]>(valueSetName);
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
+        valueSetName!!
+    );
     const { valueSetMeta, error: metaError } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
-        () => toHumanReadable(valueSetName),
+        () => toHumanReadable(valueSetName!!),
         [valueSetName]
     );
 
@@ -251,7 +249,7 @@ const ValueSetsDetail = () => {
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName}
+                    valueSetName={valueSetName!!}
                     setAlert={setAlert}
                     valueSetData={valueSetArray || []}
                     error={error}
@@ -260,9 +258,7 @@ const ValueSetsDetail = () => {
         </>
     );
 };
-
 export default ValueSetsDetail;
-
 export const ValueSetsDetailWithAuth = () => (
     <AuthElement
         element={<ValueSetsDetail />}
