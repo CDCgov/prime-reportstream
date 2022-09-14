@@ -5,7 +5,7 @@ import {
     isRSNetworkError,
     RSNetworkError,
 } from "../utils/RSNetworkError";
-import { ErrorDisplay } from "../pages/error/ErrorDisplay";
+import { errorContent, ErrorMessageWrapper } from "../pages/error/ErrorDisplay";
 
 import Spinner from "./Spinner";
 
@@ -53,7 +53,11 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            return <ErrorDisplay code={this.state.code} />;
+            return (
+                <ErrorMessageWrapper>
+                    {errorContent(this.state.code)}
+                </ErrorMessageWrapper>
+            );
         }
         return this.props.children;
     }

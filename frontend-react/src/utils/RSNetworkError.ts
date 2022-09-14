@@ -1,17 +1,11 @@
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorComponent code={RSError.NOT_FOUND} /> */
 export enum ErrorName {
-    // TODO: Update App.tsx to throw on bad browser, wrap with boundary in index.ts?
-    UNSUPPORTED_BROWSER = "unsupported-browser",
-
     UNAUTHORIZED = "unauthorized", //401
     NOT_FOUND = "not-found", //404
-
-    // When a user goes to a non-routed url
-    NO_PAGE = "no-page",
     // Any error thrown that cannot be parsed by RSError.parseStatus()
     UNKNOWN = "unknown-error",
-    // Any error that does not extend the RSError class
+    // Any generic error
     NON_RS_ERROR = "non-rs-error",
 }
 
