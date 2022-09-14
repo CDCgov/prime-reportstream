@@ -20,7 +20,7 @@ import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
 import { Upload } from "./pages/Upload";
-import { ErrorComponent } from "./pages/error/ErrorComponent";
+import { ErrorDisplay } from "./pages/error/ErrorDisplay";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
@@ -103,7 +103,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <ErrorComponent code={ErrorName.UNSUPPORTED_BROWSER} />;
+    if (isIE) return <ErrorDisplay code={ErrorName.UNSUPPORTED_BROWSER} />;
 
     return (
         <AppWrapper
@@ -114,7 +114,7 @@ const App = () => {
         >
             <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorComponent ui="page" />}
+                    fallbackComponent={() => <ErrorDisplay displayAsPage />}
                 >
                     <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
@@ -247,9 +247,9 @@ const App = () => {
                             {/* Handles any undefined route */}
                             <Route
                                 render={() => (
-                                    <ErrorComponent
+                                    <ErrorDisplay
                                         code={ErrorName.NOT_FOUND}
-                                        ui={"page"}
+                                        displayAsPage
                                     />
                                 )}
                             />

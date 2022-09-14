@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { ErrorComponent } from "../error/ErrorComponent";
+import { ErrorDisplay } from "../error/ErrorDisplay";
 import ReportResource from "../../resources/ReportResource";
 
 import Summary from "./Summary";
@@ -34,9 +34,7 @@ const DetailsContent = () => {
         <>
             <Summary report={report} />
             <ReportDetails report={report} />
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorComponent ui="message" />}
-            >
+            <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
                 <Suspense fallback={<Spinner />}>
                     <FacilitiesTable reportId={reportId} />
                 </Suspense>
@@ -50,7 +48,7 @@ const DetailsContent = () => {
 export const Details = () => {
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorComponent ui="page" />}
+            fallbackComponent={() => <ErrorDisplay displayAsPage />}
         >
             <Suspense fallback={<Spinner size="fullpage" />}>
                 <DetailsContent />

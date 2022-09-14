@@ -1,23 +1,23 @@
 import React, { useMemo } from "react";
 
-import { ErrorName, ErrorUI } from "../../utils/RSNetworkError";
+import { ErrorName } from "../../utils/RSNetworkError";
 
-import { GenericMessage, GenericPage } from "./content-elements/Generic";
+import { GenericError, GenericErrorProps } from "./content-elements/Generic";
 import { UnsupportedBrowser } from "./content-elements/UnsupportedBrowser";
 import { NotFound } from "./content-elements/NotFound";
 
 /** Handles mapping to the right page or message content */
-export const errorContent = (code?: ErrorName, asPage?: boolean) => {
+export const errorContent = (code?: ErrorName, errorDisplayProps?: object) => {
     switch (code) {
         case ErrorName.NOT_FOUND:
-            // TODO: Needs message UI
             return <NotFound />;
         case ErrorName.UNSUPPORTED_BROWSER:
-            // TODO: Needs message UI
             return <UnsupportedBrowser />;
         case ErrorName.UNKNOWN:
         default:
-            return asPage ? <GenericPage /> : <GenericMessage />;
+            return (
+                <GenericError {...(errorDisplayProps as GenericErrorProps)} />
+            );
     }
 };
 /** Provides proper page wrapping for error pages. Includes padding for nav compensation,
@@ -47,17 +47,13 @@ const ErrorMessageWrapper = (props: React.PropsWithChildren<{}>) => {
 interface ErrorPageProps {
     code?: ErrorName;
     errorInfo?: React.ErrorInfo;
-    ui?: ErrorUI;
+    displayAsPage?: boolean;
 }
 /** Generates page content for error pages and messages */
-export const ErrorComponent = ({
-    code,
-    ui,
-}: React.PropsWithChildren<ErrorPageProps>) => {
+export const ErrorDisplay = ({ code, displayAsPage }: ErrorPageProps) => {
     /** Easy for ternary checks in the errorContent memo hook */
-    const asPage = useMemo(() => ui === "page", [ui]);
-    const content = useMemo(() => errorContent(code, asPage), [code, asPage]);
-    return asPage ? (
+    const content = useMemo(() => errorContent(code), [code]);
+    return displayAsPage ? (
         <ErrorPageWrapper>{content}</ErrorPageWrapper>
     ) : (
         <ErrorMessageWrapper>{content}</ErrorMessageWrapper>

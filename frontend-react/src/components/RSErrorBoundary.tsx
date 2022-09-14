@@ -1,13 +1,11 @@
 import React, { ErrorInfo, ReactNode, Suspense } from "react";
 
 import {
-    ERROR_UI_DEFAULT,
     ErrorName,
-    ErrorUI,
     isRSNetworkError,
     RSNetworkError,
 } from "../utils/RSNetworkError";
-import { ErrorComponent } from "../pages/error/ErrorComponent";
+import { ErrorDisplay } from "../pages/error/ErrorDisplay";
 
 import Spinner from "./Spinner";
 
@@ -16,9 +14,8 @@ interface ErrorBoundaryProps {
 }
 interface ErrorBoundaryState {
     hasError: boolean;
-    // Undefined until an error is thrown
     code?: ErrorName;
-    type?: ErrorUI;
+    displayAsPage?: boolean;
 }
 /** Used to define default state values on render */
 const initState: ErrorBoundaryState = {
@@ -46,7 +43,7 @@ export default class RSErrorBoundary extends React.Component<
         return {
             hasError: true,
             code: useLegacy ? ErrorName.NON_RS_ERROR : error.code,
-            type: useLegacy ? ERROR_UI_DEFAULT : error.displayAs,
+            displayAsPage: useLegacy ? false : error.displayAsPage,
         };
     }
     /** Any developer logging needed (i.e. log the error in console, push to
@@ -59,7 +56,10 @@ export default class RSErrorBoundary extends React.Component<
     render() {
         if (this.state.hasError) {
             return (
-                <ErrorComponent code={this.state.code} ui={this.state.type} />
+                <ErrorDisplay
+                    code={this.state.code}
+                    displayAsPage={this.state.displayAsPage}
+                />
             );
         }
         return this.props.children;

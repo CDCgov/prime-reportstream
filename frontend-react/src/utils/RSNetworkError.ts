@@ -1,5 +1,3 @@
-export type ErrorUI = "message" | "page";
-export const ERROR_UI_DEFAULT: ErrorUI = "message";
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorComponent code={RSError.NOT_FOUND} /> */
 export enum ErrorName {
@@ -19,12 +17,12 @@ export class RSNetworkError extends Error {
     /* Used for identifying unique content to display for error */
     code: ErrorName;
     /* Used to determine if this error should render as a message or full page */
-    displayAs: ErrorUI = ERROR_UI_DEFAULT;
+    displayAsPage: boolean = false;
     /* Build a new RSNetworkError */
-    constructor(message: string, status?: number, display?: ErrorUI) {
+    constructor(message: string, status?: number, displayAsPage?: boolean) {
         super(message); // Sets message
         this.code = this.parseStatus(status); // Sets code using child's parseStatus
-        if (display) this.displayAs = display; // Updates display from default if present
+        if (displayAsPage !== undefined) this.displayAsPage = displayAsPage; // Updates display from default if present
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Map response status code to error name */

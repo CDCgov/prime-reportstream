@@ -5,18 +5,25 @@ import { RSNetworkError } from "../utils/RSNetworkError";
 import { withThrowableError } from "./RSErrorBoundary";
 
 // Dummy components for testing
-const ThrowsRSError = (): JSX.Element => {
-    throw new RSNetworkError("");
+const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
+    if (error) throw new RSNetworkError("");
+    return <></>;
 };
-const ThrowsGenericError = (): JSX.Element => {
-    throw new Error("");
+const ThrowsGenericError = ({
+    error = true,
+}: {
+    error: boolean;
+}): JSX.Element => {
+    if (error) throw Error("");
+    return <></>;
 };
 const ThrowsNoError = (): JSX.Element => <div>Success!</div>;
 
 // Wrap them with error boundary
-const ThrowsRSErrorWrapped = () => withThrowableError(<ThrowsRSError />);
+const ThrowsRSErrorWrapped = () =>
+    withThrowableError(<ThrowsRSError error={true} />);
 const ThrowsGenericErrorWrapped = () =>
-    withThrowableError(<ThrowsGenericError />);
+    withThrowableError(<ThrowsGenericError error={true} />);
 const ThrowsNoErrorWrapped = () => withThrowableError(<ThrowsNoError />);
 
 // Silences console.error and console.log of error stack

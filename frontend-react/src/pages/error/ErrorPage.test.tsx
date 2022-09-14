@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 
 import { ErrorName } from "../../utils/RSNetworkError";
 
-import { errorContent, ErrorComponent } from "./ErrorComponent";
+import { errorContent, ErrorDisplay } from "./ErrorDisplay";
 
 describe("testing ErrorPage", () => {
     test("Renders content without code", () => {
-        render(<ErrorComponent />);
+        render(<ErrorDisplay />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -16,19 +16,19 @@ describe("testing ErrorPage", () => {
     });
 
     test("Renders content with code", () => {
-        render(<ErrorComponent code={ErrorName.NOT_FOUND} />);
+        render(<ErrorDisplay code={ErrorName.NOT_FOUND} />);
         expect(screen.getByText("Page not found")).toBeInTheDocument();
     });
 
     test("Wraps with page wrapper", () => {
-        render(<ErrorComponent ui={"page"} />);
+        render(<ErrorDisplay displayAsPage />);
         const element = screen.getByTestId("error-page-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("usa-section padding-top-6");
     });
 
     test("Wraps with message wrapper", () => {
-        render(<ErrorComponent ui={"message"} />);
+        render(<ErrorDisplay />);
         const element = screen.getByTestId("error-message-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("grid-container");
@@ -37,7 +37,9 @@ describe("testing ErrorPage", () => {
 
 describe("errorContent", () => {
     const genericMessageContent = errorContent(ErrorName.UNKNOWN);
-    const genericPageContent = errorContent(ErrorName.UNKNOWN, true);
+    const genericPageContent = errorContent(ErrorName.UNKNOWN, {
+        displayAsPage: true,
+    });
     const notFoundContent = errorContent(ErrorName.NOT_FOUND);
     const unsupportedBrowserContent = errorContent(
         ErrorName.UNSUPPORTED_BROWSER

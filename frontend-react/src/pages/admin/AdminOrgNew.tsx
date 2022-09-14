@@ -3,7 +3,7 @@ import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useHistory } from "react-router-dom";
 
-import { ErrorComponent } from "../error/ErrorComponent";
+import { ErrorDisplay } from "../error/ErrorDisplay";
 import {
     showAlertNotification,
     showError,
@@ -95,7 +95,7 @@ export function AdminOrgNew() {
 
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorComponent ui="page" />}
+            fallbackComponent={() => <ErrorDisplay displayAsPage />}
         >
             <section className="grid-container margin-bottom-5">
                 <Suspense

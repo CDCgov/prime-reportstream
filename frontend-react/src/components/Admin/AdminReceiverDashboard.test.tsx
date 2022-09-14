@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import { Route, MemoryRouter } from "react-router-dom";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
-import { ErrorComponent } from "../../pages/error/ErrorComponent";
+import { ErrorDisplay } from "../../pages/error/ErrorDisplay";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
@@ -241,9 +241,7 @@ describe("AdminReceiverDashboard tests", () => {
                 <Route>
                     <Suspense fallback={<></>}>
                         <NetworkErrorBoundary
-                            fallbackComponent={() => (
-                                <ErrorComponent ui="message" />
-                            )}
+                            fallbackComponent={() => <ErrorDisplay />}
                         >
                             {/*eslint-disable-next-line react/jsx-pascal-case*/}
                             <_exportForTesting.MainRender

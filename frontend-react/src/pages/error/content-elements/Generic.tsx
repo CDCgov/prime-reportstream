@@ -37,3 +37,9 @@ export const GenericPage = () => {
         </>
     );
 };
+
+export interface GenericErrorProps {
+    displayAsPage?: boolean;
+}
+export const GenericError = ({ displayAsPage }: GenericErrorProps) =>
+    displayAsPage ? <GenericPage /> : <GenericMessage />;

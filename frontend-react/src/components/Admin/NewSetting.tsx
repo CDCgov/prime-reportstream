@@ -3,7 +3,7 @@ import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
-import { ErrorComponent } from "../../pages/error/ErrorComponent";
+import { ErrorDisplay } from "../../pages/error/ErrorDisplay";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
@@ -109,7 +109,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
 
     return (
         <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorComponent ui="page" />}
+            fallbackComponent={() => <ErrorDisplay displayAsPage />}
         >
             <section className="grid-container margin-bottom-5">
                 <Suspense
