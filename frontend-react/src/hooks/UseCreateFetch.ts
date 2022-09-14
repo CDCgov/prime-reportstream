@@ -45,7 +45,11 @@ function createTypeWrapperForAuthorizedFetch(
             ...options,
             headers,
         });
-        return axios(axiosConfig).then(({ data }) => data);
+        return axios(axiosConfig)
+            .then(({ data }) => data)
+            .catch((e: any) => {
+                console.error(e.message);
+            });
     };
 }
 
