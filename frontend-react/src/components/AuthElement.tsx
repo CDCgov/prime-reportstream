@@ -21,10 +21,7 @@ export const AuthElement = ({
     const navigate = useNavigate();
     const { oktaToken, activeMembership } = useSessionContext();
     // A way to check if this is a logged-in user refreshing the app
-    const tokenAvailable = useMemo(
-        () => !!getStoredOktaToken(),
-        []
-    );
+    const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
     // This memberType won't require an undefined fallback when used like the one
     // from useSessionContext
     const memberType = useMemo(
