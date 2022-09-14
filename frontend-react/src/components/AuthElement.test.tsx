@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import * as Flags from "../pages/misc/FeatureFlags";
+import { mockTokenFromStorage } from "../utils/__mocks__/SessionStorageTools";
 
 import { AuthElement } from "./AuthElement";
 
@@ -18,6 +19,7 @@ const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;
 
 describe("AuthElement unit tests", () => {
     test("Renders component when all checks pass", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -42,6 +44,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
+        mockTokenFromStorage.mockReturnValueOnce(undefined);
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: undefined,
@@ -56,6 +59,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
     test("Does not redirect when user refreshes app (token loads after membership)", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: {
@@ -74,6 +78,7 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Redirects when user is unauthorized user type", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -94,6 +99,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Redirects when user lacks feature flag", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -116,6 +122,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Considers all given authorized user types (affirmative)", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -136,6 +143,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Considers all given authorized user types (negative)", () => {
+        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",

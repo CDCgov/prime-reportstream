@@ -4,6 +4,7 @@ import React, { useEffect, useMemo } from "react";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
+import { getStoredOktaToken } from "../utils/SessionStorageTools";
 
 interface AuthElementProps {
     element: JSX.Element;
@@ -19,6 +20,11 @@ export const AuthElement = ({
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
     const { oktaToken, activeMembership } = useSessionContext();
+    // A way to check if this is a logged-in user refreshing the app
+    const tokenAvailable = useMemo(
+        () => getStoredOktaToken() === undefined || getStoredOktaToken() === "",
+        []
+    );
     // This memberType won't require an undefined fallback when used like the one
     // from useSessionContext
     const memberType = useMemo(
@@ -34,17 +40,20 @@ export const AuthElement = ({
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
     useEffect(() => {
-        if (!activeMembership) {
+        // Not logged in, needs to log in.
+        if (tokenAvailable || !activeMembership) {
             navigate("/login");
             return;
-        } // Not logged in, needs to log in.
+        }
+        // Not authorized as current member type
         if (requiredUserType && !authorizeMemberType) {
             navigate("/");
             return;
-        } // Not authorized as current member type
+        }
+        // Does not have feature flag enabled
         if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag)) {
             navigate("/");
-        } // Does not have feature flag enabled
+        }
     }, [
         activeMembership,
         authorizeMemberType,
