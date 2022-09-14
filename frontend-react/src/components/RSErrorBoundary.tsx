@@ -6,7 +6,7 @@ import {
     ErrorUI,
     isRSNetworkError,
     RSNetworkError,
-} from "../utils/RSError";
+} from "../utils/RSNetworkError";
 import { ErrorComponent } from "../pages/error/ErrorComponent";
 
 import Spinner from "./Spinner";

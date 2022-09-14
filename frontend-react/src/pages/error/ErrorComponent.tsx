@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-import { ErrorName, ErrorUI } from "../../utils/RSError";
+import { ErrorName, ErrorUI } from "../../utils/RSNetworkError";
 
 import { GenericMessage, GenericPage } from "./content-elements/Generic";
 import { UnsupportedBrowser } from "./content-elements/UnsupportedBrowser";

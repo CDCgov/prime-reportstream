@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { RSNetworkError } from "../utils/RSError";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 import { withThrowableError } from "./RSErrorBoundary";
 

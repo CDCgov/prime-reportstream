@@ -69,7 +69,7 @@ export class RSMyNewError extends Error {
 
 ### Add a new `ErrorName` value(s) to enum
 
-The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSError.ts` file.
+The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSNetworkError.ts` file.
 
 ## Add new error page content
 

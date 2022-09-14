@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 import { render, screen } from "@testing-library/react";
 
-import { ErrorName } from "../../utils/RSError";
+import { ErrorName } from "../../utils/RSNetworkError";
 
 import { errorContent, ErrorComponent } from "./ErrorComponent";
 
