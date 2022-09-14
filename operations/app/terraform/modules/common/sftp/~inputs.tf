@@ -55,14 +55,6 @@ variable "storage_account" {
   description = "Storage account to host file shares"
 }
 
-variable "admin_share" {
-  description = "Admin file share"
-}
-
-variable "scripts_share" {
-  description = "Startup scripts file share"
-}
-
 variable "nat_gateway_id" {
   type        = string
   description = "NAT gateway resource id"

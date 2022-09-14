@@ -15,8 +15,6 @@ module "instance" {
   sshaccess          = [for item in var.sshnames : "${replace(item, "${var.resource_prefix}-${each.value}-", "")}:::100" if can(regex("${each.value}-", item))]
   key_vault_id       = var.key_vault_id
   storage_account    = azurerm_storage_account.sftp
-  admin_share        = azurerm_storage_share.sftp_admin
-  scripts_share      = azurerm_storage_share.sftp_scripts
   nat_gateway_id     = var.nat_gateway_id
   network_profile_id = azurerm_network_profile.sftp.id
   subnet_id          = data.azurerm_subnet.container_subnet.id
