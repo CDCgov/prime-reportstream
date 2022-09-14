@@ -47,9 +47,7 @@ const DetailsContent = () => {
 /** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorDisplay displayAsPage />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
             <Suspense fallback={<Spinner size="fullpage" />}>
                 <DetailsContent />
             </Suspense>

@@ -3,8 +3,12 @@
 export enum ErrorName {
     // TODO: Update App.tsx to throw on bad browser, wrap with boundary in index.ts?
     UNSUPPORTED_BROWSER = "unsupported-browser",
-    UNAUTHORIZED = "unauthorized",
-    NOT_FOUND = "not-found",
+
+    UNAUTHORIZED = "unauthorized", //401
+    NOT_FOUND = "not-found", //404
+
+    // When a user goes to a non-routed url
+    NO_PAGE = "no-page",
     // Any error thrown that cannot be parsed by RSError.parseStatus()
     UNKNOWN = "unknown-error",
     // Any error that does not extend the RSError class
@@ -16,13 +20,10 @@ export enum ErrorName {
 export class RSNetworkError extends Error {
     /* Used for identifying unique content to display for error */
     code: ErrorName;
-    /* Used to determine if this error should render as a message or full page */
-    displayAsPage: boolean = false;
     /* Build a new RSNetworkError */
-    constructor(message: string, status?: number, displayAsPage?: boolean) {
+    constructor(message: string, status?: number) {
         super(`(RSNetworkError) ${message}`); // Sets message
         this.code = this.parseStatus(status); // Sets code using child's parseStatus
-        if (displayAsPage !== undefined) this.displayAsPage = displayAsPage; // Updates display from default if present
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Map response status code to error name */

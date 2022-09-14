@@ -9,9 +9,7 @@ import { OrgsTable } from "../../components/Admin/OrgsTable";
 
 export function AdminMain() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorDisplay displayAsPage />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
             <Helmet>
                 <title>Admin | {process.env.REACT_APP_TITLE}</title>
             </Helmet>

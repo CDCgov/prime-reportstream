@@ -146,9 +146,7 @@ export function AdminOrgEdit({
     };
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorDisplay displayAsPage />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
             <Helmet>
                 <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
             </Helmet>

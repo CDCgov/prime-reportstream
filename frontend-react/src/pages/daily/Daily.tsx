@@ -13,9 +13,7 @@ import ReportsTable from "./Table/ReportsTable";
 function Daily() {
     const orgName: string = useOrgName();
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorDisplay displayAsPage />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
             <Helmet>
                 <title>Daily data | {process.env.REACT_APP_TITLE}</title>
             </Helmet>

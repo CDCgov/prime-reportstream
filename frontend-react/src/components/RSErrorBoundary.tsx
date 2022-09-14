@@ -15,7 +15,6 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
     hasError: boolean;
     code?: ErrorName;
-    displayAsPage?: boolean;
 }
 /** Used to define default state values on render */
 const initState: ErrorBoundaryState = {
@@ -43,7 +42,6 @@ export default class RSErrorBoundary extends React.Component<
         return {
             hasError: true,
             code: useLegacy ? ErrorName.NON_RS_ERROR : error.code,
-            displayAsPage: useLegacy ? false : error.displayAsPage,
         };
     }
     /** Any developer logging needed (i.e. log the error in console, push to
@@ -55,12 +53,7 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            return (
-                <ErrorDisplay
-                    code={this.state.code}
-                    displayAsPage={this.state.displayAsPage}
-                />
-            );
+            return <ErrorDisplay code={this.state.code} />;
         }
         return this.props.children;
     }

@@ -49,7 +49,7 @@ function createTypeWrapperForAuthorizedFetch(
         return axios(axiosConfig)
             .then(({ data }) => data)
             .catch((e: any) => {
-                throw new RSNetworkError(e.message, e.status, true);
+                throw new RSNetworkError(e.message, e.response.status);
             });
     };
 }

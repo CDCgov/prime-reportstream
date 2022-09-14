@@ -16,20 +16,13 @@ describe("testing ErrorPage", () => {
     });
 
     test("Renders content with code", () => {
-        render(<ErrorDisplay code={ErrorName.NOT_FOUND} />);
+        render(<ErrorDisplay code={ErrorName.NO_PAGE} />);
         expect(screen.getByText("Page not found")).toBeInTheDocument();
     });
 
-    test("Wraps with page wrapper", () => {
-        render(<ErrorDisplay displayAsPage />);
-        const element = screen.getByTestId("error-page-wrapper");
-        expect(element).toBeInTheDocument();
-        expect(element).toHaveClass("usa-section padding-top-6");
-    });
-
-    test("Wraps with message wrapper", () => {
+    test("Wraps with container grid wrapper", () => {
         render(<ErrorDisplay />);
-        const element = screen.getByTestId("error-message-wrapper");
+        const element = screen.getByTestId("error-display-wrapper");
         expect(element).toBeInTheDocument();
         expect(element).toHaveClass("grid-container");
     });
@@ -40,7 +33,7 @@ describe("errorContent", () => {
     const genericPageContent = errorContent(ErrorName.UNKNOWN, {
         displayAsPage: true,
     });
-    const notFoundContent = errorContent(ErrorName.NOT_FOUND);
+    const notFoundContent = errorContent(ErrorName.NO_PAGE);
     const unsupportedBrowserContent = errorContent(
         ErrorName.UNSUPPORTED_BROWSER
     );

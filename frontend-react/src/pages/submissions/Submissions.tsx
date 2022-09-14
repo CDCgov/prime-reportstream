@@ -12,9 +12,7 @@ function Submissions() {
     const orgName: string = useOrgName();
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorDisplay displayAsPage />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorDisplay />}>
             <Helmet>
                 <title>Submissions | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
