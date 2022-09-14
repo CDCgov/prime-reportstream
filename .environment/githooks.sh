@@ -54,7 +54,7 @@ function install_hooks() {
     echo "> Git hooks installed successfully"
 }
 
-# ./githooks.sh remove
+# ./githooks.sh remove 
 function remove_hooks() {
     echo "> Removing your git hooks"
 
