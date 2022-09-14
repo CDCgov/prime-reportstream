@@ -60,8 +60,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
         () =>
             dataFetch(getTableData, {
                 segments: {
-                    // tableName: dataTableName,
-                    tableName: "notfound",
+                    tableName: dataTableName,
                 },
             }),
         [dataFetch, dataTableName]
