@@ -79,7 +79,22 @@ export default class RSErrorBoundary extends React.Component<
 export const withThrowableError = (component: JSX.Element) => (
     <RSErrorBoundary>{component}</RSErrorBoundary>
 );
+/** A nice way to keep individual uses of Suspense out of jsx since it
+ * takes a non-dynamic prop.
+ * @example
+ * // As proxy
+ * export const MyWrappedComponent = () = withSuspense(<MyComponent />)
+ * // or in-line
+ * return (
+ *  <div>
+ *      {withSuspense(<MyComponent />)}
+ *  </div>
+ * )*/
+export const withSuspense = (component: JSX.Element) => (
+    <Suspense fallback={<Spinner />}>{component}</Suspense>
+);
 /** Use in exports and JSX calls to wrap an element in an error boundary and suspense
+ * Convenient for use when whole pages rely on network calls.
  * @example
  * // As proxy
  * export const MyWrappedComponent = () = withNetworkCall(<MyComponent />)
@@ -91,7 +106,5 @@ export const withThrowableError = (component: JSX.Element) => (
  * )
  * */
 export const withNetworkCall = (component: JSX.Element) => {
-    return withThrowableError(
-        <Suspense fallback={<Spinner />}>{component}</Suspense>
-    );
+    return withThrowableError(withSuspense(component));
 };
