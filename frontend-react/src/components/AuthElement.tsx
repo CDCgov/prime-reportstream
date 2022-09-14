@@ -22,7 +22,7 @@ export const AuthElement = ({
     const { oktaToken, activeMembership } = useSessionContext();
     // A way to check if this is a logged-in user refreshing the app
     const tokenAvailable = useMemo(
-        () => getStoredOktaToken() === undefined || getStoredOktaToken() === "",
+        () => getStoredOktaToken() !== undefined && getStoredOktaToken() !== "",
         []
     );
     // This memberType won't require an undefined fallback when used like the one
@@ -41,7 +41,7 @@ export const AuthElement = ({
     // All the checks before returning the route
     useEffect(() => {
         // Not logged in, needs to log in.
-        if (tokenAvailable || !activeMembership) {
+        if (!tokenAvailable || !activeMembership) {
             navigate("/login");
             return;
         }
