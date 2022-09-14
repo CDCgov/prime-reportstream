@@ -51,7 +51,8 @@ import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 import UploadToPipeline from "./pages/UploadToPipeline";
 import { AppWrapper } from "./components/AppWrapper";
-import { ErrorName } from "./utils/RSNetworkError";
+import { UnsupportedBrowser } from "./pages/error/content-elements/UnsupportedBrowser";
+import { NoPage } from "./pages/error/content-elements/NoPage";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -103,7 +104,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <ErrorDisplay code={ErrorName.UNSUPPORTED_BROWSER} />;
+    if (isIE) return <UnsupportedBrowser />;
 
     return (
         <AppWrapper
@@ -245,11 +246,7 @@ const App = () => {
                                 />
                             )}
                             {/* Handles any undefined route */}
-                            <Route
-                                render={() => (
-                                    <ErrorDisplay code={ErrorName.NO_PAGE} />
-                                )}
-                            />
+                            <Route component={NoPage} />
                         </Switch>
                     </main>
                     <ToastContainer limit={4} />

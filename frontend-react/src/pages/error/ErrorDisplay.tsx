@@ -23,3 +23,9 @@ export const ErrorMessageWrapper = (props: React.PropsWithChildren<{}>) => {
         </div>
     );
 };
+
+export const ErrorDisplay = () => (
+    <ErrorMessageWrapper>
+        <GenericError />
+    </ErrorMessageWrapper>
+);
