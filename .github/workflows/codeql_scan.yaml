@@ -7,7 +7,8 @@ on: push
   #      - master
   #      - test
   #   paths:
-  #      - '**.tf'
+  #      - '**.cs'
+  #      - '**.cs'
   # schedule:
   #   - cron: '0 8 * * 4'
 
@@ -25,11 +26,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 2
-
-    - run: git checkout HEAD^2
-      if: ${{ github.event_name == 'pull_request' }}
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
