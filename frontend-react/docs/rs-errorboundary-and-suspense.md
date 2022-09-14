@@ -46,7 +46,7 @@ const App = () => {
 Custom error types help us name and display errors according to members not present on a default `Error`. Currently, there are two extensions:
 
 - `code` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
-- `displayAs` (default: `"message"`) will tell the boundary if this error should display as a non-intrusive message banner or replace the entire page with an error ui
+- `displayAsPage` (default: `false`) will tell the boundary if this error should display as a non-intrusive message banner or replace the entire page with an error ui
 
 #### Boilerplate
 
@@ -57,11 +57,12 @@ export class RSMyNewError extends Error {
     /* Used for identifying unique content to display for error */
     code: ErrorName;
     /* Used to determine if this error should render as a message or full page */
-    displayAs: ErrorUI = ERROR_UI_DEFAULT;
+    displayAsPage: boolean = false;
     /* Build a new RSMyNewError */
-    constructor(message: string, code: ErrorName, display?: ErrorUI) {
+    constructor(message: string, code: ErrorName, displayAsPage?: boolean) {
         super(message); // Sets message
         this.code = code;
+        if (displayAsPage !== undefined) this.displayAsPage = displayAsPage;
         Object.setPrototypeOf(this, RSMyNewError.prototype);
     }
 }
@@ -73,4 +74,6 @@ The `ErrorName` enum drives the error page rendering system. Every code can be l
 
 ## Add new error page content
 
-Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent.tsx`
+Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent.tsx`. 
+
+> **Important!**  Your error template should handle the swap between page and message displays via props, NOT in the `errorContent` switch statement.
