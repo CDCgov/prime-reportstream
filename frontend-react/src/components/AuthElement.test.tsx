@@ -55,6 +55,23 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
+    // Test helps guard against out of sync state updates affecting redirect
+    test("Redirects when user not logged in (just missing membership)", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: undefined,
+            dispatch: () => {},
+        });
+        render(
+            <AuthElement
+                element={<TestElement />}
+                requiredUserType={MemberType.RECEIVER}
+            />
+        );
+        expect(mockUseNavigate).toHaveBeenCalledWith("/login");
+    });
     test("Redirects when user is unauthorized user type", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
@@ -72,6 +89,7 @@ describe("AuthElement unit tests", () => {
                 requiredUserType={MemberType.RECEIVER}
             />
         );
+        expect(mockUseNavigate).not.toHaveBeenCalledWith("/login"); // Make sure first navigate() doesn't accidentally run
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Redirects when user lacks feature flag", () => {
