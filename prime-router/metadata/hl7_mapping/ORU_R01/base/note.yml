@@ -5,7 +5,9 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-1' ]
 
   - name: note-source
-    value: [ '''L''' ]
+    value:
+      - '%noteDetails.extension(%`rsext-note-source`).value.coding.code'
+      - '"L"'
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
 
   - name: note-comment
@@ -13,25 +15,28 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-3' ]
 
   - name: note-comment-type-identifier
-    value: [ '''RE''' ]
+    value: [ '%noteDetails.extension(%`rsext-note-type`).value.coding.code' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-1' ]
 
   - name: note-comment-type-text
-    value: [ '''Remark''' ]
+    value: [ '%noteDetails.extension(%`rsext-note-type`).value.text' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-2' ]
 
   - name: note-comment-type-coding-system
-    value: [ '''HL70364''' ]
+    value: [ '%noteDetails.extension(%`rsext-note-type`).value.coding.system' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-3' ]
 
   - name: note-comment-type-alt-identifier
-    value: [ '''C''' ]
+    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
+    value: [ '%resource.value.coding.code' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-4' ]
 
   - name: note-comment-type-alt-text
-    value: [ '''Comment''' ]
+    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
+    value: [ '%resource.value.coding.display' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-5' ]
 
   - name: note-comment-type-alt-coding-system
-    value: [ '''L''' ]
+    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
+    value: [ '%resource.value.coding.system' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-6' ]
