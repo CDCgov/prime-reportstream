@@ -58,7 +58,7 @@ export const AuthElement = ({
         activeMembership,
         authorizeMemberType,
         navigate,
-        oktaToken.accessToken,
+        oktaToken?.accessToken,
         requiredFeatureFlag,
         requiredUserType,
         tokenAvailable,
