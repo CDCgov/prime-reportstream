@@ -13,11 +13,11 @@ export enum ErrorName {
  * match it with the right display */
 export class RSNetworkError extends Error {
     /* Used for identifying unique content to display for error */
-    code: ErrorName;
+    name: ErrorName;
     /* Build a new RSNetworkError */
     constructor(message: string, status?: number) {
         super(`(RSNetworkError) ${message}`); // Sets message
-        this.code = this.parseStatus(status); // Sets code using child's parseStatus
+        this.name = this.parseStatus(status); // Sets code using child's parseStatus
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Map response status code to error name */

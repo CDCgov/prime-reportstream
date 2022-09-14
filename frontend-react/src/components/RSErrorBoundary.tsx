@@ -5,7 +5,8 @@ import {
     isRSNetworkError,
     RSNetworkError,
 } from "../utils/RSNetworkError";
-import { errorContent, ErrorMessageWrapper } from "../pages/error/ErrorDisplay";
+import { ErrorMessageWrapper } from "../pages/error/ErrorDisplay";
+import { GenericError } from "../pages/error/content-elements/Generic";
 
 import Spinner from "./Spinner";
 
@@ -14,7 +15,7 @@ interface ErrorBoundaryProps {
 }
 interface ErrorBoundaryState {
     hasError: boolean;
-    code?: ErrorName;
+    errorName?: ErrorName;
 }
 /** Used to define default state values on render */
 const initState: ErrorBoundaryState = {
@@ -33,15 +34,15 @@ export default class RSErrorBoundary extends React.Component<
     static getDerivedStateFromError(error: RSNetworkError): ErrorBoundaryState {
         /* This WILL catch non-RS errors despite our typescript type definition in the method params.
          * This is a runtime check to help with non RS errors */
-        const useLegacy = !isRSNetworkError(error);
-        if (useLegacy) {
+        const notRSError = !isRSNetworkError(error);
+        if (notRSError) {
             console.warn(
-                "Please work to migrate all non RSError throws to use an RSError-extending error type."
+                "Please work to migrate all non RSError throws to use an RSError object."
             );
         }
         return {
             hasError: true,
-            code: useLegacy ? ErrorName.NON_RS_ERROR : error.code,
+            errorName: notRSError ? ErrorName.NON_RS_ERROR : error.name,
         };
     }
     /** Any developer logging needed (i.e. log the error in console, push to
@@ -55,7 +56,8 @@ export default class RSErrorBoundary extends React.Component<
         if (this.state.hasError) {
             return (
                 <ErrorMessageWrapper>
-                    {errorContent(this.state.code)}
+                    {/* TODO: Discuss error interfaces with design, maybe remove need for this function */}
+                    <GenericError />
                 </ErrorMessageWrapper>
             );
         }

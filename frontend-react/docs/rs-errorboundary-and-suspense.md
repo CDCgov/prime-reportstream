@@ -2,13 +2,13 @@
 
 The boundary/suspense pattern helps alleviate error and loading state management from every component into two easily-managed components that wrap your page or component. First in the tree, you'll have an `ErrorBoundary` to catch any errors thrown and render a UI for the user, then, nested below that, a `Suspense` to handle the UI while the data is fetched. 
 
-The system is simple: we throw errors from anywhere in our app, and the first boundary on the way up the tree will catch and render it. This functionality has been extended by adding `RSNetworkError` and some custom logic that lets us render _different_ UIs depending on an error's enumerated code.
+The system is simple: we throw errors from anywhere in our app, and the first boundary on the way up the tree will catch and render it. This functionality has been extended by adding `RSNetworkError` and some custom logic that lets us render _different_ UIs depending on an error's status code.
 
 Steps to use:
 
 - [Wrap your components](#helper-functions)
-- Throw an error (see: [Custom Errors](#add-a-custom-error-type))
-- Render an error page (see: [Custom Error Page Content](#add-new-error-page-content))
+- Call the network (this will activate the suspense)
+- Throw an error if your call fails (handled by our fetch system)
 
 ## Helper functions
 
@@ -55,14 +55,11 @@ Custom error types help us name and display errors according to members not pres
  * match it with the right display */
 export class RSMyNewError extends Error {
     /* Used for identifying unique content to display for error */
-    code: ErrorName;
-    /* Used to determine if this error should render as a message or full page */
-    displayAsPage: boolean = false;
+    name: ErrorName;
     /* Build a new RSMyNewError */
     constructor(message: string, code: ErrorName, displayAsPage?: boolean) {
         super(message); // Sets message
-        this.code = code;
-        if (displayAsPage !== undefined) this.displayAsPage = displayAsPage;
+        this.name = name;
         Object.setPrototypeOf(this, RSMyNewError.prototype);
     }
 }
@@ -71,9 +68,3 @@ export class RSMyNewError extends Error {
 ### Add a new `ErrorName` value(s) to enum
 
 The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSNetworkError.ts` file.
-
-## Add new error page content
-
-Once your codes are parsed, and your name is enumerated, you can create your own custom content as a jsx element. Once exported, add it to the switch that selects the proper element before rendering in `ErrorComponent.tsx`. 
-
-> **Important!**  Your error template should handle the swap between page and message displays via props, NOT in the `errorContent` switch statement.
