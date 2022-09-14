@@ -20,7 +20,7 @@ export class RSNetworkError extends Error {
     displayAsPage: boolean = false;
     /* Build a new RSNetworkError */
     constructor(message: string, status?: number, displayAsPage?: boolean) {
-        super(message); // Sets message
+        super(`(RSNetworkError) ${message}`); // Sets message
         this.code = this.parseStatus(status); // Sets code using child's parseStatus
         if (displayAsPage !== undefined) this.displayAsPage = displayAsPage; // Updates display from default if present
         Object.setPrototypeOf(this, RSNetworkError.prototype);

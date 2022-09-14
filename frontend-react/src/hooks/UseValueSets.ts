@@ -71,8 +71,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, dataTableName],
-        memoizedDataFetch,
-        { suspense: true }
+        memoizedDataFetch
     );
 
     return { valueSetArray: valueSetData as T };
@@ -96,8 +95,7 @@ export const useValueSetsMeta = (
     // get all lookup tables in order to get metadata
     const { data: tableData } = useQuery<LookupTable[]>(
         [getTableList.queryKey],
-        () => lookupTableFetch(getTableList),
-        { suspense: true }
+        () => lookupTableFetch(getTableList)
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);

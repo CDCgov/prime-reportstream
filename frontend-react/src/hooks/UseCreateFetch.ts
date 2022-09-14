@@ -3,6 +3,7 @@ import { AccessToken } from "@okta/okta-auth-js";
 import axios from "axios";
 
 import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 import { MembershipSettings } from "./UseOktaMemberships";
 
@@ -48,7 +49,7 @@ function createTypeWrapperForAuthorizedFetch(
         return axios(axiosConfig)
             .then(({ data }) => data)
             .catch((e: any) => {
-                console.error(e.message);
+                throw new RSNetworkError(e.message, e.status, true);
             });
     };
 }
