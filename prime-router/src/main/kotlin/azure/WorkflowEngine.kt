@@ -523,7 +523,7 @@ class WorkflowEngine(
         }
         // save action record to db
         db.transact { txn ->
-            actionHistory.saveToDb(txn)
+            db.saveActionHistoryToDb(actionHistory, txn)
         }
     }
 
@@ -687,9 +687,9 @@ class WorkflowEngine(
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
         if (txn != null) {
-            actionHistory.saveToDb(txn)
+            db.saveActionHistoryToDb(actionHistory, txn)
         } else {
-            db.transact { innerTxn -> actionHistory.saveToDb(innerTxn) }
+            db.transact { innerTxn -> db.saveActionHistoryToDb(actionHistory, innerTxn) }
         }
     }
 

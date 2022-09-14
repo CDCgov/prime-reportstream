@@ -10,7 +10,7 @@ elements:
     value: [ '%resource']
     hl7Spec: [ '%{cweFieldPath}-7' ]
 
-  - name: coding-system-version-id
+  - name: coding-system-alternate-version-id
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]

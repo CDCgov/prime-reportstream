@@ -3,7 +3,7 @@ output "sftp_storage" {
 }
 
 output "sftp_shares" {
-  value = toset(jsondecode(data.external.sftp_ssh_query.result.shares))
+  value = tolist(sort(flatten([for k, v in module.instance : v.share_names])))
 }
 
 output "sftp_instances" {
