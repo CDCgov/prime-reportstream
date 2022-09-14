@@ -41,7 +41,6 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Success!")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
-    // Test helps guard against out of sync state updates affecting redirect
     test("Redirects when user not logged in (no token, no membership)", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
@@ -56,21 +55,23 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
-    test("Redirects when user not logged in (no membership)", () => {
+    test("Does not redirect when user refreshes app (token loads after membership)", () => {
         mockSessionContext.mockReturnValueOnce({
-            oktaToken: {
-                accessToken: "TOKEN",
+            oktaToken: undefined,
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "all-in-one-health-ca",
             },
-            activeMembership: undefined,
             dispatch: () => {},
         });
         render(
             <AuthElement
                 element={<TestElement />}
-                requiredUserType={MemberType.RECEIVER}
+                requiredUserType={MemberType.SENDER}
             />
         );
-        expect(mockUseNavigate).toHaveBeenCalledWith("/login");
+        expect(mockUseNavigate).not.toHaveBeenCalledWith();
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Redirects when user is unauthorized user type", () => {
         mockSessionContext.mockReturnValueOnce({
