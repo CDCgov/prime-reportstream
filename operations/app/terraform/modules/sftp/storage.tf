@@ -12,7 +12,6 @@ resource "azurerm_storage_account" "sftp" {
     bypass         = ["AzureServices"]
 
     ip_rules = var.terraform_caller_ip_address
-    #virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
   tags = {
@@ -20,6 +19,13 @@ resource "azurerm_storage_account" "sftp" {
   }
 }
 
+# Uncomment below for initial install
+# Comment and remove from state after install due to share refresh error:
+# shares.Client#GetProperties: Failure sending request
+# Related links:
+# https://github.com/Azure/azure-rest-api-specs/issues/16782
+# https://github.com/hashicorp/terraform-provider-azurerm/pull/14220
+/*
 # SSH host keys share
 resource "azurerm_storage_share" "sftp_admin" {
   name                 = "${var.resource_prefix}-sftp-admin-share"
@@ -40,3 +46,4 @@ resource "azurerm_storage_share_file" "sftp" {
   storage_share_id = azurerm_storage_share.sftp_scripts.id
   source           = "${var.sftp_dir}/startup.sh"
 }
+*/

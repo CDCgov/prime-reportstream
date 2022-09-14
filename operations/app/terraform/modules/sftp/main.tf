@@ -19,8 +19,4 @@ module "instance" {
   network_profile_id = azurerm_network_profile.sftp.id
   subnet_id          = data.azurerm_subnet.container_subnet.id
 
-  depends_on = [
-    azurerm_storage_share_file.sftp,
-    azurerm_storage_share.sftp_scripts
-  ]
 }
