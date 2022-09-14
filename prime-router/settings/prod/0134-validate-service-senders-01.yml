@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env prod --input ./settings/staging/0134-validate-service-sender-01
+# ./prime multiple-settings set --env prod --input ./settings/prod/0134-validate-service-sender-01
 # NOTE: Updated from UI
 ---
 - name: "validation-service-senders"
@@ -10,6 +10,7 @@
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
+      # upload-covid-19 is the "standard" csv schema
       schemaName: "upload-covid-19"
       processingType: "sync"
     - name: "hl7"
@@ -17,5 +18,6 @@
       format: "HL7"
       topic: "covid-19"
       customerStatus: "testing"
-      schemaName: "upload-covid-19"
+      # hl7-ingest-covid-19 is the "standard" hl7 schema
+      schemaName: "hl7/hl7-ingest-covid-19-training"
       processingType: "sync"
