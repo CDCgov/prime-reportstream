@@ -17,9 +17,8 @@ elements:
     - name: patient_id
       csvFields: [{name: patient_id}]
 
-    - name: accession_number
+    - name: filler_order_id
       csvFields: [{name: accession_number}]
-
 
     - name: message_id
       csvFields: [{name: message_id}]
@@ -165,11 +164,7 @@ elements:
     - name: testing_lab_city
       csvFields: [{name: testing_lab_city}]
 
-    - name: testing_lab_state_fromCSV
-      csvFields: [{name: testing_lab_state}]
-
     - name: testing_lab_state
-
       csvFields: [{name: testing_lab_state}]
 
     - name: testing_lab_zip_code
