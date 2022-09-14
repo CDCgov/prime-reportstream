@@ -34,7 +34,7 @@ export const AuthElement = ({
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
     useEffect(() => {
-        if (!oktaToken?.accessToken || !activeMembership) {
+        if (!activeMembership) {
             navigate("/login");
             return;
         } // Not logged in, needs to log in.
