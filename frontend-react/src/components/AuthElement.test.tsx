@@ -41,7 +41,8 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Success!")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
-    test("Redirects when user not logged in", () => {
+    // Test helps guard against out of sync state updates affecting redirect
+    test("Redirects when user not logged in (no token, no membership)", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: undefined,
@@ -55,8 +56,7 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
-    // Test helps guard against out of sync state updates affecting redirect
-    test("Redirects when user not logged in (just missing membership)", () => {
+    test("Redirects when user not logged in (no membership)", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
