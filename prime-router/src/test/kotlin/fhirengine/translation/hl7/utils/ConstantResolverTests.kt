@@ -26,10 +26,11 @@ import java.util.UUID
 class ConstantResolverTests {
     @Test
     fun `test custom context`() {
-        val previousContext = CustomContext(Bundle())
+        val previousContext = CustomContext(Bundle(), Bundle())
         assertThat(CustomContext.addConstants(mapOf(), previousContext)).isNotNull()
 
-        val constant = sortedMapOf("name1" to "value1")
+        val constantValue = "value1"
+        val constant = sortedMapOf("name1" to "'$constantValue'")
         var context = CustomContext.addConstant(constant.firstKey(), constant[constant.firstKey()]!!, previousContext)
         assertThat(context).isNotNull()
         assertThat(context.constants).isNotEmpty()
@@ -41,7 +42,7 @@ class ConstantResolverTests {
         assertThat(context.constants[constant.firstKey()]).isEqualTo(constant[constant.firstKey()])
 
         // Check that a new context is returned
-        var context2 = CustomContext.addConstant("anotherconst", "value", context)
+        var context2 = CustomContext.addConstant("anotherconst", "'value'", context)
         assertThat(context2).isNotNull()
         assertThat(context2).isNotSameAs(context) // Test the reference is different
 
@@ -53,7 +54,7 @@ class ConstantResolverTests {
     @Test
     fun `test constant substitutortortortortortor - funny name`() {
         val constant = sortedMapOf("const1" to "value1")
-        val context = CustomContext.addConstants(constant, CustomContext(Bundle()))
+        val context = CustomContext.addConstants(constant, CustomContext(Bundle(), Bundle()))
 
         var inputString = "Lorem ipsum %{const1} sit amet, consectetur adipiscing"
         val expectedString = "Lorem ipsum value1 sit amet, consectetur adipiscing"
@@ -75,25 +76,23 @@ class ConstantResolverTests {
 
         val integerValue = 99
         val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
-        val constants = sortedMapOf("const1" to "value1", "int1" to integerValue.toString(), "rsext" to urlPrefix)
-        val context = CustomContext.addConstants(constants, CustomContext(Bundle()))
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const2", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
+        val constants = sortedMapOf("const1" to "'value1'", "int1" to "'$integerValue'", "rsext" to "'$urlPrefix'")
+        val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
+        assertThat(FhirPathCustomResolver().resolveConstant(context, "const2", false)).isNull()
+        assertThat(FhirPathCustomResolver().resolveConstant(context, "const1", false)).isNotNull()
+        var result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
+        assertThat(result).isNotNull()
+        assertThat(result is IntegerType).isTrue()
+        assertThat((result as IntegerType).value).isEqualTo(integerValue)
 
         // Now lets resolve a constant
-        var result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
+        result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
         assertThat(result).isNotNull()
         assertThat(result!!.isPrimitive).isTrue()
         assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(constants[constants.firstKey()])
-
-        result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
-        assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(IntegerType::class.java)
-        assertThat((result as IntegerType).value).isEqualTo(integerValue)
+        assertThat((result as StringType).value).isEqualTo(
+            constants[constants.firstKey()]!!.replace("'", "")
+        )
 
         // Text the ability to resolve constants with suffix
         val urlSuffix = "SomeSuffix"
@@ -122,7 +121,7 @@ class ConstantResolverTests {
         val org2Url = "Organization/${org2.id}"
 
         val bundle = Bundle()
-        val customContext = CustomContext(bundle)
+        val customContext = CustomContext(bundle, bundle)
         assertThat(FhirPathCustomResolver().resolveReference(customContext, org2Url)).isNull()
 
         bundle.addEntry().resource = org1

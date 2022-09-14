@@ -6,17 +6,17 @@ elements:
     value: [ '1' ]
     hl7Spec: [ '%{hl7TQ1}-1' ]
 
-  - name: tq1-set-id
+  - name: tq1-start-of-service
     condition: '%resource.extension(%`rsext-start-of-service`).exists()'
     value: [ '%resource.extension(%`rsext-start-of-service`).value' ]
     hl7Spec: [ '%{hl7TQ1}-7' ]
 
-  - name: tq1-set-id
+  - name: tq1-end-of-service
     condition: '%resource.extension(%`rsext-end-of-service`).exists()'
     value: [ '%resource.extension(%`rsext-end-of-service`).value' ]
     hl7Spec: [ '%{hl7TQ1}-8' ]
 
-  - name: tq1-set-id
+  - name: tq1-service-priority
     condition: '%resource.extension(%`rsext-service-priority`).exists()'
     value: [ '%resource.extension(%`rsext-service-priority`).value.coding.code' ]
     hl7Spec: [ '%{hl7TQ1}-9-1' ]

@@ -282,8 +282,8 @@
     - name: default
       organizationName: intrivo
       topic: covid-19
-      customerStatus: testing
-      schemaName: hl7/hl7-ingest-covid-19-training
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-prod
       format: HL7
 
 - name: limsabc-nova
@@ -347,6 +347,17 @@
   senders:
     - name: default
       organizationName: clxhealth
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: providence
+  description: Providence
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: providence
       topic: covid-19
       customerStatus: testing
       schemaName: hl7/hl7-ingest-covid-19-training
@@ -3481,6 +3492,9 @@
         useBatchHeaders: true
         receivingApplicationName: RI_DOH
         receivingFacilityName: RI_DOH
+        suppressHl7Fields: ORC-12-1, OBR-16-1, PID-5-7
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
