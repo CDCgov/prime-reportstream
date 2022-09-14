@@ -147,7 +147,7 @@ class ValidateFunction(
             }
         )
 
-        // add destinations
+        // add quality filter results to the submission before returning
         routedTo.forEach { it ->
             submission.destinations.add(
                 Destination(

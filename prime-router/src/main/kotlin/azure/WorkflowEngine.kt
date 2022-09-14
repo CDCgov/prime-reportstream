@@ -423,6 +423,9 @@ class WorkflowEngine(
         return warnings
     }
 
+    /**
+     * Do translation and routing as one atomic unit
+     */
     internal fun translateAndRouteReport(
         report: Report,
         defaults: Map<String, String>,
