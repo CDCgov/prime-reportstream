@@ -11,20 +11,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: build samples and apps
+    - name: build prime-router java code
       uses: github/codeql-action/init@v2
       with:
         languages: Java
     - run: |
-        pushd samples
-        chmod +x gradlew
-        ./gradlew -q clean bundleDebug
-        popd
-        pushd apps/OboeTester
-        chmod +x gradlew
-        ./gradlew -q clean bundleDebug
-        popd
-        pushd apps/fxlab
+        pushd prime-router
         chmod +x gradlew
         ./gradlew -q clean bundleDebug
         popd
