@@ -169,7 +169,7 @@ echo "apply complete"
 ### One-time config after first creation (initialization):
  1. Download VPN client file:
     * Azure VPN Settings > Point-to-site configuration > Download VPN client > OpenVPN directory
- 2. Copy `remote` & `verify-x509-name` to `.github/vpn/<env>.ovpn`
+ 2. Copy `remote`, `verify-x509-name`, and `<tls-auth>` to `.github/vpn/<env>.ovpn`
  3. Update key vaults in `operations/dnsmasq/config/<env>/hosts.local` with random id in name.
 
 ## Example Manual Destroy
