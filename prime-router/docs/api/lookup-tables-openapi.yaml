@@ -106,6 +106,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMsg'
 
+  /api/lookuptables/{tableName}/content:
+    get:
+      description: Fetch the contents of the active version of a table
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The table contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicTableRows'
+        '404':
+          description: The table name was not found, or there was no active version of that table.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+        '400':
+          description: if there was an error fetching the table data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMsg'
+
   /api/lookuptables/{tableName}/{tableVersion}/info:
     get:
       description: Fetch the version information of a specific version of a table

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
@@ -11,6 +11,8 @@ import ActionDetailsResource, {
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
 import Crumbs, { CrumbConfig } from "../../components/Crumbs";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 /* Custom types */
 type DetailItemProps = {
@@ -164,3 +166,10 @@ function SubmissionDetails() {
 }
 
 export default SubmissionDetails;
+
+export const SubmissionDetailsWithAuth = () => (
+    <AuthElement
+        element={<SubmissionDetails />}
+        requiredUserType={MemberType.SENDER}
+    />
+);

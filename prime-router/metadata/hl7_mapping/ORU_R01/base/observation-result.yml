@@ -1,0 +1,183 @@
+name: ORU-R01-observation-result
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+  observation: '%diagnostic.result[%resultIndex].resolve()'
+elements:
+  - name: result-set-ID
+    value: [ '%resultIndex + 1' ]
+    hl7Spec: [ '%{hl7OBXField}-1' ]
+
+  - name: result-value-type-st
+    condition: '%resource.value is String or %resource.value.exists().not()'
+    value: [ '"ST"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-cwe
+    condition: '%resource.value is CodeableConcept'
+    value: [ '"CWE"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-sn
+    condition: '%resource.value is Ratio'
+    value: [ '"SN"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: observation-identifier-code
+    value: [ '%resource.code.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-3-1' ]
+
+  - name: observation-identifier-text
+    value: [ '%resource.code.text' ]
+    hl7Spec: [ '%{hl7OBXField}-3-2' ]
+
+  - name: observation-identifier-coding-system
+    value: [ '%resource.code.coding.system' ]
+    hl7Spec: [ '%{hl7OBXField}-3-3' ]
+
+  # override to handle LN translated to loinc L on HL7->FHIR conversion
+  - name: observation-identifier-coding-system-ln
+    resource: '%resource.code.coding'
+    condition: '%resource.system = "http://loinc.org" and %resource.version = "L"'
+    value: [ '"LN"' ]
+    hl7Spec: [ '%{hl7OBXField}-3-3' ]
+
+  - name: observation-identifier-alternate-code
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-3-4' ]
+
+  - name: observation-identifier-alternate-text
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    hl7Spec: [ '%{hl7OBXField}-3-5' ]
+
+  - name: observation-identifier-alternate-system
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    hl7Spec: [ '%{hl7OBXField}-3-6' ]
+
+  - name: observation-value-sub-id
+    value: [ '%resource.extension(%`rsext-sub-id`).value' ]
+    hl7Spec: [ '%{hl7OBXField}-4' ]
+
+  - name: observation-value-st
+    condition: '%resource.value is string'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: observation-value-cwe
+    resource: '%resource.value'
+    condition: '%resource is CodeableConcept'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-5'
+    schema: coded-with-exceptions
+
+  - name: observation-value-numeric
+    resource: '%resource.value'
+    condition: '%resource is Ratio'
+    schema: structured-numeric
+
+  - name: observation-units-identifier
+    value: [ '%resource.extension(%`rsext-units`).value.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-6-1' ]
+
+  - name: observation-units-text
+    value: [ '%resource.extension(%`rsext-units`).value.text' ]
+    hl7Spec: [ '%{hl7OBXField}-6-2' ]
+
+  - name: observation-units-system
+    condition: >
+      %resource.extension(%`rsext-units`).exists() and 
+      %resource.extension(%`rsext-units`).value.coding.system = "http://unitsofmeasure.org"
+    value: [ '"UCUM"' ]
+    hl7Spec: [ '%{hl7OBXField}-6-3' ]
+
+  - name: observation-units-alternate-identifier
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
+    value: [ '%resource.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-6-4' ]
+
+  - name: observation-units-alternate-text
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
+    value: [ '%resource.coding.display' ]
+    hl7Spec: [ '%{hl7OBXField}-6-5' ]
+
+  - name: observation-units-alternate-system
+    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
+    value: [ '%resource.coding.system' ]
+    hl7Spec: [ '%{hl7OBXField}-6-6' ]
+
+  - name: observation-abnormal-flag
+    value: [ '%resource.interpretation.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-8' ]
+
+  - name: observation-result-status-preliminary
+    condition: '%resource.status = "preliminary"'
+    value: [ '"P"' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-corrected
+    condition: '%resource.status = "corrected"'
+    value: [ '"C"' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-corrected
+    condition: '%resource.status = "final"'
+    value: [ '"F"' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-date-time
+    value: [ '%resource.effective' ]
+    hl7Spec: [ '%{hl7OBXField}-14' ]
+
+  - name: observation-producer-id
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier'
+    constants:
+      ceFieldPath: '%{hl7OBXField}-15'
+    schema: coded-element
+
+  - name: observation-producer-id-identifier
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7OBXField}-15-1' ]
+
+  - name: observation-producer-id-text
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7OBXField}-15-2' ]
+
+  - name: observation-producer-id-system
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier.extension(%`rsext-coding-system`).value'
+    value: [ '%resource.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-15-3' ]
+
+  - name: analysis-date-time
+    value: [ '%resource.issued' ]
+    hl7Spec: [ '%{hl7OBXField}-19' ]
+
+  - name: performing-organization-name
+    resource: '%resource.performer.resolve().organization.resolve()'
+    schema: xon-organization
+    constants:
+      hl7OrgField: '%{hl7OBXField}-23'
+
+  - name: performing-organization-address
+    resource: '%resource.performer.resolve().organization.resolve().address'
+    constants:
+      hl7AddressField: '%{hl7OBXField}-24'
+    schema: xad-extended-address
+    resourceIndex: contactIndex
+
+  - name: performing-organization-director
+    resource: '%resource.performer.resolve().practitioner.resolve()'
+    constants:
+      hl7XCNField: '%{hl7OBXField}-25'
+    schema: xcn-contact
+    resourceIndex: contactIndex
+
+  - name: observation-note
+    condition: '%observation.note.exists()'
+    resource: '%resource.note.text.split(''\n'')'
+    schema: note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7ObservationPath}'
+      noteDetails: '%observation.note'

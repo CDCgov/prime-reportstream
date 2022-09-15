@@ -53,7 +53,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 val jwt = decodeJwt(accessToken)
 
                 // Extract claims into a more usable form
-                val claims = AuthenticatedClaims(jwt.claims, isOktaAuth = true)
+                val claims = AuthenticatedClaims(jwt.claims, AuthenticationType.Okta)
                 logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
                 return claims
             } catch (e: JwtVerificationException) {

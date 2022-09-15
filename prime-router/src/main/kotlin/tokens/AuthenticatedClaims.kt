@@ -8,10 +8,18 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
-const val DO_OKTA_AUTH = "okta"
 const val subjectClaim = "sub"
 val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
 val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
+
+/**
+ * Ways in which authentication/authorization are implemented in ReportStream.
+ * Note that x-functions-key auth is implemented directly in Azure, and so does not need to be represented here.
+ */
+enum class AuthenticationType {
+    Okta,
+    Server2Server;
+}
 
 /**
  * This represents a set of claims coming from Okta that have been authenticated (but may or may not
@@ -40,6 +48,9 @@ class AuthenticatedClaims : Logging {
      */
     val scopes: Set<String>
 
+    /** Which way was this authentication done? eg, okta, or, server2server token */
+    val authenticationType: AuthenticationType
+
     /**
      * [_jwtClaims]  The raw list of claims
      * [isOktaAuth] true if the claims came from Okta (eg, groups like "DHmd-phd").  false if the claims came from
@@ -47,24 +58,29 @@ class AuthenticatedClaims : Logging {
      *
      * Each value passed must have been already authenticated.  This is for claims, *not* for required authorizations.
      */
-    constructor(_jwtClaims: Map<String, Any>, isOktaAuth: Boolean) {
+    constructor(_jwtClaims: Map<String, Any>, authenticationType: AuthenticationType) {
         this.jwtClaims = _jwtClaims
         this.userName = _jwtClaims[subjectClaim]?.toString() ?: error("No username in claims")
-        if (isOktaAuth) {
-            @Suppress("UNCHECKED_CAST")
-            val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
-            this.scopes = Scope.mapOktaGroupsToScopes(memberships)
-        } else {
-            // todo this assumes a single scope.  Need to add support for multiple scopes.
-            val claimsScope = _jwtClaims["scope"] as String
-            if (claimsScope.isEmpty())
-                error("For $userName, server2server token had no scope defined. Not authenticated")
-            if (!Scope.isValidScope(claimsScope))
-                error("For $userName, server2server scope $claimsScope: invalid format")
-            this.scopes = setOf(claimsScope)
+        this.authenticationType = authenticationType
+        when (authenticationType) {
+            AuthenticationType.Okta -> {
+                @Suppress("UNCHECKED_CAST")
+                val memberships =
+                    jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
+                this.scopes = Scope.mapOktaGroupsToScopes(memberships)
+            }
+            AuthenticationType.Server2Server -> {
+                // todo this assumes a single scope.  Need to add support for multiple scopes.
+                val claimsScope = _jwtClaims["scope"] as String
+                if (claimsScope.isEmpty())
+                    error("For $userName, server2server token had no scope defined. Not authenticated")
+                if (!Scope.isValidScope(claimsScope))
+                    error("For $userName, server2server scope $claimsScope: invalid format")
+                this.scopes = setOf(claimsScope)
+            }
+            // else -> error("$authenticationType authentication is not implemented")
         }
         this.isPrimeAdmin = scopes.contains(Scope.primeAdminScope)
-        // todo : have the TokenAuthentication.authenticate return type AuthenticatedClaims.
     }
 
     /**
@@ -196,19 +212,21 @@ class AuthenticatedClaims : Logging {
                 return null
             }
 
-            val isOktaAuth = (request.headers["authentication-type"] == DO_OKTA_AUTH)
-            val authenticatedClaims = if (isOktaAuth) {
-                // Humans using Okta will send "authentication-type": "okta" in the request header
-                OktaAuthentication.authenticate(accessToken, request.httpMethod, request.uri.path) ?: return null
-            } else {
-                // In all other cases, do server2server (also called 'two-legged' or 'FHIR') auth.
-                // Authenticate the token.
-                Server2ServerAuthentication().authenticate(accessToken) ?: return null
+            // First try Okta, then try Server2Server, then give up.
+            logger.info("Attempting Okta auth for request to ${request.uri}")
+            var authenticatedClaims = OktaAuthentication.authenticate(accessToken, request.httpMethod, request.uri.path)
+            if (authenticatedClaims == null) {
+                logger.info("Okta: Unauthorized.  Now trying server2server auth for request to ${request.uri}.")
+                authenticatedClaims = Server2ServerAuthentication().authenticate(accessToken)
+                if (authenticatedClaims == null) {
+                    logger.info("Server2Server: Also Unauthorized, for request to ${request.uri}. Giving up.")
+                    return null
+                }
             }
             logger.info(
                 "Authenticated request by ${authenticatedClaims.userName}: " +
                     "(${request.httpMethod}:${request.uri.path})" +
-                    " using ${if (isOktaAuth) "Okta" else "Server2Server"} auth."
+                    " using ${authenticatedClaims.authenticationType.name} auth."
             )
             return authenticatedClaims
         }
@@ -224,7 +242,7 @@ class AuthenticatedClaims : Logging {
                 oktaMembershipClaim to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
                 "sub" to "local@test.com",
             )
-            return AuthenticatedClaims(jwtClaims, isOktaAuth = true)
+            return AuthenticatedClaims(jwtClaims, AuthenticationType.Okta)
         }
     }
 }

@@ -1,7 +1,13 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import React, {
+    useState,
+    useEffect,
+    Dispatch,
+    SetStateAction,
+    useMemo,
+} from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
@@ -9,18 +15,24 @@ import Table, {
     TableConfig,
     TableRow,
 } from "../../../components/Table/Table";
-import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
+import {
+    useValueSetActivation,
+    useValueSetsMeta,
+    useValueSetsTable,
+    useValueSetUpdate,
+} from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
-    lookupTableApi,
     ValueSetRow,
-} from "../../../network/api/LookupTableApi";
+} from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     ReportStreamAlert,
     handleErrorWithAlert,
 } from "../../../utils/ErrorUtils";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -39,67 +51,44 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
         editable: true,
     },
 ];
-/* 
 
-  all of this is to support a legend on the page that has been removed from MVP
+interface SenderAutomationDataRow extends ValueSetRow {
+    id?: number;
+}
 
-  this can be added back once we have resources available to make this dynamic
+// currently a placeholder based on design doc
+// This needs a review, especially since we don't have update meta, only creation
+const ValueSetsDetailHeader = ({
+    name,
+    meta,
+}: {
+    name: string;
+    meta: LookupTable;
+}) => {
+    const { createdAt, createdBy } = meta;
+    return (
+        <>
+            <h1>{name}</h1>
+            <p>
+                <b>Last update:</b> {createdAt}
+            </p>
+            <p>
+                <b>Updated by:</b> {createdBy}
+            </p>
+        </>
+    );
+};
 
-  const legendItems: LegendItem[] = [
-      { label: "Name", value: valueSetName },
-      { label: "Version", value: "2.5.1" },
-      { label: "System", value: "HL7" },
-      {
-          label: "Reference",
-          value: "HL7 guidance for ethnicity (Make this linkable)",
-      },
-  ];
-  
-  // currently a placeholder based on design doc
-  // TODO: does this need to be more dynamic than we've made it here?
-  const ValueSetsDetailHeader = ({
-      valueSetName,
-      updatedAt,
-      updatedBy,
-  }: {
-      valueSetName: string;
-      updatedAt: Date;
-      updatedBy: string;
-  }) => {
-      return (
-          <>
-              <h1>{valueSetName}</h1>
-              <p>
-                  File will fail if numeric values or test values are not entered
-                  using accepted values or field is left blank.
-              </p>
-              <p>
-                  Accepted values come from values mapped to LOINC codes you can
-                  find in the PHN VADS system (needs link).
-              </p>
-              <p>
-                  <b>Last update:</b> {updatedAt.toString()}
-              </p>
-              <p>
-                  <b>Updated by:</b> {updatedBy}
-              </p>
-          </>
-      );
-  };
-
-*/
-
-const saveData = async (
+// splices the new row in the list of all rows,
+// since we can't save one row at a time
+const prepareRowsForSave = (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
     valueSetName: string
-): Promise<LookupTable> => {
+): ValueSetRow[] => {
     if (row === null) {
         throw new Error("A null row was encountered in saveData");
     }
-
-    const endpointHeaderUpdate =
-        lookupTableApi.saveTableData<ValueSetRow[]>(valueSetName);
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
@@ -124,26 +113,10 @@ const saveData = async (
         })
     );
 
-    const updateResult = await axios.post(
-        endpointHeaderUpdate.url,
-        strippedArray,
-        endpointHeaderUpdate
-    );
-
-    const endpointHeaderActivate = lookupTableApi.activateTableData(
-        updateResult.data.tableVersion,
-        valueSetName
-    );
-
-    const activateResult = await axios.put(
-        endpointHeaderActivate.url,
-        valueSetName,
-        endpointHeaderActivate
-    );
-    return activateResult.data;
+    return strippedArray;
 };
 
-const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
+const addIdsToRows = (valueSetArray: ValueSetRow[] = []): ValueSetRow[] => {
     return valueSetArray.map((row, index) => {
         return {
             ...row,
@@ -152,26 +125,21 @@ const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
     });
 };
 
-interface SenderAutomationDataRow extends ValueSetRow {
-    id?: number;
-}
-
 export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
+    error,
+    valueSetData,
+    Legend,
 }: {
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
+    valueSetData: ValueSetRow[];
+    error?: Error;
+    Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const [valueSetRows, setValueSetRows] = useState<ValueSetRow[]>(
-        [] as ValueSetRow[]
-    );
-    const [valueSetsVersion, setValueSetVersion] = useState<number>();
-
-    const { valueSetArray, error } = useValueSetsRowTable(
-        valueSetName,
-        valueSetsVersion
-    );
+    const { saveData } = useValueSetUpdate();
+    const { activateTable } = useValueSetActivation();
 
     useEffect(() => {
         if (error) {
@@ -183,14 +151,18 @@ export const ValueSetsDetailTable = ({
         }
     }, [error, setAlert]);
 
-    useEffect(() => {
-        setValueSetRows(addIdsToRows(valueSetArray));
-    }, [valueSetArray]);
+    const valueSetsWithIds = useMemo(
+        () => addIdsToRows(valueSetData),
+        [valueSetData]
+    );
 
-    const tableConfig: TableConfig = {
-        columns: valueSetDetailColumnConfig,
-        rows: valueSetRows,
-    };
+    const tableConfig: TableConfig = useMemo(
+        () => ({
+            columns: valueSetDetailColumnConfig,
+            rows: valueSetsWithIds,
+        }),
+        [valueSetsWithIds]
+    );
 
     const datasetActionItem: DatasetAction = {
         label: "Add item",
@@ -199,18 +171,27 @@ export const ValueSetsDetailTable = ({
     return (
         <Table
             title="ReportStream Core Values"
+            classes={"rs-no-padding"}
+            legend={Legend}
             // assume we don't want to allow creating a row if initial fetch failed
             datasetAction={error ? undefined : datasetActionItem}
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
                 try {
-                    const data = await saveData(
+                    const dataToSave = prepareRowsForSave(
                         row,
-                        valueSetRows,
+                        valueSetsWithIds,
                         valueSetName
                     );
-                    setValueSetVersion(data.tableVersion);
+                    const saveResponse = await saveData({
+                        data: dataToSave,
+                        tableName: valueSetName,
+                    });
+                    await activateTable({
+                        tableVersion: saveResponse.tableVersion,
+                        tableName: valueSetName,
+                    });
                 } catch (e: any) {
                     handleErrorWithAlert({
                         logMessage: "Error occurred saving value set",
@@ -230,14 +211,36 @@ const ValueSetsDetail = () => {
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
+        valueSetName!!
+    );
+    const { valueSetMeta, error: metaError } = useValueSetsMeta(valueSetName);
+
+    const readableName = useMemo(
+        () => toHumanReadable(valueSetName!!),
+        [valueSetName]
+    );
+
+    useEffect(() => {
+        if (metaError) {
+            handleErrorWithAlert({
+                logMessage: "Error occurred fetching value set meta",
+                error: metaError,
+                setAlert,
+            });
+        }
+    }, [metaError, setAlert]);
+
     return (
         <>
             <Helmet>
-                <title>{`Value Sets | Admin | ${valueSetName}`}</title>
+                <title>{`Value Sets | Admin | ${readableName}`}</title>
             </Helmet>
             <section className="grid-container">
-                {/* valueSetsDetailHeader would go here */}
-                <h1>{toHumanReadable(valueSetName)}</h1>
+                <ValueSetsDetailHeader
+                    name={readableName}
+                    meta={valueSetMeta}
+                />
                 {alert && (
                     <StaticAlert
                         type={alert.type}
@@ -246,12 +249,19 @@ const ValueSetsDetail = () => {
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName}
+                    valueSetName={valueSetName!!}
                     setAlert={setAlert}
+                    valueSetData={valueSetArray || []}
+                    error={error}
                 />
             </section>
         </>
     );
 };
-
 export default ValueSetsDetail;
+export const ValueSetsDetailWithAuth = () => (
+    <AuthElement
+        element={<ValueSetsDetail />}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

@@ -950,18 +950,29 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
         val terser = Terser(message)
 
-        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
-        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
-        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
-        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        // SEG: ORC, FIELD: 12, ELEMENT: 2
+        val pathORCf12e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
+        // SEG: OBX, FIELD: 3, ELEMENT: 1
+        val pathOBXf3e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
+        val pathOBXf3e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
+        val pathOBXf3e3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        val pathOBXf17e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17-1"
+        val pathOBXf17e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17-2"
+        // SEG: OBX, FIELD: 17, REP: 0, ELEMENT: 1
+        val pathOBXf17r0e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(0)-1"
+        val pathOBXf17r0e3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(0)-3"
+        val pathOBXf17r1e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(1)-1"
+        val pathOBXf17r1e3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(1)-3"
         val pathSPM = "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
 
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
         terser.set("MSH-11-1", "P")
-        terser.set(pathOBX31, "94534-5")
-        terser.set(pathOBX32, "SARS Old String")
-        terser.set(pathOBX33, "LN")
+        terser.set(pathOBXf3e1, "94534-5")
+        terser.set(pathOBXf3e2, "SARS Old String")
+        terser.set(pathOBXf3e3, "LN")
+        terser.set(pathOBXf17e1, "PhoenixDx SARS-CoV-2 Multiplex_Trax Management Services Inc.")
+        terser.set(pathOBXf17e2, "SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe")
 
         terser.set("$pathSPM-2-1-1", "1234567")
         terser.set("$pathSPM-2-1-2", "WASHINGTON TEST SITE")
@@ -973,21 +984,24 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         terser.set("$pathSPM-2-2-3", "234567890")
         terser.set("$pathSPM-2-2-4", "NPI")
 
-        val msh3_ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
-        val msh11_1_Values = arrayListOf(mapOf("*" to "D"))
+        val msh3ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
+        val mshf11e1Values = arrayListOf(mapOf("*" to "D"))
         val unKnownValuePair = arrayListOf(mapOf("*" to "Unknown"))
         val obxValuePair = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
+        // Note ths OBX-17 contains field repeator (~)
+        val obxf17ValuePair = arrayListOf(mapOf("*" to "OBX-17(0)-1^^OBX-17(0)-3~OBX-17(1)-1^^OBX-17(1)-3"))
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
-            "MSH-3" to msh3_ValuePair,
-            "MSH-11-1" to msh11_1_Values,
+            "MSH-3" to msh3ValuePair,
+            "MSH-11-1" to mshf11e1Values,
             // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
             // .. Hl7Serializer.kt will not set to any value.  Therefore,
             // .. if replaceValueAwithB contains:
             // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
             "ORC-12-2" to unKnownValuePair,
             "OBX-3" to obxValuePair,
+            "OBX-17" to obxf17ValuePair,
             "SPM-2" to spmValuePair
         )
 
@@ -1002,11 +1016,16 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
             assertThat(terser.get("MSH-11-1")).isEqualTo("D")
 
-            assertThat(terser.get(pathORC)).isEqualTo("Unknown")
+            assertThat(terser.get(pathORCf12e2)).isEqualTo("Unknown")
 
-            assertThat(terser.get(pathOBX31)).isEqualTo("OBX31")
-            assertThat(terser.get(pathOBX32)).isEqualTo("OBX32")
-            assertThat(terser.get(pathOBX33)).isEqualTo("OBX33")
+            assertThat(terser.get(pathOBXf3e1)).isEqualTo("OBX31")
+            assertThat(terser.get(pathOBXf3e2)).isEqualTo("OBX32")
+            assertThat(terser.get(pathOBXf3e3)).isEqualTo("OBX33")
+
+            assertThat(terser.get(pathOBXf17r0e1)).isEqualTo("OBX-17(0)-1")
+            assertThat(terser.get(pathOBXf17r0e3)).isEqualTo("OBX-17(0)-3")
+            assertThat(terser.get(pathOBXf17r1e1)).isEqualTo("OBX-17(1)-1")
+            assertThat(terser.get(pathOBXf17r1e3)).isEqualTo("OBX-17(1)-3")
 
             assertThat(terser.get("$pathSPM-2-1-1")).isEqualTo("646")
             assertThat(terser.get("$pathSPM-2-1-2")).isEqualTo("Wichita TEST SITE")
@@ -1040,7 +1059,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
             assertThat(terser.get("MSH-11-1")).isEqualTo("P") // Still since we did have it in the replace list
-            assertThat(terser.get(pathORC)).isEqualTo("Unknown") // Left over from above terser modification.
+            assertThat(terser.get(pathORCf12e2)).isEqualTo("Unknown") // Left over from above terser modification.
         }
 
         // Test case exact match But not replace since the value in terser and new is NOT match.

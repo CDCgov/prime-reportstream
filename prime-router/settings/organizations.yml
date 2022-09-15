@@ -110,6 +110,17 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: bzdlabs
+  description: BZD labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: bzdlabs
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -271,8 +282,8 @@
     - name: default
       organizationName: intrivo
       topic: covid-19
-      customerStatus: testing
-      schemaName: hl7/hl7-ingest-covid-19-training
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-prod
       format: HL7
 
 - name: limsabc-nova
@@ -336,6 +347,17 @@
   senders:
     - name: default
       organizationName: clxhealth
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: providence
+  description: Providence
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: providence
       topic: covid-19
       customerStatus: testing
       schemaName: hl7/hl7-ingest-covid-19-training
@@ -2124,7 +2146,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,.*bzdlabs.*)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3452,13 +3474,13 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: ri-doh
+- name: ri-phd
   description: Rhode Island Public Health Department
   jurisdiction: STATE
   stateCode: RI
   receivers:
     - name: elr
-      organizationName: ri-doh
+      organizationName: ri-phd
       topic: covid-19
       customerStatus: inactive
       jurisdictionalFilter:
@@ -3470,6 +3492,9 @@
         useBatchHeaders: true
         receivingApplicationName: RI_DOH
         receivingFacilityName: RI_DOH
+        suppressHl7Fields: ORC-12-1, OBR-16-1, PID-5-7
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
