@@ -9,7 +9,6 @@ import { appClient } from "../utils/QueryClients";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
-    onAuthRequired: () => void;
     restoreOriginalUri: (_oktaAuth: any, originalUri: string) => void;
     oktaHook: OktaHook;
 }
@@ -17,16 +16,11 @@ interface AppWrapperProps {
 export const AppWrapper = ({
     children,
     oktaAuth,
-    onAuthRequired,
     restoreOriginalUri,
     oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
     return (
-        <Security
-            oktaAuth={oktaAuth}
-            onAuthRequired={onAuthRequired}
-            restoreOriginalUri={restoreOriginalUri}
-        >
+        <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
             <SessionProvider oktaHook={oktaHook}>
                 <QueryClientProvider client={appClient}>
                     <AuthorizedFetchProvider>

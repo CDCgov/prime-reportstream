@@ -1,7 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
-import org.apache.commons.lang3.math.NumberUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
@@ -26,7 +27,11 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 /**
  * Context used for resolving [constants].
  */
-data class CustomContext(val bundle: Bundle, val constants: MutableMap<String, String> = mutableMapOf()) {
+data class CustomContext(
+    val bundle: Bundle,
+    var focusResource: Base,
+    val constants: MutableMap<String, String> = mutableMapOf()
+) {
     companion object {
         /**
          * Add [constants] to a context.
@@ -37,6 +42,7 @@ data class CustomContext(val bundle: Bundle, val constants: MutableMap<String, S
             else {
                 val newContext = CustomContext(
                     previousContext.bundle,
+                    previousContext.focusResource,
                     previousContext.constants.toMap().toMutableMap() // This makes a copy of the map
                 )
                 constants.forEach { newContext.constants[it.key] = it.value }
@@ -77,11 +83,14 @@ object ConstantSubstitutor {
     internal class StringCustomResolver(val context: CustomContext?) : StringLookup, Logging {
         override fun lookup(key: String?): String {
             require(!key.isNullOrBlank())
-            if (context == null) throw HL7ConversionException("No context available to resolve constant '$key'")
-            else if (!context.constants.contains(key)) {
-                throw HL7ConversionException("'$key' was not found in the provided context")
+            when {
+                context == null -> throw HL7ConversionException("No context available to resolve constant '$key'")
+
+                !context.constants.contains(key) || context.constants[key] == null ->
+                    throw HL7ConversionException("Constant '$key' was not found in the provided context")
+
+                else -> return context.constants[key]!!
             }
-            return context.constants[key] ?: ""
         }
     }
 }
@@ -121,7 +130,7 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
          * Get a coding system mapper by its [fhirURL]
          * @return an enum instance representing the appropriate mapping
          */
-        fun getByFhirUrl(fhirURL: String): CodingSystemMapper? {
+        fun getByFhirUrl(fhirURL: String): CodingSystemMapper {
             return CodingSystemMapper.values().find {
                 it.fhirURL == fhirURL
             } ?: NONE
@@ -308,7 +317,7 @@ object CustomFHIRFunctions {
      * @return a mutable list containing the single character HL7 result status
      */
     fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
-        return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue())?.hl7ID))
+        return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue()).hl7ID))
     }
 
     /**
@@ -380,12 +389,12 @@ object CustomFHIRFunctions {
 /**
  * Custom resolver for the FHIR path engine.
  */
-class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
+class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): Base? {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
-        return when {
+        val constantValue = when {
             appContext == null || appContext !is CustomContext ->
                 throw PathEngineException("No context available to resolve constant '$name'")
 
@@ -399,16 +408,13 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                     2 -> {
                         val constantValue = appContext.constants[constantNameParts[0]]
                         constantValue?.let {
-                            StringType(constantValue + constantNameParts[1].trimEnd('`'))
+                            "$constantValue + '${constantNameParts[1].trimEnd('`')}'"
                         }
                     }
 
                     // 1 part means the constant is surrounded by `, useful for separating other text from the constant name
                     1 -> {
-                        val constantValue = appContext.constants[constantNameParts[0].trimEnd('`')]
-                        constantValue?.let {
-                            StringType(constantValue)
-                        }
+                        appContext.constants[constantNameParts[0].trimEnd('`')]
                     }
 
                     else -> null
@@ -416,14 +422,25 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             }
 
             // Just a straight constant replacement
-            appContext.constants.contains(name) -> {
-                // Return the type depending on the contents of the variable
-                if (NumberUtils.isDigits(appContext.constants[name])) {
-                    IntegerType(NumberUtils.createInteger(appContext.constants[name]))
-                } else StringType(appContext.constants[name])
-            }
+            appContext.constants.contains(name) -> appContext.constants[name]
+
             // Must return null as the resolver is called by the FhirPathEngine to test for non-constants too
             else -> null
+        }
+
+        // Evaluate the constant before it is used.
+        return if (constantValue.isNullOrBlank()) null
+        else {
+            val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
+            if (values.size != 1)
+                throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
+            else {
+                logger.debug("Evaluated FHIR Path constant $name to: ${values[0]}")
+                // Convert string constants that are whole integers to Integer type to facilitate math operations
+                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue()))
+                    IntegerType(values[0].primitiveValue())
+                else values[0]
+            }
         }
     }
 

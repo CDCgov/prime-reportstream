@@ -1,10 +1,13 @@
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
+import React from "react";
 
 import { useOrgName } from "../../hooks/UseOrgName";
 import { ErrorDisplay } from "../error/ErrorDisplay";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -26,3 +29,10 @@ function Submissions() {
 }
 
 export default Submissions;
+
+export const SubmissionsWithAuth = () => (
+    <AuthElement
+        element={<Submissions />}
+        requiredUserType={MemberType.SENDER}
+    />
+);

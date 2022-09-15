@@ -1,9 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderWithRouter } from "../../../utils/CustomRenderUtils";
+import { MarkdownDirectory } from "../MarkdownDirectory";
 
 import GeneratedSideNav from "./GeneratedSideNav";
-import { MarkdownDirectory } from "./MarkdownDirectory";
 
 const TEST_DIRS = [
     new MarkdownDirectory().setTitle("Test Dir").setSlug("test-dir"),

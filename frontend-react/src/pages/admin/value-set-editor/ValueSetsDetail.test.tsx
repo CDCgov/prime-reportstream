@@ -10,30 +10,44 @@ const fakeRows = [
         name: "a-path",
         display: "hi over here first value",
         code: "1",
-        version: 1,
+        version: "1",
     },
     {
         name: "a-path",
         display: "test, yes, second value",
         code: "2",
-        version: 1,
+        version: "1",
     },
 ];
+
+const fakeMeta = {
+    lookupTableVersionId: 1,
+    tableName: "fake_table",
+    tableVersion: 2,
+    isActive: true,
+    createdBy: "me",
+    createdAt: "today",
+    tableSha256Checksum: "sha",
+};
+
+const mockError = new Error();
 
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
+let mockUseValueSetsMeta = jest.fn();
 
 jest.mock("../../../hooks/UseValueSets", () => {
     return {
-        useValueSetsTable: (valueSetName: string, suppliedVersion?: number) =>
-            mockUseValueSetsTable(valueSetName, suppliedVersion),
+        useValueSetsTable: (valueSetName: string) =>
+            mockUseValueSetsTable(valueSetName),
         useValueSetUpdate: () => ({
             saveData: mockSaveData,
         }),
         useValueSetActivation: () => ({
             activateTable: mockActivateTable,
         }),
+        useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
 
@@ -45,6 +59,10 @@ describe("ValueSetsDetail", () => {
     beforeEach(() => {
         mockUseValueSetsTable = jest.fn(() => ({
             valueSetArray: fakeRows,
+            error: null,
+        }));
+        mockUseValueSetsMeta = jest.fn(() => ({
+            valueSetMeta: fakeMeta,
             error: null,
         }));
     });
@@ -80,6 +98,23 @@ describe("ValueSetsDetail", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
+    test("Handles fetch related errors", () => {
+        const mockSetAlert = jest.fn();
+        renderWithQueryProvider(
+            <ValueSetsDetailTable
+                valueSetName={"error"}
+                setAlert={mockSetAlert}
+                valueSetData={[]}
+                error={mockError}
+            />
+        );
+        expect(mockSetAlert).toHaveBeenCalled();
+        expect(mockSetAlert).toHaveBeenCalledWith({
+            type: "error",
+            message: "Error",
+        });
+    });
+
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockUseValueSetsTable = jest.fn(() => ({
             valueSetArray: fakeRows,
@@ -101,6 +136,7 @@ describe("ValueSetsDetailTable", () => {
             <ValueSetsDetailTable
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}
+                valueSetData={fakeRows}
             />
         );
         const editButtons = screen.getAllByText("Edit");
@@ -140,3 +176,5 @@ describe("ValueSetsDetailTable", () => {
         });
     });
 });
+
+// TODO: tests for header

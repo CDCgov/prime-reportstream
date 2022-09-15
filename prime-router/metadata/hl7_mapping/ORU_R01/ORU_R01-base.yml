@@ -3,7 +3,7 @@ hl7Type: ORU_R01
 hl7Version: 2.5.1
 constants:
   # Prefix for RS custom extension URLs
-  rsext: 'https://reportstream.cdc.gov/fhir/StructureDefinition/'
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 elements:
   - name: message-headers
     condition: >
