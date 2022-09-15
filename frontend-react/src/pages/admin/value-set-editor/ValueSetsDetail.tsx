@@ -130,8 +130,6 @@ export const ValueSetsDetailTable = ({
     valueSetData: ValueSetRow[];
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName);
-
     const { saveData } = useValueSetUpdate();
     const { activateTable } = useValueSetActivation();
 
@@ -193,11 +191,9 @@ export const ValueSetsDetailTable = ({
 const ValueSetsDetailContent = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: when to unset?
-    const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
+    const [alert, setAlert] = useState<ReportStreamAlert | undefined>(); // eslint-disable-line
 
-    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(
-        valueSetName!!
-    );
+    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName!!);
     const { valueSetMeta } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(

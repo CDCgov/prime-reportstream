@@ -30,8 +30,6 @@ const fakeMeta = {
     tableSha256Checksum: "sha",
 };
 
-const mockError = new Error();
-
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
@@ -98,23 +96,6 @@ describe("ValueSetsDetail", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles fetch related errors", () => {
-        const mockSetAlert = jest.fn();
-        renderWithQueryProvider(
-            <ValueSetsDetailTable
-                valueSetName={"error"}
-                setAlert={mockSetAlert}
-                valueSetData={[]}
-                error={mockError}
-            />
-        );
-        expect(mockSetAlert).toHaveBeenCalled();
-        expect(mockSetAlert).toHaveBeenCalledWith({
-            type: "error",
-            message: "Error",
-        });
-    });
-
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockUseValueSetsTable = jest.fn(() => ({
             valueSetArray: fakeRows,

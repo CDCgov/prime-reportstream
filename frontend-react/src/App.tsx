@@ -3,8 +3,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
+import React from "react";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -12,14 +11,13 @@ import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { ErrorPage } from "./pages/error/ErrorPage";
 import { logout } from "./utils/UserUtils";
-import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { DAPHeader } from "./components/header/DAPHeader";
 import { AppRouter } from "./AppRouter";
 import { AppWrapper } from "./components/AppWrapper";
+import { UnsupportedBrowser } from "./pages/error/content-elements/UnsupportedBrowser";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -74,25 +72,19 @@ const App = () => {
             restoreOriginalUri={restoreOriginalUri}
             oktaHook={useOktaAuth}
         >
-            <Suspense fallback={<Spinner size={"fullpage"} />}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="page" />}
-                >
-                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
-                    <GovBanner aria-label="Official government website" />
-                    <SenderModeBanner />
-                    <ReportStreamHeader />
-                    {/* Changed from main to div to fix weird padding issue at the top
+            <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
+            <GovBanner aria-label="Official government website" />
+            <SenderModeBanner />
+            <ReportStreamHeader />
+            {/* Changed from main to div to fix weird padding issue at the top
                             caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                    <main id="main-content">
-                        <AppRouter />
-                    </main>
-                    <ToastContainer limit={4} />
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
-                </NetworkErrorBoundary>
-            </Suspense>
+            <main id="main-content">
+                <AppRouter />
+            </main>
+            <ToastContainer limit={4} />
+            <footer className="usa-identifier footer">
+                <ReportStreamFooter />
+            </footer>
         </AppWrapper>
     );
 };
