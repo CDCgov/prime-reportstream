@@ -141,6 +141,7 @@ class FhirToHl7Converter(
             element.value.forEach {
                 val value = if (it.isBlank()) ""
                 else FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotBlank()) {
                     retVal = value
                     return@findValue
@@ -205,7 +206,7 @@ class FhirToHl7Converter(
             val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
-                logger.debug("Set HL7 $resolvedHl7Spec = $value")
+                logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
                 if (strict) {

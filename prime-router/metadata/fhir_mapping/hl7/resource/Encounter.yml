@@ -280,6 +280,16 @@ extension_4:
     KEY_NAME_SUFFIX: String
     urlValue: account-status
 
+extension_5:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, PV1.18
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: patient-type
+
 serviceProvider:
   condition: $orgIdValue NOT_NULL
   valueOf: resource/Organization

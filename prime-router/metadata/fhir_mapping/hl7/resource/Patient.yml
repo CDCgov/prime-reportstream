@@ -340,14 +340,18 @@ extension:
   generateList: true
   expressionType: nested
   expressions:
-    - condition: $value NOT_NULL
-      valueOf: extension/Extension
-      expressionType: resource
-      vars:
-        value: String, PID.6.1
-      constants:
-        KEY_NAME_SUFFIX: String
-        urlValue: mothersMaidenName
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: mothersMaidenName
+        valueHumanName:
+          valueOf: datatype/HumanName
+          expressionType: resource
+          condition: $pid6 NOT_NULL
+          specs: PID.6
+          vars:
+            pid6: PID.6
 
     - expressionType: nested
       expressionsMap:
@@ -361,6 +365,10 @@ extension:
           vars:
             coding: RELIGIOUS_AFFILIATION_CC, PID.17
             text: String, PID.17.2
+            alternateCode: PID.17.1
+            alternateDisplay: PID.17.2
+          constants:
+            alternateSystem: 'http://terminology.hl7.org/CodeSystem/v2-0006'
 
     - expressionType: nested
       specs: PID.10
@@ -383,7 +391,14 @@ extension:
         valueCodeableConcept:
           valueOf: datatype/CodeableConcept
           expressionType: resource
-          specs: PID.22
+          vars:
+            alternateCode: PID.22.1
+            alternateDisplay: PID.22.2
+            alternateIdCode: PID.22.4
+            alternateIdDisplay: PID.22.5
+            alternateIdSystem: PID.22.6
+          constants:
+            alternateSystem: http://terminology.hl7.org/ValueSet/v2-0189
 
     - expressionType: nested
       generateList: true

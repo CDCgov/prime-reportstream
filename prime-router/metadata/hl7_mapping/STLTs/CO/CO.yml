@@ -44,15 +44,11 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-9' ]
 
-  # Source: HCA CO Requirements
-  # If ORC-21.6 is populated then replace ORC-21.10 with value present in ORC-21.6.1
-  - name: co-ordering-facility-organization-id
-    value:
-      # ORC-21.6.1
-      - '%resource.extension(%`rsext-assigning-authority-namespace-id`).value'
-      # Default ORC-21.10 value
-      - '%resource.identifier[0].value'
-    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10' ]
+  - name: co-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: co-order-observation
+    resourceIndex: orderIndex
 
   # Source: HCA CO Requirements
   # Always replace ORC-10 with NULL

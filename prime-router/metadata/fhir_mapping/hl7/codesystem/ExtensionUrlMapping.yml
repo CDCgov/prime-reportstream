@@ -93,8 +93,8 @@
   url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
 # Ethnic group
 - id: "ethnic-group"
-  url: "http://terminology.hl7.org/ValueSet/v2-0189"
-# Ethnic group
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group"
+# Location point of care
 - id: "location-point-of-care"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-point-of-care"
 # Encounter financial class
@@ -179,6 +179,9 @@
 # Patient notes as Annotations
 - id: "patient-notes"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
+# Patient type
+- id: "patient-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-type"
 # Parent observation sub identifier
 - id: "parent-observation-sub-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/parent-observation-sub-id"
