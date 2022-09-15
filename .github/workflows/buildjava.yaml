@@ -16,7 +16,7 @@ jobs:
       with:
         languages: Java
     - run: |
-        pushd prime-reportstream/prime-router/
+        pushd $(git rev-parse --show-toplevel)/prime-router
         chmod +x gradlew
         ./gradlew -q clean bundleDebug
         popd
