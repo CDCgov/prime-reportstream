@@ -31,6 +31,8 @@ import {
     ReportStreamAlert,
     handleErrorWithAlert,
 } from "../../../utils/ErrorUtils";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -209,12 +211,13 @@ const ValueSetsDetail = () => {
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray, error } =
-        useValueSetsTable<ValueSetRow[]>(valueSetName);
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
+        valueSetName!!
+    );
     const { valueSetMeta, error: metaError } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
-        () => toHumanReadable(valueSetName),
+        () => toHumanReadable(valueSetName!!),
         [valueSetName]
     );
 
@@ -246,7 +249,7 @@ const ValueSetsDetail = () => {
                     />
                 )}
                 <ValueSetsDetailTable
-                    valueSetName={valueSetName}
+                    valueSetName={valueSetName!!}
                     setAlert={setAlert}
                     valueSetData={valueSetArray || []}
                     error={error}
@@ -255,5 +258,10 @@ const ValueSetsDetail = () => {
         </>
     );
 };
-
 export default ValueSetsDetail;
+export const ValueSetsDetailWithAuth = () => (
+    <AuthElement
+        element={<ValueSetsDetail />}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

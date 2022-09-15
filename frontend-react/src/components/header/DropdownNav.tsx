@@ -64,7 +64,6 @@ export const AdminDropdown = () => {
     const pages = [
         makeNonStaticOption("Organization Settings", "settings"),
         makeNonStaticOption("Feature Flags", "features"),
-        makeNonStaticOption("Guides", "guides/create-markdown-pages"),
         makeNonStaticOption("Last Mile Failures", "lastmile"),
         makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
     ];

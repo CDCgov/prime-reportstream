@@ -1,9 +1,11 @@
 import { Helmet } from "react-helmet";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 export function AdminLastMileFailures() {
     return (
@@ -20,5 +22,14 @@ export function AdminLastMileFailures() {
             <AdminLastMileFailuresTable />
             <HipaaNotice />
         </>
+    );
+}
+
+export function AdminLMFWithAuth() {
+    return (
+        <AuthElement
+            element={<AdminLastMileFailures />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

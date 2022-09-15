@@ -35,7 +35,7 @@ const SignInOrUser = () => {
             </a>
         </div>
     ) : (
-        <NavLink to="/daily-data">
+        <NavLink to="/login">
             <Button type="button" inverse={isPreview}>
                 Log in {isPreview ? "via OktaPreview" : ""}
             </Button>
