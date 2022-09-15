@@ -26,7 +26,7 @@ type MarkdownContentProps = {
     markdownUrl: string;
 };
 
-export const MarkdownContent: React.FC<MarkdownContentProps> = ({
+export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
     markdownUrl,
 }) => {
     const [markdownContent, setMarkdownContent] = useState("");

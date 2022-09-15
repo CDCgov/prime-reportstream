@@ -1,7 +1,7 @@
 name: ORU-R01-patient
 constants:
-  hl7PIDField: /PATIENT_RESULT/PATIENT/PID
-  hl7PatientField: /PATIENT_RESULT/PATIENT
+  hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
+  hl7PatientField: '/PATIENT_RESULT/PATIENT'
 elements:
   - name: set-id
     value: [ '"1"' ]
@@ -145,8 +145,8 @@ elements:
     constants:
       hl7HDField: '%{hl7PIDField}-34'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
-      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
     schema: hd-hierarchic-designator
 
   - name: patient-species-identifier
@@ -179,8 +179,10 @@ elements:
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value.text.split(''\n'')'
-    condition: '%resource.exists()'
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
     schema: note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7PatientField}'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'

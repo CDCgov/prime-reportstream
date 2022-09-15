@@ -31,18 +31,18 @@ export const ProductDirectoryTools = new ContentDirectoryTools()
 export const productDirectories: ContentDirectory[] = [
     new MarkdownDirectory()
         .setTitle("Overview")
-        .setSlug(ProductDirectoryTools.prependRoot("OVERVIEW"))
+        .setSlug(ProductDirectoryTools.getSlug("OVERVIEW"))
         .addFile(ProductIndexMd),
     new ElementDirectory()
         .setTitle("Where we're live")
-        .setSlug(ProductDirectoryTools.prependRoot("WHERE_WERE_LIVE"))
+        .setSlug(ProductDirectoryTools.getSlug("WHERE_WERE_LIVE"))
         .addElement(WhereWereLive),
     new MarkdownDirectory()
         .setTitle("Release notes")
-        .setSlug(ProductDirectoryTools.prependRoot("RELEASE_NOTES"))
+        .setSlug(ProductDirectoryTools.getSlug("RELEASE_NOTES"))
         .addFile(ReleaseNotesMd),
     new ElementDirectory()
         .setTitle("About")
-        .setSlug(ProductDirectoryTools.prependRoot("ABOUT"))
+        .setSlug(ProductDirectoryTools.getSlug("ABOUT"))
         .addElement(About),
 ];

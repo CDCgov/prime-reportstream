@@ -30,7 +30,7 @@ export const SupportDirectoryTools = new ContentDirectoryTools()
 export const supportDirectories: ContentDirectory[] = [
     new ElementDirectory()
         .setTitle(SupportTitles.CONTACT)
-        .setSlug(SupportDirectoryTools.prependRoot(SupportTitles.CONTACT))
+        .setSlug(SupportDirectoryTools.getSlug(SupportTitles.CONTACT))
         .setDescription(
             "Questions, issues, or a bug to report? We're happy to help!"
         )
@@ -42,7 +42,7 @@ export const supportDirectories: ContentDirectory[] = [
         ),
     new ElementDirectory()
         .setTitle(SupportTitles.FAQ)
-        .setSlug(SupportDirectoryTools.prependRoot(SupportTitles.FAQ))
+        .setSlug(SupportDirectoryTools.getSlug(SupportTitles.FAQ))
         .setDescription(
             "Answers to common questions about working with ReportStream."
         )

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
@@ -10,7 +10,7 @@ import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
-    const { oktaAuth, authState } = useOktaAuth();
+    const { oktaAuth } = useOktaAuth();
     const { dispatch } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
@@ -39,9 +39,7 @@ export const Login = () => {
         );
     };
 
-    return authState && authState.isAuthenticated ? (
-        <Redirect to={{ pathname: "/" }} />
-    ) : (
+    return (
         <>
             <MonitoringAlert />
             <OktaSignInWidget
