@@ -6,6 +6,21 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class SerializerValidationTests {
+    private val testDefaultMaxItemsErrorMessage = "Reduce the amount of rows in this file."
+    private val testDefaultMaxItemColumnsErrorMessage = "Number of columns in your report exceeds the maximum of"
+    private val testCustomErrorMessage = "This is an error message"
+
+    private fun assertDefaultMaxItemsErrorMessage(actionLogs: ActionLogger) {
+        assert(actionLogs.errors[0].detail.message.contains(testDefaultMaxItemsErrorMessage))
+    }
+
+    private fun assertDefaultMaxItemColumnsErrorMessage(actionLogs: ActionLogger) {
+        assert(actionLogs.errors[0].detail.message.contains(testDefaultMaxItemColumnsErrorMessage))
+    }
+
+    private fun assertCustomErrorMessage(actionLogs: ActionLogger) {
+        assert(actionLogs.errors[0].detail.message.contains(testCustomErrorMessage))
+    }
 
     @Test
     fun `test throwMaxItemsError with specified message`() {
@@ -14,9 +29,11 @@ class SerializerValidationTests {
             SerializerValidation.throwMaxItemsError(
                 10001,
                 actionLogs,
-                "This is an error message"
+                testCustomErrorMessage
             )
         }
+
+        assertCustomErrorMessage(actionLogs)
     }
 
     @Test
@@ -28,6 +45,7 @@ class SerializerValidationTests {
                 actionLogs
             )
         }
+        assertDefaultMaxItemsErrorMessage(actionLogs)
     }
 
     @Test
@@ -41,6 +59,7 @@ class SerializerValidationTests {
                 100
             )
         }
+        assertDefaultMaxItemsErrorMessage(actionLogs)
     }
 
     @Test
@@ -50,9 +69,10 @@ class SerializerValidationTests {
             SerializerValidation.throwMaxItemColumnsError(
                 2001,
                 actionLogs,
-                "This is an error message"
+                testCustomErrorMessage
             )
         }
+        assertCustomErrorMessage(actionLogs)
     }
 
     @Test
@@ -64,6 +84,8 @@ class SerializerValidationTests {
                 actionLogs
             )
         }
+
+        assertDefaultMaxItemColumnsErrorMessage(actionLogs)
     }
 
     @Test
@@ -77,5 +99,6 @@ class SerializerValidationTests {
                 100
             )
         }
+        assertDefaultMaxItemColumnsErrorMessage(actionLogs)
     }
 }

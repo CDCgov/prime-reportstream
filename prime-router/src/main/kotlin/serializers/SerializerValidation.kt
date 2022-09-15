@@ -16,11 +16,12 @@ class SerializerValidation {
             message: String = "",
             maxSize: Int = REPORT_MAX_ITEMS
         ) {
-            message.ifEmpty {
-                "Your file's row size of $size exceeds the maximum of " +
-                    "$maxSize rows per file. Reduce the amount of rows in this file."
-            }
-            throwActionLogException(size, maxSize, actionLogs, message)
+            val defaultMaxItemsMessage = "Your file's row size of $size exceeds the maximum of " +
+                "$maxSize rows per file. Reduce the amount of rows in this file."
+
+            val errorMessage = message.ifEmpty { defaultMaxItemsMessage }
+
+            throwActionLogException(size, maxSize, actionLogs, errorMessage)
         }
 
         @JvmStatic
@@ -30,11 +31,12 @@ class SerializerValidation {
             message: String = "",
             maxSize: Int = REPORT_MAX_ITEM_COLUMNS
         ) {
-            message.ifEmpty {
-                "Number of columns in your report exceeds the maximum of " +
-                    "$maxSize allowed. Adjust the excess columnar data in your report."
-            }
-            throwActionLogException(size, maxSize, actionLogs, message)
+            val defaultMaxItemColumnsMessage = "Number of columns in your report exceeds the maximum of " +
+                "$maxSize allowed. Adjust the excess columnar data in your report."
+
+            val errorMessage = message.ifEmpty { defaultMaxItemColumnsMessage }
+
+            throwActionLogException(size, maxSize, actionLogs, errorMessage)
         }
 
         private fun throwActionLogException(
