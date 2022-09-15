@@ -17,9 +17,9 @@ jobs:
       with:
         languages: Java
     - run: |
-        pushd $(git rev-parse --show-toplevel)/prime-router
+        pushd prime-router
         chmod +x gradlew
-        ./gradlew -q clean bundleDebug
+        ./gradlew -q clean 
         popd
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
