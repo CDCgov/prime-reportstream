@@ -4,12 +4,11 @@ import config from "../../config";
 
 const { APP_TITLE } = config;
 
-export const BasicHelmet = ({ pageTitle }: { pageTitle: string }) => {
+export const BasicHelmet = ({ pageTitle }: { pageTitle?: string }) => {
+    const title = pageTitle ? `${pageTitle} | ${APP_TITLE}` : APP_TITLE;
     return (
         <Helmet>
-            <title>
-                {pageTitle} | {APP_TITLE}
-            </title>
+            <title>{title}</title>
         </Helmet>
     );
 };
