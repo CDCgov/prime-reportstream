@@ -17,7 +17,7 @@ export class RSNetworkError extends Error {
     name: ErrorName;
     /* Build a new RSNetworkError */
     constructor(message: string, statusCode?: number) {
-        super(`(RSNetworkError) ${message}`); // Sets message
+        super(message); // Sets message
         this.name = this.parseStatus(statusCode); // Sets code using child's parseStatus
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
