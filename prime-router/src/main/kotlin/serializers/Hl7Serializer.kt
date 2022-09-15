@@ -832,51 +832,82 @@ class Hl7Serializer(
                     return@segment
                 }
 
-                // Get new components separate by ^ (second value of the value pair)
-                val components = pairs.values.first().trim().split("^")
+                // Get field(s).  There could be more than one field seperate by '~'
+                val fields = pairs.values.first().trim().split("~")
 
-                // OBX segment can repeat. All repeats need to be looped
-                if (segment.key.length >= 3 && segment.key.substring(0, 3) == "OBX") {
-                    for (i in 0..observationRepeats.minus(1)) {
-                        val pathOBXSpec = formPathSpec(segment.key, i)
-                        val valueInOBXMessage = terser.get(pathOBXSpec)
-                        if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                            var obxComponentRep = 1
-                            components.forEach { obxComponent ->
-                                val obxSubComponents = obxComponent.split("&")
-                                if (obxSubComponents.size > 1) {
+                var fieldRep = 0
+                fields.forEach { field ->
+                    // Get new components separate by ^ (second value of the value pair)
+                    val components = field.trim().split("^")
+
+                    // OBX segment can repeat. All repeats need to be looped
+                    if (segment.key.length >= 3 && segment.key.substring(0, 3) == "OBX") {
+                        for (i in 0..observationRepeats.minus(1)) {
+                            val pathOBXSpec = formPathSpec(segment.key, i)
+                            val valueInOBXMessage = terser.get(pathOBXSpec)
+                            if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                                var obxComponentRep = 1
+                                components.forEach { obxComponent ->
+                                    val obxSubComponents = obxComponent.split("&")
+                                    if (obxSubComponents.size > 1) {
+                                        // If there is subComponent separate by &, we need to handle them.
+                                        var obxSubComponentRep = 1
+                                        obxSubComponents.forEach { obxSubComponent ->
+                                            if (fields.size > 1)
+                                                terser.set(
+                                                    "$pathSpec($fieldRep)-$obxComponentRep-$obxSubComponentRep",
+                                                    obxSubComponent
+                                                )
+                                            else
+                                                terser.set(
+                                                    "$pathSpec-$obxComponentRep-$obxSubComponentRep",
+                                                    obxSubComponent
+                                                )
+                                            obxSubComponentRep++
+                                        }
+                                    } else {
+                                        if (fields.size > 1)
+                                            terser.set("$pathOBXSpec($fieldRep)-$obxComponentRep", obxComponent)
+                                        else
+                                            terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
+                                    }
+                                    obxComponentRep++
+                                }
+                            }
+                        }
+                    } else {
+                        // Replace value if exact key from setting equal to key in message OR always replace
+                        if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                            var componentRep = 1
+                            components.forEach { component ->
+                                val subComponents = component.split("&")
+                                if (subComponents.size > 1) {
                                     // If there is subComponent separate by &, we need to handle them.
-                                    var obxSubComponentRep = 1
-                                    obxSubComponents.forEach { obxSubComponent ->
-                                        terser.set("$pathSpec-$obxComponentRep-$obxSubComponentRep", obxSubComponent)
-                                        obxSubComponentRep++
+                                    var suComponentRep = 1
+                                    subComponents.forEach { subComponent ->
+                                        if (fields.size > 1)
+                                            terser.set(
+                                                "$pathSpec($fieldRep)-$componentRep-$suComponentRep",
+                                                subComponent
+                                            )
+                                        else
+                                            terser.set(
+                                                "$pathSpec-$componentRep-$suComponentRep",
+                                                subComponent
+                                            )
+                                        suComponentRep++
                                     }
                                 } else {
-                                    terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
+                                    if (fields.size > 1)
+                                        terser.set("$pathSpec($fieldRep)-$componentRep", component)
+                                    else
+                                        terser.set("$pathSpec-$componentRep", component)
                                 }
-                                obxComponentRep++
+                                componentRep++
                             }
                         }
                     }
-                } else {
-                    // Replace value if exact key from setting equal to key in message OR always replace
-                    if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                        var componentRep = 1
-                        components.forEach { component ->
-                            val subComponents = component.split("&")
-                            if (subComponents.size > 1) {
-                                // If there is subComponent separate by &, we need to handle them.
-                                var suComponentRep = 1
-                                subComponents.forEach { subComponent ->
-                                    terser.set("$pathSpec-$componentRep-$suComponentRep", subComponent)
-                                    suComponentRep++
-                                }
-                            } else {
-                                terser.set("$pathSpec-$componentRep", component)
-                            }
-                            componentRep++
-                        }
-                    }
+                    fieldRep++
                 }
             }
         }

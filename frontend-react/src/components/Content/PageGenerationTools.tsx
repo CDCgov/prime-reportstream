@@ -59,8 +59,13 @@ export class ContentDirectoryTools {
         slugs.forEach((config) => this.slugs.set(config.key, config.slug));
         return this;
     }
-    prependRoot(slugMapKey: string) {
-        return `${this.root}/${this.slugs.get(slugMapKey)}`;
+    getSlug(slugMapKey: string) {
+        const slug = this.slugs.get(slugMapKey);
+        if (slug === undefined)
+            throw Error(
+                `Slug not found in ${this.title} directory tools slug map: ${slug}`
+            );
+        return slug;
     }
     makeCrumb(nextPage: string) {
         return crumbsFromHere(this.title, this.root, nextPage);

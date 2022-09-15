@@ -8,7 +8,7 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
@@ -25,7 +25,7 @@ export function OrgsTable() {
         {}
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
-    const history = useHistory();
+    const navigate = useNavigate();
     const { activeMembership, dispatch } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
@@ -59,7 +59,7 @@ export function OrgsTable() {
     const handleEditOrgClick = (orgName: string) => {
         // editing... maybe we should keep current org in sync? Switch to the "safe org"?
         // updateOrganization(orgName);
-        history.push(`/admin/orgsettings/org/${orgName}`);
+        navigate(`/admin/orgsettings/org/${orgName}`);
     };
 
     const saveListToCSVFile = () => {
