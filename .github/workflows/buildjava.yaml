@@ -16,7 +16,7 @@ jobs:
       with:
         languages: Java
     - run: |
-        pushd prime-router
+        pushd ../../prime-router
         chmod +x gradlew
         ./gradlew -q clean bundleDebug
         popd
