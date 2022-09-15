@@ -96,7 +96,8 @@
             "es6": true
         },
         "globals": {
-            "RequestInit": true
+            "RequestInit": true,
+            "process":"readonly"
         },
         "rules": {
             "import/no-unresolved": 0,

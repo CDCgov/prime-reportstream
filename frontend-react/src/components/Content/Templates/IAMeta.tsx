@@ -3,6 +3,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
+import { BasicHelmet } from "../../header/BasicHelmet";
 
 export interface IARouterProps {
     directories: ContentDirectory[];
@@ -27,13 +28,5 @@ export interface IAMetaProps {
     pageName: string;
 }
 export const IAMeta = ({ pageName }: IAMetaProps) => {
-    return (
-        <>
-            <Helmet>
-                <title>
-                    {pageName} | {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
-        </>
-    );
+    return <BasicHelmet pageTitle={pageName} />;
 };

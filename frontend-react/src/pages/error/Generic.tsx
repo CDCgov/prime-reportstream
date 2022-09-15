@@ -1,6 +1,7 @@
-import Helmet from "react-helmet";
 import React from "react";
 import { Alert } from "@trussworks/react-uswds";
+
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 import {
     ErrorDisplayMessage,
@@ -22,9 +23,7 @@ export const ParagraphErrorDisplay = ({
 }) => {
     return (
         <>
-            <Helmet>
-                <title>Error | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Error" />
             <div
                 data-testid={"error-page-wrapper"}
                 className="usa-section padding-top-6"

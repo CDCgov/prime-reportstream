@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 import { logout } from "../../utils/UserUtils";
+import config from "../../config";
+
+const { IS_PREVIEW } = config;
 
 const SignInOrUser = () => {
     const { oktaAuth, authState } = useOktaAuth();
@@ -16,8 +19,6 @@ const SignInOrUser = () => {
                 .then((cl) => setUser(cl.email ? cl.email : "unknown user"));
         }
     });
-    const isPreview =
-        `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
 
     return authState?.isAuthenticated ? (
         <div className="prime-user-account">
@@ -36,8 +37,8 @@ const SignInOrUser = () => {
         </div>
     ) : (
         <NavLink to="/login">
-            <Button type="button" inverse={isPreview}>
-                Log in {isPreview ? "via OktaPreview" : ""}
+            <Button type="button" inverse={IS_PREVIEW}>
+                Log in {IS_PREVIEW ? "via OktaPreview" : ""}
             </Button>
         </NavLink>
     );
