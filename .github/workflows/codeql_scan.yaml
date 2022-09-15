@@ -1,6 +1,7 @@
 name: "Running CodeQL scanning on prime-reportstream repository"
 
-on: push
+on: 
+  # push
   # pull_request:
   #   branches:
   #      - production
@@ -21,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+        language: [ 'csharp', 'java', 'javascript', 'python' ]
 
     steps:
     - name: Checkout repository
