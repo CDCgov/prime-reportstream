@@ -20,6 +20,8 @@ import {
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
 
 const PAGE_TITLE = process.env.REACT_APP_TITLE; // TODO: move to config
 
@@ -45,7 +47,6 @@ const valueSetColumnConfig: ColumnConfig[] = [
         columnHeader: "Valueset Name",
         feature: {
             link: true,
-            linkBasePath: "value-sets/",
         },
     },
     {
@@ -102,7 +103,6 @@ const ValueSetsTable = () => {
         </>
     );
 };
-
 const ValueSetsIndex = () => {
     return (
         <>
@@ -117,3 +117,10 @@ const ValueSetsIndex = () => {
 };
 
 export default ValueSetsIndex;
+
+export const ValueSetsIndexWithAuth = () => (
+    <AuthElement
+        element={<ValueSetsIndex />}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);
