@@ -42,8 +42,7 @@ const App = () => {
 
 Custom error types help us name and display errors according to members not present on a default `Error`. Currently, there are two extensions:
 
-- `code` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
-- `displayAsPage` (default: `false`) will tell the boundary if this error should display as a non-intrusive message banner or replace the entire page with an error ui
+- `name` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
 
 #### Boilerplate
 
