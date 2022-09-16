@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import React, { Suspense } from "react";
-import { Route, MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
@@ -238,31 +238,27 @@ describe("AdminReceiverDashboard tests", () => {
     test("sortStatusData and MainRender tests", async () => {
         const { baseElement } = render(
             <MemoryRouter>
-                <Route>
-                    <Suspense fallback={<></>}>
-                        <NetworkErrorBoundary
-                            fallbackComponent={() => (
-                                <ErrorPage type="message" />
-                            )}
-                        >
-                            {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                            <_exportForTesting.MainRender
-                                datesRange={[
-                                    new Date("2022-07-11"),
-                                    new Date("2022-07-14"),
-                                ]}
-                                filterRowStatus={
-                                    _exportForTesting.SuccessRate.ALL_SUCCESSFUL
-                                }
-                                filterErrorText={" "}
-                                filterRowReceiver={"-"}
-                                onDetailsClick={(
-                                    _subdata: AdmConnStatusDataType[]
-                                ) => {}}
-                            />
-                        </NetworkErrorBoundary>
-                    </Suspense>
-                </Route>
+                <Suspense fallback={<></>}>
+                    <NetworkErrorBoundary
+                        fallbackComponent={() => <ErrorPage type="message" />}
+                    >
+                        {/*eslint-disable-next-line react/jsx-pascal-case*/}
+                        <_exportForTesting.MainRender
+                            datesRange={[
+                                new Date("2022-07-11"),
+                                new Date("2022-07-14"),
+                            ]}
+                            filterRowStatus={
+                                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                            }
+                            filterErrorText={" "}
+                            filterRowReceiver={"-"}
+                            onDetailsClick={(
+                                _subdata: AdmConnStatusDataType[]
+                            ) => {}}
+                        />
+                    </NetworkErrorBoundary>
+                </Suspense>
             </MemoryRouter>
         );
 
