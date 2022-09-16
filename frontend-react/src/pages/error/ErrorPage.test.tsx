@@ -44,4 +44,12 @@ describe("ErrorPage tests", () => {
             )
         ).toBeInTheDocument();
     });
+    test("Including type (old prop) and config (new prop) will result in NEW prop being used", () => {
+        render(
+            <ErrorPage type={"message"} config={GENERIC_ERROR_PAGE_CONFIG} />
+        );
+        expect(screen.getByRole("heading")).toHaveTextContent(
+            "An error has occurred"
+        );
+    });
 });
