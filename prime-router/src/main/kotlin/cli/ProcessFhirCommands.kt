@@ -94,6 +94,10 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
+    /**
+     * Convert a FHIR bundle as a [jsonString] to an HL7 message.
+     * @return an HL7 message
+     */
     private fun convertToHl7(jsonString: String): Message {
         return when {
             fhirToHl7Schema == null ->
@@ -112,6 +116,12 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
+    /**
+     * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
+     * warnings or errors from the reading of the HL7 data to HL7 objects.  Note that the --hl7-msg-index
+     * is required for HL7 batch messages as this function only returns one FHIR bundle.
+     * @return a FHIR bundle that represents the data in the one HL7 message
+     */
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
         val messages = HL7Reader(actionLogger).getMessages(hl7String)
         if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
