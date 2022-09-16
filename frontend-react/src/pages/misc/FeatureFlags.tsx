@@ -12,6 +12,9 @@ import { showAlertNotification } from "../../components/AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
+import config from "../../config";
+
+const { DEFAULT_FEATURE_FLAGS } = config;
 
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
@@ -68,9 +71,14 @@ export function CheckFeatureFlag(feature: string): boolean {
     return featuresEnabledStored.includes(lowercaseFeatureParam);
 }
 
+const getInitialFeatureFlags = (): string[] => {
+    const savedFlags = getSavedFeatureFlags();
+    return uniq(savedFlags.concat(DEFAULT_FEATURE_FLAGS));
+};
+
 export function FeatureFlagUIComponent() {
     const [allFeatures, setAllFeatures] = useState<string[]>(
-        getSavedFeatureFlags()
+        getInitialFeatureFlags()
     );
     const newFlagInputText = useRef<HTMLInputElement>(null);
 
