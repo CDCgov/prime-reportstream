@@ -40,7 +40,7 @@ const App = () => {
 
 ## Add a custom error type
 
-Custom error types help us name and display errors according to members not present on a default `Error`. Currently, there are two extensions:
+Custom error types help us implement ReportStream specific error functionality for different error cases. For example, in the current system, the custom `RSNetworkError` takes a `name` parameter, with values from will the `ErrorName` enum, to identify the specific error type when it gets to the error boundary, and allow the boundary to take specific actions based on the error name.
 
 - `name` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
 
