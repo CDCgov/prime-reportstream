@@ -1,0 +1,241 @@
+---
+name: as-download-csv
+description: Schema for CSV Upload Tool
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+
+elements:
+    - name: sender_id
+      csvFields: [{name: sender_id}]
+
+    - name: processing_mode_code
+      csvFields: [{name: processing_mode_code}]
+
+############### Set the major ID fields
+
+    - name: patient_id
+      csvFields: [{name: patient_id}]
+
+    - name: filler_order_id
+      csvFields: [{name: accession_number}]
+
+    - name: message_id
+      csvFields: [{name: message_id}]
+
+############### Patient Info
+    - name: patient_id_type
+      default: "PI"
+
+    - name: patient_last_name
+      csvFields: [{name: patient_last_name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: patient_middle_name}]
+
+    - name: patient_first_name
+      csvFields: [{name: patient_first_name}]
+
+    - name: patient_street
+      csvFields: [{name: patient_street}]
+
+    - name: patient_street2
+      csvFields: [{name: patient_street2}]
+
+    - name: patient_city
+      csvFields: [{name: patient_city}]
+
+    - name: patient_state
+      csvFields: [{name: patient_state}]
+
+    - name: patient_zip_code
+      csvFields: [{name: patient_zip_code}]
+
+    - name: patient_county
+      csvFields: [{name: patient_county}]
+
+    - name: patient_county_code
+      csvFields: [{name: patient_county_code}]
+
+    - name: patient_phone_number
+      csvFields: [{name: patient_phone_number}]
+
+    - name: patient_dob
+      csvFields: [{name: patient_dob}]
+
+    - name: patient_gender
+      csvFields: [{ name: patient_gender}]
+
+    - name: patient_ethnicity
+      csvFields: [{ name: patient_ethnicity}]
+
+    - name: patient_race
+      csvFields: [{ name: patient_race}]
+
+    - name: patient_preferred_language
+      csvFields: [{name: patient_preferred_language}]
+
+    - name: patient_email
+      csvFields: [{name: patient_email}]
+
+
+############### Order Info / Result Info / Specimen Info
+    - name: order_test_date
+      csvFields: [{name: order_test_date}]
+
+    - name: specimen_collection_date_time
+      csvFields: [{name: specimen_collection_date}]
+
+    - name: testing_lab_specimen_received_datetime
+      csvFields: [{name: testing_lab_specimen_received_date}]
+
+    - name: test_result_date
+      csvFields: [{name: test_result_date}]
+
+    - name: date_result_released
+      csvFields: [{name: date_result_released}]
+
+    - name: test_result
+      csvFields: [{ name: test_result}]
+
+    - name: test_result_status
+      default: F
+      csvFields: [{name: test_result_status}]
+
+    - name: specimen_type
+      csvFields: [{ name: specimen_type}]
+
+    - name: specimen_source_site_code
+      csvFields: [{ name: specimen_source}]
+
+
+############### LIVD Lookup() related fields
+    - name: equipment_model_name
+      csvFields: [{name: equipment_model_name }]
+
+    - name: test_performed_code
+      csvFields: [{name: test_performed_code}]
+
+############### Ordering provider info
+    - name: ordering_provider_id
+      csvFields: [{name: ordering_provider_id}]
+
+    - name: ordering_provider_last_name
+      csvFields: [{name: ordering_provider_last_name}]
+
+    - name: ordering_provider_first_name
+      csvFields: [{name: ordering_provider_first_name}]
+
+    - name: ordering_provider_middle_name
+      csvFields: [{name: ordering_provider_middle_name}]
+
+    - name: ordering_provider_street
+      csvFields: [{name: ordering_provider_street}]
+
+    - name: ordering_provider_street2
+      csvFields: [{name: ordering_provider_street2}]
+
+    - name: ordering_provider_city
+      csvFields: [{name: ordering_provider_city}]
+
+    - name: ordering_provider_state
+      csvFields: [{name: ordering_provider_state}]
+
+    - name: ordering_provider_zip_code
+      csvFields: [{name: ordering_provider_zip_code}]
+
+    - name: ordering_provider_phone_number
+      csvFields: [{name: ordering_provider_phone_number}]
+
+
+############### Testing lab info
+    - name: testing_lab_clia
+      csvFields: [{name: testing_lab_clia}]
+
+    - name: testing_lab_name
+      csvFields: [{name: testing_lab_name}]
+
+    - name: testing_lab_street
+      csvFields: [{name: testing_lab_street}]
+
+    - name: testing_lab_street2
+      csvFields: [{name: testing_lab_street2}]
+
+    - name: testing_lab_city
+      csvFields: [{name: testing_lab_city}]
+
+    - name: testing_lab_state
+      csvFields: [{name: testing_lab_state}]
+
+    - name: testing_lab_zip_code
+      csvFields: [{name: testing_lab_zip_code}]
+
+    - name: testing_lab_phone_number
+      csvFields: [{name: testing_lab_phone_number}]
+
+
+############### Ordering facility info
+
+    - name: ordering_facility_name
+      csvFields: [{name: ordering_facility_name}]
+
+    - name: ordering_facility_street
+      csvFields: [{name: ordering_facility_street}]
+
+    - name: ordering_facility_street2
+      csvFields: [{name: ordering_facility_street2}]
+
+    - name: ordering_facility_city
+      csvFields: [{name: ordering_facility_city}]
+
+    - name: ordering_facility_state
+      csvFields: [{name: ordering_facility_state}]
+
+    - name: ordering_facility_zip_code
+      csvFields: [{name: ordering_facility_zip_code}]
+
+    - name: ordering_facility_phone_number
+      csvFields: [{name: ordering_facility_phone_number}]
+
+################ Reporting Facility Info
+    - name: reporting_facility_name
+      csvFields: [{name: reporting_facility_name }]
+
+    - name: reporting_facility_clia
+      csvFields: [{name: reporting_facility_clia}]
+
+############### Set Other Miscellaneous Info
+
+    - name: comment
+      csvFields: [{name: comment}]
+
+
+############### AOE fields
+    - name: pregnant
+      csvFields: [{name: pregnant}]
+
+    - name: first_test
+      csvFields: [{name: first_test}]
+
+    - name: employed_in_healthcare
+      csvFields: [{name: employed_in_healthcare}]
+
+    - name: symptomatic_for_disease
+      csvFields: [{name: symptomatic_for_disease}]
+
+
+    - name: illness_onset_date
+      csvFields: [{name: illness_onset_date}]
+
+    - name: hospitalized
+      csvFields: [{name: hospitalized}]
+
+    - name: icu
+      csvFields: [{name: icu}]
+
+    - name: resident_congregate_setting
+      csvFields: [{name: resident_congregate_setting}]
+
+    - name: residence_type
+      csvFields: [{name: residence_type}]
+
