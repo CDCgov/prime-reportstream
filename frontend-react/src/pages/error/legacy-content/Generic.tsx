@@ -66,9 +66,9 @@ export const GenericError = ({
         // For use with RSNetworkError
         // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`
         return typeof displayConfig === "string" ? (
-            <GenericMessage message={displayConfig as string} />
+            <GenericMessage message={displayConfig} />
         ) : (
-            <GenericPage config={displayConfig as ErrorPageContentConfig} />
+            <GenericPage config={displayConfig} />
         );
     }
 };
