@@ -1,73 +1,103 @@
-import React, { createContext, useCallback, useContext, useReducer } from "react";
-import uniq from 'lodash.uniq';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useReducer,
+    useMemo,
+} from "react";
+import uniq from "lodash.uniq";
 
 import config from "../config";
-import { getSavedFeatureFlags } from "../utils/SessionStorageTools";
+import {
+    getSavedFeatureFlags,
+    storeFeatureFlags,
+} from "../utils/SessionStorageTools";
 
 export enum FeatureFlagActionType {
-  ADD = "ADD",
-  REMOVE = "REMOVE",
+    ADD = "ADD",
+    REMOVE = "REMOVE",
 }
 
 export interface FeatureFlagAction {
-  type: FeatureFlagActionType;
-  // Only need to pass name of an org to swap to
-  payload?: string;
+    type: FeatureFlagActionType;
+    payload: string;
 }
 
 type StringCheck = {
-  (flag: string): boolean
-}
+    (flag: string): boolean;
+};
 
 interface FeatureFlagContextValues {
-  checkFlag: StringCheck,
-  dispatch: React.Dispatch<FeatureFlagAction>,
+    checkFlag: StringCheck;
+    dispatch: React.Dispatch<FeatureFlagAction>;
+    featureFlags: string[];
 }
 
-type FeatureFlagState {
-  featureFlags: string[]
-}
+type FeatureFlagState = {
+    featureFlags: string[];
+};
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
 export const FeatureFlagContext = createContext<FeatureFlagContextValues>({
-    checkFlag: (flag: string) => !!DEFAULT_FEATURE_FLAGS.find(flag),
+    checkFlag: (flag: string) =>
+        !!DEFAULT_FEATURE_FLAGS.find((el) => el === flag),
     dispatch: () => {},
+    featureFlags: DEFAULT_FEATURE_FLAGS,
 });
 
 const featureFlagReducer = (
-  state: FeatureFlagState,
-  action: FeatureFlagAction) => {
+    state: FeatureFlagState,
+    action: FeatureFlagAction
+) => {
     const { type, payload } = action;
+    let newFlags;
     switch (type) {
         case FeatureFlagActionType.ADD:
-            return newState;
+            newFlags = uniq(
+                state.featureFlags.concat([payload.trim().toLowerCase()])
+            );
+            storeFeatureFlags(newFlags);
+            return { featureFlags: newFlags };
+        // we're hiding the delete button for env level flags, so
+        // we shouldn't run into a case where this is hit for those
         case FeatureFlagActionType.REMOVE:
-            return newState;
+            newFlags = state.featureFlags.filter(
+                (f) => f !== payload.trim().toLowerCase()
+            );
+            storeFeatureFlags(newFlags);
+            return { featureFlags: newFlags };
         default:
             return state;
     }
-}
-
-
-const getInitialFeatureFlags = (): string[] => {
-  const savedFlags = getSavedFeatureFlags();
-  return uniq(savedFlags.concat(DEFAULT_FEATURE_FLAGS));
 };
-
 
 export const FeatureFlagProvider = ({
     children,
 }: React.PropsWithChildren<{}>) => {
-    const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, { featureFlags: getInitialFeatureFlags() });
-    
-    const checkFlag = useCallback((flag: string): boolean => !!featureFlags.find(flag), [featureFlags]);
+    // reducer manages per user feature flags only
+    const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, {
+        featureFlags: getSavedFeatureFlags(),
+    });
+
+    // makes sure default values from environment don't get stored in local storage.
+    // if the env turns on the flag, we don't want a user accidentally accessing it later on
+    const allFeatureFlags: string[] = useMemo(
+        () => uniq(featureFlags.concat(DEFAULT_FEATURE_FLAGS)),
+        [featureFlags]
+    );
+
+    const checkFlag = useCallback(
+        (flag: string): boolean => !!allFeatureFlags.find((el) => el === flag),
+        [featureFlags]
+    );
 
     return (
         <FeatureFlagContext.Provider
             value={{
                 dispatch,
                 checkFlag,
+                featureFlags: allFeatureFlags,
             }}
         >
             {children}

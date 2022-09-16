@@ -6,6 +6,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
+import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
@@ -24,7 +25,7 @@ export const AppWrapper = ({
             <SessionProvider oktaHook={oktaHook}>
                 <QueryClientProvider client={appQueryClient}>
                     <AuthorizedFetchProvider>
-                        {children}
+                        <FeatureFlagProvider>{children}</FeatureFlagProvider>
                     </AuthorizedFetchProvider>
                 </QueryClientProvider>
             </SessionProvider>

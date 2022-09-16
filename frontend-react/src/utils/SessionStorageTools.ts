@@ -91,3 +91,10 @@ export function getSavedFeatureFlags(): string[] {
     }
     return saved.split("\t");
 }
+
+export function storeFeatureFlags(flags: string[]) {
+    window.localStorage.setItem(
+        FEATURE_FLAG_LOCALSTORAGE_KEY,
+        flags.join("\t")
+    );
+}
