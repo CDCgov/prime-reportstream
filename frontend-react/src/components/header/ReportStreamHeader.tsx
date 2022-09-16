@@ -15,10 +15,10 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import config from "../../config";
+import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 const { IS_PREVIEW, CLIENT_ENV } = config;
 

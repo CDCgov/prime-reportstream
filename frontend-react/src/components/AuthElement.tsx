@@ -63,6 +63,7 @@ export const AuthElement = ({
         requiredFeatureFlag,
         requiredUserType,
         tokenAvailable,
+        checkFlag,
     ]);
 
     return element;

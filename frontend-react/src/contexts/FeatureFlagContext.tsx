@@ -89,7 +89,7 @@ export const FeatureFlagProvider = ({
 
     const checkFlag = useCallback(
         (flag: string): boolean => !!allFeatureFlags.find((el) => el === flag),
-        [featureFlags]
+        [allFeatureFlags]
     );
 
     return (
