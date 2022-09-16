@@ -1596,7 +1596,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
-**Name**: specimen_type
+**Name**: specimen_source
 
 **ReportStream Internal Name**: specimen_source_site_code
 
