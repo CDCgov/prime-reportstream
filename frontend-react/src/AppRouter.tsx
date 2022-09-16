@@ -95,7 +95,10 @@ export const AppRouter = () => {
                 element={<ValidateWithAuth />}
             />
             {/* Handles any undefined route */}
-            <Route element={<ErrorPage code={CODES.NOT_FOUND_404} />} />
+            <Route
+                path={"*"}
+                element={<ErrorPage code={CODES.NOT_FOUND_404} />}
+            />
         </Routes>
     );
 };
