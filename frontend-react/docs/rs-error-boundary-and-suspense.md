@@ -7,7 +7,7 @@ The system is simple: we throw errors from anywhere in our app, and the first bo
 Steps to use:
 
 - [Wrap your components](#helper-functions)
-- Call the network (this will activate the suspense)
+- Make a network request (this will activate the suspense)
 - Throw an error if your call fails (handled by our fetch system)
 
 ## Helper functions
