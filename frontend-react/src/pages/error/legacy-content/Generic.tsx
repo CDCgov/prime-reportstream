@@ -3,11 +3,10 @@ import React from "react";
 import { Alert } from "@trussworks/react-uswds";
 
 import {
-    ErrorMessage,
-    ErrorPageContentConfig,
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
 } from "../../../content/error/ErrorMessages";
+import { ErrorDisplayConfig, ErrorPageContentConfig } from "../ErrorPage";
 
 export const GenericMessage = ({ message }: { message?: string }) => {
     return (
@@ -53,7 +52,7 @@ export const GenericPage = ({
 
 export interface GenericErrorProps {
     displayAsPage?: boolean;
-    displayConfig?: ErrorMessage;
+    displayConfig?: ErrorDisplayConfig;
 }
 export const GenericError = ({
     displayAsPage,

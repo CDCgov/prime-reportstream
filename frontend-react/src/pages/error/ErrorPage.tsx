@@ -1,8 +1,14 @@
 import React from "react";
 
-import { ErrorMessage } from "../../content/error/ErrorMessages";
-
 import { GenericError } from "./legacy-content/Generic";
+
+/** Config to suit page-style templates */
+export interface ErrorPageContentConfig {
+    header: string;
+    paragraph: string;
+}
+/** Union type for  */
+export type ErrorDisplayConfig = ErrorPageContentConfig | string;
 
 /** Just  */
 export const ErrorDisplayWrapper = (props: React.PropsWithChildren<{}>) => {
@@ -18,7 +24,7 @@ export const ErrorPage = ({
     config,
 }: {
     type?: "message" | "page";
-    config?: ErrorMessage;
+    config?: ErrorDisplayConfig;
 }) => (
     <ErrorDisplayWrapper>
         <GenericError displayConfig={config} displayAsPage={type === "page"} />
