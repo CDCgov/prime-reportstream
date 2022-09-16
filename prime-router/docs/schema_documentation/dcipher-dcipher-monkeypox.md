@@ -1998,6 +1998,40 @@ ordering & performing facility
 
 ---
 
+**Name**: patient_age_aoe
+
+**ReportStream Internal Name**: patient_age_aoe
+
+**Type**: NUMBER
+
+**PII**: No
+
+**LOINC Code**: 30525-0
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Patient age from AOE field
+
+---
+
+**Name**: patient_age_calculated
+
+**ReportStream Internal Name**: patient_age_calculated
+
+**Type**: NUMBER
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Patient age calculated from DOB and specimen collection datetime
+
+---
+
 **Name**: patient_citizenship
 
 **ReportStream Internal Name**: patient_citizenship
