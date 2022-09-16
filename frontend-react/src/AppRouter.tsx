@@ -95,7 +95,7 @@ export const AppRouter = () => {
                 element={<ValidateWithAuth />}
             />
             {/* Handles any undefined route */}
-            <Route element={<NoPage />} />
+            <Route path={"*"} element={<NoPage />} />
         </Routes>
     );
 };
