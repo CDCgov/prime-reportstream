@@ -24,7 +24,7 @@ elements:
     hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
 
   - name: xcn-suffix
-    value: [ '%resource.name.suffix' ]
+    value: [ '%resource.name.suffix.toString()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
 
   - name: xcn-assigning-authority

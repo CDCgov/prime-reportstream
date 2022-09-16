@@ -146,5 +146,6 @@ elements:
   - name: reason-for-study
     resource: '%resource.basedOn.resolve().reasonCode'
     constants:
-      ceFieldPath: '%{fieldPath}-31'
+      ceFieldPath: '%{fieldPath}-31(%{reasonIndex})'
     schema: datatype/ce-coded-element
+    resourceIndex: reasonIndex

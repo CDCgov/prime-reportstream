@@ -1,5 +1,5 @@
 value :
-  type: FLOAT
+  type: STRING
   valueOf: $value
 comparator :
   type: String

@@ -104,6 +104,7 @@ class FhirToHl7Converter(
                         else CustomContext.addConstant(
                             element.resourceIndex!!, index.toString(), elementContext
                         )
+                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
@@ -140,7 +141,12 @@ class FhirToHl7Converter(
         run findValue@{
             element.value.forEach {
                 val value = if (it.isBlank()) ""
-                else FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                else try {
+                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                } catch (e: SchemaException) {
+                    logger.error("Error while getting value for element ${element.name}", e)
+                    ""
+                }
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotBlank()) {
                     retVal = value
