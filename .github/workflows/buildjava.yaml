@@ -19,7 +19,7 @@ jobs:
     - run: |
         pushd prime-router
         chmod +x gradlew
-        ./gradlew -q clean 
+        gradlew -q clean 
         popd
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
