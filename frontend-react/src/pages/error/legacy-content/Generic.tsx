@@ -62,7 +62,7 @@ export const GenericError = ({
         // For back-compat with older uses
         // TODO: Remove when we stop using GenericError outside of RSErrorBoundary
         return displayAsPage ? <GenericPage /> : <GenericMessage />;
-    } else if (displayConfig) {
+    } else {
         // For use with RSNetworkError
         // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`
         return displayConfig instanceof String ? (
@@ -70,7 +70,5 @@ export const GenericError = ({
         ) : (
             <GenericPage config={displayConfig as ErrorPageContentConfig} />
         );
-    } else {
-        return <GenericMessage />;
     }
 };
