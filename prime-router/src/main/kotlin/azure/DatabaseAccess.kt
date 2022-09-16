@@ -642,6 +642,95 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Setting::class.java)
     }
 
+    /** data returned by fetchSettingRevisionHistory. Only used to shape json response. **/
+    data class SettingsHistoryData(
+        /** settingID remaps to this */
+        val id: Int,
+        /** Every setting has a unique name for a given org */
+        val name: String? = "",
+        /** incrementing revision number zero based */
+        val version: Int? = 0,
+        /** timestamp of when this entry was created */
+        val createdBy: String?,
+        /** email address of who created it */
+        val createdAt: OffsetDateTime? = null,
+        /** "tombstone" marker */
+        val isDeleted: Boolean? = true,
+        /** Not sure what active means here. anyone? */
+        val isActive: Boolean? = false,
+        /** Content of settings is stored as a JSONB. We treat it opaquely as a string by design */
+        val settingJson: String? = "",
+    )
+
+    /**
+     * DB call to return a list of all Settings for an org of a given type even if deleted
+     * It doesn't take a setting name since if a setting is deleted, it's hard to get that name
+     * without a name=* query like this.
+     *
+     * Query for org is a different query from sender/receiver because of schema, result data
+     * is the same.
+     *
+     * Returns a string for the Values JSONB column intentionally. The use case for this API call
+     * is to detect changes over time. If the format/content of the JSONB changes, then things get
+     * super complex AND it becomes likely that the schema for the JSONB will REMOVE
+     * entries it doesn't recognize. We want as little reintepretation of data as possible
+     *
+     * @param organizationName Org Name to match against
+     * @param settingType Settings type to match against
+     * @param txn DB transaction
+     * @return List of SettingsHistoryData. Intentionally returns JSONB "value" field as a string.
+     */
+    fun fetchSettingRevisionHistory(
+        organizationName: String,
+        settingType: SettingType,
+        txn: DataAccessTransaction
+    ): List<SettingsHistoryData> {
+        val org = SETTING.`as`("org")
+        val settings = SETTING.`as`("settings")
+        val selectCols = DSL.using(txn).select(
+            settings.SETTING_ID.`as`("id"),
+            settings.NAME,
+            settings.VERSION,
+            settings.CREATED_AT,
+            settings.CREATED_BY,
+            settings.IS_ACTIVE,
+            settings.IS_DELETED,
+            settings.VALUES.cast(String::class.java).`as`("settingJson")
+        ) // see kdoc
+
+        when (settingType) {
+            SettingType.ORGANIZATION ->
+                return selectCols
+                    .from(settings)
+                    .where(
+                        settings.TYPE.eq(SettingType.ORGANIZATION)
+                            .and(settings.TYPE.eq(SettingType.ORGANIZATION))
+                            .and(settings.NAME.eq(organizationName))
+                    )
+                    .limit(MAX_RECORDS_TO_RETURN)
+                    .fetch()
+                    .into(SettingsHistoryData::class.java)
+
+            // Sending/receiver needs join with the latest organization setting record
+            // in order to restrict the organization
+            SettingType.SENDER, SettingType.RECEIVER ->
+                return selectCols
+                    .from(settings)
+                    .join(org)
+                    .on(settings.ORGANIZATION_ID.eq(org.SETTING_ID))
+                    .where(
+                        settings.TYPE.eq(settingType)
+                            .and(org.IS_ACTIVE.isTrue)
+                            .and(org.TYPE.eq(SettingType.ORGANIZATION))
+                            .and(org.ORGANIZATION_ID.isNull)
+                            .and(org.NAME.eq(organizationName))
+                    )
+                    .limit(MAX_RECORDS_TO_RETURN)
+                    .fetch()
+                    .into(SettingsHistoryData::class.java)
+        }
+    }
+
     fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int {
         return DSL.using(txn)
             .insertInto(SETTING)
