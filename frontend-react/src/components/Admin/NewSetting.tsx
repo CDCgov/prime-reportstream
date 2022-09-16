@@ -113,7 +113,9 @@ export function NewSetting() {
     };
 
     return (
-        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage />}>
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="page" />}
+        >
             <section className="grid-container margin-bottom-5">
                 <Suspense
                     fallback={

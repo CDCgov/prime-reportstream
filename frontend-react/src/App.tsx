@@ -75,7 +75,9 @@ const App = () => {
             oktaHook={useOktaAuth}
         >
             <Suspense fallback={<Spinner size={"fullpage"} />}>
-                <NetworkErrorBoundary fallbackComponent={() => <ErrorPage />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="page" />}
+                >
                     <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
                     <SenderModeBanner />
