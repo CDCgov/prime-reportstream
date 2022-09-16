@@ -9,7 +9,7 @@ const envVars = {
 
 const config = {
     ...envVars,
-    IS_PREVIEW: envVars.OKTA_URL.match(/oktapreview.com/) !== null,
+    IS_PREVIEW: envVars.OKTA_URL?.match(/oktapreview.com/) !== null,
     API_ROOT: `${envVars.RS_API_URL}/api`,
 };
 
