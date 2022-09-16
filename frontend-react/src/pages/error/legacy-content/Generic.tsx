@@ -2,13 +2,24 @@ import Helmet from "react-helmet";
 import React from "react";
 import { Alert } from "@trussworks/react-uswds";
 
+import {
+    ErrorMessage,
+    ErrorPageContentConfig,
+    GENERIC_ERROR_PAGE_CONFIG,
+    GENERIC_ERROR_STRING,
+} from "../../../content/error/ErrorMessages";
+
 export const GenericMessage = ({ message }: { message?: string }) => {
-    const backupMessage =
-        "Our apologies, there was an error loading this content.";
-    return <Alert type="error">{message ? message : backupMessage}</Alert>;
+    return (
+        <Alert type="error">{message ? message : GENERIC_ERROR_STRING}</Alert>
+    );
 };
 
-export const GenericPage = () => {
+export const GenericPage = ({
+    config = GENERIC_ERROR_PAGE_CONFIG as ErrorPageContentConfig,
+}: {
+    config?: ErrorPageContentConfig;
+}) => {
     return (
         <>
             <Helmet>
@@ -21,14 +32,8 @@ export const GenericPage = () => {
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
                         <div className="usa-prose">
-                            <h1>An error has occurred</h1>
-                            <p>
-                                The application has encountered an unknown
-                                error. It doesn't appear to have affected your
-                                data, but our technical staff have been
-                                automatically notified and will be looking into
-                                this with the utmost urgency.
-                            </p>
+                            <h1>{config.header}</h1>
+                            <p>{config.paragraph}</p>
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
@@ -48,6 +53,25 @@ export const GenericPage = () => {
 
 export interface GenericErrorProps {
     displayAsPage?: boolean;
+    displayConfig?: ErrorMessage;
 }
-export const GenericError = ({ displayAsPage }: GenericErrorProps) =>
-    displayAsPage ? <GenericPage /> : <GenericMessage />;
+export const GenericError = ({
+    displayAsPage,
+    displayConfig,
+}: GenericErrorProps) => {
+    if (!displayConfig) {
+        // For back-compat with older uses
+        // TODO: Remove when we stop using GenericError outside of RSErrorBoundary
+        return displayAsPage ? <GenericPage /> : <GenericMessage />;
+    } else if (displayConfig) {
+        // For use with RSNetworkError
+        // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`
+        return displayConfig instanceof String ? (
+            <GenericMessage message={displayConfig as string} />
+        ) : (
+            <GenericPage config={displayConfig as ErrorPageContentConfig} />
+        );
+    } else {
+        return <GenericMessage />;
+    }
+};

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { ErrorMessage } from "../../content/error/ErrorMessages";
+
 import { GenericError } from "./legacy-content/Generic";
 
 /** Just  */
@@ -11,8 +13,14 @@ export const ErrorDisplayWrapper = (props: React.PropsWithChildren<{}>) => {
     );
 };
 /** @deprecated For use with NetworkErrorBoundary until refactored out */
-export const ErrorPage = ({ type }: { type?: "message" | "page" }) => (
+export const ErrorPage = ({
+    type,
+    config,
+}: {
+    type?: "message" | "page";
+    config?: ErrorMessage;
+}) => (
     <ErrorDisplayWrapper>
-        <GenericError displayAsPage={type === "page"} />
+        <GenericError displayConfig={config} displayAsPage={type === "page"} />
     </ErrorDisplayWrapper>
 );
