@@ -124,7 +124,7 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
     LOINC("http://loinc.org", "LN"),
     SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
-    HL70189("http://terminology.hl7.org/ValueSet/v2-0189", "HL70189"),
+    HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
     HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
     NONE("", "");
     companion object {

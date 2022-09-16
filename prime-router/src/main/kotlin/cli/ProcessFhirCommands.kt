@@ -114,6 +114,7 @@ class ProcessFhirCommands : CliktCommand(
 
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
         val messages = HL7Reader(actionLogger).getMessages(hl7String)
+        if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
         val message = if (messages.size > 1) {
             if (hl7ItemIndex == null)
                 throw CliktError("Only one HL7 message can be converted. Use the --hl7-msg-index.")

@@ -391,14 +391,17 @@ extension:
         valueCodeableConcept:
           valueOf: datatype/CodeableConcept
           expressionType: resource
-          vars:
-            alternateCode: PID.22.1
-            alternateDisplay: PID.22.2
-            alternateIdCode: PID.22.4
-            alternateIdDisplay: PID.22.5
-            alternateIdSystem: PID.22.6
-          constants:
-            alternateSystem: http://terminology.hl7.org/ValueSet/v2-0189
+          specs: PID.22
+#          constants:
+#             overrideSystem: v2-0189
+#          vars:
+#            alternateCode: PID.22.1
+#            alternateDisplay: PID.22.2
+#            alternateIdCode: PID.22.4
+#            alternateIdDisplay: PID.22.5
+#            alternateIdSystem: PID.22.6
+#          constants:
+#            alternateSystem: http://terminology.hl7.org/ValueSet/v2-0189
 
     - expressionType: nested
       generateList: true
