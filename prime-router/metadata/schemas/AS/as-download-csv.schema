@@ -106,7 +106,7 @@ elements:
       csvFields: [{ name: specimen_type}]
 
     - name: specimen_source_site_code
-      csvFields: [{ name: specimen_type}]
+      csvFields: [{ name: specimen_source}]
 
 
 ############### LIVD Lookup() related fields
