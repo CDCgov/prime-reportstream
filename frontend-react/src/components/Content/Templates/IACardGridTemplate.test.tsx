@@ -32,11 +32,11 @@ const testDirectories: ContentDirectory[] = [
     new ElementDirectory()
         .setTitle(TestDirPages.ONE) // Name it
         .setDescription("Item One") // Describe it
-        .setSlug(dirTools.prependRoot(TestDirPages.ONE)), // Page's path, use `ContentDirectoryTools.prependRoot()`
+        .setSlug(dirTools.getSlug(TestDirPages.ONE)),
     new ElementDirectory()
         .setTitle(TestDirPages.TWO)
         .setDescription("Item Two")
-        .setSlug(dirTools.prependRoot(TestDirPages.TWO)),
+        .setSlug(dirTools.getSlug(TestDirPages.TWO)),
 ];
 // Split your main array into sections
 const testContentMap: ContentMap = new Map()
@@ -50,15 +50,11 @@ const testContentMap: ContentMap = new Map()
     );
 // Props for a single array page
 const arrayPageProps: IACardGridProps = {
-    title: dirTools.title,
-    subtitle: dirTools.subtitle,
-    directoriesToRender: testDirectories, // <- ContentDirectory[]
+    directories: testDirectories, // <- ContentDirectory[]
 };
 // Props for a sectioned page
 const mapPageProps: IACardGridProps = {
-    title: dirTools.title,
-    subtitle: dirTools.subtitle,
-    directoriesToRender: testContentMap, // <- Map<string, ContentDirectory[]>
+    directories: testContentMap, // <- Map<string, ContentDirectory[]>
 };
 
 // Test components

@@ -1,9 +1,9 @@
-import routeData from "react-router";
+import * as ReactRouter from "react-router";
 
 import { useDAP } from "./DAPHeader";
 
 describe("Test useDAP for DAPHeader component", () => {
-    const useLocation = jest.spyOn(routeData, "useLocation");
+    const useLocation = jest.spyOn(ReactRouter, "useLocation");
 
     test("Check DAP for root homepage (public)", () => {
         useLocation.mockReturnValue({ pathname: "/" } as any);
