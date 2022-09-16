@@ -1,5 +1,8 @@
-import { useCache } from "@rest-hooks/core/lib/react-integration/newhooks";
 import React, { createContext, useCallback, useContext, useReducer } from "react";
+import uniq from 'lodash.uniq';
+
+import config from "../config";
+import { getSavedFeatureFlags } from "../utils/SessionStorageTools";
 
 export enum FeatureFlagActionType {
   ADD = "ADD",
@@ -17,7 +20,6 @@ type StringCheck = {
 }
 
 interface FeatureFlagContextValues {
-  // featureFlags: string[],
   checkFlag: StringCheck,
   dispatch: React.Dispatch<FeatureFlagAction>,
 }
@@ -26,9 +28,10 @@ type FeatureFlagState {
   featureFlags: string[]
 }
 
+const { DEFAULT_FEATURE_FLAGS } = config;
+
 export const FeatureFlagContext = createContext<FeatureFlagContextValues>({
-    // featureFlags: [],
-    checkFlag: () => false,
+    checkFlag: (flag: string) => !!DEFAULT_FEATURE_FLAGS.find(flag),
     dispatch: () => {},
 });
 
@@ -47,17 +50,22 @@ const featureFlagReducer = (
 }
 
 
+const getInitialFeatureFlags = (): string[] => {
+  const savedFlags = getSavedFeatureFlags();
+  return uniq(savedFlags.concat(DEFAULT_FEATURE_FLAGS));
+};
+
+
 export const FeatureFlagProvider = ({
     children,
 }: React.PropsWithChildren<{}>) => {
-    const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, { featureFlags: [] });
+    const [{ featureFlags }, dispatch] = useReducer(featureFlagReducer, { featureFlags: getInitialFeatureFlags() });
     
     const checkFlag = useCallback((flag: string): boolean => !!featureFlags.find(flag), [featureFlags]);
 
     return (
         <FeatureFlagContext.Provider
             value={{
-                // featureFlags,
                 dispatch,
                 checkFlag,
             }}

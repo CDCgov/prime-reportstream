@@ -27,15 +27,15 @@ export enum FeatureFlagName {
 }
 
 /* feature flags are just and array of strings saved into a single localStorage variable */
-const LOCALSTORAGE_KEY = "featureFlags";
+// const LOCALSTORAGE_KEY = "featureFlags";
 
-function getSavedFeatureFlags(): string[] {
-    const saved = window.localStorage.getItem(LOCALSTORAGE_KEY) || "";
-    if (saved === "") {
-        return [];
-    }
-    return saved.split("\t");
-}
+// function getSavedFeatureFlags(): string[] {
+//     const saved = window.localStorage.getItem(LOCALSTORAGE_KEY) || "";
+//     if (saved === "") {
+//         return [];
+//     }
+//     return saved.split("\t");
+// }
 
 export function addFeatureFlag(flag: string) {
     const flagClean = flag.trim().toLowerCase();
@@ -71,10 +71,10 @@ export function CheckFeatureFlag(feature: string): boolean {
     return featuresEnabledStored.includes(lowercaseFeatureParam);
 }
 
-const getInitialFeatureFlags = (): string[] => {
-    const savedFlags = getSavedFeatureFlags();
-    return uniq(savedFlags.concat(DEFAULT_FEATURE_FLAGS));
-};
+// const getInitialFeatureFlags = (): string[] => {
+//     const savedFlags = getSavedFeatureFlags();
+//     return uniq(savedFlags.concat(DEFAULT_FEATURE_FLAGS));
+// };
 
 export function FeatureFlagUIComponent() {
     const [allFeatures, setAllFeatures] = useState<string[]>(
