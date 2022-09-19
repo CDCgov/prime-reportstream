@@ -14,13 +14,13 @@ Steps to use:
 
 To begin using the error boundary, you can wrap components in your jsx using the included helper functions:
 
-- `withThrowableError`: Wraps your component with boundary
-- `withSuspense`: Wraps your component with a suspense that renders a spinner until fetch called inside the component has returned
-- `withNetworkCall`: Wraps your component with boundary and suspense
+- `withCatch`: Wraps your component with `RSErrorBoundary` to catch errors at that level of the DOM
+- `withSuspense`: Wraps your component with `Suspense`, providing a spinner UI while data further down the DOM fetches
+- `withCatchAndSuspense`: Wraps with both wrappers at the same level of the DOM
 
 ```typescript jsx
-import {withNetworkCall} from "./RSErrorBoundary";
-const MyComponent = () => withNetworkCall(<MyComponentContent/>);
+import {withCatchAndSuspense} from "./RSErrorBoundary";
+const MyComponent = () => withCatchAndSuspense(<MyComponentContent/>);
 // OR
 const App = () => {
     return (
@@ -31,7 +31,7 @@ const App = () => {
                 </title>
             </Helmet>
             <section className="grid-container">
-                {withNetworkCall(<MyComponentContent />)}
+                {withCatchAndSuspense(<MyComponentContent />)}
             </section>
         </>
     );
@@ -60,7 +60,3 @@ export class RSMyNewError extends Error {
     }
 }
 ```
-
-### Add a new `ErrorName` value(s) to enum
-
-The `ErrorName` enum drives the error page rendering system. Every code can be linked to one or two UIs: a page and message (banner). You can find this enum in the `RSNetworkError.ts` file.

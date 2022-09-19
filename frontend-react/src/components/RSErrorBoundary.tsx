@@ -65,7 +65,7 @@ export default class RSErrorBoundary extends React.Component<
  *      {withThrowableError(<MyComponent />)}
  *  </div>
  * )*/
-export const withThrowableError = (component: JSX.Element) => (
+export const withCatch = (component: JSX.Element) => (
     <RSErrorBoundary>{component}</RSErrorBoundary>
 );
 /** For wrapping with Suspense when a spinner is required while data loads for a component
@@ -82,7 +82,7 @@ export const withSuspense = (component: JSX.Element) => (
     <Suspense fallback={<Spinner />}>{component}</Suspense>
 );
 /** For wrapping with an RSErrorBoundary and Suspense when making network calls.
- * To use these two wrappers at varying DOM levels, use {@link withThrowableError}
+ * To use these two wrappers at varying DOM levels, use {@link withCatch}
  * and {@link withSuspense}
  * @example
  * // As proxy
@@ -94,6 +94,6 @@ export const withSuspense = (component: JSX.Element) => (
  *  </div>
  * )
  * */
-export const withNetworkCall = (component: JSX.Element) => {
-    return withThrowableError(withSuspense(component));
+export const withCatchAndSuspense = (component: JSX.Element) => {
+    return withCatch(withSuspense(component));
 };

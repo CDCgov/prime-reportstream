@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 
 import { RSNetworkError } from "../utils/RSNetworkError";
 
-import { withThrowableError } from "./RSErrorBoundary";
+import { withCatch } from "./RSErrorBoundary";
 
 // Dummy components for testing
 const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
@@ -20,11 +20,10 @@ const ThrowsGenericError = ({
 const ThrowsNoError = (): JSX.Element => <div>Success!</div>;
 
 // Wrap them with error boundary
-const ThrowsRSErrorWrapped = () =>
-    withThrowableError(<ThrowsRSError error={true} />);
+const ThrowsRSErrorWrapped = () => withCatch(<ThrowsRSError error={true} />);
 const ThrowsGenericErrorWrapped = () =>
-    withThrowableError(<ThrowsGenericError error={true} />);
-const ThrowsNoErrorWrapped = () => withThrowableError(<ThrowsNoError />);
+    withCatch(<ThrowsGenericError error={true} />);
+const ThrowsNoErrorWrapped = () => withCatch(<ThrowsNoError />);
 
 // Silences console.error and console.log of error stack
 jest.spyOn(global.console, "error");
