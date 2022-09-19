@@ -8,13 +8,13 @@ import {
 } from "../../../content/error/ErrorMessages";
 import { ErrorDisplayMessage, ParagraphWithTitle } from "../ErrorPage";
 
-export const GenericMessage = ({ message }: { message?: string }) => {
+export const StringErrorDispaly = ({ message }: { message?: string }) => {
     return (
         <Alert type="error">{message ? message : GENERIC_ERROR_STRING}</Alert>
     );
 };
 
-export const GenericPage = ({
+export const ParagraphErrorDisplay = ({
     config = GENERIC_ERROR_PAGE_CONFIG as ParagraphWithTitle,
 }: {
     config?: ParagraphWithTitle;
@@ -54,21 +54,25 @@ export interface GenericErrorProps {
     displayAsPage?: boolean;
     displayConfig?: ErrorDisplayMessage;
 }
-export const GenericError = ({
+export const BasicErrorDisplay = ({
     displayAsPage,
     displayConfig,
 }: GenericErrorProps) => {
     if (!displayConfig) {
         // For back-compat with older uses
         // TODO: Remove when we stop using GenericError outside of RSErrorBoundary
-        return displayAsPage ? <GenericPage /> : <GenericMessage />;
+        return displayAsPage ? (
+            <ParagraphErrorDisplay />
+        ) : (
+            <StringErrorDispaly />
+        );
     } else {
         // For use with RSNetworkError
         // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`
         return typeof displayConfig === "string" ? (
-            <GenericMessage message={displayConfig} />
+            <StringErrorDispaly message={displayConfig} />
         ) : (
-            <GenericPage config={displayConfig} />
+            <ParagraphErrorDisplay config={displayConfig} />
         );
     }
 };

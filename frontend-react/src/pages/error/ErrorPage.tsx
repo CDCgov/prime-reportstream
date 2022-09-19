@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GenericError } from "./legacy-content/Generic";
+import { BasicErrorDisplay } from "./legacy-content/Generic";
 
 /** Config to suit page-style templates */
 export interface ParagraphWithTitle {
@@ -28,6 +28,9 @@ export const ErrorPage = ({
     config?: ErrorDisplayMessage;
 }) => (
     <ErrorDisplayWrapper>
-        <GenericError displayConfig={config} displayAsPage={type === "page"} />
+        <BasicErrorDisplay
+            displayConfig={config}
+            displayAsPage={type === "page"}
+        />
     </ErrorDisplayWrapper>
 );
