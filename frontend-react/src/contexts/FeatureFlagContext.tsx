@@ -39,14 +39,14 @@ type FeatureFlagState = {
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
-export const FeatureFlagContext = createContext<FeatureFlagContextValues>({
+const FeatureFlagContext = createContext<FeatureFlagContextValues>({
     checkFlag: (flag: string) =>
         !!DEFAULT_FEATURE_FLAGS.find((el) => el === flag),
     dispatch: () => {},
     featureFlags: DEFAULT_FEATURE_FLAGS,
 });
 
-const featureFlagReducer = (
+export const featureFlagReducer = (
     state: FeatureFlagState,
     action: FeatureFlagAction
 ) => {
