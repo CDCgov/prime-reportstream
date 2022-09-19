@@ -6,6 +6,8 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import { OrgsTable } from "../../components/Admin/OrgsTable";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 export function AdminMain() {
     return (
@@ -30,5 +32,14 @@ export function AdminMain() {
             </NetworkErrorBoundary>
             <HipaaNotice />
         </NetworkErrorBoundary>
+    );
+}
+
+export function AdminMainWithAuth() {
+    return (
+        <AuthElement
+            element={<AdminMain />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

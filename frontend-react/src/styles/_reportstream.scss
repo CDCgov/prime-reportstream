@@ -261,6 +261,8 @@ ul.rb li .timestamp {
     padding-bottom: 0.5em;
 }
 
+// Forms
+
 /* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
 :root {
     --toastify-toast-width: 600px;
@@ -382,6 +384,27 @@ ul.rb li .timestamp {
     z-index: var(--rs-zindex-top+1);
 }
 
+.rs-resend-modal {
+    max-width: 80vw;
+    height: 90vh;
+    overflow-y: auto;
+
+    .usa-modal__main {
+        max-width: revert;
+    }
+
+    .rs-resend-textarea {
+        height: 14em;
+        overflow-y: scroll;
+    }
+}
+
+.rs-resendmarker {
+    font-size: large;
+    cursor: default;
+}
+
+
 // combined from parts from /node_modules/@fortawesome/fontawesome-svg-core/styles.css
 .rs-fa-right-left-icon {
     color: #005ea2;
@@ -403,6 +426,11 @@ ul.rb li .timestamp {
     max-width: 100%;
   }
 
+}
+
+.rs-wordbreak-force {
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .fixed-tooltip {
@@ -581,6 +609,10 @@ pre {
             padding: 7px;
         }
 
+        .modal-info-title-resend {
+            background-color: var(--toastify-color-success);
+        }
+
         .modal-info-row {
             flex-wrap: nowrap;
         }
@@ -613,11 +645,15 @@ pre {
     font-weight: bold;
 }
 
-.rs-scrolling-modal {
-
-}
-
 /* for dashboards, unbounded width is a nice feature */
 .rs-container-unbounded {
     max-width: fit-content !important;
+}
+
+.rs-maxwidth-vw80 {
+    max-width: 80vw;
+}
+
+.rs-no-padding {
+  padding: 0;
 }

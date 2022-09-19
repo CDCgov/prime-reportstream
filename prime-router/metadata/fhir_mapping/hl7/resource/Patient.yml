@@ -3,7 +3,7 @@ resourceType: Patient
 # reference: https://www.hl7.org/fhir/patient.html
 id:
   type: STRING
-  valueOf: UUID.randomUUID()
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 identifier_1:
@@ -407,7 +407,7 @@ extension:
           expressionType: resource
           condition: $annotationText NOT_NULL
           vars:
-            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
 communication:
   condition: $language NOT_NULL

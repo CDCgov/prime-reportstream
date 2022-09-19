@@ -47,7 +47,7 @@ object FhirPathUtils : Logging {
      * @throws Exception if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath == null) null
+        return if (fhirPath.isNullOrBlank()) null
         else pathEngine.parse(fhirPath)
     }
 
@@ -63,7 +63,9 @@ object FhirPathUtils : Logging {
         expression: String
     ): List<Base> {
         val retVal = try {
-            pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            val expressionNode = parsePath(expression)
+            if (expressionNode == null) emptyList()
+            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.debug(
@@ -92,7 +94,9 @@ object FhirPathUtils : Logging {
         expression: String
     ): Boolean {
         val retVal = try {
-            val value = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            val expressionNode = parsePath(expression)
+            val value = if (expressionNode == null) emptyList()
+            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
                 throw SchemaException("Condition did not evaluate to a boolean type")
@@ -124,7 +128,9 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): String {
-        val evaluated = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+        val expressionNode = parsePath(expression)
+        val evaluated = if (expressionNode == null) emptyList()
+        else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""

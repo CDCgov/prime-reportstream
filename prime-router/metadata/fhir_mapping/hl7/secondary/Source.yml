@@ -18,6 +18,7 @@ software:
   valueOf: SFT.3
   expressionType: HL7Spec
 
+# For OIDs
 extension_1:
   generateList: true
   valueOf: extension/Extension
@@ -32,7 +33,22 @@ extension_1:
     KEY_NAME_SUFFIX: Oid
     urlValue: source-identifier-system
 
+# For all other ID types
 extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+  vars:
+    idStr: String, MSH.3.2
+    value: $idUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    idUrlPrefix: "urn:id:"
+    KEY_NAME_SUFFIX: String
+    urlValue: source-identifier-system
+
+extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -42,7 +58,7 @@ extension_2:
     KEY_NAME_SUFFIX: String
     urlValue: source-software-binary-id
 
-extension_3:
+extension_4:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -52,7 +68,7 @@ extension_3:
     KEY_NAME_SUFFIX: String
     urlValue: source-software-description
 
-extension_4:
+extension_5:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -62,7 +78,7 @@ extension_4:
     KEY_NAME_SUFFIX: DateTime
     urlValue: source-software-install-date
 
-extension_5:
+extension_6:
   generateList: true
   expressionType: nested
   expressionsMap:

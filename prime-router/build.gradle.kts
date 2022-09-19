@@ -101,8 +101,8 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.0.3"
-val kotlinVersion = "1.7.0"
+val ktorVersion = "2.1.1"
+val kotlinVersion = "1.7.10"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -678,8 +678,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
-    implementation("com.azure:azure-core:1.30.0")
-    implementation("com.azure:azure-core-http-netty:1.12.2")
+    implementation("com.azure:azure-core:1.32.0")
+    implementation("com.azure:azure-core-http-netty:1.12.5")
     implementation("com.azure:azure-storage-blob:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -690,7 +690,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.6") {
+    implementation("com.azure:azure-identity:1.5.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -710,7 +710,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
@@ -783,5 +783,5 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }

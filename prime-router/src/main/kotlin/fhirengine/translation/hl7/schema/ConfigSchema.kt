@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import java.util.SortedMap
 
@@ -17,8 +18,9 @@ data class ConfigSchema(
     var name: String? = null,
     var hl7Type: String? = null,
     var hl7Version: String? = null,
-    var elements: List<ConfigSchemaElement> = emptyList(),
-    var constants: SortedMap<String, String> = sortedMapOf()
+    var elements: MutableList<ConfigSchemaElement> = mutableListOf(),
+    var constants: SortedMap<String, String> = sortedMapOf(),
+    var extends: String? = null
 ) {
     /**
      * Has this schema been validated? Only used on the top level schema.
@@ -97,6 +99,50 @@ data class ConfigSchema(
         hasBeenValidated = true
         return validationErrors.toList()
     }
+
+    /**
+     * Merge a [childSchema] into this one.
+     * @return the reference to the schema
+     */
+    fun merge(childSchema: ConfigSchema) = apply {
+        childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
+        childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
+        childSchema.elements.forEach { childElement ->
+            // If we find the element in the schema then replace it, otherwise add it.
+            if (childElement.name.isNullOrBlank())
+                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+            val elementInSchema = findElement(childElement.name!!)
+            if (elementInSchema != null) {
+                elementInSchema.merge(childElement)
+            } else {
+                this.elements.add(childElement)
+            }
+        }
+    }
+
+    /**
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
+     * element.
+     * @return the element found or null if not found
+     */
+    internal fun findElement(elementName: String): ConfigSchemaElement? {
+        // First try to find the element at this level in the schema.
+        var elementsInSchema = elements.filter { elementName == it.name }
+
+        // If the element was not found in this schema level, then traverse any elements that reference a schema
+        if (elementsInSchema.isEmpty()) {
+            // Stay with me here: first get all the elements that are schema references, then for each of those schemas
+            // then find the element in there.  Note that this is recursive.
+            // Why the distinct? A schema can make references to the same schema multiple times, so you could get
+            // a list of elements that are identical, so we make sure to get only those that at different.
+            elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
+                it.schemaRef?.findElement(elementName)
+            }.distinct()
+        }
+        // Sanity check
+        check(elementsInSchema.size <= 1)
+        return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+    }
 }
 
 /**
@@ -116,7 +162,7 @@ data class ConfigSchema(
 data class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
-    var required: Boolean? = false,
+    var required: Boolean? = null,
     var schema: String? = null,
     var schemaRef: ConfigSchema? = null,
     var resource: String? = null,
@@ -173,5 +219,21 @@ data class ConfigSchemaElement(
             validationErrors.addAll(it.validate(true))
         }
         return validationErrors
+    }
+
+    /**
+     * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
+     * @return the reference to the element
+     */
+    fun merge(overwritingElement: ConfigSchemaElement) = apply {
+        overwritingElement.condition?.let { this.condition = overwritingElement.condition }
+        overwritingElement.required?.let { this.required = overwritingElement.required }
+        overwritingElement.schema?.let { this.schema = overwritingElement.schema }
+        overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
+        overwritingElement.resource?.let { this.resource = overwritingElement.resource }
+        overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
+        if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
+        if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
+        if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
     }
 }
