@@ -1,12 +1,14 @@
-import { ErrorDisplayMessage } from "../../pages/error/ErrorPage";
+/** Config to suit page-style templates */
+export interface ParagraphWithTitle {
+    header: string;
+    paragraph: string;
+}
 
-/** This file houses error display configs for when errors are thrown inside ReportStream
- *
- *  A custom error type will provide an ErrorDisplayConfig, and the ErrorDisplay component
- *  parses this to hydrate either a page-styled template OR a banner-styled template.
- *  NON-RS errors will _NOT_ include this functionality, so the default template, <GenericError>,
- *  is set up to handle non-RS errors by displaying fallbacks: GENERIC_ERROR_STRING for a message
- *  UI and GENERIC_ERROR_PAGE_CONFIG for a page UI. */
+/** A custom error type, such as {@link RSNetworkError}, will provide the new error boundary,
+ *  {@link RSErrorBoundary}, with a display message. The type is checked at runtime in the boundary.
+ *  If you only provide a string, it will render using our string-only interface, and if you provide a
+ *  paragraph/header it'll render with a paragraph/titled interface. */
+export type ErrorDisplayMessage = ParagraphWithTitle | string;
 
 /** Default message for an error  */
 export const GENERIC_ERROR_STRING: ErrorDisplayMessage =

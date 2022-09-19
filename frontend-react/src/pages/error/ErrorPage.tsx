@@ -1,14 +1,8 @@
 import React from "react";
 
-import { BasicErrorDisplay } from "./Generic";
+import { ErrorDisplayMessage } from "../../content/error/ErrorMessages";
 
-/** Config to suit page-style templates */
-export interface ParagraphWithTitle {
-    header: string;
-    paragraph: string;
-}
-/** Union type for declaring a title/paragraph or string-based message */
-export type ErrorDisplayMessage = ParagraphWithTitle | string;
+import { BasicErrorDisplay } from "./Generic";
 
 /** @deprecated Move div over to render in RSErrorBoundary when NetworkErrorBoundary is
  * removed */

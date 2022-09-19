@@ -3,11 +3,11 @@ import React from "react";
 import { Alert } from "@trussworks/react-uswds";
 
 import {
+    ErrorDisplayMessage,
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
+    ParagraphWithTitle,
 } from "../../content/error/ErrorMessages";
-
-import { ErrorDisplayMessage, ParagraphWithTitle } from "./ErrorPage";
 
 export const StringErrorDispaly = ({ message }: { message?: string }) => {
     return (
