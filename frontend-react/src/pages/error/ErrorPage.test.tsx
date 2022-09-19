@@ -1,81 +1,55 @@
-/* eslint-disable no-restricted-globals */
-import { ReactElement } from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { render, screen } from "@testing-library/react";
 
-import { CODES, ErrorPage } from "./ErrorPage";
+import {
+    GENERIC_ERROR_PAGE_CONFIG,
+    GENERIC_ERROR_STRING,
+} from "../../content/error/ErrorMessages";
 
-describe("testing ErrorPage", () => {
-    // types of errors we can throw
-    function Throw500(): ReactElement {
-        const error: any = new Error("500");
-        error.status = 500;
-        throw error;
-    }
+import { ErrorPage } from "./ErrorPage";
 
-    // intercept error handling mechanism since we WANT to generate errors
-    function onError(e: any) {
-        e.preventDefault();
-    }
-
-    beforeEach(() => {
-        if (typeof addEventListener === "function")
-            addEventListener("error", onError);
-    });
-
-    afterEach(() => {
-        if (typeof removeEventListener === "function")
-            removeEventListener("error", onError);
-    });
-
-    // actual tests
-    it("checks basic error", () => {
-        render(
-            <ErrorPage>
-                <div>child component</div>
-            </ErrorPage>
-        );
-
+describe("ErrorPage tests", () => {
+    test("Renders as message with no props", () => {
+        render(<ErrorPage />);
         expect(
-            screen.getByText(/application has encountered an unknown error/i)
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
         ).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
-
-    it("check UNSUPPORTED_BROWSER", () => {
-        render(
-            <ErrorPage code={CODES.UNSUPPORTED_BROWSER}>
-                <div>child component</div>
-            </ErrorPage>
+    test('Renders as page with type="page" prop', () => {
+        render(<ErrorPage type={"page"} />);
+        expect(screen.getByRole("heading")).toHaveTextContent(
+            "An error has occurred"
         );
+    });
+    test('Renders as message with type="message" prop', () => {
+        render(<ErrorPage type={"message"} />);
         expect(
-            screen.getByText(/does not support your browser/i)
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
         ).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
-
-    it("check NOT_FOUND_404", () => {
-        render(
-            <ErrorPage code={CODES.NOT_FOUND_404}>
-                <div>child component</div>
-            </ErrorPage>
+    test("Renders as page with config prop as ErrorDisplayPageConfig", () => {
+        render(<ErrorPage config={GENERIC_ERROR_PAGE_CONFIG} />);
+        expect(screen.getByRole("heading")).toHaveTextContent(
+            "An error has occurred"
         );
-        expect(screen.getByText(/Page not found/i)).toBeInTheDocument();
-        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
-
-    it("NetworkErrorBoundary 500", () => {
-        render(
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
-                <Throw500 />
-                <div>never renders</div>
-            </NetworkErrorBoundary>
-        );
-        expect(screen.queryByText(/never renders/i)).not.toBeInTheDocument();
+    test("Renders as message with config prop as ErrorDisplayPageConfig", () => {
+        render(<ErrorPage config={GENERIC_ERROR_STRING} />);
         expect(
-            screen.getByText(/application has encountered an unknown error/i)
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
         ).toBeInTheDocument();
+    });
+    test("Including type (old prop) and config (new prop) will result in NEW prop being used", () => {
+        render(
+            <ErrorPage type={"message"} config={GENERIC_ERROR_PAGE_CONFIG} />
+        );
+        expect(screen.getByRole("heading")).toHaveTextContent(
+            "An error has occurred"
+        );
     });
 });
