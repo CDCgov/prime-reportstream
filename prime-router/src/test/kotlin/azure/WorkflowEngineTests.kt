@@ -230,7 +230,8 @@ class WorkflowEngineTests {
         }.returns(Unit)
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)
-        every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
+
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
