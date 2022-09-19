@@ -1,7 +1,7 @@
 resourceType: Practitioner
 id:
   type: STRING
-  valueOf: 'UUID.randomUUID()'
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 # The FHIR practitioner resource doesn't have any required fields.

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 
@@ -7,6 +7,8 @@ import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../hooks/UseOrgName";
 import { ErrorPage } from "../error/ErrorPage";
 import Title from "../../components/Title";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 import ReportsTable from "./Table/ReportsTable";
 
@@ -34,4 +36,6 @@ function Daily() {
     );
 }
 
-export default Daily;
+export const DailyWithAuth = () => (
+    <AuthElement element={<Daily />} requiredUserType={MemberType.RECEIVER} />
+);

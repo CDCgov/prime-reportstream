@@ -1,16 +1,18 @@
 name: ORU-R01-order-observation
 constants:
-  hl7ObservationResult: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{observationIndex})
+  hl7ObservationResult: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{observationIndex})'
+  observation: '%diagnostic.result[%observationIndex].resolve()'
 elements:
   - name: observation-index
     value: [ '%observationIndex + 1' ]
     hl7Spec: [ '%{hl7ObservationResult}/OBX-1' ]
 
   - name: observation-note
-    resource: '%resource.resolve().note.text.split(''\n'')'
-    condition: >-
-      Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].result[%observationIndex].resolve().note.exists()
+    resource: '%observation.note.text.split(''\n'')'
+    condition: '%observation.note.exists()'
     schema: note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7ObservationResult}'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: '%observation.note'

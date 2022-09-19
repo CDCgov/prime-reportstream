@@ -1,8 +1,8 @@
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
-export const UnsupportedBrowser = () => {
+export const ErrorUnsupportedBrowser = () => {
     return (
         <div className="rs-unsupported">
             <h1>Sorry! ReportStream does not support your browser</h1>

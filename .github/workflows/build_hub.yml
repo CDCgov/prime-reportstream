@@ -4,9 +4,8 @@ on:
   pull_request:
     branches:
       - master
-  push:
-    branches:
-      - master
+    paths:
+      - "prime-router/**"
 
 env:
   # These are for CI and not credentials of any system
