@@ -54,9 +54,13 @@ jobs:
 
     - name: Build Prime Router Package
       run: ./gradlew package -Pshowtests
+      with:
+        languages: 'java'
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      with:
+        languages: ${{ matrix.language }}
 
     - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
