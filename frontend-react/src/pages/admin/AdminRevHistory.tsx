@@ -35,13 +35,13 @@ const dataToAccordionItems = (props: {
     }
 
     // should come back sorted by name and version from server. Sort by name, then by version
-    const sorted = props.data.sort((a, b) =>
+    props.data.sort((a, b) =>
         a.name === b.name ? a.version - b.version : a.name.localeCompare(b.name)
     );
 
     // group the data to make generating the prop content logic easier to follow
     const grouped: { [key: string]: SettingRevision[] } = {};
-    sorted.forEach((item) => {
+    props.data.forEach((item) => {
         const name = item.name;
         if (!grouped[name]) {
             // key to array map. create initial entry for this group if needed
@@ -59,15 +59,19 @@ const dataToAccordionItems = (props: {
             return (
                 <Grid
                     row
-                    gap={6}
-                    className={`font-mono-2xs rs-cursor-arrow rs-accord-row ${selectedCss}`}
+                    gap={"lg"}
+                    className={`font-mono-2xs rs-cursor-arrow ${selectedCss}`}
                     key={itemKey}
                     onClick={() =>
                         props.onClickHandler(props.key, itemKey, eachSetting)
                     }
                 >
-                    <Grid col="auto">{eachSetting.version}</Grid>
-                    <Grid col="fill">{formatDate(eachSetting.createdAt)}</Grid>
+                    <Grid col="auto" className={"font-mono-xs"}>
+                        {eachSetting.version}
+                    </Grid>
+                    <Grid col="fill" className={"text-no-wrap"}>
+                        {formatDate(eachSetting.createdAt)}
+                    </Grid>
                     <Grid col="auto">{eachSetting.createdBy}</Grid>
                 </Grid>
             );
@@ -109,8 +113,8 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
 
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
-            <Grid row gap="md">
-                <Grid col={"fill"} className={"rs-list-diffs-items"}>
+            <Grid row gap="md" className={"rs-accord-list-row"}>
+                <Grid className={"rs-list-diffs-items"}>
                     <Accordion
                         bordered={false}
                         items={dataToAccordionItems({
@@ -121,7 +125,7 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
                         })}
                     />
                 </Grid>
-                <Grid col={"fill"} className={"rs-list-diffs-items"}>
+                <Grid className={"rs-list-diffs-items"}>
                     <Accordion
                         bordered={false}
                         items={dataToAccordionItems({

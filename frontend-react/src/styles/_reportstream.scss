@@ -670,27 +670,31 @@ pre {
     .rs-list-diffs-container {
         height: 25em;
         color: white;
-        .rs-accord {
-            overflow-x: hidden;
-        }
-        .rs-list-diffs-items {
-            height: 25em;
-            overflow-y: scroll;
-            overflow-x: clip;
-            border-width: 1px;
-            border-style: solid;
-            border-color: #005ea2;
-            .rs-accord-row-selected {
-                background-color: #005ea2;
-                color: white;
-                font-weight: bolder;
+        .rs-accord-list-row {
+            .rs-accord {
+                overflow-x: hidden;
             }
-            .rs-accord-row {
+
+            .rs-list-diffs-items {
+                width: 50%;
+                height: 25em;
+                overflow-y: scroll;
+                overflow-x: clip;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #005ea2;
+
+                .rs-accord-row-selected {
+                    background-color: #005ea2;
+                    color: white;
+                    font-weight: bolder;
+                }
             }
-        }
-        /** controlled by the headingLevel prop **/
-        h5 {
-            font-size: 0.8em;
+
+            /** controlled by the headingLevel prop **/
+            h5 {
+                font-size: 0.8em;
+            }
         }
     }
 }
