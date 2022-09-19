@@ -48,7 +48,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Run build with Gradle Wrapper
-      run: ./gradlew build
+      run: cd prime-router && ./gradlew build
 
     # - name: Autobuild
     #   uses: github/codeql-action/autobuild@v2
