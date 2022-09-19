@@ -36,16 +36,5 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    # - name: Validate Gradle wrapper
-    #   uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-
-    - name: Build with Gradle
-      run: |
-        cd prime-router
-        ./gradlew build --scan --no-daemon
-
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
