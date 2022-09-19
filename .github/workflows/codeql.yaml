@@ -21,37 +21,39 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    defaults:
+      run:
+        working-directory: prime-router
 
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java' ]
+        language: 'java' 
+        #[ 'java', 'javascript', 'python' ]
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@2c7a4878f5d120bd643426d54ae1209b29cc01a3
+      with:
+         java-version: '11'
+         distribution: 'adopt'
+         cache: 'gradle'
+
+    - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
 
-    # - name: Validate Gradle wrapper
-    #   uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+    - name: Spin up build containers
+      run: docker-compose -f docker-compose.postgres.yml up -d
 
-    # - name: Build with Gradle
-    #   run: |
-    #     cd prime-router
-    #     ./gradlew build --scan --no-daemon
-
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-
-    #- name: Run build with Gradle Wrapper
-     # run: cd prime-router && ./gradlew package
-
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - name: Build Prime Router Package
+      run: ./gradlew package -Pshowtests
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
