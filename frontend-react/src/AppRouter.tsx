@@ -29,6 +29,7 @@ import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import Home from "./pages/home/Home";
 import { DailyWithAuth } from "./pages/daily/Daily";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
+import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 
 export const AppRouter = () => {
     return (
@@ -84,6 +85,10 @@ export const AppRouter = () => {
             <Route
                 path={"/admin/value-sets"}
                 element={<ValueSetsIndexWithAuth />}
+            />
+            <Route
+                path="/admin/revisionhistory/org/:orgname/settingtype/:settingtype"
+                element={<AdminRevHistoryWithAuth />}
             />
             {/* Feature-flagged pages */}
             <Route

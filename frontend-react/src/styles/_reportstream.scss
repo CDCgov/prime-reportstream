@@ -653,5 +653,33 @@ pre {
 }
 
 .rs-no-padding {
-  padding: 0;
+    padding: 0;
+}
+
+.rs-mono-font {
+    font-family: monospace;
+}
+
+.rs-cursor-arrow {
+    cursor: pointer;
+}
+
+.rs-revision-history {
+    width: max-content;
+    .rs-list-diffs-container {
+        height: 20em;
+        color: white;
+        .rs-list-diffs-items {
+            height: 20em;
+            overflow-y: scroll;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #005ea2;
+            .rs-selected-row {
+                background-color: #005ea2;
+                color: white;
+                font-weight: bolder;
+            }
+        }
+    }
 }
