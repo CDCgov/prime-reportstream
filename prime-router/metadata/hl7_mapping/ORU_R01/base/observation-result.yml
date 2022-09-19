@@ -14,17 +14,9 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-ce
-    condition: >
-      %resource.value is CodeableConcept and
-      %resource.meta.extension("http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version").value.substring(0,3).toDecimal() <= 2.5
+    condition: '%resource.value is CodeableConcept'
+    # Note that for v.2.5 and earlier CWE does not exist.
     value: [ '"CE"' ]
-    hl7Spec: [ '%{hl7OBXField}-2' ]
-
-  - name: result-value-type-cwe
-    condition: >
-      %resource.value is CodeableConcept and
-      %resource.meta.extension("http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version").value.substring(0,3).toDecimal() >= 2.6
-    value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
