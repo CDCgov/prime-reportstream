@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode, Suspense } from "react";
+import React, { ErrorInfo, PropsWithChildren, Suspense } from "react";
 
 import {
     ErrorName,
@@ -9,9 +9,6 @@ import { ErrorPage } from "../pages/error/ErrorPage";
 
 import Spinner from "./Spinner";
 
-interface ErrorBoundaryProps {
-    children?: ReactNode;
-}
 interface ErrorBoundaryState {
     hasError: boolean;
     errorName?: ErrorName;
@@ -22,7 +19,7 @@ const initState: ErrorBoundaryState = {
 };
 /** Wrap components with this error boundary to catch errors thrown */
 export default class RSErrorBoundary extends React.Component<
-    ErrorBoundaryProps,
+    PropsWithChildren<{}>,
     ErrorBoundaryState
 > {
     constructor(props: any) {
@@ -58,8 +55,7 @@ export default class RSErrorBoundary extends React.Component<
         return this.props.children;
     }
 }
-/** A nice way to keep individual uses of RSErrorBoundary out of jsx since it
- * does not take props but may live at many levels of the tree.
+/** For wrapping with RSErrorBoundary when a catch is required for a component
  * @example
  * // As proxy
  * export const MyWrappedComponent = () = withThrowableError(<MyComponent />)
@@ -72,8 +68,7 @@ export default class RSErrorBoundary extends React.Component<
 export const withThrowableError = (component: JSX.Element) => (
     <RSErrorBoundary>{component}</RSErrorBoundary>
 );
-/** A nice way to keep individual uses of Suspense out of jsx since it
- * takes a non-dynamic prop.
+/** For wrapping with Suspense when a spinner is required while data loads for a component
  * @example
  * // As proxy
  * export const MyWrappedComponent = () = withSuspense(<MyComponent />)
@@ -86,8 +81,9 @@ export const withThrowableError = (component: JSX.Element) => (
 export const withSuspense = (component: JSX.Element) => (
     <Suspense fallback={<Spinner />}>{component}</Suspense>
 );
-/** Use in exports and JSX calls to wrap an element in an error boundary and suspense
- * Convenient for use when whole pages rely on network calls.
+/** For wrapping with an RSErrorBoundary and Suspense when making network calls.
+ * To use these two wrappers at varying DOM levels, use {@link withThrowableError}
+ * and {@link withSuspense}
  * @example
  * // As proxy
  * export const MyWrappedComponent = () = withNetworkCall(<MyComponent />)
