@@ -1,8 +1,6 @@
 import * as module from "module";
 
-import { Route } from "react-router-dom";
-
-import DirectoryAsPage from "./DirectoryAsPage";
+import MarkdownPage from "./MarkdownPage";
 
 type ContentElement = () => JSX.Element;
 
@@ -62,45 +60,15 @@ export class MarkdownDirectory extends ContentDirectory {
         return this;
     }
 }
-/** Takes a `ContentDirectory` and returns a react-router `Route` */
-export const GeneratedRoute = ({ dir }: { dir: ContentDirectory }) => {
+
+export const getDirectoryElement = (dir: ContentDirectory) => {
     if (dir instanceof MarkdownDirectory) {
-        return (
-            <Route
-                key={`${dir.slug}-route`}
-                path={`${dir.slug}`}
-                render={() => (
-                    <DirectoryAsPage
-                        key={`${dir.slug}-dir-as-page`}
-                        directory={dir}
-                    />
-                )}
-            />
-        );
+        return <MarkdownPage key={`${dir.slug}-dir-as-page`} directory={dir} />;
+    } else if (dir instanceof ElementDirectory) {
+        return dir.element();
     } else {
-        const castDir = dir as ElementDirectory;
-        return (
-            <Route
-                key={`${castDir.slug}-route`}
-                path={`${castDir.slug}`}
-                render={castDir.element}
-            />
-        );
+        const message = `${dir.title} is not a valid content directory type.`;
+        console.error(message);
+        throw Error(message);
     }
-};
-/** Takes a `ContentDirectory[]` and generates a React Fragment containing
- * each directory's `GeneratedRoute` */
-export const GeneratedRouter = ({
-    directories,
-}: {
-    directories: ContentDirectory[];
-}) => {
-    return (
-        <>
-            {directories.map((dir, idx) => (
-                <GeneratedRoute dir={dir} key={idx} />
-            ))}
-            {/* Handles any undefined route */}
-        </>
-    );
 };

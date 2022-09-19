@@ -27,8 +27,15 @@ jest.mock("rest-hooks", () => ({
 
 // TODO: Auto mock module?
 jest.mock("react-router-dom", () => ({
-    useHistory: () => {
-        return { goBack: jest.fn() };
+    useNavigate: () => {
+        return jest.fn();
+    },
+    useParams: () => {
+        return {
+            orgName: "abbott",
+            senderName: "user1234",
+            action: "edit",
+        };
     },
 }));
 
@@ -60,18 +67,7 @@ describe("EditSenderSettings", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        const mockRouteComponentProps = {
-            history: {} as any,
-            location: {} as any,
-            match: {
-                params: {
-                    orgname: "abbott",
-                    sendername: "user1234",
-                    action: "edit",
-                },
-            } as any,
-        };
-        render(<EditSenderSettings {...mockRouteComponentProps} />);
+        render(<EditSenderSettings />);
     });
 
     test("should be able to edit keys field", () => {

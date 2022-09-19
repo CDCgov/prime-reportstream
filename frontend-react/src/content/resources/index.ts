@@ -64,7 +64,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.ACCOUNT_REGISTRATION)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
+            ResourcesDirectoryTools.getSlug(
                 ResourcesDirectories.ACCOUNT_REGISTRATION
             )
         )
@@ -82,7 +82,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.GETTING_STARTED_PHD)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
+            ResourcesDirectoryTools.getSlug(
                 ResourcesDirectories.GETTING_STARTED_PHD
             )
         )
@@ -100,9 +100,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.ELR_CHECKLIST)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
-                ResourcesDirectories.ELR_CHECKLIST
-            )
+            ResourcesDirectoryTools.getSlug(ResourcesDirectories.ELR_CHECKLIST)
         )
         .setDescription(
             "Checklist of required information for public health departments to set up an ELR connection."
@@ -118,7 +116,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.PROGRAMMERS_GUIDE)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
+            ResourcesDirectoryTools.getSlug(
                 ResourcesDirectories.PROGRAMMERS_GUIDE
             )
         )
@@ -136,7 +134,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.SCHEMA_DOCUMENTATION)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
+            ResourcesDirectoryTools.getSlug(
                 ResourcesDirectories.SCHEMA_DOCUMENTATION
             )
         )
@@ -154,9 +152,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.UPLOAD_GUIDE)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
-                ResourcesDirectories.UPLOAD_GUIDE
-            )
+            ResourcesDirectoryTools.getSlug(ResourcesDirectories.UPLOAD_GUIDE)
         )
         .setDescription(
             "Instructions for testing facilities and organizations reporting data via comma separated values (CSV)."
@@ -172,9 +168,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
-                ResourcesDirectories.DOWNLOAD_GUIDE
-            )
+            ResourcesDirectoryTools.getSlug(ResourcesDirectories.DOWNLOAD_GUIDE)
         )
         .setDescription(
             "Instructions for downloading data as comma separated values (CSV) for your public health department."
@@ -190,9 +184,7 @@ export const resourcesDirectories = [
     new ElementDirectory()
         .setTitle(ResourcesDirectories.REFERRAL_GUIDE)
         .setSlug(
-            ResourcesDirectoryTools.prependRoot(
-                ResourcesDirectories.REFERRAL_GUIDE
-            )
+            ResourcesDirectoryTools.getSlug(ResourcesDirectories.REFERRAL_GUIDE)
         )
         .setDescription(
             "Instructions and templates for referring reporting entities to use ReportStream in your jurisdiction."
@@ -207,9 +199,7 @@ export const resourcesDirectories = [
         ),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.SYSTEM)
-        .setSlug(
-            ResourcesDirectoryTools.prependRoot(ResourcesDirectories.SYSTEM)
-        )
+        .setSlug(ResourcesDirectoryTools.getSlug(ResourcesDirectories.SYSTEM))
         .setDescription(
             "Information about the ReportStream platform, including data storage, configuration, formatting, transport. "
         )
@@ -221,9 +211,7 @@ export const resourcesDirectories = [
         ),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.SECURITY)
-        .setSlug(
-            ResourcesDirectoryTools.prependRoot(ResourcesDirectories.SECURITY)
-        )
+        .setSlug(ResourcesDirectoryTools.getSlug(ResourcesDirectories.SECURITY))
         .setDescription(
             "Answers to common questions about ReportStream security and data practices."
         )

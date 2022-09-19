@@ -261,6 +261,8 @@ ul.rb li .timestamp {
     padding-bottom: 0.5em;
 }
 
+// Forms
+
 /* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
 :root {
     --toastify-toast-width: 600px;
@@ -650,4 +652,8 @@ pre {
 
 .rs-maxwidth-vw80 {
     max-width: 80vw;
+}
+
+.rs-no-padding {
+  padding: 0;
 }
