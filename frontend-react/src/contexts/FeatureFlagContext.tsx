@@ -106,6 +106,5 @@ export const FeatureFlagProvider = ({
 };
 
 // an extra level of indirection here to allow for generic typing of the returned fetch function
-export const useFeatureFlags = (): FeatureFlagContextValues => {
-    return useContext(FeatureFlagContext);
-};
+export const useFeatureFlags = (): FeatureFlagContextValues =>
+    useContext(FeatureFlagContext);
