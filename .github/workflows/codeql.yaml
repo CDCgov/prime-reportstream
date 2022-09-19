@@ -40,9 +40,9 @@ jobs:
     #   uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: build
+      run: |
+        cd prime-router
+        ./gradlew build --scan --no-daemon
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
