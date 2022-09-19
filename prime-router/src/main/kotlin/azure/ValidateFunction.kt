@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import ValidationReceiver
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.Destination

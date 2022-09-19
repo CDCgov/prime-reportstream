@@ -425,6 +425,11 @@ class WorkflowEngine(
 
     /**
      * Do translation and routing as one atomic unit
+     *
+     * @param report The report file
+     * @param defaults Optional map of translation defaults
+     * @param routeTo Optional list of receivers to limit translation to
+     * @return The resulting set of warnings (ActionLogs), empty and prepared reports (RoutedReports)
      */
     internal fun translateAndRouteReport(
         report: Report,

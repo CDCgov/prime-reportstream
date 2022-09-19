@@ -1,14 +1,12 @@
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SubmissionReceiver
-import gov.cdc.prime.router.TopicSender
-import gov.cdc.prime.router.Translator
+package gov.cdc.prime.router
+
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 
 /**
- * Receiver for submissions with a specific topic, contains all logic to parse and move
- * a topic'd submission to the next step in the pipeline
+ * Receiver for validation requests with a specific topic, contains all logic to parse and validate
+ * a topic'd submission - without actually sending the file or saving anything to the database
  */
 class ValidationReceiver(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
