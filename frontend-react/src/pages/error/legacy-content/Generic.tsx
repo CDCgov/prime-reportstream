@@ -6,7 +6,7 @@ import {
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
 } from "../../../content/error/ErrorMessages";
-import { ErrorDisplayConfig, ErrorPageContentConfig } from "../ErrorPage";
+import { ErrorDisplayMessage, ParagraphWithTitle } from "../ErrorPage";
 
 export const GenericMessage = ({ message }: { message?: string }) => {
     return (
@@ -15,9 +15,9 @@ export const GenericMessage = ({ message }: { message?: string }) => {
 };
 
 export const GenericPage = ({
-    config = GENERIC_ERROR_PAGE_CONFIG as ErrorPageContentConfig,
+    config = GENERIC_ERROR_PAGE_CONFIG as ParagraphWithTitle,
 }: {
-    config?: ErrorPageContentConfig;
+    config?: ParagraphWithTitle;
 }) => {
     return (
         <>
@@ -52,7 +52,7 @@ export const GenericPage = ({
 
 export interface GenericErrorProps {
     displayAsPage?: boolean;
-    displayConfig?: ErrorDisplayConfig;
+    displayConfig?: ErrorDisplayMessage;
 }
 export const GenericError = ({
     displayAsPage,

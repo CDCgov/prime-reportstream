@@ -3,14 +3,15 @@ import React from "react";
 import { GenericError } from "./legacy-content/Generic";
 
 /** Config to suit page-style templates */
-export interface ErrorPageContentConfig {
+export interface ParagraphWithTitle {
     header: string;
     paragraph: string;
 }
-/** Union type for  */
-export type ErrorDisplayConfig = ErrorPageContentConfig | string;
+/** Union type for declaring a title/paragraph or string-based message */
+export type ErrorDisplayMessage = ParagraphWithTitle | string;
 
-/** Just  */
+/** @deprecated Move div over to render in RSErrorBoundary when NetworkErrorBoundary is
+ * removed */
 export const ErrorDisplayWrapper = (props: React.PropsWithChildren<{}>) => {
     return (
         <div data-testid={"error-display-wrapper"} className="grid-container">
@@ -24,7 +25,7 @@ export const ErrorPage = ({
     config,
 }: {
     type?: "message" | "page";
-    config?: ErrorDisplayConfig;
+    config?: ErrorDisplayMessage;
 }) => (
     <ErrorDisplayWrapper>
         <GenericError displayConfig={config} displayAsPage={type === "page"} />

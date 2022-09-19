@@ -1,4 +1,4 @@
-import { ErrorDisplayConfig } from "../../pages/error/ErrorPage";
+import { ErrorDisplayMessage } from "../../pages/error/ErrorPage";
 
 /** This file houses error display configs for when errors are thrown inside ReportStream
  *
@@ -9,10 +9,10 @@ import { ErrorDisplayConfig } from "../../pages/error/ErrorPage";
  *  UI and GENERIC_ERROR_PAGE_CONFIG for a page UI. */
 
 /** Default message for an error  */
-export const GENERIC_ERROR_STRING: ErrorDisplayConfig =
+export const GENERIC_ERROR_STRING: ErrorDisplayMessage =
     "Our apologies, there was an error loading this content.";
 /** Default content for an error page */
-export const GENERIC_ERROR_PAGE_CONFIG: ErrorDisplayConfig = {
+export const GENERIC_ERROR_PAGE_CONFIG: ErrorDisplayMessage = {
     header: "An error has occurred",
     paragraph: `The application has encountered an unknown error. 
     It doesn't appear to have affected your data, but our technical staff 
