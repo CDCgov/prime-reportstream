@@ -44,8 +44,14 @@ jobs:
     #     cd prime-router
     #     ./gradlew build --scan --no-daemon
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+
+    - name: Run build with Gradle Wrapper
+      run: ./gradlew build
+
+    # - name: Autobuild
+    #   uses: github/codeql-action/autobuild@v2
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
