@@ -9,7 +9,7 @@ import {
     ParagraphWithTitle,
 } from "../../content/error/ErrorMessages";
 
-export const StringErrorDispaly = ({ message }: { message?: string }) => {
+export const StringErrorDisplay = ({ message }: { message?: string }) => {
     return (
         <Alert type="error">{message ? message : GENERIC_ERROR_STRING}</Alert>
     );
@@ -74,7 +74,7 @@ export const BasicErrorDisplay = ({
         // For use with RSNetworkError
         // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`
         return typeof displayConfig === "string" ? (
-            <StringErrorDispaly message={displayConfig} />
+            <StringErrorDisplay message={displayConfig} />
         ) : (
             <ParagraphErrorDisplay config={displayConfig} />
         );

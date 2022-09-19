@@ -19,7 +19,7 @@ import SenderModeBanner from "./components/SenderModeBanner";
 import { DAPHeader } from "./components/header/DAPHeader";
 import { AppRouter } from "./AppRouter";
 import { AppWrapper } from "./components/AppWrapper";
-import { UnsupportedBrowser } from "./pages/error/legacy-content/UnsupportedBrowser";
+import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -67,7 +67,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <UnsupportedBrowser />;
+    if (isIE) return <ErrorUnsupportedBrowser />;
     return (
         <AppWrapper
             oktaAuth={OKTA_AUTH}

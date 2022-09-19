@@ -4,7 +4,7 @@ import React from "react";
 
 import site from "../../../content/site.json";
 
-export const NoPage = () => {
+export const ErrorNoPage = () => {
     return (
         <>
             <Helmet>

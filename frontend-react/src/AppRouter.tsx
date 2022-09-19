@@ -28,7 +28,7 @@ import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import Home from "./pages/home/Home";
 import { DailyWithAuth } from "./pages/daily/Daily";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
-import { NoPage } from "./pages/error/legacy-content/NoPage";
+import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 
 export const AppRouter = () => {
     return (
@@ -95,7 +95,7 @@ export const AppRouter = () => {
                 element={<ValidateWithAuth />}
             />
             {/* Handles any undefined route */}
-            <Route path={"*"} element={<NoPage />} />
+            <Route path={"*"} element={<ErrorNoPage />} />
         </Routes>
     );
 };
