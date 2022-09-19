@@ -25,10 +25,10 @@ import { DetailsWithAuth } from "./pages/details/Details";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
 import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
-import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import Home from "./pages/home/Home";
 import { DailyWithAuth } from "./pages/daily/Daily";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
+import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 
 export const AppRouter = () => {
     return (
@@ -95,10 +95,7 @@ export const AppRouter = () => {
                 element={<ValidateWithAuth />}
             />
             {/* Handles any undefined route */}
-            <Route
-                path={"*"}
-                element={<ErrorPage code={CODES.NOT_FOUND_404} />}
-            />
+            <Route path={"*"} element={<ErrorNoPage />} />
         </Routes>
     );
 };
