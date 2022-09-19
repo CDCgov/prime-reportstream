@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import ValidationReceiver
 import assertk.assertThat
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf

@@ -38,7 +38,7 @@ abstract class SubmissionReceiver(
      * [payloadName] optional sender-determined name of the payload
      * [metadata] mockable metadata to use in report creation
      */
-    open fun validateAndMoveToProcessing(
+    abstract fun validateAndMoveToProcessing(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
@@ -49,9 +49,7 @@ abstract class SubmissionReceiver(
         rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata? = null
-    ) {
-        throw NotImplementedError("Subclass must implement method validateAndMoveToProcessing()")
-    }
+    )
 
     companion object {
         /**
@@ -331,49 +329,5 @@ class ELRReceiver : SubmissionReceiver {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
-    }
-}
-
-/**
- * Receiver for submissions with a specific topic, contains all logic to parse and move
- * a topic'd submission to the next step in the pipeline
- */
-class ValidationReceiver : SubmissionReceiver {
-    constructor(
-        workflowEngine: WorkflowEngine = WorkflowEngine(),
-        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
-    ) : super(workflowEngine, actionHistory)
-
-    fun validateAndRoute(
-        sender: Sender,
-        content: String,
-        defaults: Map<String, String>,
-        routeTo: List<String>,
-        allowDuplicates: Boolean,
-    ): List<Translator.RoutedReport> {
-        // parse, check for parse errors
-        // todo: if we want this to work for full elr validation, we will need to do some other changes since this
-        //  uses the topic parser, not the full ELR parser
-        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
-
-        // prevent duplicates if configured to not allow them
-        if (!allowDuplicates) {
-            doDuplicateDetection(
-                workflowEngine,
-                report,
-                actionLogs
-            )
-        }
-
-        if (actionLogs.hasErrors()) {
-            throw actionLogs.exception
-        }
-
-        val (_, emptyReports, preparedReports) =
-            workflowEngine.translateAndRouteReport(report, defaults, routeTo)
-
-        actionHistory.trackLogs(actionLogs.logs)
-
-        return preparedReports.plus(emptyReports)
     }
 }
