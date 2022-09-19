@@ -68,7 +68,7 @@ export const BasicErrorDisplay = ({
         return displayAsPage ? (
             <ParagraphErrorDisplay />
         ) : (
-            <StringErrorDispaly />
+            <StringErrorDisplay />
         );
     } else {
         // For use with RSNetworkError
