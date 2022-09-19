@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import * as Flags from "../pages/misc/FeatureFlags";
+import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
+import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { mockTokenFromStorage } from "../utils/__mocks__/SessionStorageTools";
 
 import { AuthElement } from "./AuthElement";
 
 const mockUseNavigate = jest.fn();
-const mockCheckFeatureFlag = jest.spyOn(Flags, "CheckFeatureFlag");
-const { FeatureFlagName } = Flags;
+
 jest.mock("react-router", () => ({
     useNavigate: () => mockUseNavigate,
 }));
@@ -17,8 +17,18 @@ jest.mock("react-router", () => ({
 const TestElement = () => <h1>Test Passed</h1>;
 const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;
 
+let mockCheckFlag = jest.fn();
+
 describe("AuthElement unit tests", () => {
+    beforeEach(() => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            checkFlag: () => true,
+            featureFlags: [],
+        });
+    });
     test("Renders component when all checks pass", () => {
+        mockCheckFlag = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
         mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
@@ -31,8 +41,10 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        mockCheckFeatureFlag.mockImplementation((arg: string) => {
-            return arg === FeatureFlagName.FOR_TEST;
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            checkFlag: mockCheckFlag,
+            featureFlags: [],
         });
         render(
             <AuthElement
@@ -103,6 +115,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Redirects when user lacks feature flag", () => {
+        mockCheckFlag = jest.fn((flag) => flag !== FeatureFlagName.FOR_TEST);
         mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
@@ -115,8 +128,10 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        mockCheckFeatureFlag.mockImplementation((arg: string) => {
-            return arg !== FeatureFlagName.FOR_TEST;
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            checkFlag: mockCheckFlag,
+            featureFlags: [],
         });
         render(
             <AuthElement

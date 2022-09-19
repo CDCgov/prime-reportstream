@@ -99,9 +99,13 @@ export function FeatureFlagUIComponent() {
                         </Button>
                     </Grid>
 
-                    {featureFlags.map((flagname) => {
+                    {featureFlags.map((flagname, i) => {
                         return (
-                            <Grid gap="lg" className="margin-top-3">
+                            <Grid
+                                gap="lg"
+                                className="margin-top-3"
+                                key={`feature-flag-${i}`}
+                            >
                                 <Alert type="success" slim noIcon className="">
                                     <b>{flagname}</b>
                                     {DEFAULT_FEATURE_FLAGS.indexOf(flagname) ===
