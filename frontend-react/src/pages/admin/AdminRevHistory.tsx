@@ -55,12 +55,12 @@ const dataToAccordionItems = (props: {
         const items = settings.map((eachSetting) => {
             const itemKey = `key-${eachSetting.id}`;
             const selectedCss =
-                itemKey === props.selectedKey ? "rs-selected-row" : "";
+                itemKey === props.selectedKey ? "rs-accord-row-selected" : "";
             return (
                 <Grid
                     row
                     gap={6}
-                    className={`font-mono-2xs rs-cursor-arrow ${selectedCss}`}
+                    className={`font-mono-2xs rs-cursor-arrow rs-accord-row ${selectedCss}`}
                     key={itemKey}
                     onClick={() =>
                         props.onClickHandler(props.key, itemKey, eachSetting)
@@ -72,10 +72,13 @@ const dataToAccordionItems = (props: {
                 </Grid>
             );
         });
+        // see AccordionItemProps
         results.push({
             id: `accord-item-${key}`,
             title: key,
             content: items,
+            headingLevel: "h5",
+            className: "rs-accord",
             expanded: true,
         });
     }

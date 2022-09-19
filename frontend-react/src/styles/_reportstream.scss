@@ -666,20 +666,31 @@ pre {
 
 .rs-revision-history {
     width: max-content;
+    min-width: 80vw;
     .rs-list-diffs-container {
-        height: 20em;
+        height: 25em;
         color: white;
+        .rs-accord {
+            overflow-x: hidden;
+        }
         .rs-list-diffs-items {
-            height: 20em;
+            height: 25em;
             overflow-y: scroll;
+            overflow-x: clip;
             border-width: 1px;
             border-style: solid;
             border-color: #005ea2;
-            .rs-selected-row {
+            .rs-accord-row-selected {
                 background-color: #005ea2;
                 color: white;
                 font-weight: bolder;
             }
+            .rs-accord-row {
+            }
+        }
+        /** controlled by the headingLevel prop **/
+        h5 {
+            font-size: 0.8em;
         }
     }
 }
