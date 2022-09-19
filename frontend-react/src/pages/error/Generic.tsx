@@ -5,8 +5,9 @@ import { Alert } from "@trussworks/react-uswds";
 import {
     GENERIC_ERROR_PAGE_CONFIG,
     GENERIC_ERROR_STRING,
-} from "../../../content/error/ErrorMessages";
-import { ErrorDisplayMessage, ParagraphWithTitle } from "../ErrorPage";
+} from "../../content/error/ErrorMessages";
+
+import { ErrorDisplayMessage, ParagraphWithTitle } from "./ErrorPage";
 
 export const StringErrorDispaly = ({ message }: { message?: string }) => {
     return (
@@ -36,7 +37,10 @@ export const ParagraphErrorDisplay = ({
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a href="./" className="usa-button">
+                                        <a
+                                            href="legacy-content"
+                                            className="usa-button"
+                                        >
                                             Visit homepage
                                         </a>
                                     </li>

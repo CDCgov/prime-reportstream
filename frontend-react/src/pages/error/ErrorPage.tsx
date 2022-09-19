@@ -1,6 +1,6 @@
 import React from "react";
 
-import { BasicErrorDisplay } from "./legacy-content/Generic";
+import { BasicErrorDisplay } from "./Generic";
 
 /** Config to suit page-style templates */
 export interface ParagraphWithTitle {
