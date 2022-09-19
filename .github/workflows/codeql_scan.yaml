@@ -1,6 +1,6 @@
 name: "Running CodeQL scanning on prime-reportstream repository"
 
-on: 
+on: pull_request
   # push
   # pull_request:
   #   branches:
