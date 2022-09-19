@@ -32,7 +32,7 @@ const ErrorPageWrapper = (props: React.PropsWithChildren<ErrorPageProps>) => {
     );
 };
 
-const ErrorMessageWrapper = (
+export const ErrorMessageWrapper = (
     props: React.PropsWithChildren<ErrorPageProps>
 ) => {
     return <div className="grid-container">{props.children}</div>;
