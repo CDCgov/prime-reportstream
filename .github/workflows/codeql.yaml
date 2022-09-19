@@ -9,7 +9,7 @@ on: push
   #     - "prime-router/**"
 jobs:
   build_java:
-    name: Build Java code in prime-Router
+    name: Codeql_Scan (java)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,6 +39,9 @@ jobs:
       with:
         languages: 'java'
 
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
     - name: Cleanup Gradle Cache
       run: |
         rm -f .gradle/caches/modules-2/modules-2.lock
@@ -47,7 +50,6 @@ jobs:
   codeql-analyze:
     name: Codeql_Scan
     runs-on: ubuntu-latest
-    needs: build_java
     permissions:
       actions: read
       contents: read
