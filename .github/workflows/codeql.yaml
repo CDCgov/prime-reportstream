@@ -34,6 +34,11 @@ jobs:
     - name: Build Prime Router Package
       run: ./gradlew package -Pshowtests
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: 'java'
+
     - name: Cleanup Gradle Cache
       run: |
         rm -f .gradle/caches/modules-2/modules-2.lock
@@ -50,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'javascript', 'python' ]
+        language: [ 'javascript', 'python' ]
 
     steps:
     - name: Checkout repository
