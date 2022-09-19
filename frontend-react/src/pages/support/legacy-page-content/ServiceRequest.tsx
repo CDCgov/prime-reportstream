@@ -1,8 +1,4 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
-import { Alert } from "@trussworks/react-uswds";
-
-import site from "../../../content/site.json";
 
 export const ServiceRequest = () => {
     return (
@@ -17,6 +13,7 @@ export const ServiceRequest = () => {
             <a
                 target="_blank"
                 href="https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d"
+                rel="noreferrer"
             >
                 Use this form to open a ticket with our support team.
             </a>
