@@ -8,7 +8,7 @@ on: push
   #   paths:
   #     - "prime-router/**"
 jobs:
-  Codeql_Scan:
+  Java_Codeql_Scan:
     name: Codeql_Scan
     runs-on: ubuntu-latest
     permissions:
@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'javascript', 'python' ]
+        language: [ 'java' ]
     defaults:
       run:
         working-directory: prime-router
@@ -58,6 +58,32 @@ jobs:
         rm -f .gradle/caches/modules-2/modules-2.lock
         rm -f .gradle/caches/modules-2/gc.properties
 
-  
+  python_javascript_Codeql_Scan:
+    name: Codeql_Scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+    defaults:
+      run:
+        working-directory: prime-router
 
-    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Checkout repository
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
