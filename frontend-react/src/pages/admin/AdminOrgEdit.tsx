@@ -1,5 +1,4 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { Link, useParams } from "react-router-dom";
@@ -38,6 +37,10 @@ import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
+import config from "../../config";
+
+const { RS_API_URL } = config;
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -62,7 +65,7 @@ export function AdminOrgEdit() {
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -149,9 +152,7 @@ export function AdminOrgEdit() {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Helmet>
-                <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Admin | Org Edit" />
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
                     Org name: {orgname} {" - "}

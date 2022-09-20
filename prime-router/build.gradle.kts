@@ -38,7 +38,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
-    id("com.avast.gradle.docker-compose") version "0.16.4"
+    id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
 }
 

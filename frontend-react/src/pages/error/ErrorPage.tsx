@@ -13,6 +13,7 @@ export const ErrorDisplayWrapper = (props: React.PropsWithChildren<{}>) => {
         </div>
     );
 };
+
 /** @deprecated For use with NetworkErrorBoundary until refactored out */
 export const ErrorPage = ({
     type,
