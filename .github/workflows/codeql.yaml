@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "prime-router/**"
+      - "frontend-react/**"
 jobs:
   Java_Codeql_Scan:
     name: Codeql_Scan
@@ -68,9 +69,6 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'javascript', 'python' ]
-    defaults:
-      run:
-        working-directory: prime-router
 
     steps:
     - name: Checkout repository
