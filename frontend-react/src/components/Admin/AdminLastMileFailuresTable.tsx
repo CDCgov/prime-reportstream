@@ -22,6 +22,9 @@ import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
+import config from "../../config";
+
+const { RS_API_URL } = config;
 
 interface DataForDialog {
     info: AdmSendFailuresResource;
@@ -347,7 +350,7 @@ ${data.receiver}`;
             setLoading(true);
             setHtmlContentResultText(`Starting...`);
             const url =
-                `${process.env.REACT_APP_BACKEND_URL}/api/adm/resend?` +
+                `${RS_API_URL}/api/adm/resend?` +
                 `reportId=${currentReportId}&receiver=${currentReceiver}`;
             const response = await fetch(url, {
                 method: "POST",

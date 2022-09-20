@@ -1,16 +1,13 @@
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const Contact = () => {
     return (
         <>
-            <Helmet>
-                <title>Contact | Support | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
-
+            <BasicHelmet pageTitle="Contact | Support" />
             <h1>Contact us</h1>
             <h2>
                 For general inquiries, questions, or issues. Reach out, we're

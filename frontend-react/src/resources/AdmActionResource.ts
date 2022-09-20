@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export default class AdmAction extends AuthResource {
     /* the unique id  */
@@ -24,7 +28,7 @@ export default class AdmAction extends AuthResource {
         return "AdmActionResource";
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/adm/getresend`;
+    static urlRoot = `${RS_API_URL}/api/adm/getresend`;
 
     static url(params: { daysToShow: number }): string {
         return `${this.urlRoot}?days_to_show=${params.daysToShow}`;

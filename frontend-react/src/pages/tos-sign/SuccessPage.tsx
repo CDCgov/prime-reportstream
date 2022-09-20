@@ -1,6 +1,6 @@
 import React from "react";
-import { Helmet } from "react-helmet";
 
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 import Title from "../../components/Title";
 
 import { AgreementBody } from "./TermsOfServiceForm";
@@ -39,11 +39,7 @@ function SuccessPage({ data }: { data: AgreementBody | null }) {
     ];
     return data !== null ? (
         <>
-            <Helmet>
-                <title>
-                    Sign the Terms of Service | {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="Sign the Terms of Service" />
             <div
                 data-testid="success-container"
                 className="tablet:grid-col-6 margin-x-auto"
