@@ -1,6 +1,9 @@
 import { formatDate } from "../utils/misc";
+import config from "../config";
 
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export class AdmSendFailuresResource extends AuthResource {
     /* the unique id for the action */
@@ -26,7 +29,7 @@ export class AdmSendFailuresResource extends AuthResource {
         return `actionid-${this.actionId}`;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/adm/getsendfailures`;
+    static urlRoot = `${RS_API_URL}/api/adm/getsendfailures`;
 
     static url(params: { daysToShow: number }): string {
         return `${this.urlRoot}?days_to_show=${params.daysToShow}`;
