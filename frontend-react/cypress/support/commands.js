@@ -19,8 +19,23 @@ const oktaAuthConfig = {
     scopes: ["openid", "email"],
 };
 
-// Okta
-Cypress.Commands.add("loginByOktaApi", (username, password) => {
+let authData = "";
+
+/*
+
+  let's log in once here for the whole test suite
+  we can store login credentials after log in 
+  in memory and set them in local storage independently for each test
+  using a quote unquote login function rather than actually running through the flow
+
+  in the case our token gets stale or something, we would need a way to determine that
+  we should attempt another login. mabye on a 403 based on local storage insertion
+  we have an automatic full login flow retry setup
+*/
+
+const loginByOktaApi = () => {
+    const username = Cypress.env("auth_username");
+    const password = Cypress.env("auth_password");
     // log in with username and password
     cy.request("POST", "https://hhs-prime.oktapreview.com/api/v1/authn", {
         username,
@@ -56,12 +71,21 @@ Cypress.Commands.add("loginByOktaApi", (username, password) => {
         // set tokens in storage
         .then(({ tokens }) => {
             const { accessToken, idToken } = tokens;
-            window.sessionStorage.setItem(
-                "okta-token-storage",
-                JSON.stringify({
-                    idToken,
-                    accessToken,
-                })
-            );
+            const authString = JSON.stringify({
+                idToken,
+                accessToken,
+            });
+            window.sessionStorage.setItem("okta-token-storage", authString);
+            authData = authString;
         });
+};
+
+Cypress.Commands.add("loginByOktaApi", loginByOktaApi);
+
+Cypress.Commands.add("loginByLocalStorage", () => {
+    if (!authData) {
+        console.error("Missing stored auth information, logging in via UI");
+        return loginByOktaApi();
+    }
+    window.sessionStorage.setItem("okta-token-storage", authData);
 });

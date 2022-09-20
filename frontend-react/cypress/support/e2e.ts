@@ -14,7 +14,9 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import "./commands";
+
+// can we login here?
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
