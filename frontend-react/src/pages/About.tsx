@@ -1,5 +1,6 @@
-import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
+
+import { BasicHelmet } from "../components/header/BasicHelmet";
 
 import site from "./../content/site.json";
 
@@ -7,10 +8,7 @@ export const About = () => {
     return (
         <>
             <div className="grid-container rs-documentation usa-prose desktop:margin-top-6">
-                <Helmet>
-                    <title>About | {process.env.REACT_APP_TITLE}</title>
-                </Helmet>
-
+                <BasicHelmet pageTitle="About" />
                 <h1 id="anchor-top">About</h1>
                 <h2>
                     ReportStream is an open source, cloud based platform that

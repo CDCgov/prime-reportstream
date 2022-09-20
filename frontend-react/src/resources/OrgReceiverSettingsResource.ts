@@ -1,4 +1,8 @@
+import config from "../config";
+
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
+
+const { RS_API_URL } = config;
 
 export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource {
     organizationName: string = "";
@@ -25,10 +29,10 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     }
 
     static listUrl(params: { orgname: string }): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}/receivers`;
+        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/receivers`;
     }
 
     static url(params: { orgname: string; receivername: string }): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}/receivers/${params.receivername}`;
+        return `${RS_API_URL}/api/settings/organizations/${params.orgname}/receivers/${params.receivername}`;
     }
 }
