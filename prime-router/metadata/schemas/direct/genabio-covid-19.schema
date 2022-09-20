@@ -7,6 +7,9 @@ basedOn: covid-19
 extends: direct/direct-covid-19
 
 elements:
+  - name: message_id
+    csvFields: [{ name: message_id }]
+
   - name: sender_id
     default: Genabio
 
