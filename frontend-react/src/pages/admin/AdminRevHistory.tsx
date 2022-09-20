@@ -6,7 +6,10 @@ import { useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
-import { SettingRevision } from "../../network/api/Organizations/SettingRevisions";
+import {
+    SettingRevision,
+    useRevisionEndpointsQuery,
+} from "../../network/api/Organizations/SettingRevisions";
 import OrgSettingRevisionsResource, {
     SettingRevisionParams,
 } from "../../resources/OrgSettingRevisionsResource";
@@ -110,31 +113,39 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
         OrgSettingRevisionsResource.list(),
         props
     );
+    debugger;
+    const { data: _broken, error: _ignore } = useRevisionEndpointsQuery(props);
 
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
                 <Grid className={"rs-list-diffs-items"}>
-                    <Accordion
-                        bordered={false}
-                        items={dataToAccordionItems({
-                            key: "left",
-                            selectedKey: props.leftSelectedListItem,
-                            onClickHandler: props.onClickHandler,
-                            data,
-                        })}
-                    />
+                    {!data ? (
+                        <div>no data found</div>
+                    ) : (
+                        <Accordion
+                            bordered={false}
+                            items={dataToAccordionItems({
+                                key: "left",
+                                selectedKey: props.leftSelectedListItem,
+                                onClickHandler: props.onClickHandler,
+                                data,
+                            })}
+                        />
+                    )}
                 </Grid>
                 <Grid className={"rs-list-diffs-items"}>
-                    <Accordion
-                        bordered={false}
-                        items={dataToAccordionItems({
-                            key: "right",
-                            selectedKey: props.rightSelectedListItem,
-                            onClickHandler: props.onClickHandler,
-                            data,
-                        })}
-                    />
+                    {!data ? null : (
+                        <Accordion
+                            bordered={false}
+                            items={dataToAccordionItems({
+                                key: "right",
+                                selectedKey: props.rightSelectedListItem,
+                                onClickHandler: props.onClickHandler,
+                                data,
+                            })}
+                        />
+                    )}
                 </Grid>
             </Grid>
         </Grid>
