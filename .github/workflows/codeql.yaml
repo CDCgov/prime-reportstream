@@ -1,12 +1,11 @@
 name: "Running CodeQL scanning on prime-reportstream repository"
 
-on: push
-  # on:
-  # pull_request:
-  #   branches:
-  #     - master
-  #   paths:
-  #     - "prime-router/**"
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "prime-router/**"
 jobs:
   Java_Codeql_Scan:
     name: Codeql_Scan
@@ -42,10 +41,10 @@ jobs:
          distribution: 'adopt'
          cache: 'gradle'
 
-    # - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+    - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
-    # - name: Spin up build containers
-    #   run: docker-compose -f docker-compose.postgres.yml up -d
+    - name: Spin up build containers
+      run: docker-compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
       run: ./gradlew package -Pshowtests
