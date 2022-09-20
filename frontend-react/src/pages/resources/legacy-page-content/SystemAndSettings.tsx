@@ -1,14 +1,9 @@
-import { Helmet } from "react-helmet";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const SystemAndSettingsIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    System and Settings | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="System and Settings | Resources" />
             <h1 id="anchor-top">System and Settings</h1>
 
             <h2>

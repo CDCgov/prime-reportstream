@@ -1,7 +1,10 @@
 import { SimpleError } from "../../utils/UsefulTypes";
+import config from "../../config";
 
 import { createRequestConfig, RSRequestConfig } from "./NewApi";
 import WatersApi from "./WatersApi";
+
+const { RS_API_URL } = config;
 
 describe("Waters API", () => {
     test("postReport", () => {
@@ -12,7 +15,7 @@ describe("Waters API", () => {
 
         expect(config).toEqual({
             method: "POST",
-            url: `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+            url: `${RS_API_URL}/api/waters`,
             headers: {
                 authorization: "Bearer [token]",
                 organization: "test-org",
