@@ -2,7 +2,6 @@ import React from "react";
 import { Alert } from "@trussworks/react-uswds";
 
 import { BasicHelmet } from "../../components/header/BasicHelmet";
-
 import {
     ErrorDisplayMessage,
     GENERIC_ERROR_PAGE_CONFIG,
