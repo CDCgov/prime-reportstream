@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import { Helmet } from "react-helmet";
+import React, { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
@@ -7,6 +6,9 @@ import Spinner from "../../components/Spinner";
 import { useOrgName } from "../../hooks/UseOrgName";
 import { ErrorPage } from "../error/ErrorPage";
 import Title from "../../components/Title";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 import ReportsTable from "./Table/ReportsTable";
 
@@ -16,9 +18,7 @@ function Daily() {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Helmet>
-                <title>Daily data | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Daily data" />
             <section className="grid-container margin-bottom-5 tablet:margin-top-6">
                 <Title preTitle={orgName} title="COVID-19" />
             </section>
@@ -34,4 +34,6 @@ function Daily() {
     );
 }
 
-export default Daily;
+export const DailyWithAuth = () => (
+    <AuthElement element={<Daily />} requiredUserType={MemberType.RECEIVER} />
+);

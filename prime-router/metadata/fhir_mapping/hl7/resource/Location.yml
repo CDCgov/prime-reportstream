@@ -1,7 +1,7 @@
 resourceType: Location
 id_1:
   type: STRING
-  valueOf: UUID.randomUUID()
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 mode:
