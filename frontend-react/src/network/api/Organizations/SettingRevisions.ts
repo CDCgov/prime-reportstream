@@ -1,6 +1,15 @@
-import { API } from "../NewApi";
+import { useQuery } from "@tanstack/react-query";
 
-export interface ISettingRevision {
+import {
+    HTTPMethods,
+    RSApiEndpoints,
+    RSEndpoint,
+} from "../../../config/endpoints";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { StringIndexed } from "../../../utils/UsefulTypes";
+
+/** shape of data returned **/
+export interface SettingRevision {
     id: number;
     name: string;
     version: number;
@@ -9,26 +18,28 @@ export interface ISettingRevision {
     settingJson: string;
 }
 
-interface ISettingRevisionParams {
+/** type for api parameters passed to server **/
+interface SettingRevisionParams {
     orgname: string;
     settingtype: "sender" | "receiver" | "organization";
 }
 
-/** A class representing a Receiver object from the API */
-export class SettingRevision implements ISettingRevision {
-    id: number = 0;
-    name: string = "";
-    version: number = 0;
-    createdAt: string = "";
-    createdBy: string = "";
-    settingJson: string = "[]";
+/** endpoint component used below **/
+const settingRevisionEndpoints: RSApiEndpoints = {
+    getList: new RSEndpoint({
+        path: "/waters/org/:org/settings/revs/:settingtype",
+        method: HTTPMethods.GET,
+    }),
+};
 
-    constructor(args: Partial<ISettingRevision>) {
-        Object.assign(this, args);
-    }
-}
+/** actual fetching component **/
+export const useRevisionEndpointsQuery = (params: SettingRevisionParams) => {
+    const fetchFn = useAuthorizedFetch<SettingRevision[]>();
 
-export const SettingRevisionApi = new API(
-    SettingRevision,
-    "/api/waters"
-).addEndpoint("list", "/org/:org/settings/revs/:settingtype", ["GET"]);
+    // get all lookup tables in order to get metadata
+    return useQuery<SettingRevision[]>(["org", "settingtype"], () =>
+        fetchFn(settingRevisionEndpoints.getList, {
+            segments: params as StringIndexed,
+        })
+    );
+};
