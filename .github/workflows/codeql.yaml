@@ -1,4 +1,4 @@
-name: "Running CodeQL scanning on prime-reportstream repository"
+name: "Running CodeQL Analysis scan on prime-reportstream repository"
 
 on: push
   # pull_request:
@@ -15,6 +15,9 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    defaults:
+      run:
+        working-directory: prime-router
     strategy:
       fail-fast: false
       matrix:
