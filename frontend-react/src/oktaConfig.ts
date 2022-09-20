@@ -1,8 +1,12 @@
 import { OktaAuthOptions } from "@okta/okta-auth-js";
 
+import config from "./config";
+
+const { OKTA_URL, OKTA_CLIENT_ID } = config;
+
 const oktaAuthConfig: OktaAuthOptions = {
-    issuer: `${process.env.REACT_APP_OKTA_URL}/oauth2/default`,
-    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
+    issuer: `${OKTA_URL}/oauth2/default`,
+    clientId: OKTA_CLIENT_ID as string,
     redirectUri: window.location.origin + "/login/callback",
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
@@ -23,11 +27,11 @@ const oktaSignInConfig = {
         // securityImage: true, // helps prevent spoofing, may require CORS to allow it through.
         // mfaOnlyFlow: true, // government requires mfa
     },
-    baseUrl: process.env.REACT_APP_OKTA_URL as string,
-    clientId: process.env.REACT_APP_OKTA_CLIENTID as string,
+    baseUrl: OKTA_URL as string,
+    clientId: OKTA_CLIENT_ID as string,
     redirectUri: `${window.location.origin}/login/callback`,
     authParams: {
-        issuer: `${process.env.REACT_APP_OKTA_URL}/oauth2/default`,
+        issuer: `${OKTA_URL}/oauth2/default`,
     },
     scopes: ["openid", "email"],
 };
