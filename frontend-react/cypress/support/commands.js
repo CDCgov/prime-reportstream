@@ -32,10 +32,11 @@ let authData = "";
   we should attempt another login. mabye on a 403 based on local storage insertion
   we have an automatic full login flow retry setup
 */
+const username = Cypress.env("auth_username");
+const password = Cypress.env("auth_password");
 
 const loginByOktaApi = () => {
-    const username = Cypress.env("auth_username");
-    const password = Cypress.env("auth_password");
+    console.log("!!! logging in");
     // log in with username and password
     cy.request("POST", "https://hhs-prime.oktapreview.com/api/v1/authn", {
         username,
