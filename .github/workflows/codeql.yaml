@@ -9,17 +9,29 @@ on: push
   #     - "prime-router/**"
 jobs:
   build_java:
-    name: Codeql_Scan_java
+    name: Codeql_Scan (java)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java' ]
-    
+        language: [ 'java', 'javascript', 'python' ]
+    defaults:
+      run:
+        working-directory: prime-router
+
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
     - name: Checkout repository
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
@@ -38,11 +50,6 @@ jobs:
     - name: Build Prime Router Package
       run: ./gradlew package -Pshowtests
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: 'java'
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
@@ -51,28 +58,6 @@ jobs:
         rm -f .gradle/caches/modules-2/modules-2.lock
         rm -f .gradle/caches/modules-2/gc.properties
 
-  # codeql-analyze:
-  #   name: Codeql_Scan
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: read
-  #     contents: read
-  #     security-events: write
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       language: [ 'javascript', 'python' ]
-
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-
-  #   - name: Initialize CodeQL
-  #     uses: github/codeql-action/init@v2
-  #     with:
-  #       languages: ${{ matrix.language }}
-
-  #   - name: Perform CodeQL Analysis
-  #     uses: github/codeql-action/analyze@v2
+  
 
     
