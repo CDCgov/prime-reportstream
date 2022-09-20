@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export default class OrganizationResource extends AuthResource {
     readonly name: string = "name";
@@ -11,7 +15,7 @@ export default class OrganizationResource extends AuthResource {
         return this.name;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
+    static urlRoot = `${RS_API_URL}/api/settings/organizations`;
 
     static url(params: { orgname: string }): string {
         return `${this.urlRoot}/${params.orgname}`;
