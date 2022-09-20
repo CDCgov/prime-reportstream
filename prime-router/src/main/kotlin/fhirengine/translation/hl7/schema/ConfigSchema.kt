@@ -22,6 +22,8 @@ data class ConfigSchema(
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
+    var ancestry: List<String> = listOf()
+
     /**
      * Has this schema been validated? Only used on the top level schema.
      */
