@@ -8,8 +8,8 @@ on: push
   #   paths:
   #     - "prime-router/**"
 jobs:
-  build_java:
-    name: Codeql_Scan (java)
+  Codeql_Scan:
+    name: Codeql_Scan
     runs-on: ubuntu-latest
     permissions:
       actions: read
