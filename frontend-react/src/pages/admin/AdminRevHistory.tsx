@@ -7,7 +7,7 @@ import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { SettingRevision } from "../../network/api/Organizations/SettingRevisions";
-import OrganizationResource, {
+import OrgSettingRevisionsResource, {
     SettingRevisionParams,
 } from "../../resources/OrgSettingRevisionsResource";
 import Spinner from "../../components/Spinner";
@@ -106,8 +106,8 @@ interface MainComponentProps extends SettingRevisionParams {
  * the network request happens.
  */
 const MainRevHistoryComponent = (props: MainComponentProps) => {
-    const data: OrganizationResource[] = useResource(
-        OrganizationResource.list(),
+    const data: OrgSettingRevisionsResource[] = useResource(
+        OrgSettingRevisionsResource.list(),
         props
     );
 

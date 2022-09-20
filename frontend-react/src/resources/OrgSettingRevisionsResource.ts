@@ -14,7 +14,7 @@ export type SettingRevisionParams = {
     settingtype: "sender" | "receiver" | "organization";
 };
 
-export default class OrganizationResource
+export default class OrgSettingRevisionsResource
     extends AuthResource
     implements SettingRevision
 {
