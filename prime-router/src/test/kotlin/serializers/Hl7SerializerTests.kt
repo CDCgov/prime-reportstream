@@ -9,14 +9,22 @@ import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.Varies
+import ca.uhn.hl7v2.model.v251.datatype.CE
+import ca.uhn.hl7v2.model.v251.datatype.CWE
+import ca.uhn.hl7v2.model.v251.datatype.DLN
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.model.v251.datatype.NM
+import ca.uhn.hl7v2.model.v251.datatype.SN
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.ValidationContext
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -1080,5 +1088,59 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             )
             assertThat(terser.get("MSH-3-1")).isEqualTo("Don't replace me")
         }
+    }
+
+    // test the extraction of the observation value from different types of data
+    @Test
+    fun `test decoding obx observation value`() {
+        // arrange
+        val validationContext = mockk<ValidationContext>()
+        every { validationContext.getPrimitiveRules(any(), any(), any()) } returns mutableListOf()
+        val parserConfiguration = spyk<ParserConfiguration>()
+        val parser = mockk<ca.uhn.hl7v2.parser.Parser>()
+        every { parser.validationContext } returns validationContext
+        every { parser.parserConfiguration } returns parserConfiguration
+        val message = mockk<Message>()
+        every { message.parser } returns parser
+        every { message.version } returns "2.5.1"
+        val varies = Varies(message)
+        // arrange our special checks, first SN
+        val sn = SN(message)
+        varies.data = sn
+        sn.num1.value = "100"
+        sn.comparator.value = ">"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("100")
+        // check NM
+        val nm = NM(message)
+        varies.data = nm
+        nm.value = "47"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("47")
+        // check DT
+        val dt = DT(message)
+        varies.data = dt
+        dt.value = "19000101"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("19000101")
+        // check CWE
+        val cwe = CWE(message)
+        varies.data = cwe
+        cwe.cwe1_Identifier.value = "N"
+        cwe.cwe2_Text.value = "No"
+        cwe.cwe3_NameOfCodingSystem.value = "HL70136"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("N")
+        // check CE
+        val ce = CE(message)
+        varies.data = ce
+        ce.ce1_Identifier.value = "N"
+        ce.ce2_Text.value = "No"
+        ce.ce3_NameOfCodingSystem.value = "HL70136"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("N")
+        // check DLN, which is a driver's license number, and I didn't encode for this.
+        // this checks the logic that manually parses and teases out the data
+        val dlNumber = "9999999"
+        val dln = DLN(message)
+        varies.data = dln
+        dln.dln1_LicenseNumber.value = dlNumber
+        dln.dln2_IssuingStateProvinceCountry.value = "NJ"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo(dlNumber)
     }
 }
