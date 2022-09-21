@@ -3,18 +3,14 @@ import React, { Suspense, useCallback, useState } from "react";
 import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 import { useParams } from "react-router-dom";
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import {
     SettingRevision,
+    SettingRevisionParams,
     useRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
-import OrgSettingRevisionsResource, {
-    SettingRevisionParams,
-} from "../../resources/OrgSettingRevisionsResource";
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
@@ -93,7 +89,7 @@ const dataToAccordionItems = (props: {
 };
 
 /** this extends SettingRevisionsParams so it can be passed to down without having to be recomposed, these include
- * the org and settingtype cgi params */
+ * the org and settingType cgi params */
 interface MainComponentProps extends SettingRevisionParams {
     leftSelectedListItem: string;
     rightSelectedListItem: string;
@@ -109,19 +105,18 @@ interface MainComponentProps extends SettingRevisionParams {
  * the network request happens.
  */
 const MainRevHistoryComponent = (props: MainComponentProps) => {
-    const data: OrgSettingRevisionsResource[] = useResource(
-        OrgSettingRevisionsResource.list(),
-        props
-    );
-    debugger;
-    const { data: _broken, error: _ignore } = useRevisionEndpointsQuery(props);
-
+    const { data, isLoading, isError } = useRevisionEndpointsQuery(props);
+    const msg = isError
+        ? "Failed to load data"
+        : isLoading
+        ? "Loading..."
+        : "..."; // should be used because !data test below.
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
                 <Grid className={"rs-list-diffs-items"}>
                     {!data ? (
-                        <div>no data found</div>
+                        <div>{msg}</div>
                     ) : (
                         <Accordion
                             bordered={false}
@@ -153,7 +148,7 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
 };
 
 function AdminRevHistory() {
-    const { orgname, settingtype } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
+    const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.
@@ -187,7 +182,7 @@ function AdminRevHistory() {
 
             <section className="grid-container margin-top-0">
                 <h4>
-                    Settings Revision History for "{orgname}" {settingtype}
+                    Settings Revision History for "{org}" {settingType}
                 </h4>
                 <section className="margin-bottom-5">
                     Select different versions from each list to compare.
@@ -198,21 +193,13 @@ function AdminRevHistory() {
                 >
                     <Grid row className={"rs-list-diffs-container"}>
                         <Suspense fallback={<Spinner />}>
-                            <NetworkErrorBoundary
-                                fallbackComponent={() => (
-                                    <ErrorPage type="message" />
-                                )}
-                            >
-                                <MainRevHistoryComponent
-                                    orgname={orgname || ""}
-                                    settingtype={settingtype || "organization"}
-                                    leftSelectedListItem={leftSelectedListItem}
-                                    rightSelectedListItem={
-                                        rightSelectedListItem
-                                    }
-                                    onClickHandler={onClickHandler}
-                                />
-                            </NetworkErrorBoundary>
+                            <MainRevHistoryComponent
+                                org={org || ""}
+                                settingType={settingType || "organization"}
+                                leftSelectedListItem={leftSelectedListItem}
+                                rightSelectedListItem={rightSelectedListItem}
+                                onClickHandler={onClickHandler}
+                            />
                         </Suspense>
                     </Grid>
                     <Grid row>

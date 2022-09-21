@@ -87,7 +87,7 @@ export const AppRouter = () => {
                 element={<ValueSetsIndexWithAuth />}
             />
             <Route
-                path="/admin/revisionhistory/org/:orgname/settingtype/:settingtype"
+                path="/admin/revisionhistory/org/:org/settingtype/:settingType"
                 element={<AdminRevHistoryWithAuth />}
             />
             {/* Feature-flagged pages */}

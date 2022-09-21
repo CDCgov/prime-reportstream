@@ -18,16 +18,16 @@ export interface SettingRevision {
     settingJson: string;
 }
 
-/** type for api parameters passed to server **/
-interface SettingRevisionParams {
-    orgname: string;
-    settingtype: "sender" | "receiver" | "organization";
-}
+/** parameters used for the request. Also used by the react page to make passing data down easier **/
+export type SettingRevisionParams = {
+    org: string;
+    settingType: "sender" | "receiver" | "organization";
+};
 
-/** endpoint component used below **/
+/** endpoint component used below - not exported **/
 const settingRevisionEndpoints: RSApiEndpoints = {
     getList: new RSEndpoint({
-        path: "/waters/org/:org/settings/revs/:settingtype",
+        path: "/waters/org/:org/settings/revs/:settingType",
         method: HTTPMethods.GET,
     }),
 };
@@ -37,7 +37,7 @@ export const useRevisionEndpointsQuery = (params: SettingRevisionParams) => {
     const fetchFn = useAuthorizedFetch<SettingRevision[]>();
 
     // get all lookup tables in order to get metadata
-    return useQuery<SettingRevision[]>(["org", "settingtype"], () =>
+    return useQuery<SettingRevision[]>(["org", "settingType"], () =>
         fetchFn(settingRevisionEndpoints.getList, {
             segments: params as StringIndexed,
         })
