@@ -48,7 +48,6 @@ elements:
     constants:
       hl7XCNField: '%{fieldPath}-10'
     schema: xcn-contact
-#    schema: observation-request
     resourceIndex: contactIndex
 
   - name: relevant-clinical-information
