@@ -3,7 +3,6 @@ import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
@@ -11,6 +10,7 @@ import Spinner from "../Spinner";
 import { getErrorDetailFromResponse } from "../../utils/misc";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { ErrorPage } from "../../pages/error/ErrorPage";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 

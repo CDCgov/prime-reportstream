@@ -1,4 +1,8 @@
+import config from "../config";
+
 import SenderAuthResource from "./SenderAuthResource";
+
+const { RS_API_URL } = config;
 
 export default class SenderOrganizationResource extends SenderAuthResource {
     readonly name: string = "name";
@@ -11,5 +15,5 @@ export default class SenderOrganizationResource extends SenderAuthResource {
         return this.name;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
+    static urlRoot = `${RS_API_URL}/api/settings/organizations`;
 }

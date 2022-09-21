@@ -1,4 +1,8 @@
+import config from "../config";
+
 import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
+
+const { RS_API_URL } = config;
 
 // fyi the API defines these as CamelCased but the DB seems to have them UPPERCASED
 // so, we can't really have an enumerator.
@@ -21,11 +25,11 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
     }
 
     static listUrl(_params: {}): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
+        return `${RS_API_URL}/api/settings/organizations`;
     }
 
     static url(params: { orgname: string }): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}`;
+        return `${RS_API_URL}/api/settings/organizations/${params.orgname}`;
     }
 
     /**

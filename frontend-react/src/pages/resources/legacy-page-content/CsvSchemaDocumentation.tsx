@@ -1,8 +1,8 @@
-import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export type CsvSchemaItem = {
     name: string;
@@ -92,13 +92,7 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
 export const CsvSchemaDocumentation = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    CSV schema documentation | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
-
+            <BasicHelmet pageTitle="CSV schema documentation | Resources" />
             <h1 id="anchor-top" className="margin-top-0 ">
                 CSV schema documentation{" "}
             </h1>
