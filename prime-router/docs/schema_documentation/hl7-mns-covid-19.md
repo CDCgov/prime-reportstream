@@ -858,7 +858,7 @@ The phone number of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
