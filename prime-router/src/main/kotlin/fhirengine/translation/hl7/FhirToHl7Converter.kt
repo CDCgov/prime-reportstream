@@ -226,10 +226,11 @@ class FhirToHl7Converter(
                     throw SchemaException(msg, e)
                 } else logger.warn(msg, e)
             } catch (e: Exception) {
+                val msg = "Unknown error while processing element ${element.name}."
                 if (strict) {
-                    logger.error(e)
-                    throw HL7ConversionException(e.message ?: "", e)
-                } else logger.warn(e.message ?: "", e)
+                    logger.error(msg, e)
+                    throw HL7ConversionException(msg, e)
+                } else logger.warn(msg, e)
             }
         }
     }

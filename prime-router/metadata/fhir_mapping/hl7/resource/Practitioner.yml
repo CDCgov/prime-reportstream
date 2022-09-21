@@ -55,7 +55,7 @@ extension_2:
       expressionType: resource
       specs: $contactSpec
 
-extension_3:
+extension_4:
   generateList: true
   expressionType: nested
   expressionsMap:

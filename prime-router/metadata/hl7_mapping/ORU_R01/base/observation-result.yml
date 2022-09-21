@@ -106,6 +106,10 @@ elements:
     value: [ '%resource.coding.system' ]
     hl7Spec: [ '%{hl7OBXField}-6-6' ]
 
+  - name: observation-reference-range
+    value: [ '%resource.referenceRange.text' ]
+    hl7Spec: [ '%{hl7OBXField}-7' ]
+
   - name: observation-abnormal-flag
     value: [ '%resource.interpretation.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-8' ]

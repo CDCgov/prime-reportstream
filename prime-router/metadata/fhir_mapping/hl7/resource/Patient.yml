@@ -112,9 +112,10 @@ identifier_4:
   generateList: true
   expressionType: resource
   specs: MRG.1
+  vars:
+    mrgIdentifier: MRG.1
   constants:
     use: old
-    mrgIdentifier: MRG.1
 # Add the old MR # from the MRG segment
 
 # identifier_5a and _5b are two parts to complex logic

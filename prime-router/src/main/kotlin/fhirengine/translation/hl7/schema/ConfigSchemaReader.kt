@@ -84,6 +84,10 @@ object ConfigSchemaReader : Logging {
      */
     internal fun readOneYamlSchema(inputStream: InputStream): ConfigSchema {
         val mapper = ObjectMapper(YAMLFactory())
-        return mapper.readValue(inputStream, ConfigSchema::class.java)
+        val rawSchema = mapper.readValue(inputStream, ConfigSchema::class.java)
+        // Are there any null elements?  This may mean some unknown array value in the YAML
+        if (rawSchema.elements.any { false })
+            throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")
+        return rawSchema
     }
 }

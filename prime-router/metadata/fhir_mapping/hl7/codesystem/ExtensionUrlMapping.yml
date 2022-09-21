@@ -109,6 +109,9 @@
 # Universal ID
 - id: "universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+# Namespace ID
+- id: "namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"
 # Service request order control
 - id: "order-control"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control"
