@@ -1,10 +1,6 @@
 describe("Admin Main Page", () => {
     beforeEach(() => {
-        // cy.loginByOktaApi(
-        //     Cypress.env("auth_username"),
-        //     Cypress.env("auth_password")
-        // );
-        cy.loginByLocalStorage();
+        cy.login();
         cy.visit("/admin/settings");
     });
     it("should display the page", () => {

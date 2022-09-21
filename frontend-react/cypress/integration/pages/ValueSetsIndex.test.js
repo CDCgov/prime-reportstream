@@ -1,8 +1,6 @@
 describe("Value Sets Index Page", () => {
     beforeEach(() => {
-        // this isn't doing the trick - need to figure out how to do a SUITE WIDE BEFORE HOOK
-        // or take a different approach
-        cy.loginByLocalStorage();
+        cy.login();
         cy.visit("/admin/value-sets");
     });
 
