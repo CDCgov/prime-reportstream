@@ -101,7 +101,18 @@ elements:
       ceFieldPath: '%{hl7PIDField}-22'
     schema: datatype/ce-coded-element
 
-  - name: patient-death-indicator
+  - name: patient-death-date-time
+    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    value: [ '%resource.deceased' ]
+    hl7Spec: [ '%{hl7PIDField}-29' ]
+
+  - name: patient-death-indicator-1
+    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    value: [ '"Y"']
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+
+  - name: patient-death-indicator-2
+    condition: '%resource.deceased.exists() and %resource.deceased is Boolean'
     value: [ '%resource.deceased.GetYesNoValue()' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
