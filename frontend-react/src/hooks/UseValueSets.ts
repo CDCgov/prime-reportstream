@@ -47,12 +47,12 @@ const findTableMetaByName = (
   a useQuery based custom hook used to get value sets and value set rows (defined by passsed dataTableName)
 
 */
-
+export interface ValueSetsTableResponse<T> {
+    valueSetArray: T;
+}
 export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string
-): {
-    valueSetArray: T;
-} => {
+): ValueSetsTableResponse<T> => {
     const dataFetch = useAuthorizedFetch<T>();
 
     // create the function to use for fetching table data from the API
@@ -84,12 +84,12 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
   a useQuery based custom hook used to get metadata for a given value set
 
 */
-
+export interface ValueSetsMetaResponse {
+    valueSetMeta: LookupTable;
+}
 export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET
-): {
-    valueSetMeta: LookupTable;
-} => {
+): ValueSetsMetaResponse => {
     const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
