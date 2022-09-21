@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -157,5 +158,25 @@ class ConfigSchemaReaderTests {
 
         val newElement = schema.findElement("new-element")
         assertThat(newElement).isNotNull()
+    }
+
+    @Test
+    fun `test simple circular reference exception when loading schema`() {
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
+            )
+        }.isFailure().hasMessage("Circular reference detected in schema")
+    }
+
+    @Test
+    fun `test deep circular reference exception when loading schema`() {
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
+            )
+        }.isFailure().hasMessage("Circular reference detected in schema")
     }
 }
