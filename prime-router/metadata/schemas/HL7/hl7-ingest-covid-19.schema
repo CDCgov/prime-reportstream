@@ -80,3 +80,18 @@ elements:
     natFlatFileField: Patient_state
     hhsGuidanceField:
     hl7Field: PID-11-4
+
+  - name: ordering_facility_zip_code
+    type: POSTAL_CODE
+    natFlatFileField: Ordering_facility_zip_code
+    hhsGuidanceField:
+    hl7Field: ORC-22-5
+    documentation: The zip code of the facility which the test was ordered from
+
+  - name: ordering_facility_state
+    mapper: use(ordering_facility_state, ordering_facility_state_zip_lookup)
+    cardinality: ZERO_OR_ONE
+    natFlatFileField: Ordering_facility_state
+    hhsGuidanceField:
+    hl7Field: ORC-22-4
+    documentation: The state of the facility which the test was ordered from

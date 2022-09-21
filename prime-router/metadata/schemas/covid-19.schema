@@ -289,8 +289,10 @@ elements:
     documentation: The phone number of the facility which the test was ordered from
 
   - name: ordering_facility_state
-    mapper: use(ordering_facility_state, ordering_facility_state_zip_lookup)
-    cardinality: ZERO_OR_ONE
+    type: TABLE
+    table: fips-county
+    tableColumn: State
+    cardinality: ONE
     natFlatFileField: Ordering_facility_state
     hhsGuidanceField:
     hl7Field: ORC-22-4
@@ -316,13 +318,6 @@ elements:
     hhsGuidanceField:
     hl7Field: ORC-22-5
     documentation: The zip code of the facility which the test was ordered from
-
-  - name: ordering_facility_state_zip_lookup
-    type: TABLE
-    pii: false
-    table: zip-code-data
-    tableColumn: state_abbr
-    mapper: zipCodeToState(ordering_facility_zip_code)
 
   - name: ordering_provider_city
     type: CITY
