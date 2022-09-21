@@ -34,7 +34,7 @@ import java.io.FileOutputStream
 import java.net.URL
 
 /**
- * LivdTableDownload is the command line interface for the livd-table-download command. It parses the command line
+ * LivdTableUpdate is the command line interface for the livd-table-download command. It parses the command line
  * for option given as below.
  *
  * It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from $cdcLOINCTestCodeMappingPageUrl.  If the file is found,
@@ -50,7 +50,7 @@ import java.net.URL
  * The command below will download the latest LIVD mapping catalogue and create a new lookup tables as needed.
  * It took "LIVD mapping catalogue" from the CDC website.
  *
- *  ./prime livd-table-download
+ *  ./prime livd-table-update
  *
  */
 interface LivdTableInterface {
@@ -58,10 +58,10 @@ interface LivdTableInterface {
     fun downloadFile(outputDir: String): File
 }
 
-class LivdTableDownload : CliktCommand(
-    name = "livd-table-download",
+class LivdTableUpdate : CliktCommand(
+    name = "livd-table-update",
     help = """
-    It downloads the latest LOINC test data, extract Lookup Table, and the database as a new version. 
+        This updates the LIVD lookup table with a new version.
     """
 ) {
     /**
@@ -97,13 +97,30 @@ class LivdTableDownload : CliktCommand(
         help = "The path to the LIVD supplemental file. Defaults to $defaultSupplFile"
     ).file(true).default(File(defaultSupplFile))
 
+    private val download by option(
+        "-d", "--download", help = "Download the current LIVD table from $loincMappingBaseUrl$loincMappingPageUrl"
+    ).flag()
+
+    private val inputFile by option(
+        "-i", "--input-file", help = "Input file to update LIVD table"
+    ).file()
+
     override fun run() {
-        echo("Downloading the LIVD table ...")
+        echo("Updating the LIVD table ...")
         FileUtils.forceMkdir(File(defaultOutputDir))
 
-        // Download the file from CDC website.
-        val downloadedFile = downloadFile(defaultOutputDir)
-        val tempRawLivdOutFile = extractLivdTable(sheetName, downloadedFile, defaultOutputDir)
+        val livdFile: File = if (download) {
+            // Download the file from CDC website.
+            downloadFile(defaultOutputDir)
+        } else if (inputFile != null) {
+            // Intake file from user
+            inputFile as File
+        } else {
+            // A file must be provided by the user or downloaded from the CDC website
+            error("The --download flag must be set or an --input-file must be provided.")
+        }
+
+        val tempRawLivdOutFile = extractLivdTable(sheetName, livdFile, defaultOutputDir)
         // Merge the supplemental LIVD table with the raw.
         val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
