@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/react";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 import { LookupTable, ValueSet } from "../../../config/endpoints/lookupTables";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -78,5 +79,22 @@ describe("ValueSetsIndex tests", () => {
             within(firstContentRow).getByText("Tuesday")
         ).toBeInTheDocument();
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
+    });
+    test("Error in query will render error UI instead of table", () => {
+        mockUseValueSetsMeta = jest.fn(() => ({
+            valueSetMeta: fakeMeta,
+            error: null,
+        }));
+        mockUseValueSetsTable = jest.fn(() => {
+            throw new RSNetworkError("Test", 404);
+        });
+        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
+         * test them via the ErrorBoundary test? */
+        renderWithFullAppContext(<ValueSetsIndex />);
+        expect(
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
+        ).toBeInTheDocument();
     });
 });

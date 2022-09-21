@@ -1,13 +1,8 @@
-import { rest } from "msw";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { QueryClient } from "@tanstack/react-query";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import {
-    LookupTables,
-    lookupTablesEndpoints,
-    ValueSet,
-} from "../config/endpoints/lookupTables";
+import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
 import {
@@ -41,27 +36,6 @@ describe("useValueSetsTable", () => {
         const { name, system } = result.current.valueSetArray[0];
         expect(name).toEqual("sender_automation_value_set");
         expect(system).toEqual("LOCAL");
-    });
-
-    test("returns error when table data call errors", async () => {
-        lookupTableServer.use(
-            rest.get(
-                lookupTablesEndpoints.getTableData.toDynamicUrl({
-                    version: "2",
-                    tableName: "sender_automation_value_set",
-                }),
-                (_req, res, ctx) => {
-                    return res.once(ctx.json([]), ctx.status(400));
-                }
-            )
-        );
-        const { result, waitFor } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET
-        );
-        await waitFor(() => result.current.error);
-        expect(result.current.error.message).toEqual(
-            "Request failed with status code 400"
-        );
     });
 });
 
@@ -104,24 +78,6 @@ describe("useValueSetsMeta", () => {
         const { result, waitFor } = renderWithQueryWrapper();
         await waitFor(() => !!result.current.valueSetMeta);
         expect(result.current.valueSetMeta).toEqual({});
-    });
-
-    test("returns error when table list call errors", async () => {
-        lookupTableServer.use(
-            rest.get(
-                lookupTablesEndpoints.getTableList.url,
-                (_req, res, ctx) => {
-                    return res.once(ctx.json([]), ctx.status(400));
-                }
-            )
-        );
-        const { result, waitForNextUpdate } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET
-        );
-        await waitForNextUpdate();
-        expect(result.current.error.message).toEqual(
-            "Request failed with status code 400"
-        );
     });
 });
 

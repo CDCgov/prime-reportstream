@@ -52,7 +52,6 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string
 ): {
     valueSetArray: T;
-    error: any;
 } => {
     const dataFetch = useAuthorizedFetch<T>();
 
@@ -70,12 +69,12 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    const { error, data: valueSetData } = useQuery<T>(
+    const { data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, dataTableName],
         memoizedDataFetch
     );
 
-    return { error, valueSetArray: valueSetData as T };
+    return { valueSetArray: valueSetData as T };
 };
 
 /*
@@ -90,19 +89,18 @@ export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET
 ): {
     valueSetMeta: LookupTable;
-    error: any;
 } => {
     const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
-    const { error, data: tableData } = useQuery<LookupTable[]>(
+    const { data: tableData } = useQuery<LookupTable[]>(
         [getTableList.queryKey],
         () => lookupTableFetch(getTableList)
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);
 
-    return { error, valueSetMeta: tableMeta };
+    return { valueSetMeta: tableMeta };
 };
 
 /* 
