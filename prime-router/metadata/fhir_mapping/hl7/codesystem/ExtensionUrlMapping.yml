@@ -203,6 +203,9 @@
 # Comparator
 - id: "comparator"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator"
+# Separator
+- id: "separator"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/separator"
 # Units
 - id: "units"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/units"
