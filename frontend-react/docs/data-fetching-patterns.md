@@ -309,4 +309,10 @@ Without the extra level of indirection, we would need to get into the realm of t
 
 ## Error Handling and Suspense
 
-TBD!!!
+The burden of error handling and suspense (loading UI) falls on the component system provided by React, _not_ our React Query integration. React uses two components to handle these two needs: a Suspense component, included as a part of the React library to declare where your loading UI should render and what it should look like, and the RSErrorBoundary, an adaptation of the ErrorBoundary component type given by React that'll catch errors and render an error UI instead of the children it wraps.
+
+To wrap your components with one, or both, of these dom elements, use the included helper functions:
+
+- withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
+- withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
+- withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing
