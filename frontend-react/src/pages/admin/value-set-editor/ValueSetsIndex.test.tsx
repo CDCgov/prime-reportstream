@@ -83,7 +83,6 @@ describe("ValueSetsIndex tests", () => {
     test("Error in query will render error UI instead of table", () => {
         mockUseValueSetsMeta = jest.fn(() => ({
             valueSetMeta: fakeMeta,
-            error: null,
         }));
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError("Test", 404);
