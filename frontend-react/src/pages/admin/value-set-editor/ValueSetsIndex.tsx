@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React, { useEffect, useState } from "react";
 
 import Table, {
@@ -20,8 +19,9 @@ import {
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-
-const PAGE_TITLE = process.env.REACT_APP_TITLE; // TODO: move to config
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -45,7 +45,6 @@ const valueSetColumnConfig: ColumnConfig[] = [
         columnHeader: "Valueset Name",
         feature: {
             link: true,
-            linkBasePath: "value-sets/",
         },
     },
     {
@@ -102,13 +101,10 @@ const ValueSetsTable = () => {
         </>
     );
 };
-
 const ValueSetsIndex = () => {
     return (
         <>
-            <Helmet>
-                <title>Value Sets | Admin | {PAGE_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Value Sets | Admin" />
             <section className="grid-container">
                 <ValueSetsTable />
             </section>
@@ -117,3 +113,10 @@ const ValueSetsIndex = () => {
 };
 
 export default ValueSetsIndex;
+
+export const ValueSetsIndexWithAuth = () => (
+    <AuthElement
+        element={<ValueSetsIndex />}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

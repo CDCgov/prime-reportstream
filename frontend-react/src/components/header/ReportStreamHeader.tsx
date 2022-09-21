@@ -17,13 +17,12 @@ import {
     CheckFeatureFlag,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
+import config from "../../config";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
 
-const isOktaPreview =
-    `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
-const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
+const { IS_PREVIEW, CLIENT_ENV } = config;
 
 const ProductIA = () => (
     <NavLink
@@ -171,7 +170,7 @@ export const ReportStreamHeader = () => {
                                 </NavLink>
                             </em>
                             <span className="rs-oktapreview-watermark">
-                                {isOktaPreview ? environment : ""}
+                                {IS_PREVIEW ? CLIENT_ENV : ""}
                             </span>
                         </Title>
                     </div>

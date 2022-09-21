@@ -1,10 +1,12 @@
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import ReportResource from "../../resources/ReportResource";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
@@ -58,3 +60,7 @@ export const Details = () => {
         </NetworkErrorBoundary>
     );
 };
+
+export const DetailsWithAuth = () => (
+    <AuthElement element={<Details />} requiredUserType={MemberType.RECEIVER} />
+);
