@@ -924,6 +924,22 @@ The zip code of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_facility_zip_lookup
+
+**ReportStream Internal Name**: ordering_facility_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
+
+---
+
 **Name**: ordering_provider_city
 
 **ReportStream Internal Name**: ordering_provider_city
