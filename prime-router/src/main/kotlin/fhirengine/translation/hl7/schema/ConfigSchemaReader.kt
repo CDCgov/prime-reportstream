@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -74,7 +75,7 @@ object ConfigSchemaReader : Logging {
             throw SchemaException(msg, e)
         }
 
-        if (ancestry.contains(rawSchema.name)) throw Exception("put real text here")
+        if (ancestry.contains(rawSchema.name)) throw HL7ConversionException("Circular reference detected in schema")
         rawSchema.ancestry = ancestry + rawSchema.name!!
 
         // Process any schema references
