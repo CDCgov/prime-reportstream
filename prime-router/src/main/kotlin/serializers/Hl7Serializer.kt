@@ -397,7 +397,9 @@ class Hl7Serializer(
         val actionLogs = ActionLogger()
         mapping.items.forEachIndexed { index, messageResult ->
             val messageIndex = index + 1
-            var trackingId = if (schema.trackingElement != null && messageResult.item.contains(schema.trackingElement)) {
+            var trackingId = if (
+                schema.trackingElement != null && messageResult.item.contains(schema.trackingElement)
+            ) {
                 messageResult.item[schema.trackingElement]?.firstOrNull() ?: ""
             } else ""
             if (trackingId.isEmpty()) {
