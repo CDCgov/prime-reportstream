@@ -5,8 +5,10 @@ comparator :
   type: String
   # Hl7 supports an equal sign as a comparator that FHIR does not, making sure its a supported comparator.
   # see extensions on this config for handling of unsupported comparators
-  condition: $comparator EQUALS_STRING '<' || $comparator EQUALS_STRING '<=' || $comparator EQUALS_STRING '>=' || $comparator EQUALS_STRING '>'
-  valueOf: $comparator
+  condition: $sComparator EQUALS_STRING '<' || $sComparator EQUALS_STRING '<=' || $sComparator EQUALS_STRING '>=' || $sComparator EQUALS_STRING '>'
+  valueOf: $sComparator
+  vars:
+    sComparator: String, $comparator
 unit :
   type: String
   valueOf: $unit
@@ -27,7 +29,7 @@ code:
   valueOf: $code
 
 extension_1:
-  condition: $comparator NOT_EQUALS_STRING '<' && $comparator NOT_EQUALS_STRING '<=' && $comparator NOT_EQUALS_STRING '>=' && $comparator NOT_EQUALS_STRING '>'
+  condition: value NOT_EQUALS_STRING '<' && value NOT_EQUALS_STRING '<=' && value NOT_EQUALS_STRING '>=' && value NOT_EQUALS_STRING '>'
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
