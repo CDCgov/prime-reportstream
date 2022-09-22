@@ -93,7 +93,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                 <div className="rs-editable-stacked-container">
                     <ScrollSyncPane>
                         <div
-                            className="rs-editable-compare-base rs-editable-compare-static"
+                            className="rs-static-compare-base rs-editable-compare-static"
                             contentEditable={false}
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(props.leftText),
@@ -102,7 +102,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                     </ScrollSyncPane>
                     <ScrollSyncPane>
                         <div
-                            className="rs-editable-compare-base rs-editable-compare-background"
+                            className="rs-static-compare-base rs-editable-compare-background"
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(leftHighlightHtml),
                             }}
@@ -115,7 +115,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                 <div className="rs-editable-stacked-container">
                     <ScrollSyncPane>
                         <div
-                            className="rs-editable-compare-base rs-editable-compare-static"
+                            className="rs-static-compare-base rs-editable-compare-static"
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(props.rightText),
                             }}
@@ -124,7 +124,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
 
                     <ScrollSyncPane>
                         <div
-                            className="rs-editable-compare-base rs-editable-compare-background"
+                            className="rs-static-compare-base rs-editable-compare-background"
                             dangerouslySetInnerHTML={{
                                 __html: `${DOMPurify.sanitize(
                                     rightHighlightHtml

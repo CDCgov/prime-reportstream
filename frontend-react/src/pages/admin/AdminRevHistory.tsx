@@ -147,13 +147,17 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
     );
 };
 
-function AdminRevHistory() {
+/** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
+const AdminRevHistory = () => {
     const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
     // used to highlight which item is selected.
     const [leftSelectedListItem, setLeftSelectedListItem] = useState("");
     const [rightSelectedListItem, setRightSelectedListItem] = useState("");
+    const [leftItem, setLeftItem] = useState<SettingRevision | null>(null);
+    const [rightItem, setRightItem] = useState<SettingRevision | null>(null);
+
     const onClickHandler = useCallback(
         (key: string, itemClickedKey: string, data: SettingRevision) => {
             const normalizeJson = (jsonStr: string): string =>
@@ -164,10 +168,12 @@ function AdminRevHistory() {
                 case "left":
                     setLeftSelectedListItem(itemClickedKey);
                     setLeftJson(prettyJson);
+                    setLeftItem(data);
                     break;
                 case "right":
                     setRightSelectedListItem(itemClickedKey);
                     setRightJson(prettyJson);
+                    setRightItem(data);
                     break;
             }
         },
@@ -210,12 +216,45 @@ function AdminRevHistory() {
                             />
                         </Grid>
                     </Grid>
+                    <Grid row>
+                        <Grid col={"fill"}>
+                            <Grid row gap="md">
+                                <Grid>
+                                    Flags: <br />
+                                    {!leftItem ? null : (
+                                        <>
+                                            isDeleted:{" "}
+                                            {String(leftItem.isDeleted)} <br />
+                                            isActive:{" "}
+                                            {String(leftItem.isActive)}
+                                        </>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid col={"fill"}>
+                            <Grid row gap="md">
+                                <Grid>
+                                    Flags: <br />
+                                    {!rightItem ? null : (
+                                        <>
+                                            isDeleted:{" "}
+                                            {String(rightItem.isDeleted)}
+                                            <br />
+                                            isActive:{" "}
+                                            {String(rightItem.isActive)}
+                                        </>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
                 </GridContainer>
             </section>
             <HipaaNotice />
         </>
     );
-}
+};
 
 /** required for React Url Path **/
 export function AdminRevHistoryWithAuth() {
@@ -226,3 +265,9 @@ export function AdminRevHistoryWithAuth() {
         />
     );
 }
+
+export const _exportForTesting = {
+    dataToAccordionItems,
+    AdminRevHistory,
+    MainRevHistoryComponent,
+};

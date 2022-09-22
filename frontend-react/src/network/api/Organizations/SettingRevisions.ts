@@ -6,7 +6,6 @@ import {
     RSEndpoint,
 } from "../../../config/endpoints";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
-import { StringIndexed } from "../../../utils/UsefulTypes";
 
 /** shape of data returned **/
 export interface SettingRevision {
@@ -15,6 +14,8 @@ export interface SettingRevision {
     version: number;
     createdAt: string;
     createdBy: string;
+    isDeleted: boolean;
+    isActive: boolean;
     settingJson: string;
 }
 
@@ -37,9 +38,11 @@ export const useRevisionEndpointsQuery = (params: SettingRevisionParams) => {
     const fetchFn = useAuthorizedFetch<SettingRevision[]>();
 
     // get all lookup tables in order to get metadata
-    return useQuery<SettingRevision[]>(["org", "settingType"], () =>
-        fetchFn(settingRevisionEndpoints.getList, {
-            segments: params as StringIndexed,
-        })
+    return useQuery<SettingRevision[]>(
+        ["org", "settingType"],
+        async () =>
+            await fetchFn(settingRevisionEndpoints.getList, {
+                segments: params,
+            })
     );
 };

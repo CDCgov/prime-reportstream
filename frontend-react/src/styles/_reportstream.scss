@@ -669,6 +669,11 @@ pre {
 .rs-revision-history {
     width: max-content;
     min-width: 60vw;
+    .rs-static-compare-base {
+        @extend .rs-editable-compare-base;
+        margin: 0;
+        height: calc(var(--rs-compare-modal-height) - 11em);
+    }
     .rs-list-diffs-container {
         height: 25em;
         color: white;
