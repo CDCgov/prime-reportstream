@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import { QueryClient } from "@tanstack/react-query";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
@@ -15,12 +14,7 @@ import {
 describe("useValueSetsTable", () => {
     const renderWithQueryWrapper = (tableName: LookupTables) =>
         renderHook(() => useValueSetsTable<ValueSet[]>(tableName), {
-            wrapper: QueryWrapper(
-                new QueryClient({
-                    // to allow for faster testable failures
-                    defaultOptions: { queries: { retry: false } },
-                })
-            ),
+            wrapper: QueryWrapper(),
         });
 
     beforeAll(() => lookupTableServer.listen());
@@ -42,12 +36,7 @@ describe("useValueSetsTable", () => {
 describe("useValueSetsMeta", () => {
     const renderWithQueryWrapper = (tableName?: LookupTables) =>
         renderHook(() => useValueSetsMeta(tableName), {
-            wrapper: QueryWrapper(
-                new QueryClient({
-                    // to allow for faster testable failures
-                    defaultOptions: { queries: { retry: false } },
-                })
-            ),
+            wrapper: QueryWrapper(),
         });
 
     beforeAll(() => lookupTableServer.listen());
