@@ -9,6 +9,7 @@ import {
     ValueSetRow,
     LookupTables,
 } from "../config/endpoints/lookupTables";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -131,13 +132,14 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, UpdateValueSetOptions>(
-        updateValueSet
-    );
+    const mutation = useMutation<
+        LookupTable,
+        RSNetworkError,
+        UpdateValueSetOptions
+    >(updateValueSet);
     return {
         saveData: mutation.mutateAsync,
         isSaving: mutation.isLoading,
-        saveError: mutation.error,
     };
 };
 
@@ -160,6 +162,5 @@ export const useValueSetActivation = () => {
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,
-        activationError: mutation.error,
     };
 };

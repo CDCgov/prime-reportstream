@@ -87,10 +87,9 @@ describe("useValueSetUpdate", () => {
             wrapper: QueryWrapper(),
         });
 
-    test("returns trigger, loading indicator and error", async () => {
+    test("returns trigger and loading indicator", async () => {
         const { result } = renderWithQueryWrapper();
-        const { saveData, saveError, isSaving } = result.current;
-        expect(saveError).toEqual(null);
+        const { saveData, isSaving } = result.current;
         expect(isSaving).toEqual(false);
         expect(saveData).toBeInstanceOf(Function);
     });
@@ -145,10 +144,9 @@ describe("useValueSetActivation", () => {
             wrapper: QueryWrapper(),
         });
 
-    test("returns trigger, loading indicator and error", async () => {
+    test("returns trigger and loading indicator", async () => {
         const { result } = renderWithQueryWrapper();
-        const { activateTable, activationError, isActivating } = result.current;
-        expect(activationError).toEqual(null);
+        const { activateTable, isActivating } = result.current;
         expect(isActivating).toEqual(false);
         expect(activateTable).toBeInstanceOf(Function);
     });
