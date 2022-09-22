@@ -1,19 +1,13 @@
-import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    Account registration guide | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
-
+            <BasicHelmet pageTitle="Account registration guide | Resources" />
             <h1 id="anchor-top">Account registration guide</h1>
             <h2>
                 The ReportStream team will help you set up a new user account.

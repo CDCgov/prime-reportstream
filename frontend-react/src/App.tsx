@@ -21,8 +21,11 @@ import { AppRouter } from "./AppRouter";
 import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
+import config from "./config";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+
+const { APP_ENV } = config;
 
 const App = () => {
     const navigate = useNavigate();
@@ -78,7 +81,7 @@ const App = () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
+                    <DAPHeader env={APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
                     <SenderModeBanner />
                     <ReportStreamHeader />

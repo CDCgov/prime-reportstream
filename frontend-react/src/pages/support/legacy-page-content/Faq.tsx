@@ -1,12 +1,11 @@
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const Faq = () => {
     return (
         <>
-            <Helmet>
-                <title>FAQ | Support | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="FAQ | Support" />
             <h1>Frequently asked questions</h1>
             <h2>Answers to common questions about ReportStream</h2>
             <hr />

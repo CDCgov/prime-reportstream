@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React, { Suspense } from "react";
 
 import Spinner from "../../components/Spinner";
@@ -6,13 +5,12 @@ import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 export function AdminLastMileFailures() {
     return (
         <>
-            <Helmet>
-                <title>Admin | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Admin" />
             <section className="grid-container margin-bottom-5">
                 <h3 className="margin-bottom-0">
                     <Suspense fallback={<Spinner />} />

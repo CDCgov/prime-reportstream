@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export default class CardResource extends AuthResource {
     readonly id: string = "cardId";
@@ -14,5 +18,5 @@ export default class CardResource extends AuthResource {
         return this.id;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/history/summary/tests`;
+    static urlRoot = `${RS_API_URL}/api/history/summary/tests`;
 }

@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React, { useRef, useState } from "react";
 import {
     Alert,
@@ -12,6 +11,7 @@ import {
 import { showAlertNotification } from "../../components/AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
@@ -103,9 +103,7 @@ export function FeatureFlagUIComponent() {
 
     return (
         <>
-            <Helmet>
-                <title>Feature Flags - {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Feature Flags" />
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>
                 <GridContainer containerSize="desktop">

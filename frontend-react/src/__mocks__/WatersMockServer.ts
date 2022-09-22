@@ -2,6 +2,9 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import { WatersResponse } from "../network/api/WatersApi";
+import config from "../config";
+
+const { RS_API_URL } = config;
 
 const watersResponseSuccess: WatersResponse = {
     id: "uuid-string",
@@ -64,28 +67,24 @@ const watersResponseError = {
 };
 
 const handlers = [
-    rest.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
-        (req, res, ctx) => {
-            if (req.headers["_headers"]["client"] === "bad-client") {
-                return res(ctx.json(watersResponseError), ctx.status(400));
-            }
-
-            if (
-                req.headers["_headers"]["client"] ===
-                "give me a very bad response"
-            ) {
-                return res(
-                    ctx.text(
-                        "This response will not parse and will cause an error"
-                    ),
-                    ctx.status(500)
-                );
-            }
-
-            return res(ctx.json(watersResponseSuccess), ctx.status(201));
+    rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
+        if (req.headers["_headers"]["client"] === "bad-client") {
+            return res(ctx.json(watersResponseError), ctx.status(400));
         }
-    ),
+
+        if (
+            req.headers["_headers"]["client"] === "give me a very bad response"
+        ) {
+            return res(
+                ctx.text(
+                    "This response will not parse and will cause an error"
+                ),
+                ctx.status(500)
+            );
+        }
+
+        return res(ctx.json(watersResponseSuccess), ctx.status(201));
+    }),
 ];
 
 export const watersServer = setupServer(...handlers);

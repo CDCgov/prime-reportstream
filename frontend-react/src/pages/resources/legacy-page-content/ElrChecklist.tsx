@@ -1,20 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
-import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const ELRChecklistIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    ELR onboarding checklist | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
-
+            <BasicHelmet pageTitle="ELR onboarding checklist | Resources" />
             <h1 id="anchor-top">ELR onboarding checklist</h1>
             <h2>
                 If you're a public health department and want to connect
