@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
+import { testQueryClient } from "../network/QueryClients";
 
 import { mockToken } from "./TestUtils";
 
@@ -67,7 +68,7 @@ const AppWrapper =
         return (
             <RouterWrapper>
                 <SessionProvider oktaHook={mockOkta}>
-                    <QueryClientProvider client={new QueryClient()}>
+                    <QueryClientProvider client={testQueryClient}>
                         <AuthorizedFetchProvider>
                             {children}
                         </AuthorizedFetchProvider>

@@ -1,6 +1,9 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 import { Newable, SimpleError, StringIndexed } from "../../utils/UsefulTypes";
+import config from "../../config";
+
+const { RS_API_URL } = config;
 
 /* Using the utility type `Omit<T, ...>` we can limit what methods we allow if needed.
  * Example: AvailableMethods = Omit<Method, "DELETE">[] */
@@ -73,7 +76,7 @@ export const buildEndpointUrl = <P extends StringIndexed>(
         const endpoint = extractEndpoint(api, endpointKey);
         /* Slashes NOT built in! declare urls with leading slash */
         const construct = (endpointUrl: string) =>
-            `${process.env.REACT_APP_BACKEND_URL}${api.baseUrl}${endpointUrl}`;
+            `${RS_API_URL}${api.baseUrl}${endpointUrl}`;
         /* Checks for params by looking for the colon as an indicator */
         if (endpoint.url.includes(":")) {
             if (parameters === undefined) {
