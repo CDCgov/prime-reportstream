@@ -156,9 +156,11 @@ export const useValueSetActivation = () => {
             },
         });
     };
-    const mutation = useMutation<LookupTable, Error, ActivateValueSetOptions>(
-        activateValueSet
-    );
+    const mutation = useMutation<
+        LookupTable,
+        RSNetworkError,
+        ActivateValueSetOptions
+    >(activateValueSet);
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,
