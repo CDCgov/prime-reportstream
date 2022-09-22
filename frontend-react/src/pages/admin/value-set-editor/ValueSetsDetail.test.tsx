@@ -2,8 +2,13 @@ import { screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
+import {
+    ValueSetsMetaResponse,
+    ValueSetsTableResponse,
+} from "../../../hooks/UseValueSets";
 
-import ValueSetsDetail, { ValueSetsDetailTable } from "./ValueSetsDetail";
+import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
@@ -30,8 +35,6 @@ const fakeMeta = {
     tableSha256Checksum: "sha",
 };
 
-const mockError = new Error();
-
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
@@ -56,17 +59,19 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("ValueSetsDetail", () => {
-    beforeEach(() => {
-        mockUseValueSetsTable = jest.fn(() => ({
-            valueSetArray: fakeRows,
-            error: null,
-        }));
-        mockUseValueSetsMeta = jest.fn(() => ({
-            valueSetMeta: fakeMeta,
-            error: null,
-        }));
-    });
     test("Renders with no errors", () => {
+        mockUseValueSetsTable = jest.fn(
+            () =>
+                ({
+                    valueSetArray: fakeRows,
+                } as ValueSetsTableResponse<any>)
+        );
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
         // only render with query provider
         renderWithQueryProvider(<ValueSetsDetail />);
         const headers = screen.getAllByRole("columnheader");
@@ -81,6 +86,18 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Rows are editable", () => {
+        mockUseValueSetsTable = jest.fn(
+            () =>
+                ({
+                    valueSetArray: fakeRows,
+                } as ValueSetsTableResponse<any>)
+        );
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
         renderWithQueryProvider(<ValueSetsDetail />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
@@ -95,26 +112,29 @@ describe("ValueSetsDetail", () => {
         const input = screen.getAllByRole("textbox");
         expect(input.length).toEqual(3);
     });
+
+    test("Handles error with table fetch", () => {
+        mockUseValueSetsTable = jest.fn(() => {
+            throw new RSNetworkError("Test", 404);
+        });
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
+        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
+         * test them via the ErrorBoundary test? */
+        renderWithQueryProvider(<ValueSetsDetail />);
+        expect(
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
+        ).toBeInTheDocument();
+    });
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles fetch related errors", () => {
-        const mockSetAlert = jest.fn();
-        renderWithQueryProvider(
-            <ValueSetsDetailTable
-                valueSetName={"error"}
-                setAlert={mockSetAlert}
-                valueSetData={[]}
-                error={mockError}
-            />
-        );
-        expect(mockSetAlert).toHaveBeenCalled();
-        expect(mockSetAlert).toHaveBeenCalledWith({
-            type: "error",
-            message: "Error",
-        });
-    });
-
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockSaveData = jest.fn(() => {
             // to avoid unnecessary console error
