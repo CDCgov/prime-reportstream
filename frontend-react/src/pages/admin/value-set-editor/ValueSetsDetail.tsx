@@ -21,13 +21,11 @@ import {
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
-import {
-    ReportStreamAlert,
-    handleErrorWithAlert,
-} from "../../../utils/ErrorUtils";
+import { ReportStreamAlert } from "../../../utils/ErrorUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -131,8 +129,8 @@ export const ValueSetsDetailTable = ({
     valueSetData: ValueSetRow[];
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { saveData } = useValueSetUpdate();
-    const { activateTable } = useValueSetActivation();
+    const { saveData, isSaving } = useValueSetUpdate();
+    const { activateTable, isActivating } = useValueSetActivation();
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -150,7 +148,8 @@ export const ValueSetsDetailTable = ({
     const datasetActionItem: DatasetAction = {
         label: "Add item",
     };
-
+    /* Mutations do not support Suspense */
+    if (isSaving || isActivating) return <Spinner />;
     return (
         <Table
             title="ReportStream Core Values"
@@ -161,28 +160,19 @@ export const ValueSetsDetailTable = ({
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
-                try {
-                    const dataToSave = prepareRowsForSave(
-                        row,
-                        valueSetsWithIds,
-                        valueSetName
-                    );
-                    const saveResponse = await saveData({
-                        data: dataToSave,
-                        tableName: valueSetName,
-                    });
-                    await activateTable({
-                        tableVersion: saveResponse.tableVersion,
-                        tableName: valueSetName,
-                    });
-                } catch (e: any) {
-                    handleErrorWithAlert({
-                        logMessage: "Error occurred saving value set",
-                        error: e,
-                        setAlert,
-                    });
-                    return;
-                }
+                const dataToSave = prepareRowsForSave(
+                    row,
+                    valueSetsWithIds,
+                    valueSetName
+                );
+                const saveResponse = await saveData({
+                    data: dataToSave,
+                    tableName: valueSetName,
+                });
+                await activateTable({
+                    tableVersion: saveResponse.tableVersion,
+                    tableName: valueSetName,
+                });
                 setAlert({ type: "success", message: "Value Saved" });
             }}
         />
