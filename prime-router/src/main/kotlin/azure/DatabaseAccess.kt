@@ -642,23 +642,25 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Setting::class.java)
     }
 
-    /** data returned by fetchSettingRevisionHistory. Only used to shape json response. **/
+    /**
+     * data returned by fetchSettingRevisionHistory. Only used to shape json response.
+     * @param id settingId remaps to this
+     * @param name Every setting has a unique name for a given org
+     * @param version incrementing revision number zero based
+     * @param createdBy email address of account creating this revision
+     * @param createdAt timestamp of when this revision entry was created
+     * @param isDeleted tombstone marker
+     * @param isActive Only the latest revision can be active.
+     * @param settingJson Content of settings is stored as a JSONB. We treat it opaquely as a string by design
+     * **/
     data class SettingsHistoryData(
-        /** settingID remaps to this */
         val id: Int,
-        /** Every setting has a unique name for a given org */
         val name: String? = "",
-        /** incrementing revision number zero based */
         val version: Int? = 0,
-        /** timestamp of when this entry was created */
         val createdBy: String?,
-        /** email address of who created it */
         val createdAt: OffsetDateTime? = null,
-        /** "tombstone" marker */
         val isDeleted: Boolean? = true,
-        /** Not sure what active means here. anyone? */
         val isActive: Boolean? = false,
-        /** Content of settings is stored as a JSONB. We treat it opaquely as a string by design */
         val settingJson: String? = "",
     )
 
@@ -695,8 +697,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             settings.CREATED_BY,
             settings.IS_ACTIVE,
             settings.IS_DELETED,
-            settings.VALUES.cast(String::class.java).`as`("settingJson")
-        ) // see kdoc
+            settings.VALUES.cast(String::class.java).`as`("settingJson") // see kdoc
+        )
 
         when (settingType) {
             SettingType.ORGANIZATION ->
@@ -704,7 +706,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     .from(settings)
                     .where(
                         settings.TYPE.eq(SettingType.ORGANIZATION)
-                            .and(settings.TYPE.eq(SettingType.ORGANIZATION))
                             .and(settings.NAME.eq(organizationName))
                     )
                     .limit(MAX_RECORDS_TO_RETURN)
@@ -722,7 +723,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         settings.TYPE.eq(settingType)
                             .and(org.IS_ACTIVE.isTrue)
                             .and(org.TYPE.eq(SettingType.ORGANIZATION))
-                            .and(org.ORGANIZATION_ID.isNull)
                             .and(org.NAME.eq(organizationName))
                     )
                     .limit(MAX_RECORDS_TO_RETURN)

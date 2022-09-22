@@ -231,6 +231,10 @@ class UpdateReceiver(
  *   `settings/revision/organizations/{organizationName}/sender`
  *   `settings/revision/organizations/{organizationName}/receiver`
  *   `settings/revision/organizations/{organizationName}/organization`
+
+ *   @param settingsFacade Same pattern as the rest of the funs in this module
+ *   @param oktaAuthentication Default to require org admin, caller can override
+ *   @return Spring HttpTrigger call
  */
 class GetSettingRevisionHistory(
     settingsFacade: SettingsFacade = SettingsFacade.common,
@@ -297,7 +301,7 @@ open class BaseFunction(
      * @param request Incoming http request
      * @param organizationName Org name to auth again and use for query
      * @param settingType SettingType
-     * @HttpResponseMessage Resulting json or HTTP error response
+     * @result HttpResponseMessage resulting json or HTTP error response
      */
     fun getListHistory(
         request: HttpRequestMessage<String?>,

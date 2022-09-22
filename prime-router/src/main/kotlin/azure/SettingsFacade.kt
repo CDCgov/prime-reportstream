@@ -161,12 +161,13 @@ class SettingsFacade(
      * The whole history (incl inactive and deleted) returned across all names for a given type.
      * @param organizationName Restrict query to this org
      * @param settingsType Type of setting. column in db and used to select
+     * @return json result serialized to a string
      */
     fun findSettingHistoryAsJson(organizationName: String, settingsType: SettingType): String {
         val settings = db.transactReturning { txn ->
             db.fetchSettingRevisionHistory(organizationName, settingsType, txn)
         }
-        return if (settings.isNotEmpty()) mapper.writeValueAsString(settings) else "[]"
+        return mapper.writeValueAsString(settings)
     }
 
     fun findOrganizationAndReceiver(fullName: String, txn: DataAccessTransaction?): Pair<Organization, Receiver>? {
