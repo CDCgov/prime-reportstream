@@ -22,6 +22,9 @@ data class ConfigSchema(
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
+    /**
+     * List of the names of schemas that have led to this schema being loaded.
+     */
     var ancestry: List<String> = listOf()
 
     /**
