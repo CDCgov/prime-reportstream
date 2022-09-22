@@ -118,14 +118,17 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, UpdateValueSetOptions>(
+    const mutation = useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>(
         updateValueSet
     );
     return {
-        saveData: mutation.mutateAsync
+        saveData: mutation.mutateAsync,
+        isSaving: mutation.isLoading
     };
 };
 ```
+
+> **Note about Suspense**: Currently Tanstack does not support Suspense use for mutations, only queries. You will still need to use loading state given from the mutation hook to render a spinner conditionally while performing mutations.
 
 #### Typing
 
@@ -138,13 +141,12 @@ UseMutation has a more complicated signature:
 ```typescript
 export function useMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
   TContext = unknown,
 >
 ```
 
-In this case `useMutation<LookupTable, Error, UpdateValueSetOptions>` denotes that we expect a returned data type of `LookupTable`, a returned error type of `Error` and for our mutation function to be called with `UpdateValueSetOptions`.
+In this case `useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>` denotes that we expect a returned data type of `LookupTable`, a returned error type of `RSNetworkError` and for our mutation function to be called with `UpdateValueSetOptions`.
 
 #### Resources
 
