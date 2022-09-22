@@ -16,9 +16,9 @@ As documented [here](https://cdc.sharepoint.com/:w:/r/teams/USDSatCDC/Shared%20D
 
 All components that require data from the API, or that push data to the API, should do so through simple invocation of custom hooks that will provide:
 
--   data, when available
--   errors, when available
--   loading state
+- data, when available
+- loading state to be caught with Suspense
+- error state to be caught with ErrorBoundary
 
 In general, fetch logic shouldn't live in components, and all a component should need to do is invoke a hook!
 
@@ -32,19 +32,13 @@ A simplified example taken from [ValueSetsIndex.tsx](https://github.com/CDCgov/p
 
 ```typescript
 import { useValueSetsTable } from "../../../hooks/UseValueSets";
-const ValueSetsTable = () => {
-    const { valueSetArray, isLoading, error } = useValueSetsTable<ValueSet[]>(
+const ValueSetsTableContent = () => {
+    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
-    if (isLoading) {
-    	// may use suspense, but if not, you can render a loading state here
-    }
-    if (error) {
-    	// may use any error boundary, but if not, you can render an error state here
-    }
     render <>{valueSetArray}</>
 }
-
+export const ValueSetsTable = () => withCatchAndSuspense(<ValueSetsTableContent />);
 ```
 
 ## Custom Hooks Level
@@ -59,7 +53,7 @@ React-query is a very full featured library that concerns itself with maintainin
 
 [useQuery](https://tanstack.com/query/v4/docs/reference/useQuery?from=reactQueryV3&original=https://react-query-v3.tanstack.com/reference/useQuery), in our app, is the hook used to fetch data.
 
-We pass useQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. In any case, it will always return a bunch of things, including any data or errors, as well as loading state, which can be returned from the custom hook. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
+We pass useQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
 
 A simplified example from [UseValueSets.ts - link tbd](link tbd)
 
@@ -68,15 +62,13 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string
 ): {
     valueSetArray: T;
-    error: any;
 } => {
     let versionData: Partial<TableAttributes> | null;
-    let error;
 
     const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
     const dataFetch = useAuthorizedFetch<T>();
 
-    const { error: tableError, data: versionData } = useQuery<LookupTable[]>(
+    const { data: versionData } = useQuery<LookupTable[]>(
         [getTableList.queryKey],
         () => lookupTableFetch(getTableList)
     );
@@ -93,15 +85,13 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
         [dataFetch, versionData, dataTableName]
     );
 
-    const { error: valueSetError, data: valueSetData } = useQuery<T>(
+    const { data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, versionData?.version, dataTableName],
         memoizedDataFetch,
         { enabled: !!versionData?.version }
     );
 
-    error = error || tableError || valueSetError || null;
-
-    return { error, valueSetArray: valueSetData || [] };
+    return { valueSetArray: valueSetData || [] };
 };
 ```
 
@@ -109,7 +99,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
 
 [useMutation]() is similar to useQuery, but instead of simply fetching data, this hook is used for handling functions that update data in some way, or have particular side effects. In practice this means that useMutation will come into play when we are making non-`GET` requests to the API.
 
-UseMutation itself will take a function, much like useQuery, that represents the actual request. However, instead of performing the request or invoking the past function on render, the hook returns a `mutate` function that can be called at any time to perform the mutuation. Like useQuery, useMutation, will also return data, errors, and state information.
+UseMutation itself will take a function, much like useQuery, that represents the actual request. However, instead of performing the request or invoking the past function on render, the hook returns a `mutate` function that can be called at any time to perform the mutuation.
 
 It is worth noting that in some cases, such as the example below, we will want to deal with a mutation and its return value in more traditionally asynchronous way. In that case, useMutation returns a `mutateAsync` function as well, which will return a Promise for the return value of the function passed into `useMutate`.
 
@@ -132,9 +122,7 @@ export const useValueSetUpdate = () => {
         updateValueSet
     );
     return {
-        saveData: mutation.mutateAsync,
-        isSaving: mutation.isLoading,
-        saveError: mutation.error,
+        saveData: mutation.mutateAsync
     };
 };
 ```
