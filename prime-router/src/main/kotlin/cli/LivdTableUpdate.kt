@@ -53,10 +53,6 @@ import java.net.URL
  *  ./prime livd-table-update
  *
  */
-interface LivdTableInterface {
-
-    fun downloadFile(outputDir: String): File
-}
 
 class LivdTableUpdate : CliktCommand(
     name = "livd-table-update",
