@@ -77,7 +77,9 @@ const AppWrapper =
                 <SessionProvider oktaHook={mockOkta}>
                     <QueryClientProvider client={testQueryClient}>
                         <AuthorizedFetchProvider>
-                            {children}
+                            <FeatureFlagProvider>
+                                {children}
+                            </FeatureFlagProvider>
                         </AuthorizedFetchProvider>
                     </QueryClientProvider>
                 </SessionProvider>
