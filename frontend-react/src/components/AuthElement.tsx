@@ -5,7 +5,6 @@ import Spinner from "./Spinner";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
-// import { getStoredOktaToken } from "../utils/SessionStorageTools";
 import { useFeatureFlags } from "../contexts/FeatureFlagContext";
 
 interface AuthElementProps {
@@ -22,8 +21,6 @@ export const AuthElement = ({
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
     const { oktaToken, activeMembership, initialized } = useSessionContext();
-    // A way to check if this is a logged-in user refreshing the app
-    // const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
 
     const { checkFlag } = useFeatureFlags();
 
@@ -42,14 +39,11 @@ export const AuthElement = ({
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
     useEffect(() => {
-        // Not logged in, needs to log in.
-        // console.log("!!!!", !!oktaToken, activeMembership, initialized);
+        // not ready to make a determination about auth status yet, show a spinner
         if (!initialized) {
-            // navigate("/login");
-            // return <Spinner />;
-            console.log("*** uninitialized");
             return;
         }
+        // Not logged in, needs to log in.
         if (!oktaToken || !activeMembership) {
             console.log("*** initialized but", oktaToken, activeMembership);
             navigate("/login");
@@ -71,7 +65,6 @@ export const AuthElement = ({
         oktaToken?.accessToken,
         requiredFeatureFlag,
         requiredUserType,
-        // tokenAvailable,
         !!oktaToken,
         initialized,
         checkFlag,
@@ -81,6 +74,5 @@ export const AuthElement = ({
         () => (initialized ? element : <Spinner />),
         [initialized]
     );
-    console.log("*** rendering", initialized);
     return elementToRender;
 };

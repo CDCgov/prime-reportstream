@@ -156,7 +156,6 @@ const calculateNewState = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
-            console.log("!!! initializing 2");
             const parsedMemberships = membershipsFromToken(
                 payload as AccessToken
             );
@@ -216,7 +215,6 @@ export const membershipReducer = (
 export const useOktaMemberships = (
     authState: AuthState | null
 ): MembershipController => {
-    console.log("&&&", authState);
     const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);
 
@@ -229,10 +227,6 @@ export const useOktaMemberships = (
     // NOTE: we are letting this do the work of setting memberships on log in. The Login component
     // will not explicitly set memberships.
     useEffect(() => {
-        // console.log("$$$ setting membership ???", token, organizations);
-        // if (state.activeMembership === null && token !== null) {
-        //     dispatch({ type: MembershipActionType.INITIALIZE });
-        // }
         if (!token || !organizations) {
             return;
         }
@@ -243,16 +237,15 @@ export const useOktaMemberships = (
         // here we are only concerned about changes to a users orgs / memberships
     }, [organizations, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // any time a token change signifies a logout, we should clear our state and storage
     useEffect(() => {
-        console.log("!!! no token etc");
+        // if we're in an uninitialized state, but okta has loaded, set our initialized flag
         if (!state.initialized && !!authState) {
-            console.log("!!! initializing 1");
             dispatch({
                 type: MembershipActionType.INITIALIZE,
             });
             return;
         }
+        // any time a token change signifies a logout, we should clear our state and storage
         if (authState && !authState.isAuthenticated) {
             // clear override as well. this will error on json parse and result in {} being fed back on a read
             storeOrganizationOverride("");

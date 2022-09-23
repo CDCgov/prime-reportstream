@@ -19,8 +19,6 @@ const oktaAuthConfig = {
     scopes: ["openid", "email"],
 };
 
-let authData = "";
-
 /*
 
   let's log in once here for the whole test suite
@@ -36,8 +34,6 @@ const username = Cypress.env("auth_username");
 const password = Cypress.env("auth_password");
 
 const loginByOktaApi = () => {
-    // console.log("!!! logging in");
-    // cy.log("!!! logging in");
     cy.task("log", "!!! logging in");
     // log in with username and password
     cy.request("POST", "https://hhs-prime.oktapreview.com/api/v1/authn", {
@@ -79,7 +75,6 @@ const loginByOktaApi = () => {
                 accessToken,
             });
             window.sessionStorage.setItem("okta-token-storage", authString);
-            // authData = authString;
             cy.task("setAuth", authString);
             cy.task("log", "$$$ logged in");
         });
@@ -88,8 +83,6 @@ const loginByOktaApi = () => {
 const login = () => {
     cy.task("getAuth").then((auth) => {
         if (!auth) {
-            // console.warn("Missing stored auth information, logging in via UI");
-            // cy.log("Missing stored auth information, logging in via UI");
             cy.task(
                 "log",
                 "Missing stored auth information, logging in via UI"
