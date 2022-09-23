@@ -40,7 +40,7 @@ const SessionProvider = ({
     const { authState } = oktaHook();
 
     const {
-        state: { memberships, activeMembership },
+        state: { memberships, activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
     return (
@@ -50,7 +50,7 @@ const SessionProvider = ({
                 memberships,
                 activeMembership,
                 dispatch,
-                initialized: authState !== null && activeMembership !== null,
+                initialized: authState !== null && !!initialized,
             }}
         >
             {children}

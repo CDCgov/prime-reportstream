@@ -21,6 +21,7 @@ export enum MembershipActionType {
     ADMIN_OVERRIDE = "override",
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
+    INITIALIZE = "initialize",
 }
 
 export interface MembershipSettings {
@@ -37,6 +38,7 @@ export interface MembershipState {
     activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
+    initialized?: boolean;
 }
 
 export interface MembershipController {
@@ -108,6 +110,7 @@ const defaultState: MembershipState = {
     // see `calculateMembershipsWithOverride` for logic
     activeMembership: null,
     memberships: undefined,
+    initialized: false,
 };
 
 export const membershipsFromToken = (
@@ -153,13 +156,16 @@ const calculateNewState = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
-            console.log("$$$ setting membership", payload);
+            console.log("!!! initializing 2");
             const parsedMemberships = membershipsFromToken(
                 payload as AccessToken
             );
-            return calculateMembershipsWithOverride(
-                parsedMemberships as MembershipState
-            );
+            return {
+                ...calculateMembershipsWithOverride(
+                    parsedMemberships as MembershipState
+                ),
+                initialized: true,
+            };
         case MembershipActionType.ADMIN_OVERRIDE:
             const newActive = {
                 ...state.activeMembership,
@@ -171,6 +177,8 @@ const calculateNewState = (
             };
             storeOrganizationOverride(JSON.stringify(newActive));
             return newState;
+        case MembershipActionType.INITIALIZE:
+            return { ...state, initialized: true };
         case MembershipActionType.RESET:
             return defaultState;
         default:
@@ -184,7 +192,6 @@ export const getInitialState = () => {
     const storedStateWithOverride = calculateMembershipsWithOverride(
         storedState || {}
     );
-    console.log("$$$ membership init", storedState);
     return { ...defaultState, ...storedStateWithOverride };
 };
 
@@ -222,7 +229,10 @@ export const useOktaMemberships = (
     // NOTE: we are letting this do the work of setting memberships on log in. The Login component
     // will not explicitly set memberships.
     useEffect(() => {
-        console.log("$$$ setting membership ???", token, organizations);
+        // console.log("$$$ setting membership ???", token, organizations);
+        // if (state.activeMembership === null && token !== null) {
+        //     dispatch({ type: MembershipActionType.INITIALIZE });
+        // }
         if (!token || !organizations) {
             return;
         }
@@ -231,10 +241,18 @@ export const useOktaMemberships = (
             payload: token,
         });
         // here we are only concerned about changes to a users orgs / memberships
-    }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [organizations, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // any time a token change signifies a logout, we should clear our state and storage
     useEffect(() => {
+        console.log("!!! no token etc");
+        if (!state.initialized && !!authState) {
+            console.log("!!! initializing 1");
+            dispatch({
+                type: MembershipActionType.INITIALIZE,
+            });
+            return;
+        }
         if (authState && !authState.isAuthenticated) {
             // clear override as well. this will error on json parse and result in {} being fed back on a read
             storeOrganizationOverride("");
