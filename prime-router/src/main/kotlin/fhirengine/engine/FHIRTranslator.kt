@@ -53,10 +53,7 @@ class FHIRTranslator(
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
 
-            // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("ignore.FULL_ELR")
-
-            receivers.forEach { receiver ->
+            message.routeTo.forEach { receiver ->
                 // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
                 //  receiver-specific transforms
                 val converter = FhirToHl7Converter(

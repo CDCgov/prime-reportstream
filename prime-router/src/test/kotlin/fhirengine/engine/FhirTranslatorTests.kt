@@ -39,7 +39,9 @@ class FhirTranslatorTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
     )
 
@@ -66,7 +68,17 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(metadata, settings, TaskAction.translate)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender",
+                listOf(
+                    "ignore.FULL_ELR"
+                )
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"

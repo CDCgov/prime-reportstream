@@ -49,7 +49,13 @@ abstract class Message {
  * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
  * and [sender]. A [digest] is also provided for checksum verification.
  *
- * TODO: Need to determine if options, defaults and routeTo need to be supported
+ * TODO: Need to determine if options and defaults need to be supported
+ *
+ * @property reportId
+ * @property blobURL
+ * @property digest
+ * @property sender
+ * @property routeTo
  */
 @JsonTypeName("raw")
 data class RawSubmission(
@@ -59,7 +65,7 @@ data class RawSubmission(
     val sender: String,
 //    val options: Options,
 //    val defaults: Map<String, String>,
-//    val routeTo: List<String>,
+    val routeTo: List<String> = listOf()
 ) : Message() {
     /**
      * Download the file associated with a RawSubmission message
