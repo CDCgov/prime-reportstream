@@ -16,9 +16,9 @@ As documented [here](https://cdc.sharepoint.com/:w:/r/teams/USDSatCDC/Shared%20D
 
 All components that require data from the API, or that push data to the API, should do so through simple invocation of custom hooks that will provide:
 
-- data, when available
-- loading state to be caught with Suspense
-- error state to be caught with ErrorBoundary
+-   data, when available
+-   loading state to be caught with Suspense
+-   error state to be caught with ErrorBoundary
 
 In general, fetch logic shouldn't live in components, and all a component should need to do is invoke a hook!
 
@@ -49,55 +49,50 @@ Most of the work of actually making a particular request will live in hooks that
 
 React-query is a very full featured library that concerns itself with maintaining state for asynchronous actions, and providing good support around a cache for the results of those actions. While not specific to requests, react-query is built primarily to handle the complexities of making network requests within react, and that is what we use it for. For the most part, our patterns rely on two hooks provided by react-query, dealt with in more depth below. There is a lot more to react-query than this, including the QueryClient that allows for easy access to and manipulation of a request cache, and optimistic loading. The resources below should be a starting point for learning more about those.
 
-#### UseQuery
+#### UseQuery & rsUseQuery
 
-[useQuery](https://tanstack.com/query/v4/docs/reference/useQuery?from=reactQueryV3&original=https://react-query-v3.tanstack.com/reference/useQuery), in our app, is the hook used to fetch data.
+[useQuery](https://tanstack.com/query/v4/docs/reference/useQuery?from=reactQueryV3&original=https://react-query-v3.tanstack.com/reference/useQuery), in our app, is the hook used to fetch data. `rsUseQuery` is our very special, slightly wrapped version of `useQuery` that functions more or less exactly the same way as `useQuery`, while also allowing us to avoid making unathenticated requests before our Okta library has fully initialized.
 
-We pass useQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
+`rsUseQuery` can be used the same way that tanstack's documentation indicates, with the one caveat being that while `useQuery` is very open to multiple ways to structure the arguments passed in, `rsUseQuery` hardens the options around call signatures. `rsUseQuery` will always be called with the signature:
 
-A simplified example from [UseValueSets.ts - link tbd](link tbd)
+```
+rsUseQuery(
+  queryKey,
+  queryFunction,
+  options
+)
+
+```
+
+We pass rsUseQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
+
+As shown below, `rsUseQuery` is provided by the `useAuthorizedFetch` hook.
+
+A simplified example from [UseValueSets.ts](https://github.com/CDCgov/prime-reportstream/blob/master/frontend-react/src/hooks/UseValueSets.ts)
 
 ```typescript
-export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
-    dataTableName: string
-): {
-    valueSetArray: T;
-} => {
-    let versionData: Partial<TableAttributes> | null;
+export interface ValueSetsMetaResponse {
+    valueSetMeta: LookupTable;
+}
+export const useValueSetsMeta = (
+    dataTableName: string = LookupTables.VALUE_SET
+): ValueSetsMetaResponse => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
-    const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
-    const dataFetch = useAuthorizedFetch<T>();
-
-    const { data: versionData } = useQuery<LookupTable[]>(
-        [getTableList.queryKey],
-        () => lookupTableFetch(getTableList)
+    // get all lookup tables in order to get metadata
+    const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
+        authorizedFetch(getTableList)
     );
 
-    // create the function to use for fetching table data from the API
-    const memoizedDataFetch = useCallback(
-        () =>
-            dataFetch(getTableData, {
-                segments: {
-                    tableName: dataTableName,
-                    version: `${versionData!!.version!}`, // number to string,
-                },
-            }),
-        [dataFetch, versionData, dataTableName]
-    );
+    const tableMeta = findTableMetaByName(tableData, dataTableName);
 
-    const { data: valueSetData } = useQuery<T>(
-        [getTableData.queryKey, versionData?.version, dataTableName],
-        memoizedDataFetch,
-        { enabled: !!versionData?.version }
-    );
-
-    return { valueSetArray: valueSetData || [] };
+    return { valueSetMeta: tableMeta };
 };
 ```
 
 #### UseMutation
 
-[useMutation]() is similar to useQuery, but instead of simply fetching data, this hook is used for handling functions that update data in some way, or have particular side effects. In practice this means that useMutation will come into play when we are making non-`GET` requests to the API.
+[useMutation](https://tanstack.com/query/v4/docs/reference/useMutation) is similar to useQuery, but instead of simply fetching data, this hook is used for handling functions that update data in some way, or have particular side effects. In practice this means that useMutation will come into play when we are making non-`GET` requests to the API.
 
 UseMutation itself will take a function, much like useQuery, that represents the actual request. However, instead of performing the request or invoking the past function on render, the hook returns a `mutate` function that can be called at any time to perform the mutuation.
 
@@ -107,10 +102,10 @@ A simplified example from [UseValueSets.ts - link tbd](link tbd)
 
 ```typescript
 export const useValueSetUpdate = () => {
-    const valueSetFetch = useAuthorizedFetch<LookupTable>();
+    const { authorizedFetch } = useAuthorizedFetch<LookupTable>();
 
     const updateValueSet = ({ data, tableName }: UpdateValueSetOptions) => {
-        return valueSetFetch(updateTable, {
+        return authorizedFetch(updateTable, {
             segments: { tableName: tableName },
             data,
         });
@@ -118,12 +113,14 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>(
-        updateValueSet
-    );
+    const mutation = useMutation<
+        LookupTable,
+        RSNetworkError,
+        UpdateValueSetOptions
+    >(updateValueSet);
     return {
         saveData: mutation.mutateAsync,
-        isSaving: mutation.isLoading
+        isSaving: mutation.isLoading,
     };
 };
 ```
@@ -157,7 +154,7 @@ In this case `useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>` d
 
 In order for the useQuery and useMutation hooks used within our custom hooks to have access to an easy way to actually make the network calls that are the point of the whole thing, the app has a Provider that provides an authorizedFetch function. This function, accessed through the `useAuthorizedFetch` hook, will take two arguments (an Endpoint Config instance (covered in more detail below), and an options object containing anything not covered by the EndpointConfig that the axios call will need), and return a promise for the data returned from the network call.
 
-Each authorizedFetch function can be typed as a generic to ensure that the data returned matches the expected shape.
+UseAuthorizedFetch is a typescript generic, taking a single type declaration that will be used to type check the return value of both the authorizedFetch function returned by the hook, and the value of the `data` property output by the returned rsUseQuery hook.
 
 For example, see the useQuery sample code above. In this hook, two different typed authorizedFetch functions are generated by calling useAuthorizedFetch twice. The usage of the first function provides a good example of a very simple call to authorizedFetch, and the second shows how a more complex call with dynamic segment data can be done. The useMutation examples show how useAuthorizedFetch can be used to pass additional information such as data payloads.
 
@@ -303,6 +300,6 @@ The burden of error handling and suspense (loading UI) falls on the component sy
 
 To wrap your components with one, or both, of these dom elements, use the included helper functions:
 
-- withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
-- withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
-- withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing
+-   withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
+-   withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
+-   withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing
