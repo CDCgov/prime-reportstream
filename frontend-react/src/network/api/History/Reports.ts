@@ -5,10 +5,10 @@ import ActionResource from "../../../resources/ActionResource";
  * @deprecated For compile-time type checks while #5892 is worked on
  */
 export interface RSReportInterface {
-    sent: number;
+    batchReadyAt: number;
     via: string;
     positive: number;
-    total: number;
+    reportItemCount: number;
     fileType: string;
     type: string;
     reportId: string;
