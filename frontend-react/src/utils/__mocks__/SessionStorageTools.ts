@@ -7,3 +7,13 @@ export const mockTokenFromStorage = jest.spyOn(
     StorageTools,
     "getStoredOktaToken"
 );
+
+export const mockStoreFeatureFlags = jest.spyOn(
+    StorageTools,
+    "storeFeatureFlags"
+);
+
+export const mockGetSavedFeatureFlags = jest.spyOn(
+    StorageTools,
+    "getSavedFeatureFlags"
+);

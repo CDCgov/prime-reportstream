@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 export interface NonStaticOption {
     title: string;
@@ -61,13 +61,14 @@ export const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
 };
 
 export const AdminDropdown = () => {
+    const { checkFlag } = useFeatureFlags();
     const pages = [
         makeNonStaticOption("Organization Settings", "settings"),
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Last Mile Failures", "lastmile"),
         makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
     ];
-    if (CheckFeatureFlag("value-sets"))
+    if (checkFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));
     return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
 };
