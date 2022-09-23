@@ -29,6 +29,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "PrimeAdmins",
             },
             dispatch: () => {},
+            initialized: true,
         });
         mockCheckFeatureFlag.mockImplementation((arg: string) => {
             return arg === FeatureFlagName.FOR_TEST;
@@ -49,6 +50,7 @@ describe("AuthElement unit tests", () => {
             oktaToken: undefined,
             activeMembership: undefined,
             dispatch: () => {},
+            initialized: true,
         });
         render(
             <AuthElement
@@ -67,6 +69,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "all-in-one-health-ca",
             },
             dispatch: () => {},
+            initialized: true,
         });
         render(
             <AuthElement
@@ -88,6 +91,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "all-in-one-health-ca",
             },
             dispatch: () => {},
+            initialized: true,
         });
         render(
             <AuthElement
@@ -109,6 +113,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "all-in-one-health-ca",
             },
             dispatch: () => {},
+            initialized: true,
         });
         mockCheckFeatureFlag.mockImplementation((arg: string) => {
             return arg !== FeatureFlagName.FOR_TEST;
@@ -132,6 +137,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "PrimeAdmins",
             },
             dispatch: () => {},
+            initialized: true,
         });
         render(
             <AuthElement
@@ -153,6 +159,7 @@ describe("AuthElement unit tests", () => {
                 parsedName: "PrimeAdmins",
             },
             dispatch: () => {},
+            initialized: true,
         });
         render(
             <AuthElement

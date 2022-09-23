@@ -1,11 +1,11 @@
 import React, { createContext, useContext } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import {
-  QueryFunction,
-  QueryKey,
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult,
+    QueryFunction,
+    QueryKey,
+    useQuery,
+    UseQueryOptions,
+    UseQueryResult,
 } from "@tanstack/react-query";
 
 import {
@@ -45,35 +45,37 @@ export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>({
     initialized: false,
 });
 
-function wrapUseQuery<TQueryFnData, TError, TData, TQueryKey extends QueryKey>(
-  initialized: boolean
-) {
-  return function (
-      queryKey: QueryKey,
-      queryFn: QueryFunction<TQueryFnData, TQueryKey>,
-      options?: Omit<
-          UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-          "queryKey" | "queryFn" | "initialData"
-      > & { initialData?: () => undefined }
-  ) {
-      return useQuery<TQueryFnData, TError, TData, TQueryKey>(
-          queryKey as TQueryKey,
-          queryFn,
-          {
-              enabled: options?.enabled
-                  ? options.enabled && initialized
-                  : initialized,
-              ...options,
-          }
-      );
-  };
+export function wrapUseQuery<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryKey extends QueryKey
+>(initialized: boolean) {
+    return function (
+        queryKey: QueryKey,
+        queryFn: QueryFunction<TQueryFnData, TQueryKey>,
+        options?: Omit<
+            UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+            "queryKey" | "queryFn" | "initialData"
+        > & { initialData?: () => undefined }
+    ) {
+        return useQuery<TQueryFnData, TError, TData, TQueryKey>(
+            queryKey as TQueryKey,
+            queryFn,
+            {
+                enabled: options?.enabled
+                    ? options.enabled && initialized
+                    : initialized,
+                ...options,
+            }
+        );
+    };
 }
-
-
 
 export const AuthorizedFetchProvider = ({
     children,
-}: React.PropsWithChildren<{}>) => {
+    initializedOverride = false,
+}: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
     const { oktaToken, activeMembership, initialized } = useSessionContext();
     const generator = useCreateFetch(
         oktaToken as AccessToken,
@@ -84,7 +86,7 @@ export const AuthorizedFetchProvider = ({
         <AuthorizedFetchContext.Provider
             value={{
                 authorizedFetchGenerator: generator,
-                initialized,
+                initialized: initializedOverride || initialized,
             }}
         >
             {children}
@@ -111,3 +113,4 @@ export const useAuthorizedFetch = <
             initialized
         ),
     };
+};

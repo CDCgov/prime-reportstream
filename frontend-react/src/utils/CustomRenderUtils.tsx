@@ -58,7 +58,9 @@ export const QueryWrapper =
     ({ children }: PropsWithChildren<{}>) =>
         (
             <QueryClientProvider client={client}>
-                <AuthorizedFetchProvider>{children}</AuthorizedFetchProvider>
+                <AuthorizedFetchProvider initializedOverride={true}>
+                    {children}
+                </AuthorizedFetchProvider>
             </QueryClientProvider>
         );
 

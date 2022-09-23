@@ -38,6 +38,7 @@ describe("SubmissionTable", () => {
                 senderName: "testSender",
             },
             dispatch: () => {},
+            initialized: true,
         });
         const fixtures: Fixture[] = [
             {
@@ -88,6 +89,7 @@ describe("SubmissionTable", () => {
                     senderName: "testSender",
                 },
                 dispatch: () => {},
+                initialized: true,
             });
             const fixtures: Fixture[] = [
                 {
