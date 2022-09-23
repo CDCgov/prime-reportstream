@@ -81,7 +81,7 @@ elements:
     hhsGuidanceField:
     hl7Field: PID-11-4
 
-  - name: ordering_facility_zip_lookup
+  - name: ordering_facility_state_zip_lookup
     type: TABLE
     pii: false
     table: zip-code-data
