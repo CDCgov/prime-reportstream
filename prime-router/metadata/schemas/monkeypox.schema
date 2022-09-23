@@ -348,6 +348,22 @@ elements:
     type: TEXT
     hl7Field: PID-18-5
 
+  - name: patient_age_calculated
+    type: NUMBER
+    mapper: patientAge(patient_age, patient_dob, specimen_collection_date_time)
+    documentation: Patient age calculated from DOB and specimen collection datetime
+
+  - name: patient_age_aoe
+    type: NUMBER
+    cardinality: ZERO_OR_ONE
+    hl7Field: AOE
+    hl7AOEQuestion: 30525-0
+    documentation: Patient age from AOE field
+
+  - name: patient_age
+    type: NUMBER
+    mapper: use(patient_age_aoe, patient_age_calculated)
+
   - name: patient_city
     type: CITY
     pii: true
