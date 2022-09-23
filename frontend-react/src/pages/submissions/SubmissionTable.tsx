@@ -17,12 +17,10 @@ import useCursorManager, {
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import {
-    CheckFeatureFlag,
-    FeatureFlagName,
-} from "../../pages/misc/FeatureFlags";
+import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -235,7 +233,8 @@ function SubmissionTableWithNumberedPagination() {
 }
 
 function SubmissionTable() {
-    const isNumberedPaginationOn = CheckFeatureFlag(
+    const { checkFlag } = useFeatureFlags();
+    const isNumberedPaginationOn = checkFlag(
         FeatureFlagName.NUMBERED_PAGINATION
     );
     return (

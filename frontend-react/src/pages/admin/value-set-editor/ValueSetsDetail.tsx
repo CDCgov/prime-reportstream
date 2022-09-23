@@ -1,10 +1,4 @@
-import React, {
-    useState,
-    useEffect,
-    Dispatch,
-    SetStateAction,
-    useMemo,
-} from "react";
+import React, { useState, Dispatch, SetStateAction, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { ReactNode } from "react-markdown/lib/react-markdown";
@@ -27,12 +21,11 @@ import {
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
-import {
-    ReportStreamAlert,
-    handleErrorWithAlert,
-} from "../../../utils/ErrorUtils";
+import { ReportStreamAlert } from "../../../utils/ErrorUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import Spinner from "../../../components/Spinner";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -128,28 +121,16 @@ const addIdsToRows = (valueSetArray: ValueSetRow[] = []): ValueSetRow[] => {
 export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
-    error,
     valueSetData,
     Legend,
 }: {
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
     valueSetData: ValueSetRow[];
-    error?: Error;
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
-    const { saveData } = useValueSetUpdate();
-    const { activateTable } = useValueSetActivation();
-
-    useEffect(() => {
-        if (error) {
-            handleErrorWithAlert({
-                logMessage: "Error occurred fetching value set",
-                error,
-                setAlert,
-            });
-        }
-    }, [error, setAlert]);
+    const { saveData, isSaving } = useValueSetUpdate();
+    const { activateTable, isActivating } = useValueSetActivation();
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -167,69 +148,49 @@ export const ValueSetsDetailTable = ({
     const datasetActionItem: DatasetAction = {
         label: "Add item",
     };
-
+    /* Mutations do not support Suspense */
+    if (isSaving || isActivating) return <Spinner />;
     return (
         <Table
             title="ReportStream Core Values"
             classes={"rs-no-padding"}
             legend={Legend}
             // assume we don't want to allow creating a row if initial fetch failed
-            datasetAction={error ? undefined : datasetActionItem}
+            datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
-                try {
-                    const dataToSave = prepareRowsForSave(
-                        row,
-                        valueSetsWithIds,
-                        valueSetName
-                    );
-                    const saveResponse = await saveData({
-                        data: dataToSave,
-                        tableName: valueSetName,
-                    });
-                    await activateTable({
-                        tableVersion: saveResponse.tableVersion,
-                        tableName: valueSetName,
-                    });
-                } catch (e: any) {
-                    handleErrorWithAlert({
-                        logMessage: "Error occurred saving value set",
-                        error: e,
-                        setAlert,
-                    });
-                    return;
-                }
+                const dataToSave = prepareRowsForSave(
+                    row,
+                    valueSetsWithIds,
+                    valueSetName
+                );
+                const saveResponse = await saveData({
+                    data: dataToSave,
+                    tableName: valueSetName,
+                });
+                await activateTable({
+                    tableVersion: saveResponse.tableVersion,
+                    tableName: valueSetName,
+                });
                 setAlert({ type: "success", message: "Value Saved" });
             }}
         />
     );
 };
 
-const ValueSetsDetail = () => {
+const ValueSetsDetailContent = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
-        valueSetName!!
-    );
-    const { valueSetMeta, error: metaError } = useValueSetsMeta(valueSetName);
+    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName!!);
+    const { valueSetMeta } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
         () => toHumanReadable(valueSetName!!),
         [valueSetName]
     );
-
-    useEffect(() => {
-        if (metaError) {
-            handleErrorWithAlert({
-                logMessage: "Error occurred fetching value set meta",
-                error: metaError,
-                setAlert,
-            });
-        }
-    }, [metaError, setAlert]);
 
     return (
         <>
@@ -241,6 +202,7 @@ const ValueSetsDetail = () => {
                     name={readableName}
                     meta={valueSetMeta}
                 />
+                {/* ONLY handles success messaging now */}
                 {alert && (
                     <StaticAlert
                         type={alert.type}
@@ -252,13 +214,13 @@ const ValueSetsDetail = () => {
                     valueSetName={valueSetName!!}
                     setAlert={setAlert}
                     valueSetData={valueSetArray || []}
-                    error={error}
                 />
             </section>
         </>
     );
 };
-export default ValueSetsDetail;
+export const ValueSetsDetail = () =>
+    withCatchAndSuspense(<ValueSetsDetailContent />);
 export const ValueSetsDetailWithAuth = () => (
     <AuthElement
         element={<ValueSetsDetail />}
