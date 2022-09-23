@@ -33,7 +33,8 @@ export interface MembershipSettings {
 }
 
 export interface MembershipState {
-    activeMembership?: MembershipSettings;
+    // null here points specifically to an uninitialized state
+    activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
 }
@@ -105,7 +106,7 @@ export const makeMembershipMapFromToken = (
 const defaultState: MembershipState = {
     // note that active will be set to {} rather than undefined in most real world cases on initialization
     // see `calculateMembershipsWithOverride` for logic
-    activeMembership: undefined,
+    activeMembership: null,
     memberships: undefined,
 };
 
@@ -152,6 +153,7 @@ const calculateNewState = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
+            console.log("$$$ setting membership", payload);
             const parsedMemberships = membershipsFromToken(
                 payload as AccessToken
             );
@@ -182,6 +184,7 @@ export const getInitialState = () => {
     const storedStateWithOverride = calculateMembershipsWithOverride(
         storedState || {}
     );
+    console.log("$$$ membership init", storedState);
     return { ...defaultState, ...storedStateWithOverride };
 };
 
@@ -206,6 +209,7 @@ export const membershipReducer = (
 export const useOktaMemberships = (
     authState: AuthState | null
 ): MembershipController => {
+    console.log("&&&", authState);
     const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);
 
@@ -218,6 +222,7 @@ export const useOktaMemberships = (
     // NOTE: we are letting this do the work of setting memberships on log in. The Login component
     // will not explicitly set memberships.
     useEffect(() => {
+        console.log("$$$ setting membership ???", token, organizations);
         if (!token || !organizations) {
             return;
         }

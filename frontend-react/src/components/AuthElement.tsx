@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo } from "react";
 
+import Spinner from "./Spinner";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
-import { getStoredOktaToken } from "../utils/SessionStorageTools";
+// import { getStoredOktaToken } from "../utils/SessionStorageTools";
 import { useFeatureFlags } from "../contexts/FeatureFlagContext";
 
 interface AuthElementProps {
@@ -20,9 +21,9 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership } = useSessionContext();
+    const { oktaToken, activeMembership, initialized } = useSessionContext();
     // A way to check if this is a logged-in user refreshing the app
-    const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
+    // const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
 
     const { checkFlag } = useFeatureFlags();
 
@@ -42,7 +43,15 @@ export const AuthElement = ({
     // All the checks before returning the route
     useEffect(() => {
         // Not logged in, needs to log in.
-        if (!tokenAvailable || !activeMembership) {
+        // console.log("!!!!", !!oktaToken, activeMembership, initialized);
+        if (!initialized) {
+            // navigate("/login");
+            // return <Spinner />;
+            console.log("*** uninitialized");
+            return;
+        }
+        if (!oktaToken || !activeMembership) {
+            console.log("*** initialized but", oktaToken, activeMembership);
             navigate("/login");
             return;
         }
@@ -62,9 +71,16 @@ export const AuthElement = ({
         oktaToken?.accessToken,
         requiredFeatureFlag,
         requiredUserType,
-        tokenAvailable,
+        // tokenAvailable,
+        !!oktaToken,
+        initialized,
         checkFlag,
     ]);
 
-    return element;
+    const elementToRender = useMemo(
+        () => (initialized ? element : <Spinner />),
+        [initialized]
+    );
+    console.log("*** rendering", initialized);
+    return elementToRender;
 };
