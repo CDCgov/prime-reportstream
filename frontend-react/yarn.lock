@@ -1027,14 +1027,7 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.0", "@babel/runtime@^7.14.6", "@babel/runtime@^7.16.0", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
-  version "7.18.6"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.6.tgz#6a1ef59f838debd670421f8c7f2cbb8da9751580"
-  integrity sha512-t9wi7/AW6XtKahAe20Yw0/mMljKq0B1r2fPdvaAdV/KPDZewFXdaaa6K7lxmZBZ8FBNpCiAT6iHPmd6QO9bKfQ==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.7.6":
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.0", "@babel/runtime@^7.14.6", "@babel/runtime@^7.16.0", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.18.9"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.9.tgz#b4fcfce55db3d2e5e080d2490f608a3b9f407f4a"
   integrity sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==
@@ -1768,12 +1761,13 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/test@^7.3.1":
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/test/-/test-7.3.1.tgz#e4e6d5e98bdcd8a482f9dc2d324075dae07929ef"
-  integrity sha512-ND3+sPhQw9sfssPBzF5GHw8g2UlsSJ5umLX7K/J8mG+WBgyREAQ0FeUPlPQEHShaEdcwtilZmfmCpNxZzVVinw==
+"@rest-hooks/test@^7.3.8":
+  version "7.3.8"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/test/-/test-7.3.8.tgz#6edbe73279f094a6e377216ac37490fa0cfb7b22"
+  integrity sha512-Z8ZHx8NxXfC+7sDQed36n4JoYB2MT8/827CNVVRQjWW412aEQtXMLA/+Pjrz430pHIlGVY41yC4kQP/BG5NvGQ==
   dependencies:
-    "@testing-library/react-hooks" "~7.0.0"
+    "@babel/runtime" "^7.13.0"
+    "@testing-library/react-hooks" "~8.0.0"
 
 "@rest-hooks/use-enhanced-reducer@^1.1.1":
   version "1.1.1"
@@ -2010,7 +2004,7 @@
     lodash "^4.17.15"
     redent "^3.0.0"
 
-"@testing-library/react-hooks@^7.0.2", "@testing-library/react-hooks@~7.0.0":
+"@testing-library/react-hooks@^7.0.2":
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-7.0.2.tgz#3388d07f562d91e7f2431a4a21b5186062ecfee0"
   integrity sha512-dYxpz8u9m4q1TuzfcUApqi8iFfR6R0FaMbr2hjZJy1uC8z+bO/K4v8Gs9eogGKYQop7QsrBTFkv/BCF7MzD2Cg==
@@ -2019,6 +2013,14 @@
     "@types/react" ">=16.9.0"
     "@types/react-dom" ">=16.9.0"
     "@types/react-test-renderer" ">=16.9.0"
+    react-error-boundary "^3.1.0"
+
+"@testing-library/react-hooks@~8.0.0":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-8.0.1.tgz#0924bbd5b55e0c0c0502d1754657ada66947ca12"
+  integrity sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
     react-error-boundary "^3.1.0"
 
 "@testing-library/react@^12.1.2":
