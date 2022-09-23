@@ -178,7 +178,7 @@ class FhirPathCommand : CliktCommand(
         val bundle = FhirTranscoder.decode(contents)
         focusResource = bundle
         fhirPathContext = CustomContext(
-            bundle, mutableMapOf("rsext" to "https://reportstream.cdc.gov/fhir/StructureDefinition/")
+            bundle, bundle, mutableMapOf("rsext" to "'https://reportstream.cdc.gov/fhir/StructureDefinition/'")
         )
         printHelp()
 
@@ -242,6 +242,7 @@ class FhirPathCommand : CliktCommand(
             if (resourceList.size == 1) {
                 setFocusPath(path)
                 focusResource = resourceList[0] as Base
+                fhirPathContext?.let { it.focusResource = focusResource as Base }
             } else
                 echo(
                     "Resource path must evaluate to 1 resource, but got a collection of " +

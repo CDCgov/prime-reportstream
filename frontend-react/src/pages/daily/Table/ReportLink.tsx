@@ -5,6 +5,9 @@ import { useOktaAuth } from "@okta/okta-react";
 import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../utils/SessionStorageTools";
 import { RSDelivery } from "../../../network/api/History/Reports";
+import config from "../../../config";
+
+const { RS_API_URL } = config;
 
 interface Props {
     /* REQUIRED
@@ -35,15 +38,12 @@ function ReportLink(props: Props) {
         e.preventDefault();
         if (props.report !== undefined && props.report.reportId !== undefined) {
             let reportId = props.report.reportId;
-            fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/history/report/${reportId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
-                        Organization: organization!,
-                    },
-                }
-            )
+            fetch(`${RS_API_URL}/api/history/report/${reportId}`, {
+                headers: {
+                    Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+                    Organization: organization!,
+                },
+            })
                 .then((res) => res.json())
                 .then((report) => {
                     // The filename to use for the download should not contain blob folders if present

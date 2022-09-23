@@ -2,10 +2,9 @@ import { Method, AxiosRequestConfig } from "axios";
 import omit from "lodash.omit";
 
 import { StringIndexed } from "../../utils/UsefulTypes";
+import config from "..";
 
-// this should be contained in a config file
-// TODO: move all config specific global variables to a config file
-export const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const { API_ROOT } = config;
 
 // odd that there isn't already a useable implementation of this somewhere
 // or is there? where should this live?

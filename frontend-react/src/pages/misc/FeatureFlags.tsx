@@ -1,5 +1,4 @@
-import { Helmet } from "react-helmet";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
     Alert,
     Button,
@@ -10,8 +9,12 @@ import {
 } from "@trussworks/react-uswds";
 
 import { showAlertNotification } from "../../components/AlertNotifications";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 export enum FeatureFlagName {
+    FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
     VALUE_SETS_ADMIN = "value-sets",
     BUILT_FOR_YOU = "built-for-you",
@@ -100,9 +103,7 @@ export function FeatureFlagUIComponent() {
 
     return (
         <>
-            <Helmet>
-                <title>Feature Flags - {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Feature Flags" />
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>
                 <GridContainer containerSize="desktop">
@@ -155,5 +156,14 @@ export function FeatureFlagUIComponent() {
                 </GridContainer>
             </section>
         </>
+    );
+}
+
+export function FeatureFlagUIWithAuth() {
+    return (
+        <AuthElement
+            element={<FeatureFlagUIComponent />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

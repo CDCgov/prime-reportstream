@@ -19,6 +19,10 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
+  - name: xcn-prefix
+    value: [ '%resource.name.prefix' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
+
   - name: xcn-suffix
     value: [ '%resource.name.suffix' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
@@ -29,8 +33,8 @@ elements:
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-9'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
-      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
     schema: hd-hierarchic-designator
 
   - name: xcn-name-type-code
@@ -38,8 +42,8 @@ elements:
     value: [ '"L"']
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
-  - name: xcn-type
-    value: [ '%resource.identifier.type.coding.code' ]
+  - name: xcn-identifier-type
+    value: [ '%resource.extension(%`rsext-identifier-type`).value.coding.code' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
 
   - name: xcn-assigning-facility
@@ -48,6 +52,6 @@ elements:
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-14'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
-      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
     schema: hd-hierarchic-designator

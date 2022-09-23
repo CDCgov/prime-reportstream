@@ -1,0 +1,22 @@
+name: Build Hub
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "prime-router/**"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "prime-router/**"
+
+jobs:
+  Build_Router:
+    name: Build Router
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Router
+        run: 'echo "No build required"'
+  

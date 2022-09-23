@@ -93,6 +93,7 @@ export interface TableProps {
     paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
     editableCallback?: RowSideEffect;
+    classes?: string;
 }
 
 export interface LegendItem {
@@ -114,6 +115,7 @@ const Table = ({
     paginationProps,
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
+    classes,
 }: TableProps) => {
     const [rowToEdit, setRowToEdit] = useState<number | undefined>();
 
@@ -150,6 +152,11 @@ const Table = ({
         }
         return config.rows;
     }, [config.rows, filterManager?.sortSettings]);
+
+    const wrapperClasses = useMemo(
+        () => `grid-container margin-bottom-10 ${classes}`,
+        [classes]
+    );
 
     const addRow = useCallback(() => {
         setRowToEdit(memoizedRows.length);
@@ -334,7 +341,7 @@ const Table = ({
     }
 
     return (
-        <div className="grid-container margin-bottom-10">
+        <div className={wrapperClasses}>
             <TableInfo />
             <div className="grid-col-12">
                 <table

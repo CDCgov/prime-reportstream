@@ -1,10 +1,5 @@
-locals {
-  sftp_dir = "../../../../../.environment/sftp"
-  sshnames = jsondecode(data.external.sftp_ssh_query.result.sshnames)
-}
-
 module "instance" {
-  for_each = toset(jsondecode(data.external.sftp_ssh_query.result.instances))
+  for_each = var.sshinstances
 
   source             = "../common/sftp"
   instance           = each.value
@@ -15,9 +10,9 @@ module "instance" {
   memory             = 4
   sftp_folder        = "uploads"
   location           = var.location
-  users              = [for item in local.sshnames : replace(item, "${var.resource_prefix}-${each.value}-", "") if can(regex("${each.value}-", item))]
-  instance_users     = [for item in local.sshnames : replace(item, "${var.resource_prefix}-", "") if can(regex("${each.value}-", item))]
-  sshaccess          = [for item in local.sshnames : "${replace(item, "${var.resource_prefix}-${each.value}-", "")}:::100" if can(regex("${each.value}-", item))]
+  users              = [for item in var.sshnames : replace(item, "${var.resource_prefix}-${each.value}-", "") if can(regex("${each.value}-", item))]
+  instance_users     = [for item in var.sshnames : replace(item, "${var.resource_prefix}-", "") if can(regex("${each.value}-", item))]
+  sshaccess          = [for item in var.sshnames : "${replace(item, "${var.resource_prefix}-${each.value}-", "")}:::100" if can(regex("${each.value}-", item))]
   key_vault_id       = var.key_vault_id
   storage_account    = azurerm_storage_account.sftp
   admin_share        = azurerm_storage_share.sftp_admin
@@ -27,6 +22,7 @@ module "instance" {
   subnet_id          = data.azurerm_subnet.container_subnet.id
 
   depends_on = [
-    azurerm_storage_share_file.sftp
+    azurerm_storage_share_file.sftp,
+    azurerm_storage_share.sftp_scripts
   ]
 }

@@ -16,9 +16,9 @@ As documented [here](https://cdc.sharepoint.com/:w:/r/teams/USDSatCDC/Shared%20D
 
 All components that require data from the API, or that push data to the API, should do so through simple invocation of custom hooks that will provide:
 
--   data, when available
--   errors, when available
--   loading state
+- data, when available
+- loading state to be caught with Suspense
+- error state to be caught with ErrorBoundary
 
 In general, fetch logic shouldn't live in components, and all a component should need to do is invoke a hook!
 
@@ -32,19 +32,13 @@ A simplified example taken from [ValueSetsIndex.tsx](https://github.com/CDCgov/p
 
 ```typescript
 import { useValueSetsTable } from "../../../hooks/UseValueSets";
-const ValueSetsTable = () => {
-    const { valueSetArray, isLoading, error } = useValueSetsTable<ValueSet[]>(
+const ValueSetsTableContent = () => {
+    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
-    if (isLoading) {
-    	// may use suspense, but if not, you can render a loading state here
-    }
-    if (error) {
-    	// may use any error boundary, but if not, you can render an error state here
-    }
     render <>{valueSetArray}</>
 }
-
+export const ValueSetsTable = () => withCatchAndSuspense(<ValueSetsTableContent />);
 ```
 
 ## Custom Hooks Level
@@ -59,7 +53,7 @@ React-query is a very full featured library that concerns itself with maintainin
 
 [useQuery](https://tanstack.com/query/v4/docs/reference/useQuery?from=reactQueryV3&original=https://react-query-v3.tanstack.com/reference/useQuery), in our app, is the hook used to fetch data.
 
-We pass useQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. In any case, it will always return a bunch of things, including any data or errors, as well as loading state, which can be returned from the custom hook. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
+We pass useQuery a key ([see official docs for more](https://tanstack.com/query/v4/docs/guides/query-keys)), a function which will actually do the fetch, and an options object. On each render of the custom hook, useQuery will either run, and fetch data, or not, in the case that there is already fresh data available. React-query under the hood will periodically re-run the fetch function to get fresh data. We are running with default settings for this, but this behavior can be specified as well.
 
 A simplified example from [UseValueSets.ts - link tbd](link tbd)
 
@@ -68,15 +62,13 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string
 ): {
     valueSetArray: T;
-    error: any;
 } => {
     let versionData: Partial<TableAttributes> | null;
-    let error;
 
     const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
     const dataFetch = useAuthorizedFetch<T>();
 
-    const { error: tableError, data: versionData } = useQuery<LookupTable[]>(
+    const { data: versionData } = useQuery<LookupTable[]>(
         [getTableList.queryKey],
         () => lookupTableFetch(getTableList)
     );
@@ -93,15 +85,13 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
         [dataFetch, versionData, dataTableName]
     );
 
-    const { error: valueSetError, data: valueSetData } = useQuery<T>(
+    const { data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, versionData?.version, dataTableName],
         memoizedDataFetch,
         { enabled: !!versionData?.version }
     );
 
-    error = error || tableError || valueSetError || null;
-
-    return { error, valueSetArray: valueSetData || [] };
+    return { valueSetArray: valueSetData || [] };
 };
 ```
 
@@ -109,7 +99,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
 
 [useMutation]() is similar to useQuery, but instead of simply fetching data, this hook is used for handling functions that update data in some way, or have particular side effects. In practice this means that useMutation will come into play when we are making non-`GET` requests to the API.
 
-UseMutation itself will take a function, much like useQuery, that represents the actual request. However, instead of performing the request or invoking the past function on render, the hook returns a `mutate` function that can be called at any time to perform the mutuation. Like useQuery, useMutation, will also return data, errors, and state information.
+UseMutation itself will take a function, much like useQuery, that represents the actual request. However, instead of performing the request or invoking the past function on render, the hook returns a `mutate` function that can be called at any time to perform the mutuation.
 
 It is worth noting that in some cases, such as the example below, we will want to deal with a mutation and its return value in more traditionally asynchronous way. In that case, useMutation returns a `mutateAsync` function as well, which will return a Promise for the return value of the function passed into `useMutate`.
 
@@ -128,16 +118,17 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, UpdateValueSetOptions>(
+    const mutation = useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>(
         updateValueSet
     );
     return {
         saveData: mutation.mutateAsync,
-        isSaving: mutation.isLoading,
-        saveError: mutation.error,
+        isSaving: mutation.isLoading
     };
 };
 ```
+
+> **Note about Suspense**: Currently Tanstack does not support Suspense use for mutations, only queries. You will still need to use loading state given from the mutation hook to render a spinner conditionally while performing mutations.
 
 #### Typing
 
@@ -150,13 +141,12 @@ UseMutation has a more complicated signature:
 ```typescript
 export function useMutation<
   TData = unknown,
-  TError = unknown,
   TVariables = void,
   TContext = unknown,
 >
 ```
 
-In this case `useMutation<LookupTable, Error, UpdateValueSetOptions>` denotes that we expect a returned data type of `LookupTable`, a returned error type of `Error` and for our mutation function to be called with `UpdateValueSetOptions`.
+In this case `useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>` denotes that we expect a returned data type of `LookupTable`, a returned error type of `RSNetworkError` and for our mutation function to be called with `UpdateValueSetOptions`.
 
 #### Resources
 
@@ -309,4 +299,10 @@ Without the extra level of indirection, we would need to get into the realm of t
 
 ## Error Handling and Suspense
 
-TBD!!!
+The burden of error handling and suspense (loading UI) falls on the component system provided by React, _not_ our React Query integration. React uses two components to handle these two needs: a Suspense component, included as a part of the React library to declare where your loading UI should render and what it should look like, and the RSErrorBoundary, an adaptation of the ErrorBoundary component type given by React that'll catch errors and render an error UI instead of the children it wraps.
+
+To wrap your components with one, or both, of these dom elements, use the included helper functions:
+
+- withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
+- withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
+- withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing

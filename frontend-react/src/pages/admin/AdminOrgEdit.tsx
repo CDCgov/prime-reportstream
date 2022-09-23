@@ -1,8 +1,7 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import { RouteComponentProps } from "react-router-dom";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
+import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -37,15 +36,20 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
+import config from "../../config";
+
+const { RS_API_URL } = config;
 
 type AdminOrgEditProps = {
     orgname: string;
 };
 
-export function AdminOrgEdit({
-    match,
-}: RouteComponentProps<AdminOrgEditProps>) {
-    const orgname = match?.params?.orgname || "";
+export function AdminOrgEdit() {
+    const { orgname } = useParams<AdminOrgEditProps>();
+
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
         { orgname: orgname }
@@ -62,7 +66,7 @@ export function AdminOrgEdit({
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -149,15 +153,9 @@ export function AdminOrgEdit({
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Helmet>
-                <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Admin | Org Edit" />
             <section className="grid-container margin-top-3 margin-bottom-5">
-                <Title
-                    title={`Org name: ${
-                        match?.params?.orgname || "missing param 'orgname'"
-                    }`}
-                />
+                <Title title={`Org name: ${orgname}`} />
             </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
@@ -227,7 +225,7 @@ export function AdminOrgEdit({
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname}
+                                uniquid={orgname || ""}
                                 onConfirm={saveOrgData}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
@@ -236,11 +234,20 @@ export function AdminOrgEdit({
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname} />
-                    <OrgReceiverTable orgname={orgname} />
+                    <OrgSenderTable orgname={orgname || ""} />
+                    <OrgReceiverTable orgname={orgname || ""} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />
         </NetworkErrorBoundary>
+    );
+}
+
+export function AdminOrgEditWithAuth() {
+    return (
+        <AuthElement
+            element={<AdminOrgEdit />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }
