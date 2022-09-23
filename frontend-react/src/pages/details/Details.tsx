@@ -5,7 +5,6 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import { useReportsDetail } from "../../hooks/network/History/DeliveryHooks";
-import ReportResource from "../../resources/ReportResource";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 
