@@ -1,33 +1,94 @@
-import { _exportForTesting, CheckFeatureFlag } from "./FeatureFlags";
+import { render, screen, fireEvent } from "@testing-library/react";
 
-test("FeatureFlags basics", () => {
-    const randomNewFeatureFlag = `testflag-${new Date().getTime()}`;
-    // make sure random feature tests false
-    expect(CheckFeatureFlag(randomNewFeatureFlag)).toBe(false);
+import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
-    // add random feature and expect it to be true
-    _exportForTesting.addFeatureFlag(randomNewFeatureFlag);
-    expect(CheckFeatureFlag(randomNewFeatureFlag)).toBe(true);
+import { FeatureFlagUIComponent } from "./FeatureFlags";
 
-    const randomNewFeatureFlag2 = `a${randomNewFeatureFlag}`; // a is before
-    const randomNewFeatureFlag3 = `z${randomNewFeatureFlag}`; // z is after
+jest.mock("../../config", () => {
+    return {
+        default: {
+            DEFAULT_FEATURE_FLAGS: "flag-3",
+        },
+        __esModule: true,
+    };
+});
 
-    // add more flags and recheck (before and after)
-    _exportForTesting.addFeatureFlag(randomNewFeatureFlag2);
-    _exportForTesting.addFeatureFlag(randomNewFeatureFlag3);
-    expect(CheckFeatureFlag(randomNewFeatureFlag)).toBe(true);
+describe("FeatureFlags", () => {
+    test("displays a list of current feature flags", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            checkFlag: jest.fn(),
+            featureFlags: ["flag-1", "flag-2", "flag-3"],
+        });
+        render(<FeatureFlagUIComponent />);
 
-    // remove it and expect it to be false
-    _exportForTesting.removeFeatureFlag(randomNewFeatureFlag);
-    expect(CheckFeatureFlag(randomNewFeatureFlag)).toBe(false);
+        const featureFlagAlerts = screen.getAllByTestId("alert");
+        expect(featureFlagAlerts).toHaveLength(3);
+        expect(screen.getAllByTestId("alert")[0]).toContainHTML(
+            "<b>flag-1</b>"
+        );
+        expect(screen.getAllByTestId("alert")[1]).toContainHTML(
+            "<b>flag-2</b>"
+        );
+        expect(screen.getAllByTestId("alert")[2]).toContainHTML(
+            "<b>flag-3</b>"
+        );
+    });
+    test("displays a remove button for feature flags not set at env level", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            checkFlag: jest.fn(),
+            featureFlags: ["flag-1", "flag-2", "flag-3"],
+        });
+        render(<FeatureFlagUIComponent />);
 
-    // expect the other flags to still be true
-    expect(CheckFeatureFlag(randomNewFeatureFlag2)).toBe(true);
-    expect(CheckFeatureFlag(randomNewFeatureFlag3)).toBe(true);
+        const featureFlagDeleteButtons = screen.getAllByRole("button");
+        expect(featureFlagDeleteButtons).toHaveLength(3); // 1 add button + 2 delete buttons
 
-    // test adding duplicate
-    const startLen = _exportForTesting.getSavedFeatureFlags().length;
-    _exportForTesting.addFeatureFlag(randomNewFeatureFlag3);
-    const dupInsertLen = _exportForTesting.getSavedFeatureFlags().length;
-    expect(dupInsertLen).toBe(startLen);
+        // hard to test more exactly than this but this somewhat confirms that we only get 2 delete buttons
+        // since `flag-3` is added at env level
+        expect(screen.getAllByRole("button")[0]).toHaveTextContent("Add");
+        expect(screen.getAllByRole("button")[1]).toContainHTML("Delete");
+        expect(screen.getAllByRole("button")[2]).toContainHTML("Delete");
+    });
+    test("calls dispatch on add button click with new feature flag name", () => {
+        const mockDispatch = jest.fn();
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: mockDispatch,
+            checkFlag: jest.fn(),
+            featureFlags: ["flag-1"],
+        });
+        render(<FeatureFlagUIComponent />);
+
+        const addButton = screen.getAllByRole("button")[0];
+        const textInput = screen.getByRole("textbox");
+        fireEvent.change(textInput, { target: { value: "flag-4" } });
+        fireEvent.click(addButton);
+
+        expect(mockDispatch).toHaveBeenCalledWith({
+            type: FeatureFlagActionType.ADD,
+            payload: "flag-4",
+        });
+    });
+    test("does not call dispatch on add button click if flag already exists", () => {
+        const mockDispatch = jest.fn();
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: mockDispatch,
+            checkFlag: jest.fn(() => true),
+            featureFlags: ["flag-1"],
+        });
+        render(<FeatureFlagUIComponent />);
+
+        const addButton = screen.getAllByRole("button")[0];
+        const textInput = screen.getByRole("textbox");
+        fireEvent.change(textInput, {
+            target: {
+                value: "not relevant, test depends on checkFlag implementation",
+            },
+        });
+        fireEvent.click(addButton);
+
+        expect(mockDispatch).not.toHaveBeenCalled();
+    });
 });
