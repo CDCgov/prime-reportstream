@@ -124,6 +124,8 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
     LOINC("http://loinc.org", "LN"),
     SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
+    HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
+    HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
     NONE("", "");
     companion object {
         /**
@@ -196,9 +198,9 @@ object CustomFHIRFunctions {
      */
     fun getPhoneNumberAreaCode(focus: MutableList<Base>): MutableList<Base> {
         val matchResult = phoneRegex.find(focus[0].primitiveValue())
-        val areaCode = matchResult?.groups?.get(3)?.value?.toInt() ?: matchResult?.groups?.get(4)?.value?.toInt()
+        val areaCode = matchResult?.groups?.get(3)?.value ?: matchResult?.groups?.get(4)?.value
         return if (areaCode != null) {
-            mutableListOf(IntegerType(areaCode))
+            mutableListOf(StringType(areaCode))
         } else mutableListOf()
     }
 
@@ -210,11 +212,9 @@ object CustomFHIRFunctions {
     fun getPhoneNumberLocalNumber(focus: MutableList<Base>): MutableList<Base> {
         val matchResult = phoneRegex.find(focus[0].primitiveValue())
         val localNumber = matchResult?.let {
-            val localNumber =
-                "${matchResult.groups[5]?.value}${matchResult.groups[6]?.value}"
-            IntegerType(localNumber)
+            "${matchResult.groups[5]?.value}${matchResult.groups[6]?.value}"
         }
-        return if (localNumber != null) mutableListOf(localNumber) else mutableListOf()
+        return if (localNumber != null) mutableListOf(StringType(localNumber)) else mutableListOf()
     }
 
     /**
@@ -435,7 +435,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             if (values.size != 1)
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             else {
-                logger.debug("Evaluated FHIR Path constant $name to: ${values[0]}")
+                logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
                 if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue()))
                     IntegerType(values[0].primitiveValue())

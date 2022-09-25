@@ -112,9 +112,10 @@ identifier_4:
   generateList: true
   expressionType: resource
   specs: MRG.1
+  vars:
+    mrgIdentifier: MRG.1
   constants:
     use: old
-    mrgIdentifier: MRG.1
 # Add the old MR # from the MRG segment
 
 # identifier_5a and _5b are two parts to complex logic
@@ -340,14 +341,18 @@ extension:
   generateList: true
   expressionType: nested
   expressions:
-    - condition: $value NOT_NULL
-      valueOf: extension/Extension
-      expressionType: resource
-      vars:
-        value: String, PID.6.1
-      constants:
-        KEY_NAME_SUFFIX: String
-        urlValue: mothersMaidenName
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: mothersMaidenName
+        valueHumanName:
+          valueOf: datatype/HumanName
+          expressionType: resource
+          condition: $pid6 NOT_NULL
+          specs: PID.6
+          vars:
+            pid6: PID.6
 
     - expressionType: nested
       expressionsMap:
@@ -361,6 +366,10 @@ extension:
           vars:
             coding: RELIGIOUS_AFFILIATION_CC, PID.17
             text: String, PID.17.2
+            alternateCode: PID.17.1
+            alternateDisplay: PID.17.2
+          constants:
+            alternateSystem: 'http://terminology.hl7.org/CodeSystem/v2-0006'
 
     - expressionType: nested
       specs: PID.10
