@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useMemo } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
+import omit from "lodash.omit";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 import {
@@ -115,16 +116,16 @@ const defaultState: MembershipState = {
 
 export const membershipsFromToken = (
     token: AccessToken | undefined
-): MembershipState => {
+): Partial<MembershipState> => {
     // One big undefined check to see if we have what we need for the next line
     if (!token?.claims) {
-        return defaultState;
+        return omit(defaultState, "initialized");
     }
     const claimData: Map<string, MembershipSettings> =
         makeMembershipMapFromToken(token);
     // Catch anyone with no claim data
     if (!claimData.size) {
-        return defaultState;
+        return omit(defaultState, "initialized");
     }
     // Get defaults
     const [first] = claimData.keys();
@@ -179,19 +180,21 @@ const calculateNewState = (
         case MembershipActionType.INITIALIZE:
             return { ...state, initialized: true };
         case MembershipActionType.RESET:
-            return defaultState;
+            return { ...defaultState, initialized: state.initialized };
         default:
             return state;
     }
 };
 
 // try to read from existing stored state
+// since this is only called on first render, initialized will always be `false`
+// even though we are (needlessly) storing and receving initialized values from store
 export const getInitialState = () => {
     const storedState = getSessionMembershipState();
     const storedStateWithOverride = calculateMembershipsWithOverride(
         storedState || {}
     );
-    return { ...defaultState, ...storedStateWithOverride };
+    return { ...defaultState, ...storedStateWithOverride, initialized: false };
 };
 
 export const membershipReducer = (
