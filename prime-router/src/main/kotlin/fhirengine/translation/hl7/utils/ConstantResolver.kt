@@ -129,6 +129,8 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
     LOINC("http://loinc.org", "LN"),
     SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
+    HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
+    HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
     NONE("", "");
     companion object {
         /**
@@ -446,7 +448,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             if (values.size != 1)
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             else {
-                logger.debug("Evaluated FHIR Path constant $name to: ${values[0]}")
+                logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
                 if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue()))
                     IntegerType(values[0].primitiveValue())

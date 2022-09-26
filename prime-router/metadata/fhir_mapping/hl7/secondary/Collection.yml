@@ -16,6 +16,7 @@ collectedPeriod:
     end: SPM.17.2
 
 quantity:
+  condition: $value NOT_NULL || $unit NOT_NULL
   valueOf: datatype/Quantity
   expressionType: resource
   vars:

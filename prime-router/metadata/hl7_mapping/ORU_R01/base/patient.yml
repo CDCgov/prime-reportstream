@@ -1,7 +1,7 @@
 name: ORU-R01-patient
 constants:
   hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
-  hl7PatientField: '/PATIENT_RESULT/PATIENT'
+  hl7PatientGroup: '/PATIENT_RESULT/PATIENT'
 elements:
   - name: set-id
     value: [ '"1"' ]
@@ -10,8 +10,8 @@ elements:
   - name: patient-identifier-list
     resource: '%resource.identifier'
     constants:
-      hl7CXField: 'PID-3'
-    schema: cx-extended-composite-id
+      hl7CXField: '%{hl7PIDField}-3'
+    schema: datatype/cx-extended-composite-id
     resourceIndex: idIndex
 
   - name: patient-name
@@ -19,7 +19,14 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7NameField: '%{hl7PIDField}-5'
-    schema: human-name
+    schema: datatype/xpn-person-name
+
+  - name: patient-mothers-maiden-name
+    resource: '%resource.extension(%`ext-patient-mothersMaidenName`).value'
+    condition: '%resource.exists()'
+    constants:
+      hl7NameField: '%{hl7PIDField}-6'
+    schema: datatype/xpn-person-name
 
   - name: patient-dob
     value: [ '%resource.birthDate' ]
@@ -63,76 +70,49 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7AddressField: '%{hl7PIDField}-11'
-    schema: xad-extended-address
+    schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
   - name: phone-number-home
     resource: '%resource.telecom.where(use = "home")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
-    schema: xtn-telecom
+    schema: datatype/xtn-telecom
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
-    schema: xtn-telecom
+    schema: datatype/xtn-telecom
 
   - name: patient-marital-status
     value: [ '%resource.maritalStatus.where(coding.system = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus").coding.code' ]
     hl7Spec: [ '%{hl7PIDField}-16' ]
 
-  - name: patient-religion-identifier
-    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code.exists()'
-    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code' ]
-    hl7Spec: [ '%{hl7PIDField}-17-1' ]
+  - name: patient-religion
+    resource: '%resource.extension(%`ext-patient-religion`).value.coding.where(system = "http://terminology.hl7.org/CodeSystem/v2-0006")'
+    constants:
+      ceFieldPath: '%{hl7PIDField}-17'
+    schema: datatype/ce-coded-element
 
-  - name: patient-religion-identifier-no-code-non-religious
-    condition: >
-      %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code.exists().not() and
-      %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text = "Nonreligious"
-    value: [ '"NOE"' ]
-    hl7Spec: [ '%{hl7PIDField}-17-1' ]
+  - name: patient-ethnicity
+    resource: '%resource.extension(%`rsext-ethnic-group`).value'
+    constants:
+      ceFieldPath: '%{hl7PIDField}-22'
+    schema: datatype/ce-coded-element
 
-  - name: patient-religion-text
-    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text' ]
-    hl7Spec: [ '%{hl7PIDField}-17-2' ]
+  - name: patient-death-date-time
+    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    value: [ '%resource.deceased' ]
+    hl7Spec: [ '%{hl7PIDField}-29' ]
 
-  # this value just confirms that this segment part is HL7-Religion
-  - name: patient-religion-text
-    value: [ '"HL70006"' ]
-    hl7Spec: [ '%{hl7PIDField}-17-3' ]
+  - name: patient-death-indicator-1
+    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    value: [ '"Y"']
+    hl7Spec: [ '%{hl7PIDField}-30' ]
 
-  # ethnic group
-  - name: patient-ethnic-identifier
-    value: [ '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value.coding.code' ]
-    hl7Spec: [ '%{hl7PIDField}-22-1' ]
-
-  - name: patient-ethnic-text
-    value: [ '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value.text' ]
-    hl7Spec: [ '%{hl7PIDField}-22-2' ]
-
-  # this value just confirms that this segment part is HL7-Ethnic Group
-  - name: patient-ethnic-coding-system
-    value: [ '"HL70189"' ]
-    hl7Spec: [ '%{hl7PIDField}-22-3' ]
-
-  - name: patient-ethnic-alternate-identifier
-    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
-    hl7Spec: [ '%{hl7PIDField}-22-4' ]
-
-  - name: patient-ethnic-alternate-text
-    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
-    hl7Spec: [ '%{hl7PIDField}-22-5' ]
-
-  - name: patient-ethnic-alternate-system
-    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
-    hl7Spec: [ '%{hl7PIDField}-22-6' ]
-
-  - name: patient-death-indicator
+  - name: patient-death-indicator-2
+    condition: '%resource.deceased.exists() and %resource.deceased is Boolean'
     value: [ '%resource.deceased.GetYesNoValue()' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
@@ -147,7 +127,7 @@ elements:
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
-    schema: hd-hierarchic-designator
+    schema: datatype/hd-hierarchic-designator
 
   - name: patient-species-identifier
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]
@@ -183,6 +163,6 @@ elements:
     schema: note
     resourceIndex: noteIndex
     constants:
-      hl7NotePath: '%{hl7PatientField}'
+      hl7NotePath: '%{hl7PatientGroup}'
       # Cannot use %resource here as this constant will be resolved in the note schema
       noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'

@@ -22,6 +22,7 @@ describe("SenderModeBanner", () => {
                 senderName: "testSender",
             },
             dispatch: () => {},
+            initialized: true,
         });
         renderWithSession(
             <SenderModeBanner />,

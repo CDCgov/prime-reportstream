@@ -7,8 +7,13 @@ const envVars = {
     CLIENT_ENV: process.env.REACT_APP_CLIENT_ENV,
 };
 
+const DEFAULT_FEATURE_FLAGS = process.env.REACT_APP_FEATURE_FLAGS
+    ? process.env.REACT_APP_FEATURE_FLAGS.split(",")
+    : [];
+
 const config = {
     ...envVars,
+    DEFAULT_FEATURE_FLAGS: DEFAULT_FEATURE_FLAGS as string[],
     IS_PREVIEW: envVars.OKTA_URL?.match(/oktapreview.com/) !== null,
     API_ROOT: `${envVars.RS_API_URL}/api`,
 };
