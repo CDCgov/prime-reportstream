@@ -11,15 +11,12 @@ describe("Value Sets Index Page", () => {
     });
 
     it("should have clickable links for each row that navigate to detail pages", () => {
-        cy.get("tr").each((row, i) => {
-            if (!i) {
-                // skip header row
-                return;
-            }
-            row.get("td:first-child a").should("have.length", 1);
-        });
-
-        cy.get("tr:first-child td:first-child a")
+        cy.get("tbody tr:first-child td:first-child a").should("exist");
+        cy.get("tbody tr:first-child td:first-child a").should(
+            "have.length",
+            1
+        );
+        cy.get("tbody tr:first-child td:first-child a")
             .invoke("text")
             .then((linkText) => {
                 cy.get("tr:first-child td:first-child a").click();
