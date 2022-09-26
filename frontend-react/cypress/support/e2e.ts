@@ -16,11 +16,5 @@
 // Import commands.js using ES2015 syntax:
 import "./commands";
 
-// // can we login here?
-// before(() => {
-//     console.log("!!!! before block");
-//     cy.loginByOktaApi();
-// });
-
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
