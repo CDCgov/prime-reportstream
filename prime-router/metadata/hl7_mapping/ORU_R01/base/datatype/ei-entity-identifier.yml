@@ -6,7 +6,9 @@ elements:
     hl7Spec: [ '%{entityIdFieldPath}-1' ]
 
   - name: entity-namespace-id
-    value: [ '%resource.system.getId()' ]
+    value:
+      - '%resource.system.getId()'
+      - '%resource.system'
     hl7Spec: [ '%{entityIdFieldPath}-2' ]
 
   - name: entity-universal-id

@@ -16,7 +16,7 @@ elements:
     constants:
       entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-2'
     resourceIndex: entityIdIndex
-    schema: entity-identifier
+    schema: datatype/ei-entity-identifier
 
   - name: order-filler-order-number
     resource: >
@@ -26,7 +26,7 @@ elements:
     constants:
       entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-3'
     resourceIndex: entityIdIndex
-    schema: entity-identifier
+    schema: datatype/ei-entity-identifier
 
   - name: order-placer-group-number
     resource: >
@@ -36,7 +36,7 @@ elements:
     constants:
       entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-4'
     resourceIndex: entityIdIndex
-    schema: entity-identifier
+    schema: datatype/ei-entity-identifier
 
   - name: order-response-flag
     resource: '%resource.extension(%`rsext-response-flag`)'
@@ -57,7 +57,7 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{hl7Order}-12'
-    schema: xcn-contact
+    schema: datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: order-callback-phone-number
@@ -65,7 +65,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7Order}-14'
-    schema: xtn-telecom
+    schema: datatype/xtn-telecom
 
   - name: order-effective-date
     value: [ '%service.occurrence' ]
@@ -79,24 +79,24 @@ elements:
 
   - name: ordering-facility-name
     resource: '%service.requester.resolve().organization.resolve()'
-    schema: xon-organization
+    schema: datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7Order}-21'
 
   - name: ordering-facility-address
     resource: '%service.requester.resolve().organization.resolve().address'
-    schema: xad-extended-address
+    schema: datatype/xad-extended-address
     constants:
       hl7AddressField: '%{hl7Order}-22'
 
   - name: ordering-facility-phone
     resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
-    schema: xtn-telecom
+    schema: datatype/xtn-telecom
     constants:
       hl7TelecomField: '%{hl7Order}-23'
 
   - name: ordering-facility-address
     resource: '%service.requester.resolve().practitioner.resolve().address'
-    schema: xad-extended-address
+    schema: datatype/xad-extended-address
     constants:
       hl7AddressField: '%{hl7Order}-24'
