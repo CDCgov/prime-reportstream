@@ -256,7 +256,7 @@ fun main(args: Array<String>) = RouterCli()
     .subcommands(
         ProcessData(),
         ListSchemas(),
-        LivdTableDownload(),
+        LivdTableUpdate(),
         GenerateDocs(),
         CredentialsCli(),
         CompareCsvFiles(),
