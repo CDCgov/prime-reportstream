@@ -54,6 +54,7 @@ telecom:
     valueIn: NK1.5
 
 organization:
+  condition: $orgContactPointAddressXAD NOT_NULL || $orgContactPointXTN NOT_NULL || $orgContactName NOT_NULL
   valueOf: resource/Organization
   expressionType: reference
   vars:
