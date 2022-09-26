@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export default class FacilityResource extends AuthResource {
     readonly facility: string | undefined = "";
@@ -30,7 +34,7 @@ export default class FacilityResource extends AuthResource {
     static listUrl(searchParams: { reportId: string }): string {
         if (searchParams && Object.keys(searchParams).length) {
             const { reportId } = searchParams;
-            return `${process.env.REACT_APP_BACKEND_URL}/api/history/report/${reportId}/facilities`;
+            return `${RS_API_URL}/api/history/report/${reportId}/facilities`;
         }
         throw new Error("Facilities require a reportId to retrieve");
     }

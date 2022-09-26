@@ -1,7 +1,7 @@
 resourceType: PractitionerRole
 id:
   type: STRING
-  valueOf: 'UUID.randomUUID()'
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 practitioner:

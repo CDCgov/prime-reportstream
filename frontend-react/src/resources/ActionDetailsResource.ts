@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export interface Destination {
     organization_id: string;
@@ -52,7 +56,7 @@ export default class ActionDetailsResource extends AuthResource {
         organization: string;
     }): string {
         if (searchParams && Object.keys(searchParams).length) {
-            return `${process.env.REACT_APP_BACKEND_URL}/api/waters/report/${searchParams.actionId}/history`;
+            return `${RS_API_URL}/api/waters/report/${searchParams.actionId}/history`;
         }
         throw new Error("Action details require an ActionID to retrieve");
     }

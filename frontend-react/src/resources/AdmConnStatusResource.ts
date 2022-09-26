@@ -1,4 +1,8 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 /** having the type separate makes unit tests easier **/
 export type AdmConnStatusDataType = {
@@ -44,7 +48,7 @@ export class AdmConnStatusResource
         startDate: string; // Date().toISOString
         endDate?: string | undefined; // Date().toISOString
     }): string {
-        const base = `${process.env.REACT_APP_BACKEND_URL}/api/adm/listreceiversconnstatus?start_date=${params.startDate}`;
+        const base = `${RS_API_URL}/api/adm/listreceiversconnstatus?start_date=${params.startDate}`;
         if (params?.endDate) {
             return `${base}&end_date=${params.endDate}`;
         }

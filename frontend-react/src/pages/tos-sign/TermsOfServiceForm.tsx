@@ -11,12 +11,15 @@ import {
 } from "@trussworks/react-uswds";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet";
 
 import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
+import config from "../../config";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 import SuccessPage from "./SuccessPage";
+
+const { RS_API_URL } = config;
 
 enum Fields {
     title = "title",
@@ -84,16 +87,13 @@ function TermsOfServiceForm() {
             return;
         }
 
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/email-registered`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            }
-        );
+        const response = await fetch(`${RS_API_URL}/api/email-registered`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
         if (response.status < 200 || response.status > 299) {
             setSubmitting(false);
             setSendGridErrorFlag({
@@ -219,11 +219,7 @@ function TermsOfServiceForm() {
         <SuccessPage data={createBody()} />
     ) : (
         <>
-            <Helmet>
-                <title>
-                    Sign the Terms of Service | {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="Sign the Terms of Service" />
             <div
                 data-testid="form-container"
                 className="grid-container tablet:grid-col-6 margin-x-auto"
