@@ -22,10 +22,10 @@ elements:
   # Force remove the value of the ordering provider name
   - name: ordering_provider_first_name
     default:
-    defaultOverridesValue: true
+    defaultOverridesValue: false
 
   # Force remove the value of the ordering provider name
   - name: ordering_provider_last_name
     default:
-    defaultOverridesValue: true
+    defaultOverridesValue: false
 

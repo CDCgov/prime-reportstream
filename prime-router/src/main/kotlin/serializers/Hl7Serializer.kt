@@ -3,8 +3,13 @@ package gov.cdc.prime.router.serializers
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.Varies
+import ca.uhn.hl7v2.model.v251.datatype.CE
+import ca.uhn.hl7v2.model.v251.datatype.CWE
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import ca.uhn.hl7v2.model.v251.datatype.NM
+import ca.uhn.hl7v2.model.v251.datatype.SN
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
@@ -57,7 +62,7 @@ class Hl7Serializer(
      */
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
-        val items: List<MessageResult>,
+        val items: List<MessageResult>
     )
 
     /**
@@ -91,8 +96,9 @@ class Hl7Serializer(
      * Write a report with a single item
      */
     fun write(report: Report, outputStream: OutputStream) {
-        if (report.itemCount != 1)
+        if (report.itemCount != 1) {
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
+        }
         val message = createMessage(report, 0)
         outputStream.write(message.toByteArray())
     }
@@ -146,25 +152,31 @@ class Hl7Serializer(
             val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
             if (parsedMessage.item.isNotEmpty() || parsedMessage.errors.isNotEmpty() ||
                 parsedMessage.warnings.isNotEmpty()
-            )
+            ) {
                 rowResults.add(parsedMessage)
+            }
             parsedMessage.item.forEach { (k, v) ->
-                if (!mappedRows.containsKey(k))
+                if (!mappedRows.containsKey(k)) {
                     mappedRows[k] = mutableListOf()
+                }
 
                 mappedRows[k]?.addAll(v)
             }
         }
 
         messageLines.forEach {
-            if (it.startsWith("FHS"))
+            if (it.startsWith("FHS")) {
                 return@forEach
-            if (it.startsWith("BHS"))
+            }
+            if (it.startsWith("BHS")) {
                 return@forEach
-            if (it.startsWith("BTS"))
+            }
+            if (it.startsWith("BTS")) {
                 return@forEach
-            if (it.startsWith("FTS"))
+            }
+            if (it.startsWith("FTS")) {
                 return@forEach
+            }
 
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 parseStringMessage(nextMessage.toString())
@@ -204,46 +216,17 @@ class Hl7Serializer(
             terserSpec: String
         ): String {
             val parsedValue = try {
-                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM"))
+                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM")) {
                     terser.get("/.SPECIMEN" + terserSpec.replace(".", ""))
-                else
+                } else {
                     null
+                }
             } catch (e: HL7Exception) {
                 errors.add(InvalidHL7Message("Unexpected error while parsing $terserSpec: ${e.message}"))
                 null
             }
 
             return parsedValue ?: ""
-        }
-
-        /**
-         * Decode answers to AOE questions
-         * @param element the element for the AOE question
-         * @param terser the HAPI terser
-         * @return the value from the HL7 message or an empty string if no value found
-         */
-        fun decodeAOEQuestion(
-            element: Element,
-            terser: Terser
-        ): String {
-            var value = ""
-            val question = element.hl7AOEQuestion!!
-            val countObservations = 10
-            // todo: map each AOE by the AOE question ID
-            for (c in 0 until countObservations) {
-                var spec = "/.OBSERVATION($c)/OBX-3-1"
-                val questionCode = try {
-                    terser.get(spec)
-                } catch (e: HL7Exception) {
-                    errors.add(InvalidHL7Message("Error while decoding $spec: ${e.message}"))
-                    null
-                }
-                if (questionCode?.startsWith(question) == true) {
-                    spec = "/.OBSERVATION($c)/OBX-5"
-                    value = queryTerserForValue(terser, spec)
-                }
-            }
-            return value
         }
 
         // key of the map is the column header, list is the values in the column
@@ -263,12 +246,16 @@ class Hl7Serializer(
             // First check that we have an HL7 message we can parse.  Note some older messages may have
             // only MSH 9-1 and MSH-9-2, or even just MSH-9-1, so we need use those two fields to compare
             val msgType = PreParser.getFields(cleanedMessage, "MSH-9-1", "MSH-9-2")
+            val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
                     errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9"))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
+                // traditional way for checking message type
                 arrayOf("ORU", "R01") contentEquals msgType -> parser.parse(cleanedMessage)
+                // there's an alternate message type field
+                arrayOf("ORU_R01") contentEquals altMsgType -> parser.parse(cleanedMessage)
                 else -> {
                     warnings.add(
                         InvalidHL7Message
@@ -324,12 +311,13 @@ class Hl7Serializer(
 
                         // Decode an AOE question
                         hl7Field == "AOE" ->
-                            decodeAOEQuestion(element, terser)
+                            decodeAOEQuestion(element, hapiMsg)
 
                         // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
                         element.type == Element.Type.CODE -> {
                             val rawValue = queryTerserForValue(
-                                terser, getTerserSpec(hl7Field)
+                                terser,
+                                getTerserSpec(hl7Field)
                             )
                             // This verifies the code received is good.  Note the translated value will be the same as
                             // the raw value for valuesets and altvalues
@@ -356,7 +344,8 @@ class Hl7Serializer(
                         // No special case here, so get a value from an HL7 field
                         else ->
                             queryTerserForValue(
-                                terser, getTerserSpec(hl7Field)
+                                terser,
+                                getTerserSpec(hl7Field)
                             )
                     }
                     if (value.isNotBlank()) break
@@ -369,7 +358,10 @@ class Hl7Serializer(
 
             // Second, we process all the element raw values through mappers and defaults.
             schema.processValues(
-                mappedRows, errors, warnings, sender = sender,
+                mappedRows,
+                errors,
+                warnings,
+                sender = sender,
                 itemIndex = messageIndex
             )
         } catch (e: Exception) {
@@ -390,7 +382,7 @@ class Hl7Serializer(
         schemaName: String,
         input: InputStream,
         source: Source,
-        sender: Sender? = null,
+        sender: Sender? = null
     ): ReadResult {
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
@@ -405,11 +397,14 @@ class Hl7Serializer(
         val actionLogs = ActionLogger()
         mapping.items.forEachIndexed { index, messageResult ->
             val messageIndex = index + 1
-            var trackingId = if (schema.trackingElement != null && messageResult.item.contains(schema.trackingElement))
+            var trackingId = if (
+                schema.trackingElement != null && messageResult.item.contains(schema.trackingElement)
+            ) {
                 messageResult.item[schema.trackingElement]?.firstOrNull() ?: ""
-            else ""
-            if (trackingId.isEmpty())
+            } else ""
+            if (trackingId.isEmpty()) {
                 trackingId = "message$messageIndex"
+            }
             val itemLogger = actionLogs.getItemLogger(messageIndex, trackingId)
             itemLogger.error(messageResult.errors)
             itemLogger.warn(messageResult.warnings)
@@ -441,7 +436,7 @@ class Hl7Serializer(
     fun buildMessage(
         report: Report,
         row: Int,
-        processingId: String = "T",
+        processingId: String = "T"
     ): ORU_R01 {
         val message = ORU_R01()
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
@@ -522,11 +517,13 @@ class Hl7Serializer(
                 }
             }.trim()
 
-            if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
+            if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty()) {
                 return@forEach
+            }
 
-            if (element.hl7Field == "AOE" && suppressAoe)
+            if (element.hl7Field == "AOE" && suppressAoe) {
                 return@forEach
+            }
 
             // some fields need to be blank instead of passing in UNK
             // so in this case we'll just go by field name and set the value to blank
@@ -540,8 +537,9 @@ class Hl7Serializer(
 
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
-                    if (suppressedFields.contains(hl7Field))
+                    if (suppressedFields.contains(hl7Field)) {
                         return@outputFields
+                    }
                     if (element.hl7Field != null && element.isTableLookup) {
                         setComponentForTable(terser, element, hl7Field, hl7Report, row, hl7Config)
                     } else {
@@ -585,7 +583,11 @@ class Hl7Serializer(
                     value
                 }
                 setOrderingFacilityComponent(
-                    terser, rawFacilityName = truncatedValue, useOrderingFacilityName, hl7Report, row
+                    terser,
+                    rawFacilityName = truncatedValue,
+                    useOrderingFacilityName,
+                    hl7Report,
+                    row
                 )
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
@@ -693,7 +695,9 @@ class Hl7Serializer(
         }
 
         replaceValueAwithBUsingTerser(
-            replaceValueAwithB, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            replaceValueAwithB,
+            terser,
+            message.patienT_RESULT.ordeR_OBSERVATION.observationReps
         )
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
@@ -832,13 +836,13 @@ class Hl7Serializer(
                     return@segment
                 }
 
-                // Get field(s).  There could be more than one field seperate by '~'
-                val fields = pairs.values.first().trim().split("~")
+                // Get field(s).  There could be more than one field seperated by '~'
+                val fields = pairs.values.first().trim().split(DEFAULT_REPETITION_SEPARATOR)
 
                 var fieldRep = 0
                 fields.forEach { field ->
                     // Get new components separate by ^ (second value of the value pair)
-                    val components = field.trim().split("^")
+                    val components = field.trim().split(DEFAULT_COMPONENT_SEPARATOR)
 
                     // OBX segment can repeat. All repeats need to be looped
                     if (segment.key.length >= 3 && segment.key.substring(0, 3) == "OBX") {
@@ -848,28 +852,30 @@ class Hl7Serializer(
                             if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
                                 var obxComponentRep = 1
                                 components.forEach { obxComponent ->
-                                    val obxSubComponents = obxComponent.split("&")
+                                    val obxSubComponents = obxComponent.split(DEFAULT_SUBCOMPONENT_SEPARATOR)
                                     if (obxSubComponents.size > 1) {
                                         // If there is subComponent separate by &, we need to handle them.
                                         var obxSubComponentRep = 1
                                         obxSubComponents.forEach { obxSubComponent ->
-                                            if (fields.size > 1)
+                                            if (fields.size > 1) {
                                                 terser.set(
                                                     "$pathSpec($fieldRep)-$obxComponentRep-$obxSubComponentRep",
                                                     obxSubComponent
                                                 )
-                                            else
+                                            } else {
                                                 terser.set(
                                                     "$pathSpec-$obxComponentRep-$obxSubComponentRep",
                                                     obxSubComponent
                                                 )
+                                            }
                                             obxSubComponentRep++
                                         }
                                     } else {
-                                        if (fields.size > 1)
+                                        if (fields.size > 1) {
                                             terser.set("$pathOBXSpec($fieldRep)-$obxComponentRep", obxComponent)
-                                        else
+                                        } else {
                                             terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
+                                        }
                                     }
                                     obxComponentRep++
                                 }
@@ -880,28 +886,30 @@ class Hl7Serializer(
                         if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
                             var componentRep = 1
                             components.forEach { component ->
-                                val subComponents = component.split("&")
+                                val subComponents = component.split(DEFAULT_SUBCOMPONENT_SEPARATOR)
                                 if (subComponents.size > 1) {
                                     // If there is subComponent separate by &, we need to handle them.
                                     var suComponentRep = 1
                                     subComponents.forEach { subComponent ->
-                                        if (fields.size > 1)
+                                        if (fields.size > 1) {
                                             terser.set(
                                                 "$pathSpec($fieldRep)-$componentRep-$suComponentRep",
                                                 subComponent
                                             )
-                                        else
+                                        } else {
                                             terser.set(
                                                 "$pathSpec-$componentRep-$suComponentRep",
                                                 subComponent
                                             )
+                                        }
                                         suComponentRep++
                                     }
                                 } else {
-                                    if (fields.size > 1)
+                                    if (fields.size > 1) {
                                         terser.set("$pathSpec($fieldRep)-$componentRep", component)
-                                    else
+                                    } else {
                                         terser.set("$pathSpec-$componentRep", component)
+                                    }
                                 }
                                 componentRep++
                             }
@@ -923,7 +931,6 @@ class Hl7Serializer(
         terser: Terser,
         observationRepeats: Int
     ) {
-
         // after all values have been set or blanked, check for values that need replacement
         // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
         replaceValueMap.forEach { element ->
@@ -947,7 +954,6 @@ class Hl7Serializer(
 
             // OBX segment can repeat. All repeats need to be looped
             if (element.key.length >= 3 && element.key.substring(0, 3) == "OBX") {
-
                 for (i in 0..observationRepeats.minus(1)) {
                     val pathSpec = formPathSpec(element.key, i)
                     val valueInMessage = terser.get(pathSpec) ?: ""
@@ -976,7 +982,7 @@ class Hl7Serializer(
         rawFacilityName: String,
         useOrderingFacilityName: Hl7Configuration.OrderingFacilityName,
         report: Report,
-        row: Int,
+        row: Int
     ) {
         when (useOrderingFacilityName) {
             // No overrides
@@ -987,10 +993,11 @@ class Hl7Serializer(
             // Override with NCES ID if available
             Hl7Configuration.OrderingFacilityName.NCES -> {
                 val ncesId = getSchoolId(report, row, rawFacilityName)
-                if (ncesId == null)
+                if (ncesId == null) {
                     setPlainOrderingFacility(terser, rawFacilityName)
-                else
+                } else {
                     setNCESOrderingFacility(terser, rawFacilityName, ncesId)
+                }
             }
 
             // Override with organization name if available
@@ -1006,7 +1013,7 @@ class Hl7Serializer(
      */
     internal fun setPlainOrderingFacility(
         terser: Terser,
-        rawFacilityName: String,
+        rawFacilityName: String
     ) {
         terser.set(formPathSpec("ORC-21-1"), rawFacilityName.trim().take(50))
         // setting a default value for ORC-21-2 per PA's request.
@@ -1488,7 +1495,7 @@ class Hl7Serializer(
         report: Report,
         row: Int,
         units: String? = null,
-        suppressQst: Boolean = false,
+        suppressQst: Boolean = false
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration
         // if the value is UNK then we need to set data type to CODE and valueet = hl70136 (UNK)
@@ -1512,11 +1519,12 @@ class Hl7Serializer(
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
 
         when (element.type) {
-            Element.Type.CODE -> if (value == "UNK" && elementOrg.name == "pregnant")
-            // 261665006 is unknow code valueSet
+            Element.Type.CODE -> if (value == "UNK" && elementOrg.name == "pregnant") {
+                // 261665006 is unknow code valueSet
                 setCodeComponent(terser, "261665006", formPathSpec("OBX-5", aoeRep), element.valueSet)
-            else
+            } else {
                 setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
+            }
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
@@ -1544,7 +1552,10 @@ class Hl7Serializer(
         terser.set(
             formPathSpec("OBX-23-1", aoeRep),
             trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-23-1") as String, "OBX-23-1", hl7Config, terser
+                report.getStringByHl7Field(row, "OBX-23-1") as String,
+                "OBX-23-1",
+                hl7Config,
+                terser
             )
         )
         // set to a default value, but look below
@@ -1554,25 +1565,37 @@ class Hl7Serializer(
         terser.set(
             formPathSpec("OBX-24-1", aoeRep),
             trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-24-1") as String, "OBX-24-1", hl7Config, terser
+                report.getStringByHl7Field(row, "OBX-24-1") as String,
+                "OBX-24-1",
+                hl7Config,
+                terser
             )
         )
         terser.set(
             formPathSpec("OBX-24-2", aoeRep),
             trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-24-2") as String, "OBX-24-2", hl7Config, terser
+                report.getStringByHl7Field(row, "OBX-24-2") as String,
+                "OBX-24-2",
+                hl7Config,
+                terser
             )
         )
         terser.set(
             formPathSpec("OBX-24-3", aoeRep),
             trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-24-3") as String, "OBX-24-3", hl7Config, terser
+                report.getStringByHl7Field(row, "OBX-24-3") as String,
+                "OBX-24-3",
+                hl7Config,
+                terser
             )
         )
         terser.set(
             formPathSpec("OBX-24-4", aoeRep),
             trimAndTruncateValue(
-                report.getStringByHl7Field(row, "OBX-24-4") as String, "OBX-24-4", hl7Config, terser
+                report.getStringByHl7Field(row, "OBX-24-4") as String,
+                "OBX-24-4",
+                hl7Config,
+                terser
             )
         )
         // OBX-24-5 is a postal code as well. pad this for now
@@ -1584,8 +1607,8 @@ class Hl7Serializer(
         terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
         // check for the OBX-23-6 value. it needs to be split apart
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
-        if (testingLabIdAssigner?.contains("^") == true) {
-            val testingLabIdAssignerParts = testingLabIdAssigner.split("^")
+        if (testingLabIdAssigner?.contains(DEFAULT_COMPONENT_SEPARATOR) == true) {
+            val testingLabIdAssignerParts = testingLabIdAssigner.split(DEFAULT_COMPONENT_SEPARATOR)
             testingLabIdAssignerParts.forEachIndexed { index, s ->
                 terser.set(formPathSpec("OBX-23-6-${index + 1}", aoeRep), s)
             }
@@ -1865,7 +1888,7 @@ class Hl7Serializer(
         }
     }
 
-    private fun formatHD(hdFields: Element.HDFields, separator: String = "^"): String {
+    private fun formatHD(hdFields: Element.HDFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String {
         return if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
             "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
@@ -1888,7 +1911,7 @@ class Hl7Serializer(
         return AnyAscii.transliterate(message)
     }
 
-    private fun formatEI(eiFields: Element.EIFields, separator: String = "^"): String {
+    private fun formatEI(eiFields: Element.EIFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String {
         return if (eiFields.namespace != null && eiFields.universalId != null && eiFields.universalIdSystem != null) {
             "${eiFields.name}$separator${eiFields.namespace}" +
                 "$separator${eiFields.universalId}$separator${eiFields.universalIdSystem}"
@@ -2073,8 +2096,13 @@ class Hl7Serializer(
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
         const val NCES_EXTENSION = "_NCES_"
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
+
         /** the default org name type code. defaults to "L" */
         const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
+        const val DEFAULT_COMPONENT_SEPARATOR = "^"
+        const val DEFAULT_REPETITION_SEPARATOR = "~"
+        const val DEFAULT_ESCAPE_CHARACTER = "\\"
+        const val DEFAULT_SUBCOMPONENT_SEPARATOR = "&"
 
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
 
@@ -2142,7 +2170,7 @@ class Hl7Serializer(
             "XCN" to XCN_MAX_LENGTHS,
             "XON" to XON_MAX_LENGTHS,
             "XPN" to XPN_MAX_LENGTHS,
-            "XTN" to XTN_MAX_LENGTHS,
+            "XTN" to XTN_MAX_LENGTHS
             // Extend further here
         )
 
@@ -2191,6 +2219,108 @@ class Hl7Serializer(
 
             return sb.toString().trimAndTruncate(maxFormattedTextLength)
         }
+
+        /**
+         * decodeObxIdentifierValue looks at the OBX object's observation value, and
+         * attempts to parse it. This can be one of many types, so we need to look
+         * for the datatype and extract the value.
+         * @param observationValue The OBX segment's observation value we're looking at
+         */
+        fun decodeObxIdentifierValue(observationValue: Varies): String {
+            // the return value for `getObservationValue` is of type Varies, which means it could have
+            // any one of a bunch of datatypes: CE, CWE, NM, etc
+            // is this a date?
+            (observationValue.data as? DT).also { data ->
+                if (data != null) {
+                    return data.value
+                }
+            }
+            // maybe is a number
+            (observationValue.data as? NM).also { data ->
+                if (data != null) {
+                    return data.value
+                }
+            }
+            // SN is a structured number, which is a way in HL7 to represent a range,
+            // for example ">^100^" means greater than 100, and "^100^-^200^" is a range of 100 to 200
+            (observationValue.data as? SN).also { data ->
+                if (data != null) {
+                    return data.num1.toString()
+                }
+            }
+            // coded with exceptions value. most AOEs will be this
+            (observationValue.data as? (CWE)).also { data ->
+                if (data != null) {
+                    return data.cwe1_Identifier.value
+                }
+            }
+            // or a regular coded element
+            (observationValue.data as? (CE)).also { data ->
+                if (data != null) {
+                    return data.ce1_Identifier.value
+                }
+            }
+            // getting this far, we need to try and manually parse our the value
+            // is a "Varies" which means HAPI encodes it to string as something like
+            // "Varies[N^No^HL70136^^^^Vunknown]" which means we need to extract the
+            // nugget of the data inside the brackets
+            var aoeValue = observationValue.toString()
+            if (aoeValue.startsWith("Varies[") && aoeValue.endsWith("]")) {
+                aoeValue = aoeValue.substring(7)
+                aoeValue = aoeValue.trimEnd(']')
+            }
+            // now we check for the component separator, which is typically "^"
+            if (aoeValue.contains(DEFAULT_COMPONENT_SEPARATOR)) {
+                val splitAoeValues = aoeValue.split(DEFAULT_COMPONENT_SEPARATOR)
+                return splitAoeValues[0]
+            }
+            // well, I don't know what we have, so this is a save throw and just
+            // returning the whole chunk
+            return aoeValue
+        }
+
+        /**
+         * Decode answers to AOE questions
+         * @param element the element for the AOE question
+         * @param message the HAPI message
+         * @param repetitionIndex the index of the value to pull for the AOE. They can repeat
+         * @return the value from the HL7 message or an empty string if no value found
+         */
+        fun decodeAOEQuestion(
+            element: Element,
+            message: ca.uhn.hl7v2.model.Message,
+            repetitionIndex: Int = 0
+        ): String {
+            // cast the message to an ORU_R01, and if it's not that type of
+            // message, just return an empty string
+            val oruR01: ORU_R01 = (message as? ORU_R01) ?: return ""
+            // if the question value is null, then return
+            val question = element.hl7AOEQuestion?.uppercase() ?: return ""
+            // loop through the elements in the message
+            oruR01.patienT_RESULTAll.forEach { patientResult ->
+                // walk through the order observations, where AOEs live
+                patientResult.ordeR_OBSERVATIONAll.forEach { orderObservation ->
+                    // check each observation first. the AOE could be here
+                    orderObservation.observationAll.forEach { observation ->
+                        if (observation.obx.observationIdentifier.identifier.value?.uppercase() == question) {
+                            return decodeObxIdentifierValue(observation.obx.getObservationValue(repetitionIndex))
+                        }
+                    }
+                    // if we made it this far then it is probably under the specimen
+                    orderObservation.specimenAll.forEach { specimen ->
+                        specimen.obxAll.forEach { specimenObservation ->
+                            if (specimenObservation.observationIdentifier.identifier.value?.uppercase() == question) {
+                                return decodeObxIdentifierValue(
+                                    specimenObservation.getObservationValue(repetitionIndex)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            // return a default value
+            return ""
+        }
     }
 }
 
@@ -2199,9 +2329,10 @@ class Hl7Serializer(
  */
 fun String.trimAndTruncate(maxLength: Int?): String {
     val startTrimmed = this.trimStart()
-    val truncated = if (maxLength != null && startTrimmed.length > maxLength)
+    val truncated = if (maxLength != null && startTrimmed.length > maxLength) {
         startTrimmed.take(maxLength)
-    else
+    } else {
         startTrimmed
+    }
     return truncated.trimEnd()
 }

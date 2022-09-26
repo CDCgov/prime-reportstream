@@ -946,6 +946,10 @@ The city of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country of the provider
+
 ---
 
 **Name**: ordering_provider_county

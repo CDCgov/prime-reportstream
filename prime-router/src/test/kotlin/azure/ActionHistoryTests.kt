@@ -6,9 +6,12 @@ import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -20,11 +23,7 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
-import org.jooq.DSLContext
-import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
-import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.Disabled
+import io.mockk.verify
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -275,29 +274,120 @@ class ActionHistoryTests {
         }.isFailure()
     }
 
-    /**
-     * todo Figure out how to make this test work.
-     * What I'd really like to do is confirm that two sql inserts were generated,
-     * one to insert into ACTION and one to insert into REPORT_FILE.
-     */
-    @Test @Disabled
-    fun `test saveToDb with an externally received report`() {
-        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-        val connection = MockConnection(dataProvider) as DSLContext // ? why won't this work?
-        val mockDb = spyk(DatabaseAccess(connection))
+    @Test
+    fun `test setActionId`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val uuid3 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
 
-        val one = Schema(name = "schema1", topic = "topic1", elements = listOf())
-        val report1 = Report(
-            one,
-            listOf(),
-            sources = listOf(ClientSource("myOrg", "myClient")),
-            metadata = UnitTestUtils.simpleMetadata
+        val reportFile2 = ReportFile()
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
+
+        val reportFile3 = ReportFile()
+        reportFile3.reportId = uuid3
+        reportFile3.receivingOrg = "myOrg"
+        reportFile3.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = ActionHistory(TaskAction.process)
+        actionHistory.reportsReceived[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+        actionHistory.filteredOutReports[uuid3] = reportFile3
+
+        actionHistory.setActionId(12345)
+
+        assertThat { actionHistory.action.actionId.equals(12345) }
+        assertThat { actionHistory.reportsReceived.values.all { it.actionId.equals(12345) } }
+        assertThat { actionHistory.reportsOut.values.all { it.actionId.equals(12345) } }
+        assertThat { actionHistory.filteredOutReports.values.all { it.actionId.equals(12345) } }
+    }
+
+    @Test
+    fun `test generateLineages - generateEmptyReport`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile2 = ReportFile()
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = ActionHistory(TaskAction.process, true)
+        actionHistory.reportsIn[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+
+        actionHistory.generateLineages()
+
+        assertThat { actionHistory.reportLineages.size == 1 }
+    }
+
+    @Test
+    fun `test generateLineages - no generateEmptyReport`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile2 = ReportFile()
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = spyk(ActionHistory(TaskAction.process))
+        actionHistory.reportsReceived[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+        actionHistory.setActionId(12345)
+
+        every { actionHistory.generateReportLineagesUsingItemLineage(any()) } returns Unit
+
+        actionHistory.generateLineages()
+
+        verify(exactly = 1) { actionHistory.generateReportLineagesUsingItemLineage(any()) }
+    }
+
+    @Test
+    fun `test nullifyReportIds`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+
+        val actionLogDetail = InvalidHL7Message("Test Message")
+
+        val actionLog = ActionLog(
+            actionLogDetail,
+            null,
+            null,
+            reportId = uuid1,
+            action = null,
+            type = ActionLogLevel.filter,
         )
 
-        val actionHistory1 = ActionHistory(TaskAction.receive)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackExternalInputReport(report1, blobInfo1)
+        val actionHistory = spyk(ActionHistory(TaskAction.process))
+        actionHistory.actionLogs.add(actionLog)
 
-        mockDb.transact { txn -> actionHistory1.saveToDb(txn) }
+        actionHistory.nullifyReportIdsForNonTrackedReports()
+
+        assertThat { actionHistory.actionLogs.all { it.reportId == null } }
     }
 }

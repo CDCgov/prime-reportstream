@@ -1,0 +1,31 @@
+name: ORU-R01-xtn-telecom
+elements:
+  - name: xtn-use-code
+    condition: '%resource.use.exists()'
+    value: [ '%resource.use.getTelecomUseCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-2' ]
+
+  - name: xtn-system
+    condition: '%resource.system.exists() and %resource.system = "phone"'
+    value: [ '"PH"' ]
+    hl7Spec: [ '%{hl7TelecomField}-3' ]
+
+  - name: xtn-country-code
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-5' ]
+
+  - name: xtn-area-code
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberAreaCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-6' ]
+
+  - name: xtn-local-number
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
+    hl7Spec: [ '%{hl7TelecomField}-7' ]
+
+  - name: xtn-text
+    condition: '%resource.extension(%`rsext-text`).exists()'
+    value: [ '%resource.extension(%`rsext-text`).value' ]
+    hl7Spec: [ '%{hl7TelecomField}-9' ]

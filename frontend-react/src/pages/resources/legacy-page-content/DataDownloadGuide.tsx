@@ -1,15 +1,11 @@
-import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
+
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const DataDownloadGuideIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    CSV download guide | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="CSV download guide | Resources" />
             <h1 id="anchor-top">CSV download guide</h1>
             <h2>
                 Instructions for public health departments to download data as

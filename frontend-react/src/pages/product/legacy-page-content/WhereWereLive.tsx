@@ -1,17 +1,12 @@
-import { Helmet } from "react-helmet";
-
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
 import live from "../../../content/live.json";
 import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const WhereWereLive = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    Where we're live | Product | {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="Where we're live | Product" />
             <h1 aria-describedby="product-heading-description" id="anchor-top">
                 Where we're live
             </h1>

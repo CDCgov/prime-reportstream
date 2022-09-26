@@ -65,7 +65,7 @@ class FhirToHl7Converter(
     internal fun processSchema(
         schema: ConfigSchema,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle)
+        context: CustomContext = CustomContext(bundle, bundle)
     ) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
@@ -93,13 +93,18 @@ class FhirToHl7Converter(
         } else if (focusResources.isEmpty()) debugMsg += "resource: NONE"
 
         focusResources.forEachIndexed { index, singleFocusResource ->
+            // The element context must now get the focus resource
+            elementContext.focusResource = singleFocusResource
             if (canEvaluate(element, singleFocusResource, elementContext)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
                         // Schema references can have new index references
                         val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
-                        else CustomContext.addConstant(element.resourceIndex!!, index.toString(), elementContext)
+                        else CustomContext.addConstant(
+                            element.resourceIndex!!, index.toString(), elementContext
+                        )
+                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
@@ -135,7 +140,14 @@ class FhirToHl7Converter(
         var retVal = ""
         run findValue@{
             element.value.forEach {
-                val value = FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                val value = if (it.isBlank()) ""
+                else try {
+                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                } catch (e: SchemaException) {
+                    logger.error("Error while getting value for element ${element.name}", e)
+                    ""
+                }
+                logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotBlank()) {
                     retVal = value
                     return@findValue
@@ -200,7 +212,7 @@ class FhirToHl7Converter(
             val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
-                logger.debug("Set HL7 $resolvedHl7Spec = $value")
+                logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
                 if (strict) {
@@ -214,10 +226,11 @@ class FhirToHl7Converter(
                     throw SchemaException(msg, e)
                 } else logger.warn(msg, e)
             } catch (e: Exception) {
+                val msg = "Unknown error while processing element ${element.name}."
                 if (strict) {
-                    logger.error(e)
-                    throw HL7ConversionException(e.message ?: "", e)
-                } else logger.warn(e.message ?: "", e)
+                    logger.error(msg, e)
+                    throw HL7ConversionException(msg, e)
+                } else logger.warn(msg, e)
             }
         }
     }

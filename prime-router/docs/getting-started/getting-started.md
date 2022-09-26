@@ -263,8 +263,7 @@ cd ./prime-router
 ./gradlew primeCLI
 #  data                      process data
 #  list                      list known schemas, senders, and receivers
-#  livd-table-download       It downloads the latest LOINC test data, extract
-#                            Lookup Table, and the database as a new version.
+#  livd-table-download       This updates the LIVD lookup table with a new version.
 #  generate-docs             generate documentation for schemas
 #  create-credential         create credential JSON or persist to store
 #  compare                   compares two CSV files so you can view the

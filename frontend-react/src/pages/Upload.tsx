@@ -1,6 +1,10 @@
 import { Alert } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import DOMPurify from "dompurify";
+import React from "react";
+
+import { MemberType } from "../hooks/UseOktaMemberships";
+import { AuthElement } from "../components/AuthElement";
 
 const TransitionBanner = () => {
     return (
@@ -53,3 +57,7 @@ export const Upload = () => {
         </div>
     );
 };
+
+export const UploadWithAuth = () => (
+    <AuthElement element={<Upload />} requiredUserType={MemberType.SENDER} />
+);

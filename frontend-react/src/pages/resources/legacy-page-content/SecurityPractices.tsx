@@ -1,15 +1,11 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet";
+
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 
 export const SecurityPracticesIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    Security practices | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="Security practices | Resources" />
             <h1 id="anchor-top">Security practices</h1>
             <h2 className="usa-intro text-base">
                 Answers to common questions about ReportStream security and data

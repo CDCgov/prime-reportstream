@@ -1,16 +1,10 @@
-import { Helmet } from "react-helmet";
-
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import site from "../../../content/site.json";
 
 export const ProgrammersGuide = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    API Programmer's Guide | Resources |{" "}
-                    {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
+            <BasicHelmet pageTitle="API Programmer's Guide | Resources" />
             <h1 id="anchor-top">API Programmer's guide</h1>
             <h2>
                 Full documentation for interacting with the ReportStream API
