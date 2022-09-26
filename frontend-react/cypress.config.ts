@@ -2,10 +2,27 @@ import { defineConfig } from "cypress";
 
 // Populate process.env with values from .env file
 require("dotenv").config();
+
 export default defineConfig({
     e2e: {
         baseUrl: "http://localhost:3000",
         specPattern: "cypress/integration/**/*.test.js",
+        setupNodeEvents(on, config) {
+            // configure plugins here
+            on("task", {
+                log(message) {
+                    console.log(message);
+                    return null;
+                },
+                getAuth() {
+                    return global.auth || null;
+                },
+                setAuth(auth) {
+                    global.auth = auth;
+                    return null;
+                },
+            });
+        },
     },
     env: {
         auth_username: process.env.REACT_APP_OKTA_USERNAME,
