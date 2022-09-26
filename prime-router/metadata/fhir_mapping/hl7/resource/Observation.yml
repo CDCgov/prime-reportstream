@@ -166,7 +166,7 @@ valueRatio_1:
   expressionType: resource
   specs: OBX.6
   vars:
-    comparator: STRING, OBX.5.1
+    comparator: OBX.5.1
     numerator: OBX.5.2
     separator: OBX.5.3
     denominator: OBX.5.4

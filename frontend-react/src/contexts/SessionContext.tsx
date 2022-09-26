@@ -13,6 +13,7 @@ export interface ISessionContext {
     activeMembership?: MembershipSettings;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
+    initialized: boolean;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -26,6 +27,7 @@ export const SessionContext = createContext<ISessionContext>({
     memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
+    initialized: false,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -48,6 +50,7 @@ const SessionProvider = ({
                 memberships,
                 activeMembership,
                 dispatch,
+                initialized: authState !== null,
             }}
         >
             {children}
