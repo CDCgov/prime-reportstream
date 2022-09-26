@@ -876,6 +876,22 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_facility_state_zip_lookup
+
+**ReportStream Internal Name**: ordering_facility_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
+
+---
+
 **Name**: ordering_facility_street
 
 **ReportStream Internal Name**: ordering_facility_street

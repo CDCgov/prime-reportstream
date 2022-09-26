@@ -3,6 +3,13 @@ hl7Type: ORU_R01
 hl7Version: 2.5.1
 extends: ../../ORU_R01/ORU_R01-base
 elements:
+  # ReportStream specific
+  - name: sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+
+  - name: sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
   # Source: ReportStream CO Requirements from settings
   - name: receiving-application-namespace-id
     value: [ '''CO-ELR''' ]
@@ -44,15 +51,11 @@ elements:
     value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-9' ]
 
-  # Source: HCA CO Requirements
-  # If ORC-21.6 is populated then replace ORC-21.10 with value present in ORC-21.6.1
-  - name: co-ordering-facility-organization-id
-    value:
-      # ORC-21.6.1
-      - '%resource.extension(%`rsext-assigning-authority-namespace-id`).value'
-      # Default ORC-21.10 value
-      - '%resource.identifier[0].value'
-    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10' ]
+  - name: co-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: co-order-observation
+    resourceIndex: orderIndex
 
   # Source: HCA CO Requirements
   # Always replace ORC-10 with NULL
