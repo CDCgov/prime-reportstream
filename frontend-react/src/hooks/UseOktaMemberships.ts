@@ -194,6 +194,10 @@ export const getInitialState = () => {
     const storedStateWithOverride = calculateMembershipsWithOverride(
         storedState || {}
     );
+    // ALWAYS setting the `initialized` flag to false on the first render because...
+    // we are prioritizing consistency over minor performance gains. This will always be false
+    // on render 1, and once the `authState` comes in from the oktaHook, we get render 2
+    // which will set `initialized` to true (see the 2nd useEffect in the main hook body)
     return { ...defaultState, ...storedStateWithOverride, initialized: false };
 };
 
@@ -242,6 +246,8 @@ export const useOktaMemberships = (
 
     useEffect(() => {
         // if we're in an uninitialized state, but okta has loaded, set our initialized flag
+        // this should always happen on the second render once the oktaHook initializes and sends
+        // something through
         if (!state.initialized && !!authState) {
             dispatch({
                 type: MembershipActionType.INITIALIZE,
