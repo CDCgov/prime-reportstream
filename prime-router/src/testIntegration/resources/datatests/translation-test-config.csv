@@ -7,4 +7,6 @@ HL7_to_INTERNAL/FLFHospital-SARSCOV2-20200317-0001.hl7,hl7/test-covid-19,HL7_to_
 HL7_to_INTERNAL/CA-20211001-sully.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CA-20211018-sully.internal.csv,covid-19,INTERNAL,PASS
 HL7_to_INTERNAL/LP-covid-19-20220124002222.hl7,hl7/lifepoint-covid-19,HL7_to_INTERNAL/LP-covid-19-20220124002222.internal.csv,covid-19,INTERNAL,PASS
 HL7_to_FHIR/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR/sample_co_1_20220518-0001.fhir,,FHIR,PASS
+HL7_to_FHIR/sample_co_1_20220518-0006.hl7,,HL7_to_FHIR/sample_co_1_20220518-0006.fhir,,FHIR,PASS
+HL7_to_FHIR/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR/sample_co_1_20220518-0014.fhir,,FHIR,PASS
 HL7_to_FHIR/sample_co_2_20220803-0001.hl7,,HL7_to_FHIR/sample_co_2_20220803-0001.fhir,,FHIR,PASS

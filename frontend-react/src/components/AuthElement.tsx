@@ -3,8 +3,9 @@ import React, { useEffect, useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
-import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
+import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { getStoredOktaToken } from "../utils/SessionStorageTools";
+import { useFeatureFlags } from "../contexts/FeatureFlagContext";
 
 interface AuthElementProps {
     element: JSX.Element;
@@ -22,6 +23,9 @@ export const AuthElement = ({
     const { oktaToken, activeMembership } = useSessionContext();
     // A way to check if this is a logged-in user refreshing the app
     const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
+
+    const { checkFlag } = useFeatureFlags();
+
     // This memberType won't require an undefined fallback when used like the one
     // from useSessionContext
     const memberType = useMemo(
@@ -48,7 +52,7 @@ export const AuthElement = ({
             return;
         }
         // Does not have feature flag enabled
-        if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag)) {
+        if (requiredFeatureFlag && !checkFlag(requiredFeatureFlag)) {
             navigate("/");
         }
     }, [
@@ -59,6 +63,7 @@ export const AuthElement = ({
         requiredFeatureFlag,
         requiredUserType,
         tokenAvailable,
+        checkFlag,
     ]);
 
     return element;

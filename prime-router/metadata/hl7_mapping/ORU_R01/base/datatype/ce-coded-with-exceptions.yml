@@ -3,7 +3,7 @@ elements:
   - name: coded-element
     constants:
       ceFieldPath: '%{cweFieldPath}'
-    schema: coded-element
+    schema: ce-coded-element
 
   - name: coding-system-version-id
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.version'

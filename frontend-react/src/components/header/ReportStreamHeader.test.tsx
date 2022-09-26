@@ -55,6 +55,7 @@ describe("ReportStreamHeader", () => {
                 parsedName: "PrimeAdmins",
             },
             dispatch: () => {},
+            initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -88,6 +89,7 @@ describe("ReportStreamHeader", () => {
                 parsedName: "ignore",
             },
             dispatch: () => {},
+            initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.queryByText("Daily data")).not.toBeInTheDocument();
@@ -120,6 +122,7 @@ describe("ReportStreamHeader", () => {
                 parsedName: "ignore",
             },
             dispatch: () => {},
+            initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Daily data")).toBeInTheDocument();
