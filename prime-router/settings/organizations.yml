@@ -3574,7 +3574,15 @@
         receivingFacilityName: RI_DOH
         suppressHl7Fields: ORC-12-1, OBR-16-1, PID-5-7
         replaceValueAwithB:
-          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-3:
+            - "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          PID-22-1:
+            - "H": "2135-2"
+            - "N": "2186-5"
+          PID-22-3:
+            - "*": "CDCREC"
+          PID-22-7:
+            - "*": "3.1.0"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
