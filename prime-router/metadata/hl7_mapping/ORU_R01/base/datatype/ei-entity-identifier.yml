@@ -1,4 +1,4 @@
-name: ORU-R01-order
+name: ORU-R01-entity-identifier
 # Identifier to EI mapping
 elements:
   - name: entity-identifier

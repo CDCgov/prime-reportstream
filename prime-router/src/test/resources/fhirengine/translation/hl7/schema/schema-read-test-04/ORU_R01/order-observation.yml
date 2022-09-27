@@ -1,0 +1,12 @@
+name: ORU-R01-order-observation
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
+elements:
+  - name: order-set-ID-obr
+    value:
+      - '%orderIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/OBR-1'
+
+  - name: circular-reference-trigger
+    schema: order-observation

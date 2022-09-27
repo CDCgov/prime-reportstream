@@ -4,8 +4,9 @@ import React, { useEffect, useMemo } from "react";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
-import { getStoredOktaToken } from "../utils/SessionStorageTools";
 import { useFeatureFlags } from "../contexts/FeatureFlagContext";
+
+import Spinner from "./Spinner";
 
 interface AuthElementProps {
     element: JSX.Element;
@@ -20,9 +21,7 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership } = useSessionContext();
-    // A way to check if this is a logged-in user refreshing the app
-    const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
+    const { oktaToken, activeMembership, initialized } = useSessionContext();
 
     const { checkFlag } = useFeatureFlags();
 
@@ -40,9 +39,18 @@ export const AuthElement = ({
             : requiredUserType === memberType;
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
+
+    const needsLogin = useMemo(
+        () => !oktaToken || !activeMembership,
+        [oktaToken, activeMembership]
+    );
     useEffect(() => {
+        // not ready to make a determination about auth status yet, show a spinner
+        if (!initialized) {
+            return;
+        }
         // Not logged in, needs to log in.
-        if (!tokenAvailable || !activeMembership) {
+        if (needsLogin) {
             navigate("/login");
             return;
         }
@@ -59,12 +67,16 @@ export const AuthElement = ({
         activeMembership,
         authorizeMemberType,
         navigate,
-        oktaToken?.accessToken,
         requiredFeatureFlag,
         requiredUserType,
-        tokenAvailable,
+        needsLogin,
+        initialized,
         checkFlag,
     ]);
 
-    return element;
+    const elementToRender = useMemo(
+        () => (initialized ? element : <Spinner />),
+        [initialized, element]
+    );
+    return elementToRender;
 };
