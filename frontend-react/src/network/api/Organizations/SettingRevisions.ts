@@ -32,7 +32,9 @@ const settingRevisionEndpoints: RSApiEndpoints = {
 };
 
 /** actual fetching component **/
-export const useRevisionEndpointsQuery = (params: SettingRevisionParams) => {
+export const useSettingRevisionEndpointsQuery = (
+    params: SettingRevisionParams
+) => {
     const { authorizedFetch, rsUseQuery } =
         useAuthorizedFetch<SettingRevision[]>();
 

@@ -8,7 +8,7 @@ import HipaaNotice from "../../components/HipaaNotice";
 import {
     SettingRevision,
     SettingRevisionParams,
-    useRevisionEndpointsQuery,
+    useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
 import Spinner from "../../components/Spinner";
 import { AuthElement } from "../../components/AuthElement";
@@ -105,12 +105,13 @@ interface MainComponentProps extends SettingRevisionParams {
  * the network request happens.
  */
 const MainRevHistoryComponent = (props: MainComponentProps) => {
-    const { data, isLoading, isError } = useRevisionEndpointsQuery(props);
+    const { data, isLoading, isError } =
+        useSettingRevisionEndpointsQuery(props);
     const msg = isError
         ? "Failed to load data"
         : isLoading
         ? "Loading..."
-        : "..."; // should be used because !data test below.
+        : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
@@ -219,13 +220,13 @@ const AdminRevHistory = () => {
                     <Grid row>
                         <Grid col={"fill"}>
                             <Grid row gap="md">
-                                <Grid>
+                                <Grid data-testid={"meta-left-data"}>
                                     Flags: <br />
                                     {!leftItem ? null : (
                                         <>
                                             isDeleted:{" "}
-                                            {String(leftItem.isDeleted)} <br />
-                                            isActive:{" "}
+                                            {String(leftItem.isDeleted)}
+                                            <br /> isActive:{" "}
                                             {String(leftItem.isActive)}
                                         </>
                                     )}
@@ -234,14 +235,13 @@ const AdminRevHistory = () => {
                         </Grid>
                         <Grid col={"fill"}>
                             <Grid row gap="md">
-                                <Grid>
+                                <Grid data-testid={"meta-right-data"}>
                                     Flags: <br />
                                     {!rightItem ? null : (
                                         <>
                                             isDeleted:{" "}
                                             {String(rightItem.isDeleted)}
-                                            <br />
-                                            isActive:{" "}
+                                            <br /> isActive:{" "}
                                             {String(rightItem.isActive)}
                                         </>
                                     )}

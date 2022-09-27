@@ -94,6 +94,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-static"
+                            data-testid={"left-compare-text"}
                             contentEditable={false}
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(props.leftText),
@@ -103,6 +104,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-background"
+                            data-testid={"left-compare-highlight"}
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(leftHighlightHtml),
                             }}
@@ -116,6 +118,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-static"
+                            data-testid={"right-compare-text"}
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(props.rightText),
                             }}
@@ -125,6 +128,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-background"
+                            data-testid={"right-compare-highlight"}
                             dangerouslySetInnerHTML={{
                                 __html: `${DOMPurify.sanitize(
                                     rightHighlightHtml
