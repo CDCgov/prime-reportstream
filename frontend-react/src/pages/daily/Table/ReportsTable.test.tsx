@@ -24,6 +24,7 @@ describe("ReportsTable", () => {
                 parsedName: "testOrg",
                 senderName: undefined,
             },
+            initialized: true,
             dispatch: () => {},
         });
     });
@@ -102,6 +103,7 @@ describe("useReceiverFeed", () => {
                 parsedName: "testOrg",
                 senderName: undefined,
             },
+            initialized: true,
             dispatch: () => {},
         });
         mockReceiverHook.mockReturnValue({
