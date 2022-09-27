@@ -25,7 +25,17 @@ elements:
     value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
     hl7Spec: [ '%{hl7TelecomField}-7' ]
 
+  - name: xtn-extension
+    condition: '%resource.value.hasExtension()'
+    value: [ '%resource.value.getPhoneNumberExtension()' ]
+    hl7Spec: [ '%{hl7TelecomField}-8' ]
+
   - name: xtn-text
     condition: '%resource.extension(%`rsext-text`).exists()'
     value: [ '%resource.extension(%`rsext-text`).value' ]
     hl7Spec: [ '%{hl7TelecomField}-9' ]
+
+  - name: xtn-unformatted-text
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7TelecomField}-12' ]
