@@ -1,0 +1,12 @@
+name: ORU-R01-patient
+elements:
+  - name: patient-segment-set-ID
+    value:
+      - '1'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-1
+
+  - name: PID-segment
+    condition: '%resource is Patient and %resource.exists()'
+    required: true
+    schema: patient-identification
