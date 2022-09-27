@@ -275,15 +275,13 @@ export const NoSenderBanner = ({
 };
 
 type FileQualityFilterDisplayProps = {
-    destinations: Destination[] | undefined; //FilteredReportItem[][];
-    warnings: ResponseError[];
+    destinations: Destination[] | undefined;
     message: string;
     heading: string;
 };
 
 export const FileQualityFilterDisplay = ({
     destinations,
-    warnings,
     message,
     heading,
 }: FileQualityFilterDisplayProps) => {
@@ -294,26 +292,27 @@ export const FileQualityFilterDisplay = ({
         <>
             <StaticAlert type={"warning"} heading={heading} message={message} />
             <h3>Jurisdictions</h3>
-            <table
-                className="usa-table usa-table--borderless"
-                data-testid="error-table"
-            >
-                <thead>
-                    <tr>
-                        <th>Message</th>
-                        <th>Indices</th>
-                        <th>Field(s)</th>
-                        <th>Tracking Element</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {warnings.map((w, i) => {
-                        return (
-                            <ErrorRow error={w} index={i} key={`warning${i}`} />
-                        );
-                    })}
-                </tbody>
-            </table>
+            {destinations?.map((d, i) => (
+                <table
+                    className="usa-table usa-table--borderless"
+                    data-testid="error-table"
+                >
+                    <thead>
+                        <tr>
+                            <th>{d.organization}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {d.filteredReportItems.map((f, i) => {
+                            return (
+                                <tr key={i}>
+                                    <td> {f.message}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            ))}
         </>
     );
 };

@@ -288,7 +288,6 @@ const FileHandler = ({
             {destinations.length > 0 && (
                 <FileQualityFilterDisplay
                     destinations={reportItems}
-                    warnings={warnings}
                     heading="Some records were filtered out due to possible data quality issues"
                     message={`The following records were filtered out while processing/validating your file. ${warningDescription}, lorem ipsum and all that.`}
                 />

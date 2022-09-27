@@ -21,6 +21,7 @@ export interface FilteredReportItem {
     filterName: string;
     filteredTrackingElement: string;
     filterArgs: string[];
+    message: string;
 }
 
 export interface ReportWarning {
