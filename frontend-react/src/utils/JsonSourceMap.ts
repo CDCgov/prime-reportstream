@@ -11,7 +11,7 @@
  * Part of the process needs to normalize the json so the offsets are correct.
  * so this fixed json string is returned as part of the process.
  *
- * NOTICE: the root element does NOT have a key/keyEnd because it's the root.
+ * NOTICE: the root element does NOT have a key/keyEnd because it's the root. Its key is ""
  *
  * input
  * `{foo:'bar'}`
@@ -170,10 +170,7 @@ export const jsonSourceMap = (
                 out(",");
             }
             // "/" is root, but we don't want "//key", just "/key"
-            const propPtr = [
-                ptr === "/" ? "" : ptr,
-                escapeJsonPointer(key),
-            ].join("/");
+            const propPtr = [ptr, escapeJsonPointer(key)].join("/");
             indent(propLvl);
             map(propPtr, "key");
             out(quote(key));
@@ -247,7 +244,7 @@ export const jsonSourceMap = (
         map(ptr, "valueEnd");
     };
 
-    stringifyRecursive(data, 0, "/");
+    stringifyRecursive(data, 0, "");
 
     return {
         json,

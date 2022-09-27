@@ -1,5 +1,5 @@
 import { jsonSourceMap } from "./JsonSourceMap";
-import { jsonDiffer } from "./JsonDiffer";
+import { _exportForTestingJsonDiffer, jsonDiffer } from "./JsonDiffer";
 
 describe("JsonDiffer test suite - depends on jsonSourceMap", () => {
     test("JsonSourceMap Basic test", () => {
@@ -24,5 +24,26 @@ describe("JsonDiffer test suite - depends on jsonSourceMap", () => {
         expect(diffs.addedLeftKeys).toStrictEqual(["/addleft"]);
         expect(diffs.addedRightKeys).toStrictEqual(["/addright"]);
         expect(diffs.changedKeys).toStrictEqual(["", "/diff"]);
+    });
+
+    test("JsonSourceMap  ", () => {
+        // one node
+        const results = _exportForTestingJsonDiffer.extractLeafNodes([
+            "",
+            "/1",
+            "/1/2",
+            "/1/2/3",
+        ]);
+        expect(results).toStrictEqual(["/1/2/3"]);
+
+        // two nodes
+        const results2 = _exportForTestingJsonDiffer.extractLeafNodes([
+            "",
+            "/1",
+            "/1/2",
+            "/1/2/3",
+            "/1/2/4",
+        ]);
+        expect(results2).toStrictEqual(["/1/2/3", "/1/2/4"]);
     });
 });

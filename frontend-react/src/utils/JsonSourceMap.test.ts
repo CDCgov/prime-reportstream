@@ -68,7 +68,7 @@ describe("JsonSourceMap test suite", () => {
         const values = Object.values(result.pointers);
 
         // checking overall should be good enough to sanity check all the content
-        expect(keys).toStrictEqual(["/", "/key"]);
+        expect(keys).toStrictEqual(["", "/key"]);
         expect(values[0].value).toStrictEqual({ line: 0, column: 0, pos: 0 });
         expect(values[0].valueEnd).toStrictEqual({
             line: 2,
@@ -100,7 +100,7 @@ describe("JsonSourceMap test suite", () => {
         const keys = Object.keys(result.pointers);
         const values = Object.values(result.pointers);
         expect(keys).toStrictEqual([
-            "/",
+            "",
             "/data",
             "/data/0",
             "/data/1",
@@ -115,7 +115,7 @@ describe("JsonSourceMap test suite", () => {
         ]);
 
         // start element should always be this
-        expect(keys[0]).toBe("/");
+        expect(keys[0]).toBe("");
         expect(values[0].value.line).toBe(0);
         expect(values[0].value.pos).toBe(0);
 
@@ -179,7 +179,7 @@ describe("JsonSourceMap test suite", () => {
         const values = Object.values(result.pointers);
 
         expect(keys).toStrictEqual([
-            "/",
+            "",
             "/bray",
             "/bray/0",
             "/bray/0/a",
@@ -202,7 +202,7 @@ describe("JsonSourceMap test suite", () => {
     });
 
     test("JsonSourceMap empty", () => {
-        const data = { emptyObj: {}, emptyArray: [], emptyStr: "/" };
+        const data = { emptyObj: {}, emptyArray: [], emptyStr: "" };
         const result = jsonSourceMap(data, 2);
         // stringify should match standard
         const expected = JSON.stringify(data, null, 2);
@@ -212,7 +212,7 @@ describe("JsonSourceMap test suite", () => {
         const values = Object.values(result.pointers);
 
         expect(keys).toStrictEqual([
-            "/",
+            "",
             "/emptyObj",
             "/emptyArray",
             "/emptyStr",
@@ -230,7 +230,7 @@ describe("JsonSourceMap test suite", () => {
                 valueEnd: {
                     line: 4,
                     column: 1,
-                    pos: 53,
+                    pos: 52,
                 },
             },
             {
@@ -295,8 +295,8 @@ describe("JsonSourceMap test suite", () => {
                 },
                 valueEnd: {
                     line: 3,
-                    column: 15,
-                    pos: 51,
+                    column: 14,
+                    pos: 50,
                 },
             },
         ]);
@@ -322,7 +322,7 @@ describe("JsonSourceMap test suite", () => {
         const values = Object.values(result.pointers);
         debugger;
         expect(keys).toStrictEqual([
-            "/",
+            "",
             "/name",
             "/coins",
             "/coins/0",

@@ -26,6 +26,33 @@ export type JsonDiffResult = {
     changedKeys: string[];
 };
 
+// this is complex enough to deserve its own unit tests.
+const extractLeafNodes = (pathArray: string[]): string[] => {
+    // we want to remove parent paths from changed elements.
+
+    // iterate backwards since leaf nodes will be last.
+    // But, we can remove elements as we go, so have refresh the array or we'll get burned
+    // by being out of bounds
+    let ii = pathArray.length - 1;
+    while (ii >= 0) {
+        const lengthBefore = pathArray.length; // if len change, then restart from end.
+        const leafPath = pathArray[ii] || "";
+        // /1/2/3/4/5 => ["", "/1", "/1/2", "/1/2/3", "/1/2/3/4", "/1/2/3/4/5"];
+        const parentPaths: string[] = leafPath
+            .split("/")
+            .map((elem, index, array) =>
+                [...array.slice(0, index), elem].join("/")
+            )
+            .slice(0, -1); // remove the last element which is leaf node itself
+
+        // now remove all parents from the array.
+        pathArray = pathArray.filter((s) => !parentPaths.includes(s));
+        // if nothing was removed, then move to back one item, otherwise, start over at end.
+        ii = lengthBefore === pathArray.length ? ii - 1 : pathArray.length - 1;
+    }
+    return pathArray;
+};
+
 export const jsonDiffer = (
     leftData: SourceMapResult,
     rightData: SourceMapResult,
@@ -68,15 +95,7 @@ export const jsonDiffer = (
     );
 
     if (leafNodesOnly) {
-        // we want to remove parent paths from changed elements.
-
-        // iterate backwards since leaf node will be last.
-        // But, we can remove elements as we go, so hav
-        for (const ii = changedKeys.length - 1; ii >= 0; ii--) {
-            changedKeys = changedKeys.filter((key) => {
-
-            };
-        }
+        changedKeys = extractLeafNodes(changedKeys);
     }
 
     return {
@@ -84,4 +103,8 @@ export const jsonDiffer = (
         addedRightKeys,
         changedKeys,
     };
+};
+
+export const _exportForTestingJsonDiffer = {
+    extractLeafNodes,
 };
