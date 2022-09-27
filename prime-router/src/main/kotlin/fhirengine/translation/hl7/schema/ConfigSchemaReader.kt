@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -59,7 +60,11 @@ object ConfigSchemaReader : Logging {
      * Note this is a recursive function used to walk through all the schemas to load.
      * @return the validated schema
      */
-    internal fun readSchemaTreeFromFile(schemaName: String, folder: String? = null): ConfigSchema {
+    internal fun readSchemaTreeFromFile(
+        schemaName: String,
+        folder: String? = null,
+        ancestry: List<String> = listOf()
+    ): ConfigSchema {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
@@ -70,10 +75,13 @@ object ConfigSchemaReader : Logging {
             throw SchemaException(msg, e)
         }
 
+        if (ancestry.contains(rawSchema.name)) throw HL7ConversionException("Circular reference detected in schema")
+        rawSchema.ancestry = ancestry + rawSchema.name!!
+
         // Process any schema references
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef = readSchemaTreeFromFile(element.schema!!, rootFolder)
+            element.schemaRef = readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry)
         }
         return rawSchema
     }
