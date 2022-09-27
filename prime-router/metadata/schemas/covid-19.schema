@@ -267,7 +267,11 @@ elements:
 
   - name: ordering_facility_country
     type: TEXT
+    natFlatFileField: Ordering_facility_country
+    hhsGuidanceField:
+    hl7Field: ORC-22-6
     default: USA
+    documentation: The country of the facility
 
   - name: ordering_facility_email
     type: EMAIL

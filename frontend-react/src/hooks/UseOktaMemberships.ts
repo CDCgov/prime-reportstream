@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useMemo } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
+import omit from "lodash.omit";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 import {
@@ -21,6 +22,7 @@ export enum MembershipActionType {
     ADMIN_OVERRIDE = "override",
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
+    INITIALIZE = "initialize",
 }
 
 export interface MembershipSettings {
@@ -33,9 +35,11 @@ export interface MembershipSettings {
 }
 
 export interface MembershipState {
-    activeMembership?: MembershipSettings;
+    // null here points specifically to an uninitialized state
+    activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
+    initialized?: boolean;
 }
 
 export interface MembershipController {
@@ -105,22 +109,23 @@ export const makeMembershipMapFromToken = (
 const defaultState: MembershipState = {
     // note that active will be set to {} rather than undefined in most real world cases on initialization
     // see `calculateMembershipsWithOverride` for logic
-    activeMembership: undefined,
+    activeMembership: null,
     memberships: undefined,
+    initialized: false,
 };
 
 export const membershipsFromToken = (
     token: AccessToken | undefined
-): MembershipState => {
+): Partial<MembershipState> => {
     // One big undefined check to see if we have what we need for the next line
     if (!token?.claims) {
-        return defaultState;
+        return omit(defaultState, "initialized");
     }
     const claimData: Map<string, MembershipSettings> =
         makeMembershipMapFromToken(token);
     // Catch anyone with no claim data
     if (!claimData.size) {
-        return defaultState;
+        return omit(defaultState, "initialized");
     }
     // Get defaults
     const [first] = claimData.keys();
@@ -155,9 +160,12 @@ const calculateNewState = (
             const parsedMemberships = membershipsFromToken(
                 payload as AccessToken
             );
-            return calculateMembershipsWithOverride(
-                parsedMemberships as MembershipState
-            );
+            return {
+                ...calculateMembershipsWithOverride(
+                    parsedMemberships as MembershipState
+                ),
+                initialized: true,
+            };
         case MembershipActionType.ADMIN_OVERRIDE:
             const newActive = {
                 ...state.activeMembership,
@@ -169,20 +177,28 @@ const calculateNewState = (
             };
             storeOrganizationOverride(JSON.stringify(newActive));
             return newState;
+        case MembershipActionType.INITIALIZE:
+            return { ...state, initialized: true };
         case MembershipActionType.RESET:
-            return defaultState;
+            return { ...defaultState, initialized: state.initialized };
         default:
             return state;
     }
 };
 
 // try to read from existing stored state
+// since this is only called on first render, initialized will always be `false`
+// even though we are (needlessly) storing and receving initialized values from store
 export const getInitialState = () => {
     const storedState = getSessionMembershipState();
     const storedStateWithOverride = calculateMembershipsWithOverride(
         storedState || {}
     );
-    return { ...defaultState, ...storedStateWithOverride };
+    // ALWAYS setting the `initialized` flag to false on the first render because...
+    // we are prioritizing consistency over minor performance gains. This will always be false
+    // on render 1, and once the `authState` comes in from the oktaHook, we get render 2
+    // which will set `initialized` to true (see the 2nd useEffect in the main hook body)
+    return { ...defaultState, ...storedStateWithOverride, initialized: false };
 };
 
 export const membershipReducer = (
@@ -228,8 +244,17 @@ export const useOktaMemberships = (
         // here we are only concerned about changes to a users orgs / memberships
     }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // any time a token change signifies a logout, we should clear our state and storage
     useEffect(() => {
+        // if we're in an uninitialized state, but okta has loaded, set our initialized flag
+        // this should always happen on the second render once the oktaHook initializes and sends
+        // something through
+        if (!state.initialized && !!authState) {
+            dispatch({
+                type: MembershipActionType.INITIALIZE,
+            });
+            return;
+        }
+        // any time a token change signifies a logout, we should clear our state and storage
         if (authState && !authState.isAuthenticated) {
             // clear override as well. this will error on json parse and result in {} being fed back on a read
             storeOrganizationOverride("");
