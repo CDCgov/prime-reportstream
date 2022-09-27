@@ -133,6 +133,7 @@ export const jsonSourceMap = (
             pos: cur.pos,
         };
     }
+
     const stringifyArray = (data: any, lvl: number, ptr: string) => {
         if (Object.keys(data).length === 0) {
             out("[]");
@@ -168,7 +169,11 @@ export const jsonSourceMap = (
             if (count) {
                 out(",");
             }
-            const propPtr = ptr + "/" + escapeJsonPointer(key);
+            // "/" is root, but we don't want "//key", just "/key"
+            const propPtr = [
+                ptr === "/" ? "" : ptr,
+                escapeJsonPointer(key),
+            ].join("/");
             indent(propLvl);
             map(propPtr, "key");
             out(quote(key));
@@ -242,7 +247,7 @@ export const jsonSourceMap = (
         map(ptr, "valueEnd");
     };
 
-    stringifyRecursive(data, 0, "");
+    stringifyRecursive(data, 0, "/");
 
     return {
         json,
