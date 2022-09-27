@@ -251,6 +251,19 @@ describe("useFileHandler", () => {
             reportId: "1",
             successTimestamp: new Date(0).toString(),
             overallStatus: undefined,
+            reportItems: [
+                {
+                    filteredReportItems: [],
+                    filteredReportRows: [],
+                    itemCount: 1,
+                    itemCountBeforeQualityFiltering: 0,
+                    organization: "an org",
+                    organization_id: "an org id",
+                    sending_at: expect.any(String),
+                    sentReports: [],
+                    service: "some service",
+                },
+            ],
         });
     });
 
@@ -275,6 +288,19 @@ describe("useFileHandler", () => {
             warnings: [fakeWarning],
             errorType: "file",
             overallStatus: undefined,
+            reportItems: [
+                {
+                    filteredReportItems: [],
+                    filteredReportRows: [],
+                    itemCount: 1,
+                    itemCountBeforeQualityFiltering: 0,
+                    organization: "an org",
+                    organization_id: "an org id",
+                    sending_at: expect.any(String),
+                    sentReports: [],
+                    service: "some service",
+                },
+            ],
         });
     });
 });
