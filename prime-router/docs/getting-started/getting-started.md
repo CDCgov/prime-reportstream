@@ -111,6 +111,7 @@ The most useful gradle tasks are:
 # Committing to this repository
 
 * Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](../signing-commits.md) document.
+* You will also need to connect to GitHub with an SSH key. You can find instructions on generating and adding an SSH key [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 * Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
 
 ## Git Hooks

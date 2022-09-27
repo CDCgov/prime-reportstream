@@ -284,6 +284,14 @@ class ELRReceiver : SubmissionReceiver {
             throw actionLogs.exception
         }
 
+        // If the sender is disabled, there should be no next event
+        // THIS MUST HAPPEN BEFORE workflow.recordReceivedReport so that the next action
+        // is properly stored in the report in the DB
+        val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            report.nextAction = TaskAction.none
+            Event.EventAction.NONE
+        } else Event.EventAction.PROCESS
+
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
             report, rawBody, sender, actionHistory, payloadName
@@ -293,23 +301,26 @@ class ELRReceiver : SubmissionReceiver {
         actionHistory.trackLogs(actionLogs.logs)
 
         // add task to task table
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        val processEvent = ProcessEvent(eventAction, report.id, options, defaults, routeTo)
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
-        // move to processing (send to <elrProcessQueueName> queue)
-        workflowEngine.queue.sendMessage(
-            elrConvertQueueName,
-            RawSubmission(
-                report.id,
-                blobInfo.blobUrl,
-                BlobAccess.digestToString(blobInfo.digest),
-                sender.fullName,
-                // TODO: do we need these here? Will need to figure out how to serialize/deserialize
-//                options,
-//                defaults,
-//                routeTo
-            ).serialize()
-        )
+        // Only add to queue if the sender/ is enabled
+        if (sender.customerStatus != CustomerStatus.INACTIVE) {
+            // move to processing (send to <elrProcessQueueName> queue)
+            workflowEngine.queue.sendMessage(
+                elrConvertQueueName,
+                RawSubmission(
+                    report.id,
+                    blobInfo.blobUrl,
+                    BlobAccess.digestToString(blobInfo.digest),
+                    sender.fullName,
+                    // TODO: do we need these here? Will need to figure out how to serialize/deserialize
+                    //                options,
+                    //                defaults,
+                    //                routeTo
+                ).serialize()
+            )
+        }
     }
 
     /**
