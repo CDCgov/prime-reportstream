@@ -18,6 +18,8 @@ const fakeDestination: Destination = {
     sending_at: Date.now().toString(),
     itemCount: 1,
     sentReports: [],
+    filteredReportItems: [],
+    itemCountBeforeQualityFiltering: 0,
 };
 
 const fakeError: ResponseError = {

@@ -19,6 +19,7 @@ import {
     FileWarningsDisplay,
     FileWarningBanner,
     NoSenderBanner,
+    FileQualityFilterDisplay,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -102,6 +103,7 @@ const FileHandler = ({
         warnings,
         localError,
         overallStatus,
+        reportItems,
     } = state;
 
     useEffect(() => {
@@ -281,6 +283,14 @@ const FileHandler = ({
                     errors={errors}
                     heading={errorMessaging.heading}
                     message={errorMessaging.message}
+                />
+            )}
+            {destinations.length > 0 && (
+                <FileQualityFilterDisplay
+                    destinations={reportItems}
+                    warnings={warnings}
+                    heading="Some records were filtered out due to possible data quality issues"
+                    message={`The following records were filtered out while processing/validating your file. ${warningDescription}, lorem ipsum and all that.`}
                 />
             )}
             {isSubmitting && (

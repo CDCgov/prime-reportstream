@@ -9,9 +9,18 @@ export interface Destination {
     organization: string;
     service: string;
     filteredReportRows: string[];
+    filteredReportItems: FilteredReportItem[];
     sending_at: string;
     itemCount: number;
+    itemCountBeforeQualityFiltering: number;
     sentReports: string[];
+}
+
+export interface FilteredReportItem {
+    filterType: string;
+    filterName: string;
+    filteredTrackingElement: string;
+    filterArgs: string[];
 }
 
 export interface ReportWarning {

@@ -30,6 +30,7 @@ export interface FileHandlerState {
     fileName: string;
     errors: ResponseError[];
     destinations: string;
+    reportItems: Destination[] | undefined; //FilteredReportItem[][];
     reportId: string;
     successTimestamp?: string;
     cancellable: boolean;
@@ -73,6 +74,7 @@ export const INITIAL_STATE = {
     fileName: "",
     errors: [],
     destinations: "",
+    reportItems: [],
     reportId: "",
     successTimestamp: "",
     cancellable: false,
@@ -170,6 +172,7 @@ function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload
 ): Partial<FileHandlerState> {
+    debugger;
     const {
         response: {
             destinations,
@@ -186,8 +189,13 @@ function calculateRequestCompleteState(
         ? destinations.map((d: Destination) => d.organization).join(", ")
         : "";
 
+    // const destinationReportItemList = destinations?.length
+    //     ? destinations.map((d: Destination) => d.filteredReportItems)
+    //     : [];
+
     return {
         destinations: destinationList,
+        reportItems: destinations, //destinationReportItemList,
         isSubmitting: false,
         fileInputResetValue: state.fileInputResetValue + 1,
         errors,

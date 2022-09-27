@@ -27,6 +27,8 @@ const watersResponseSuccess: WatersResponse = {
             sending_at: "2022-06-14T18:58:00.000Z",
             sentReports: [],
             service: "elr",
+            filteredReportItems: [],
+            itemCountBeforeQualityFiltering: 0,
         },
     ],
     errors: [],

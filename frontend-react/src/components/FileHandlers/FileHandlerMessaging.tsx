@@ -8,6 +8,7 @@ import {
 import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../network/api/WatersApi";
+import { Destination } from "../../resources/ActionDetailsResource";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -270,5 +271,49 @@ export const NoSenderBanner = ({
             heading={`${capitalizeFirst(action)} unavailable`}
             message={`No valid sender found for ${organization}`}
         />
+    );
+};
+
+type FileQualityFilterDisplayProps = {
+    destinations: Destination[] | undefined; //FilteredReportItem[][];
+    warnings: ResponseError[];
+    message: string;
+    heading: string;
+};
+
+export const FileQualityFilterDisplay = ({
+    destinations,
+    warnings,
+    message,
+    heading,
+}: FileQualityFilterDisplayProps) => {
+    debugger;
+    console.log(destinations);
+
+    return (
+        <>
+            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <h3>Jurisdictions</h3>
+            <table
+                className="usa-table usa-table--borderless"
+                data-testid="error-table"
+            >
+                <thead>
+                    <tr>
+                        <th>Message</th>
+                        <th>Indices</th>
+                        <th>Field(s)</th>
+                        <th>Tracking Element</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {warnings.map((w, i) => {
+                        return (
+                            <ErrorRow error={w} index={i} key={`warning${i}`} />
+                        );
+                    })}
+                </tbody>
+            </table>
+        </>
     );
 };
