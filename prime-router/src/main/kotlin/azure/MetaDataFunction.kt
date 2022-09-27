@@ -77,7 +77,7 @@ class MetaDataFunction : Logging {
         logger.info("Getting the LIVD table for the metadata api")
         val livdTable = workflowEngine
             .metadata
-            .findLookupTable("LIVD-SARS-CoV-2-latest") ?: return null
+            .findLookupTable("LIVD-SARS-CoV-2") ?: return null
         logger.info("Pulling rows")
         val tableFilter = livdTable.FilterBuilder()
         filters.forEach { (t, u) -> tableFilter.equalsIgnoreCase(t, u) }
