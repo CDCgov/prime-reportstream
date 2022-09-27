@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import Table, {
     ColumnConfig,
@@ -9,11 +9,6 @@ import {
     useValueSetsMeta,
     useValueSetsTable,
 } from "../../../hooks/UseValueSets";
-import { StaticAlert } from "../../../components/StaticAlert";
-import {
-    handleErrorWithAlert,
-    ReportStreamAlert,
-} from "../../../utils/ErrorUtils";
 import {
     LookupTable,
     LookupTables,
@@ -22,6 +17,7 @@ import {
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -67,21 +63,10 @@ const toValueSetWithMeta = (
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    const { valueSetMeta, error: metaError } = useValueSetsMeta();
-    const { valueSetArray, error: dataError } = useValueSetsTable<ValueSet[]>(
+    const { valueSetMeta } = useValueSetsMeta();
+    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
-
-    useEffect(() => {
-        if (dataError || metaError) {
-            handleErrorWithAlert({
-                logMessage: "Error occurred fetching value sets",
-                error: dataError || metaError, // this isn't perfect but likely good enough for now
-                setAlert,
-            });
-        }
-    }, [metaError, dataError]);
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
@@ -90,13 +75,6 @@ const ValueSetsTable = () => {
 
     return (
         <>
-            {alert && (
-                <StaticAlert
-                    type={alert.type}
-                    heading={alert.type.toUpperCase()}
-                    message={alert.message}
-                />
-            )}
             <Table title="ReportStream Value Sets" config={tableConfig} />
         </>
     );
@@ -106,7 +84,7 @@ const ValueSetsIndex = () => {
         <>
             <BasicHelmet pageTitle="Value Sets | Admin" />
             <section className="grid-container">
-                <ValueSetsTable />
+                {withCatchAndSuspense(<ValueSetsTable />)}
             </section>
         </>
     );

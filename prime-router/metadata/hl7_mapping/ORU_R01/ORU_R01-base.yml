@@ -33,7 +33,6 @@ elements:
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
-    required: true
     schema: base/patient-visit
 
   - name: order-observations

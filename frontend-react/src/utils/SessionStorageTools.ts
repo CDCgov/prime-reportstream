@@ -16,6 +16,9 @@ export enum GLOBAL_STORAGE_KEYS {
     ORGANIZATION_OVERRIDE = "global-organization-override",
 }
 
+/* feature flags are just and array of strings saved into a single localStorage variable */
+const FEATURE_FLAG_LOCALSTORAGE_KEY = "featureFlags";
+
 const fetchJsonFromSession = (storageKey: string) => {
     const storedString = sessionStorage.getItem(storageKey);
     if (!storedString) {
@@ -77,5 +80,21 @@ export function storeSessionMembershipState(membershipState: string) {
     sessionStorage.setItem(
         GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE,
         membershipState
+    );
+}
+
+export function getSavedFeatureFlags(): string[] {
+    const saved =
+        window.localStorage.getItem(FEATURE_FLAG_LOCALSTORAGE_KEY) || "";
+    if (saved === "") {
+        return [];
+    }
+    return saved.split("\t");
+}
+
+export function storeFeatureFlags(flags: string[]) {
+    window.localStorage.setItem(
+        FEATURE_FLAG_LOCALSTORAGE_KEY,
+        flags.join("\t")
     );
 }
