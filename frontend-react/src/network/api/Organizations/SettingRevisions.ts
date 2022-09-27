@@ -39,11 +39,9 @@ export const useSettingRevisionEndpointsQuery = (
         useAuthorizedFetch<SettingRevision[]>();
 
     // get all lookup tables in order to get metadata
-    return rsUseQuery(
-        ["org", "settingType"],
-        async () =>
-            await authorizedFetch(settingRevisionEndpoints.getList, {
-                segments: params,
-            })
+    return rsUseQuery(["org", "settingType"], async () =>
+        authorizedFetch(settingRevisionEndpoints.getList, {
+            segments: params,
+        })
     );
 };

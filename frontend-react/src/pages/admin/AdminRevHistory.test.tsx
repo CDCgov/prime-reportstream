@@ -48,8 +48,6 @@ const fakeRows: SettingRevision[] = [
 ];
 // </editor-fold>
 
-// const mockError = new Error();
-
 // router path
 jest.mock("react-router-dom", () => ({
     useParams: () => ({ org: "ignore", settingType: "organization" }),
