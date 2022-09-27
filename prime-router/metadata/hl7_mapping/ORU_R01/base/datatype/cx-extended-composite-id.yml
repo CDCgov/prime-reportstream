@@ -1,9 +1,8 @@
 name: ORU-R01-cx-extended-composite-id
 constants:
-  hl7CXFieldPath: /PATIENT_RESULT/PATIENT/(%{hl7CXField})(%{idIndex})
+  hl7CXFieldPath: '%{hl7CXField}(%{idIndex})'
 elements:
   - name: id-number
-    required: true
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7CXFieldPath}-1' ]
 

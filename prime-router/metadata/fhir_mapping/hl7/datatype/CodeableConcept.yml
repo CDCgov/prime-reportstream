@@ -7,7 +7,7 @@ coding_1:
    specs: CE |CNE
    vars:
       code: CE.1 |CNE.1
-      system: CE.3 |CNE.3
+      system: $overrideSystem | CE.3 |CNE.3
       version: CE.6 |CNE.7
 
 coding_2:
@@ -55,7 +55,7 @@ coding_6:
   condition: $code NOT_NULL
   vars:
     code: String, CWE.1
-    system: CWE.3
+    system: $overrideSystem | CWE.3
 
 coding_7:
    valueOf: $coding

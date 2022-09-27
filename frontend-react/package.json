@@ -17,6 +17,7 @@
         "@types/lodash.omit": "^4.5.7",
         "@types/lodash.pick": "^4.4.7",
         "@types/lodash.range": "^3.2.7",
+        "@types/lodash.uniq": "^4.5.7",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "axios": "^0.26.0",
@@ -29,6 +30,7 @@
         "lodash.omit": "^4.5.0",
         "lodash.pick": "^4.4.0",
         "lodash.range": "^3.2.0",
+        "lodash.uniq": "^4.5.0",
         "moment": "^2.29.4",
         "otplib": "^12.0.1",
         "react": "<18.0.0",
@@ -97,7 +99,7 @@
         },
         "globals": {
             "RequestInit": true,
-            "process":"readonly"
+            "process": "readonly"
         },
         "rules": {
             "import/no-unresolved": 0,

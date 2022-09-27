@@ -7,11 +7,16 @@ type:
    vars:
      valueIn: CX.5 | $code | $alternateCode | $type
 
-system:
-     type: SYSTEM_URL
-     valueOf: CX.4 | CWE.4 |EI.2 | $system
-     expressionType: HL7Spec
-    
+system_1:
+  type: STRING
+  valueOf: CX.4 | CWE.4 |EI.2 | $system
+  expressionType: HL7Spec
+
+system_2:
+  type: SYSTEM_URL
+  valueOf: CX.4 | CWE.4 |EI.2 | $system
+  expressionType: HL7Spec
+
 value:
      type: STRING
      valueOf: CX.1 | CWE.1 |EI.1 | $value
@@ -24,4 +29,18 @@ period:
     vars:
        start: CX.7 | CWE.7
        end: CX.8 | CWE.8
+
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, EI.3
+    value: $oidUrlPrefix + EI.3
+    systemStr: String, EI.4
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
 

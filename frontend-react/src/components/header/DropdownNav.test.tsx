@@ -2,6 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import React from "react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
 import { AdminDropdown } from "./DropdownNav";
 
@@ -46,6 +47,13 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
 });
 
 describe("AdminDropdownNav", () => {
+    beforeEach(() => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag === "value-sets"),
+        });
+    });
     test("Admin menu expands and contracts on click and selection", () => {
         renderWithRouter(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
@@ -73,7 +81,12 @@ describe("AdminDropdownNav", () => {
         expect(featureFlags).toBeInTheDocument();
     });
 
-    test("Flagged admin pages are hidden", () => {
+    test("Flagged admin pages are hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "value-sets"),
+        });
         renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 
@@ -82,8 +95,6 @@ describe("AdminDropdownNav", () => {
     });
 
     test("Flagged admin pages are shown when flag is set", () => {
-        mockLocalStorage.setItem("featureFlags", ["value-sets"]);
-
         renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 

@@ -1,0 +1,23 @@
+name: Frontend
+
+on:
+  pull_request:
+    branches:
+      - master
+      - production
+    paths-ignore:
+      - "frontend-react/**"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "frontend-react/**"
+
+jobs:
+  Build_Router:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build frontend
+        run: 'echo "No build required"'
+  

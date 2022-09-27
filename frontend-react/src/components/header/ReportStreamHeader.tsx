@@ -13,11 +13,9 @@ import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import {
-    CheckFeatureFlag,
-    FeatureFlagName,
-} from "../../pages/misc/FeatureFlags";
+import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import config from "../../config";
+import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
@@ -63,6 +61,7 @@ const SupportIA = () => (
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { activeMembership } = useSessionContext();
+    const { checkFlag } = useFeatureFlags();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
@@ -123,14 +122,12 @@ export const ReportStreamHeader = () => {
             // Validate NavLink
             const features = [
                 {
-                    access: CheckFeatureFlag(
-                        FeatureFlagName.VALIDATION_SERVICE
-                    ),
+                    access: checkFlag(FeatureFlagName.VALIDATION_SERVICE),
                     slug: "validate",
                     title: "Validate",
                 },
                 {
-                    access: CheckFeatureFlag(FeatureFlagName.USER_UPLOAD),
+                    access: checkFlag(FeatureFlagName.USER_UPLOAD),
                     slug: "user-upload",
                     title: "User Upload",
                 },

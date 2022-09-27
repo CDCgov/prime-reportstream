@@ -11,7 +11,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-    schema: entity-identifier
+    schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: specimen-identifier-filler
@@ -19,21 +19,21 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-    schema: entity-identifier
+    schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: type
     resource: '%resource.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
-    schema: coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: source-site
     resource: '%resource.collection.bodySite'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
-    schema: coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: description
     value: [ '%resource.note.text' ]
@@ -69,4 +69,4 @@ elements:
     resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
-    schema: coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions

@@ -68,7 +68,7 @@ object FhirPathUtils : Logging {
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.debug(
+            logger.error(
                 "Unknown error while evaluating FHIR expression $expression. " +
                     "Returning empty resource list.",
                 e
@@ -103,7 +103,7 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.debug(
+            logger.error(
                 "Unknown error while evaluating FHIR expression $expression for condition. " +
                     "Setting value of condition to false.",
                 e
