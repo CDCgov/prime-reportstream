@@ -1029,6 +1029,10 @@ data class Element(
             }
         }
 
+        // TODO: Look into using PhoneUtilities.kt instead of having this phone checking here. Mo wanted to check
+        //  into if the 'maybeAPhoneNumber' regex is even still needed. It appears the 'default region' list is
+        //  not needed, as in a real use case it never gets past 'US' since it is just assigning default region
+        //  if there is not a country code. Leaving this here for now (9/22/2022) for future tech debt evaluation
         /**
          * Given [cleanedValue] this method checks to see if it is possibly a phone number in a safe
          * way without blowing up all the processing of rows in a report. If the phone number is probably
