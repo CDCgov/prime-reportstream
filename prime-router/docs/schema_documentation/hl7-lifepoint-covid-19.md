@@ -778,6 +778,10 @@ The city of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country of the facility
+
 ---
 
 **Name**: ordering_facility_county
