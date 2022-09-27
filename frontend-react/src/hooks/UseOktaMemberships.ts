@@ -242,7 +242,7 @@ export const useOktaMemberships = (
             payload: token,
         });
         // here we are only concerned about changes to a users orgs / memberships
-    }, [organizations, token]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         // if we're in an uninitialized state, but okta has loaded, set our initialized flag
