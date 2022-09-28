@@ -90,7 +90,7 @@ const dataToAccordionItems = (props: {
     return results;
 };
 
-/** this extends SettingRevisionsParams so it can be passed to down without having to be recomposed, these include
+/** this extends SettingRevisionsParams so it can be passed down without having to be recomposed, these include
  * the org and settingType cgi params */
 interface MainComponentProps extends SettingRevisionParams {
     leftSelectedListItem: string;
