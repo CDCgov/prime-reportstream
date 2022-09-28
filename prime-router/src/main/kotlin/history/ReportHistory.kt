@@ -56,6 +56,7 @@ abstract class ReportHistory(
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DetailedReport(
+    @JsonIgnore
     val reportId: UUID,
     @JsonIgnore
     val receivingOrg: String?,
