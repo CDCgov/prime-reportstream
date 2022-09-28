@@ -13,7 +13,7 @@ import Spinner from "../../components/Spinner";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import { formatDate } from "../../utils/misc";
+import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 
@@ -23,7 +23,10 @@ type clickHandler = (
     data: SettingRevision
 ) => void;
 
-/** Accordion components need data in specific format **/
+/**
+ * Accordion components need data in specific format
+ * See: https://trussworks.github.io/react-uswds/?path=/story/components-accordion--borderless
+ * **/
 const dataToAccordionItems = (props: {
     key: string; // used for React key and passed back to the onClickHandler
     selectedKey: string;
@@ -41,15 +44,7 @@ const dataToAccordionItems = (props: {
     );
 
     // group the data to make generating the prop content logic easier to follow
-    const grouped: { [key: string]: SettingRevision[] } = {};
-    props.data.forEach((item) => {
-        const name = item.name;
-        if (!grouped[name]) {
-            // key to array map. create initial entry for this group if needed
-            grouped[name] = [];
-        }
-        grouped[name].push(item);
-    });
+    const grouped = groupBy(props.data, (each) => each.name);
 
     // turn each group into a html list and add to the content of the accordion
     for (let [key, settings] of Object.entries(grouped)) {

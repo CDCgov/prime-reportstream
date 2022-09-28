@@ -47,26 +47,26 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
 
             const differ = Diff(rightText, leftText);
             differ.compose();
-            const sesses = differ.getses();
+            const sesArray = differ.getses();
 
             // because we're modifying text, it will change offsets UNLESS we go backwards.
             // the later items in the patches array are sequential
             let patchedLeftStr = rightText;
             let patchedRightStr = leftText;
 
-            for (let ii = sesses.length - 1; ii >= 0; --ii) {
-                const eachses = sesses[ii];
-                if (eachses.sestype === SES_TYPE.DELETE) {
+            for (let i = sesArray.length - 1; i >= 0; --i) {
+                const eachSes = sesArray[i];
+                if (eachSes.sestype === SES_TYPE.DELETE) {
                     patchedLeftStr = insertHighlight(
                         patchedLeftStr,
-                        eachses.index - 1,
-                        eachses.len
+                        eachSes.index - 1,
+                        eachSes.len
                     );
-                } else if (eachses.sestype === SES_TYPE.ADD) {
+                } else if (eachSes.sestype === SES_TYPE.ADD) {
                     patchedRightStr = insertHighlight(
                         patchedRightStr,
-                        eachses.index - 1,
-                        eachses.len
+                        eachSes.index - 1,
+                        eachSes.len
                     );
                 } // ignore SES_TYPE.COMMON
             }
@@ -89,7 +89,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
             // initialization only
             refreshHighlights(props.leftText, props.rightText);
         }
-    }, [props.leftText?.length, props.rightText?.length, refreshHighlights]);
+    }, [props.leftText, props.rightText, refreshHighlights]);
 
     return (
         <ScrollSync>
