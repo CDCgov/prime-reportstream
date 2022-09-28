@@ -3595,6 +3595,38 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
+- name: me-phd
+  description: Maine Public Health Department
+  jurisdiction: STATE
+  stateCode: RI
+  receivers:
+    - name: elr
+      organizationName: me-phd
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, ME, patient_state, ME)
+      timeZone: EASTERN
+      dateTimeFormat: LOCAL
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: ME_DOH
+        receivingFacilityName: ME_DOH
+        suppressHl7Fields: null
+        replaceValueAwithB: null
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 - name: sc-phd
   description: South Carolina Public Health Department
   jurisdiction: STATE
