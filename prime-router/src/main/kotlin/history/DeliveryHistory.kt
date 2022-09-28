@@ -2,8 +2,10 @@ package gov.cdc.prime.router.history
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import java.time.OffsetDateTime
@@ -26,21 +28,25 @@ import java.time.OffsetDateTime
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
-        "deliveryId", "sent", "expires", "receivingOrg", "receivingOrgSvc", "httpStatus",
+        "deliveryId", "batchReadyAt", "expires", "receiver",
         "reportId", "topic", "reportItemCount", "fileName", "fileType"
     ]
 )
 class DeliveryHistory(
     @JsonProperty("deliveryId")
     actionId: Long,
-    @JsonProperty("sent")
+    @JsonProperty("batchReadyAt")
     createdAt: OffsetDateTime,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     externalName: String? = "",
     reportId: String? = null,
-    topic: String? = null,
+    @JsonProperty("topic")
+    schema_topic: String? = null,
     @JsonProperty("reportItemCount")
-    reportItemCount: Int? = null,
+    itemCount: Int? = null,
+    @JsonIgnore // Instead, use receiver, defined below.
     val receivingOrg: String,
+    @JsonIgnore // Instead, use receiver, defined below.
     val receivingOrgSvc: String?,
     @JsonIgnore
     val bodyUrl: String? = null,
@@ -53,8 +59,8 @@ class DeliveryHistory(
     createdAt,
     externalName,
     reportId,
-    topic,
-    reportItemCount
+    schema_topic,
+    itemCount
 ) {
     @JsonIgnore
     private val DAYS_TO_SHOW = 30L
@@ -77,6 +83,18 @@ class DeliveryHistory(
             Report.Format.safeValueOf(this.bodyFormat),
             this.createdAt
         )
+    }
+
+    /**
+     * The fullName of the recipient of the input report, or less, if missing some fields.
+     */
+    var receiver: String? = ""
+    init {
+        receiver = when {
+            receivingOrg.isNullOrBlank() -> ""
+            receivingOrgSvc.isNullOrBlank() -> receivingOrg
+            else -> Receiver.createFullName(receivingOrg, receivingOrgSvc)
+        }
     }
 }
 
