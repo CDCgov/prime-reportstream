@@ -253,16 +253,6 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
-            {showWarningBanner && (
-                <FileWarningBanner message={warningText || ""} />
-            )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading="We found non-critical issues in your file"
-                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
-                />
-            )}
             {(reportId || overallStatus === "Valid") && (
                 <FileSuccessDisplay
                     fileName={fileName}
@@ -274,6 +264,16 @@ const FileHandler = ({
                     heading={successMessage}
                     message={successDescription}
                     showExtendedMetadata={showSuccessMetadata}
+                />
+            )}
+            {showWarningBanner && (
+                <FileWarningBanner message={warningText || ""} />
+            )}
+            {warnings.length > 0 && (
+                <FileWarningsDisplay
+                    warnings={warnings}
+                    heading="We found non-critical issues in your file"
+                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
             {errors.length > 0 && (
@@ -289,7 +289,7 @@ const FileHandler = ({
                 <FileQualityFilterDisplay
                     destinations={reportItems}
                     heading="Some records were filtered out due to possible data quality issues"
-                    message={`The following records were filtered out while processing/validating your file. ${warningDescription}, lorem ipsum and all that.`}
+                    message={`The following records were filtered out while processing/validating your file.`}
                 />
             )}
             {isSubmitting && (

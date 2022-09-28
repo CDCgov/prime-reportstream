@@ -104,7 +104,7 @@ export const FileSuccessDisplay = ({
  * @param errorMessage - the error message to potentially reformat
  * @returns - the original or transformed error message
  */
-const truncateErrorMesssage = (errorMessage: string | undefined): string => {
+const truncateErrorMessage = (errorMessage: string | undefined): string => {
     if (!errorMessage) return "";
 
     if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
@@ -240,7 +240,7 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, indices, field, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{truncateErrorMesssage(message)}</td>
+            <td>{truncateErrorMessage(message)}</td>
             <td>
                 {indices?.length && indices.length > 0 && (
                     <span>Row(s): {indices.join(", ")}</span>
@@ -282,36 +282,44 @@ type FileQualityFilterDisplayProps = {
 
 export const FileQualityFilterDisplay = ({
     destinations,
-    message,
     heading,
+    message,
 }: FileQualityFilterDisplayProps) => {
-    debugger;
-    console.log(destinations);
-
     return (
         <>
             <StaticAlert type={"warning"} heading={heading} message={message} />
             <h3>Jurisdictions</h3>
-            {destinations?.map((d, i) => (
-                <table
-                    className="usa-table usa-table--borderless"
-                    data-testid="error-table"
-                >
-                    <thead>
-                        <tr>
-                            <th>{d.organization}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {d.filteredReportItems.map((f, i) => {
-                            return (
-                                <tr key={i}>
-                                    <td> {f.message}</td>
+            {destinations?.map((d) => (
+                <>
+                    {d.filteredReportItems.length > 0 && (
+                        <table
+                            className="usa-table usa-table--borderless"
+                            data-testid="error-table"
+                        >
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {d.organization}
+                                        <span className="record-count">
+                                            {" "}
+                                            ({d.filteredReportItems.length})
+                                            record(s) filtered out
+                                        </span>
+                                    </th>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {d.filteredReportItems.map((f, i) => {
+                                    return (
+                                        <tr key={i}>
+                                            <td> {f.message}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    )}
+                </>
             ))}
         </>
     );

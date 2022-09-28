@@ -172,7 +172,6 @@ function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload
 ): Partial<FileHandlerState> {
-    debugger;
     const {
         response: {
             destinations,
@@ -188,10 +187,6 @@ function calculateRequestCompleteState(
     const destinationList = destinations?.length
         ? destinations.map((d: Destination) => d.organization).join(", ")
         : "";
-
-    // const destinationReportItemList = destinations?.length
-    //     ? destinations.map((d: Destination) => d.filteredReportItems)
-    //     : [];
 
     return {
         destinations: destinationList,
