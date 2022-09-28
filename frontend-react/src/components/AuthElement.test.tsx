@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
@@ -196,5 +196,34 @@ describe("AuthElement unit tests", () => {
         );
         const spinner = await screen.findByTestId("rs-spinner");
         expect(spinner).toBeInTheDocument();
+    });
+    test("Permits admins whose active membership is not DHPrimeAdmins", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: new Map<string, MembershipSettings>().set(
+                "DHPrimeAdmins",
+                {
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: "PrimeAdmins",
+                }
+            ),
+            activeMembership: {
+                memberType: MemberType.NON_STAND,
+                parsedName: "IHaveNoGroupsSadFace",
+            },
+            dispatch: () => {},
+            initialized: true,
+            adminHardCheck: true,
+        });
+        render(
+            <AuthElement
+                element={<TestElement />}
+                requiredUserType={MemberType.PRIME_ADMIN}
+            />
+        );
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
+        expect(mockUseNavigate).not.toHaveBeenCalled();
     });
 });
