@@ -5,17 +5,16 @@ id:
   expressionType: JEXL
 
 identifier_1:
-  valueOf: datatype/Identifier
+  valueOf: datatype/Entity_Identifier_Pair_1
   generateList: true
   expressionType: resource
-  specs: SPM.2.1
+  specs: SPM.2
 
 identifier_2:
-  valueOf: datatype/Identifier
+  valueOf: datatype/Entity_Identifier_Pair_2
   generateList: true
   expressionType: resource
-  vars:
-    value: SPM.2.2.1
+  specs: SPM.2
   constants:
     alternateCode: FGN
     alternateSystem: v2-0203

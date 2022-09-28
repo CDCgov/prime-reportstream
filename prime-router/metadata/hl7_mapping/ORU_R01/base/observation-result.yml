@@ -13,9 +13,10 @@ elements:
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
-  - name: result-value-type-cwe
+  - name: result-value-type-ce
     condition: '%resource.value is CodeableConcept'
-    value: [ '"CWE"' ]
+    # Note that for v.2.5 and earlier CWE does not exist.
+    value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
@@ -68,12 +69,12 @@ elements:
     condition: '%resource is CodeableConcept'
     constants:
       cweFieldPath: '%{hl7OBXField}-5'
-    schema: coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: observation-value-numeric
     resource: '%resource.value'
     condition: '%resource is Ratio'
-    schema: structured-numeric
+    schema: datatype/sn-structured-numeric
 
   - name: observation-units-identifier
     value: [ '%resource.extension(%`rsext-units`).value.coding.code' ]
@@ -105,6 +106,10 @@ elements:
     value: [ '%resource.coding.system' ]
     hl7Spec: [ '%{hl7OBXField}-6-6' ]
 
+  - name: observation-reference-range
+    value: [ '%resource.referenceRange.text' ]
+    hl7Spec: [ '%{hl7OBXField}-7' ]
+
   - name: observation-abnormal-flag
     value: [ '%resource.interpretation.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-8' ]
@@ -132,7 +137,7 @@ elements:
     resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier'
     constants:
       ceFieldPath: '%{hl7OBXField}-15'
-    schema: coded-element
+    schema: datatype/ce-coded-element
 
   - name: observation-producer-id-identifier
     resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
@@ -155,7 +160,7 @@ elements:
 
   - name: performing-organization-name
     resource: '%resource.performer.resolve().organization.resolve()'
-    schema: xon-organization
+    schema: datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
@@ -163,14 +168,14 @@ elements:
     resource: '%resource.performer.resolve().organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
-    schema: xad-extended-address
+    schema: datatype/xad-extended-address
     resourceIndex: contactIndex
 
   - name: performing-organization-director
     resource: '%resource.performer.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
-    schema: xcn-contact
+    schema: datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: observation-note

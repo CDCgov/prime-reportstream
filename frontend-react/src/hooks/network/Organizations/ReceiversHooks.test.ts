@@ -18,6 +18,7 @@ const fakeSession = {
         senderName: undefined,
     },
     dispatch: () => {},
+    initialized: true,
 };
 const handlers = [
     rest.get(
