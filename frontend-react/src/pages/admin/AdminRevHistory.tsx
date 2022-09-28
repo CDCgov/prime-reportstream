@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React, { Suspense, useCallback, useState } from "react";
 import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
@@ -16,16 +15,19 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
+
+type clickHandler = (
+    key: string,
+    itemClickedKey: string,
+    data: SettingRevision
+) => void;
 
 /** Accordion components need data in specific format **/
 const dataToAccordionItems = (props: {
     key: string; // used for React key and passed back to the onClickHandler
     selectedKey: string;
-    onClickHandler: (
-        key: string,
-        itemClickedKey: string,
-        data: SettingRevision
-    ) => void;
+    onClickHandler: clickHandler;
     data: SettingRevision[];
 }): AccordionItemProps[] => {
     const results: AccordionItemProps[] = [];
@@ -93,11 +95,7 @@ const dataToAccordionItems = (props: {
 interface MainComponentProps extends SettingRevisionParams {
     leftSelectedListItem: string;
     rightSelectedListItem: string;
-    onClickHandler: (
-        key: string,
-        itemClickedKey: string,
-        data: SettingRevision
-    ) => void;
+    onClickHandler: clickHandler;
 }
 
 /**
@@ -159,7 +157,7 @@ const AdminRevHistory = () => {
     const [leftItem, setLeftItem] = useState<SettingRevision | null>(null);
     const [rightItem, setRightItem] = useState<SettingRevision | null>(null);
 
-    const onClickHandler = useCallback(
+    const onClickHandler: clickHandler = useCallback(
         (key: string, itemClickedKey: string, data: SettingRevision) => {
             const normalizeJson = (jsonStr: string): string =>
                 JSON.stringify(JSON.parse(jsonStr), jsonSortReplacer, 2);
@@ -183,9 +181,7 @@ const AdminRevHistory = () => {
 
     return (
         <>
-            <Helmet>
-                <title>Admin Revision History</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Revision History" />
 
             <section className="grid-container margin-top-0">
                 <h4>

@@ -10,6 +10,13 @@ interface StaticCompareProps {
     leftText: string;
 }
 
+/**
+ * local function that puts `<mark></mark>` around text
+ * @param s1 input string
+ * @param offset start of text to have <mark>
+ * @param length length of text to have <mark>
+ * @return updated string
+ */
 const insertHighlight = (
     s1: string,
     offset: number,
@@ -82,7 +89,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
             // initialization only
             refreshHighlights(props.leftText, props.rightText);
         }
-    }, [props, refreshHighlights]);
+    }, [props.leftText?.length, props.rightText?.length, refreshHighlights]);
 
     return (
         <ScrollSync>
