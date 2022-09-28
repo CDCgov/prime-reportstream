@@ -197,6 +197,11 @@ describe("AuthElement unit tests", () => {
         const spinner = await screen.findByTestId("rs-spinner");
         expect(spinner).toBeInTheDocument();
     });
+    /* This can happen if a user is a member of multiple Okta orgs, and the one set for them
+     * was a non-admin memberType. Because admins are the only ones able to mock memberType, we assign
+     * it based on a users first Okta group.
+     *
+     * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
@@ -210,8 +215,8 @@ describe("AuthElement unit tests", () => {
                 }
             ),
             activeMembership: {
-                memberType: MemberType.NON_STAND,
-                parsedName: "IHaveNoGroupsSadFace",
+                memberType: MemberType.RECEIVER,
+                parsedName: "xx-phd",
             },
             dispatch: () => {},
             initialized: true,
