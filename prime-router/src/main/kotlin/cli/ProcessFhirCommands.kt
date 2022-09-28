@@ -8,8 +8,11 @@ import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -44,6 +47,19 @@ class ProcessFhirCommands : CliktCommand(
         .file()
 
     /**
+     * The format to output the data.
+     */
+    private val outputFormat by option("--output-format", help = "output format")
+        .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
+
+    /**
+     * The message number to use if the file is an HL7 batch message.
+     */
+    private val hl7ItemIndex by option(
+        "--hl7-msg-index", help = "message number to use from an HL7 batch file, 0 based"
+    ).int()
+
+    /**
      * Schema location for the FHIR to HL7 conversion
      */
     private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
@@ -57,37 +73,69 @@ class ProcessFhirCommands : CliktCommand(
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
-        when (inputFile.extension.uppercase()) {
-            "HL7" -> {
-                val messages = HL7Reader(actionLogger).getMessages(contents)
-                if (messages.size > 1) throw CliktError("Only one HL7 message is supported.")
-                // if a hl7 parsing failure happens, throw error and show the message
-                if (messages.size == 1 && messages.first().toString().lowercase().contains("failed"))
-                    throw CliktError("HL7 parser failure. ${messages.first()}")
-                val fhirBundle = HL7toFhirTranslator.getInstance().translate(messages[0])
-                outputResult(fhirBundle, actionLogger)
+        val inputFileType = inputFile.extension.uppercase()
+        when {
+            // HL7 to FHIR conversion
+            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() ->
+                outputResult(convertToFhir(contents, actionLogger), actionLogger)
+
+            // FHIR to HL7 conversion
+            inputFileType == "FHIR" || inputFileType == "JSON" -> {
+                outputResult(convertToHl7(contents))
             }
 
-            "FHIR", "JSON" -> {
-                when {
-                    fhirToHl7Schema == null ->
-                        throw CliktError("You must specify a schema.")
-
-                    !fhirToHl7Schema!!.canRead() ->
-                        throw CliktError("Unable to read schema file ${fhirToHl7Schema!!.absolutePath}.")
-
-                    else -> {
-                        val bundle = FhirTranscoder.decode(contents)
-                        val message = FhirToHl7Converter(
-                            bundle, fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
-                        )
-                            .convert()
-                        outputResult(message)
-                    }
-                }
+            // HL7 to FHIR to HL7 conversion
+            inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
+                val bundle = convertToFhir(contents, actionLogger)
+                outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
             }
+
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
         }
+    }
+
+    /**
+     * Convert a FHIR bundle as a [jsonString] to an HL7 message.
+     * @return an HL7 message
+     */
+    private fun convertToHl7(jsonString: String): Message {
+        return when {
+            fhirToHl7Schema == null ->
+                throw CliktError("You must specify a schema.")
+
+            !fhirToHl7Schema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${fhirToHl7Schema!!.absolutePath}.")
+
+            else -> {
+                val bundle = FhirTranscoder.decode(jsonString)
+                FhirToHl7Converter(
+                    bundle, fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
+                )
+                    .convert()
+            }
+        }
+    }
+
+    /**
+     * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
+     * warnings or errors from the reading of the HL7 data to HL7 objects.  Note that the --hl7-msg-index
+     * is required for HL7 batch messages as this function only returns one FHIR bundle.
+     * @return a FHIR bundle that represents the data in the one HL7 message
+     */
+    private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
+        val messages = HL7Reader(actionLogger).getMessages(hl7String)
+        if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
+        val message = if (messages.size > 1) {
+            if (hl7ItemIndex == null)
+                throw CliktError("Only one HL7 message can be converted. Use the --hl7-msg-index.")
+            else if (hl7ItemIndex!! < 0 || hl7ItemIndex!! >= messages.size)
+                throw CliktError("Invalid HL7 message index. Must be a number 0 to ${messages.size - 1}.")
+            else messages[hl7ItemIndex!!]
+        } else messages[0]
+        // if a hl7 parsing failure happens, throw error and show the message
+        if (message.toString().lowercase().contains("failed"))
+            throw CliktError("HL7 parser failure. $message")
+        return HL7toFhirTranslator.getInstance().translate(message)
     }
 
     /**

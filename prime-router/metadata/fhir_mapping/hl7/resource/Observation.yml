@@ -1,7 +1,7 @@
 resourceType: Observation
 id:
   type: STRING
-  valueOf: "UUID.randomUUID()"
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 identifier_1: #joins filler | placer | MSH.7 with whatever gets returned from BUILD_FROM_CWE. that magic happens in identifier_Observation
@@ -166,7 +166,7 @@ valueRatio_1:
   expressionType: resource
   specs: OBX.6
   vars:
-    comparator: STRING, OBX.5.1
+    comparator: OBX.5.1
     numerator: OBX.5.2
     separator: OBX.5.3
     denominator: OBX.5.4

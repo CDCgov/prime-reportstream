@@ -237,6 +237,7 @@ describe("useOktaMemberships", () => {
                 parsedName: "PrimeAdmins",
                 memberType: MemberType.PRIME_ADMIN,
             });
+            expect(result.current.state.initialized).toEqual(true);
 
             act(() =>
                 result.current.dispatch({
@@ -245,7 +246,8 @@ describe("useOktaMemberships", () => {
             );
             expect(result.current.state).toEqual({
                 memberships: undefined,
-                activeMembership: undefined,
+                activeMembership: null,
+                initialized: true,
             });
         });
     });
@@ -285,12 +287,14 @@ describe("useOktaMemberships", () => {
                 memberType: MemberType.PRIME_ADMIN,
             });
             expect(result.current.state.memberships).toEqual(fakeMemberships);
+            expect(result.current.state.initialized).toEqual(true);
 
             rerender({
                 isAuthenticated: false,
             });
-            expect(result.current.state.activeMembership).toEqual(undefined);
+            expect(result.current.state.activeMembership).toEqual(null);
             expect(result.current.state.memberships).toEqual(undefined);
+            expect(result.current.state.initialized).toEqual(true);
         });
     });
 });
@@ -300,7 +304,7 @@ describe("helper functions", () => {
         test("can handle token with undefined claims", () => {
             const state = membershipsFromToken(mockToken());
             expect(state).toEqual({
-                activeMembership: undefined,
+                activeMembership: null,
                 memberships: undefined,
             });
         });
@@ -314,7 +318,7 @@ describe("helper functions", () => {
                 })
             );
             expect(state).toEqual({
-                activeMembership: undefined,
+                activeMembership: null,
                 memberships: undefined,
             });
         });
@@ -410,6 +414,7 @@ describe("helper functions", () => {
                 JSON.stringify({
                     activeMembership: fakeMemberships.get("DHPrimeAdmins"),
                     memberships: fakeMemberships,
+                    initialized: true,
                 })
             );
 
@@ -427,7 +432,7 @@ describe("helper functions", () => {
             );
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
-                    activeMembership: undefined,
+                    activeMembership: null,
                     memberships: undefined,
                 })
             );

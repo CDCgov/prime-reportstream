@@ -20,6 +20,7 @@ import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import config from "../../config";
 
 import {
     DropdownComponent,
@@ -31,6 +32,8 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
+
+const { RS_API_URL } = config;
 
 type EditSenderSettingsFormProps = {
     orgname: string;
@@ -63,7 +66,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+            `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,

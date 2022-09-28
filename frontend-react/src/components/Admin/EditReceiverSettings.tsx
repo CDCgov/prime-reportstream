@@ -25,6 +25,7 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import config from "../../config";
 
 import {
     ConfirmSaveSettingModal,
@@ -37,6 +38,8 @@ import {
     TextInputComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
+
+const { RS_API_URL } = config;
 
 type EditReceiverSettingsFormProps = {
     orgname: string;
@@ -70,7 +73,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
+            `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,

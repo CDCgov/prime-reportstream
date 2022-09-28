@@ -134,7 +134,8 @@ runs:
       id: backend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
           echo "::set-output name=has_router_change::true"
         else
           echo "::set-output name=has_router_change::${{ steps.filter.outputs.router }}"
@@ -145,7 +146,8 @@ runs:
       id: frontend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
           echo "::set-output name=has_react_change::true"
         else
           echo "::set-output name=has_react_change::${{ steps.filter.outputs.frontend_react }}"

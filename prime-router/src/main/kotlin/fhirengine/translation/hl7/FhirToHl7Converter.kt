@@ -104,6 +104,7 @@ class FhirToHl7Converter(
                         else CustomContext.addConstant(
                             element.resourceIndex!!, index.toString(), elementContext
                         )
+                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
@@ -140,7 +141,13 @@ class FhirToHl7Converter(
         run findValue@{
             element.value.forEach {
                 val value = if (it.isBlank()) ""
-                else FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                else try {
+                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                } catch (e: SchemaException) {
+                    logger.error("Error while getting value for element ${element.name}", e)
+                    ""
+                }
+                logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotBlank()) {
                     retVal = value
                     return@findValue
@@ -205,7 +212,7 @@ class FhirToHl7Converter(
             val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
-                logger.debug("Set HL7 $resolvedHl7Spec = $value")
+                logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
                 if (strict) {
@@ -219,10 +226,11 @@ class FhirToHl7Converter(
                     throw SchemaException(msg, e)
                 } else logger.warn(msg, e)
             } catch (e: Exception) {
+                val msg = "Unknown error while processing element ${element.name}."
                 if (strict) {
-                    logger.error(e)
-                    throw HL7ConversionException(e.message ?: "", e)
-                } else logger.warn(e.message ?: "", e)
+                    logger.error(msg, e)
+                    throw HL7ConversionException(msg, e)
+                } else logger.warn(msg, e)
             }
         }
     }

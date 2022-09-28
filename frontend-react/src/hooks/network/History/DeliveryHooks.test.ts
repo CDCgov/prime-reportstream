@@ -21,6 +21,7 @@ describe("DeliveryHooks", () => {
                 senderName: undefined,
             },
             dispatch: () => {},
+            initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsList("testOrg", "testService")
@@ -43,6 +44,7 @@ describe("DeliveryHooks", () => {
                 senderName: undefined,
             },
             dispatch: () => {},
+            initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsDetail("123")

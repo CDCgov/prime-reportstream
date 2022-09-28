@@ -14,7 +14,7 @@ The LIVD table needs to be updated locally, in production, and in staging.
 
 For prod and staging use --env and assign the prod or staging. For local don't include --env option.
 
-1. Run ./prime livd-table-download --activate --env < prod or staging >
+1. Run ./prime livd-table-update --activate --env < prod or staging >
 
 ### Note:
 

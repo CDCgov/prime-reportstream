@@ -1,0 +1,34 @@
+# Special SPM-2 type to handle EIP since the subcomponent spec is not supported (e.g. SPM.2.1.2)
+type:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   expressionType: resource
+   specs: $type
+   vars:
+     valueIn: $code | $alternateCode | $type
+
+system:
+  type: STRING
+  valueOf: EIP.2.2 | $system
+  expressionType: HL7Spec
+
+value:
+     type: STRING
+     valueOf: EIP.2.1 | $value
+     expressionType: HL7Spec
+     required: true
+
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, EIP.2.3
+    value: $oidUrlPrefix + EIP.2.3
+    systemStr: String, EIP.2.4
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
+

@@ -19,13 +19,13 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: xcn-prefix
-    value: [ '%resource.name.prefix' ]
-    hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
-
   - name: xcn-suffix
-    value: [ '%resource.name.suffix' ]
-    hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
+    value: [ '%resource.name.suffix.toString()' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
+
+  - name: xcn-prefix
+    value: [ '%resource.name.prefix.toString()' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
 
   - name: xcn-assigning-authority
     resource: '%resource.identifier[0]'

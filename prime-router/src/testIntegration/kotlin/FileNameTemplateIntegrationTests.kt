@@ -59,7 +59,7 @@ class FileNameTemplateIntegrationTests {
     }
 
     @BeforeTest
-    private fun setFormattedDate() {
+    fun setFormattedDate() {
         formattedDate = formatter.format(OffsetDateTime.now())
     }
 

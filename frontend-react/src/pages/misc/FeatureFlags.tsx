@@ -1,5 +1,4 @@
-import { Helmet } from "react-helmet";
-import React, { useRef, useState } from "react";
+import React, { useRef, useCallback } from "react";
 import {
     Alert,
     Button,
@@ -12,6 +11,14 @@ import {
 import { showAlertNotification } from "../../components/AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
+import { BasicHelmet } from "../../components/header/BasicHelmet";
+import {
+    FeatureFlagActionType,
+    useFeatureFlags,
+} from "../../contexts/FeatureFlagContext";
+import config from "../../config";
+
+const { DEFAULT_FEATURE_FLAGS } = config;
 
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
@@ -23,65 +30,14 @@ export enum FeatureFlagName {
     USER_UPLOAD = "user-upload",
 }
 
-/* feature flags are just and array of strings saved into a single localStorage variable */
-const LOCALSTORAGE_KEY = "featureFlags";
-
-function getSavedFeatureFlags(): string[] {
-    const saved = window.localStorage.getItem(LOCALSTORAGE_KEY) || "";
-    if (saved === "") {
-        return [];
-    }
-    return saved.split("\t");
-}
-
-export function addFeatureFlag(flag: string) {
-    const flagClean = flag.trim().toLowerCase();
-    if (flagClean === "") {
-        return;
-    }
-
-    // new Set() //   => remove duplication
-    const set = new Set([...getSavedFeatureFlags(), flagClean]);
-    const datastr = [...set.keys()].sort().join("\t");
-    window.localStorage.setItem(LOCALSTORAGE_KEY, datastr);
-}
-
-function removeFeatureFlag(flag: string) {
-    const flagLower = flag.trim().toLowerCase();
-    const removed = getSavedFeatureFlags().filter((f) => f !== flagLower);
-    window.localStorage.setItem(LOCALSTORAGE_KEY, removed.join("\t"));
-}
-
-// nothing outside of this file should need anything other than CheckFeatureFlag()...
-// except for tests... so this is how we export but make it CLEAR it's just for testing
-export const _exportForTesting = {
-    LOCALSTORAGE_KEY,
-    getSavedFeatureFlags,
-    addFeatureFlag,
-    removeFeatureFlag,
-};
-
-// PUBLIC functions
-export function CheckFeatureFlag(feature: string): boolean {
-    const lowercaseFeatureParam = feature.toLowerCase();
-    const featuresEnabledStored = getSavedFeatureFlags();
-    return featuresEnabledStored.includes(lowercaseFeatureParam);
-}
-
 export function FeatureFlagUIComponent() {
-    const [allFeatures, setAllFeatures] = useState<string[]>(
-        getSavedFeatureFlags()
-    );
     const newFlagInputText = useRef<HTMLInputElement>(null);
 
-    const deleteFlagClick = (flag: string) => {
-        removeFeatureFlag(flag);
-        setAllFeatures(getSavedFeatureFlags());
-    };
+    const { featureFlags, checkFlag, dispatch } = useFeatureFlags();
 
-    const addFlagClick = () => {
+    const addFlagClick = useCallback(() => {
         const newFlag = newFlagInputText.current?.value || "";
-        if (CheckFeatureFlag(newFlag)) {
+        if (checkFlag(newFlag)) {
             // already added.
             showAlertNotification(
                 "info",
@@ -89,8 +45,10 @@ export function FeatureFlagUIComponent() {
             );
             return;
         }
-        addFeatureFlag(newFlagInputText.current?.value || "");
-        setAllFeatures(getSavedFeatureFlags());
+        dispatch({
+            type: FeatureFlagActionType.ADD,
+            payload: newFlag,
+        });
         // clear
         if (newFlagInputText.current?.value) {
             newFlagInputText.current.value = "";
@@ -99,13 +57,20 @@ export function FeatureFlagUIComponent() {
             "success",
             `Feature flag '${newFlag}' added. You will now see UI related to this feature.`
         );
-    };
+    }, [newFlagInputText, checkFlag, dispatch]);
+    const deleteFlagClick = useCallback(
+        (flagname: string) => {
+            dispatch({
+                type: FeatureFlagActionType.REMOVE,
+                payload: flagname,
+            });
+        },
+        [dispatch]
+    );
 
     return (
         <>
-            <Helmet>
-                <title>Feature Flags - {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
+            <BasicHelmet pageTitle="Feature Flags" />
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>
                 <GridContainer containerSize="desktop">
@@ -134,23 +99,30 @@ export function FeatureFlagUIComponent() {
                         </Button>
                     </Grid>
 
-                    {allFeatures.map((flagname) => {
+                    {featureFlags.map((flagname, i) => {
                         return (
-                            <Grid gap="lg" className="margin-top-3">
+                            <Grid
+                                gap="lg"
+                                className="margin-top-3"
+                                key={`feature-flag-${i}`}
+                            >
                                 <Alert type="success" slim noIcon className="">
                                     <b>{flagname}</b>
-                                    <Button
-                                        key={flagname}
-                                        size="small"
-                                        className="padding-bottom-1 padding-top-1 float-right"
-                                        type="button"
-                                        outline
-                                        onClick={() =>
-                                            deleteFlagClick(flagname)
-                                        }
-                                    >
-                                        Delete
-                                    </Button>
+                                    {DEFAULT_FEATURE_FLAGS.indexOf(flagname) ===
+                                        -1 && (
+                                        <Button
+                                            key={flagname}
+                                            size="small"
+                                            className="padding-bottom-1 padding-top-1 float-right"
+                                            type="button"
+                                            outline
+                                            onClick={() =>
+                                                deleteFlagClick(flagname)
+                                            }
+                                        >
+                                            Delete
+                                        </Button>
+                                    )}
                                 </Alert>
                             </Grid>
                         );
