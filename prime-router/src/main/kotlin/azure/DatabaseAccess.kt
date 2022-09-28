@@ -440,6 +440,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * @param actionId id to search by
      * @param txn an optional database transaction
      * @return a ReportFile, or null if no such actionId exists.
+     *
+     * Danger:  many actions create more than one report.  This method randomly returns the first it finds.
      */
     fun fetchReportForActionId(
         actionId: Long,

@@ -31,17 +31,16 @@ class DatabaseDeliveryAccess(
     }
 
     /**
-     * Creates a condition filter based on the given organization parameters.
+     * Creates a condition filter based on the given [organization] and [orgService].
+     * This condition is for a list of reports ready for delivery.   These reports may or may not have been sent.
      *
-     * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @return Condition used to filter the organization involved in the requested history
      */
     override fun organizationFilter(
         organization: String,
         orgService: String?,
     ): Condition {
-        var filter = ACTION.ACTION_NAME.eq(TaskAction.send)
+        var filter = ACTION.ACTION_NAME.eq(TaskAction.batch)
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
 
         if (orgService != null) {
