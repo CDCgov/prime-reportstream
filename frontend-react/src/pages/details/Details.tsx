@@ -1,10 +1,10 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
-import React, { Suspense } from "react";
+import { NetworkErrorBoundary } from "rest-hooks";
+import { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import ReportResource from "../../resources/ReportResource";
+import { useReportsDetail } from "../../hooks/network/History/DeliveryHooks";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 
@@ -31,7 +31,9 @@ function useQuery(): { readonly [key: string]: string } {
 const DetailsContent = () => {
     const queryMap = useQuery();
     const reportId = queryMap?.["reportId"] || "";
-    const report = useResource(ReportResource.detail(), { reportId: reportId });
+    const { data: report, loading } = useReportsDetail(reportId);
+    if (loading) return <Spinner size="fullpage" />;
+
     return (
         <>
             <Summary report={report} />

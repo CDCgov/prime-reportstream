@@ -1,12 +1,12 @@
 import moment from "moment";
 
-import ReportResource from "../../resources/ReportResource";
+import { RSDelivery } from "../../network/api/History/Reports";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (type, sent,
     total, and expires) and display them on the Details page. */
-    report: ReportResource | undefined;
+    report: RSDelivery | undefined;
 }
 
 function ReportDetails(props: Props) {
@@ -23,11 +23,11 @@ function ReportDetails(props: Props) {
                     </h4>
                     <p className="text-bold margin-top-0">{report!.fileType}</p>
                     <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Report sent
+                        Available to download
                     </h4>
                     <p className="text-bold margin-top-0">
                         {moment
-                            .utc(report!.sent)
+                            .utc(report!.batchReadyAt)
                             .local()
                             .format("dddd, MMM DD, YYYY  HH:mm")}
                     </p>
@@ -36,7 +36,9 @@ function ReportDetails(props: Props) {
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Total tests reported
                     </h4>
-                    <p className="text-bold margin-top-0">{report!.total}</p>
+                    <p className="text-bold margin-top-0">
+                        {report!.reportItemCount}
+                    </p>
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Download expires
                     </h4>
