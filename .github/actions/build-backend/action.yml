@@ -20,36 +20,10 @@ runs:
 
     - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
 
-    - name: reloadDB step 1
-      if: |
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo1')) ||
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo2') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo2')) ||
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo3') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo3'))
-      working-directory: prime-router
-      shell: bash
-      run: ./gradlew resetDB
-
     - name: Spin up build containers
       working-directory: prime-router
       shell: bash
       run: docker-compose -f docker-compose.postgres.yml up -d
-
-    - name: reloadDB step 2
-      if: |
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo1')) ||
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo2') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo2')) ||
-        ((github.event_name != 'pull_request' && github.ref_name == 'demo3') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo3'))
-      working-directory: prime-router
-      shell: bash
-      run: |
-        ./gradlew reloadTables
-        ./gradlew reloadSettings
 
     - name: Build Prime Router Package
       working-directory: prime-router
