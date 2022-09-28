@@ -1,6 +1,6 @@
 import { jsonSourceMap } from "./JsonSourceMap";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: realData">
+// <editor-fold defaultstate="collapsed" desc="mockData: based on real data">
 const realData = {
     resourceType: "ValueSet",
     id: "2.16.840.1.114222.4.11.7536",
@@ -57,7 +57,98 @@ const realData = {
 
 describe("JsonSourceMap test suite", () => {
     jest.spyOn(global.console, "error");
-    test("JsonSourceMap Basic test", () => {
+
+    test("JsonSourceMap Basic no quotes", () => {
+        const data = { a: 1, b: 2 };
+        const result = jsonSourceMap(data, 2);
+
+        // stringify should match standard
+        expect(result.json).toEqual(JSON.stringify(data, null, 2));
+
+        const keys = Object.keys(result.pointers);
+        const values = Object.values(result.pointers);
+
+        const totalLen = result.json.length;
+
+        // checking overall should be good enough to sanity check all the content
+        expect(keys).toStrictEqual(["", "/a", "/b"]);
+        // Everything inside the {}
+        expect(values[0].value.pos).toBe(0);
+        expect(values[0].valueEnd.pos).toBe(totalLen);
+        expect(values).toStrictEqual([
+            {
+                value: {
+                    line: 0,
+                    column: 0,
+                    pos: 0,
+                },
+                valueEnd: {
+                    line: 3,
+                    column: 1,
+                    pos: 22,
+                },
+            },
+            {
+                key: {
+                    line: 1,
+                    column: 2,
+                    pos: 4,
+                },
+                keyEnd: {
+                    line: 1,
+                    column: 5,
+                    pos: 7,
+                },
+                value: {
+                    line: 1,
+                    column: 7,
+                    pos: 9,
+                },
+                valueEnd: {
+                    line: 1,
+                    column: 8,
+                    pos: 10,
+                },
+            },
+            {
+                key: {
+                    line: 2,
+                    column: 2,
+                    pos: 14,
+                },
+                keyEnd: {
+                    line: 2,
+                    column: 5,
+                    pos: 17,
+                },
+                value: {
+                    line: 2,
+                    column: 7,
+                    pos: 19,
+                },
+                valueEnd: {
+                    line: 2,
+                    column: 8,
+                    pos: 20,
+                },
+            },
+        ]);
+    });
+
+    test("JsonSourceMap format matches JSON.stringify", () => {
+        const result = jsonSourceMap(realData, 2);
+        // run through json parser and make sure it's valid
+        const reparsed = JSON.parse(result.json);
+        const checkStrOriginal = JSON.stringify(realData, null, 2);
+        const checkStrResult = JSON.stringify(reparsed, null, 2);
+        expect(checkStrOriginal).toEqual(checkStrResult);
+
+        expect(jsonSourceMap(realData, 4).json).toEqual(
+            JSON.stringify(realData, null, 4)
+        );
+    });
+
+    test("JsonSourceMap Basic quotes", () => {
         const data = { key: "value" };
         const result = jsonSourceMap(data, 2);
 
@@ -69,21 +160,20 @@ describe("JsonSourceMap test suite", () => {
 
         // checking overall should be good enough to sanity check all the content
         expect(keys).toStrictEqual(["", "/key"]);
+        // Everything inside the {}
         expect(values[0].value).toStrictEqual({ line: 0, column: 0, pos: 0 });
         expect(values[0].valueEnd).toStrictEqual({
             line: 2,
             column: 1,
+            pos: result.json.length,
+        });
+
+        expect(values[1].value).toStrictEqual({ line: 1, column: 9, pos: 11 });
+        expect(values[1].valueEnd).toStrictEqual({
+            line: 1,
+            column: 16,
             pos: 18,
         });
-    });
-
-    test("JsonSourceMap Basic test", () => {
-        const result2 = jsonSourceMap(realData, 2);
-        // run through json parser and make sure it's valid
-        const reparsed = JSON.parse(result2.json);
-        const checkStrOriginal = JSON.stringify(realData, null, 2);
-        const checkStrResult = JSON.stringify(reparsed, null, 2);
-        expect(checkStrOriginal).toEqual(checkStrResult);
     });
 
     test("JsonSourceMap numeric types test", () => {
@@ -122,50 +212,66 @@ describe("JsonSourceMap test suite", () => {
         // each number gets its own "value" entry. spot check the scientific notation and bigint entries.
 
         // 0.12
-        expect(values[8].value).toStrictEqual({ line: 8, column: 0, pos: 34 });
-        expect(values[8].valueEnd).toStrictEqual({
-            line: 8,
-            column: 4,
-            pos: 38,
+        expect(values[8]).toStrictEqual({
+            value: {
+                line: 8,
+                column: 4,
+                pos: 64,
+            },
+            valueEnd: {
+                line: 8,
+                column: 8,
+                pos: 68,
+            },
         });
 
         // 1.3e-12
-        expect(values[9].value).toStrictEqual({ line: 9, column: 0, pos: 40 });
-        expect(values[9].valueEnd).toStrictEqual({
-            line: 9,
-            column: 7,
-            pos: 47,
+        expect(values[9]).toStrictEqual({
+            value: {
+                line: 9,
+                column: 4,
+                pos: 74,
+            },
+            valueEnd: {
+                line: 9,
+                column: 11,
+                pos: 81,
+            },
         });
 
         // 3.14e22
-        expect(values[10].value).toStrictEqual({
-            line: 10,
-            column: 0,
-            pos: 49,
-        });
-        expect(values[10].valueEnd).toStrictEqual({
-            line: 10,
-            column: 8,
-            pos: 57,
+        expect(values[10]).toStrictEqual({
+            value: {
+                line: 10,
+                column: 4,
+                pos: 87,
+            },
+            valueEnd: {
+                line: 10,
+                column: 12,
+                pos: 95,
+            },
         });
 
         // BigInt
-        expect(values[11].value).toStrictEqual({
-            line: 11,
-            column: 0,
-            pos: 59,
-        });
-        expect(values[11].valueEnd).toStrictEqual({
-            line: 11,
-            column: 19,
-            pos: 78,
+        expect(values[11]).toStrictEqual({
+            value: {
+                line: 11,
+                column: 4,
+                pos: 101,
+            },
+            valueEnd: {
+                line: 11,
+                column: 23,
+                pos: 120,
+            },
         });
 
         // now check the whole length last (most likely failures were checked in prior lines)
         expect(values[0].valueEnd).toStrictEqual({
             line: 13,
             column: 1,
-            pos: 82,
+            pos: result.json.length,
         });
     });
 
@@ -196,7 +302,7 @@ describe("JsonSourceMap test suite", () => {
             valueEnd: {
                 line: 7,
                 column: 1,
-                pos: 40,
+                pos: result.json.length,
             },
         });
     });
@@ -230,73 +336,73 @@ describe("JsonSourceMap test suite", () => {
                 valueEnd: {
                     line: 4,
                     column: 1,
-                    pos: 52,
+                    pos: result.json.length,
                 },
             },
             {
                 key: {
                     line: 1,
-                    column: 0,
-                    pos: 2,
+                    column: 2,
+                    pos: 4,
                 },
                 keyEnd: {
-                    line: 1,
-                    column: 10,
-                    pos: 12,
-                },
-                value: {
                     line: 1,
                     column: 12,
                     pos: 14,
                 },
-                valueEnd: {
+                value: {
                     line: 1,
                     column: 14,
                     pos: 16,
                 },
-            },
-            {
-                key: {
-                    line: 2,
-                    column: 0,
+                valueEnd: {
+                    line: 1,
+                    column: 16,
                     pos: 18,
                 },
+            },
+            {
+                key: {
+                    line: 2,
+                    column: 2,
+                    pos: 22,
+                },
                 keyEnd: {
                     line: 2,
-                    column: 12,
-                    pos: 30,
+                    column: 14,
+                    pos: 34,
                 },
                 value: {
                     line: 2,
-                    column: 14,
-                    pos: 32,
+                    column: 16,
+                    pos: 36,
                 },
                 valueEnd: {
                     line: 2,
-                    column: 16,
-                    pos: 34,
+                    column: 18,
+                    pos: 38,
                 },
             },
             {
                 key: {
                     line: 3,
-                    column: 0,
-                    pos: 36,
+                    column: 2,
+                    pos: 42,
                 },
                 keyEnd: {
                     line: 3,
-                    column: 10,
-                    pos: 46,
+                    column: 12,
+                    pos: 52,
                 },
                 value: {
                     line: 3,
-                    column: 12,
-                    pos: 48,
+                    column: 14,
+                    pos: 54,
                 },
                 valueEnd: {
                     line: 3,
-                    column: 14,
-                    pos: 50,
+                    column: 16,
+                    pos: 56,
                 },
             },
         ]);
@@ -320,7 +426,6 @@ describe("JsonSourceMap test suite", () => {
 
         const keys = Object.keys(result.pointers);
         const values = Object.values(result.pointers);
-        debugger;
         expect(keys).toStrictEqual([
             "",
             "/name",
@@ -339,293 +444,6 @@ describe("JsonSourceMap test suite", () => {
             "/children/2/name",
             "/children/2/age",
         ]);
-
-        // <editor-fold defaultstate="collapsed" desc="expect(values).toStrictEqual">
-        expect(values).toStrictEqual([
-            {
-                value: {
-                    line: 0,
-                    column: 0,
-                    pos: 0,
-                },
-                valueEnd: {
-                    line: 21,
-                    column: 1,
-                    pos: 147,
-                },
-            },
-            {
-                key: {
-                    line: 1,
-                    column: 0,
-                    pos: 2,
-                },
-                keyEnd: {
-                    line: 1,
-                    column: 6,
-                    pos: 8,
-                },
-                value: {
-                    line: 1,
-                    column: 8,
-                    pos: 10,
-                },
-                valueEnd: {
-                    line: 1,
-                    column: 15,
-                    pos: 17,
-                },
-            },
-            {
-                key: {
-                    line: 2,
-                    column: 0,
-                    pos: 19,
-                },
-                keyEnd: {
-                    line: 2,
-                    column: 7,
-                    pos: 26,
-                },
-                value: {
-                    line: 2,
-                    column: 9,
-                    pos: 28,
-                },
-                valueEnd: {
-                    line: 6,
-                    column: 1,
-                    pos: 39,
-                },
-            },
-            {
-                value: {
-                    line: 3,
-                    column: 0,
-                    pos: 30,
-                },
-                valueEnd: {
-                    line: 3,
-                    column: 1,
-                    pos: 31,
-                },
-            },
-            {
-                value: {
-                    line: 4,
-                    column: 0,
-                    pos: 33,
-                },
-                valueEnd: {
-                    line: 4,
-                    column: 1,
-                    pos: 34,
-                },
-            },
-            {
-                value: {
-                    line: 5,
-                    column: 0,
-                    pos: 36,
-                },
-                valueEnd: {
-                    line: 5,
-                    column: 1,
-                    pos: 37,
-                },
-            },
-            {
-                key: {
-                    line: 7,
-                    column: 0,
-                    pos: 41,
-                },
-                keyEnd: {
-                    line: 7,
-                    column: 10,
-                    pos: 51,
-                },
-                value: {
-                    line: 7,
-                    column: 12,
-                    pos: 53,
-                },
-                valueEnd: {
-                    line: 20,
-                    column: 1,
-                    pos: 145,
-                },
-            },
-            {
-                value: {
-                    line: 8,
-                    column: 0,
-                    pos: 55,
-                },
-                valueEnd: {
-                    line: 11,
-                    column: 1,
-                    pos: 83,
-                },
-            },
-            {
-                key: {
-                    line: 9,
-                    column: 0,
-                    pos: 57,
-                },
-                keyEnd: {
-                    line: 9,
-                    column: 6,
-                    pos: 63,
-                },
-                value: {
-                    line: 9,
-                    column: 8,
-                    pos: 65,
-                },
-                valueEnd: {
-                    line: 9,
-                    column: 14,
-                    pos: 71,
-                },
-            },
-            {
-                key: {
-                    line: 10,
-                    column: 0,
-                    pos: 73,
-                },
-                keyEnd: {
-                    line: 10,
-                    column: 5,
-                    pos: 78,
-                },
-                value: {
-                    line: 10,
-                    column: 7,
-                    pos: 80,
-                },
-                valueEnd: {
-                    line: 10,
-                    column: 8,
-                    pos: 81,
-                },
-            },
-            {
-                value: {
-                    line: 12,
-                    column: 0,
-                    pos: 85,
-                },
-                valueEnd: {
-                    line: 15,
-                    column: 1,
-                    pos: 113,
-                },
-            },
-            {
-                key: {
-                    line: 13,
-                    column: 0,
-                    pos: 87,
-                },
-                keyEnd: {
-                    line: 13,
-                    column: 6,
-                    pos: 93,
-                },
-                value: {
-                    line: 13,
-                    column: 8,
-                    pos: 95,
-                },
-                valueEnd: {
-                    line: 13,
-                    column: 14,
-                    pos: 101,
-                },
-            },
-            {
-                key: {
-                    line: 14,
-                    column: 0,
-                    pos: 103,
-                },
-                keyEnd: {
-                    line: 14,
-                    column: 5,
-                    pos: 108,
-                },
-                value: {
-                    line: 14,
-                    column: 7,
-                    pos: 110,
-                },
-                valueEnd: {
-                    line: 14,
-                    column: 8,
-                    pos: 111,
-                },
-            },
-            {
-                value: {
-                    line: 16,
-                    column: 0,
-                    pos: 115,
-                },
-                valueEnd: {
-                    line: 19,
-                    column: 1,
-                    pos: 143,
-                },
-            },
-            {
-                key: {
-                    line: 17,
-                    column: 0,
-                    pos: 117,
-                },
-                keyEnd: {
-                    line: 17,
-                    column: 6,
-                    pos: 123,
-                },
-                value: {
-                    line: 17,
-                    column: 8,
-                    pos: 125,
-                },
-                valueEnd: {
-                    line: 17,
-                    column: 14,
-                    pos: 131,
-                },
-            },
-            {
-                key: {
-                    line: 18,
-                    column: 0,
-                    pos: 133,
-                },
-                keyEnd: {
-                    line: 18,
-                    column: 5,
-                    pos: 138,
-                },
-                value: {
-                    line: 18,
-                    column: 7,
-                    pos: 140,
-                },
-                valueEnd: {
-                    line: 18,
-                    column: 8,
-                    pos: 141,
-                },
-            },
-        ]);
-        // </editor-fold>
     });
 
     test("throws if json include non-standard Set/Map objects", () => {

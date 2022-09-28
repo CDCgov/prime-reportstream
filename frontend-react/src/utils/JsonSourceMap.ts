@@ -34,6 +34,10 @@
  *
  * Also see: https://www.json.org/json-en.html
  *
+ * Special cases:
+ *  1. keys that already have `/` in them will be converted to `~1`
+ *  2. Since the above subs in ~... if a `~` appears it become `~0`
+ *  This isn't ideal, but it's probably not very common.
  */
 
 /* these are exposed via SourceMapResult. Note: root element never has key/keyEnd */
@@ -52,15 +56,20 @@ export interface SourceMapResult {
     pointers: Pointers;
 }
 
+/**
+ * @param jsonD Valid Json Object
+ * @param spaces Number of spaces to use in the normalized JSON string returned.
+ * @return A normalized json string and a list of "pointers" that are offsets into it.
+ */
 export const jsonSourceMap = (
-    data: any,
+    jsonD: any,
     spaces: number = 2
 ): SourceMapResult => {
     let json = "";
     let pointers: Pointers = {};
     const cur: Location = { line: 0, column: 0, pos: 0 };
 
-    if (!isValidType(data)) {
+    if (!isValidType(jsonD)) {
         // throw error?
         return {
             json: "",
@@ -108,21 +117,17 @@ export const jsonSourceMap = (
     }
 
     function indent(lvl: number) {
-        if (whitespace) {
-            json += "\n" + whitespace.repeat(lvl);
-            cur.line++;
-            cur.column = 0;
-            while (lvl--) {
-                if (wspaceLoc.line) {
-                    cur.line += wspaceLoc.line;
-                    cur.column = wspaceLoc.column;
-                } else {
-                    cur.column += wspaceLoc.column;
-                }
-                cur.pos += wspaceLoc.pos;
-            }
-            cur.pos += 1; // \n character
+        if (!spaces) {
+            return;
         }
+        json += "\n" + whitespace.repeat(lvl);
+        cur.line++;
+        cur.column = 0;
+        while (lvl--) {
+            cur.column += spaces;
+            cur.pos += spaces;
+        }
+        cur.pos++; // \n character
     }
 
     function map(ptr: string, prop: PointerProp) {
@@ -244,7 +249,7 @@ export const jsonSourceMap = (
         map(ptr, "valueEnd");
     };
 
-    stringifyRecursive(data, 0, "");
+    stringifyRecursive(jsonD, 0, "");
 
     return {
         json,
