@@ -22,9 +22,9 @@
         schemaName: "covid-19"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: ME_DOH
+        receivingApplicationName: MEDOH
         receivingApplicationOID: null
-        receivingFacilityName: ME_DOH
+        receivingFacilityName: MEDOH
         receivingFacilityOID: null
         reportingFacilityName: null
         reportingFacilityId: null
@@ -34,7 +34,9 @@
         truncateHl7Fields: null
         messageProfileId: null
         replaceValue: {}
-        replaceValueAwithB: {}
+        replaceValueAwithB:
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-21-1: [ "*": "PHLabReport-NoAck" ]
         reportingFacilityIdType: null
         suppressAoe: false
         defaultAoeToUnknown: false
