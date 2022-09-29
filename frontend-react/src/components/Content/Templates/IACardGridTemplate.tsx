@@ -1,11 +1,10 @@
-import { IACardList } from "../../IACard";
 import { ContentDirectory } from "../MarkdownDirectory";
+
+import { IACardList } from "./IACard";
 
 export type ContentMap = Map<string, ContentDirectory[]>; // Key should be section title
 export interface IACardGridProps {
-    title: string;
-    subtitle: string;
-    directoriesToRender: ContentDirectory[] | ContentMap;
+    directories: ContentDirectory[] | ContentMap;
 }
 
 const ArraySection = ({
@@ -31,26 +30,16 @@ const MapSections = ({ cMap }: { cMap: ContentMap }) => {
     return <>{arraySections}</>;
 };
 
-export const IACardGridTemplate = ({
-    title,
-    subtitle,
-    directoriesToRender,
-}: IACardGridProps) => {
-    const contentIsMapped = directoriesToRender instanceof Map;
+export const IACardGridTemplate = ({ directories }: IACardGridProps) => {
+    const contentIsMapped = directories instanceof Map;
     return (
         <>
-            <div className="rs-hero__index">
-                <div className="grid-container">
-                    <h1>{title}</h1>
-                    <h2>{subtitle}</h2>
-                </div>
-            </div>
             <div className="grid-container usa-prose margin-top-6">
                 <div className="grid-row grid-gap">
                     {!contentIsMapped ? (
-                        <ArraySection dirs={directoriesToRender} />
+                        <ArraySection dirs={directories} />
                     ) : (
-                        <MapSections cMap={directoriesToRender} />
+                        <MapSections cMap={directories} />
                     )}
                 </div>
             </div>

@@ -23,6 +23,11 @@ data class ConfigSchema(
     var extends: String? = null
 ) {
     /**
+     * List of the names of schemas that have led to this schema being loaded.
+     */
+    var ancestry: List<String> = listOf()
+
+    /**
      * Has this schema been validated? Only used on the top level schema.
      */
     private var hasBeenValidated = false

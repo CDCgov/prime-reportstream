@@ -1,7 +1,7 @@
 import React, { Suspense, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { ErrorPage } from "../error/ErrorPage";
 import {
@@ -15,9 +15,11 @@ import {
 } from "../../components/Admin/AdminFormEdit";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 export function AdminOrgNew() {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const FormComponent = () => {
         const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export function AdminOrgNew() {
                     `Item '${orgName}' has been created`
                 );
 
-                history.push(`/admin/orgsettings/org/${orgName}`);
+                navigate(`/admin/orgsettings/org/${orgName}`);
             } catch (e: any) {
                 setLoading(false);
                 let errorDetail = await getErrorDetailFromResponse(e);
@@ -76,7 +78,7 @@ export function AdminOrgNew() {
                     disabled={loading}
                 />
                 <Grid row>
-                    <Button type="button" onClick={() => history.goBack()}>
+                    <Button type="button" onClick={() => navigate(-1)}>
                         Cancel
                     </Button>
                     <Button
@@ -109,5 +111,14 @@ export function AdminOrgNew() {
                 </Suspense>
             </section>
         </NetworkErrorBoundary>
+    );
+}
+
+export function AdminOrgNewWithAuth() {
+    return (
+        <AuthElement
+            element={<AdminOrgNew />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

@@ -9,14 +9,22 @@ import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.Varies
+import ca.uhn.hl7v2.model.v251.datatype.CE
+import ca.uhn.hl7v2.model.v251.datatype.CWE
+import ca.uhn.hl7v2.model.v251.datatype.DLN
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.model.v251.datatype.NM
+import ca.uhn.hl7v2.model.v251.datatype.SN
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.ValidationContext
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -381,16 +389,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test reading NTE segments into a single string value`() {
-        fun arrangeTest(rawMessage: String): Message {
-            // arrange
-            val mcf = CanonicalModelClassFactory("2.5.1")
-            context.modelClassFactory = mcf
-            val parser = context.pipeParser
-            // act
-            val reg = "[\r\n]".toRegex()
-            val cleanedMessage = reg.replace(rawMessage, "\r")
-            return parser.parse(cleanedMessage)
-        }
         // a simple message with a single comment
         val sampleMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
@@ -1080,5 +1078,151 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             )
             assertThat(terser.get("MSH-3-1")).isEqualTo("Don't replace me")
         }
+    }
+
+    // test the extraction of the observation value from different types of data
+    @Test
+    fun `test decoding obx observation value`() {
+        // arrange
+        val validationContext = mockk<ValidationContext>()
+        every { validationContext.getPrimitiveRules(any(), any(), any()) } returns mutableListOf()
+        val parserConfiguration = spyk<ParserConfiguration>()
+        val parser = mockk<ca.uhn.hl7v2.parser.Parser>()
+        every { parser.validationContext } returns validationContext
+        every { parser.parserConfiguration } returns parserConfiguration
+        val message = mockk<Message>()
+        every { message.parser } returns parser
+        every { message.version } returns "2.5.1"
+        val varies = Varies(message)
+        // arrange our special checks, first SN
+        val sn = SN(message)
+        varies.data = sn
+        sn.num1.value = "100"
+        sn.comparator.value = ">"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("100")
+        // check NM
+        val nm = NM(message)
+        varies.data = nm
+        nm.value = "47"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("47")
+        // check DT
+        val dt = DT(message)
+        varies.data = dt
+        dt.value = "19000101"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("19000101")
+        // check CWE
+        val cwe = CWE(message)
+        varies.data = cwe
+        cwe.cwe1_Identifier.value = "N"
+        cwe.cwe2_Text.value = "No"
+        cwe.cwe3_NameOfCodingSystem.value = "HL70136"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("N")
+        // check CE
+        val ce = CE(message)
+        varies.data = ce
+        ce.ce1_Identifier.value = "N"
+        ce.ce2_Text.value = "No"
+        ce.ce3_NameOfCodingSystem.value = "HL70136"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo("N")
+        // check DLN, which is a driver's license number, and I didn't encode for this.
+        // this checks the logic that manually parses and teases out the data
+        val dlNumber = "9999999"
+        val dln = DLN(message)
+        varies.data = dln
+        dln.dln1_LicenseNumber.value = dlNumber
+        dln.dln2_IssuingStateProvinceCountry.value = "NJ"
+        assertThat(Hl7Serializer.decodeObxIdentifierValue(varies)).isEqualTo(dlNumber)
+    }
+
+    @Test
+    fun `parse a complex message with many AOEs`() {
+        // a message with many AOEs
+        val complexMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+NTE|1|L|This is patient comment 1|RE
+ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+NTE|1|L|This is order observation comment 1|RE
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+NTE|1|L|This is observation comment 1|RE
+NTE|2|L|This is observation comment 2|RE
+OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+OBX|2|NM|30525-0^Age^LN||14|a^year^UCUM
+OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
+"""
+        arrangeTest(complexMessage).run {
+            // assert
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "symptomatic", hl7AOEQuestion = "95419-8"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("N")
+            }
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "congregate_care", hl7AOEQuestion = "95421-4"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("N")
+            }
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "first_test", hl7AOEQuestion = "95417-2"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("Y")
+            }
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "patient_employed_in_healthcare", hl7AOEQuestion = "30525-0"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("14")
+            }
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "patient_employed_in_healthcare", hl7AOEQuestion = "95418-0"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("Y")
+            }
+            // one we don't have encoded as a datatype
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "patient_drivers_license", hl7AOEQuestion = "53245-7"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("99999999")
+            }
+            // one we don't have in the message
+            Hl7Serializer.decodeAOEQuestion(
+                Element(name = "pregnant", hl7AOEQuestion = "82810-3"),
+                this,
+                0
+            ).run {
+                assertThat(this).isEqualTo("")
+            }
+        }
+    }
+
+    /**
+     * Given a string message, parse it and turn it into a message that can be interacted with
+     * @param rawMessage - the raw string message to parse
+     */
+    private fun arrangeTest(rawMessage: String): Message {
+        // arrange
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(rawMessage, "\r")
+        return parser.parse(cleanedMessage)
     }
 }

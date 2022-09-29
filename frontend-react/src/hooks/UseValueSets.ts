@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 import {
@@ -9,6 +9,7 @@ import {
     ValueSetRow,
     LookupTables,
 } from "../config/endpoints/lookupTables";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -47,35 +48,34 @@ const findTableMetaByName = (
   a useQuery based custom hook used to get value sets and value set rows (defined by passsed dataTableName)
 
 */
-
+export interface ValueSetsTableResponse<T> {
+    valueSetArray: T;
+}
 export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string
-): {
-    valueSetArray: T;
-    error: any;
-} => {
-    const dataFetch = useAuthorizedFetch<T>();
+): ValueSetsTableResponse<T> => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<T>();
 
     // create the function to use for fetching table data from the API
     const memoizedDataFetch = useCallback(
         () =>
-            dataFetch(getTableData, {
+            authorizedFetch(getTableData, {
                 segments: {
                     tableName: dataTableName,
                 },
             }),
-        [dataFetch, dataTableName]
+        [authorizedFetch, dataTableName]
     );
 
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    const { error, data: valueSetData } = useQuery<T>(
+    const { data: valueSetData } = rsUseQuery(
         [getTableData.queryKey, dataTableName],
         memoizedDataFetch
     );
 
-    return { error, valueSetArray: valueSetData as T };
+    return { valueSetArray: valueSetData as T };
 };
 
 /*
@@ -85,24 +85,22 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
   a useQuery based custom hook used to get metadata for a given value set
 
 */
-
+export interface ValueSetsMetaResponse {
+    valueSetMeta: LookupTable;
+}
 export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET
-): {
-    valueSetMeta: LookupTable;
-    error: any;
-} => {
-    const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
+): ValueSetsMetaResponse => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
-    const { error, data: tableData } = useQuery<LookupTable[]>(
-        [getTableList.queryKey],
-        () => lookupTableFetch(getTableList)
+    const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
+        authorizedFetch(getTableList)
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);
 
-    return { error, valueSetMeta: tableMeta };
+    return { valueSetMeta: tableMeta };
 };
 
 /* 
@@ -122,10 +120,10 @@ interface ActivateValueSetOptions {
 }
 
 export const useValueSetUpdate = () => {
-    const valueSetFetch = useAuthorizedFetch<LookupTable>();
+    const { authorizedFetch } = useAuthorizedFetch<LookupTable>();
 
     const updateValueSet = ({ data, tableName }: UpdateValueSetOptions) => {
-        return valueSetFetch(updateTable, {
+        return authorizedFetch(updateTable, {
             segments: { tableName: tableName },
             data,
         });
@@ -133,35 +131,37 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, UpdateValueSetOptions>(
-        updateValueSet
-    );
+    const mutation = useMutation<
+        LookupTable,
+        RSNetworkError,
+        UpdateValueSetOptions
+    >(updateValueSet);
     return {
         saveData: mutation.mutateAsync,
         isSaving: mutation.isLoading,
-        saveError: mutation.error,
     };
 };
 
 export const useValueSetActivation = () => {
-    const valueSetFetch = useAuthorizedFetch<LookupTable>();
+    const { authorizedFetch } = useAuthorizedFetch<LookupTable>();
     const activateValueSet = ({
         tableVersion,
         tableName,
     }: ActivateValueSetOptions) => {
-        return valueSetFetch(activateTable, {
+        return authorizedFetch(activateTable, {
             segments: {
                 tableName,
                 version: `${tableVersion}`,
             },
         });
     };
-    const mutation = useMutation<LookupTable, Error, ActivateValueSetOptions>(
-        activateValueSet
-    );
+    const mutation = useMutation<
+        LookupTable,
+        RSNetworkError,
+        ActivateValueSetOptions
+    >(activateValueSet);
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,
-        activationError: mutation.error,
     };
 };

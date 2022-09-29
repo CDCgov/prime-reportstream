@@ -42,7 +42,7 @@ paths:
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pageSize'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
       responses:
         '200':
           description: a list of AvailableReport objects

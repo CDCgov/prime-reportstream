@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -18,17 +18,22 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
+import { AuthElement } from "../AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import config from "../../config";
 
 import {
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
-    DropdownComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "./CompareJsonModal";
+
+const { RS_API_URL } = config;
 
 type EditSenderSettingsFormProps = {
     orgname: string;
@@ -40,7 +45,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
@@ -61,7 +66,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+            `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -151,7 +156,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             );
             confirmModalRef?.current?.toggleModal(undefined, false);
             setLoading(false);
-            history.goBack();
+            navigate(-1);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
@@ -221,7 +226,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     <Button
                         type="button"
                         onClick={async () =>
-                            (await resetSenderList()) && history.goBack()
+                            (await resetSenderList()) && navigate(-1)
                         }
                     >
                         Cancel
@@ -250,36 +255,39 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     );
 };
 
-type Props = {
+export type EditSenderSettingsProps = {
     orgname: string;
     sendername: string;
     action: "edit" | "clone";
 };
 
-export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
-    const orgname = match?.params?.orgname || "";
-    const sendername = match?.params?.sendername || "";
-    const action = match?.params?.action || "";
+export function EditSenderSettings() {
+    const { orgname, sendername, action } =
+        useParams<EditSenderSettingsProps>();
 
     return (
         <AdminFormWrapper
             header={
                 <Title
-                    preTitle={`Org name: ${
-                        match?.params?.orgname || "missing param 'orgname'"
-                    }`}
-                    title={`Sender name: ${
-                        match?.params?.sendername ||
-                        "missing param 'sendername'"
-                    }`}
+                    preTitle={`Org name: ${orgname}`}
+                    title={`Sender name: ${sendername}`}
                 />
             }
         >
             <EditSenderSettingsForm
-                orgname={orgname}
-                sendername={sendername}
-                action={action}
+                orgname={orgname || ""}
+                sendername={sendername || ""}
+                action={action || ""}
             />
         </AdminFormWrapper>
+    );
+}
+
+export function EditSenderSettingsWithAuth() {
+    return (
+        <AuthElement
+            element={<EditSenderSettings />}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

@@ -2,41 +2,55 @@ import { screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
+import { RSNetworkError } from "../../../utils/RSNetworkError";
+import {
+    ValueSetsMetaResponse,
+    ValueSetsTableResponse,
+} from "../../../hooks/UseValueSets";
 
-import ValueSetsDetail, { ValueSetsDetailTable } from "./ValueSetsDetail";
+import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
         name: "a-path",
         display: "hi over here first value",
         code: "1",
-        version: 1,
+        version: "1",
     },
     {
         name: "a-path",
         display: "test, yes, second value",
         code: "2",
-        version: 1,
+        version: "1",
     },
 ];
 
-const mockEmptyArray: unknown[] = [];
-const mockError = new Error();
+const fakeMeta = {
+    lookupTableVersionId: 1,
+    tableName: "fake_table",
+    tableVersion: 2,
+    isActive: true,
+    createdBy: "me",
+    createdAt: "today",
+    tableSha256Checksum: "sha",
+};
 
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
+let mockUseValueSetsMeta = jest.fn();
 
 jest.mock("../../../hooks/UseValueSets", () => {
     return {
-        useValueSetsTable: (valueSetName: string, suppliedVersion?: number) =>
-            mockUseValueSetsTable(valueSetName, suppliedVersion),
+        useValueSetsTable: (valueSetName: string) =>
+            mockUseValueSetsTable(valueSetName),
         useValueSetUpdate: () => ({
             saveData: mockSaveData,
         }),
         useValueSetActivation: () => ({
             activateTable: mockActivateTable,
         }),
+        useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
 
@@ -45,13 +59,19 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("ValueSetsDetail", () => {
-    beforeEach(() => {
-        mockUseValueSetsTable = jest.fn(() => ({
-            valueSetArray: fakeRows,
-            error: null,
-        }));
-    });
     test("Renders with no errors", () => {
+        mockUseValueSetsTable = jest.fn(
+            () =>
+                ({
+                    valueSetArray: fakeRows,
+                } as ValueSetsTableResponse<any>)
+        );
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
         // only render with query provider
         renderWithQueryProvider(<ValueSetsDetail />);
         const headers = screen.getAllByRole("columnheader");
@@ -66,6 +86,18 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Rows are editable", () => {
+        mockUseValueSetsTable = jest.fn(
+            () =>
+                ({
+                    valueSetArray: fakeRows,
+                } as ValueSetsTableResponse<any>)
+        );
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
         renderWithQueryProvider(<ValueSetsDetail />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
@@ -80,33 +112,30 @@ describe("ValueSetsDetail", () => {
         const input = screen.getAllByRole("textbox");
         expect(input.length).toEqual(3);
     });
+
+    test("Handles error with table fetch", () => {
+        mockUseValueSetsTable = jest.fn(() => {
+            throw new RSNetworkError("Test", 404);
+        });
+        mockUseValueSetsMeta = jest.fn(
+            () =>
+                ({
+                    valueSetMeta: fakeMeta,
+                } as ValueSetsMetaResponse)
+        );
+        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
+         * test them via the ErrorBoundary test? */
+        renderWithQueryProvider(<ValueSetsDetail />);
+        expect(
+            screen.getByText(
+                "Our apologies, there was an error loading this content."
+            )
+        ).toBeInTheDocument();
+    });
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles fetch related errors", () => {
-        mockUseValueSetsTable = jest.fn(() => ({
-            valueSetArray: mockEmptyArray,
-            error: mockError,
-        }));
-        const mockSetAlert = jest.fn();
-        renderWithQueryProvider(
-            <ValueSetsDetailTable
-                valueSetName={"error"}
-                setAlert={mockSetAlert}
-            />
-        );
-        expect(mockSetAlert).toHaveBeenCalled();
-        expect(mockSetAlert).toHaveBeenCalledWith({
-            type: "error",
-            message: "Error",
-        });
-    });
-
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
-        mockUseValueSetsTable = jest.fn(() => ({
-            valueSetArray: fakeRows,
-            error: null,
-        }));
         mockSaveData = jest.fn(() => {
             // to avoid unnecessary console error
             return Promise.resolve({ tableVersion: 2 });
@@ -123,6 +152,7 @@ describe("ValueSetsDetailTable", () => {
             <ValueSetsDetailTable
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}
+                valueSetData={fakeRows}
             />
         );
         const editButtons = screen.getAllByText("Edit");
@@ -162,3 +192,5 @@ describe("ValueSetsDetailTable", () => {
         });
     });
 });
+
+// TODO: tests for header

@@ -5,10 +5,10 @@ import ActionResource from "../../../resources/ActionResource";
  * @deprecated For compile-time type checks while #5892 is worked on
  */
 export interface RSReportInterface {
-    sent: number;
+    batchReadyAt: number;
     via: string;
     positive: number;
-    total: number;
+    reportItemCount: number;
     fileType: string;
     type: string;
     reportId: string;
@@ -25,31 +25,26 @@ export interface RSReportInterface {
 }
 export interface RSDeliveryInterface {
     deliveryId: number;
-    sent: string;
+    batchReadyAt: string;
     expires: string;
-    receivingOrg: string;
-    receivingOrgSvc: string;
+    receiver: string;
     reportId: string;
     topic: string;
     reportItemCount: number;
     fileName: string;
     fileType: string;
-    externalName: string;
 }
 /** A class representing a Delivery object from the API */
 export class RSDelivery implements RSDeliveryInterface {
     deliveryId: number = -1;
-    sent: string = "";
+    batchReadyAt: string = "";
     expires: string = "";
-    receivingOrg: string = "";
-    receivingOrgSvc: string = "";
+    receiver: string = "";
     reportId: string = "";
     topic: string = "";
     reportItemCount: number = -1;
     fileName: string = "";
     fileType: string = "";
-    externalName: string = "";
-
     constructor(args: Partial<RSDeliveryInterface>) {
         Object.assign(this, args);
     }

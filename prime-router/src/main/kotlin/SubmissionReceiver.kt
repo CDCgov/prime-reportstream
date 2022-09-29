@@ -284,6 +284,14 @@ class ELRReceiver : SubmissionReceiver {
             throw actionLogs.exception
         }
 
+        // If the sender is disabled, there should be no next event
+        // THIS MUST HAPPEN BEFORE workflow.recordReceivedReport so that the next action
+        // is properly stored in the report in the DB
+        val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            report.nextAction = TaskAction.none
+            Event.EventAction.NONE
+        } else Event.EventAction.PROCESS
+
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
             report, rawBody, sender, actionHistory, payloadName
@@ -293,23 +301,26 @@ class ELRReceiver : SubmissionReceiver {
         actionHistory.trackLogs(actionLogs.logs)
 
         // add task to task table
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        val processEvent = ProcessEvent(eventAction, report.id, options, defaults, routeTo)
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
-        // move to processing (send to <elrProcessQueueName> queue)
-        workflowEngine.queue.sendMessage(
-            elrConvertQueueName,
-            RawSubmission(
-                report.id,
-                blobInfo.blobUrl,
-                BlobAccess.digestToString(blobInfo.digest),
-                sender.fullName,
-                // TODO: do we need these here? Will need to figure out how to serialize/deserialize
-//                options,
-//                defaults,
-//                routeTo
-            ).serialize()
-        )
+        // Only add to queue if the sender/ is enabled
+        if (sender.customerStatus != CustomerStatus.INACTIVE) {
+            // move to processing (send to <elrProcessQueueName> queue)
+            workflowEngine.queue.sendMessage(
+                elrConvertQueueName,
+                RawSubmission(
+                    report.id,
+                    blobInfo.blobUrl,
+                    BlobAccess.digestToString(blobInfo.digest),
+                    sender.fullName,
+                    // TODO: do we need these here? Will need to figure out how to serialize/deserialize
+                    //                options,
+                    //                defaults,
+                    //                routeTo
+                ).serialize()
+            )
+        }
     }
 
     /**
@@ -329,52 +340,5 @@ class ELRReceiver : SubmissionReceiver {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
-    }
-}
-
-/**
- * Receiver for submissions with a specific topic, contains all logic to parse and move
- * a topic'd submission to the next step in the pipeline
- */
-class ValidationReceiver : SubmissionReceiver {
-    constructor(
-        workflowEngine: WorkflowEngine = WorkflowEngine(),
-        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
-    ) : super(workflowEngine, actionHistory)
-
-    /**
-     * This validates, but does *not* move to processing
-     */
-    override fun validateAndMoveToProcessing(
-        sender: Sender,
-        content: String,
-        defaults: Map<String, String>,
-        options: Options,
-        routeTo: List<String>,
-        isAsync: Boolean,
-        allowDuplicates: Boolean,
-        rawBody: ByteArray,
-        payloadName: String?,
-        metadata: Metadata?
-    ) {
-        // parse, check for parse errors
-        // todo: if we want this to work for full elr validation, we will need to do some other changes since this
-        //  uses the topic parser, not the full ELR parser
-        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
-
-        // prevent duplicates if configured to not allow them
-        if (!allowDuplicates) {
-            doDuplicateDetection(
-                workflowEngine,
-                report,
-                actionLogs
-            )
-        }
-
-        if (actionLogs.hasErrors()) {
-            throw actionLogs.exception
-        }
-
-        actionHistory.trackLogs(actionLogs.logs)
     }
 }
