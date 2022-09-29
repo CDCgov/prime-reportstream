@@ -1,18 +1,28 @@
+import React, { PropsWithChildren, useEffect } from "react";
 import {
     ApplicationInsights,
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
-import { useHistory } from "react-router";
+
+import config from "./config";
+
+const TelemetryProvider = ({ children }: PropsWithChildren<{}>) => {
+    useEffect(() => {
+        ai.initialize();
+    }, []);
+
+    return <>children</>;
+};
+
+const { APP_ENV, APPLICATIONINSIGHTS_CONNECTION_STRING } = config;
 
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
 const createTelemetryService = () => {
-    const initialize = (browserHistory?: ReturnType<typeof useHistory>) => {
-        const instrumentationKey = process.env.REACT_APP_APPINSIGHTS_KEY;
-
-        if (!instrumentationKey) {
+    const initialize = () => {
+        if (!APPLICATIONINSIGHTS_CONNECTION_STRING) {
             console.warn("Instrumentation key not provided");
             return;
         }
@@ -21,19 +31,13 @@ const createTelemetryService = () => {
 
         appInsights = new ApplicationInsights({
             config: {
-                instrumentationKey,
+                instrumentationKey: APPLICATIONINSIGHTS_CONNECTION_STRING,
                 extensions: [reactPlugin],
-                loggingLevelConsole:
-                    process.env.NODE_ENV === "development" ? 2 : 0,
+                loggingLevelConsole: APP_ENV === "development" ? 2 : 0,
                 disableFetchTracking: false,
                 enableAutoRouteTracking: true,
                 loggingLevelTelemetry: 2,
                 maxBatchInterval: 0,
-                extensionConfig: browserHistory
-                    ? {
-                          [reactPlugin.identifier]: { history: browserHistory },
-                      }
-                    : undefined,
             },
         });
 
@@ -44,7 +48,6 @@ const createTelemetryService = () => {
 };
 
 export const ai = createTelemetryService();
-export const getAppInsights = () => appInsights;
 
 const logSeverityMap = {
     log: SeverityLevel.Information,
@@ -110,3 +113,7 @@ export function withInsights(console: Console) {
         };
     });
 }
+
+export const getAppInsights = () => appInsights;
+
+export default TelemetryProvider;

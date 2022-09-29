@@ -1,16 +1,13 @@
-import React, { Fragment, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import React, { PropsWithChildren, useEffect } from "react";
 
 import { ai } from "./TelemetryService";
 
-const TelemetryProvider: React.FC = ({ children }) => {
-    const history = useHistory();
-
+const TelemetryProvider = ({ children }: PropsWithChildren<{}>) => {
     useEffect(() => {
-        ai.initialize(history);
-    }, [history]);
+        ai.initialize();
+    }, []);
 
-    return <Fragment>{children}</Fragment>;
+    return <>children</>;
 };
 
 export default TelemetryProvider;
