@@ -125,7 +125,8 @@
                     "args": "after-used",
                     "argsIgnorePattern": "^_"
                 }
-            ]
+            ],
+            "camelcase": ["warn"]
         },
         "overrides": [
             {

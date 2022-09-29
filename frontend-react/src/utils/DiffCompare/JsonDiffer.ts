@@ -1,5 +1,5 @@
+import { DifferMarkupResult, insertMark } from "./AbstractDiffer";
 import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
-import { splitOn } from "./misc";
 
 /**
  * Leverages jsonSourceMap to diff two jsons.
@@ -92,6 +92,12 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
     return pathArray;
 };
 
+/**
+ * Diff compares two jsons and returns a map of the differences. You probably want to use
+ * @param leftData
+ * @param rightData
+ * @param leafNodesOnly
+ */
 export const jsonDiffer = (
     leftData: SourceMapResult,
     rightData: SourceMapResult,
@@ -152,22 +158,6 @@ export const jsonDiffer = (
     };
 };
 
-const insertMark = (s1: string, start: number, end: number): string => {
-    if (s1 === "" || end - start <= 0 || end >= s1.length) {
-        return s1;
-    }
-    const three_parts = splitOn(s1, start, end);
-    if (three_parts.length !== 3) {
-        return s1;
-    }
-    return `${three_parts[0]}<mark>${three_parts[1]}</mark>${three_parts[2]}`;
-};
-
-type JsonDifferMarkupResult = {
-    left: { normalizedJson: string; markupText: string };
-    right: { normalizedJson: string; markupText: string };
-};
-
 /**
  * Given two json find the difference, then return a normalized json string and one with <mark>s
  * added for the differences.
@@ -178,7 +168,7 @@ type JsonDifferMarkupResult = {
 export const jsonDifferMarkup = (
     leftJson: any,
     rightJson: any
-): JsonDifferMarkupResult => {
+): DifferMarkupResult => {
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);
     const diffs = jsonDiffer(leftMap, rightMap);
@@ -190,18 +180,18 @@ export const jsonDifferMarkup = (
     // but if we start at the end then the earlier offsets are the same.
     // e.g. "0, 1, 2, <mark>5</mark>", the offset for "0" isn't changed when we get to it.
 
-    type Markers = {
+    type Marker = {
         start: number;
         end: number;
     };
 
-    const leftDiffs: Markers[] = diffs.addedLeftKeys.map((key) => ({
+    const leftDiffs: Marker[] = diffs.addedLeftKeys.map((key) => ({
         start:
             leftMap.pointers[key].key?.pos || leftMap.pointers[key].value.pos,
         end: leftMap.pointers[key].valueEnd.pos,
     }));
 
-    const rightDiffs: Markers[] = diffs.addedRightKeys.map((key) => ({
+    const rightDiffs: Marker[] = diffs.addedRightKeys.map((key) => ({
         start:
             rightMap.pointers[key].key?.pos || rightMap.pointers[key].value.pos,
         end: rightMap.pointers[key].valueEnd.pos,
@@ -221,12 +211,17 @@ export const jsonDifferMarkup = (
         });
     }
 
-    // left and right changes markers need the same operations, this function is abstracted out
-    // to reduce code.
+    // left and right changes markers need the same operations,
+    // this function is abstracted out common code
     const processMarkersFunc = (
-        markers: Markers[],
+        markers: Marker[],
         jsonText: string
     ): string => {
+        if (markers.length === 0) {
+            return jsonText;
+        }
+
+        // doing these operations only makes sense if theres more than one difference.
         if (markers.length > 1) {
             // sort forwards for doing overlap matches
             markers.sort((a, b) => a.start - b.start);
@@ -237,37 +232,33 @@ export const jsonDifferMarkup = (
             // This is because the JSonSourceMap treats each array value as a separate sub-value.
             // Which is nice for spotting differences in large arrays in json.
             // Tested by "jsonDifferMarkup value type switched
-            markers = markers.reduce(
-                (acc: Markers[], value: Markers, index, array) => {
-                    if (acc.length === 0) {
-                        acc.push(value);
-                    } else if (value.start >= acc[acc.length - 1].end) {
-                        acc.push(value);
-                    }
-                    return acc;
-                },
-                [] as Markers[]
-            );
+            markers = markers.reduce((acc: Marker[], value: Marker) => {
+                if (acc.length === 0) {
+                    acc.push(value);
+                } else if (value.start >= acc[acc.length - 1].end) {
+                    acc.push(value);
+                }
+                return acc;
+            }, [] as Marker[]);
+
             // sort backwards for doing mark inserts into the text
             markers.sort((a, b) => b.start - a.start);
         }
 
-        // finally, we add the marks to the text. again, working backwards.
-        let markupText = jsonText;
-        for (const eachDiff of markers) {
-            markupText = insertMark(markupText, eachDiff.start, eachDiff.end);
-        }
-
-        return markupText;
+        // finally, we add the marks to the text. working backwards because of the reverse sort.
+        return markers.reduce(
+            (acc, eachDiff) => insertMark(acc, eachDiff.start, eachDiff.end),
+            jsonText
+        );
     };
 
     const leftMarkupText = processMarkersFunc(leftDiffs, leftMap.json);
     const rightMarkupText = processMarkersFunc(rightDiffs, rightMap.json);
 
     return {
-        left: { normalizedJson: leftMap.json, markupText: leftMarkupText },
+        left: { normalized: leftMap.json, markupText: leftMarkupText },
         right: {
-            normalizedJson: rightMap.json,
+            normalized: rightMap.json,
             markupText: rightMarkupText,
         },
     };

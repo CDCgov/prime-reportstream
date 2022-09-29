@@ -11,8 +11,9 @@ import {
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import { Diff, SES_TYPE } from "../utils/diff";
-import { checkTextAreaJson, splitOn } from "../utils/misc";
+import { checkTextAreaJson } from "../utils/misc";
+import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
+import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
@@ -24,6 +25,7 @@ export type EditableCompareRef = {
 interface EditableCompareProps {
     original: string;
     modified: string;
+    jsonDiffMode: boolean; // true is json aware compare, false is a text compare
 }
 
 /**
@@ -89,63 +91,28 @@ export const EditableCompare = forwardRef(
                 if (originalText.length === 0 || modifiedText.length === 0) {
                     return;
                 }
-                const insertHighlight = (
-                    s1: string,
-                    offset: number,
-                    length: number
-                ): string => {
-                    if (s1 === "" || length === 0) {
-                        return "";
-                    }
-                    // we want to insert a <span></span> around text.
-                    const three_parts = splitOn(s1, offset, offset + length);
-                    if (three_parts.length !== 3) {
-                        console.error("split failed");
-                        return s1;
-                    }
-
-                    return `${three_parts[0]}<mark>${three_parts[1]}</mark>${three_parts[2]}`;
-                };
 
                 turnOffSpellCheckSwigglies();
 
-                const differ = Diff(originalText, modifiedText);
-                differ.compose();
-                const sesses = differ.getses();
-
-                // because we're modifying text, it will change offsets UNLESS we go backwards.
-                // the later items in the patches array are sequential
-                let patchedLeftStr = originalText;
-                let patchedRightStr = modifiedText;
-
-                for (let ii = sesses.length - 1; ii >= 0; --ii) {
-                    const eachses = sesses[ii];
-                    if (eachses.sestype === SES_TYPE.DELETE) {
-                        patchedLeftStr = insertHighlight(
-                            patchedLeftStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } else if (eachses.sestype === SES_TYPE.ADD) {
-                        patchedRightStr = insertHighlight(
-                            patchedRightStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } // ignore SES_TYPE.COMMON
-                }
+                const result = props.jsonDiffMode
+                    ? jsonDifferMarkup(originalText, modifiedText)
+                    : textDifferMarkup(originalText, modifiedText);
 
                 // now stick it back into the edit boxes.
-                if (patchedLeftStr !== leftHandSideHighlightHtml) {
-                    setLeftHandSideHighlightHtml(patchedLeftStr);
+                if (result.left.markupText !== leftHandSideHighlightHtml) {
+                    setLeftHandSideHighlightHtml(result.left.markupText);
                 }
 
                 // we only change the hightlighting on the BACKGROUND div so we don't mess up typing/cursor
-                if (patchedRightStr !== rightHandSideHighlightHtml) {
-                    setRightHandSideHighlightHtml(patchedRightStr);
+                if (result.right.markupText !== rightHandSideHighlightHtml) {
+                    setRightHandSideHighlightHtml(result.right.markupText);
                 }
             },
-            [leftHandSideHighlightHtml, rightHandSideHighlightHtml]
+            [
+                leftHandSideHighlightHtml,
+                rightHandSideHighlightHtml,
+                props.jsonDiffMode,
+            ]
         );
 
         const onChangeHandler = useCallback(

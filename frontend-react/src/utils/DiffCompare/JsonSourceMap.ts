@@ -78,7 +78,6 @@ export const jsonSourceMap = (
     }
 
     // whitespace
-    const wspaceLoc: Location = { line: 0, column: 0, pos: 0 };
     const whitespace = " ".repeat(spaces);
 
     function isValidType(data: any) {
