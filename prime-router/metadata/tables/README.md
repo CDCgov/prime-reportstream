@@ -5,11 +5,11 @@ Contains lookup tables loaded directly from files.
 
 ## _livd_ folder 
 Contains the LIVD supplemental table that gets merged into the downloaded LIVD table by
-running the command `./prime livd-table-download`. 
+running the command `./prime livd-table-update`. 
 
 To update the LIVD Supplemental table:
 1. Make the needed updates to the [LIVD-Supplemental.csv](livd/LIVD-Supplemental.csv) file.
-2. Run `./prime livd-table-download -a`, verify the diff looks correct, then create the new lookup table version.
+2. Run `./prime livd-table-update -a`, verify the diff looks correct, then create the new lookup table version.
 3. Test the changes locally.
 4. Once the changes are verified, deploy the updated lookup table to staging and production.
 

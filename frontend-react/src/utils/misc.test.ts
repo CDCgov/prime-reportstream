@@ -8,6 +8,7 @@ import {
     VersionWarningType,
     toHumanReadable,
     capitalizeFirst,
+    groupBy,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -92,5 +93,20 @@ describe("capitalizeFirst", () => {
         expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual(
             "VdpoiENUpajfPWEOIWA"
         );
+    });
+});
+
+describe("groupBy ", () => {
+    test("groupBy basic", () => {
+        expect(
+            groupBy(
+                ["one", "two", "three", "four", "five"],
+                (v) => `${v.length}`
+            )
+        ).toStrictEqual({
+            3: ["one", "two"],
+            4: ["four", "five"],
+            5: ["three"],
+        });
     });
 });

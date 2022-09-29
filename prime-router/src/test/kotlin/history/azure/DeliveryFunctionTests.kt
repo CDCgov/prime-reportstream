@@ -75,10 +75,9 @@ class DeliveryFunctionTests : Logging {
      */
     data class ExpectedDelivery(
         val deliveryId: Int,
-        val sent: OffsetDateTime,
+        val batchReadyAt: OffsetDateTime,
         val expires: OffsetDateTime,
-        val receivingOrg: String,
-        val receivingOrgSvc: String?,
+        val receiver: String, // fullname, eg, md-phd.elr
         val reportId: String,
         val topic: String,
         val reportItemCount: Int,
@@ -91,8 +90,8 @@ class DeliveryFunctionTests : Logging {
             createdAt = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
             externalName = null,
             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-            topic = "covid-19",
-            reportItemCount = 14,
+            schema_topic = "covid-19",
+            itemCount = 14,
             receivingOrg = "ca-dph",
             receivingOrgSvc = "elr-secondary",
             bodyUrl = null,
@@ -104,8 +103,8 @@ class DeliveryFunctionTests : Logging {
             createdAt = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
             externalName = null,
             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
-            topic = "covid-19",
-            reportItemCount = 1,
+            schema_topic = "covid-19",
+            itemCount = 1,
             receivingOrg = "ca-dph",
             receivingOrgSvc = null,
             bodyUrl = null,
@@ -144,10 +143,9 @@ class DeliveryFunctionTests : Logging {
                     listOf(
                         ExpectedDelivery(
                             deliveryId = 922,
-                            sent = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
+                            batchReadyAt = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
                             expires = OffsetDateTime.parse("2022-05-19T18:04:26.534Z"),
-                            receivingOrg = "ca-dph",
-                            receivingOrgSvc = "elr-secondary",
+                            receiver = "ca-dph.elr-secondary",
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
@@ -155,10 +153,9 @@ class DeliveryFunctionTests : Logging {
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
-                            sent = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+                            batchReadyAt = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
                             expires = OffsetDateTime.parse("2022-05-12T17:06:10.534Z"),
-                            receivingOrg = "ca-dph",
-                            receivingOrgSvc = null,
+                            receiver = "ca-dph",
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
@@ -433,7 +430,7 @@ class DeliveryFunctionTests : Logging {
         val action = Action()
         action.actionId = 550
         action.sendingOrg = organizationName
-        action.actionName = TaskAction.send
+        action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
@@ -442,7 +439,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: ExpectedDelivery = mapper.readValue(response.body.toString())
         assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
-        assertThat(responseBody.receivingOrg).isEqualTo(returnBody.receivingOrg)
+        assertThat(responseBody.receiver).isEqualTo("${returnBody.receivingOrg}.${returnBody.receivingOrgSvc}")
 
         // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
@@ -457,7 +454,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not authorized
-        action.actionName = TaskAction.send
+        action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchAction(any()) } returns action
         every { mockDeliveryFacade.checkAccessAuthorization(any(), any(), null, any()) } returns false // not authorized
         response = function.getDeliveryDetails(mockRequest, goodActionId)
@@ -526,7 +523,7 @@ class DeliveryFunctionTests : Logging {
         val action = Action()
         action.actionId = 550
         action.sendingOrg = organizationName
-        action.actionName = TaskAction.send
+        action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkAccessAuthorization(any(), any(), null, any()) } returns true
@@ -580,7 +577,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not authorized
-        action.actionName = TaskAction.send
+        action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchAction(any()) } returns action
         every { mockDeliveryFacade.checkAccessAuthorization(any(), any(), null, any()) } returns false // not authorized
         response = function.getDeliveryFacilities(mockRequest, goodActionId)

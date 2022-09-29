@@ -14,3 +14,11 @@ elements:
   - name: observation-value-sn-value
     value: [ '%resource.numerator.value' ]
     hl7Spec: [ '%{hl7OBXField}-5-2' ]
+
+  - name: observation-value-sn-separator
+    value: [ '%resource.numerator.extension(%`rsext-separator`).value' ]
+    hl7Spec: [ '%{hl7OBXField}-5-3' ]
+
+  - name: observation-value-sn-denominator
+    value: [ '%resource.denominator.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5-4' ]
