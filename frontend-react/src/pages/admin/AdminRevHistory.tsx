@@ -17,7 +17,7 @@ import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 
-type clickHandler = (
+type AccordionClickHandler = (
     key: string,
     itemClickedKey: string,
     data: SettingRevision
@@ -30,7 +30,7 @@ type clickHandler = (
 const dataToAccordionItems = (props: {
     key: string; // used for React key and passed back to the onClickHandler
     selectedKey: string;
-    onClickHandler: clickHandler;
+    onClickHandler: AccordionClickHandler;
     data: SettingRevision[];
 }): AccordionItemProps[] => {
     const results: AccordionItemProps[] = [];
@@ -90,7 +90,7 @@ const dataToAccordionItems = (props: {
 interface MainComponentProps extends SettingRevisionParams {
     leftSelectedListItem: string;
     rightSelectedListItem: string;
-    onClickHandler: clickHandler;
+    onClickHandler: AccordionClickHandler;
 }
 
 /**
@@ -152,7 +152,7 @@ const AdminRevHistory = () => {
     const [leftItem, setLeftItem] = useState<SettingRevision | null>(null);
     const [rightItem, setRightItem] = useState<SettingRevision | null>(null);
 
-    const onClickHandler: clickHandler = useCallback(
+    const onClickHandler: AccordionClickHandler = useCallback(
         (key: string, itemClickedKey: string, data: SettingRevision) => {
             const normalizeJson = (jsonStr: string): string =>
                 JSON.stringify(JSON.parse(jsonStr), jsonSortReplacer, 2);
