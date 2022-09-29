@@ -1,47 +1,69 @@
-import { render, screen } from "@testing-library/react";
-import { useContext } from "react";
+import { screen } from "@testing-library/react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
+import { mockUseOktaMemberships } from "../hooks/__mocks__/UseOktaMemberships";
+import { renderWithSession } from "../utils/CustomRenderUtils";
 
-import { SessionContext } from "./SessionContext";
+import { useSessionContext } from "./SessionContext";
 
-const TestComponent = () => {
-    const { activeMembership, oktaToken, initialized } =
-        useContext(SessionContext);
-    return (
-        <>
-            <div>{activeMembership?.parsedName || ""}</div>
-            <div>{activeMembership?.memberType || ""}</div>
-            <div>{oktaToken?.accessToken || ""}</div>
-            <div>{initialized ? "INITIALIZED" : "NOT INITIALIZED"}</div>
-        </>
-    );
-};
-
-describe("SessionContext", () => {
-    test("renders data as passed in value prop", async () => {
-        render(
-            <SessionContext.Provider
-                value={{
-                    oktaToken: { accessToken: "testToken" },
-                    activeMembership: {
-                        parsedName: "testOrg",
-                        memberType: MemberType.SENDER,
-                    },
-                    dispatch: () => {},
-                    initialized: true,
-                }}
-            >
-                <TestComponent />
-            </SessionContext.Provider>
-        );
-        const orgDiv = await screen.findByText("testOrg");
-        const senderDiv = await screen.findByText(MemberType.SENDER);
-        const tokenDiv = await screen.findByText("testToken");
-        const initializedDiv = await screen.findByText("INITIALIZED");
-        expect(orgDiv).toBeInTheDocument();
-        expect(senderDiv).toBeInTheDocument();
-        expect(tokenDiv).toBeInTheDocument();
-        expect(initializedDiv).toBeInTheDocument();
+describe("SessionContext admin hard check", () => {
+    /* Because the session has to be consumed within the session wrapper, I couldn't use renderHook() to
+     * get back a returned state value -- the provider itself needs to be accessed from within a component for
+     * any provider logic (i.e. adminHardCheck) to be executed. Otherwise, you're just rendering the default
+     * Context, which sets everything to undefined, null, or empty. */
+    const TestComponent = () => {
+        const { adminHardCheck } = useSessionContext();
+        // Conditions to fail
+        if (!adminHardCheck) return <>failed</>;
+        return <>passed</>;
+    };
+    test("admin hard check is true when user has admin org in memberships map", async () => {
+        mockUseOktaMemberships.mockReturnValue({
+            state: {
+                activeMembership: {
+                    parsedName: "testOrg",
+                    memberType: MemberType.SENDER,
+                },
+                memberships: new Map().set("DHPrimeAdmins", {
+                    parsedName: "PrimeAdmins",
+                    memberType: MemberType.PRIME_ADMIN,
+                }),
+                initialized: true,
+            },
+            dispatch: () => {},
+        });
+        renderWithSession(<TestComponent />);
+        expect(screen.getByText("passed")).toBeInTheDocument();
+    });
+    test("admin hard check is false when user has has no trace of admin group", async () => {
+        mockUseOktaMemberships.mockReturnValue({
+            state: {
+                activeMembership: {
+                    parsedName: "testOrg",
+                    memberType: MemberType.SENDER,
+                },
+                memberships: new Map(),
+                initialized: true,
+            },
+            dispatch: () => {},
+        });
+        renderWithSession(<TestComponent />);
+        expect(screen.getByText("failed")).toBeInTheDocument();
+    });
+    /* Extra safety. This case _shouldn't_ happen unless we absolutely destroy our useOktaMemberships hook! */
+    test("admin hard check is false when user's memberships DON'T contain admin, but activeMembership IS admin", async () => {
+        mockUseOktaMemberships.mockReturnValue({
+            state: {
+                activeMembership: {
+                    parsedName: "PrimeAdmins",
+                    memberType: MemberType.PRIME_ADMIN,
+                },
+                memberships: new Map(),
+                initialized: true,
+            },
+            dispatch: () => {},
+        });
+        renderWithSession(<TestComponent />);
+        expect(screen.getByText("failed")).toBeInTheDocument();
     });
 });
