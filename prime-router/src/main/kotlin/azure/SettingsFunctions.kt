@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
@@ -218,6 +219,50 @@ class UpdateReceiver(
 }
 
 /**
+ * Get a history of revisions for an Org's settings (by type).
+ * It includes all the Setting data for the full history to enable
+ * quick client diffs across revisions.
+ *
+ * Type returned depends on the request settingSelector parameter.
+ * ALL named settings are return and the caller must group accordingly.
+ * Return ALL names solves the problem where knowing a deleted name become impossible
+ *
+ * From the OpenAPI view, this is just 3 different api calls
+ *   `settings/revision/organizations/{organizationName}/sender`
+ *   `settings/revision/organizations/{organizationName}/receiver`
+ *   `settings/revision/organizations/{organizationName}/organization`
+
+ *   @param settingsFacade Same pattern as the rest of the funs in this module
+ *   @param oktaAuthentication Default to require org admin, caller can override
+ *   @return Spring HttpTrigger call
+ */
+class GetSettingRevisionHistory(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
+    @FunctionName("getSettingRevisionHistory")
+    fun run(
+        @HttpTrigger(
+            name = "getSettingRevisionHistory",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/org/{organizationName}/settings/revs/{settingSelector}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organizationName") organizationName: String,
+        @BindingName("settingSelector") settingSelector: String
+    ): HttpResponseMessage {
+        try {
+            // verify the settingsTypeString is in the allowed setting enumeration.
+            val settingType = SettingType.valueOf(settingSelector.uppercase())
+            return getListHistory(request, organizationName, settingType)
+        } catch (e: EnumConstantNotPresentException) {
+            return HttpUtilities.badRequestResponse(request, "Invalid setting selector parameter")
+        }
+    }
+}
+
+/**
  * Common Settings API
  */
 
@@ -250,6 +295,25 @@ open class BaseFunction(
         }
     }
 
+    /**
+     * Returns all revisions of a settings (version) for an org/settingName
+     * Handles Auth
+     * @param request Incoming http request
+     * @param organizationName Org name to auth again and use for query
+     * @param settingType SettingType
+     * @result HttpResponseMessage resulting json or HTTP error response
+     */
+    fun getListHistory(
+        request: HttpRequestMessage<String?>,
+        organizationName: String,
+        settingType: SettingType
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, organizationName) {
+            val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
+            HttpUtilities.okResponse(request, settings, facade.getLastModified())
+        }
+    }
+
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
@@ -259,6 +323,14 @@ open class BaseFunction(
         }
     }
 
+    /**
+     * Return a single setting. Separated from http request for testability reasons
+     * @param request Http request
+     * @param settingName Name column in Setting table to match
+     * @param clazz The class used to convert to Json
+     * @param organizationName Mapped to organzationId then used to select the organization_id column
+     * @return HttpResponseMessage The resulting json or HTTP error response
+     */
     fun <T : SettingAPI> getOne(
         request: HttpRequestMessage<String?>,
         settingName: String,

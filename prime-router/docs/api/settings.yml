@@ -386,6 +386,39 @@ paths:
         '401':
           description: Unauthorized
 
+  /waters/org/{organizationName}/senders/revs/{settingType}:
+    get:
+      description: The full history of setting revisions for all settings of a given type.
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - in: path
+          name: organizationName
+          description: Fetch senders with this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
+          name: settingType
+          description: Type of setting
+          schema:
+            type: string
+            enum: ["organization", "sender", "receiver"]
+          required: true
+          example: organization
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingRevisions'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
 # Building
 components:
   schemas:
@@ -557,6 +590,45 @@ components:
               type: number
         meta:
           $ref: '#/components/schemas/SettingMetadata'
+
+    SettingRevisions:
+      description: A receiver of reports from the data hub
+      type: object
+      required:
+        - id
+        - name
+        - version
+        - createdAt
+        - createdBy
+        - settingJson
+      properties:
+        id:
+          description: Unique id for this setting revision
+          type: integer
+          example: 123
+        name:
+          description: Name for this setting. Unique for this organization.
+          type: string
+          example: test-elr
+        version:
+          description: Zero based revision number for this setting
+          type: integer
+          example: 0
+        createdAt:
+          description: timestamp for when this revision was created
+          type: string
+          format: date-time
+          example: 2022-05-25T15:36:14.812Z
+        createdBy:
+          description: email address of the account creating this revision of the setting
+          type: string
+          format: email
+          example: local@test.com
+        settingJson:
+          description: Json as a string for the content of the setting. Json schema varies by setting type and over revisions
+          type: string
+          example: "{\"keys\": null, \"meta\": null, \"name\": \"test-elr\", \"topic\": \"full-elr\", \"format\": \"HL7\", \"version\": null, \"createdAt\": null, \"createdBy\": null, \"senderType\": null, \"customerStatus\": \"inactive\", \"processingType\": \"sync\", \"allowDuplicates\": true, \"organizationName\": \"ignore\", \"primarySubmissionMethod\": null}"
+
 
     StandardHL7Configuration:
       description: A standard HL7 configuration
