@@ -236,19 +236,18 @@ export const jsonDifferMarkup = (
             // {key: "a"} vs {key: [1,2,3]}
             // This is because the JSonSourceMap treats each array value as a separate sub-value.
             // Which is nice for spotting differences in large arrays in json.
-            // Anyways, the lists are reverse sorted by start offset, if we loop over and
-            // find any end offsets are out of order then we have an overlap.
-            // We're abusing reduce a bit here.
-            markers.reduce((prev, current, index: number, array: Markers[]) => {
-                // is overlapping
-                if (current.start < prev.end) {
-                    delete array[index]; // leaves hole to not mess up iterator (aka sparse array)
-                    return prev;
-                }
-                return current;
-            });
-            markers = markers.filter((e) => e); // remove "holes" in sparse array
-
+            // Tested by "jsonDifferMarkup value type switched
+            markers = markers.reduce(
+                (acc: Markers[], value: Markers, index, array) => {
+                    if (acc.length === 0) {
+                        acc.push(value);
+                    } else if (value.start >= acc[acc.length - 1].end) {
+                        acc.push(value);
+                    }
+                    return acc;
+                },
+                [] as Markers[]
+            );
             // sort backwards for doing mark inserts into the text
             markers.sort((a, b) => b.start - a.start);
         }
