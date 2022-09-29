@@ -3,6 +3,18 @@ constants:
   hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
 elements:
   # Source: HCA CO Requirements
+  # Always replace ORC-21.8 with NULL
+  - name: co-ordering-facility-assigning-facility
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7Order}/ORC-21-8' ]
+
+  # Source: HCA CO Requirements
+  # Always replace ORC-21.9 with NULL
+  - name: co-ordering-facility-name-code
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7Order}/ORC-21-9' ]
+
+  # Source: HCA CO Requirements
   # If ORC-21.6 is populated then replace ORC-21.10 with value present in ORC-21.6.1
   # We overwrite this field with a new element as XON elements are generic and reused in other conversions
   - name: co-ordering-facility-organization-id
@@ -13,3 +25,7 @@ elements:
       # Default ORC-21.10 value
       - '%resource.identifier.value'
     hl7Spec: [ '%{hl7Order}/ORC-21-10' ]
+
+  # This requirement must be done on the submission side as FHIR will not accept non-numeric values
+  # If OBX-3.4 is equals to “HCVRNA” or “HCVLOG” AND OBX-5.2 is NON-Numeric result, AND OBX-15.1 equals to “QDI”,
+  # THEN replace the OBX-2 with “CWE” and remove OBX-5.1.
