@@ -99,7 +99,8 @@
         },
         "globals": {
             "RequestInit": true,
-            "process": "readonly"
+            "process": "readonly",
+            "cy": "readonly"
         },
         "rules": {
             "import/no-unresolved": 0,
