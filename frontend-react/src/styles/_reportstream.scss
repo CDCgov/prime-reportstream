@@ -655,5 +655,53 @@ pre {
 }
 
 .rs-no-padding {
-  padding: 0;
+    padding: 0;
+}
+
+.rs-mono-font {
+    font-family: monospace;
+}
+
+.rs-cursor-arrow {
+    cursor: pointer;
+}
+
+.rs-revision-history {
+    width: max-content;
+    min-width: 60vw;
+    .rs-static-compare-base {
+        @extend .rs-editable-compare-base;
+        margin: 0;
+        height: calc(var(--rs-compare-modal-height) - 11em);
+    }
+    .rs-list-diffs-container {
+        height: 25em;
+        color: white;
+        .rs-accord-list-row {
+            .rs-accord {
+                overflow-x: hidden;
+            }
+
+            .rs-list-diffs-items {
+                width: 50%;
+                height: 25em;
+                overflow-y: scroll;
+                overflow-x: clip;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #005ea2;
+
+                .rs-accord-row-selected {
+                    background-color: #005ea2;
+                    color: white;
+                    font-weight: bolder;
+                }
+            }
+
+            /** controlled by the headingLevel prop **/
+            h5 {
+                font-size: 0.8em;
+            }
+        }
+    }
 }

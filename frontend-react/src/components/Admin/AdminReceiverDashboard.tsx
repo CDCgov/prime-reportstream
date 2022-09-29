@@ -335,7 +335,7 @@ const sortStatusData = (
     return dataIn; // we modified array in place, but returning value is handy for chaining.
 };
 
-// PreRenderedRowComponents breaks out row status and org+reciever name into props
+// PreRenderedRowComponents breaks out row status and org+receiver name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
 function renderAllReceiverRows(props: {
     data: AdmConnStatusDataType[];

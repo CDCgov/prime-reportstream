@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { useResource } from "rest-hooks";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
@@ -8,8 +7,9 @@ import useFilterManager, {
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
-import ReportResource from "../../../resources/ReportResource";
-import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
+import { useReportsList } from "../../../hooks/network/History/DeliveryHooks";
+import { showError } from "../../../components/AlertNotifications";
+import Spinner from "../../../components/Spinner";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -74,19 +74,42 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
 */
 function ReportsTable() {
     const { oktaToken, activeMembership } = useSessionContext();
-    const reports: ReportResource[] = useResource(ReportResource.list(), {});
-    const fm = useFilterManager(filterManagerDefaults);
+    const { loadingServices, services, activeService, setActiveService } =
+        useReceiverFeeds();
+    // TODO: Doesn't update parameters because of the config memo dependency array
+    const {
+        data: deliveries,
+        loading,
+        error,
+        trigger: getReportsList,
+    } = useReportsList(activeMembership?.parsedName, activeService?.name);
+    const filterManager = useFilterManager(filterManagerDefaults);
 
-    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs[0]);
-    const filteredReports = useMemo(
-        () => reports.filter((report) => report.receivingOrgSvc === chosen),
-        [chosen, reports]
+    useEffect(
+        () => {
+            // IF parsedName and activeService.name are FOR SURE valid values
+            // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
+            if (
+                deliveries === undefined &&
+                activeMembership?.parsedName !== undefined &&
+                activeService?.name !== undefined
+            ) {
+                // Trigger useReportsList()
+                getReportsList();
+            }
+        },
+        // Ignoring getReportsList as dep
+        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line react-hooks/exhaustive-deps
     );
 
-    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen: SetStateAction<string>) => {
-        setChosen(chosen);
+    useEffect(() => {
+        if (error !== "") {
+            showError(error);
+        }
+    }, [error]);
+
+    const handleSetActive = (name: string) => {
+        setActiveService(services.find((item) => item.name === name));
     };
 
     const handleFetchAndDownload = (id: string) => {
@@ -108,8 +131,8 @@ function ReportsTable() {
                 },
             },
             {
-                dataAttr: "sent",
-                columnHeader: "Date Sent",
+                dataAttr: "batchReadyAt",
+                columnHeader: "Available",
                 sortable: true,
                 localSort: true,
                 transform: (s: string) => {
@@ -126,8 +149,8 @@ function ReportsTable() {
                 },
             },
             {
-                dataAttr: "total",
-                columnHeader: "Total Tests",
+                dataAttr: "reportItemCount",
+                columnHeader: "Items",
             },
             {
                 dataAttr: "fileType",
@@ -138,30 +161,38 @@ function ReportsTable() {
                 },
             },
         ],
-        rows: filteredReports,
+        rows: deliveries || [],
     };
-
+    if (loading || loadingServices) return <Spinner />;
     return (
         <>
             <div className="grid-container grid-col-12">
-                {receiverSVCs.length > 1 ? (
+                {services && services?.length > 1 ? (
                     <ServicesDropdown
-                        active={chosen}
-                        services={receiverSVCs}
-                        chosenCallback={handleCallback}
+                        services={services}
+                        active={activeService?.name || ""}
+                        chosenCallback={handleSetActive}
                     />
-                ) : null}
+                ) : (
+                    <p>
+                        Default service:{" "}
+                        <strong>
+                            {(services?.length &&
+                                services[0].name.toUpperCase()) ||
+                                ""}
+                        </strong>
+                    </p>
+                )}
             </div>
             <div className="grid-col-12">
-                <Table config={resultsTableConfig} filterManager={fm} />
+                <Table
+                    config={resultsTableConfig}
+                    filterManager={filterManager}
+                />
             </div>
             <div className="grid-container margin-bottom-10">
                 <div className="grid-col-12">
-                    {reports.filter(
-                        (report) => report.receivingOrgSvc === chosen
-                    ).length === 0 ? (
-                        <p>No results</p>
-                    ) : null}
+                    {deliveries?.length === 0 ? <p>No results</p> : null}
                 </div>
             </div>
         </>
