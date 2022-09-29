@@ -40,7 +40,7 @@ const SessionProvider = ({
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
-
+    console.log("MEANINGLESS");
     const {
         state: { memberships, activeMembership, initialized },
         dispatch,
