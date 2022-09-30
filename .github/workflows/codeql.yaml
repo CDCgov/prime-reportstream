@@ -1,12 +1,12 @@
 name: "Running CodeQL Analysis scan on prime-reportstream repository"
 
-on: 
-  pull_request:
-    branches:
-      - master
-    paths:
-      - "prime-router/**"
-      - "frontend-react/**"
+on: push
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - "prime-router/**"
+  #     - "frontend-react/**"
 jobs:
   Java_Codeql_Scan:
     name: Codeql_Scan
