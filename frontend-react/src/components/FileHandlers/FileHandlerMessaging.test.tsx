@@ -202,10 +202,9 @@ describe("FileQualityFilterDisplay", () => {
                 itemCount: 2,
                 itemCountBeforeQualityFiltering: 5,
                 filteredReportRows: [
-                    "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1",
-                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
-                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
-                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4",
+                    "Filtered out item Alaska1",
+                    "Filtered out item Alaska2",
+                    "Filtered out item Alaska4",
                 ],
                 filteredReportItems: [
                     {
@@ -214,36 +213,6 @@ describe("FileQualityFilterDisplay", () => {
                         filteredTrackingElement: "Alaska1",
                         filterArgs: ["patient_dob"],
                         message: "Filtered out item Alaska1",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "isValidCLIA",
-                        filteredTrackingElement: "Alaska1",
-                        filterArgs: [
-                            "testing_lab_clia",
-                            "reporting_facility_clia",
-                        ],
-                        message: "Filtered out item Alaska1",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "isValidCLIA",
-                        filteredTrackingElement: "Alaska2",
-                        filterArgs: [
-                            "testing_lab_clia",
-                            "reporting_facility_clia",
-                        ],
-                        message: "Filtered out item Alaska2",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "isValidCLIA",
-                        filteredTrackingElement: "Alaska4",
-                        filterArgs: [
-                            "testing_lab_clia",
-                            "reporting_facility_clia",
-                        ],
-                        message: "Filtered out item Alaska4",
                     },
                 ],
                 sentReports: [],
@@ -256,9 +225,9 @@ describe("FileQualityFilterDisplay", () => {
                 itemCount: 2,
                 itemCountBeforeQualityFiltering: 5,
                 filteredReportRows: [
-                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6",
-                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
-                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9",
+                    "Filtered out item Hawaii6",
+                    "Filtered out item Hawaii7",
+                    "Filtered out item Hawaii9",
                 ],
                 filteredReportItems: [
                     {
@@ -286,69 +255,6 @@ describe("FileQualityFilterDisplay", () => {
                 sentReports: [],
                 sending_at: "",
             },
-            {
-                organization: "Ohio Department of Health",
-                organization_id: "oh-doh",
-                service: "elr",
-                itemCount: 0,
-                itemCountBeforeQualityFiltering: 2,
-                filteredReportRows: [
-                    "Filtered out item Ohio11",
-                    "Filtered out item Ohio12",
-                    "Filtered out item Ohio11",
-                    "Filtered out item Ohio11",
-                    "Filtered out item Ohio12",
-                ],
-                filteredReportItems: [
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Ohio11",
-                        filterArgs: ["patient_dob"],
-                        message: "Filtered out item Ohio11",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Ohio12",
-                        filterArgs: ["patient_dob"],
-                        message: "Filtered out item Ohio12",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasAtLeastOneOf",
-                        filteredTrackingElement: "Ohio11",
-                        filterArgs: [
-                            "order_test_date",
-                            "specimen_collection_date_time",
-                            "test_result_date",
-                        ],
-                        message: "Filtered out item Ohio11",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "isValidCLIA",
-                        filteredTrackingElement: "Ohio11",
-                        filterArgs: [
-                            "testing_lab_clia",
-                            "reporting_facility_clia",
-                        ],
-                        message: "Filtered out item Ohio11",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "isValidCLIA",
-                        filteredTrackingElement: "Ohio12",
-                        filterArgs: [
-                            "testing_lab_clia",
-                            "reporting_facility_clia",
-                        ],
-                        message: "Filtered out item Ohio12",
-                    },
-                ],
-                sentReports: [],
-                sending_at: "",
-            },
         ];
         render(
             <FileQualityFilterDisplay
@@ -369,16 +275,23 @@ describe("FileQualityFilterDisplay", () => {
         expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
 
         const table = await screen.findAllByRole("table");
-        expect(table).toHaveLength(3);
+        expect(table).toHaveLength(2);
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(15);
+        expect(rows).toHaveLength(6);
 
+        expect(
+            screen.queryByText(/Maryland Public Health Department/)
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByText(/Alaska Public Health Department/)
+        ).toBeInTheDocument();
         const row1 = await within(rows[1]).findAllByRole("cell");
         expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
-        const row6 = await within(rows[6]).findAllByRole("cell");
-        expect(row6[0]).toHaveTextContent("Filtered out item Hawaii6");
-        const row10 = await within(rows[10]).findAllByRole("cell");
-        expect(row10[0]).toHaveTextContent("Filtered out item Ohio11");
+        expect(
+            screen.getByText(/Hawaii Public Health Department/)
+        ).toBeInTheDocument();
+        const row3 = await within(rows[3]).findAllByRole("cell");
+        expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
     });
 });

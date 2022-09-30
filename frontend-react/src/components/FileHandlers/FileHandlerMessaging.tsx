@@ -292,10 +292,11 @@ export const FileQualityFilterDisplay = ({
                 message={message}
             />
             <h3>Jurisdictions</h3>
-            {destinations?.map((d) => (
+            {destinations?.map((d, i) => (
                 <>
                     {d.filteredReportItems.length > 0 && (
                         <table
+                            key={i}
                             className="usa-table usa-table--borderless"
                             data-testid="error-table"
                         >
@@ -303,7 +304,7 @@ export const FileQualityFilterDisplay = ({
                                 <tr>
                                     <th>
                                         {d.organization}
-                                        <span className="record-count">
+                                        <span className="font-ui-3xs">
                                             {" "}
                                             ({d.filteredReportItems.length})
                                             record(s) filtered out
