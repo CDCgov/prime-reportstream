@@ -292,11 +292,10 @@ export const FileQualityFilterDisplay = ({
                 message={message}
             />
             <h3>Jurisdictions</h3>
-            {destinations?.map((d, i) => (
-                <>
+            {destinations?.map((d) => (
+                <React.Fragment key={d.organization_id}>
                     {d.filteredReportItems.length > 0 && (
                         <table
-                            key={i}
                             className="usa-table usa-table--borderless"
                             data-testid="error-table"
                         >
@@ -323,7 +322,7 @@ export const FileQualityFilterDisplay = ({
                             </tbody>
                         </table>
                     )}
-                </>
+                </React.Fragment>
             ))}
         </>
     );
