@@ -16,12 +16,10 @@ export const StaticAlert = ({
 }: StaticAlertProps) => {
     const alertClasses = classNames({
         "usa-alert": true,
-        "usa-alert--success": type === "success",
-        "usa-alert--success usa-alert--slim": type === "success slim",
-        "usa-alert--error": type === "error",
-        "usa-alert--error usa-alert--slim": type === "error slim",
-        "usa-alert--warning": type === "warning",
-        "usa-alert--warning usa-alert--slim": type === "warning slim",
+        "usa-alert--success": type.indexOf("success") > -1,
+        "usa-alert--error": type.indexOf("error") > -1,
+        "usa-alert--warning": type.indexOf("warning") > -1,
+        "usa-alert--slim": type.indexOf("slim") > -1,
     });
     return (
         <div className={alertClasses} role="alert">
