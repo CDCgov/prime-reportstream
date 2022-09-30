@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
@@ -196,5 +196,39 @@ describe("AuthElement unit tests", () => {
         );
         const spinner = await screen.findByTestId("rs-spinner");
         expect(spinner).toBeInTheDocument();
+    });
+    /* This can happen if a user is a member of multiple Okta orgs, and the one set for them
+     * was a non-admin memberType. Because admins are the only ones able to mock memberType, we assign
+     * it based on a users first Okta group.
+     *
+     * In this example, you can see what that session state would look like. */
+    test("Permits admins whose active membership is not DHPrimeAdmins", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: new Map<string, MembershipSettings>().set(
+                "DHPrimeAdmins",
+                {
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: "PrimeAdmins",
+                }
+            ),
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "xx-phd",
+            },
+            dispatch: () => {},
+            initialized: true,
+            adminHardCheck: true,
+        });
+        render(
+            <AuthElement
+                element={<TestElement />}
+                requiredUserType={MemberType.PRIME_ADMIN}
+            />
+        );
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
+        expect(mockUseNavigate).not.toHaveBeenCalled();
     });
 });
