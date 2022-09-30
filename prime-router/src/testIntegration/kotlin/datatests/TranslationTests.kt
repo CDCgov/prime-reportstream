@@ -285,7 +285,7 @@ class TranslationTests {
         }
 
         /**
-         * Translate a [bundle] to an HL7 message as text.
+         * Translate a [bundle] to an HL7 message as text using the given [schema].
          * @return an HL7 message as an input stream
          */
         private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
@@ -296,7 +296,7 @@ class TranslationTests {
         }
 
         /**
-         * Read the report from an [input] based on the provided [schema] and [format].
+         * Read the report from an [input] based on the provided [schema] and [format]. Merges the result into [result].
          * @return the report
          */
         private fun readReport(
@@ -369,7 +369,8 @@ class TranslationTests {
         }
 
         /**
-         * Translate an [report] based on the provided [config].
+         * Translate a [report] based on the provided [inputSchema] and [expectedSchema].
+         * @return the translated report
          */
         private fun translateReport(report: Report, inputSchema: Schema, expectedSchema: Schema): Report {
             val mapping = translator.buildMapping(
