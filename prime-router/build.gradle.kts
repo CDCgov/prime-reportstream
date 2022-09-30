@@ -29,7 +29,7 @@ import java.util.Properties
 import kotlin.collections.mutableMapOf
 
 plugins {
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm") version "1.7.20"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -717,7 +717,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.1")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.3")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
