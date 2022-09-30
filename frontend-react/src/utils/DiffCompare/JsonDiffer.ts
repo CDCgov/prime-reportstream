@@ -232,14 +232,20 @@ export const jsonDifferMarkup = (
             // This is because the JSonSourceMap treats each array value as a separate sub-value.
             // Which is nice for spotting differences in large arrays in json.
             // Tested by "jsonDifferMarkup value type switched
-            markers = markers.reduce((acc: Marker[], value: Marker) => {
-                if (acc.length === 0) {
-                    acc.push(value);
-                } else if (value.start >= acc[acc.length - 1].end) {
-                    acc.push(value);
-                }
-                return acc;
-            }, [] as Marker[]);
+
+            // we rerun until there are no changes
+            let priorLen = markers.length;
+            do {
+                priorLen = markers.length;
+                markers = markers.reduce((acc: Marker[], value: Marker) => {
+                    if (acc.length === 0) {
+                        acc.push(value);
+                    } else if (value.start >= acc[acc.length - 1].end) {
+                        acc.push(value);
+                    }
+                    return acc;
+                }, [] as Marker[]);
+            } while (priorLen !== markers.length);
 
             // sort backwards for doing mark inserts into the text
             markers.sort((a, b) => b.start - a.start);
@@ -247,7 +253,8 @@ export const jsonDifferMarkup = (
 
         // finally, we add the marks to the text. working backwards because of the reverse sort.
         return markers.reduce(
-            (acc, eachDiff) => insertMark(acc, eachDiff.start, eachDiff.end),
+            (acc, eachDiff) =>
+                insertMark(acc, eachDiff.start, eachDiff.end - eachDiff.start),
             jsonText
         );
     };

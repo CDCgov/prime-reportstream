@@ -26,11 +26,7 @@ export const textDifferMarkup = (
         (acc, eachDiff) =>
             eachDiff.sestype !== SES_TYPE.DELETE
                 ? acc
-                : insertMark(
-                      acc,
-                      eachDiff.index - 1,
-                      eachDiff.index - 1 + eachDiff.len
-                  ),
+                : insertMark(acc, eachDiff.index - 1, eachDiff.len),
         leftText
     );
 
@@ -39,11 +35,7 @@ export const textDifferMarkup = (
         (acc, eachDiff) =>
             eachDiff.sestype !== SES_TYPE.ADD
                 ? acc
-                : insertMark(
-                      acc,
-                      eachDiff.index - 1,
-                      eachDiff.index - 1 + eachDiff.len
-                  ),
+                : insertMark(acc, eachDiff.index - 1, eachDiff.len),
         rightText
     );
 

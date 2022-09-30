@@ -66,39 +66,6 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
         expect(results2).toStrictEqual(["/1/2/3", "/1/2/4"]);
     });
 
-    const str = "Optimize for results not optics";
-    test("insertMark() function normal", () => {
-        expect(
-            _exportForTestingJsonDiffer.insertMark(str, 13, 20)
-        ).toStrictEqual("Optimize for <mark>results</mark> not optics");
-    });
-
-    test("insertMark() expected failures", () => {
-        // past end of string
-        expect(
-            _exportForTestingJsonDiffer.insertMark(
-                str,
-                str.length - 1,
-                str.length
-            )
-        ).toStrictEqual(str);
-
-        // end after start (or confused "end" with length)
-        expect(_exportForTestingJsonDiffer.insertMark(str, 4, 2)).toStrictEqual(
-            str
-        );
-
-        // start === end
-        expect(_exportForTestingJsonDiffer.insertMark(str, 4, 4)).toStrictEqual(
-            str
-        );
-
-        // empty string
-        expect(_exportForTestingJsonDiffer.insertMark("", 0, 0)).toStrictEqual(
-            ""
-        );
-    });
-
     test("jsonDifferMarkup diff values only", () => {
         const valueDiffs = jsonDifferMarkup(
             { key1: "value1" },
