@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - '**' 
+      - feature/6614-replace-lgtm-with-codeql
       - master
   pull_request:
     branches:
       - master
+      - feature/6614-replace-lgtm-with-codeql
       - '**' 
     # paths:
     #   - "prime-router/**"
