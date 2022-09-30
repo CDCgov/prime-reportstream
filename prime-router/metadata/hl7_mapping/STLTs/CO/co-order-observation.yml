@@ -26,6 +26,7 @@ elements:
       - '%resource.identifier.value'
     hl7Spec: [ '%{hl7Order}/ORC-21-10' ]
 
-  # This requirement must be done on the submission side as FHIR will not accept non-numeric values
-  # If OBX-3.4 is equals to “HCVRNA” or “HCVLOG” AND OBX-5.2 is NON-Numeric result, AND OBX-15.1 equals to “QDI”,
-  # THEN replace the OBX-2 with “CWE” and remove OBX-5.1.
+  - name: co-observation-result
+    resource: '%resource.result.resolve()'
+    schema: co-observation-result
+    resourceIndex: resultIndex

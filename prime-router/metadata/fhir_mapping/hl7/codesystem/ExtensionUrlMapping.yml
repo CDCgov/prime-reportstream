@@ -130,6 +130,9 @@
 # Alternate version
 - id: "alternate-version"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
+# Alternate value
+- id: "alternate-value"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value"
 # Collector identifier
 - id: "collector-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier"

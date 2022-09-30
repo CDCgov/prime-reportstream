@@ -1,5 +1,5 @@
 value :
-  type: STRING
+  type: FLOAT
   valueOf: $value
 comparator :
   type: String
@@ -61,3 +61,14 @@ extension_3:
       valueOf: datatype/CodeableConcept
       specs: $units
       expressionType: resource
+
+# The raw value in case it is not really a quantity
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, $value
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: alternate-value
