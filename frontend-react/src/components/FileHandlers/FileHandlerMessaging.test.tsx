@@ -2,11 +2,13 @@ import { screen, render, within } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
+import { Destination } from "../../resources/ActionDetailsResource";
 
 import {
     FileSuccessDisplay,
     FileErrorDisplay,
     FileWarningsDisplay,
+    FileQualityFilterDisplay,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -16,7 +18,6 @@ describe("FileSuccessDisplay", () => {
     test("renders expected content", async () => {
         renderWithRouter(
             <FileSuccessDisplay
-                fileName={"file.file"}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 showExtendedMetadata={true}
@@ -30,9 +31,6 @@ describe("FileSuccessDisplay", () => {
 
         const alert = await screen.findByRole("alert");
         expect(alert).toHaveClass("usa-alert--success");
-
-        const fileName = await screen.findByText("file.file");
-        expect(fileName).toHaveClass("margin-top-05");
 
         const message = await screen.findByText("Broken Glass, Everywhere");
         expect(message).toHaveClass("usa-alert__text");
@@ -180,5 +178,207 @@ describe("FileWarningsDisplay", () => {
         expect(firstCells[1]).toHaveTextContent("Row(s): 1");
         expect(firstCells[2]).toHaveTextContent("first field");
         expect(firstCells[3]).toHaveTextContent("first_id");
+    });
+});
+
+describe("FileQualityFilterDisplay", () => {
+    test("renders expected content", async () => {
+        const destinations: Destination[] = [
+            {
+                organization: "Maryland Public Health Department",
+                organization_id: "md-phd",
+                service: "elr",
+                itemCount: 2,
+                itemCountBeforeQualityFiltering: 2,
+                filteredReportRows: [],
+                filteredReportItems: [],
+                sentReports: [],
+                sending_at: "",
+            },
+            {
+                organization: "Alaska Public Health Department",
+                organization_id: "ak-phd",
+                service: "elr",
+                itemCount: 2,
+                itemCountBeforeQualityFiltering: 5,
+                filteredReportRows: [
+                    "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1",
+                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
+                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
+                    "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4",
+                ],
+                filteredReportItems: [
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Alaska1",
+                        filterArgs: ["patient_dob"],
+                        message: "Filtered out item Alaska1",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "isValidCLIA",
+                        filteredTrackingElement: "Alaska1",
+                        filterArgs: [
+                            "testing_lab_clia",
+                            "reporting_facility_clia",
+                        ],
+                        message: "Filtered out item Alaska1",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "isValidCLIA",
+                        filteredTrackingElement: "Alaska2",
+                        filterArgs: [
+                            "testing_lab_clia",
+                            "reporting_facility_clia",
+                        ],
+                        message: "Filtered out item Alaska2",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "isValidCLIA",
+                        filteredTrackingElement: "Alaska4",
+                        filterArgs: [
+                            "testing_lab_clia",
+                            "reporting_facility_clia",
+                        ],
+                        message: "Filtered out item Alaska4",
+                    },
+                ],
+                sentReports: [],
+                sending_at: "",
+            },
+            {
+                organization: "Hawaii Public Health Department",
+                organization_id: "hi-phd",
+                service: "elr",
+                itemCount: 2,
+                itemCountBeforeQualityFiltering: 5,
+                filteredReportRows: [
+                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6",
+                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
+                    "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9",
+                ],
+                filteredReportItems: [
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii6",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii6",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii7",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii7",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii9",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii9",
+                    },
+                ],
+                sentReports: [],
+                sending_at: "",
+            },
+            {
+                organization: "Ohio Department of Health",
+                organization_id: "oh-doh",
+                service: "elr",
+                itemCount: 0,
+                itemCountBeforeQualityFiltering: 2,
+                filteredReportRows: [
+                    "Filtered out item Ohio11",
+                    "Filtered out item Ohio12",
+                    "Filtered out item Ohio11",
+                    "Filtered out item Ohio11",
+                    "Filtered out item Ohio12",
+                ],
+                filteredReportItems: [
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Ohio11",
+                        filterArgs: ["patient_dob"],
+                        message: "Filtered out item Ohio11",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Ohio12",
+                        filterArgs: ["patient_dob"],
+                        message: "Filtered out item Ohio12",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasAtLeastOneOf",
+                        filteredTrackingElement: "Ohio11",
+                        filterArgs: [
+                            "order_test_date",
+                            "specimen_collection_date_time",
+                            "test_result_date",
+                        ],
+                        message: "Filtered out item Ohio11",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "isValidCLIA",
+                        filteredTrackingElement: "Ohio11",
+                        filterArgs: [
+                            "testing_lab_clia",
+                            "reporting_facility_clia",
+                        ],
+                        message: "Filtered out item Ohio11",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "isValidCLIA",
+                        filteredTrackingElement: "Ohio12",
+                        filterArgs: [
+                            "testing_lab_clia",
+                            "reporting_facility_clia",
+                        ],
+                        message: "Filtered out item Ohio12",
+                    },
+                ],
+                sentReports: [],
+                sending_at: "",
+            },
+        ];
+        render(
+            <FileQualityFilterDisplay
+                destinations={destinations}
+                heading={""}
+                message={
+                    "The following records were filtered out while processing/validating your file."
+                }
+            />
+        );
+
+        const alert = await screen.findByRole("alert");
+        expect(alert).toHaveClass("usa-alert--error");
+
+        const message = await screen.findByText(
+            "The following records were filtered out while processing/validating your file."
+        );
+        expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
+
+        const table = await screen.findAllByRole("table");
+        expect(table).toHaveLength(3);
+
+        const rows = await screen.findAllByRole("row");
+        expect(rows).toHaveLength(15);
+
+        const row1 = await within(rows[1]).findAllByRole("cell");
+        expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
+        const row6 = await within(rows[6]).findAllByRole("cell");
+        expect(row6[0]).toHaveTextContent("Filtered out item Hawaii6");
+        const row10 = await within(rows[10]).findAllByRole("cell");
+        expect(row10[0]).toHaveTextContent("Filtered out item Ohio11");
     });
 });

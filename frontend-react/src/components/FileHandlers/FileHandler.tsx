@@ -206,7 +206,7 @@ const FileHandler = ({
             fileType === FileType.HL7
                 ? "ReportStream standard HL7 v2.5.1"
                 : "standard CSV";
-        return `Your file meets the ${schemaDescription} schema${suffix}.`;
+        return `The file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
     const warningDescription = useMemo(() => {
@@ -253,9 +253,26 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
+            <p
+                id="validatedFilename"
+                className="text-normal text-base margin-bottom-0"
+            >
+                File name
+            </p>
+            <p className="margin-top-05">{fileName}</p>
+
+            {showWarningBanner && (
+                <FileWarningBanner message={warningText || ""} />
+            )}
+            {warnings.length > 0 && (
+                <FileWarningsDisplay
+                    warnings={warnings}
+                    heading=""
+                    message={`We recommend addressing warnings to enhance clarity. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
+                />
+            )}
             {(reportId || overallStatus === "Valid") && (
                 <FileSuccessDisplay
-                    fileName={fileName}
                     extendedMetadata={{
                         destinations,
                         timestamp: successTimestamp,
@@ -264,16 +281,6 @@ const FileHandler = ({
                     heading={successMessage}
                     message={successDescription}
                     showExtendedMetadata={showSuccessMetadata}
-                />
-            )}
-            {showWarningBanner && (
-                <FileWarningBanner message={warningText || ""} />
-            )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading="We found non-critical issues in your file"
-                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
             {errors.length > 0 && (
@@ -288,8 +295,8 @@ const FileHandler = ({
             {destinations.length > 0 && (
                 <FileQualityFilterDisplay
                     destinations={reportItems}
-                    heading="Some records were filtered out due to possible data quality issues"
-                    message={`The following records were filtered out while processing/validating your file.`}
+                    heading=""
+                    message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
             {isSubmitting && (

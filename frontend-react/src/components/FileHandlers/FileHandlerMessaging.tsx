@@ -17,7 +17,6 @@ type ExtendedSuccessMetadata = {
 };
 
 type FileSuccessDisplayProps = {
-    fileName: string;
     heading: string;
     message: string;
     showExtendedMetadata: boolean;
@@ -25,7 +24,6 @@ type FileSuccessDisplayProps = {
 };
 
 export const FileSuccessDisplay = ({
-    fileName,
     heading,
     message,
     showExtendedMetadata,
@@ -36,15 +34,12 @@ export const FileSuccessDisplay = ({
         destinations || "There are no known recipients at this time.";
     return (
         <>
-            <StaticAlert type={"success"} heading={heading} message={message} />
+            <StaticAlert
+                type={"success slim"}
+                heading={heading}
+                message={message}
+            />
             <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -205,7 +200,11 @@ export const FileWarningsDisplay = ({
 }: FileWarningsDisplayProps) => {
     return (
         <>
-            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <StaticAlert
+                type={"warning slim"}
+                heading={heading}
+                message={message}
+            />
             <h3>Warnings</h3>
             <table
                 className="usa-table usa-table--borderless"
@@ -287,7 +286,11 @@ export const FileQualityFilterDisplay = ({
 }: FileQualityFilterDisplayProps) => {
     return (
         <>
-            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <StaticAlert
+                type={"error slim"}
+                heading={heading}
+                message={message}
+            />
             <h3>Jurisdictions</h3>
             {destinations?.map((d) => (
                 <>
