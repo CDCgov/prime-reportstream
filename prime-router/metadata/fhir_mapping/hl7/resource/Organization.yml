@@ -136,7 +136,7 @@ extension_2:
     value: String, XON.6.1
   constants:
     KEY_NAME_SUFFIX: String
-    urlValue: namespace-id
+    urlValue: assigning-authority-namespace-id
 
 extension_3:
   generateList: true
@@ -150,4 +150,4 @@ extension_3:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: universal-id
+    urlValue: assigning-authority-universal-id
