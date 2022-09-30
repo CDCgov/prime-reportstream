@@ -29,7 +29,7 @@ code:
   valueOf: $code
 
 extension_1:
-  condition: value NOT_EQUALS_STRING '<' && value NOT_EQUALS_STRING '<=' && value NOT_EQUALS_STRING '>=' && value NOT_EQUALS_STRING '>'
+  condition: $value NOT_EQUALS_STRING '<' && $value NOT_EQUALS_STRING '<=' && $value NOT_EQUALS_STRING '>=' && $value NOT_EQUALS_STRING '>'
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
