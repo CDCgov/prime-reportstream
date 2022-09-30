@@ -1,53 +1,25 @@
-import React, { PropsWithChildren, useEffect } from "react";
+import React, {
+    PropsWithChildren,
+    useEffect,
+    createContext,
+    useRef,
+} from "react";
 import {
     ApplicationInsights,
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
-import config from "./config";
+import config from "../config";
 
-const TelemetryProvider = ({ children }: PropsWithChildren<{}>) => {
-    useEffect(() => {
-        ai.initialize();
-    }, []);
-
-    return <>children</>;
-};
-
+interface ITelemetryContext {
+    appInsights: ApplicationInsights | undefined;
+}
 const { APP_ENV, APPLICATIONINSIGHTS_CONNECTION_STRING } = config;
 
-let reactPlugin: ReactPlugin | null = null;
-let appInsights: ApplicationInsights | null = null;
-
-const createTelemetryService = () => {
-    const initialize = () => {
-        if (!APPLICATIONINSIGHTS_CONNECTION_STRING) {
-            console.warn("Instrumentation key not provided");
-            return;
-        }
-
-        reactPlugin = new ReactPlugin();
-
-        appInsights = new ApplicationInsights({
-            config: {
-                instrumentationKey: APPLICATIONINSIGHTS_CONNECTION_STRING,
-                extensions: [reactPlugin],
-                loggingLevelConsole: APP_ENV === "development" ? 2 : 0,
-                disableFetchTracking: false,
-                enableAutoRouteTracking: true,
-                loggingLevelTelemetry: 2,
-                maxBatchInterval: 0,
-            },
-        });
-
-        appInsights.loadAppInsights();
-    };
-
-    return { reactPlugin, appInsights, initialize };
-};
-
-export const ai = createTelemetryService();
+export const TelemetryContext = createContext<ITelemetryContext>({
+    appInsights: undefined,
+});
 
 const logSeverityMap = {
     log: SeverityLevel.Information,
@@ -56,7 +28,10 @@ const logSeverityMap = {
     info: SeverityLevel.Information,
 } as const;
 
-export function withInsights(console: Console) {
+export function withInsights(
+    console: Console,
+    appInsights: ApplicationInsights
+) {
     const originalConsole = { ...console };
 
     Object.entries(logSeverityMap).forEach((el) => {
@@ -114,6 +89,46 @@ export function withInsights(console: Console) {
     });
 }
 
-export const getAppInsights = () => appInsights;
+// initializes Azure AppInsights, and provides an appInsights object to the application
+// though it is unclear whether the application will actually need it
+const TelemetryProvider = ({ children }: PropsWithChildren<{}>) => {
+    const appInsights = useRef<ApplicationInsights | undefined>();
+    useEffect(() => {
+        appInsights.current = initializeTelemetry();
+        if (appInsights.current) {
+            withInsights(console, appInsights.current);
+        }
+    }, []);
+
+    return (
+        <TelemetryContext.Provider value={{ appInsights: appInsights.current }}>
+            {children}
+        </TelemetryContext.Provider>
+    );
+};
+
+const initializeTelemetry = () => {
+    if (!APPLICATIONINSIGHTS_CONNECTION_STRING) {
+        console.warn("Instrumentation key not provided");
+        return;
+    }
+
+    const reactPlugin = new ReactPlugin();
+
+    const appInsights = new ApplicationInsights({
+        config: {
+            instrumentationKey: APPLICATIONINSIGHTS_CONNECTION_STRING,
+            extensions: [reactPlugin],
+            loggingLevelConsole: APP_ENV === "development" ? 2 : 0,
+            disableFetchTracking: false,
+            enableAutoRouteTracking: true,
+            loggingLevelTelemetry: 2,
+            maxBatchInterval: 0,
+        },
+    });
+
+    appInsights.loadAppInsights();
+    return appInsights;
+};
 
 export default TelemetryProvider;

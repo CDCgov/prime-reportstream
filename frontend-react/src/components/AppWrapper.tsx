@@ -7,7 +7,7 @@ import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
-import TelemetryProvider from "../telemetry-provider";
+import TelemetryProvider from "../contexts/TelemetryProvider";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
