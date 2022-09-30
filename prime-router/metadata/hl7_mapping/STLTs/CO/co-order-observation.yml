@@ -21,7 +21,7 @@ elements:
     resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve()'
     value:
       # ORC-21.6.1
-      - '%resource.extension(%`rsext-namespace-id`).value'
+      - '%resource.extension(%`rsext-assigning-authority-namespace-id`).value'
       # Default ORC-21.10 value
       - '%resource.identifier.value'
     hl7Spec: [ '%{hl7Order}/ORC-21-10' ]
