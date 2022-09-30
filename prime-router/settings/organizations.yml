@@ -3205,32 +3205,6 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: me-phd
-  description: Maine Public Health Department
-  jurisdiction: STATE
-  stateCode: ME
-  receivers:
-    - name: elr
-      organizationName: me-phd
-      topic: covid-19
-      customerStatus: inactive
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, ME, patient_state, ME)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: EASTERN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-
 - name: mh-phd
   description: Marshall Islands Public Health Department
   jurisdiction: STATE
@@ -3598,7 +3572,7 @@
 - name: me-phd
   description: Maine Public Health Department
   jurisdiction: STATE
-  stateCode: RI
+  stateCode: ME
   receivers:
     - name: elr
       organizationName: me-phd
@@ -3611,10 +3585,12 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: ME_DOH
-        receivingFacilityName: ME_DOH
+        receivingApplicationName: MEDOH
+        receivingFacilityName: MEDOH
         suppressHl7Fields: null
-        replaceValueAwithB: null
+        replaceValueAwithB:
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-21-1: [ "*": "PHLabReport-NoAck" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

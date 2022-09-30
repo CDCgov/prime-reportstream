@@ -156,6 +156,20 @@ class SettingsFacade(
         }
     }
 
+    /**
+     * Queries for the settings history for an org based on the type (RECEIVER, SENDER, ORG)
+     * The whole history (incl inactive and deleted) returned across all names for a given type.
+     * @param organizationName Restrict query to this org
+     * @param settingsType Type of setting. column in db and used to select
+     * @return json result serialized to a string
+     */
+    fun findSettingHistoryAsJson(organizationName: String, settingsType: SettingType): String {
+        val settings = db.transactReturning { txn ->
+            db.fetchSettingRevisionHistory(organizationName, settingsType, txn)
+        }
+        return mapper.writeValueAsString(settings)
+    }
+
     fun findOrganizationAndReceiver(fullName: String, txn: DataAccessTransaction?): Pair<Organization, Receiver>? {
         val (organizationName, receiverName) = Receiver.parseFullName(fullName)
         val (organizationSetting, receiverSetting) = db.fetchOrganizationAndSetting(

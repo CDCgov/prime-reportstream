@@ -137,3 +137,18 @@ export const capitalizeFirst = (uncapped: string): string => {
     const newFirst = uncapped[0].toUpperCase();
     return `${newFirst}${uncapped.substring(1)}`;
 };
+
+/**
+ * use: `groupBy(struct[], s => s.name)`
+ *
+ * @param array
+ * @param predicate
+ */
+export const groupBy = <T>(
+    array: T[],
+    predicate: (value: T, index: number, array: T[]) => string
+) =>
+    array.reduce((acc, value, index, array) => {
+        (acc[predicate(value, index, array)] ||= []).push(value);
+        return acc;
+    }, {} as { [key: string]: T[] });
