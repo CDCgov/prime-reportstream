@@ -338,7 +338,12 @@ class ProcessData(
                         translationConfig,
                         metadata
                     )
-                    File(outputDir ?: ".", fileName)
+                    val recvTranslation =  report.destination?.translation as? Hl7Configuration
+                    val labName = (recvTranslation?.reportingFacilityName ?:
+                        report.getValuesInRows("reporting_facility_name", arrayListOf(0))[0])
+                            .replace(" ", "-")
+
+                    File(outputDir ?: ".", labName+"-"+fileName)
                 }
                 outputReportFiles.add(outputFile.absolutePath)
                 echo(outputFile.absolutePath)
