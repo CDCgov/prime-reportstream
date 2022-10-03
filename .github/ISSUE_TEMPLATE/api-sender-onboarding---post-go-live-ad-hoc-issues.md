@@ -13,13 +13,13 @@ assignees: ''
 [Please add the specific user story or problem statement here if there’s an immediate issue that RS needs to address after the sender goes live.] 
 
 ### Acceptance Criteria 
-- [ ] [please add your acceptance criteria 
+- [ ] [please add your acceptance criteria]
 
  
 ### To Do 
 - [ ] RS engineer: update this ticket with comments with every interaction with sender, receiver, and/or ops team 
 - [ ] RS team member who originates this ticket: add dependencies, if needed 
 - [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
-      - [ ] Pipelines: Onboarding & Operations (New) 
-      - [ ] Labels: "Onboarding-ops" and "Sender"
-      - [ ] Epics: [select the epic for this API onboarding sender]
+     - [ ] Pipelines: Onboarding & Operations (New) 
+     - [ ] Labels: "Onboarding-ops" and "Sender"
+     - [ ] Epics: [select the epic for this API onboarding sender]
