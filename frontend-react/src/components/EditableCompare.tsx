@@ -11,15 +11,18 @@ import {
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import { checkTextAreaJson } from "../utils/misc";
 import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
 import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
+import { checkJson, splitOn } from "../utils/misc";
+
+import { showError } from "./AlertNotifications";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
     getOriginalText: () => string;
     refreshEditedText: (updatedjson: string) => void;
+    isValidSyntax: () => boolean;
 };
 
 interface EditableCompareProps {
@@ -60,6 +63,9 @@ export const EditableCompare = forwardRef(
         const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
             useState("");
 
+        // the API call into this forwardRef well say if json is valid (to enable save button)
+        const [isValidSyntax, setIsValidSyntax] = useState(true);
+
         useImperativeHandle(
             ref,
             () => ({
@@ -73,6 +79,9 @@ export const EditableCompare = forwardRef(
                 refreshEditedText(updatedjson) {
                     setTextAreaContent(updatedjson);
                     onChangeHandler(updatedjson);
+                },
+                isValidSyntax() {
+                    return isValidSyntax;
                 },
             }),
             // onChangeHandler appears below, remove from deps
@@ -94,8 +103,28 @@ export const EditableCompare = forwardRef(
 
                 turnOffSpellCheckSwigglies();
 
+                // jsonDiffMode requires json be valid. If it's not then don't run it.
+                const { valid, offset } = checkJson(modifiedText);
+                if (!valid) {
+                    // clear the diff on the left since the right is invalid
+                    setLeftHandSideHighlightHtml(originalText);
+
+                    // show where the error is:
+                    const start = Math.max(offset - 4, 0); // don't let go negative
+                    const end = Math.min(offset + 4, modifiedText.length); // don't let go past len
+
+                    const threeParts = splitOn(modifiedText, start, end);
+                    // we're using HTML5's <s> tag to show error, style sets background to red.
+                    const errorHtml = `${threeParts[0]}<s>${threeParts[1]}</s>${threeParts[2]}`;
+                    setRightHandSideHighlightHtml(errorHtml);
+                    return;
+                }
+
                 const result = props.jsonDiffMode
-                    ? jsonDifferMarkup(originalText, modifiedText)
+                    ? jsonDifferMarkup(
+                          JSON.parse(originalText),
+                          JSON.parse(modifiedText)
+                      )
                     : textDifferMarkup(originalText, modifiedText);
 
                 // now stick it back into the edit boxes.
@@ -115,6 +144,7 @@ export const EditableCompare = forwardRef(
             ]
         );
 
+        // on change, we highlight the errors
         const onChangeHandler = useCallback(
             (newText: string) => {
                 setTextAreaContent(newText);
@@ -122,6 +152,14 @@ export const EditableCompare = forwardRef(
             },
             [setTextAreaContent, refreshDiffCallback, props]
         );
+
+        const onBlurHandler = useCallback((newText: string) => {
+            const { valid, errorMsg } = checkJson(newText);
+            setIsValidSyntax(valid);
+            if (!valid) {
+                showError(`JSon data generated an error "${errorMsg}"`);
+            }
+        }, []);
 
         useEffect(() => {
             if (props.modified?.length > 0 && textAreaContent.length === 0) {
@@ -132,7 +170,7 @@ export const EditableCompare = forwardRef(
 
         return (
             <ScrollSync>
-                <div className="rs-editable-compare-container">
+                <div className="rs-editable-compare-container differ-marks">
                     <div className="rs-editable-stacked-container">
                         <ScrollSyncPane>
                             <div
@@ -164,14 +202,10 @@ export const EditableCompare = forwardRef(
                                 ref={editDiffRef}
                                 value={textAreaContent}
                                 onChange={(e) => {
-                                    onChangeHandler(e.target.value);
+                                    onChangeHandler(e?.target?.value || "");
                                 }}
                                 onBlur={(e) => {
-                                    checkTextAreaJson(
-                                        e?.target?.value,
-                                        "edited text",
-                                        editDiffRef
-                                    );
+                                    onBlurHandler(e?.target?.value || "");
                                 }}
                             />
                         </ScrollSyncPane>

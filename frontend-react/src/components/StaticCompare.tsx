@@ -16,62 +16,39 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
     const [rightHighlightHtml, setRightHighlightHtml] = useState("");
 
     const refreshHighlights = useCallback(
-        (rightText: string, leftText: string) => {
-            if (rightText.length === 0 || leftText.length === 0) {
+        (leftText: string, rightText: string, jsonDiffMode: boolean) => {
+            if (leftText.length === 0 || rightText.length === 0) {
+                // just clear the hightlighting for both sides and don't bother comparing
+                setLeftHighlightHtml(leftText);
+                setRightHighlightHtml(rightText);
                 return;
             }
+            const result = jsonDiffMode
+                ? jsonDifferMarkup(JSON.parse(leftText), JSON.parse(rightText))
+                : textDifferMarkup(leftText, rightText);
 
-            const result = props.jsonDiffMode
-                ? jsonDifferMarkup(props.leftText, props.rightText)
-                : textDifferMarkup(props.leftText, props.rightText);
-
-            debugger;
-            // now stick it back into the edit boxes.
-            if (result.left.markupText !== leftHighlightHtml) {
-                setLeftHighlightHtml(result.left.markupText);
-            }
-
-            // we only change the hightlighting on the BACKGROUND div so we don't mess up typing/cursor
-            if (result.right.markupText !== rightHighlightHtml) {
-                setRightHighlightHtml(result.right.markupText);
-            }
+            setLeftHighlightHtml(result.left.markupText);
+            setRightHighlightHtml(result.right.markupText);
         },
-        [
-            leftHighlightHtml,
-            rightHighlightHtml,
-            props.leftText,
-            props.rightText,
-            props.jsonDiffMode,
-        ]
+        []
     );
 
     useEffect(() => {
-        if (props.leftText?.length > 0 && props.rightText?.length > 0) {
-            // initialization only
-            refreshHighlights(props.leftText, props.rightText);
-        }
-    }, [props.leftText, props.rightText, refreshHighlights]);
+        refreshHighlights(props.leftText, props.rightText, props.jsonDiffMode);
+    }, [
+        props.leftText,
+        props.rightText,
+        props.jsonDiffMode,
+        refreshHighlights,
+    ]);
 
     return (
         <ScrollSync>
-            <div className="rs-editable-compare-container">
-                {/*Text has two components. The text on top and the highlight under it.*/}
-                {/*scrolling is synced so they line up*/}
-
+            <div className="rs-editable-compare-container differ-marks">
                 <div className="rs-editable-stacked-container">
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-static"
-                            data-testid={"left-compare-text"}
-                            contentEditable={false}
-                            dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(props.leftText),
-                            }}
-                        />
-                    </ScrollSyncPane>
-                    <ScrollSyncPane>
-                        <div
-                            className="rs-static-compare-base rs-editable-compare-background"
                             data-testid={"left-compare-highlight"}
                             dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(leftHighlightHtml),
@@ -79,28 +56,13 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                         />
                     </ScrollSyncPane>
                 </div>
-
-                {/*Text has two components. The text on top and the highlight under it.*/}
-                {/*scrolling is synced so they line up*/}
                 <div className="rs-editable-stacked-container">
                     <ScrollSyncPane>
                         <div
                             className="rs-static-compare-base rs-editable-compare-static"
-                            data-testid={"right-compare-text"}
-                            dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(props.rightText),
-                            }}
-                        />
-                    </ScrollSyncPane>
-
-                    <ScrollSyncPane>
-                        <div
-                            className="rs-static-compare-base rs-editable-compare-background"
                             data-testid={"right-compare-highlight"}
                             dangerouslySetInnerHTML={{
-                                __html: `${DOMPurify.sanitize(
-                                    rightHighlightHtml
-                                )}<br/>`,
+                                __html: DOMPurify.sanitize(rightHighlightHtml),
                             }}
                         />
                     </ScrollSyncPane>

@@ -1,4 +1,4 @@
-import { DifferMarkupResult, insertMark } from "./AbstractDiffer";
+import { DifferMarkupResult } from "./AbstractDiffer";
 import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
 
 /**
@@ -28,6 +28,24 @@ export type JsonDiffResult = {
 };
 
 /**
+ * Compare to key paths and determine if the path is a child of the parent.
+ * one liner, but increases readability.
+ * @param childPath path to check. format ("/top/middle/bottom")
+ * @param parentPath path that is considered parent ("/top/middle")
+ */
+const isInPath = (childPath: string, parentPath: string) =>
+    `${childPath}/`.startsWith(`${parentPath}/`);
+
+/**
+ * Loop over array of parentPaths and if childPath has any parentPaths as the
+ * parent return true.
+ * Not a great algo because it doesn't stop as soon as there's a match, but ok for
+ * small amounts of data.
+ */
+const isNotInAnyPath = (childPath: string, parentPaths: string[]) =>
+    parentPaths.filter((p) => isInPath(childPath, p)).length === 0;
+
+/**
  * Technically, if a nested node changes in json, then all parent nodes
  * are different as well. For a simple differ (with a single color hightlight for diffs),
  * we only care about the leaf nodes (the actual keys that changed, not the whole parent path)
@@ -49,9 +67,9 @@ export type JsonDiffResult = {
  *     }
  * }
  *
- * Technically, "level1" is different because "leaf2" buried under it changed, so the diff is
- * ["/", "/level2", "/level2/leaf2"]
- * But really we only want ["/level2/leaf2"]
+ * Technically, "level1" is different because "leaf2" buried under it changed
+ * This function does this:
+ * ["/", "/level2", "/level2/leaf2"] => ["/level2/leaf2"]
  *
  * The function removes the parent path elements
  * @param pathArray
@@ -62,7 +80,7 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
         return [];
     }
 
-    // iterate backwards since leaf nodes will be last.
+    // iterate BACKWARDS since leaf nodes will be last.
     // But, we can remove elements as we go, so have refresh the array or we'll get burned
     // by being out of bounds
     let ii = pathArray.length - 1;
@@ -92,63 +110,150 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
     return pathArray;
 };
 
+type Marker = {
+    start: number;
+    end: number;
+};
+
+/**
+ * Given a list of keys into the json map, produce and array of start/end markers
+ * This is just the value section
+ */
+const convertValuesToMarkers = (
+    keys: string[],
+    jsonMap: SourceMapResult
+): Marker[] => {
+    return keys.reduce(
+        (acc: Marker[], each: string): Marker[] => [
+            ...acc,
+            {
+                start: jsonMap.pointers[each].value.pos,
+                end: jsonMap.pointers[each].valueEnd.pos,
+            },
+        ],
+        []
+    );
+};
+
+/**
+ * Given a list of keys into the json map, produce and array of start/end markers.
+ * This is the *start of the key* to the end of the value
+ */
+const convertNodesToMarkers = (
+    keys: string[],
+    jsonMap: SourceMapResult
+): Marker[] => {
+    return keys.reduce(
+        (acc: Marker[], each: string): Marker[] => [
+            ...acc,
+            {
+                start:
+                    jsonMap.pointers[each].key?.pos ||
+                    jsonMap.pointers[each].value.pos,
+                end: jsonMap.pointers[each].valueEnd.pos,
+            },
+        ],
+        []
+    );
+};
+
+// Split out for unit testing
+// The trick here is that we collect all the markup, then apply it
+// working backwards so we don't screw with the offsets.
+// e.g. "1, 2, 3, 4" vs "0, 1, 2, 5" if we highlight the  "0" on the right
+// by inserting  "<mark>0</mark>, 1, 2, 5" then the offset for "5" has changed!
+// but if we start at the end then the earlier offsets are the same.
+// e.g. "0, 1, 2, <mark>5</mark>", the offset for "0" isn't changed when we get to it.
+const insertMarks = (startStr: string, markers: Marker[]): string => {
+    type MarkerInsert = {
+        pos: number;
+        mark: "<mark>" | "</mark>";
+    };
+    // turn into a single MarkerInsert[]. This enables easy back-to-front inserting into string
+    // we insert two entries per mark into the accumlator array
+    const inserts = markers.reduce(
+        (acc, each: Marker): MarkerInsert[] => [
+            ...acc,
+            { pos: each.start, mark: "<mark>" },
+            { pos: each.end, mark: "</mark>" },
+        ],
+        [] as MarkerInsert[]
+    );
+
+    // we reverse sort by pos MUST work from back to front
+    inserts.sort((a, b) => b.pos - a.pos);
+
+    // go through and inject <mark> or </mark> at each pos
+    return inserts.reduce(
+        (acc: string, each: MarkerInsert) =>
+            `${acc.slice(0, each.pos)}${each.mark}${acc.slice(each.pos)}`,
+        startStr
+    );
+};
+
 /**
  * Diff compares two jsons and returns a map of the differences. You probably want to use
  * @param leftData
  * @param rightData
- * @param leafNodesOnly
  */
 export const jsonDiffer = (
     leftData: SourceMapResult,
-    rightData: SourceMapResult,
-    leafNodesOnly: boolean = true
+    rightData: SourceMapResult
 ): JsonDiffResult => {
     // diff the keys. If the key is different, then just consider the value of that key to be different.
     const leftKeys = Object.keys(leftData.pointers);
     const rightKeys = Object.keys(rightData.pointers);
 
-    // this is O(3n^2) because includes() rescans whole index. If we were dealing with large amounts of data
-    // this can be done in O(n) using two cursors since the data is assumed to be sorted.
-    const addedLeftKeys = leftKeys.filter(
+    // this is looking for diffs between the two lists.
+    let addedLeftKeys = leftKeys.filter(
         (key) => key.length && !rightKeys.includes(key)
     );
-    const addedRightKeys = rightKeys.filter(
+    let addedRightKeys = rightKeys.filter(
         (key) => key.length && !leftKeys.includes(key)
     );
 
     // now we want intersection (aka NOT changed and see if the values have changed).
     let intersection = leftKeys.filter((key) => rightKeys.includes(key));
 
+    // for readability improvements only, pull out start/end values
+    const getStartEnd = (key: string, data: SourceMapResult) => {
+        return [data.pointers[key].value.pos, data.pointers[key].valueEnd.pos];
+    };
+    // inline getValue() improves readability only. slices out the string of a given value
+    const getValue = (key: string, data: SourceMapResult): string =>
+        data.json.slice(...getStartEnd(key, data));
+
     // now things get more complex, we pull out the value of unchanged keys and see if that's different.
     // we use the `pointers` structure to pull out the value from the `json`
     // pointers.value && pointers.valueEnd
     // export interface SourceMapResult {
     //     json: string;
-    //     pointers: Pointers;
+    //     pointers: JsonMapPointers;
     // }
-    // inline func() improves readability only. slices out the string of a given value
-    const getLeftValueFunc = (key: string): string =>
-        leftData.json.slice(
-            leftData.pointers[key].value.pos,
-            leftData.pointers[key].valueEnd.pos
-        );
-
-    const getRightValueFunc = (key: string): string =>
-        rightData.json.slice(
-            rightData.pointers[key].value.pos,
-            rightData.pointers[key].valueEnd.pos
-        );
-
     let changedKeys = intersection.filter(
-        (key) => getLeftValueFunc(key) !== getRightValueFunc(key)
+        (key) =>
+            key !== "" && getValue(key, leftData) !== getValue(key, rightData)
     );
 
-    if (leafNodesOnly) {
-        return {
-            addedLeftKeys,
-            addedRightKeys,
-            changedKeys: extractLeafNodes(changedKeys),
-        };
+    // now extract just the node leaves from the keys. This is because technically the content of each parent
+    // has changed, but we really only think about the leaf nodes as being diff
+    changedKeys = extractLeafNodes(changedKeys);
+
+    // so `{level1: { level2: { level3: "value"} } }` vs `{level1: { level2: { level3MOD: "value"} } }`
+    // The keys `/level/level2/level3` (left) and  `/level1/level2/level3MOD` (right) are different,
+    // BUT so is the PARENT VALUE `/level1/level2`
+    // so we go back and remove changedKeys from the addedKeys
+    // But we needed the intersection of the two sets to find the changedKeys earlier.
+    if (changedKeys.length) {
+        addedLeftKeys = extractLeafNodes([
+            ...addedLeftKeys,
+            ...changedKeys,
+        ]).filter((key) => addedLeftKeys.includes(key));
+
+        addedRightKeys = extractLeafNodes([
+            ...addedRightKeys,
+            ...changedKeys,
+        ]).filter((key) => addedRightKeys.includes(key));
     }
 
     return {
@@ -169,98 +274,26 @@ export const jsonDifferMarkup = (
     leftJson: any,
     rightJson: any
 ): DifferMarkupResult => {
+    // left and right should be json objects, but there's really no way to typescript enforce it.
+    if (typeof leftJson === "string" || typeof rightJson === "string") {
+        console.log("mean to pass simple strings versus json objects");
+    }
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);
     const diffs = jsonDiffer(leftMap, rightMap);
 
-    // The trick here is that we collect all the markup, then apply it
-    // working backwards so we don't screw with the offsets.
-    // e.g. "1, 2, 3, 4" vs "0, 1, 2, 5" if we highlight the  "0" on the right
-    // by inserting  "<mark>0</mark>, 1, 2, 5" then the offset for "5" has changed!
-    // but if we start at the end then the earlier offsets are the same.
-    // e.g. "0, 1, 2, <mark>5</mark>", the offset for "0" isn't changed when we get to it.
+    // collect all the markers, then insert marks
+    const leftMarks = [
+        ...convertNodesToMarkers(diffs.addedLeftKeys, leftMap),
+        ...convertValuesToMarkers(diffs.changedKeys, leftMap),
+    ];
+    const leftMarkupText = insertMarks(leftMap.json, leftMarks);
 
-    type Marker = {
-        start: number;
-        end: number;
-    };
-
-    const leftDiffs: Marker[] = diffs.addedLeftKeys.map((key) => ({
-        start:
-            leftMap.pointers[key].key?.pos || leftMap.pointers[key].value.pos,
-        end: leftMap.pointers[key].valueEnd.pos,
-    }));
-
-    const rightDiffs: Marker[] = diffs.addedRightKeys.map((key) => ({
-        start:
-            rightMap.pointers[key].key?.pos || rightMap.pointers[key].value.pos,
-        end: rightMap.pointers[key].valueEnd.pos,
-    }));
-
-    // for the value changes, just hightlight the value not keys. We'll push these into the existing array
-    // off offsets, but then we'll need to sort so we can work backwards.
-    for (const eachKey of diffs.changedKeys) {
-        leftDiffs.push({
-            start: leftMap.pointers[eachKey].value.pos,
-            end: leftMap.pointers[eachKey].valueEnd.pos,
-        });
-
-        rightDiffs.push({
-            start: rightMap.pointers[eachKey].value.pos,
-            end: rightMap.pointers[eachKey].valueEnd.pos,
-        });
-    }
-
-    // left and right changes markers need the same operations,
-    // this function is abstracted out common code
-    const processMarkersFunc = (
-        markers: Marker[],
-        jsonText: string
-    ): string => {
-        if (markers.length === 0) {
-            return jsonText;
-        }
-
-        // doing these operations only makes sense if theres more than one difference.
-        if (markers.length > 1) {
-            // sort forwards for doing overlap matches
-            markers.sort((a, b) => a.start - b.start);
-
-            // find and remove overlaps.
-            // There are still cases where values (vs keys) can over overlap.
-            // {key: "a"} vs {key: [1,2,3]}
-            // This is because the JSonSourceMap treats each array value as a separate sub-value.
-            // Which is nice for spotting differences in large arrays in json.
-            // Tested by "jsonDifferMarkup value type switched
-
-            // we rerun until there are no changes
-            let priorLen = markers.length;
-            do {
-                priorLen = markers.length;
-                markers = markers.reduce((acc: Marker[], value: Marker) => {
-                    if (acc.length === 0) {
-                        acc.push(value);
-                    } else if (value.start >= acc[acc.length - 1].end) {
-                        acc.push(value);
-                    }
-                    return acc;
-                }, [] as Marker[]);
-            } while (priorLen !== markers.length);
-
-            // sort backwards for doing mark inserts into the text
-            markers.sort((a, b) => b.start - a.start);
-        }
-
-        // finally, we add the marks to the text. working backwards because of the reverse sort.
-        return markers.reduce(
-            (acc, eachDiff) =>
-                insertMark(acc, eachDiff.start, eachDiff.end - eachDiff.start),
-            jsonText
-        );
-    };
-
-    const leftMarkupText = processMarkersFunc(leftDiffs, leftMap.json);
-    const rightMarkupText = processMarkersFunc(rightDiffs, rightMap.json);
+    const rightMarks = [
+        ...convertNodesToMarkers(diffs.addedRightKeys, rightMap),
+        ...convertValuesToMarkers(diffs.changedKeys, rightMap),
+    ];
+    const rightMarkupText = insertMarks(rightMap.json, rightMarks);
 
     return {
         left: { normalized: leftMap.json, markupText: leftMarkupText },
@@ -273,5 +306,7 @@ export const jsonDifferMarkup = (
 
 export const _exportForTestingJsonDiffer = {
     extractLeafNodes,
-    insertMark,
+    insertMarks,
+    isInPath,
+    isNotInAnyPath,
 };

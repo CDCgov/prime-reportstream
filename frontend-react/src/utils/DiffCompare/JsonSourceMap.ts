@@ -43,17 +43,17 @@
 /* these are exposed via SourceMapResult. Note: root element never has key/keyEnd */
 type PointerProp = "value" | "valueEnd" | "key" | "keyEnd";
 
-interface Location {
+interface JsonMapLocation {
     line: number;
     column: number;
     pos: number;
 }
 
-type Pointers = Record<string, Record<PointerProp, Location>>;
+type JsonMapPointers = Record<string, Record<PointerProp, JsonMapLocation>>;
 
 export interface SourceMapResult {
     json: string;
-    pointers: Pointers;
+    pointers: JsonMapPointers;
 }
 
 /**
@@ -66,8 +66,8 @@ export const jsonSourceMap = (
     spaces: number = 2
 ): SourceMapResult => {
     let json = "";
-    let pointers: Pointers = {};
-    const cur: Location = { line: 0, column: 0, pos: 0 };
+    let pointers: JsonMapPointers = {};
+    const cur: JsonMapLocation = { line: 0, column: 0, pos: 0 };
 
     if (!isValidType(jsonD)) {
         // throw error?

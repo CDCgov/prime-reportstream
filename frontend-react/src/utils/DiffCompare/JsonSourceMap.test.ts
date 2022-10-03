@@ -425,7 +425,6 @@ describe("JsonSourceMap test suite", () => {
         expect(result.json).toEqual(expected);
 
         const keys = Object.keys(result.pointers);
-        const values = Object.values(result.pointers);
         expect(keys).toStrictEqual([
             "",
             "/name",
@@ -443,6 +442,291 @@ describe("JsonSourceMap test suite", () => {
             "/children/2",
             "/children/2/name",
             "/children/2/age",
+        ]);
+        const values = Object.values(result.pointers);
+        expect(values).toStrictEqual([
+            {
+                value: {
+                    line: 0,
+                    column: 0,
+                    pos: 0,
+                },
+                valueEnd: {
+                    line: 21,
+                    column: 1,
+                    pos: 229,
+                },
+            },
+            {
+                key: {
+                    line: 1,
+                    column: 2,
+                    pos: 4,
+                },
+                keyEnd: {
+                    line: 1,
+                    column: 8,
+                    pos: 10,
+                },
+                value: {
+                    line: 1,
+                    column: 10,
+                    pos: 12,
+                },
+                valueEnd: {
+                    line: 1,
+                    column: 17,
+                    pos: 19,
+                },
+            },
+            {
+                key: {
+                    line: 2,
+                    column: 2,
+                    pos: 23,
+                },
+                keyEnd: {
+                    line: 2,
+                    column: 9,
+                    pos: 30,
+                },
+                value: {
+                    line: 2,
+                    column: 11,
+                    pos: 32,
+                },
+                valueEnd: {
+                    line: 6,
+                    column: 3,
+                    pos: 57,
+                },
+            },
+            {
+                value: {
+                    line: 3,
+                    column: 4,
+                    pos: 38,
+                },
+                valueEnd: {
+                    line: 3,
+                    column: 5,
+                    pos: 39,
+                },
+            },
+            {
+                value: {
+                    line: 4,
+                    column: 4,
+                    pos: 45,
+                },
+                valueEnd: {
+                    line: 4,
+                    column: 5,
+                    pos: 46,
+                },
+            },
+            {
+                value: {
+                    line: 5,
+                    column: 4,
+                    pos: 52,
+                },
+                valueEnd: {
+                    line: 5,
+                    column: 5,
+                    pos: 53,
+                },
+            },
+            {
+                key: {
+                    line: 7,
+                    column: 2,
+                    pos: 61,
+                },
+                keyEnd: {
+                    line: 7,
+                    column: 12,
+                    pos: 71,
+                },
+                value: {
+                    line: 7,
+                    column: 14,
+                    pos: 73,
+                },
+                valueEnd: {
+                    line: 20,
+                    column: 3,
+                    pos: 227,
+                },
+            },
+            {
+                value: {
+                    line: 8,
+                    column: 4,
+                    pos: 79,
+                },
+                valueEnd: {
+                    line: 11,
+                    column: 5,
+                    pos: 123,
+                },
+            },
+            {
+                key: {
+                    line: 9,
+                    column: 6,
+                    pos: 87,
+                },
+                keyEnd: {
+                    line: 9,
+                    column: 12,
+                    pos: 93,
+                },
+                value: {
+                    line: 9,
+                    column: 14,
+                    pos: 95,
+                },
+                valueEnd: {
+                    line: 9,
+                    column: 20,
+                    pos: 101,
+                },
+            },
+            {
+                key: {
+                    line: 10,
+                    column: 6,
+                    pos: 109,
+                },
+                keyEnd: {
+                    line: 10,
+                    column: 11,
+                    pos: 114,
+                },
+                value: {
+                    line: 10,
+                    column: 13,
+                    pos: 116,
+                },
+                valueEnd: {
+                    line: 10,
+                    column: 14,
+                    pos: 117,
+                },
+            },
+            {
+                value: {
+                    line: 12,
+                    column: 4,
+                    pos: 129,
+                },
+                valueEnd: {
+                    line: 15,
+                    column: 5,
+                    pos: 173,
+                },
+            },
+            {
+                key: {
+                    line: 13,
+                    column: 6,
+                    pos: 137,
+                },
+                keyEnd: {
+                    line: 13,
+                    column: 12,
+                    pos: 143,
+                },
+                value: {
+                    line: 13,
+                    column: 14,
+                    pos: 145,
+                },
+                valueEnd: {
+                    line: 13,
+                    column: 20,
+                    pos: 151,
+                },
+            },
+            {
+                key: {
+                    line: 14,
+                    column: 6,
+                    pos: 159,
+                },
+                keyEnd: {
+                    line: 14,
+                    column: 11,
+                    pos: 164,
+                },
+                value: {
+                    line: 14,
+                    column: 13,
+                    pos: 166,
+                },
+                valueEnd: {
+                    line: 14,
+                    column: 14,
+                    pos: 167,
+                },
+            },
+            {
+                value: {
+                    line: 16,
+                    column: 4,
+                    pos: 179,
+                },
+                valueEnd: {
+                    line: 19,
+                    column: 5,
+                    pos: 223,
+                },
+            },
+            {
+                key: {
+                    line: 17,
+                    column: 6,
+                    pos: 187,
+                },
+                keyEnd: {
+                    line: 17,
+                    column: 12,
+                    pos: 193,
+                },
+                value: {
+                    line: 17,
+                    column: 14,
+                    pos: 195,
+                },
+                valueEnd: {
+                    line: 17,
+                    column: 20,
+                    pos: 201,
+                },
+            },
+            {
+                key: {
+                    line: 18,
+                    column: 6,
+                    pos: 209,
+                },
+                keyEnd: {
+                    line: 18,
+                    column: 11,
+                    pos: 214,
+                },
+                value: {
+                    line: 18,
+                    column: 13,
+                    pos: 216,
+                },
+                valueEnd: {
+                    line: 18,
+                    column: 14,
+                    pos: 217,
+                },
+            },
         ]);
     });
 

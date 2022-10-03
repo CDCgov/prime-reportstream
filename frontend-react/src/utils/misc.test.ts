@@ -9,6 +9,7 @@ import {
     toHumanReadable,
     capitalizeFirst,
     groupBy,
+    checkJson,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -25,6 +26,15 @@ test("splitOn test", () => {
     // boundary conditions
     const r4 = splitOn("fooBAr", 0, 6);
     expect(JSON.stringify(r4)).toBe(`["","fooBAr",""]`);
+});
+
+test("checkTextAreaJson", () => {
+    expect(checkJson(`{}`)).toStrictEqual({ valid: true });
+    expect(checkJson(`{`)).toStrictEqual({ valid: false, offset: 1 });
+    expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
+        valid: false,
+        offset: 16,
+    });
 });
 
 const mockErrorEvent = mockEvent({
