@@ -63,6 +63,14 @@ open class Receiver(
      * the date time would have the offset applied to it
      */
     val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
+    /**
+     * Name of the file containing translation customizations for this receiver
+     */
+    val schemaFileName: String? = null,
+    /**
+     * Location of the custom configuration files for this receiver
+     */
+    val schemaFolderPath: String? = null
 ) {
     /** A custom constructor primarily used for testing */
     constructor(
@@ -75,12 +83,19 @@ open class Receiver(
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
+        schemaFileName: String? = null,
+        schemaFolderPath: String? = null
     ) : this(
-        name, organizationName, topic, customerStatus,
+        name,
+        organizationName,
+        topic,
+        customerStatus,
         CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
+        schemaFileName = schemaFileName,
+        schemaFolderPath = schemaFolderPath
     )
 
     /** A copy constructor for the receiver */
@@ -102,15 +117,18 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.timeZone,
-        copy.dateTimeFormat,
+        copy.dateTimeFormat
     )
 
     @get:JsonIgnore
     val fullName: String get() = createFullName(organizationName, name)
+
     @get:JsonIgnore
     val schemaName: String get() = translation.schemaName
+
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
     val displayName: String get() = externalName ?: name
@@ -207,8 +225,9 @@ open class Receiver(
 
         when (translation) {
             is CustomConfiguration -> {
-                if (metadata.findSchema(translation.schemaName) == null)
+                if (metadata.findSchema(translation.schemaName) == null) {
                     return "Invalid schemaName: ${translation.schemaName}"
+                }
             }
         }
         return null

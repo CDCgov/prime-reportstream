@@ -30,7 +30,7 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
@@ -57,12 +57,13 @@ class FHIRTranslator(
             val receivers = listOf("ignore.FULL_ELR")
 
             receivers.forEach { receiver ->
-                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
-                //  receiver-specific transforms
-                val converter = FhirToHl7Converter(
-                    bundle, "ORU_R01-base",
-                    "metadata/hl7_mapping/ORU_R01"
-                )
+                val destination = settings.findReceiver(receiver)
+
+                // todo: these values have a default until we have the routing portion done and they are populated
+                val schemaFileName = destination?.schemaFileName ?: "ORU_R01-base"
+                val schemaFolderPath = destination?.schemaFolderPath ?: "metadata/hl7_mapping/ORU_R01"
+
+                val converter = FhirToHl7Converter(bundle, schemaFileName, schemaFolderPath)
                 val hl7Message = converter.convert()
 
                 // create report object
@@ -72,9 +73,7 @@ class FHIRTranslator(
                     sources,
                     1,
                     metadata = metadata,
-                    // todo: when we actually want to send HL7 data to a receiver, we will need to ensure the
-                    //  destination property of the report is set
-                    // destination = settings.findReceiver(it)
+                    destination = destination
                 )
 
                 // create item lineage
