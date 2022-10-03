@@ -5,6 +5,7 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
+import { OverallStatus } from "../../network/api/WatersApi";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     FileHandlerActionType,
@@ -33,7 +34,7 @@ const FileHandlerSpinner = ({ message }: { message: string }) => (
 );
 
 const SERVER_ERROR_MESSAGING = {
-    heading: "Error",
+    heading: OverallStatus.ERROR,
     message: "There was a server error. Your file has not been accepted.",
 };
 
@@ -211,8 +212,8 @@ const FileHandler = ({
 
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
-            ? "Your file has been transmitted"
-            : "Your file has passed validation";
+            ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
+            : "We recommend addressing warnings to enhance clarity. ";
     }, [handlerType]);
 
     // default to FILE messaging here, partly to simplify typecheck
@@ -229,6 +230,21 @@ const FileHandler = ({
             sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
         return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
     }, [sender, submitText]);
+
+    // Array containing only qualityFilterMessages that have filteredReportItems.
+    const qualityFilterMessages = useMemo(
+        () => reportItems?.filter((d) => d.filteredReportItems.length > 0),
+        [reportItems]
+    );
+
+    const hasQualityFilterMessages =
+        destinations.length > 0 &&
+        qualityFilterMessages &&
+        qualityFilterMessages.length > 0;
+
+    const isFileSuccess =
+        (reportId || overallStatus === OverallStatus.VALID) &&
+        !hasQualityFilterMessages;
 
     if (senderLoading || organizationLoading) {
         return <FileHandlerSpinner message="Loading..." />;
@@ -253,14 +269,17 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
-            <p
-                id="validatedFilename"
-                className="text-normal text-base margin-bottom-0"
-            >
-                File name
-            </p>
-            <p className="margin-top-05">{fileName}</p>
-
+            {isFileSuccess && (
+                <>
+                    <p
+                        id="validatedFilename"
+                        className="text-normal text-base margin-bottom-0"
+                    >
+                        File name
+                    </p>
+                    <p className="margin-top-05">{fileName}</p>
+                </>
+            )}
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
             )}
@@ -268,10 +287,10 @@ const FileHandler = ({
                 <FileWarningsDisplay
                     warnings={warnings}
                     heading=""
-                    message={`We recommend addressing warnings to enhance clarity. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
+                    message={warningDescription}
                 />
             )}
-            {(reportId || overallStatus === "Valid") && (
+            {isFileSuccess && (
                 <FileSuccessDisplay
                     extendedMetadata={{
                         destinations,
@@ -292,9 +311,9 @@ const FileHandler = ({
                     message={errorMessaging.message}
                 />
             )}
-            {destinations.length > 0 && (
+            {hasQualityFilterMessages && (
                 <FileQualityFilterDisplay
-                    destinations={reportItems}
+                    destinations={qualityFilterMessages}
                     heading=""
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />

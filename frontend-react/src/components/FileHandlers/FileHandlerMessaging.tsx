@@ -294,34 +294,32 @@ export const FileQualityFilterDisplay = ({
             <h3>Jurisdictions</h3>
             {destinations?.map((d) => (
                 <React.Fragment key={d.organization_id}>
-                    {d.filteredReportItems.length > 0 && (
-                        <table
-                            className="usa-table usa-table--borderless"
-                            data-testid="error-table"
-                        >
-                            <thead>
-                                <tr>
-                                    <th>
-                                        {d.organization}
-                                        <span className="font-ui-3xs">
-                                            {" "}
-                                            ({d.filteredReportItems.length})
-                                            record(s) filtered out
-                                        </span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {d.filteredReportItems.map((f, i) => {
-                                    return (
-                                        <tr key={i}>
-                                            <td> {f.message}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    )}
+                    <table
+                        className="usa-table usa-table--borderless"
+                        data-testid="error-table"
+                    >
+                        <thead>
+                            <tr>
+                                <th>
+                                    {d.organization}
+                                    <span className="font-ui-3xs">
+                                        {" "}
+                                        ({d.filteredReportItems.length})
+                                        record(s) filtered out
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {d.filteredReportItems.map((f, i) => {
+                                return (
+                                    <tr key={i}>
+                                        <td> {f.message}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </React.Fragment>
             ))}
         </>

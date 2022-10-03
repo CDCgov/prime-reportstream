@@ -183,18 +183,7 @@ describe("FileWarningsDisplay", () => {
 
 describe("FileQualityFilterDisplay", () => {
     test("renders expected content", async () => {
-        const destinations: Destination[] = [
-            {
-                organization: "Maryland Public Health Department",
-                organization_id: "md-phd",
-                service: "elr",
-                itemCount: 2,
-                itemCountBeforeQualityFiltering: 2,
-                filteredReportRows: [],
-                filteredReportItems: [],
-                sentReports: [],
-                sending_at: "",
-            },
+        const qualityFilterMessages: Destination[] = [
             {
                 organization: "Alaska Public Health Department",
                 organization_id: "ak-phd",
@@ -258,7 +247,7 @@ describe("FileQualityFilterDisplay", () => {
         ];
         render(
             <FileQualityFilterDisplay
-                destinations={destinations}
+                destinations={qualityFilterMessages}
                 heading={""}
                 message={
                     "The following records were filtered out while processing/validating your file."
