@@ -244,6 +244,7 @@ export const useOktaMemberships = (
         // here we are only concerned about changes to a users orgs / memberships
     }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // any time a token change signifies a logout, we should clear our state and storage
     useEffect(() => {
         // if we're in an uninitialized state, but okta has loaded, set our initialized flag
         // this should always happen on the second render once the oktaHook initializes and sends

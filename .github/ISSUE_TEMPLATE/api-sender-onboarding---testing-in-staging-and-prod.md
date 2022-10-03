@@ -15,8 +15,8 @@ assignees: ''
 ### To Do 
 - [ ] RS engineer: update this ticket with comments with every interaction with sender 
 - [ ] RS team member who originates this ticket: add dependencies:  
-      - [ ] [name of company] Onboarding – Create Org and Sender Settings
-      - [ ] [name of company] Onboarding - Validate Test Files 
+     - [ ] [name of company] Onboarding – Create Org and Sender Settings
+     - [ ] [name of company] Onboarding - Validate Test Files 
 - [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
      - [ ] Pipelines: Onboarding & Operations (New) 
      - [ ] Labels: "Onboarding-ops," "Sender"
