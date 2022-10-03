@@ -187,7 +187,7 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
         const nestedDiff = jsonDifferMarkup(
             {
                 key1: {
-                    key1_2: [1, 2, 3, 4],
+                    key12: [1, 2, 3, 4],
                 },
                 key2: "value2",
                 key3: "same",
@@ -195,10 +195,10 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
             },
             {
                 key1: {
-                    key1_2: "completely different type",
+                    key12: "completely different type",
                 },
                 key2: {
-                    key2_2: "nested object NOT string",
+                    key22: "nested object NOT string",
                 },
                 key3: "same",
                 key5: "diff key same content",
@@ -206,10 +206,10 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
         );
 
         expect(nestedDiff.left.markupText).toBe(
-            `{\n  "key1": {\n    "key1_2": <mark>[\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>,\n      <mark>4</mark>\n    ]</mark>\n  },\n  "key2": <mark>"value2"</mark>,\n  "key3": "same",\n  <mark>"key4": "diff key same content"</mark>\n}`
+            `{\n  "key1": {\n    "key12": <mark>[\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>,\n      <mark>4</mark>\n    ]</mark>\n  },\n  "key2": <mark>"value2"</mark>,\n  "key3": "same",\n  <mark>"key4": "diff key same content"</mark>\n}`
         );
         expect(nestedDiff.right.markupText).toBe(
-            `{\n  "key1": {\n    "key1_2": <mark>"completely different type"</mark>\n  },\n  "key2": <mark>{\n    <mark>"key2_2": "nested object NOT string"</mark>\n  }</mark>,\n  "key3": "same",\n  <mark>"key5": "diff key same content"</mark>\n}`
+            `{\n  "key1": {\n    "key12": <mark>"completely different type"</mark>\n  },\n  "key2": <mark>{\n    <mark>"key22": "nested object NOT string"</mark>\n  }</mark>,\n  "key3": "same",\n  <mark>"key5": "diff key same content"</mark>\n}`
         );
     });
 

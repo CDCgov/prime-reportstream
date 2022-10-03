@@ -29,11 +29,20 @@ test("splitOn test", () => {
 });
 
 test("checkTextAreaJson", () => {
-    expect(checkJson(`{}`)).toStrictEqual({ valid: true });
-    expect(checkJson(`{`)).toStrictEqual({ valid: false, offset: 1 });
+    expect(checkJson(`{}`)).toStrictEqual({
+        valid: true,
+        offset: -1,
+        errorMsg: "",
+    });
+    expect(checkJson(`{`)).toStrictEqual({
+        valid: false,
+        offset: 1,
+        errorMsg: "Unexpected end of JSON input",
+    });
     expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
         valid: false,
         offset: 16,
+        errorMsg: "Unexpected token } in JSON at position 16",
     });
 });
 
