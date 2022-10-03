@@ -266,7 +266,7 @@ class Hl7Serializer(
                     warnings.add(
                         InvalidHL7Message
                         (
-                            "Unsupported HL7 message type. Only ORU-RO1 message type supported. " +
+                            "Unsupported HL7 message type. Only ORU-R01 message type supported. " +
                                 "Please refer to the ReportStream Programmer's Guide and resubmit."
                         )
                     )
@@ -275,22 +275,23 @@ class Hl7Serializer(
             }
         } catch (e: HL7Exception) {
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
-            if (e is EncodingNotSupportedException) {
-                // This exception error message is a bit cryptic, so let's provide a better one.
-                errors.add(
-                    InvalidHL7Message(
-                        "Invalid HL7 message format. Please " +
-                            "refer to the HL7 specification and resubmit."
+            when (e) {
+                is EncodingNotSupportedException ->
+                    // This exception error message is a bit cryptic, so let's provide a better one.
+                    errors.add(
+                        InvalidHL7Message(
+                            "Invalid HL7 message format. Please " +
+                                "refer to the HL7 specification and resubmit."
+                        )
                     )
-                )
-            } else {
-                errors.add(
-                    InvalidHL7Message(
-                        "Error parsing HL7 message. Primitive " +
-                            "value '08112020' requires to be empty or a HL7 datetime string " +
-                            "at PID-29."
+                else ->
+                    errors.add(
+                        InvalidHL7Message(
+                            "Error parsing HL7 message. Primitive " +
+                                "value '08112020' requires to be empty or a HL7 datetime string " +
+                                "at PID-29."
+                        )
                     )
-                )
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
