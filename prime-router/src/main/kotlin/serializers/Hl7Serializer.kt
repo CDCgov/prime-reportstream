@@ -285,13 +285,7 @@ class Hl7Serializer(
                         )
                     )
                 else ->
-                    errors.add(
-                        InvalidHL7Message(
-                            "Error parsing HL7 message. Primitive " +
-                                "value '08112020' requires to be empty or a HL7 datetime string " +
-                                "at PID-29."
-                        )
-                    )
+                    errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
