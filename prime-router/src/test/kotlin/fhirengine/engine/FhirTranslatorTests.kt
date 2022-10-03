@@ -42,7 +42,42 @@ class FhirTranslatorTests {
         "phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        receivers = listOf(
+            Receiver(
+                "elr",
+                "phd",
+                "topic",
+                CustomerStatus.INACTIVE,
+                "one"
+            )
+        )
+    )
+    val colorado = DeepOrganization(
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "elr.secondary",
+                "co-phd",
+                "topic",
+                CustomerStatus.INACTIVE,
+                "one"
+            ),
+            Receiver(
+                "elr",
+                "co-phd",
+                "topic",
+                CustomerStatus.INACTIVE,
+                "one",
+                Report.Format.CSV,
+                null,
+                null,
+                null,
+                "CO",
+                "metadata/hl7_mapping/ORU_R01"
+            )
+        )
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
@@ -104,7 +139,7 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val settings = FileSettings().loadOrganizations(colorado)
         val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
@@ -124,22 +159,6 @@ class FhirTranslatorTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }.returns(Unit)
-
-        val receiverFromCO = Receiver(
-            "elr",
-            "phd",
-            "topic",
-            CustomerStatus.INACTIVE,
-            "one",
-            Report.Format.CSV,
-            null,
-            null,
-            null,
-            "CO",
-            "metadata/hl7_mapping/ORU_R01"
-        )
-
-        every { settings.findReceiver(any()) }.returns(receiverFromCO)
 
         // act
         engine.doWork(message, actionLogger, actionHistory, metadata)
