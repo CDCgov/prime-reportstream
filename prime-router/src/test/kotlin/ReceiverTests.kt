@@ -21,7 +21,11 @@ internal class ReceiverTests {
     @Test
     fun `test receiver external name when present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            "covid-19",
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = "Ignore ELR"
         )
         assertThat(receiver.displayName).isEqualTo("Ignore ELR")
@@ -30,7 +34,11 @@ internal class ReceiverTests {
     @Test
     fun `test receiver external name when not present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            "covid-19",
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = null
         )
         assertThat(receiver.displayName).isEqualTo("elr")
