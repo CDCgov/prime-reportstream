@@ -117,7 +117,9 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.timeZone,
-        copy.dateTimeFormat
+        copy.dateTimeFormat,
+        copy.schemaFileName,
+        copy.schemaFolderPath
     )
 
     @get:JsonIgnore
