@@ -3,8 +3,10 @@ import React, { useEffect, useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
-import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
-import { getStoredOktaToken } from "../utils/SessionStorageTools";
+import { FeatureFlagName } from "../pages/misc/FeatureFlags";
+import { useFeatureFlags } from "../contexts/FeatureFlagContext";
+
+import Spinner from "./Spinner";
 
 interface AuthElementProps {
     element: JSX.Element;
@@ -19,9 +21,11 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership } = useSessionContext();
-    // A way to check if this is a logged-in user refreshing the app
-    const tokenAvailable = useMemo(() => !!getStoredOktaToken(), []);
+    const { oktaToken, activeMembership, initialized, adminHardCheck } =
+        useSessionContext();
+
+    const { checkFlag } = useFeatureFlags();
+
     // This memberType won't require an undefined fallback when used like the one
     // from useSessionContext
     const memberType = useMemo(
@@ -30,15 +34,25 @@ export const AuthElement = ({
     );
     // Dynamically authorize user from single or multiple allowed user types
     const authorizeMemberType = useMemo(() => {
-        if (memberType === MemberType.PRIME_ADMIN) return true; // Admin authentication always
+        if (adminHardCheck || memberType === MemberType.PRIME_ADMIN)
+            return true; // Admin authentication always
         return requiredUserType instanceof Array
             ? requiredUserType.includes(memberType)
             : requiredUserType === memberType;
-    }, [requiredUserType, memberType]);
+    }, [adminHardCheck, memberType, requiredUserType]);
     // All the checks before returning the route
+
+    const needsLogin = useMemo(
+        () => !oktaToken || !activeMembership,
+        [oktaToken, activeMembership]
+    );
     useEffect(() => {
+        // not ready to make a determination about auth status yet, show a spinner
+        if (!initialized) {
+            return;
+        }
         // Not logged in, needs to log in.
-        if (!tokenAvailable || !activeMembership) {
+        if (needsLogin) {
             navigate("/login");
             return;
         }
@@ -48,18 +62,23 @@ export const AuthElement = ({
             return;
         }
         // Does not have feature flag enabled
-        if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag)) {
+        if (requiredFeatureFlag && !checkFlag(requiredFeatureFlag)) {
             navigate("/");
         }
     }, [
         activeMembership,
         authorizeMemberType,
         navigate,
-        oktaToken?.accessToken,
         requiredFeatureFlag,
         requiredUserType,
-        tokenAvailable,
+        needsLogin,
+        initialized,
+        checkFlag,
     ]);
 
-    return element;
+    const elementToRender = useMemo(
+        () => (initialized ? element : <Spinner />),
+        [initialized, element]
+    );
+    return elementToRender;
 };

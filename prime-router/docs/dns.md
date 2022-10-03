@@ -16,6 +16,8 @@ Different environments have unique areas in the CDC address space. These **canno
 
 If you connect your development machine [to the VPN](vpn.md) you'll need to point requests for Azure resources to a small DNS server we run for this purpose. The configuration for these servers is in `operations/dnsmasq/config/{environment}/hosts.local`, and each one has a mapping of IP address (in the `10.0.5.x` address space) to Azure resource host names.
 
+>After environment (re)provisioning, validate `hosts.local` IP addresses are valid by comparing to NIC private IPs
+
 Finally, you OpenVPN configuration needs to point to this DNS server. Fortunately this is already done for you -- each profile you receive when you get a VPN account has a section like:
 
 ```

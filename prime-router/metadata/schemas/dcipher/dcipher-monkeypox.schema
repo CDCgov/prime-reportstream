@@ -256,11 +256,29 @@ elements:
     csvFields: [{ name: message_type }]
     default: SAMPLE
 
+  - name: ordering_facility_city
+    csvFields: [{ name: ordering_facility_city }]
 
+  - name: ordering_facility_state
+    csvFields: [{ name: ordering_facility_state }]
 
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: ordering_facility_zip_code }]
 
+  - name: specimen_collection_method_code
+    csvFields: [{ name: specimen_collection_method_code }]
 
+  - name: specimen_id
+    csvFields: [{ name: specimen_id }]
 
+  - name: date_result_released
+    csvFields: [{ name: date_result_released }]
 
+  - name: file_created_date
+    csvFields: [{ name: message_date }]
 
+  - name: order_test_date
+    csvFields: [{ name: order_test_date }]
 
+  - name: order_result_status
+    csvFields: [{ name: order_result_status }]

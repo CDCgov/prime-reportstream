@@ -772,6 +772,10 @@ The city of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country of the facility
+
 ---
 
 **Name**: ordering_facility_county
@@ -858,7 +862,7 @@ The phone number of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -867,6 +871,22 @@ The phone number of the facility which the test was ordered from
 **Documentation**:
 
 The state of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_state_zip_lookup
+
+**ReportStream Internal Name**: ordering_facility_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
 
 ---
 
