@@ -22,9 +22,9 @@ assignees: ''
          - [ ]  Sent API keys to Sender via Keybase  
      - [ ] 2. Token auth  
          - [ ] Received public key from sender in staging  
-               - [ ] Saved public key in keybase  
+              - [ ] Saved public key in keybase  
          - [ ] Received public key from sender in prod  
-               -[ ] Saved public key in keybase  
+              - [ ] Saved public key in keybase  
          - [ ] Associated public key with sender settings in staging  
          - [ ] Associated public key with sender settings in prod 
 
@@ -34,5 +34,6 @@ FYI: this ticket can be completely concurrently with “Validate Test Files” t
 - [ ] RS engineer: update this ticket with comments with every interaction with sender 
 - [ ] RS team member who originates this ticket: add any dependencies, as needed 
 - [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
-      - [ ] Pipelines: Onboarding & Operations (New) 
-      - [ ] Epics: [select the epic for this API onboarding sender]
+     - [ ] Pipelines: Onboarding & Operations (New) 
+     - [ ] Labels: "Onboarding-ops" and "Sender" 
+     - [ ] Epics: [select the epic for this API onboarding sender]
