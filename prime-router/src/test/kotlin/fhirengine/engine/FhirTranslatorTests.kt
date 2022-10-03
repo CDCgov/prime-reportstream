@@ -52,7 +52,7 @@ class FhirTranslatorTests {
             )
         )
     )
-    val colorado = DeepOrganization(
+    private val colorado = DeepOrganization(
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,

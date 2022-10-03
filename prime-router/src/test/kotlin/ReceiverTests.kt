@@ -177,4 +177,22 @@ internal class ReceiverTests {
         val actual5 = timing.batchInPrevious60Seconds(noWork1)
         assertThat(actual5).isFalse()
     }
+    @Test
+    fun `test receiver schema fields`() {
+        val receiver = Receiver(
+            "elr",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one",
+            Report.Format.CSV,
+            null,
+            null,
+            null,
+            "CO",
+            "metadata/hl7_mapping/ORU_R01"
+        )
+        assertThat(receiver.schemaFileName).isEqualTo("CO")
+        assertThat(receiver.schemaFolderPath).isEqualTo("metadata/hl7_mapping/ORU_R01")
+    }
 }
