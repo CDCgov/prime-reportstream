@@ -99,7 +99,8 @@
         },
         "globals": {
             "RequestInit": true,
-            "process": "readonly"
+            "process": "readonly",
+            "cy": "readonly"
         },
         "rules": {
             "import/no-unresolved": 0,
@@ -126,7 +127,7 @@
                     "argsIgnorePattern": "^_"
                 }
             ],
-            "camelcase": ["warn"]
+            "camelcase": ["warn", { "allow": ["days_to_show", "organization_id", "sending_at" ]}]
         },
         "overrides": [
             {
