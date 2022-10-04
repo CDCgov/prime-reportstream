@@ -70,6 +70,8 @@ const watersResponseError = {
 
 const handlers = [
     rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
+        if (req.headers["_headers"]["client"] === "test-endpoint-name")
+            return res(ctx.status(200), ctx.json({ endpoint: "upload" }));
         if (req.headers["_headers"]["client"] === "bad-client") {
             return res(ctx.json(watersResponseError), ctx.status(400));
         }
@@ -86,6 +88,14 @@ const handlers = [
         }
 
         return res(ctx.json(watersResponseSuccess), ctx.status(201));
+    }),
+    rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
+        if (req.headers["_headers"]["client"] === "test-fail")
+            return res(ctx.status(400));
+        if (req.headers["_headers"]["client"] === "test-endpoint-name") {
+            return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
+        }
+        return res(ctx.status(200));
     }),
 ];
 

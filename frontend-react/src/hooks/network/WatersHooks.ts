@@ -1,22 +1,32 @@
 import { useMutation } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { watersEndpoints, WatersResponse } from "../../network/api/WatersApi";
+import { RSNetworkError } from "../../utils/RSNetworkError";
 
-export interface WatersValidateArgs {
+export interface WatersPostArgs {
     client: string;
     fileName: string;
     contentType: string;
     fileContent: string;
 }
 
-const { postValidate } = watersEndpoints;
+const { upload, validate } = watersEndpoints;
 
-export const useFileValidation = () => {
+export const useWatersUploader = (validateOnly: boolean = false) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
-    const mutationFunction = (args: WatersValidateArgs) => {
-        const { contentType, fileContent, client, fileName } = args;
-        return authorizedFetch(postValidate, {
+    const memoizedEndpoint = useMemo(
+        () => (validateOnly ? validate : upload),
+        [validateOnly]
+    );
+    const mutationFunction = ({
+        contentType,
+        fileContent,
+        client,
+        fileName,
+    }: WatersPostArgs) => {
+        return authorizedFetch(memoizedEndpoint, {
             headers: {
                 "Content-Type": contentType,
                 payloadName: fileName,
@@ -25,9 +35,13 @@ export const useFileValidation = () => {
             data: fileContent,
         });
     };
-    const mutation = useMutation(mutationFunction);
+    const mutation = useMutation<
+        WatersResponse,
+        RSNetworkError,
+        WatersPostArgs
+    >(mutationFunction);
     return {
-        validateFile: mutation.mutateAsync,
-        isValidating: mutation.isLoading,
+        sendFile: mutation.mutateAsync,
+        isWorking: mutation.isLoading,
     };
 };
