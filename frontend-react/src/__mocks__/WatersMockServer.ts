@@ -87,7 +87,7 @@ const handlers = [
 
         return res(ctx.json(watersResponseSuccess), ctx.status(201));
     }),
-    rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
+    rest.post(`${RS_API_URL}/api/validate`, (req, res, ctx) => {
         if (req.headers["_headers"]["client"] === "test-fail")
             return res(ctx.status(400));
         if (req.headers["_headers"]["client"] === "test-endpoint-name") {

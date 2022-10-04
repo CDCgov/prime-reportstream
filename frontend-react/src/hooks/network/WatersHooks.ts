@@ -8,7 +8,7 @@ import { RSNetworkError } from "../../utils/RSNetworkError";
 export interface WatersPostArgs {
     client: string;
     fileName: string;
-    contentType: string;
+    contentType: string; // TODO: Enumerate?
     fileContent: string;
 }
 
