@@ -93,7 +93,7 @@ export const TextAreaComponent = (params: {
                             params.savefunc(JSON.parse(text));
                         } else {
                             showError(
-                                `JSon data generated an error "${errorMsg}"`
+                                `JSON data generated an error "${errorMsg}"`
                             );
 
                             // now select the problem area inside the TextArea
