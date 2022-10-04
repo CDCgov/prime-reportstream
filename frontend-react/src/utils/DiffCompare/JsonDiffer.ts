@@ -273,8 +273,8 @@ export const jsonDifferMarkup: DifferMarkup = (
     leftJson: string,
     rightJson: string
 ): DifferMarkupResult => {
-    const leftMap = jsonSourceMap(JSON.parse(leftJson), 2);
-    const rightMap = jsonSourceMap(JSON.parse(rightJson), 2);
+    const leftMap = jsonSourceMap(leftJson, 2);
+    const rightMap = jsonSourceMap(rightJson, 2);
     const diffs = jsonDiffer(leftMap, rightMap);
 
     // so `{level1: { level2: { level3: "value"} } }` vs `{level1: { level2: { level3MOD: "value"} } }`
