@@ -213,7 +213,7 @@ const FileHandler = ({
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
             ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
-            : "We recommend addressing warnings to enhance clarity. ";
+            : "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity.";
     }, [handlerType]);
 
     // default to FILE messaging here, partly to simplify typecheck

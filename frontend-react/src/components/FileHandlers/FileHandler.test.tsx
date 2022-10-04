@@ -348,7 +348,7 @@ describe("FileHandler", () => {
             // testing creation of error messaging for upload
             // for now, assuming that if this works, it will work for validation as well
             const message = await screen.findByText(
-                "We recommend addressing warnings to enhance clarity."
+                "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
             );
             expect(message).toHaveClass("usa-alert__text");
         });
