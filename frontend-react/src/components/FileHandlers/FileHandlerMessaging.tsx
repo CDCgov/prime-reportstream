@@ -8,6 +8,7 @@ import {
 import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../network/api/WatersApi";
+import { Destination } from "../../resources/ActionDetailsResource";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -16,7 +17,6 @@ type ExtendedSuccessMetadata = {
 };
 
 type FileSuccessDisplayProps = {
-    fileName: string;
     heading: string;
     message: string;
     showExtendedMetadata: boolean;
@@ -24,7 +24,6 @@ type FileSuccessDisplayProps = {
 };
 
 export const FileSuccessDisplay = ({
-    fileName,
     heading,
     message,
     showExtendedMetadata,
@@ -35,15 +34,12 @@ export const FileSuccessDisplay = ({
         destinations || "There are no known recipients at this time.";
     return (
         <>
-            <StaticAlert type={"success"} heading={heading} message={message} />
+            <StaticAlert
+                type={"success slim"}
+                heading={heading}
+                message={message}
+            />
             <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -103,7 +99,7 @@ export const FileSuccessDisplay = ({
  * @param errorMessage - the error message to potentially reformat
  * @returns - the original or transformed error message
  */
-const truncateErrorMesssage = (errorMessage: string | undefined): string => {
+const truncateErrorMessage = (errorMessage: string | undefined): string => {
     if (!errorMessage) return "";
 
     if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
@@ -204,7 +200,11 @@ export const FileWarningsDisplay = ({
 }: FileWarningsDisplayProps) => {
     return (
         <>
-            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <StaticAlert
+                type={"warning slim"}
+                heading={heading}
+                message={message}
+            />
             <h3>Warnings</h3>
             <table
                 className="usa-table usa-table--borderless"
@@ -239,7 +239,7 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, indices, field, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{truncateErrorMesssage(message)}</td>
+            <td>{truncateErrorMessage(message)}</td>
             <td>
                 {indices?.length && indices.length > 0 && (
                     <span>Row(s): {indices.join(", ")}</span>
@@ -270,5 +270,58 @@ export const NoSenderBanner = ({
             heading={`${capitalizeFirst(action)} unavailable`}
             message={`No valid sender found for ${organization}`}
         />
+    );
+};
+
+type FileQualityFilterDisplayProps = {
+    destinations: Destination[] | undefined;
+    message: string;
+    heading: string;
+};
+
+export const FileQualityFilterDisplay = ({
+    destinations,
+    heading,
+    message,
+}: FileQualityFilterDisplayProps) => {
+    return (
+        <>
+            <StaticAlert
+                type={"error slim"}
+                heading={heading}
+                message={message}
+            />
+            <h3>Jurisdictions</h3>
+            {destinations?.map((d) => (
+                <React.Fragment key={d.organization_id}>
+                    <table
+                        className="usa-table usa-table--borderless"
+                        data-testid="error-table"
+                    >
+                        <thead>
+                            <tr>
+                                <th>
+                                    {d.organization}
+                                    <span className="font-ui-3xs">
+                                        {" "}
+                                        ({d.filteredReportItems.length})
+                                        record(s) filtered out
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {d.filteredReportItems.map((f, i) => {
+                                return (
+                                    <tr key={i}>
+                                        <td> {f.message}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </React.Fragment>
+            ))}
+        </>
     );
 };
