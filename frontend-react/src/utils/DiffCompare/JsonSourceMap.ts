@@ -67,7 +67,7 @@ export const jsonSourceMap = (
 ): SourceMapResult => {
     // left and right should be json objects, but there's really no way to typescript enforce it.
     if (typeof jsonD === "string") {
-        console.log("Did you mean to pass simple strings versus json objects");
+        console.warn("Did you mean to pass simple strings versus json objects");
     }
 
     let json = "";

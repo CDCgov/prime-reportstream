@@ -217,4 +217,18 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
             `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty1": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>[\n      <mark>0</mark>,\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>\n    ]</mark>,\n    "keyChangeType2": <mark>"right"</mark>\n  }\n}`
         );
     });
+
+    const warnSpy = jest.spyOn(global.console, "warn");
+    test("quoted strings fail gracefully but warn", () => {
+        const diff = jsonDifferMarkup(
+            `"this is a text"`,
+            `"this is different text"`
+        );
+
+        // it's not JSON so fail gracefully.
+        expect(diff.left.markupText).toBe(`"this is a text"`);
+        expect(diff.right.markupText).toBe(`"this is different text"`);
+
+        expect(warnSpy).toBeCalledTimes(2);
+    });
 });
