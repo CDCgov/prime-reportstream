@@ -1,4 +1,4 @@
-import { DifferMarkup, DifferMarkupResult } from "./AbstractDiffer";
+import { DifferMarkupResult } from "./AbstractDiffer";
 import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
 
 /**
@@ -266,12 +266,12 @@ const jsonDiffer = (
  * Given two json find the difference, then return a normalized json string and one with <mark>s
  * added for the differences.
  *
- * @param leftJson Valid Json string. Verify that JSON.parse will not throw before calling
- * @param rightJson Valid Json string. Verify that JSON.parse will not throw before calling
+ * @param leftJson Valid JSON.
+ * @param rightJson Valid JSON.
  */
-export const jsonDifferMarkup: DifferMarkup = (
-    leftJson: string,
-    rightJson: string
+export const jsonDifferMarkup = (
+    leftJson: unknown,
+    rightJson: unknown
 ): DifferMarkupResult => {
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);

@@ -110,8 +110,8 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
 
     test("diff in values only", () => {
         const valueDiffs = jsonDifferMarkup(
-            JSON.stringify({ key1: "value1" }),
-            JSON.stringify({ key1: "value2" })
+            { key1: "value1" },
+            { key1: "value2" }
         );
         expect(valueDiffs.left.markupText).toBe(
             `{\n  "key1": <mark>"value1"</mark>\n}`
@@ -125,8 +125,8 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("diff keys only", () => {
         // diff: key1, key3. Same: key2
         const keyDiffs = jsonDifferMarkup(
-            JSON.stringify({ key1: "value1", key2: "value2" }),
-            JSON.stringify({ key2: "value2", key3: "value3" })
+            { key1: "value1", key2: "value2" },
+            { key2: "value2", key3: "value3" }
         );
 
         expect(keyDiffs.left.markupText).toBe(
@@ -140,18 +140,18 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
 
     test("diff keys and values different not nested", () => {
         const comboDiffs = jsonDifferMarkup(
-            JSON.stringify({
+            {
                 key1: "value1",
                 key2: "value2",
                 key3: "value3-left",
                 key4: "value4",
-            }),
-            JSON.stringify({
+            },
+            {
                 key0: "value0",
                 key2: "value2",
                 key3: "value3-right",
                 key5: "value5",
-            })
+            }
         );
 
         expect(comboDiffs.left.markupText).toBe(
@@ -163,10 +163,7 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     });
 
     test("value type is changed", () => {
-        const diff = jsonDifferMarkup(
-            JSON.stringify({ key: [1, 2, 3] }),
-            JSON.stringify({ key: "a" })
-        );
+        const diff = jsonDifferMarkup({ key: [1, 2, 3] }, { key: "a" });
         expect(diff.left.markupText).toBe(
             `{\n  "key": [\n    <mark>1</mark>,\n    <mark>2</mark>,\n    <mark>3</mark>\n  ]\n}`
         );
@@ -175,8 +172,8 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
 
     test("values in array are different", () => {
         const diff = jsonDifferMarkup(
-            JSON.stringify({ key: [1, 3, 4, 6] }),
-            JSON.stringify({ key: [2, 3, 5, 6] })
+            { key: [1, 3, 4, 6] },
+            { key: [2, 3, 5, 6] }
         );
         expect(diff.left.markupText).toBe(
             `{\n  "key": [\n    <mark>1</mark>,\n    3,\n    <mark>4</mark>,\n    6\n  ]\n}`
@@ -188,7 +185,7 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
 
     test("Mixed extreme combo test", () => {
         const nestedDiff = jsonDifferMarkup(
-            JSON.stringify({
+            {
                 createdBy: "test@example.com",
                 timing: {
                     whenEmpty: {
@@ -197,8 +194,8 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
                     keyChangeType1: "left",
                     keyChangeType2: [3, 2, 1, 0],
                 },
-            }),
-            JSON.stringify({
+            },
+            {
                 createdBy: "test@example.com",
                 timing: {
                     whenEmpty1: {
@@ -207,7 +204,7 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
                     keyChangeType1: [0, 1, 2, 3],
                     keyChangeType2: "right",
                 },
-            })
+            }
         );
 
         expect(nestedDiff.left.markupText).toBe(
@@ -221,8 +218,8 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     const warnSpy = jest.spyOn(global.console, "warn");
     test("quoted strings fail gracefully but warn", () => {
         const diff = jsonDifferMarkup(
-            `"this is a text"`,
-            `"this is different text"`
+            "this is a text",
+            "this is different text"
         );
 
         // it's not JSON so fail gracefully.

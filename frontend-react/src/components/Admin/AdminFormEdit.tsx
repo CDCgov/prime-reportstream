@@ -87,7 +87,7 @@ export const TextAreaComponent = (params: {
                     onBlur={(e) => {
                         const text =
                             e?.target?.value || (defaultnullvalue as string);
-                        const { valid, offset, errorMsg } = checkJson(text);
+                        const { valid, errorMsg } = checkJson(text);
                         if (valid) {
                             // checkJson made sure the following JSON.parse won't throw.
                             params.savefunc(JSON.parse(text));
@@ -95,12 +95,6 @@ export const TextAreaComponent = (params: {
                             showError(
                                 `JSON data generated an error "${errorMsg}"`
                             );
-
-                            // now select the problem area inside the TextArea
-                            const start = Math.max(offset - 4, 0); // don't let go negative
-                            const end = Math.min(offset + 4, text.length); // don't let go past len
-                            inputRef?.current?.focus();
-                            inputRef?.current?.setSelectionRange(start, end);
                         }
                     }}
                     disabled={params.disabled}
