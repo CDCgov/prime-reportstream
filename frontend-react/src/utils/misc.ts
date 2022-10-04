@@ -16,8 +16,8 @@ export const splitOn: {
 
 /**
  * @param jsonTextValue
- * @return { vvalid: boolean; offset: number }  If valid = false, then offset is where the error is.
- *  valid=true, offset: -1 - this is to keep typechecking simple for the caller. offset is always a number
+ * @return { valid: boolean; offset: number; errorMsg: string}  If valid = false, then offset is where the error is.
+ *  valid=true, offset: -1, errorMsg: "" - this is to keep typechecking simple for the caller. offset is always a number
  */
 export const checkJson = (
     jsonTextValue: string
