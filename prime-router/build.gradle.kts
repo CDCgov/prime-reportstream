@@ -680,7 +680,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.32.0")
     implementation("com.azure:azure-core-http-netty:1.12.5")
-    implementation("com.azure:azure-storage-blob:12.19.0") {
+    implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.14.1") {
@@ -702,7 +702,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
