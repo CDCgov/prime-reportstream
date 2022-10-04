@@ -12,7 +12,7 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-2' ]
 
   - name: patient-assigned-location-point-of-care
-    value: [ '%resource.location[0].location.resolve().extension(%`rsext-location-point-of-care`).value' ]
+    value: [ '%resource.location[0].location.resolve().extension(%`rsext-point-of-care`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-3-1' ]
 
   - name: patient-assigned-location-room
