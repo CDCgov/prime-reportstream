@@ -1,5 +1,5 @@
 import { useController, useResource } from "rest-hooks";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
 import React, { useRef, useState } from "react";
 
@@ -60,7 +60,14 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
             id="orgsendersettings"
             className="grid-container margin-bottom-5"
         >
-            <h2>Organization Sender Settings ({orgSenderSettings.length})</h2>
+            <h2>
+                Organization Sender Settings ({orgSenderSettings.length}){" - "}
+                <Link
+                    to={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
+                >
+                    History
+                </Link>
+            </h2>
             <Table
                 key="orgsendersettingstable"
                 aria-label="Organization Senders"

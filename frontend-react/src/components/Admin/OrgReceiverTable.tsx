@@ -1,7 +1,7 @@
 import { useController, useResource } from "rest-hooks";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
@@ -60,6 +60,12 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
         >
             <h2>
                 Organization Receiver Settings ({orgReceiverSettings.length})
+                {" - "}
+                <Link
+                    to={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
+                >
+                    History
+                </Link>
             </h2>
             <Table
                 key="orgreceiversettingstable"
