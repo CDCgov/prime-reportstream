@@ -13,8 +13,8 @@ import { FeatureFlagName } from "./misc/FeatureFlags";
 const Validate = () => {
     return (
         <FileHandler
-            headingText="File Validator"
-            successMessage="Your file has been validated"
+            headingText="ReportStream File Validator"
+            successMessage=""
             handlerType={FileHandlerType.VALIDATION}
             resetText="Validate another file"
             submitText="Validate"
