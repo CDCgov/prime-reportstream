@@ -1,4 +1,9 @@
 import { Destination } from "../../resources/ActionDetailsResource";
+import {
+    HTTPMethods,
+    RSApiEndpoints,
+    RSEndpoint,
+} from "../../config/endpoints";
 
 import { API } from "./NewApi";
 
@@ -51,5 +56,25 @@ export enum EndpointName {
 const WatersApi: API = new API(WatersResponse, "/api")
     .addEndpoint(EndpointName.WATERS.toString(), "/waters", ["POST"])
     .addEndpoint(EndpointName.VALIDATE.toString(), "/validate", ["POST"]);
+
+/*
+Waters Endpoints
+
+* waters -> returns metadata for all lookuptables
+* validate -> given a table name, returns all data rows in the lookup table of that name, for the active version
+*/
+
+export const watersEndpoints: RSApiEndpoints = {
+    postWaters: new RSEndpoint({
+        path: "/waters",
+        method: HTTPMethods.POST,
+        queryKey: "watersPost",
+    }),
+    postValidate: new RSEndpoint({
+        path: "/validate",
+        method: HTTPMethods.POST,
+        queryKey: "watersValidate",
+    }),
+};
 
 export default WatersApi;
