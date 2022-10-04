@@ -31,7 +31,10 @@ address:
 
 extension_1:
   generateList: true
+  condition: $locationName NOT_NULL
   expressionType: nested
+  vars:
+    locationName: String, XCN.14.1
   expressionsMap:
     url:
       type: SYSTEM_URL
