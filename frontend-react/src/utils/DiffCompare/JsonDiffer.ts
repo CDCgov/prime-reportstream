@@ -125,8 +125,11 @@ type Marker = {
 
 /**
  * Given a list of keys into the json map, produce an array of start/end markers
- * The <mark> injection wants the simplier Marker[]
+ * The <mark> injection wants the more simple Marker[]
  * This is the start of the *value* to the end of the value.
+ *    { "key": "value"}
+ *      ▲            ▲
+ *      └────────────┘
  */
 const convertValuesToMarkers = (
     keys: string[],
@@ -147,6 +150,9 @@ const convertValuesToMarkers = (
 /**
  * Given a list of keys into the json map, produce an array of start/end markers.
  * This is the start of the *key* to the end of the value.
+ *   { "key": "value"}
+ *            ▲     ▲
+ *            └─────┘
  */
 const convertNodesToMarkers = (
     keys: string[],
