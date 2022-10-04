@@ -1,9 +1,5 @@
 import { jsonSourceMap } from "./JsonSourceMap";
-import {
-    _exportForTestingJsonDiffer,
-    jsonDiffer,
-    jsonDifferMarkup,
-} from "./JsonDiffer";
+import { _exportForTestingJsonDiffer, jsonDifferMarkup } from "./JsonDiffer";
 
 describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
     test("isInPath utility function", () => {
@@ -70,7 +66,7 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
     test("jsonDiffer Basic test", () => {
         const left = jsonSourceMap({ key: "value" }, 2);
         const right = jsonSourceMap({ key: "VALUE" }, 2);
-        const diffs = jsonDiffer(left, right);
+        const diffs = _exportForTestingJsonDiffer.jsonDiffer(left, right);
         expect(diffs.addedLeftKeys).toStrictEqual([]);
         expect(diffs.addedRightKeys).toStrictEqual([]);
         expect(diffs.changedKeys).toStrictEqual(["/key"]);
@@ -80,14 +76,17 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
         const left = jsonSourceMap({ key1: "value" }, 2);
         const right = jsonSourceMap({ key2: "value" }, 2);
         {
-            const diffs = jsonDiffer(left, right);
+            const diffs = _exportForTestingJsonDiffer.jsonDiffer(left, right);
             expect(diffs.addedLeftKeys).toStrictEqual(["/key1"]);
             expect(diffs.addedRightKeys).toStrictEqual(["/key2"]);
             // "" because if keys changed the root node's content is different!
             expect(diffs.changedKeys).toStrictEqual([]);
         }
         {
-            const trimmedDiffs = jsonDiffer(left, right);
+            const trimmedDiffs = _exportForTestingJsonDiffer.jsonDiffer(
+                left,
+                right
+            );
             expect(trimmedDiffs.addedLeftKeys).toStrictEqual(["/key1"]);
             expect(trimmedDiffs.addedRightKeys).toStrictEqual(["/key2"]);
             expect(trimmedDiffs.changedKeys).toStrictEqual([]);
@@ -103,7 +102,7 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
             { addright: "addedright", same: "same", diff: "rightdiff" },
             2
         );
-        const diffs = jsonDiffer(left, right);
+        const diffs = _exportForTestingJsonDiffer.jsonDiffer(left, right);
         expect(diffs.addedLeftKeys).toStrictEqual(["/addleft"]);
         expect(diffs.addedRightKeys).toStrictEqual(["/addright"]);
         expect(diffs.changedKeys).toStrictEqual(["/diff"]);

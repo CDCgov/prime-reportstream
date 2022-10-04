@@ -3,19 +3,22 @@ import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
 
 /**
  * Leverages jsonSourceMap to diff two jsons.
+ *
  * Key concepts:
  * - Simplification: keys are not "changed". They are added to the left or right sides.
- *    e.g. { key1: "test" } --> { key2: "test } is really adding "key1" to left and adding "key2" to right.
- *    To simplify we say keys are only added to a side (versus removed from the other side)
+ *    e.g. { key1: "test" } vs { key2: "test } is really adding "key1" to left and adding "key2" to right.
  * - Values can be changed if they keys are the same.
  * - Code depends on JsonSourceMap to convert the json into an easily parsable structure.
  * - The calling code can then combine the results of the jsonDiffer to hightlight differences.
  *   This is done below via `jsonDifferMarkup()`
  * - Hierarchical json will appear as multiple changes.
- *    e.g. ANY change in any content will cause the root node "/" to show up.
+ *    e.g. ANY change in any content will cause the root node "" to show up.
  *         Or, if there's a path `/array/1` then `/array` will also appear.
  *    In theory, the caller could change highlight colors as it goes down deeper.
- *    There is a utility class to coalesce these differences
+ *
+ * `insertMarks` will remove *some* of the duplication, but it also will nest `<mark>` tags
+ *               when it's not clear where exactly the change is. The mark tags are 25% transparent
+ *               so nesting them will get darker backgrounds.
  *
  * @param rightData SourceMapResult
  * @param leftData SourceMapResult
@@ -163,14 +166,19 @@ const convertNodesToMarkers = (
     );
 };
 
-// Split out for unit testing
-// The trick here is that we collect all the markup, then apply it
-// working backwards so we don't screw with the offsets.
-// e.g. "1, 2, 3, 4" vs "0, 1, 2, 5" if we highlight the  "0" on the right
-// by inserting  "<mark>0</mark>, 1, 2, 5" then the offset for "5" has changed!
-// but if we start at the end then the earlier offsets are the same.
-// e.g. "0, 1, 2, <mark>5</mark>", the offset for "0" isn't changed when we get to it.
-const insertMarks = (startStr: string, markers: Marker[]): string => {
+/**
+ * Split out for unit testing
+ * The trick here is that we collect all the markup, then apply it
+ * working backwards so we don't screw with the offsets.
+ * e.g. "1, 2, 3, 4" vs "0, 1, 2, 5" if we highlight the  "0" on the right
+ * by inserting  "<mark>0</mark>, 1, 2, 5" then the offset for "5" has changed!
+ * but if we start at the end then the earlier offsets are the same.
+ * e.g. "0, 1, 2, <mark>5</mark>", the offset for "0" isn't changed when we get to it.
+ * @param jsonStr The json string to inject the markers into.
+ * @param markers Start/end pos for the various marks. Can be nested.
+ * @returns string with the <mark> tags inserted.
+ */
+const insertMarks = (jsonStr: string, markers: Marker[]): string => {
     type MarkerInsert = {
         pos: number;
         mark: "<mark>" | "</mark>";
@@ -186,23 +194,24 @@ const insertMarks = (startStr: string, markers: Marker[]): string => {
         [] as MarkerInsert[]
     );
 
-    // we reverse sort by pos MUST work from back to front
+    // we reverse sort by pos. Work must be done from back to front
     inserts.sort((a, b) => b.pos - a.pos);
 
     // go through and inject <mark> or </mark> at each pos
     return inserts.reduce(
         (acc: string, each: MarkerInsert) =>
             `${acc.slice(0, each.pos)}${each.mark}${acc.slice(each.pos)}`,
-        startStr
+        jsonStr
     );
 };
 
 /**
- * Diff compares two jsons and returns a map of the differences. You probably want to use
+ * Diff compares two jsons and returns a map of the differences. You probably want to use jsonDifferMarkup
  * @param leftData
  * @param rightData
+ * @return JsonDiffResult Called by jsonDifferMarkup.
  */
-export const jsonDiffer = (
+const jsonDiffer = (
     leftData: SourceMapResult,
     rightData: SourceMapResult
 ): JsonDiffResult => {
@@ -315,4 +324,5 @@ export const _exportForTestingJsonDiffer = {
     insertMarks,
     isInPath,
     isNotInAnyPath,
+    jsonDiffer,
 };
