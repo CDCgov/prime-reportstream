@@ -3572,7 +3572,7 @@
 - name: me-phd
   description: Maine Public Health Department
   jurisdiction: STATE
-  stateCode: RI
+  stateCode: ME
   receivers:
     - name: elr
       organizationName: me-phd

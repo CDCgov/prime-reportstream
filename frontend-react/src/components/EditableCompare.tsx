@@ -98,13 +98,13 @@ export const EditableCompare = forwardRef(
                         return "";
                     }
                     // we want to insert a <span></span> around text.
-                    const three_parts = splitOn(s1, offset, offset + length);
-                    if (three_parts.length !== 3) {
+                    const threeParts = splitOn(s1, offset, offset + length);
+                    if (threeParts.length !== 3) {
                         console.error("split failed");
                         return s1;
                     }
 
-                    return `${three_parts[0]}<mark>${three_parts[1]}</mark>${three_parts[2]}`;
+                    return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;
                 };
 
                 turnOffSpellCheckSwigglies();
