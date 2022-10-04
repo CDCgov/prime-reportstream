@@ -999,7 +999,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
             "ORC-3" to orcValuePairReplaceBlank,
-            "ORC-4" to orcValuePairNotReplaceBlank,     // Don't replace bcz something is in there
+            "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
             "MSH-3" to msh3ValuePair,
             "MSH-11-1" to mshf11e1Values,
             // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
