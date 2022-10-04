@@ -1,6 +1,7 @@
 name: "Running CodeQL Analysis scan on prime-reportstream repository"
 
 on: [pull_request]
+
   # push:
   #   branches:
   #     - codeql-scan-base-not-found-issue-fix 
