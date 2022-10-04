@@ -11,17 +11,17 @@ elements:
     hl7Spec: [ '%{hl7OrgField}-2' ]
 
   - name: xon-organization-type
-    resource: '%resource.extension(%`rsext-assigning-authority-namespace-id`)'
+    resource: '%resource.extension(%`rsext-namespace-id`)'
     condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OrgField}-6-1' ]
 
   - name: xon-organization-type
-    value: [ '%resource.extension(%`rsext-assigning-authority-universal-id`).value.getId()' ]
+    value: [ '%resource.extension(%`rsext-universal-id`).value.getId()' ]
     hl7Spec: [ '%{hl7OrgField}-6-2' ]
 
   - name: xon-software-vendor-assigning-authority-system
-    value: [ '%resource.extension(%`rsext-assigning-authority-universal-id`).value.getIdType()' ]
+    value: [ '%resource.extension(%`rsext-universal-id`).value.getIdType()' ]
     hl7Spec: [ '%{hl7OrgField}-6-3' ]
 
   - name: xon-organization-id-type

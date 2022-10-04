@@ -2,11 +2,13 @@ import { screen, render, within } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
+import { Destination } from "../../resources/ActionDetailsResource";
 
 import {
     FileSuccessDisplay,
     FileErrorDisplay,
     FileWarningsDisplay,
+    FileQualityFilterDisplay,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -16,7 +18,6 @@ describe("FileSuccessDisplay", () => {
     test("renders expected content", async () => {
         renderWithRouter(
             <FileSuccessDisplay
-                fileName={"file.file"}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 showExtendedMetadata={true}
@@ -30,9 +31,6 @@ describe("FileSuccessDisplay", () => {
 
         const alert = await screen.findByRole("alert");
         expect(alert).toHaveClass("usa-alert--success");
-
-        const fileName = await screen.findByText("file.file");
-        expect(fileName).toHaveClass("margin-top-05");
 
         const message = await screen.findByText("Broken Glass, Everywhere");
         expect(message).toHaveClass("usa-alert__text");
@@ -180,5 +178,109 @@ describe("FileWarningsDisplay", () => {
         expect(firstCells[1]).toHaveTextContent("Row(s): 1");
         expect(firstCells[2]).toHaveTextContent("first field");
         expect(firstCells[3]).toHaveTextContent("first_id");
+    });
+});
+
+describe("FileQualityFilterDisplay", () => {
+    test("renders expected content", async () => {
+        const qualityFilterMessages: Destination[] = [
+            {
+                organization: "Alaska Public Health Department",
+                organization_id: "ak-phd",
+                service: "elr",
+                itemCount: 2,
+                itemCountBeforeQualityFiltering: 5,
+                filteredReportRows: [
+                    "Filtered out item Alaska1",
+                    "Filtered out item Alaska2",
+                    "Filtered out item Alaska4",
+                ],
+                filteredReportItems: [
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Alaska1",
+                        filterArgs: ["patient_dob"],
+                        message: "Filtered out item Alaska1",
+                    },
+                ],
+                sentReports: [],
+                sending_at: "",
+            },
+            {
+                organization: "Hawaii Public Health Department",
+                organization_id: "hi-phd",
+                service: "elr",
+                itemCount: 2,
+                itemCountBeforeQualityFiltering: 5,
+                filteredReportRows: [
+                    "Filtered out item Hawaii6",
+                    "Filtered out item Hawaii7",
+                    "Filtered out item Hawaii9",
+                ],
+                filteredReportItems: [
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii6",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii6",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii7",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii7",
+                    },
+                    {
+                        filterType: "QUALITY_FILTER",
+                        filterName: "hasValidDataFor",
+                        filteredTrackingElement: "Hawaii9",
+                        filterArgs: ["specimen_type"],
+                        message: "Filtered out item Hawaii9",
+                    },
+                ],
+                sentReports: [],
+                sending_at: "",
+            },
+        ];
+        render(
+            <FileQualityFilterDisplay
+                destinations={qualityFilterMessages}
+                heading={""}
+                message={
+                    "The following records were filtered out while processing/validating your file."
+                }
+            />
+        );
+
+        const alert = await screen.findByRole("alert");
+        expect(alert).toHaveClass("usa-alert--error");
+
+        const message = await screen.findByText(
+            "The following records were filtered out while processing/validating your file."
+        );
+        expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
+
+        const table = await screen.findAllByRole("table");
+        expect(table).toHaveLength(2);
+
+        const rows = await screen.findAllByRole("row");
+        expect(rows).toHaveLength(6);
+
+        expect(
+            screen.queryByText(/Maryland Public Health Department/)
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByText(/Alaska Public Health Department/)
+        ).toBeInTheDocument();
+        const row1 = await within(rows[1]).findAllByRole("cell");
+        expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
+        expect(
+            screen.getByText(/Hawaii Public Health Department/)
+        ).toBeInTheDocument();
+        const row3 = await within(rows[3]).findAllByRole("cell");
+        expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
     });
 });
