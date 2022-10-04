@@ -166,7 +166,7 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
     test("jsonDifferMarkup value type switched", () => {
         const diff = jsonDifferMarkup({ key: [1, 2, 3] }, { key: "a" });
         expect(diff.left.markupText).toBe(
-            `{\n  "key": <mark>[\n    <mark>1</mark>,\n    <mark>2</mark>,\n    <mark>3</mark>\n  ]</mark>\n}`
+            `{\n  "key": [\n    <mark>1</mark>,\n    <mark>2</mark>,\n    <mark>3</mark>\n  ]\n}`
         );
         expect(diff.right.markupText).toBe(`{\n  "key": <mark>"a"</mark>\n}`);
     });
@@ -183,37 +183,8 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
             `{\n  "key": [\n    <mark>2</mark>,\n    3,\n    <mark>5</mark>,\n    6\n  ]\n}`
         );
     });
-    test("jsonDifferMarkup diff keys and values different nested", () => {
-        const nestedDiff = jsonDifferMarkup(
-            {
-                key1: {
-                    key12: [1, 2, 3, 4],
-                },
-                key2: "value2",
-                key3: "same",
-                key4: "diff key same content",
-            },
-            {
-                key1: {
-                    key12: "completely different type",
-                },
-                key2: {
-                    key22: "nested object NOT string",
-                },
-                key3: "same",
-                key5: "diff key same content",
-            }
-        );
 
-        expect(nestedDiff.left.markupText).toBe(
-            `{\n  "key1": {\n    "key12": <mark>[\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>,\n      <mark>4</mark>\n    ]</mark>\n  },\n  "key2": <mark>"value2"</mark>,\n  "key3": "same",\n  <mark>"key4": "diff key same content"</mark>\n}`
-        );
-        expect(nestedDiff.right.markupText).toBe(
-            `{\n  "key1": {\n    "key12": <mark>"completely different type"</mark>\n  },\n  "key2": <mark>{\n    <mark>"key22": "nested object NOT string"</mark>\n  }</mark>,\n  "key3": "same",\n  <mark>"key5": "diff key same content"</mark>\n}`
-        );
-    });
-
-    test("Nested key change", () => {
+    test("Mixed extreme test", () => {
         const nestedDiff = jsonDifferMarkup(
             {
                 createdBy: "test@example.com",
@@ -221,6 +192,8 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
                     whenEmpty: {
                         onlyOncePerDay: false,
                     },
+                    keyChangeType1: "left",
+                    keyChangeType2: [3, 2, 1, 0],
                 },
             },
             {
@@ -229,15 +202,17 @@ describe("JsonDiffer test suite - depends on jsonSourceMap working", () => {
                     whenEmpty1: {
                         onlyOncePerDay: false,
                     },
+                    keyChangeType1: [0, 1, 2, 3],
+                    keyChangeType2: "right",
                 },
             }
         );
 
-        // expect(nestedDiff.left.markupText).toBe(
-        //     `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty": {\n      "onlyOncePerDay": false\n    }</mark>\n  }\n}`
-        // );
-        // expect(nestedDiff.right.markupText).toBe(
-        //     `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty1": {\n      "onlyOncePerDay": false\n    }</mark>\n  }\n}`
-        // );
+        expect(nestedDiff.left.markupText).toBe(
+            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>"left"</mark>,\n    "keyChangeType2": [\n      <mark>3</mark>,\n      <mark>2</mark>,\n      <mark>1</mark>,\n      <mark>0</mark>\n    ]\n  }\n}`
+        );
+        expect(nestedDiff.right.markupText).toBe(
+            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty1": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>[\n      <mark>0</mark>,\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>\n    ]</mark>,\n    "keyChangeType2": <mark>"right"</mark>\n  }\n}`
+        );
     });
 });

@@ -45,6 +45,8 @@ const isInPath = (childPath: string, parentPath: string) =>
 const isNotInAnyPath = (childPath: string, parentPaths: string[]) =>
     parentPaths.filter((p) => isInPath(childPath, p)).length === 0;
 
+const pathDept = (path: string) => path.split("/").length;
+
 /**
  * Technically, if a nested node changes in json, then all parent nodes
  * are different as well. For a simple differ (with a single color hightlight for diffs),
@@ -76,11 +78,20 @@ const isNotInAnyPath = (childPath: string, parentPaths: string[]) =>
  */
 const extractLeafNodes = (pathArray: string[]): string[] => {
     // we want to remove parent paths from changed elements.
-    if (!pathArray.length) {
-        return [];
+    if (pathArray.length <= 1) {
+        // empty or single item, nothing to do.
+        return pathArray;
     }
 
-    // iterate BACKWARDS since leaf nodes will be last.
+    // iterate is since leaf nodes will be last.
+    // pathArray.sort((a, b) => a.localeCompare(b));
+
+    // sort with deepest paths at the start, if same depth, then alphabetical
+    pathArray.sort((a, b) => {
+        const delta = pathDept(a) - pathDept(b);
+        return delta === 0 ? a.localeCompare(b) : delta;
+    });
+
     // But, we can remove elements as we go, so have refresh the array or we'll get burned
     // by being out of bounds
     let ii = pathArray.length - 1;
@@ -239,23 +250,6 @@ export const jsonDiffer = (
     // has changed, but we really only think about the leaf nodes as being diff
     changedKeys = extractLeafNodes(changedKeys);
 
-    // so `{level1: { level2: { level3: "value"} } }` vs `{level1: { level2: { level3MOD: "value"} } }`
-    // The keys `/level/level2/level3` (left) and  `/level1/level2/level3MOD` (right) are different,
-    // BUT so is the PARENT VALUE `/level1/level2`
-    // so we go back and remove changedKeys from the addedKeys
-    // But we needed the intersection of the two sets to find the changedKeys earlier.
-    if (changedKeys.length) {
-        addedLeftKeys = extractLeafNodes([
-            ...addedLeftKeys,
-            ...changedKeys,
-        ]).filter((key) => addedLeftKeys.includes(key));
-
-        addedRightKeys = extractLeafNodes([
-            ...addedRightKeys,
-            ...changedKeys,
-        ]).filter((key) => addedRightKeys.includes(key));
-    }
-
     return {
         addedLeftKeys,
         addedRightKeys,
@@ -282,13 +276,34 @@ export const jsonDifferMarkup = (
     const rightMap = jsonSourceMap(rightJson, 2);
     const diffs = jsonDiffer(leftMap, rightMap);
 
+    // so `{level1: { level2: { level3: "value"} } }` vs `{level1: { level2: { level3MOD: "value"} } }`
+    // The keys `/level/level2/level3` (left) and  `/level1/level2/level3MOD` (right) are different,
+    // BUT so is the PARENT VALUE `/level1/level2`
+    // so we go back and remove changedKeys from the addedKeys
+    // But we needed the intersection of the two sets to find the changedKeys earlier.
+    let leftChanged = diffs.changedKeys;
+    if (leftChanged.length) {
+        leftChanged = extractLeafNodes([
+            ...diffs.addedLeftKeys,
+            ...leftChanged,
+        ]).filter((k) => leftChanged.includes(k));
+    }
+
     // collect all the markers, then insert marks
     const leftMarks = [
         ...convertNodesToMarkers(diffs.addedLeftKeys, leftMap),
-        ...convertValuesToMarkers(diffs.changedKeys, leftMap),
+        ...convertValuesToMarkers(leftChanged, leftMap),
     ];
     const leftMarkupText = insertMarks(leftMap.json, leftMarks);
 
+    // repeat for right side
+    let rightChanged = diffs.changedKeys;
+    if (rightChanged.length) {
+        rightChanged = extractLeafNodes([
+            ...diffs.addedRightKeys,
+            ...rightChanged,
+        ]).filter((k) => rightChanged.includes(k));
+    }
     const rightMarks = [
         ...convertNodesToMarkers(diffs.addedRightKeys, rightMap),
         ...convertValuesToMarkers(diffs.changedKeys, rightMap),
