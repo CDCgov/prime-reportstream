@@ -45,17 +45,16 @@ const isInPath = (childPath: string, parentPath: string) =>
 const isNotInAnyPath = (childPath: string, parentPaths: string[]) =>
     parentPaths.filter((p) => isInPath(childPath, p)).length === 0;
 
-const pathDept = (path: string) => path.split("/").length;
+const pathDepth = (path: string) => path.split("/").length;
 
 /**
  * Technically, if a nested node changes in json, then all parent nodes
- * are different as well. For a simple differ (with a single color hightlight for diffs),
- * we only care about the leaf nodes (the actual keys that changed, not the whole parent path)
+ * are different as well.
+ * We only care about the leaf nodes (the actual keys that changed, not the whole parent path)
  *
  * e.g. Diff these jsons:
  * {
  *   level1: {
- *     leaf1: "v1",
  *     level2: {
  *        leaf2: "v1",
  *     }
@@ -63,12 +62,10 @@ const pathDept = (path: string) => path.split("/").length;
  *
  * {
  *   level1: {
- *     leaf1: "v1",
  *     level2: {
  *        leaf2: "v2",
  *     }
  * }
- *
  * Technically, "level1" is different because "leaf2" buried under it changed
  * This function does this:
  * ["/", "/level2", "/level2/leaf2"] => ["/level2/leaf2"]
@@ -83,12 +80,9 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
         return pathArray;
     }
 
-    // iterate is since leaf nodes will be last.
-    // pathArray.sort((a, b) => a.localeCompare(b));
-
-    // sort with deepest paths at the start, if same depth, then alphabetical
+    // sort with deepest paths at the end, if same depth, then alphabetical
     pathArray.sort((a, b) => {
-        const delta = pathDept(a) - pathDept(b);
+        const delta = pathDepth(a) - pathDepth(b);
         return delta === 0 ? a.localeCompare(b) : delta;
     });
 
@@ -128,7 +122,8 @@ type Marker = {
 
 /**
  * Given a list of keys into the json map, produce and array of start/end markers
- * This is just the value section
+ * The <mark> injection wants the simplier Marker[]
+ * This is the start of the *value* to the end of the value.
  */
 const convertValuesToMarkers = (
     keys: string[],
@@ -148,7 +143,7 @@ const convertValuesToMarkers = (
 
 /**
  * Given a list of keys into the json map, produce and array of start/end markers.
- * This is the *start of the key* to the end of the value
+ * This is the start of the *key* to the end of the value.
  */
 const convertNodesToMarkers = (
     keys: string[],
@@ -230,17 +225,12 @@ export const jsonDiffer = (
     const getStartEnd = (key: string, data: SourceMapResult) => {
         return [data.pointers[key].value.pos, data.pointers[key].valueEnd.pos];
     };
+
     // inline getValue() improves readability only. slices out the string of a given value
     const getValue = (key: string, data: SourceMapResult): string =>
         data.json.slice(...getStartEnd(key, data));
 
-    // now things get more complex, we pull out the value of unchanged keys and see if that's different.
-    // we use the `pointers` structure to pull out the value from the `json`
-    // pointers.value && pointers.valueEnd
-    // export interface SourceMapResult {
-    //     json: string;
-    //     pointers: JsonMapPointers;
-    // }
+    // we pull out the value of unchanged keys and see if that's different.
     let changedKeys = intersection.filter(
         (key) =>
             key !== "" && getValue(key, leftData) !== getValue(key, rightData)
@@ -270,7 +260,7 @@ export const jsonDifferMarkup = (
 ): DifferMarkupResult => {
     // left and right should be json objects, but there's really no way to typescript enforce it.
     if (typeof leftJson === "string" || typeof rightJson === "string") {
-        console.log("mean to pass simple strings versus json objects");
+        console.log("Did you mean to pass simple strings versus json objects");
     }
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);
@@ -280,9 +270,9 @@ export const jsonDifferMarkup = (
     // The keys `/level/level2/level3` (left) and  `/level1/level2/level3MOD` (right) are different,
     // BUT so is the PARENT VALUE `/level1/level2`
     // so we go back and remove changedKeys from the addedKeys
-    // But we needed the intersection of the two sets to find the changedKeys earlier.
     let leftChanged = diffs.changedKeys;
     if (leftChanged.length) {
+        // combine, find leaf nodes, uncombine
         leftChanged = extractLeafNodes([
             ...diffs.addedLeftKeys,
             ...leftChanged,
@@ -299,6 +289,7 @@ export const jsonDifferMarkup = (
     // repeat for right side
     let rightChanged = diffs.changedKeys;
     if (rightChanged.length) {
+        // combine, find leaf nodes, uncombine
         rightChanged = extractLeafNodes([
             ...diffs.addedRightKeys,
             ...rightChanged,
