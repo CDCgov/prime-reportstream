@@ -59,12 +59,12 @@ Waters Endpoints
 */
 
 export const watersEndpoints: RSApiEndpoints = {
-    postWaters: new RSEndpoint({
+    upload: new RSEndpoint({
         path: "/waters",
         method: HTTPMethods.POST,
         queryKey: "watersPost",
     }),
-    postValidate: new RSEndpoint({
+    validate: new RSEndpoint({
         path: "/validate",
         method: HTTPMethods.POST,
         queryKey: "watersValidate",
