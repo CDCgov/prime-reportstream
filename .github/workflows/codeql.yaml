@@ -1,6 +1,6 @@
 name: "Running CodeQL Analysis scan on prime-reportstream repository"
 
-on: [push, pull_request]
+on: [pull_request]
   # push:
   #   branches:
   #     - codeql-scan-base-not-found-issue-fix 
@@ -15,7 +15,7 @@ on: [push, pull_request]
   #   #   - "prime-router/**"
   #   #   - "frontend-react/**"
 
-  
+
 jobs:
   Java_Codeql_Scan:
     name: Codeql_Scan
