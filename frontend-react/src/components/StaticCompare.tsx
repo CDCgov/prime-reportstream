@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { Checkbox } from "@trussworks/react-uswds";
 
 import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
 import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
@@ -14,6 +15,7 @@ interface StaticCompareProps {
 export const StaticCompare = (props: StaticCompareProps): ReactElement => {
     const [leftHighlightHtml, setLeftHighlightHtml] = useState("");
     const [rightHighlightHtml, setRightHighlightHtml] = useState("");
+    const [syncEnabled, setSyncEnabled] = useState(true);
 
     const refreshHighlights = useCallback(
         (leftText: string, rightText: string, jsonDiffMode: boolean) => {
@@ -43,31 +45,47 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
     ]);
 
     return (
-        <ScrollSync>
-            <div className="rs-editable-compare-container differ-marks">
-                <div className="rs-editable-stacked-container">
-                    <ScrollSyncPane>
-                        <div
-                            className="rs-static-compare-base rs-editable-compare-static"
-                            data-testid={"left-compare-text"}
-                            dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(leftHighlightHtml),
-                            }}
-                        />
-                    </ScrollSyncPane>
+        <>
+            <ScrollSync enabled={syncEnabled}>
+                <div className="rs-editable-compare-container differ-marks">
+                    <div className="rs-editable-stacked-container">
+                        <ScrollSyncPane>
+                            <div
+                                className="rs-static-compare-base rs-editable-compare-static"
+                                data-testid={"left-compare-text"}
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        leftHighlightHtml
+                                    ),
+                                }}
+                            />
+                        </ScrollSyncPane>
+                    </div>
+                    <div className="rs-editable-stacked-container">
+                        <ScrollSyncPane>
+                            <div
+                                className="rs-static-compare-base rs-editable-compare-static"
+                                data-testid={"right-compare-text"}
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        rightHighlightHtml
+                                    ),
+                                }}
+                            />
+                        </ScrollSyncPane>
+                    </div>
                 </div>
-                <div className="rs-editable-stacked-container">
-                    <ScrollSyncPane>
-                        <div
-                            className="rs-static-compare-base rs-editable-compare-static"
-                            data-testid={"right-compare-text"}
-                            dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(rightHighlightHtml),
-                            }}
-                        />
-                    </ScrollSyncPane>
-                </div>
+            </ScrollSync>
+            <div className={"padding-bottom-2"}>
+                <Checkbox
+                    id={"scrollsync"}
+                    name={"scrollsync"}
+                    defaultChecked={syncEnabled}
+                    data-testid={"scrollsync"}
+                    label="Syncronize scrolling"
+                    onChange={(e) => setSyncEnabled(e?.target?.checked)}
+                />
             </div>
-        </ScrollSync>
+        </>
     );
 };
