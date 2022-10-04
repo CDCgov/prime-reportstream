@@ -26,7 +26,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                 return;
             }
             const result = jsonDiffMode
-                ? jsonDifferMarkup(JSON.parse(leftText), JSON.parse(rightText))
+                ? jsonDifferMarkup(leftText, rightText)
                 : textDifferMarkup(leftText, rightText);
 
             setLeftHighlightHtml(result.left.markupText);
@@ -78,10 +78,10 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
             </ScrollSync>
             <div className={"padding-bottom-2"}>
                 <Checkbox
-                    id={"scrollsync"}
-                    name={"scrollsync"}
+                    id={"scroll-sync-checkbox"}
+                    name={"scroll-sync-checkbox"}
                     defaultChecked={syncEnabled}
-                    data-testid={"scrollsync"}
+                    data-testid={"scroll-sync-checkbox"}
                     label="Syncronize scrolling"
                     onChange={(e) => setSyncEnabled(e?.target?.checked)}
                 />

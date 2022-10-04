@@ -5,7 +5,7 @@
 import { splitOn } from "../misc";
 
 import { Diff, SES_TYPE } from "./diff";
-import { DifferMarkupResult } from "./AbstractDiffer";
+import { DifferMarkup, DifferMarkupResult } from "./AbstractDiffer";
 
 /**
  * TODO: this approach to inserting marks is NOT as robust as insertMarks() in JsonDiffer. Refactor.
@@ -48,7 +48,7 @@ export const insertHighlight = (
  * @param leftText
  * @param rightText
  */
-export const textDifferMarkup = (
+export const textDifferMarkup: DifferMarkup = (
     leftText: string,
     rightText: string
 ): DifferMarkupResult => {

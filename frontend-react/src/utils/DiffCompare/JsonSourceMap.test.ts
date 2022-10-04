@@ -55,10 +55,10 @@ const realData = {
 };
 // </editor-fold>
 
-describe("JsonSourceMap test suite", () => {
+describe("JsonSourceMap suite", () => {
     jest.spyOn(global.console, "error");
 
-    test("JsonSourceMap Basic no quotes", () => {
+    test("Basic no quotes", () => {
         const data = { a: 1, b: 2 };
         const result = jsonSourceMap(data, 2);
 
@@ -75,6 +75,7 @@ describe("JsonSourceMap test suite", () => {
         // Everything inside the {}
         expect(values[0].value.pos).toBe(0);
         expect(values[0].valueEnd.pos).toBe(totalLen);
+        // <editor-fold defaultstate="collapsed" desc="expect(values).toStrictEqual">
         expect(values).toStrictEqual([
             {
                 value: {
@@ -133,9 +134,10 @@ describe("JsonSourceMap test suite", () => {
                 },
             },
         ]);
+        // </editor-fold>
     });
 
-    test("JsonSourceMap format matches JSON.stringify", () => {
+    test("format matches JSON.stringify", () => {
         const result = jsonSourceMap(realData, 2);
         // run through json parser and make sure it's valid
         const reparsed = JSON.parse(result.json);
@@ -148,7 +150,7 @@ describe("JsonSourceMap test suite", () => {
         );
     });
 
-    test("JsonSourceMap Basic quotes", () => {
+    test("Basic quotes", () => {
         const data = { key: "value" };
         const result = jsonSourceMap(data, 2);
 
@@ -176,7 +178,7 @@ describe("JsonSourceMap test suite", () => {
         });
     });
 
-    test("JsonSourceMap numeric types test", () => {
+    test("numeric types are handled in array", () => {
         const data = {
             data: [
                 -1, 0, 1, 2, 3, 3.14, 0.12, 1.3e-12, 3.14e22,
@@ -275,7 +277,7 @@ describe("JsonSourceMap test suite", () => {
         });
     });
 
-    test("JsonSourceMap basic array", () => {
+    test("basic array keys", () => {
         const data = { bray: [{ a: "a1", b: "b2" }] };
         const result = jsonSourceMap(data, 2);
         // stringify should match standard
@@ -307,7 +309,7 @@ describe("JsonSourceMap test suite", () => {
         });
     });
 
-    test("JsonSourceMap empty", () => {
+    test("empty data offsets are correct", () => {
         const data = { emptyObj: {}, emptyArray: [], emptyStr: "" };
         const result = jsonSourceMap(data, 2);
         // stringify should match standard
@@ -444,6 +446,7 @@ describe("JsonSourceMap test suite", () => {
             "/children/2/age",
         ]);
         const values = Object.values(result.pointers);
+        // <editor-fold defaultstate="collapsed" desc="expect(values).toStrictEqual">
         expect(values).toStrictEqual([
             {
                 value: {
@@ -728,6 +731,7 @@ describe("JsonSourceMap test suite", () => {
                 },
             },
         ]);
+        // </editor-fold>
     });
 
     test("throws if json include non-standard Set/Map objects", () => {

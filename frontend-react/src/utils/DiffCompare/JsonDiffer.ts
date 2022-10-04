@@ -1,4 +1,4 @@
-import { DifferMarkupResult } from "./AbstractDiffer";
+import { DifferMarkup, DifferMarkupResult } from "./AbstractDiffer";
 import { jsonSourceMap, SourceMapResult } from "./JsonSourceMap";
 
 /**
@@ -124,7 +124,7 @@ type Marker = {
 };
 
 /**
- * Given a list of keys into the json map, produce and array of start/end markers
+ * Given a list of keys into the json map, produce an array of start/end markers
  * The <mark> injection wants the simplier Marker[]
  * This is the start of the *value* to the end of the value.
  */
@@ -145,7 +145,7 @@ const convertValuesToMarkers = (
 };
 
 /**
- * Given a list of keys into the json map, produce and array of start/end markers.
+ * Given a list of keys into the json map, produce an array of start/end markers.
  * This is the start of the *key* to the end of the value.
  */
 const convertNodesToMarkers = (
@@ -228,7 +228,7 @@ const jsonDiffer = (
     );
 
     // now we want intersection (aka NOT changed and see if the values have changed).
-    let intersection = leftKeys.filter((key) => rightKeys.includes(key));
+    let intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
 
     // for readability improvements only, pull out start/end values
     const getStartEnd = (key: string, data: SourceMapResult) => {
@@ -240,7 +240,7 @@ const jsonDiffer = (
         data.json.slice(...getStartEnd(key, data));
 
     // we pull out the value of unchanged keys and see if that's different.
-    let changedKeys = intersection.filter(
+    let changedKeys = intersectionKeys.filter(
         (key) =>
             key !== "" && getValue(key, leftData) !== getValue(key, rightData)
     );
@@ -260,19 +260,15 @@ const jsonDiffer = (
  * Given two json find the difference, then return a normalized json string and one with <mark>s
  * added for the differences.
  *
- * @param leftJson Valid Json object
- * @param rightJson Valid Json object
+ * @param leftJson Valid Json string. Verify that JSON.parse will not throw before calling
+ * @param rightJson Valid Json string. Verify that JSON.parse will not throw before calling
  */
-export const jsonDifferMarkup = (
-    leftJson: any,
-    rightJson: any
+export const jsonDifferMarkup: DifferMarkup = (
+    leftJson: string,
+    rightJson: string
 ): DifferMarkupResult => {
-    // left and right should be json objects, but there's really no way to typescript enforce it.
-    if (typeof leftJson === "string" || typeof rightJson === "string") {
-        console.log("Did you mean to pass simple strings versus json objects");
-    }
-    const leftMap = jsonSourceMap(leftJson, 2);
-    const rightMap = jsonSourceMap(rightJson, 2);
+    const leftMap = jsonSourceMap(JSON.parse(leftJson), 2);
+    const rightMap = jsonSourceMap(JSON.parse(rightJson), 2);
     const diffs = jsonDiffer(leftMap, rightMap);
 
     // so `{level1: { level2: { level3: "value"} } }` vs `{level1: { level2: { level3MOD: "value"} } }`
@@ -281,7 +277,7 @@ export const jsonDifferMarkup = (
     // so we go back and remove changedKeys from the addedKeys
     let leftChanged = diffs.changedKeys;
     if (leftChanged.length) {
-        // combine, find leaf nodes, uncombine
+        // combine, find leaf nodes, undo the combine
         leftChanged = extractLeafNodes([
             ...diffs.addedLeftKeys,
             ...leftChanged,

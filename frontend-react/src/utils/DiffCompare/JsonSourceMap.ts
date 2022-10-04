@@ -62,9 +62,14 @@ export interface SourceMapResult {
  * @return A normalized json string and a list of "pointers" that are offsets into it.
  */
 export const jsonSourceMap = (
-    jsonD: any,
+    jsonD: unknown,
     spaces: number = 2
 ): SourceMapResult => {
+    // left and right should be json objects, but there's really no way to typescript enforce it.
+    if (typeof jsonD === "string") {
+        console.log("Did you mean to pass simple strings versus json objects");
+    }
+
     let json = "";
     let pointers: JsonMapPointers = {};
     const cur: JsonMapLocation = { line: 0, column: 0, pos: 0 };
