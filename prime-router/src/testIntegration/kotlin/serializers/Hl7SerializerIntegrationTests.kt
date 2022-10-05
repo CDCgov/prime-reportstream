@@ -366,6 +366,13 @@ NTE|1|L|This is a final comment|RE"""
         val hapiMsg = parser.parse(message)
         val terser = Terser(hapiMsg)
 
+        // Check for blank filler (see: src/testIntegration/resource/setting/organization.yml.
+        // .. ORC-2 is not blank in hl7 output.  It contains value of 998121.  Therefore, it won't replace.
+        // .. ORC-4  is blank in hl7 output.  Therefore, it replaced it with value in organization.yml (ORC4BLANKFILLER)
+        // .. To findout value in terser, use IntelliJ debug break here and view terser.finder.root
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-2")).isEqualTo("998121")
+        assertThat(terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-4")).isEqualTo("ORC4BLANKFILLER")
+
         // Verify MSH Segment replacement
         assertThat(terser.get("/MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
         assertThat(terser.get("/MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
