@@ -121,6 +121,28 @@
       schemaName: upload-covid-19
       format: CSV
 
+- name: innolitics
+  description: Innolitics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: innolitics
+      topic: covid-19
+      customerStatus: testing
+      schemaName: csv-otc-covid-19
+      format: CSV
+
+- name: vaulthealth
+  description: Vault Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: vaulthealth
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: CSV
+
 - name: safehealth
   description: SAFE - Safe Health Systems
   jurisdiction: FEDERAL
@@ -2222,7 +2244,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,.*bzdlabs.*)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"

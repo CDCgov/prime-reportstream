@@ -126,7 +126,8 @@
                     "args": "after-used",
                     "argsIgnorePattern": "^_"
                 }
-            ]
+            ],
+            "camelcase": ["warn", { "allow": ["days_to_show", "organization_id", "sending_at" ]}]
         },
         "overrides": [
             {

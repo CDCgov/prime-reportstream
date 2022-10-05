@@ -171,12 +171,12 @@ const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
         parts.push(`${hrs}h`);
     }
     if (parts.length || mins !== "0") {
-        const mins_pad = mins.length < 2 ? "0" + mins : mins;
-        parts.push(`${mins_pad}m`);
+        const minsPad = mins.length < 2 ? "0" + mins : mins;
+        parts.push(`${minsPad}m`);
     }
     if (parts.length || secs !== "0") {
-        const secs_pad = secs.indexOf(".") < 2 ? "0" + secs : secs;
-        parts.push(`${secs_pad}s`);
+        const secsPad = secs.indexOf(".") < 2 ? "0" + secs : secs;
+        parts.push(`${secsPad}s`);
     }
     return parts.join(" ");
 };
