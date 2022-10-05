@@ -19,6 +19,7 @@ on:
   pull_request:
     branches:
       - master
+      - codeql-scan-analysis
 
     # paths:
     #   - "prime-router/**"
