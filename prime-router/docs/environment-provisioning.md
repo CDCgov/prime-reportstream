@@ -106,14 +106,14 @@ echo "apply complete"
       -f databases='[\"prime_data_hub\",\"prime_data_hub_candidate\"]'
       ```
  5. In Okta under "Security > API", add the server DNS to the "Trusted Origins" with CORS and Redirect access:
- ![](assets/trusted_origins.png)
+      ![](assets/trusted_origins.png)
  6. In Okta:
       * click on "Applications" in the left-hand navigation
       * choose "ReportStream"
       * click the "General Settings" "Edit" button
-      * add the new url to the "Sign-in redirect URI" section:  https://<dns>/login/callback
-      * add the new url to the "Sign-out redirect URIs" section: https://<dns>
-   ![](assets/redirect_urls.png)
+      * add the new url to the "Sign-in redirect URI" section: `https://<dns>/login/callback`
+      * add the new url to the "Sign-out redirect URIs" section: `https://<dns>`
+      * ![](assets/redirect_urls.png)
 
 ## Example Manual Destroy
 
