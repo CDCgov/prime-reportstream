@@ -190,10 +190,6 @@ data class ConfigSchemaElement(
             validationErrors.add("[$name]: $msg")
         }
 
-        if (name.isNullOrBlank()) {
-            addError("Element name cannot be blank")
-        }
-
         when {
             resource.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
                 addError("Resource property is required to use the resourceIndex property")
