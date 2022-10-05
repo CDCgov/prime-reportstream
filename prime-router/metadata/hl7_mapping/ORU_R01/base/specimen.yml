@@ -1,100 +1,80 @@
-name: ORU-R01-specimen
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 elements:
-  - name: specimen-set-ID
-    value: [ '"1"' ]
+  - value: [ '"1"' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
-  - name: specimen-identifier-placer
-    resource: '%resource.identifier.where(type.empty())'
+  - resource: '%resource.identifier.where(type.empty())'
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
     schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-  - name: specimen-identifier-filler
-    resource: '%resource.identifier.where(type.coding.code = "FGN")'
+  - resource: '%resource.identifier.where(type.coding.code = "FGN")'
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
     schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-  - name: specimen-type
-    resource: '%resource.type'
+  - resource: '%resource.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
     schema: datatype/ce-coded-with-exceptions
 
-  - name: specimen-type-modifier
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-5' ]
 
-  - name: specimen-additives
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-6' ]
 
-  - name: specimen-collection-method
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-7' ]
 
-  - name: specimen-source-site
-    resource: '%resource.collection.bodySite'
+  - resource: '%resource.collection.bodySite'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
     schema: datatype/ce-coded-with-exceptions
 
-  - name: specimen-source-site-modifier
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-9' ]
 
-  - name: specimen-role
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
 
-  - name: specimen-description
-    value: [ '%resource.note.text' ]
+  - value: [ '%resource.note.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
-  - name: specimen-collection-time
-    condition: '%resource.collection.collected is dateTime'
+  - condition: '%resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
-  - name: specimen-observation-date-time-start
-    condition: '%resource.collection.collected is Period'
+  - condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
-  - name: specimen-observation-date-time-end
-    condition: '%resource.collection.collected is Period'
+  - condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.end' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
 
-  - name: specimen-received-time
-    condition: '%resource.receivedTime is dateTime'
+  - condition: '%resource.receivedTime is dateTime'
     value: [ '%resource.receivedTime' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
-  - name: specimen-reject-reason
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-21' ]
 
-  - name: specimen-condition
-    value: [ '""' ]
+  - value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-24' ]
 
-  - name: specimen-number-of-containers
-    resource: '%resource.container.specimenQuantity'
+  - resource: '%resource.container.specimenQuantity'
     condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-26' ]
 
-  - name: specimen-container-type
-    resource: '%resource.container.type'
+  - resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
     schema: datatype/ce-coded-with-exceptions

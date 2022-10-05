@@ -1,34 +1,26 @@
-name: ORU-R01-xcn-contact
 constants:
   hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
 # Practitioner to XCN mapping
 elements:
-  - name: xcn-id-number
-    value: [ '%resource.identifier.value' ]
+  - value: [ '%resource.identifier.value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-1' ]
 
-  - name: xcn-family-name
-    value: [ '%resource.name.family' ]
+  - value: [ '%resource.name.family' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2' ]
 
-  - name: xcn-given-name
-    value: [ '%resource.name.given[0]' ]
+  - value: [ '%resource.name.given[0]' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-3' ]
 
-  - name: xcn-other-given-names
-    value: [ '%resource.name.given.tail()' ]
+  - value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: xcn-suffix
-    value: [ '%resource.name.suffix.toString()' ]
+  - value: [ '%resource.name.suffix.toString()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
 
-  - name: xcn-prefix
-    value: [ '%resource.name.prefix.toString()' ]
+  - value: [ '%resource.name.prefix.toString()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
 
-  - name: xcn-assigning-authority
-    resource: '%resource.identifier[0]'
+  - resource: '%resource.identifier[0]'
     condition: '%resource.exists()'
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-9'
@@ -37,17 +29,14 @@ elements:
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
     schema: hd-hierarchic-designator
 
-  - name: xcn-name-type-code
-    condition: '%resource.name.use.exists() and %resource.name.use = "official"'
+  - condition: '%resource.name.use.exists() and %resource.name.use = "official"'
     value: [ '"L"']
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
-  - name: xcn-identifier-type
-    value: [ '%resource.extension(%`rsext-identifier-type`).value.coding.code' ]
+  - value: [ '%resource.extension(%`rsext-identifier-type`).value.coding.code' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
 
-  - name: xcn-assigning-facility
-    resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
+  - resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
     condition: '%resource.exists()'
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-14'

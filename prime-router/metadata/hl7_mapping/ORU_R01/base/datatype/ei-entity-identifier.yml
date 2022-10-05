@@ -1,20 +1,15 @@
-name: ORU-R01-entity-identifier
 # Identifier to EI mapping
 elements:
-  - name: entity-identifier
-    value: [ '%resource.value' ]
+  - value: [ '%resource.value' ]
     hl7Spec: [ '%{entityIdFieldPath}-1' ]
 
-  - name: entity-namespace-id
-    value:
+  - value:
       - '%resource.system.getId()'
       - '%resource.system'
     hl7Spec: [ '%{entityIdFieldPath}-2' ]
 
-  - name: entity-universal-id
-    value: [ '%resource.extension(%`rsext-universal-id`).value.getId()' ]
+  - value: [ '%resource.extension(%`rsext-universal-id`).value.getId()' ]
     hl7Spec: [ '%{entityIdFieldPath}-3' ]
 
-  - name: entity-id-type
-    value: [ '%resource.extension(%`rsext-universal-id`).value.getIdType()' ]
+  - value: [ '%resource.extension(%`rsext-universal-id`).value.getIdType()' ]
     hl7Spec: [ '%{entityIdFieldPath}-4' ]

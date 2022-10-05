@@ -1,15 +1,12 @@
-name: ORU-R01-order
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
 elements:
-  - name: order-control
-    resource: '%service'
+  - resource: '%service'
     condition: '%resource.extension(%`rsext-order-control`).exists()'
     value: [ '%resource.extension(%`rsext-order-control`).value.coding.code' ]
     hl7Spec: [ '%{hl7Order}-1' ]
 
-  - name: order-placer-order-number
-    resource: >
+  - resource: >
       %service.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'PLAC')
     condition: '%resource.count() > 0'
@@ -18,8 +15,7 @@ elements:
     resourceIndex: entityIdIndex
     schema: datatype/ei-entity-identifier
 
-  - name: order-filler-order-number
-    resource: >
+  - resource: >
       %service.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'FILL')
     condition: '%resource.count() > 0'
@@ -28,8 +24,7 @@ elements:
     resourceIndex: entityIdIndex
     schema: datatype/ei-entity-identifier
 
-  - name: order-placer-group-number
-    resource: >
+  - resource: >
       %service.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
       .where(type.coding.code = 'PGN')
     condition: '%resource.count() > 0'
@@ -38,65 +33,54 @@ elements:
     resourceIndex: entityIdIndex
     schema: datatype/ei-entity-identifier
 
-  - name: order-response-flag
-    resource: '%resource.extension(%`rsext-response-flag`)'
+  - resource: '%resource.extension(%`rsext-response-flag`)'
     condition: '%resource.exists()'
     value: [ '%resource.value.coding[0].code' ]
     hl7Spec: [ '%{hl7Order}-6' ]
 
-  - name: order-transaction-time
-    value: [ '%service.authoredOn' ]
+  - value: [ '%service.authoredOn' ]
     hl7Spec: [ '%{hl7Order}-9' ]
 
-  - name: order-entered-by
-    condition: false
+  - condition: false
     value: [ '' ] # Don't have data yet
     hl7Spec: [ '%{hl7Order}-10' ]
 
-  - name: order-ordering-provider
-    resource: '%service.requester.resolve().practitioner.resolve()'
+  - resource: '%service.requester.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{hl7Order}-12'
     schema: datatype/xcn-contact
     resourceIndex: contactIndex
 
-  - name: order-callback-phone-number
-    resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+  - resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7Order}-14'
     schema: datatype/xtn-telecom
 
-  - name: order-effective-date
-    value: [ '%service.occurrence' ]
+  - value: [ '%service.occurrence' ]
     hl7Spec: [ '%{hl7Order}-15' ]
 
-  - name: ordering-organization
-    resource: '%service.extension(%`rsext-entering-organization`)'
+  - resource: '%service.extension(%`rsext-entering-organization`)'
     condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7Order}-17' ]
 
-  - name: ordering-facility-name
-    resource: '%service.requester.resolve().organization.resolve()'
+  - resource: '%service.requester.resolve().organization.resolve()'
     schema: datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7Order}-21'
 
-  - name: ordering-facility-address
-    resource: '%service.requester.resolve().organization.resolve().address'
+  - resource: '%service.requester.resolve().organization.resolve().address'
     schema: datatype/xad-extended-address
     constants:
       hl7AddressField: '%{hl7Order}-22'
 
-  - name: ordering-facility-phone
-    resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
+  - resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
     schema: datatype/xtn-telecom
     constants:
       hl7TelecomField: '%{hl7Order}-23'
 
-  - name: ordering-facility-address
-    resource: '%service.requester.resolve().practitioner.resolve().address'
+  - resource: '%service.requester.resolve().practitioner.resolve().address'
     schema: datatype/xad-extended-address
     constants:
       hl7AddressField: '%{hl7Order}-24'
