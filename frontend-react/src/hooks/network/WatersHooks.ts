@@ -14,8 +14,10 @@ export interface WatersPostArgs {
 
 const { upload, validate } = watersEndpoints;
 
+/** Uploads a file to ReportStream */
 export const useWatersUploader = (validateOnly: boolean = false) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
+    /* Conditionally set the endpoint */
     const memoizedEndpoint = useMemo(
         () => (validateOnly ? validate : upload),
         [validateOnly]
@@ -45,3 +47,6 @@ export const useWatersUploader = (validateOnly: boolean = false) => {
         isWorking: mutation.isLoading,
     };
 };
+/** Validates the file against the ReportStream standard schema as well as
+ * jurisdictional and quality filters */
+export const useWatersValidator = () => useWatersUploader(true);

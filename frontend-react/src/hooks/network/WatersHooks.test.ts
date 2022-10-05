@@ -3,21 +3,21 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { watersServer } from "../../__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
 
-import { useWatersUploader } from "./WatersHooks";
+import { useWatersUploader, useWatersValidator } from "./WatersHooks";
 
-describe("Waters API React Query Hooks", () => {
+describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
 
-    test("Values on render", () => {
+    test("has default state", () => {
         const { result } = renderHook(() => useWatersUploader(), {
             wrapper: QueryWrapper(),
         });
         expect(result.current.isWorking).toEqual(false);
         expect(result.current.sendFile).toBeInstanceOf(Function);
     });
-    test("Upload set as default", async () => {
+    test("posts to /api/waters", async () => {
         const { result, waitForNextUpdate } = renderHook(
             () => useWatersUploader(),
             {
@@ -41,9 +41,16 @@ describe("Waters API React Query Hooks", () => {
             endpoint: "upload",
         });
     });
-    test("Validate set with validateOnly hook parameter", async () => {
+});
+
+describe("useWatersValidator", () => {
+    beforeAll(() => watersServer.listen());
+    afterEach(() => watersServer.resetHandlers());
+    afterAll(() => watersServer.close());
+
+    test("posts to /api/validate", async () => {
         const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(true),
+            () => useWatersValidator(),
             {
                 wrapper: QueryWrapper(),
             }
