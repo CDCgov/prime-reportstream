@@ -4,12 +4,13 @@ import { useMemo } from "react";
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { watersEndpoints, WatersResponse } from "../../network/api/WatersApi";
 import { RSNetworkError } from "../../utils/RSNetworkError";
+import { ContentType } from "../UseFileHandler";
 
 export interface WatersPostArgs {
     client: string;
     fileName: string;
-    contentType: string; // TODO: Enumerate?
     fileContent: string;
+    contentType?: ContentType;
 }
 
 const { upload, validate } = watersEndpoints;
@@ -30,7 +31,7 @@ export const useWatersUploader = (validateOnly: boolean = false) => {
     }: WatersPostArgs) => {
         return authorizedFetch(memoizedEndpoint, {
             headers: {
-                "Content-Type": contentType,
+                "Content-Type": contentType || ContentType.CSV,
                 payloadName: fileName,
                 client: client,
             },
@@ -47,6 +48,3 @@ export const useWatersUploader = (validateOnly: boolean = false) => {
         isWorking: mutation.isLoading,
     };
 };
-/** Validates the file against the ReportStream standard schema as well as
- * jurisdictional and quality filters */
-export const useWatersValidator = () => useWatersUploader(true);

@@ -13,6 +13,7 @@ import useFileHandler, {
     FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
 
 import {
     FileErrorDisplay,
@@ -123,6 +124,11 @@ const FileHandler = ({
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.senderName;
     const client = `${parsedName}.${senderName}`;
+    const validateOnly = useMemo(
+        () => handlerType !== FileHandlerType.UPLOAD,
+        [handlerType]
+    );
+    const { sendFile, isWorking } = useWatersUploader(validateOnly);
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -166,26 +172,12 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-
-        try {
-            const response = await fetcher(
-                client,
-                fileName,
-                contentType as string,
-                fileContent,
-                parsedName || "",
-                accessToken || "",
-                endpointName
-            );
-            // handles error and success cases via reducer
-            dispatch({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response },
-            });
-        } catch (error) {
-            // Noop.  Errors are collected below
-            console.error("Unexpected error in file handler", error);
-        }
+        await sendFile({
+            contentType: contentType,
+            fileContent: fileContent,
+            fileName: fileName,
+            client: client,
+        });
     };
 
     const resetState = () => {
@@ -318,10 +310,8 @@ const FileHandler = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-            {isSubmitting && (
-                <FileHandlerSpinner message="Processing file..." />
-            )}
-            {!isSubmitting && (
+            {isWorking && <FileHandlerSpinner message="Processing file..." />}
+            {!isWorking && (
                 <FileHandlerForm
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}
