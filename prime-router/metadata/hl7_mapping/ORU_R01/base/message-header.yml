@@ -5,11 +5,11 @@ elements:
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id
-    value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.getId()' ]
+    value: [ '%resource.source.endpoint.getId()' ]
     hl7Spec: [ MSH-3-2 ]
 
   - name: sending-application-universal-id-type
-    value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.getIdType()' ]
+    value: [ '%resource.source.endpoint.getIdType()' ]
     hl7Spec: [ MSH-3-3 ]
 
   - name: sending-facility_namespace-id
@@ -29,11 +29,11 @@ elements:
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.getId()' ]
+    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getId()' ]
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.getIdType()' ]
+    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getIdType()' ]
     hl7Spec: [ MSH-5-3]
 
   - name: receiving-facility-namespace-id
@@ -41,11 +41,11 @@ elements:
     hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
-    value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.getId()' ]
+    value: [ '%resource.destination.extension(%`rsext-facility-identifier`).value.getId()' ]
     hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
-    value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.getIdType()' ]
+    value: [ '%resource.destination.extension(%`rsext-facility-identifier`).value.getIdType()' ]
     hl7Spec: [ MSH-6-3 ]
 
   - name: message-date-time
