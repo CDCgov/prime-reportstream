@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", codeql-scan-base-not-found-issue-fix ]
+    branches: [ codeql-scan-base-not-found-issue-fix ]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "master" ]
