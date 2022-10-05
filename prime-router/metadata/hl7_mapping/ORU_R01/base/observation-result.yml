@@ -154,6 +154,10 @@ elements:
     value: [ '%resource.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-15-3' ]
 
+  - name: observation-method
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7OBXField}-17' ]
+
   - name: analysis-date-time
     value: [ '%resource.issued' ]
     hl7Spec: [ '%{hl7OBXField}-19' ]
