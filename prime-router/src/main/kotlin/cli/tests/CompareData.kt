@@ -6,6 +6,8 @@ import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
+import com.github.difflib.text.DiffRow
+import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Receiver
@@ -322,7 +324,7 @@ warnings: ${warnings.joinToString()}
     fun compare(
         expected: File,
         actual: File,
-        format: Report.Format,
+        format: Report.Format?,
         schema: Schema
     ): Result {
         val result = Result()
@@ -351,15 +353,17 @@ warnings: ${warnings.joinToString()}
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        format: Report.Format,
+        format: Report.Format?,
         schema: Schema?,
         result: Result = Result()
     ): Result {
         check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
         val compareResult = when (format) {
+            Report.Format.CSV, Report.Format.CSV_SINGLE, Report.Format.INTERNAL ->
+                CompareCsvData().compare(expected, actual, schema!!)
             Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
             Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
-            else -> CompareCsvData().compare(expected, actual, schema!!)
+            else -> CompareFile().compare(expected, actual)
         }
         result.merge(compareResult)
         return result
@@ -805,5 +809,47 @@ class CompareCsvData {
         return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0)
             expectedColIndexByCsvIndex
         else expectedColIndexByElementIndex
+    }
+}
+
+/**
+ * Compare the raw contents of a file.
+ * @property result the result of the comparison
+ */
+class CompareFile(
+    val result: CompareData.Result = CompareData.Result()
+) {
+    /**
+     * Compare the contents of a file [actual] vs [expected] and provide the [result].
+     */
+    fun compare(
+        expected: InputStream,
+        actual: InputStream,
+        result: CompareData.Result = CompareData.Result()
+    ): CompareData.Result {
+        // Read the data
+        val expectedData = expected.bufferedReader().readLines()
+        val actualData = actual.bufferedReader().readLines()
+
+        // Generate the diff
+        val generator = DiffRowGenerator.create()
+            .showInlineDiffs(true)
+            .mergeOriginalRevised(true)
+            .inlineDiffByWord(true)
+            .ignoreWhiteSpaces(true)
+            .oldTag { start: Boolean? ->
+                if (true == start) "\u001B[9;101m" else "\u001B[0m" // Use strikethrough and red for deleted changes
+            }
+            .newTag { start: Boolean? ->
+                if (true == start) "\u001B[1;42m" else "\u001B[0m" // Use bold and green for additions
+            }
+            .build()
+        val diff = generator.generateDiffRows(expectedData, actualData)
+        val hasChanges = diff.any { it.tag != DiffRow.Tag.EQUAL }
+
+        // Populate the result.
+        result.passed = !hasChanges
+        diff.filter { it.tag != DiffRow.Tag.EQUAL }.forEach { result.errors.add(it.oldLine) }
+        return result
     }
 }

@@ -14,10 +14,12 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -97,10 +99,10 @@ class TranslationTests {
     data class TestConfig(
         val inputFile: String,
         val inputFormat: Report.Format,
-        val inputSchema: Schema?,
+        val inputSchema: String?,
         val expectedFile: String,
         val expectedFormat: Report.Format,
-        val expectedSchema: Schema?,
+        val expectedSchema: String?,
         val shouldPass: Boolean = true
     )
 
@@ -112,7 +114,7 @@ class TranslationTests {
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
         return config.map {
-            DynamicTest.dynamicTest("Test ${it.inputFile}", FileConversionTest(it))
+            DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
     }
 
@@ -132,25 +134,16 @@ class TranslationTests {
                     !it[ConfigColumns.OUTPUT_FORMAT.colName].isNullOrBlank()
                 ) {
                     val expectedFormat = Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName])
-                    val inputSchema = if (!it[ConfigColumns.INPUT_SCHEMA.colName].isNullOrBlank())
-                        metadata.findSchema(it[ConfigColumns.INPUT_SCHEMA.colName]!!)
-                    else null
-                    val expectedSchema = if (!it[ConfigColumns.OUTPUT_SCHEMA.colName].isNullOrBlank())
-                        metadata.findSchema(it[ConfigColumns.OUTPUT_SCHEMA.colName]!!)
-                    else null
+                    val inputFormat = getFormat(it[ConfigColumns.INPUT_FILE.colName]!!)
+                    val inputSchema = it[ConfigColumns.INPUT_SCHEMA.colName]
+                    val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
 
-                    if (expectedFormat != Report.Format.FHIR)
-                        if (inputSchema == null) {
-                            fail("Input schema $inputSchema was not found.")
-                        } else if (expectedSchema == null) {
-                            fail("Output schema $expectedSchema was not found.")
-                        }
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
                         it[ConfigColumns.RESULT.colName].equals("PASS", true)
 
                     TestConfig(
                         it[ConfigColumns.INPUT_FILE.colName]!!,
-                        getFormat(it[ConfigColumns.INPUT_FILE.colName]!!),
+                        inputFormat,
                         inputSchema,
                         it[ConfigColumns.EXPECTED_FILE.colName]!!,
                         expectedFormat,
@@ -202,25 +195,52 @@ class TranslationTests {
             if (inputStream != null && expectedStream != null) {
 
                 if (result.passed) {
-                    val actualStream = if (config.expectedFormat == Report.Format.FHIR) {
-                        // Currently only supporting one HL7 message
-                        check(config.inputFormat == Report.Format.HL7)
-                        translateToFhir(inputStream)
-                    } else {
-                        check(config.inputSchema != null)
-                        check(config.expectedSchema != null)
-                        val inputReport = readReport(inputStream, config.inputSchema, config.inputFormat, result)
-                        if (inputReport != null) {
-                            val translatedReport = translateReport(inputReport, config)
-                            outputReport(translatedReport, config.expectedFormat)
-                        } else fail("Error reading input report.")
+                    when {
+                        // Compare the output of an HL7 to FHIR conversion
+                        config.expectedFormat == Report.Format.FHIR -> {
+                            // Currently only supporting one HL7 message
+                            check(config.inputFormat == Report.Format.HL7)
+                            val actualStream = translateToFhir(inputStream)
+                            result.merge(
+                                CompareData().compare(
+                                    expectedStream, actualStream, config.expectedFormat,
+                                    null
+                                )
+                            )
+                        }
+
+                        // Compare the output of an HL7 to FHIR to HL7 conversion
+                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
+                            check(!config.expectedSchema.isNullOrBlank())
+                            val bundle = translateToFhir(inputStream)
+                            val actualStream =
+                                translateFromFhir(bundle, config.expectedSchema)
+                            result.merge(
+                                CompareData().compare(expectedStream, actualStream, null, null)
+                            )
+                        }
+
+                        // All other conversions related to the COVID pipeline
+                        else -> {
+                            check(!config.inputSchema.isNullOrBlank())
+                            check(!config.expectedSchema.isNullOrBlank())
+                            val inputSchema = metadata.findSchema(config.inputSchema)
+                                ?: fail("Schema ${config.inputSchema} was not found.")
+                            val expectedSchema = metadata.findSchema(config.expectedSchema)
+                                ?: fail("Schema ${config.expectedSchema} was not found.")
+                            val inputReport = readReport(inputStream, inputSchema, config.inputFormat, result)
+                            val actualStream = if (inputReport != null) {
+                                val translatedReport = translateReport(inputReport, inputSchema, expectedSchema)
+                                outputReport(translatedReport, config.expectedFormat)
+                            } else fail("Error reading input report.")
+                            result.merge(
+                                CompareData().compare(
+                                    expectedStream, actualStream, config.expectedFormat,
+                                    expectedSchema
+                                )
+                            )
+                        }
                     }
-                    result.merge(
-                        CompareData().compare(
-                            expectedStream, actualStream, config.expectedFormat,
-                            config.expectedSchema
-                        )
-                    )
                 }
                 expectedStream.close()
 
@@ -265,7 +285,18 @@ class TranslationTests {
         }
 
         /**
-         * Read the report from an [input] based on the provided [schema] and [format].
+         * Translate a [bundle] to an HL7 message as text using the given [schema].
+         * @return an HL7 message as an input stream
+         */
+        private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
+            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            val hl7 =
+                FhirToHl7Converter(fhirBundle, FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert()
+            return hl7.encode().byteInputStream()
+        }
+
+        /**
+         * Read the report from an [input] based on the provided [schema] and [format]. Merges the result into [result].
          * @return the report
          */
         private fun readReport(
@@ -338,19 +369,18 @@ class TranslationTests {
         }
 
         /**
-         * Translate an [report] based on the provided [config].
+         * Translate a [report] based on the provided [inputSchema] and [expectedSchema].
+         * @return the translated report
          */
-        private fun translateReport(report: Report, config: TestConfig): Report {
-            check(config.expectedSchema != null)
-            check(config.inputSchema != null)
+        private fun translateReport(report: Report, inputSchema: Schema, expectedSchema: Schema): Report {
             val mapping = translator.buildMapping(
-                config.expectedSchema,
-                config.inputSchema,
+                expectedSchema,
+                inputSchema,
                 emptyMap()
             )
             if (mapping.missing.isNotEmpty()) {
                 fail(
-                    "When translating to $'${config.expectedSchema.name} " +
+                    "When translating to $'${expectedSchema.name} " +
                         "missing fields for ${mapping.missing.joinToString(", ")}"
                 )
             }
