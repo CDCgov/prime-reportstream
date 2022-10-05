@@ -11,15 +11,15 @@
 #
 name: "CodeQL"
 
-on:
-  push:
-    branches:
-      - master
-      - codeql-scan-analysis-1
-  pull_request:
-    branches:
-      - master
-      - codeql-scan-analysis-1
+on: [ push, pull_request ]
+  # push:
+  #   branches:
+  #     - master
+  #     - codeql-scan-analysis-1
+  # pull_request:
+  #   branches:
+  #     - master
+  #     - codeql-scan-analysis-1
 
     # paths:
     #   - "prime-router/**"
