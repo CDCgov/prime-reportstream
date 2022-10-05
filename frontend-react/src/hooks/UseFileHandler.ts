@@ -15,7 +15,7 @@ export enum FileType {
     "HL7" = "HL7",
 }
 
-enum ContentType {
+export enum ContentType {
     "CSV" = "text/csv",
     "HL7" = "application/hl7-v2",
 }

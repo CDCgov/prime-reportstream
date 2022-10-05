@@ -7,11 +7,12 @@ import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { EndpointName } from "../network/api/WatersApi";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
+import { withCatch } from "../components/RSErrorBoundary";
 
 import { FeatureFlagName } from "./misc/FeatureFlags";
 
 const Validate = () => {
-    return (
+    return withCatch(
         <FileHandler
             headingText="ReportStream File Validator"
             successMessage=""

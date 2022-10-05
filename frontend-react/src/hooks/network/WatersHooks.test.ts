@@ -2,8 +2,9 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { watersServer } from "../../__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
+import { ContentType } from "../UseFileHandler";
 
-import { useWatersUploader, useWatersValidator } from "./WatersHooks";
+import { useWatersUploader } from "./WatersHooks";
 
 describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
@@ -23,7 +24,7 @@ describe("useWatersUploader", () => {
         let response;
         await act(async () => {
             const post = result.current.sendFile({
-                contentType: "",
+                contentType: ContentType.CSV,
                 fileContent: "",
                 fileName: "",
                 // test response trigger
@@ -37,16 +38,9 @@ describe("useWatersUploader", () => {
             endpoint: "upload",
         });
     });
-});
-/* Just a proxy for useWatersUploader(true) so all functionality tests other than this
- * can be isolated to the useWatersUploader describe block */
-describe("useWatersValidator", () => {
-    beforeAll(() => watersServer.listen());
-    afterEach(() => watersServer.resetHandlers());
-    afterAll(() => watersServer.close());
-    test("posts to /api/validate", async () => {
+    test("posts to /api/validate when validateOnly param is true", async () => {
         const { result, waitForNextUpdate } = renderHook(
-            () => useWatersValidator(),
+            () => useWatersUploader(true),
             {
                 wrapper: QueryWrapper(),
             }
@@ -54,7 +48,7 @@ describe("useWatersValidator", () => {
         let response;
         await act(async () => {
             const post = result.current.sendFile({
-                contentType: "",
+                contentType: ContentType.CSV,
                 fileContent: "",
                 fileName: "",
                 // test response trigger
