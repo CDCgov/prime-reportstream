@@ -66,7 +66,7 @@ export const lookupTablesEndpoints: RSApiEndpoints = {
         method: HTTPMethods.POST,
     }),
     activateTable: new RSEndpoint({
-        path: "/lookuptabless/:tableName/:version/activate",
+        path: "/lookuptables/:tableName/:version/activate",
         method: HTTPMethods.PUT,
     }),
 };
