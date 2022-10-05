@@ -60,10 +60,10 @@ class FHIRTranslator(
                 // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
                 //  receiver-specific transforms
                 val converter = FhirToHl7Converter(
-                    bundle, "ORU_R01-base",
+                    "ORU_R01-base",
                     "metadata/hl7_mapping/ORU_R01"
                 )
-                val hl7Message = converter.convert()
+                val hl7Message = converter.convert(bundle)
 
                 // create report object
                 val sources = emptyList<Source>()

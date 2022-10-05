@@ -8,4 +8,4 @@ specimenQuantity:
   valueOf: datatype/Quantity
   expressionType: resource
   vars:
-    value: Float, $specimenQuantity
+    value: String, $specimenQuantity
