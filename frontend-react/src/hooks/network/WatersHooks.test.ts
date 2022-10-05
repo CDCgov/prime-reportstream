@@ -9,21 +9,17 @@ describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
-
-    test("has default state", () => {
-        const { result } = renderHook(() => useWatersUploader(), {
+    const renderHookWithQueryWrapper = () =>
+        renderHook(() => useWatersUploader(), {
             wrapper: QueryWrapper(),
         });
+    test("has default state", () => {
+        const { result } = renderHookWithQueryWrapper();
         expect(result.current.isWorking).toEqual(false);
         expect(result.current.sendFile).toBeInstanceOf(Function);
     });
     test("posts to /api/waters", async () => {
-        const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(),
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result, waitForNextUpdate } = renderHookWithQueryWrapper();
         let response;
         await act(async () => {
             const post = result.current.sendFile({
@@ -42,12 +38,12 @@ describe("useWatersUploader", () => {
         });
     });
 });
-
+/* Just a proxy for useWatersUploader(true) so all functionality tests other than this
+ * can be isolated to the useWatersUploader describe block */
 describe("useWatersValidator", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
-
     test("posts to /api/validate", async () => {
         const { result, waitForNextUpdate } = renderHook(
             () => useWatersValidator(),
