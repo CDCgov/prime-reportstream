@@ -19,7 +19,6 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
-import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
@@ -384,14 +383,7 @@ class Hl7Serializer(
                 itemIndex = messageIndex
             )
         } catch (e: Exception) {
-            val msg = when (e) {
-                // Couldn't use InvalidPhoneMessage because it requires params we
-                // cannot access from this scope
-                is NumberParseException ->
-                    "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555)" +
-                        " 555-5555)."
-                else -> "${e.localizedMessage} ${e.stackTraceToString()}"
-            }
+            val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(InvalidHL7Message(msg))
         }
