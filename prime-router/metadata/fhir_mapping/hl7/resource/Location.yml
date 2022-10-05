@@ -42,7 +42,7 @@ extension_1:
     value: String, $poc
   constants:
     KEY_NAME_SUFFIX: String
-    urlValue: location-point-of-care
+    urlValue: point-of-care
 
 identifier_1:
   condition: $bed NOT_NULL
