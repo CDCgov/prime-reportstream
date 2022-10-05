@@ -1,5 +1,5 @@
 value :
-  type: STRING
+  type: FLOAT
   valueOf: $value
 comparator :
   type: String
@@ -29,7 +29,7 @@ code:
   valueOf: $code
 
 extension_1:
-  condition: value NOT_EQUALS_STRING '<' && value NOT_EQUALS_STRING '<=' && value NOT_EQUALS_STRING '>=' && value NOT_EQUALS_STRING '>'
+  condition: $value NOT_EQUALS_STRING '<' && $value NOT_EQUALS_STRING '<=' && $value NOT_EQUALS_STRING '>=' && $value NOT_EQUALS_STRING '>'
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -61,3 +61,14 @@ extension_3:
       valueOf: datatype/CodeableConcept
       specs: $units
       expressionType: resource
+
+# The raw value in case it is not really a quantity
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, $value
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: alternate-value
