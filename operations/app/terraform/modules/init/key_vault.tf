@@ -34,6 +34,8 @@ locals {
 
 resource "azurerm_key_vault" "init" {
   for_each = toset(["appconfig", "keyvault"])
+  #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
+  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
 
   name                            = "${var.resource_prefix}-${each.value}${var.random_id}"
   location                        = var.location
@@ -136,9 +138,11 @@ resource "azurerm_key_vault_access_policy" "init_tf" {
 resource "azurerm_key_vault_secret" "init" {
   for_each = local.secrets
 
-  name         = each.key
-  value        = each.value.secret
-  key_vault_id = each.value.vault.id
+  name            = each.key
+  value           = each.value.secret
+  key_vault_id    = each.value.vault.id
+  content_type    = "text/plain"
+  expiration_date = "2028-01-01T00:00:00Z"
 
   depends_on = [
     azurerm_key_vault_access_policy.init
@@ -147,11 +151,13 @@ resource "azurerm_key_vault_secret" "init" {
 
 resource "azurerm_key_vault_key" "init" {
   for_each = local.keys
+  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
 
-  name         = each.key
-  key_vault_id = each.value.vault.id
-  key_type     = "RSA"
-  key_size     = 2048
+  name            = each.key
+  key_vault_id    = each.value.vault.id
+  key_type        = "RSA-HSM"
+  key_size        = 2048
+  expiration_date = "2028-01-01T00:00:00Z"
 
   key_opts = [
     "decrypt",
