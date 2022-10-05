@@ -221,11 +221,6 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
             "this is a text",
             "this is different text"
         );
-
-        // it's not JSON so fail gracefully.
-        expect(diff.left.markupText).toBe(`"this is a text"`);
-        expect(diff.right.markupText).toBe(`"this is different text"`);
-
         expect(warnSpy).toBeCalledTimes(2);
     });
 });
