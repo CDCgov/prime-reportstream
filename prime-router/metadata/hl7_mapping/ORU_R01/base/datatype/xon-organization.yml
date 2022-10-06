@@ -1,4 +1,3 @@
-name: ORU-R01-xcn-contact
 elements:
   - name: xon-organization-name
     value: [ '%resource.name' ]
