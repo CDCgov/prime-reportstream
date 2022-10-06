@@ -71,7 +71,8 @@ class FhirToHl7Converter(
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
-        schema.elements.forEach { element ->
+        schema.elements.forEachIndexed { index, element ->
+            logger.trace("Processing ${schema.name} element #$index...")
             processElement(element, focusResource, schemaContext)
         }
     }
@@ -80,10 +81,9 @@ class FhirToHl7Converter(
      * Generate HL7 data for an [element] starting at the [focusResource] in the bundle.
      */
     internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext) {
-        logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
-        var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
+        var debugMsg = "Processing element with required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
         val focusResources = getFocusResources(element, focusResource, elementContext)
@@ -102,9 +102,11 @@ class FhirToHl7Converter(
                         // Schema references can have new index references
                         val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
                         else CustomContext.addConstant(
-                            element.resourceIndex!!, index.toString(), elementContext
+                            element.resourceIndex!!,
+                            index.toString(),
+                            elementContext
                         )
-                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
+                        logger.debug("Element uses schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
@@ -128,13 +130,13 @@ class FhirToHl7Converter(
         }
         // Only log for elements that require values
         if (element.schemaRef == null) logger.debug(debugMsg)
-        logger.trace("End processing of element ${element.name}.")
+        logger.trace("End processing of element.")
     }
 
     /**
      * Get the first valid string from the list of values specified in the schema for a given [element] starting
      * at the [focusResource].
-     * @return the value for the the element or an empty string if no value found
+     * @return the value for the element or an empty string if no value found
      */
     internal fun getValue(element: ConfigSchemaElement, focusResource: Base, context: CustomContext): String {
         var retVal = ""
