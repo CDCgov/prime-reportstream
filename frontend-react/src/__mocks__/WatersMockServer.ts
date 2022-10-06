@@ -1,7 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { WatersResponse, OverallStatus } from "../network/api/WatersApi";
+import { WatersResponse, OverallStatus } from "../config/endpoints/waters";
 import config from "../config";
 
 const { RS_API_URL } = config;

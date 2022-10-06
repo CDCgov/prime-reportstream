@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
-import { watersEndpoints, WatersResponse } from "../../network/api/WatersApi";
+import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
 import { ContentType } from "../UseFileHandler";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
