@@ -831,7 +831,7 @@ class Hl7Serializer(
             (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
                 val pathSpec = formPathSpec(segment.key)
                 val componentInMessage = try {
-                    terser.get(pathSpec)
+                    terser.get(pathSpec) ?: ""
                 } catch (e: Exception) {
                     return@segment
                 }

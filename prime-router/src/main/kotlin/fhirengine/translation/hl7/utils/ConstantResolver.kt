@@ -366,7 +366,7 @@ object CustomFHIRFunctions {
                 (focus[0].primitiveValue().matches(oidRegex) || focus[0].primitiveValue().matches(cliaRegex)) ->
                 focus[0].primitiveValue()
 
-            else -> null
+            else -> focus[0].primitiveValue()
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
     }
