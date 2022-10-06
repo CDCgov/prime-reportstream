@@ -71,8 +71,7 @@ class FhirToHl7Converter(
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
-        schema.elements.forEachIndexed { index, element ->
-            logger.trace("Processing ${schema.name} element #$index...")
+        schema.elements.forEach { element ->
             processElement(element, focusResource, schemaContext)
         }
     }
@@ -83,7 +82,7 @@ class FhirToHl7Converter(
     internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext) {
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
-        var debugMsg = "Processing element with required: ${element.required}, "
+        var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
         val focusResources = getFocusResources(element, focusResource, elementContext)
@@ -106,7 +105,7 @@ class FhirToHl7Converter(
                             index.toString(),
                             elementContext
                         )
-                        logger.debug("Element uses schema ${element.schema} ...")
+                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
