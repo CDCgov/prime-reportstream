@@ -4,7 +4,7 @@ import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
-import { OverallStatus, WatersResponse } from "../../network/api/WatersApi";
+import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     ErrorType,

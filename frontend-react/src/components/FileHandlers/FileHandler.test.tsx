@@ -1,11 +1,7 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { renderWithSession } from "../../utils/CustomRenderUtils";
-import {
-    EndpointName,
-    ResponseError,
-    WatersResponse,
-} from "../../network/api/WatersApi";
+import { ResponseError, WatersResponse } from "../../config/endpoints/waters";
 import {
     INITIAL_STATE,
     FileType,
@@ -463,8 +459,7 @@ describe("FileHandler", () => {
                 undefined, //contentType
                 contentString, //fileContent
                 "", //parsedName
-                "", //accessToken
-                EndpointName.WATERS
+                "" //accessToken
             );
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
