@@ -35,7 +35,6 @@ class BatchFunction(
         @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext?,
     ) {
-        var backstopTime: OffsetDateTime? = null
         try {
             logger.trace("BatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
@@ -43,13 +42,32 @@ class BatchFunction(
                 logger.error("BatchFunction received a $message")
                 return
             }
-            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
-                ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(
                 event.eventAction.toTaskAction(),
                 event.isEmptyBatch
             )
+            doBatch(message, event, actionHistory)
+        } catch (e: Exception) {
+            // already logged, silent catch to not break existing functionality
+        }
+    }
+
+    /**
+     * Pulling the functionality out of the azure function so it is individually testable and we can pass in an
+     * [actionHistory] from the mocking framework. Does the batching for the [event] passed in; [message] is needed
+     * in this function for logging and tracking
+     */
+    internal fun doBatch(
+        message: String,
+        event: BatchEvent,
+        actionHistory: ActionHistory
+    ) {
+        var backstopTime: OffsetDateTime? = null
+        try {
+            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
+                ?: error("Internal Error: receiver name ${event.receiverName}")
+            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
+
             actionHistory.trackActionParams(message)
             backstopTime = OffsetDateTime.now().minusMinutes(
                 BaseEngine.getBatchLookbackMins(
@@ -178,6 +196,7 @@ class BatchFunction(
             logger.error(
                 "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString()
             )
+            throw e
         }
     }
 }
