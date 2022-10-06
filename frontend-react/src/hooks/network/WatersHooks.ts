@@ -3,8 +3,8 @@ import { useMemo } from "react";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { watersEndpoints, WatersResponse } from "../../network/api/WatersApi";
-import { RSNetworkError } from "../../utils/RSNetworkError";
 import { ContentType } from "../UseFileHandler";
+import { RSNetworkError } from "../../utils/RSNetworkError";
 
 export interface WatersPostArgs {
     client: string;
@@ -16,7 +16,10 @@ export interface WatersPostArgs {
 const { upload, validate } = watersEndpoints;
 
 /** Uploads a file to ReportStream */
-export const useWatersUploader = (validateOnly: boolean = false) => {
+export const useWatersUploader = (
+    callback: (data: WatersResponse | undefined) => any,
+    validateOnly: boolean = false
+) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
     /* Conditionally set the endpoint */
     const memoizedEndpoint = useMemo(
@@ -42,9 +45,14 @@ export const useWatersUploader = (validateOnly: boolean = false) => {
         WatersResponse,
         RSNetworkError,
         WatersPostArgs
-    >(mutationFunction);
+    >(mutationFunction, {
+        onSuccess: (data) => callback(data),
+        // pass response data we stored in RSNetworkError on throw
+        onError: (error) => callback(error.data),
+    });
     return {
         sendFile: mutation.mutateAsync,
         isWorking: mutation.isLoading,
+        uploaderError: mutation.error,
     };
 };

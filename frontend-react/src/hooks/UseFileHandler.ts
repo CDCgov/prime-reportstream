@@ -22,7 +22,6 @@ export enum ContentType {
 
 // Internal state for the hook.
 export interface FileHandlerState {
-    isSubmitting: boolean;
     fileInputResetValue: number;
     fileContent: string;
     contentType?: ContentType;
@@ -68,7 +67,6 @@ type FileHandlerReducer = (
 ) => FileHandlerState;
 
 export const INITIAL_STATE = {
-    isSubmitting: false,
     fileInputResetValue: 0,
     fileContent: "",
     fileName: "",
@@ -101,7 +99,6 @@ function getPreSubmitState(): Partial<FileHandlerState> {
             "localError",
             "overallStatus",
         ]),
-        isSubmitting: true,
     };
 }
 
@@ -191,7 +188,6 @@ function calculateRequestCompleteState(
     return {
         destinations: destinationList,
         reportItems: destinations, //destinationReportItemList,
-        isSubmitting: false,
         fileInputResetValue: state.fileInputResetValue + 1,
         errors,
         cancellable: errors?.length ? true : false,
