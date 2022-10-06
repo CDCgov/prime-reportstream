@@ -101,7 +101,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.1.1"
+val ktorVersion = "2.1.2"
 val kotlinVersion = "1.7.10"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
@@ -759,7 +759,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
-    implementation("org.apache.poi:poi:5.2.2")
+    implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
