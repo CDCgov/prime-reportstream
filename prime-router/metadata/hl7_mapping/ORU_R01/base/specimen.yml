@@ -22,20 +22,40 @@ elements:
     schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-  - name: type
+  - name: specimen-type
     resource: '%resource.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
     schema: datatype/ce-coded-with-exceptions
 
-  - name: source-site
+  - name: specimen-type-modifier
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-5' ]
+
+  - name: specimen-additives
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-6' ]
+
+  - name: specimen-collection-method
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-7' ]
+
+  - name: specimen-source-site
     resource: '%resource.collection.bodySite'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
     schema: datatype/ce-coded-with-exceptions
 
-  - name: description
+  - name: specimen-source-site-modifier
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-9' ]
+
+  - name: specimen-role
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
+
+  - name: specimen-description
     value: [ '%resource.note.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
@@ -44,12 +64,12 @@ elements:
     value: [ '%resource.collection.collected' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
-  - name: observation-date-time-start
+  - name: specimen-observation-date-time-start
     condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
-  - name: observation-date-time-end
+  - name: specimen-observation-date-time-end
     condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.end' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
@@ -59,13 +79,21 @@ elements:
     value: [ '%resource.receivedTime' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
-  - name: number-of-containers
+  - name: specimen-reject-reason
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-21' ]
+
+  - name: specimen-condition
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-24' ]
+
+  - name: specimen-number-of-containers
     resource: '%resource.container.specimenQuantity'
     condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-26' ]
 
-  - name: container-type
+  - name: specimen-container-type
     resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
