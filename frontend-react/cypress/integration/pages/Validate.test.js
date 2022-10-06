@@ -7,7 +7,6 @@
 //         cy.visit("/validate");
 //     });
 //     it("should display the page", () => {
-//
+//       cy.get("")
 //     });
 // });
-

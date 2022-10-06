@@ -120,14 +120,23 @@ elements:
     value: [ '%resource.meta.lastUpdated' ]
     hl7Spec: [ '%{hl7PIDField}-33' ]
 
-  - name: last-update-facility
-    resource: '%resource.identifier'
-    constants:
-      hl7HDField: '%{hl7PIDField}-34'
-      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
-      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
-      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
-    schema: datatype/hd-hierarchic-designator
+  - name: last-update-facility-namespace-id
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-namespace-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-1' ]
+
+  - name: last-update-facility-universal-id
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-2' ]
+
+  - name: last-update-facility-universal-type
+    resource: '%resource.meta.extension(%`rsext-last-updated-facility-universal-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getIdType()' ]
+    hl7Spec: [ '%{hl7PIDField}-34-3' ]
 
   - name: patient-species-identifier
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]
