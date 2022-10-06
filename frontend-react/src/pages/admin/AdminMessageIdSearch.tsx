@@ -1,9 +1,9 @@
 import React from "react";
+import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
-import { NetworkErrorBoundary } from "rest-hooks";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { MessageIdSearch } from "../../components/MessageIdSearch/MessageIdSearch";
 import { ErrorPage } from "../error/ErrorPage";

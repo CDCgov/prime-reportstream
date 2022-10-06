@@ -29,19 +29,19 @@ const MOCK_MESSAGE_ID_DATA = [
 ];
 
 // TODO: move this interface into the resources directory
-interface MessageIdResource {
+interface MessageListResource {
     messageId: string;
     sender: string;
     submittedDate: string;
     reportId: string;
 }
 
-interface MessageIdTableContentProps {
+interface MessageListTableContentProps {
     isLoading: boolean;
-    messageIdData: MessageIdResource[];
+    messageIdData: MessageListResource[];
 }
 
-const MessageIdTableContent: React.FC<MessageIdTableContentProps> = ({
+const MessageIdTableContent: React.FC<MessageListTableContentProps> = ({
     isLoading,
     messageIdData,
 }) => {
@@ -56,7 +56,7 @@ const MessageIdTableContent: React.FC<MessageIdTableContentProps> = ({
                 columnHeader: "Sender",
             },
             {
-                dataAttr: "submittedAt",
+                dataAttr: "submittedDate",
                 columnHeader: "Date/time submitted",
                 transform: (s: string) => {
                     return new Date(s).toLocaleString();
@@ -92,7 +92,7 @@ const MessageIdTableContent: React.FC<MessageIdTableContentProps> = ({
 // Main component.
 export function MessageIdSearch() {
     const [isLoading, setIsLoading] = useState(false);
-    const [messagesData, setMessagesData] = useState<MessageIdResource[]>([]);
+    const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
 
     const searchMessageId = (event: FormEvent<HTMLFormElement>) => {
         // Prevent page refresh
