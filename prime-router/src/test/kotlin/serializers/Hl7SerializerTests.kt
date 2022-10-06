@@ -998,7 +998,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
-            "ORC-2-2" to orcValuePairReplaceBlank,  // We didn't set this field. Therefore, it is empty.
+            "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
             "ORC-3" to orcValuePairReplaceBlank,
             "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
             "MSH-3" to msh3ValuePair,
