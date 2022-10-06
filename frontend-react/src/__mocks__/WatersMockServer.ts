@@ -1,7 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { WatersResponse } from "../network/api/WatersApi";
+import { WatersResponse, OverallStatus } from "../network/api/WatersApi";
 import config from "../config";
 
 const { RS_API_URL } = config;
@@ -9,7 +9,7 @@ const { RS_API_URL } = config;
 const watersResponseSuccess: WatersResponse = {
     id: "uuid-string",
     submissionId: 650,
-    overallStatus: "Waiting to Deliver",
+    overallStatus: OverallStatus.WAITING_TO_DELIVER,
     timestamp: "2022-06-14T18:57:36.941Z",
     plannedCompletionAt: "2022-06-14T18:58:00.000Z",
     actualCompletionAt: "",
@@ -27,6 +27,8 @@ const watersResponseSuccess: WatersResponse = {
             sending_at: "2022-06-14T18:58:00.000Z",
             sentReports: [],
             service: "elr",
+            filteredReportItems: [],
+            itemCountBeforeQualityFiltering: 0,
         },
     ],
     errors: [],

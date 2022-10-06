@@ -146,11 +146,15 @@ class ConstantResolverTests {
         val goodOid = "1.2.3.4.5.6.7"
         val oid = OidType()
         oid.value = "AA" // Some non OID
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(oid))).isEmpty()
-        oid.value = goodOid // Not a real OID as it needs to start with urn:oid:
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(oid))).isEmpty()
-        oid.value = "urn:oid:$goodOid"
         var id = CustomFHIRFunctions.getId(mutableListOf(oid))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
+        oid.value = goodOid // Not a real OID as it needs to start with urn:oid:
+        id = CustomFHIRFunctions.getId(mutableListOf(oid))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
+        oid.value = "urn:oid:$goodOid"
+        id = CustomFHIRFunctions.getId(mutableListOf(oid))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
 
@@ -174,12 +178,16 @@ class ConstantResolverTests {
         assertThat(id[0].primitiveValue()).isEqualTo(someId)
 
         genId.value = someId
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(genId))).isEmpty()
+        id = CustomFHIRFunctions.getId(mutableListOf(genId))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(genId.value)
 
         // CLIA IDs
         val cliaId = StringType()
         cliaId.value = "dummy"
-        assertThat(CustomFHIRFunctions.getId(mutableListOf(cliaId))).isEmpty()
+        id = CustomFHIRFunctions.getId(mutableListOf(cliaId))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(cliaId.value)
 
         val realClia = "15D2112066"
         cliaId.value = "urn:id:$realClia"
