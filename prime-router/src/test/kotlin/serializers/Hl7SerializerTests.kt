@@ -998,11 +998,12 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "ORC-2-2" to orcValuePairReplaceBlank,  // We didn't set this field. Therefore, it is empty.
             "ORC-3" to orcValuePairReplaceBlank,
             "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
             "MSH-3" to msh3ValuePair,
             "MSH-11-1" to mshf11e1Values,
-            // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
+            // Note for the value=""/blank/null/empty is same as the value is not in HL7 file.
             // .. Hl7Serializer.kt will not set to any value.  Therefore,
             // .. if replaceValueAwithB contains:
             // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
@@ -1018,6 +1019,8 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
 
+            assertThat(terser.get("$pathORC-2-1")).isEqualTo(null)
+            assertThat(terser.get("$pathORC-2-2")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-3-1")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-4-1")).isEqualTo("NOT REPLACE")
             assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
