@@ -1,15 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
-import { WatersPost } from "../../network/api/WatersApiFunctions";
-import { OverallStatus } from "../../network/api/WatersApi";
+import { OverallStatus, WatersResponse } from "../../network/api/WatersApi";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
-    FileHandlerActionType,
     ErrorType,
+    FileHandlerActionType,
     FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
@@ -17,11 +16,11 @@ import { useWatersUploader } from "../../hooks/network/WatersHooks";
 
 import {
     FileErrorDisplay,
-    FileSuccessDisplay,
-    FileWarningsDisplay,
-    FileWarningBanner,
-    NoSenderBanner,
     FileQualityFilterDisplay,
+    FileSuccessDisplay,
+    FileWarningBanner,
+    FileWarningsDisplay,
+    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -65,33 +64,28 @@ export enum FileHandlerType {
 interface FileHandlerProps {
     headingText: string;
     handlerType: FileHandlerType;
-    fetcher: WatersPost;
     successMessage: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
     showWarningBanner: boolean;
     warningText?: string;
-    endpointName: string;
 }
 
 const FileHandler = ({
     headingText,
     handlerType,
-    fetcher,
     successMessage,
     resetText,
     submitText,
     showSuccessMetadata,
     showWarningBanner,
     warningText,
-    endpointName,
 }: FileHandlerProps) => {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
 
     const {
-        isSubmitting,
         fileInputResetValue,
         contentType,
         fileType,
@@ -114,13 +108,12 @@ const FileHandler = ({
         }
     }, [localError]);
 
-    const { activeMembership, oktaToken } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const { organization, loading: organizationLoading } =
         useOrganizationResource();
     // need to fetch sender from API to grab cvs vs hl7 format info
     const { sender, loading: senderLoading } = useSenderResource();
 
-    const accessToken = oktaToken?.accessToken;
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.senderName;
     const client = `${parsedName}.${senderName}`;
@@ -128,7 +121,19 @@ const FileHandler = ({
         () => handlerType !== FileHandlerType.UPLOAD,
         [handlerType]
     );
-    const { sendFile, isWorking } = useWatersUploader(validateOnly);
+    const uploaderCallback = useCallback(
+        (data?: WatersResponse) => {
+            dispatch({
+                type: FileHandlerActionType.REQUEST_COMPLETE,
+                payload: { response: data!! }, // Strong asserting that this won't be undefined
+            });
+        },
+        [dispatch]
+    );
+    const { sendFile, isWorking } = useWatersUploader(
+        uploaderCallback,
+        validateOnly
+    );
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>

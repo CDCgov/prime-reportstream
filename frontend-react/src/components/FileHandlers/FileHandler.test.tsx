@@ -93,14 +93,12 @@ describe("FileHandler", () => {
             <FileHandler
                 headingText="handler heading"
                 handlerType={FileHandlerType.VALIDATION}
-                fetcher={() => Promise.resolve({} as WatersResponse)}
                 successMessage=""
                 resetText=""
                 submitText=""
                 showSuccessMetadata={false}
                 showWarningBanner={false}
                 warningText=""
-                endpointName={EndpointName.WATERS}
             />
         );
         const spinner = await screen.findByLabelText("loading-indicator");
@@ -120,14 +118,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText="SEND SOMEWHERE"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -153,14 +149,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -181,14 +175,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -224,14 +216,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -281,14 +271,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.VALIDATE}
                 />
             );
 
@@ -327,14 +315,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -361,14 +347,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={true}
                     warningText="THIS IS A WARNING"
-                    endpointName={EndpointName.WATERS}
                 />
             );
             const message = await screen.findByText("THIS IS A WARNING");
@@ -386,14 +370,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText=""
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -429,14 +411,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={fetchSpy}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -503,14 +483,12 @@ describe("FileHandler", () => {
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={fetchSpy}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 

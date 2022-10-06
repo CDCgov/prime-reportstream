@@ -6,18 +6,21 @@ import { ContentType } from "../UseFileHandler";
 
 import { useWatersUploader } from "./WatersHooks";
 
+const mockCallbackFn = jest.fn();
+
 describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
     const renderHookWithQueryWrapper = () =>
-        renderHook(() => useWatersUploader(), {
+        renderHook(() => useWatersUploader(mockCallbackFn), {
             wrapper: QueryWrapper(),
         });
     test("has default state", () => {
         const { result } = renderHookWithQueryWrapper();
         expect(result.current.isWorking).toEqual(false);
         expect(result.current.sendFile).toBeInstanceOf(Function);
+        expect(result.current.uploaderError).toBeNull();
     });
     test("posts to /api/waters", async () => {
         const { result, waitForNextUpdate } = renderHookWithQueryWrapper();
@@ -40,7 +43,7 @@ describe("useWatersUploader", () => {
     });
     test("posts to /api/validate when validateOnly param is true", async () => {
         const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(true),
+            () => useWatersUploader(mockCallbackFn, true),
             {
                 wrapper: QueryWrapper(),
             }

@@ -3,8 +3,6 @@ import React from "react";
 import FileHandler, {
     FileHandlerType,
 } from "../components/FileHandlers/FileHandler";
-import watersApiFunctions from "../network/api/WatersApiFunctions";
-import { EndpointName } from "../network/api/WatersApi";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
 import { withCatch } from "../components/RSErrorBoundary";
@@ -20,9 +18,7 @@ const Validate = () => {
             resetText="Validate another file"
             submitText="Validate"
             showSuccessMetadata={false}
-            fetcher={watersApiFunctions.postData}
             showWarningBanner={false}
-            endpointName={EndpointName.VALIDATE}
         />
     );
 };
