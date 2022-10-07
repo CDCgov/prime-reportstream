@@ -950,6 +950,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 
         // SEG: ORC, FIELD: 12, ELEMENT: 2
         val pathORCf12e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
+        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
         // SEG: OBX, FIELD: 3, ELEMENT: 1
         val pathOBXf3e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
         val pathOBXf3e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
@@ -990,10 +991,19 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val obxf17ValuePair = arrayListOf(mapOf("*" to "OBX-17(0)-1^^OBX-17(0)-3~OBX-17(1)-1^^OBX-17(1)-3"))
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
+        // Unit test for replace "" (Blank) and Not replace if something is there (ORC-4-1)
+        terser.set("$pathORC-3-1", "")
+        terser.set("$pathORC-4-1", "NOT REPLACE")
+        val orcValuePairReplaceBlank = arrayListOf(mapOf("" to "REPLACED BLANK"))
+        val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
+
         val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
+            "ORC-3" to orcValuePairReplaceBlank,
+            "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
             "MSH-3" to msh3ValuePair,
             "MSH-11-1" to mshf11e1Values,
-            // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
+            // Note for the value=""/blank/null/empty is same as the value is not in HL7 file.
             // .. Hl7Serializer.kt will not set to any value.  Therefore,
             // .. if replaceValueAwithB contains:
             // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
@@ -1009,6 +1019,10 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
 
+            assertThat(terser.get("$pathORC-2-1")).isEqualTo(null)
+            assertThat(terser.get("$pathORC-2-2")).isEqualTo("REPLACED BLANK")
+            assertThat(terser.get("$pathORC-3-1")).isEqualTo("REPLACED BLANK")
+            assertThat(terser.get("$pathORC-4-1")).isEqualTo("NOT REPLACE")
             assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
             assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
