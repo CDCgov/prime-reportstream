@@ -184,15 +184,14 @@ internal class ReceiverTests {
             "co-phd",
             "topic",
             CustomerStatus.INACTIVE,
-            "one",
+            "CO",
             Report.Format.CSV,
             null,
             null,
             null,
-            "CO",
             "metadata/hl7_mapping/ORU_R01"
         )
-        assertThat(receiver.schemaFileName).isEqualTo("CO")
+        assertThat(receiver.schemaName).isEqualTo("CO")
         assertThat(receiver.schemaFolderPath).isEqualTo("metadata/hl7_mapping/ORU_R01")
     }
 }

@@ -60,10 +60,10 @@ class FHIRTranslator(
                 val destination = settings.findReceiver(receiver)
 
                 // todo: these values have a default until we have the routing portion done and they are populated
-                val schemaFileName = destination?.schemaFileName ?: "ORU_R01-base"
+                val schemaName = destination?.schemaName ?: "ORU_R01-base"
                 val schemaFolderPath = destination?.schemaFolderPath ?: "metadata/hl7_mapping/ORU_R01"
 
-                val converter = FhirToHl7Converter(bundle, schemaFileName, schemaFolderPath)
+                val converter = FhirToHl7Converter(bundle, schemaName, schemaFolderPath)
                 val hl7Message = converter.convert()
 
                 // create report object

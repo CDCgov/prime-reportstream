@@ -64,10 +64,6 @@ open class Receiver(
      */
     val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
     /**
-     * Name of the file containing translation customizations for this receiver
-     */
-    val schemaFileName: String? = null,
-    /**
      * Location of the custom configuration files for this receiver
      */
     val schemaFolderPath: String? = null
@@ -83,7 +79,6 @@ open class Receiver(
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
-        schemaFileName: String? = null,
         schemaFolderPath: String? = null
     ) : this(
         name,
@@ -94,7 +89,6 @@ open class Receiver(
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
-        schemaFileName = schemaFileName,
         schemaFolderPath = schemaFolderPath
     )
 
@@ -118,7 +112,6 @@ open class Receiver(
         copy.externalName,
         copy.timeZone,
         copy.dateTimeFormat,
-        copy.schemaFileName,
         copy.schemaFolderPath
     )
 
