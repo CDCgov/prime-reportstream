@@ -50,6 +50,8 @@
           MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
           MSH-21: [ "*": "PHLabReport-Batch&&&^^2.16.840.1.113883.9.11^ISO" ]
           OBX-17: [ "*": "DEVICE ID 1^^99ELR~DEVICE ID 2^^99ELR" ]
+          ORC-2: [ "": "CANNOTFILL" ]
+          ORC-4: [ "": "ORC4BLANKFILLER" ]
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         replaceDiiWithOid: true
