@@ -75,7 +75,7 @@ object ConfigSchemaReader : Logging {
             throw SchemaException(msg, e)
         }
 
-        if (rawSchema.name == null) rawSchema.name = schemaName
+        rawSchema.name = schemaName
 
         if (ancestry.contains(rawSchema.name)) {
             throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
