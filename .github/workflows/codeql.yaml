@@ -1,29 +1,14 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
+
 name: "CodeQL"
 
-on: [ push, pull_request ]
+on: [push, pull_request]
   # push:
-  #   branches:
-  #     - master
-  #     - codeql-scan-analysis-1
+  #   branches: [ "main" ]
   # pull_request:
-  #   branches:
-  #     - master
-  #     - codeql-scan-analysis-1
-
-    # paths:
-    #   - "prime-router/**"
-
+  #   # The branches below must be a subset of the branches above
+  #   branches: [ "main" ]
+  # #schedule:
+  #  # - cron: '18 15 * * 4'
 
 jobs:
   analyze:
@@ -38,8 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'javascript', 'python' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+      # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+      # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
     steps:
     - name: Checkout repository
@@ -53,11 +38,11 @@ jobs:
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
-        
+
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-        
+
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
@@ -77,3 +62,4 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+ 
