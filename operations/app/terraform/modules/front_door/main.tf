@@ -281,6 +281,11 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
+
+  depends_on = [
+    azurerm_frontdoor.front_door,
+    azurerm_key_vault_access_policy.frontdoor_access_policy
+  ]
 }
 
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {

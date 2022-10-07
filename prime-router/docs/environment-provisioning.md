@@ -55,6 +55,12 @@ path='operations/app/terraform/vars/demo'
 ```
 
 ### Run init, apply init module, and full apply
+> If `init` module key vault access policies already exist, you may need to remove/re-apply via `-target`.
+
+> Add SSL certificates for the front door to key vault:
+> * `<env>.prime.cdc.gov`
+> * `<env>.reportstream.cdc.gov`
+
 ```bash
 terraform -chdir=$path init \
 -reconfigure \
@@ -89,7 +95,12 @@ done
 
 echo "apply complete"
 
+#Restore database
+#Storage account should contain a "dbbackups" file share.
 ```
+
+> API endpoint should return `{"error": "Authentication Failed"}`:
+> * `curl -X GET https://<env>.prime.cdc.gov/api/settings/organizations`
 
 ### One-time config after first creation (initialization):
  1. Download VPN client file:
@@ -100,7 +111,7 @@ echo "apply complete"
       ```sh
       gh workflow run "Restore databases" \
       -f backup_from=test \
-      -f restore_to=demo1 \
+      -f restore_to=$env \
       -f backup_age_limit_mins=1440 \
       -f restore_ignore_backup_age=false \
       -f databases='[\"prime_data_hub\",\"prime_data_hub_candidate\"]'
