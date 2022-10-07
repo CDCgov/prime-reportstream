@@ -226,7 +226,7 @@ class FhirToHl7ConverterTests {
             "name", condition = conditionTrue,
             value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
-        val schema = ConfigSchema("schema name", elements = mutableListOf(element))
+        val schema = ConfigSchema(elements = mutableListOf(element))
         val elementWithSchema = ConfigSchemaElement("name", schemaRef = schema)
         converter.processElement(elementWithSchema, bundle, customContext)
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
@@ -258,7 +258,7 @@ class FhirToHl7ConverterTests {
             "childElement", value = listOf("1"),
             hl7Spec = listOf("/PATIENT_RESULT/ORDER_OBSERVATION(%{myindexvar})/OBX-1")
         )
-        val childSchema = ConfigSchema("childSchema", elements = mutableListOf(childElement))
+        val childSchema = ConfigSchema(elements = mutableListOf(childElement))
         val element = ConfigSchemaElement(
             "name", resource = "Bundle.entry", resourceIndex = "myindexvar", schemaRef = childSchema
         )
@@ -281,7 +281,7 @@ class FhirToHl7ConverterTests {
             "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
         var schema = ConfigSchema(
-            "schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = mutableListOf(element)
+            hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = mutableListOf(element)
         )
         val message = FhirToHl7Converter(bundle, schema).convert()
         assertThat(message.isEmpty).isFalse()
@@ -291,12 +291,12 @@ class FhirToHl7ConverterTests {
         element = ConfigSchemaElement(
             "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
-        schema = ConfigSchema("schema name", hl7Type = "ORU_R01", elements = mutableListOf(element))
+        schema = ConfigSchema(hl7Type = "ORU_R01", elements = mutableListOf(element))
         assertThat { FhirToHl7Converter(bundle, schema).convert() }.isFailure()
         element = ConfigSchemaElement(
             "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
-        schema = ConfigSchema("schema name", hl7Version = "2.5.1", elements = mutableListOf(element))
+        schema = ConfigSchema(hl7Version = "2.5.1", elements = mutableListOf(element))
         assertThat { FhirToHl7Converter(bundle, schema).convert() }.isFailure()
 
         // Use a file based schema which will fail as we do not have enough data in the bundle

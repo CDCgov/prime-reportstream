@@ -75,6 +75,7 @@ object ConfigSchemaReader : Logging {
             throw SchemaException(msg, e)
         }
 
+        // set schema name to match the filename
         rawSchema.name = schemaName
 
         if (ancestry.contains(rawSchema.name)) {
