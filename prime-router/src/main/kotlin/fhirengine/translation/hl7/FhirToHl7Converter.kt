@@ -129,7 +129,7 @@ class FhirToHl7Converter(
         }
         // Only log for elements that require values
         if (element.schemaRef == null) logger.debug(debugMsg)
-        logger.trace("End processing of element.")
+        logger.trace("End processing of element ${element.name}.")
     }
 
     /**
