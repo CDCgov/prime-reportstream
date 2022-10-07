@@ -1,4 +1,3 @@
-name: ORU-R01-extended
 hl7Type: ORU_R01
 hl7Version: 2.7
 elements:
