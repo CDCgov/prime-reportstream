@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -15,6 +16,12 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Identifier
+import org.hl7.fhir.r4.model.Provenance
+import org.hl7.fhir.r4.model.Reference
 
 /**
  * [metadata] mockable metadata
@@ -50,6 +57,10 @@ class FHIRRouter(
             // pull fhir document and parse FHIR document
             val fhirDocument = FhirTranscoder.decode(message.downloadContent())
 
+            // TODO: routing would need to happen here to generate a list of the receivers
+            val hardCodedReceiverNames = listOf("co-phd.elr")
+            addReceivers(fhirDocument, hardCodedReceiverNames)
+
             // create report object
             val sources = emptyList<Source>()
             val report = Report(
@@ -58,9 +69,6 @@ class FHIRRouter(
                 1,
                 metadata = metadata
             )
-
-            // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO
-            //  (hardcoded in FHIRTranslator)
 
             // create item lineage
             report.itemLineages = listOf(
@@ -138,5 +146,47 @@ class FHIRRouter(
         nextAction: Event
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
+    }
+
+    /**
+     * Adds [receivers] to the [fhirBundle] as targets
+     */
+    private fun addReceivers(fhirBundle: Bundle, receivers: List<String>) {
+        val receiverList = receivers.mapNotNull { receiverName ->
+            val receiver = settings.findReceiver(receiverName)
+            if (receiver == null)
+                logger.error("Receiver $receiverName was not found in the settings.")
+            receiver
+        }
+
+        val provenanceResource = try {
+            fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        } catch (e: NoSuchElementException) {
+            throw IllegalStateException("The FHIR bundle does not contain a Provenance resource")
+        }
+
+        // Create the list of target receivers to be added to the Provenance of the bundle
+        val targetList = mutableListOf<Reference>()
+        receiverList.forEach { receiver ->
+            val endpoint = Endpoint()
+            endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
+            endpoint.name = receiver.fullName
+            when (receiver.customerStatus) {
+                CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
+                CustomerStatus.INACTIVE -> endpoint.status = Endpoint.EndpointStatus.OFF
+                else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
+            }
+            val rsIdentifier = Identifier()
+            rsIdentifier.value = receiver.name
+            rsIdentifier.system = "https://reportstream.cdc.gov/"
+            endpoint.identifier.add(rsIdentifier)
+            fhirBundle.addEntry().resource = endpoint
+
+            val reference = Reference()
+            reference.reference = endpoint.idBase
+            targetList.add(reference)
+        }
+
+        if (targetList.isNotEmpty()) provenanceResource.target.addAll(targetList)
     }
 }
