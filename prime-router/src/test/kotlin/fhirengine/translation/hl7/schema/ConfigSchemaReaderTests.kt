@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -167,7 +166,7 @@ class ConfigSchemaReaderTests {
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
             )
-        }.isFailure().hasMessage("Circular reference detected in schema")
+        }.isFailure()
     }
 
     @Test
@@ -177,6 +176,6 @@ class ConfigSchemaReaderTests {
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
             )
-        }.isFailure().hasMessage("Circular reference detected in schema")
+        }.isFailure()
     }
 }

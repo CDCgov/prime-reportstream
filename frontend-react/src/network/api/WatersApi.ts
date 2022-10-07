@@ -2,7 +2,13 @@ import { Destination } from "../../resources/ActionDetailsResource";
 
 import { API } from "./NewApi";
 
-/* 
+export enum OverallStatus {
+    VALID = "Valid",
+    ERROR = "Error",
+    WAITING_TO_DELIVER = "Waiting to Deliver",
+}
+
+/*
   shape of response from the Waters API
   @todo refactor to move away from all of these optional fields. Which of these are actually optional?
 */
@@ -15,7 +21,7 @@ export class WatersResponse {
     externalName?: string;
     httpStatus?: number;
     id?: string;
-    overallStatus?: string;
+    overallStatus?: OverallStatus;
     plannedCompletionAt?: string;
     reportItemCount?: number;
     sender?: string;
