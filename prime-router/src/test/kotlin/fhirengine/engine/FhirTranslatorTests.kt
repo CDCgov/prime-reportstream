@@ -74,7 +74,6 @@ class FhirTranslatorTests {
                 null,
                 null,
                 null,
-                "CO",
                 "metadata/hl7_mapping/ORU_R01"
             )
         )
