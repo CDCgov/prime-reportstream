@@ -27,3 +27,8 @@ variable "dns_zones" {
 variable "admin_function_app" {
   description = "Admin function app"
 }
+
+variable "is_temp_env" {
+  default     = false
+  description = "Is a temporary environment. true or false"
+}

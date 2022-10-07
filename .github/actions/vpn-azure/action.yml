@@ -27,6 +27,21 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set environment variables - demo1
+      if: inputs.env-name == 'demo1'
+      shell: bash
+      run: echo "VPN_ENV=demo1" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo2
+      if: inputs.env-name == 'demo2'
+      shell: bash
+      run: echo "VPN_ENV=demo2" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo3
+      if: inputs.env-name == 'demo3'
+      shell: bash
+      run: echo "VPN_ENV=demo3" >> $GITHUB_ENV
+
     - name: Set environment variables - dev
       if: inputs.env-name == 'dev'
       shell: bash

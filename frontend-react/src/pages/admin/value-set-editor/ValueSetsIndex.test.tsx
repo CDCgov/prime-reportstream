@@ -1,5 +1,4 @@
 import { screen, within } from "@testing-library/react";
-import { AxiosResponse } from "axios";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
@@ -101,7 +100,7 @@ describe("ValueSetsIndex tests", () => {
                 } as ValueSetsMetaResponse)
         );
         mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
+            throw new RSNetworkError("Test", 404);
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
