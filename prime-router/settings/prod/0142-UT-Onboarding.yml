@@ -15,7 +15,7 @@
   senders: []
   receivers:
     - name: "elr"
-      organizationName: "me-doh"
+      organizationName: "ut-phd"
       topic: "covid-19"
       customerStatus: "inactive"
       translation: !<HL7>
