@@ -36,6 +36,7 @@ resource "azurerm_key_vault" "init" {
   for_each = toset(["appconfig", "keyvault"])
   #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
   #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
+  #checkov:skip=CKV_AZURE_109:Network restriction not needed for temporary environments
 
   name                            = "${var.resource_prefix}-${each.value}${var.random_id}"
   location                        = var.location
