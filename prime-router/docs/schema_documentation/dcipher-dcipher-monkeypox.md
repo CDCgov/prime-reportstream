@@ -36,6 +36,18 @@ Any notes regarding how the test was performed that are not covered by other dat
 
 ---
 
+**Name**: date_result_released
+
+**ReportStream Internal Name**: date_result_released
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: event_name
 
 **ReportStream Internal Name**: event_name
@@ -59,6 +71,22 @@ Any notes regarding how the test was performed that are not covered by other dat
 **PII**: No
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: message_date
+
+**ReportStream Internal Name**: file_created_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+When was this file created. This is only used for HL7 generation.
 
 ---
 
@@ -117,6 +145,102 @@ Identifier for the message received (system-generated)
 **Default Value**: SAMPLE
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: order_result_status
+
+**ReportStream Internal Name**: order_result_status
+
+**Type**: ID
+
+**PII**: No
+
+**Default Value**: F
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
+
+---
+
+**Name**: order_test_date
+
+**ReportStream Internal Name**: order_test_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_city
+
+**ReportStream Internal Name**: ordering_facility_city
+
+**Type**: CITY
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_state
+
+**ReportStream Internal Name**: ordering_facility_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_zip_code
+
+**ReportStream Internal Name**: ordering_facility_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
 
 ---
 
@@ -565,6 +689,18 @@ Time at which the sample was collected, as opposed to the time the sample collec
 
 ---
 
+**Name**: specimen_collection_method_code
+
+**ReportStream Internal Name**: specimen_collection_method_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: sample_condition
 
 **ReportStream Internal Name**: specimen_condition
@@ -602,6 +738,31 @@ Description of the physical state of the specimen, as in HL7 field SPM-24.2
 **Documentation**:
 
 Additional information specifically about the specimen to be sent in the message, as in HL7 field SPM-14
+
+---
+
+**Name**: specimen_id
+
+**ReportStream Internal Name**: specimen_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2-1-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.1)
+- [SPM-2-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.1)
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
 
 ---
 
@@ -963,18 +1124,6 @@ RE|Remark|HL7
 
 ---
 
-**Name**: date_result_released
-
-**ReportStream Internal Name**: date_result_released
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: device_id
 
 **ReportStream Internal Name**: device_id
@@ -1066,22 +1215,6 @@ Device_id_type is a generated value for the OBX-17 field.
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: file_created_date
-
-**ReportStream Internal Name**: file_created_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-When was this file created. This is only used for HL7 generation.
 
 ---
 
@@ -1224,50 +1357,6 @@ X|Results cannot be obtained for this observation|HL7
 
 ---
 
-**Name**: order_result_status
-
-**ReportStream Internal Name**: order_result_status
-
-**Type**: ID
-
-**PII**: No
-
-**Default Value**: F
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
-
----
-
-**Name**: order_test_date
-
-**ReportStream Internal Name**: order_test_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordered_test_alternate_code
 
 **ReportStream Internal Name**: ordered_test_alternate_code
@@ -1349,22 +1438,6 @@ Z|No record of this patient|HL7
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: ordering_facility_city
-
-**ReportStream Internal Name**: ordering_facility_city
-
-**Type**: CITY
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The city of the facility which the test was ordered from
 
 ---
 
@@ -1494,26 +1567,6 @@ The phone number of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_state
-
-**ReportStream Internal Name**: ordering_facility_state
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The state of the facility which the test was ordered from
-
----
-
 **Name**: ordering_facility_street
 
 **ReportStream Internal Name**: ordering_facility_street
@@ -1543,22 +1596,6 @@ The address of the facility which the test was ordered from
 **Documentation**:
 
 The secondary address of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_zip_code
-
-**ReportStream Internal Name**: ordering_facility_zip_code
-
-**Type**: POSTAL_CODE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The zip code of the facility which the test was ordered from
 
 ---
 
@@ -4578,18 +4615,6 @@ This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 
 ---
 
-**Name**: specimen_collection_method_code
-
-**ReportStream Internal Name**: specimen_collection_method_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_collection_method_text
 
 **ReportStream Internal Name**: specimen_collection_method_text
@@ -4667,31 +4692,6 @@ This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: specimen_id
-
-**ReportStream Internal Name**: specimen_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [SPM-2-1-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.1)
-- [SPM-2-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.1)
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
-**Documentation**:
-
-A unique code for this specimen
 
 ---
 

@@ -1,10 +1,9 @@
 import { render, screen } from "@testing-library/react";
 
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
-import { mockTokenFromStorage } from "../utils/__mocks__/SessionStorageTools";
 
 import { AuthElement } from "./AuthElement";
 
@@ -29,7 +28,6 @@ describe("AuthElement unit tests", () => {
     });
     test("Renders component when all checks pass", () => {
         mockCheckFlag = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -57,7 +55,6 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
-        mockTokenFromStorage.mockReturnValueOnce(undefined);
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: undefined,
@@ -73,7 +70,6 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
     test("Does not redirect when user refreshes app (token loads after membership)", () => {
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: {
@@ -93,7 +89,6 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Redirects when user is unauthorized user type", () => {
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -116,7 +111,6 @@ describe("AuthElement unit tests", () => {
     });
     test("Redirects when user lacks feature flag", () => {
         mockCheckFlag = jest.fn((flag) => flag !== FeatureFlagName.FOR_TEST);
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -142,7 +136,6 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Considers all given authorized user types (affirmative)", () => {
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -164,7 +157,6 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Considers all given authorized user types (negative)", () => {
-        mockTokenFromStorage.mockReturnValueOnce("test token");
         mockSessionContext.mockReturnValueOnce({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -183,5 +175,60 @@ describe("AuthElement unit tests", () => {
             />
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
+    });
+    test("renders a spinner when user hooks have not initialized", async () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: {
+                memberType: MemberType.NON_STAND,
+                parsedName: "PrimeAdmins",
+            },
+            dispatch: () => {},
+            initialized: false,
+        });
+        render(
+            <AuthElement
+                element={<TestElement />}
+                requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
+            />
+        );
+        const spinner = await screen.findByTestId("rs-spinner");
+        expect(spinner).toBeInTheDocument();
+    });
+    /* This can happen if a user is a member of multiple Okta orgs, and the one set for them
+     * was a non-admin memberType. Because admins are the only ones able to mock memberType, we assign
+     * it based on a users first Okta group.
+     *
+     * In this example, you can see what that session state would look like. */
+    test("Permits admins whose active membership is not DHPrimeAdmins", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: new Map<string, MembershipSettings>().set(
+                "DHPrimeAdmins",
+                {
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: "PrimeAdmins",
+                }
+            ),
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "xx-phd",
+            },
+            dispatch: () => {},
+            initialized: true,
+            adminHardCheck: true,
+        });
+        render(
+            <AuthElement
+                element={<TestElement />}
+                requiredUserType={MemberType.PRIME_ADMIN}
+            />
+        );
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
+        expect(mockUseNavigate).not.toHaveBeenCalled();
     });
 });

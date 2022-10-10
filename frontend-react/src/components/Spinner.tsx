@@ -13,7 +13,11 @@ function Spinner({ size = "default", display = true }: SpinnerProps) {
         insidebutton: "rs-spinner-default rs-spinner-tiny",
     }[size];
     return (
-        <div hidden={!display} className={sizeClassName}>
+        <div
+            hidden={!display}
+            className={sizeClassName}
+            data-testid="rs-spinner"
+        >
             <Oval
                 height={60}
                 width={60}

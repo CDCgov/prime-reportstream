@@ -158,4 +158,24 @@ class ConfigSchemaReaderTests {
         val newElement = schema.findElement("new-element")
         assertThat(newElement).isNotNull()
     }
+
+    @Test
+    fun `test simple circular reference exception when loading schema`() {
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
+            )
+        }.isFailure()
+    }
+
+    @Test
+    fun `test deep circular reference exception when loading schema`() {
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
+            )
+        }.isFailure()
+    }
 }
