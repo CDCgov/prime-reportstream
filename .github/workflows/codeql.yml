@@ -11,16 +11,16 @@
 #
 name: "CodeQL"
 
-on: 
-  push:
-    branches: 
-     - master
-     - production
-  pull_request:
-    branches: 
-     - master
-  schedule:
-    - cron: '20 4 * * 1'
+on: [ push, pull_request ]
+  # push:
+  #   branches: 
+  #    - master
+  #    - production
+  # pull_request:
+  #   branches: 
+  #    - master
+  # schedule:
+  #   - cron: '20 4 * * 1'
 
 jobs:
   analyze:
@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        language: [ 'javascript', 'python', java ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
