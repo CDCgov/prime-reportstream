@@ -1,4 +1,3 @@
-name: ORU-R01-specimen
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
 elements:

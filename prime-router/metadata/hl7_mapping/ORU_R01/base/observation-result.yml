@@ -1,4 +1,3 @@
-name: ORU-R01-observation-result
 constants:
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
   hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
@@ -39,8 +38,8 @@ elements:
   # override to handle LN translated to loinc L on HL7->FHIR conversion
   - name: observation-identifier-coding-system-ln
     resource: '%resource.code.coding'
-    condition: '%resource.system = "http://loinc.org" and %resource.version = "L"'
-    value: [ '"LN"' ]
+    condition: '%resource.system = "http://loinc.org"'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
 
   - name: observation-identifier-alternate-code
@@ -155,21 +154,40 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-15-3' ]
 
   - name: observation-method
-    value: [ '""' ]
-    hl7Spec: [ '%{hl7OBXField}-17' ]
+    resource: '%resource.method'
+    schema: datatype/ce-coded-element
+    constants:
+      ceFieldPath: '%{hl7OBXField}-17'
 
   - name: analysis-date-time
     value: [ '%resource.issued' ]
     hl7Spec: [ '%{hl7OBXField}-19' ]
 
-  - name: performing-organization-name
-    resource: '%resource.performer.resolve().organization.resolve()'
+  - name: performing-organization-name-pracrole
+    condition: '%observation.performer.resolve() is PractitionerRole'
+    resource: '%observation.performer.resolve().organization.resolve()'
     schema: datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
-  - name: performing-organization-address
-    resource: '%resource.performer.resolve().organization.resolve().address'
+  - name: performing-organization-name-non-pracrole
+    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
+    resource: '%observation.performer.resolve()'
+    schema: datatype/xon-organization
+    constants:
+      hl7OrgField: '%{hl7OBXField}-23'
+
+  - name: performing-organization-address-pracrole
+    condition: '%observation.performer.resolve() is PractitionerRole'
+    resource: '%observation.performer.resolve().organization.resolve().address'
+    constants:
+      hl7AddressField: '%{hl7OBXField}-24'
+    schema: datatype/xad-extended-address
+    resourceIndex: contactIndex
+
+  - name: performing-organization-address-non-pracrole
+    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
+    resource: '%observation.performer.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: datatype/xad-extended-address

@@ -291,7 +291,7 @@ class TranslationTests {
         private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
             val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             val hl7 =
-                FhirToHl7Converter(fhirBundle, FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert()
+                FhirToHl7Converter(FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert(fhirBundle)
             return hl7.encode().byteInputStream()
         }
 
