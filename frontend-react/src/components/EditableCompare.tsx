@@ -11,19 +11,24 @@ import {
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import { Diff, SES_TYPE } from "../utils/diff";
-import { checkTextAreaJson, splitOn } from "../utils/misc";
+import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
+import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
+import { checkJson, splitOn } from "../utils/misc";
+
+import { showError } from "./AlertNotifications";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
     getOriginalText: () => string;
     refreshEditedText: (updatedjson: string) => void;
+    isValidSyntax: () => boolean;
 };
 
 interface EditableCompareProps {
     original: string;
     modified: string;
+    jsonDiffMode: boolean; // true is json aware compare, false is a text compare
 }
 
 /**
@@ -58,6 +63,9 @@ export const EditableCompare = forwardRef(
         const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
             useState("");
 
+        // the API call into this forwardRef well say if json is valid (to enable save button)
+        const [isValidSyntax, setIsValidSyntax] = useState(true);
+
         useImperativeHandle(
             ref,
             () => ({
@@ -71,6 +79,9 @@ export const EditableCompare = forwardRef(
                 refreshEditedText(updatedjson) {
                     setTextAreaContent(updatedjson);
                     onChangeHandler(updatedjson);
+                },
+                isValidSyntax() {
+                    return isValidSyntax;
                 },
             }),
             // onChangeHandler appears below, remove from deps
@@ -89,65 +100,51 @@ export const EditableCompare = forwardRef(
                 if (originalText.length === 0 || modifiedText.length === 0) {
                     return;
                 }
-                const insertHighlight = (
-                    s1: string,
-                    offset: number,
-                    length: number
-                ): string => {
-                    if (s1 === "" || length === 0) {
-                        return "";
-                    }
-                    // we want to insert a <span></span> around text.
-                    const threeParts = splitOn(s1, offset, offset + length);
-                    if (threeParts.length !== 3) {
-                        console.error("split failed");
-                        return s1;
-                    }
-
-                    return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;
-                };
 
                 turnOffSpellCheckSwigglies();
 
-                const differ = Diff(originalText, modifiedText);
-                differ.compose();
-                const sesses = differ.getses();
+                // jsonDiffMode requires json be valid. If it's not then don't run it.
+                const { valid, offset } = checkJson(modifiedText);
+                if (!valid) {
+                    // clear the diff on the left since the right is invalid
+                    setLeftHandSideHighlightHtml(originalText);
 
-                // because we're modifying text, it will change offsets UNLESS we go backwards.
-                // the later items in the patches array are sequential
-                let patchedLeftStr = originalText;
-                let patchedRightStr = modifiedText;
+                    // show where the error is:
+                    const start = Math.max(offset - 4, 0); // don't let go negative
+                    const end = Math.min(offset + 4, modifiedText.length); // don't let go past len
 
-                for (let ii = sesses.length - 1; ii >= 0; --ii) {
-                    const eachses = sesses[ii];
-                    if (eachses.sestype === SES_TYPE.DELETE) {
-                        patchedLeftStr = insertHighlight(
-                            patchedLeftStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } else if (eachses.sestype === SES_TYPE.ADD) {
-                        patchedRightStr = insertHighlight(
-                            patchedRightStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } // ignore SES_TYPE.COMMON
+                    const threeParts = splitOn(modifiedText, start, end);
+                    // we're using HTML5's <s> tag to show error, style sets background to red.
+                    const errorHtml = `${threeParts[0]}<s>${threeParts[1]}</s>${threeParts[2]}`;
+                    setRightHandSideHighlightHtml(errorHtml);
+                    return;
                 }
 
+                const result = props.jsonDiffMode
+                    ? jsonDifferMarkup(
+                          JSON.parse(originalText),
+                          JSON.parse(modifiedText)
+                      )
+                    : textDifferMarkup(originalText, modifiedText);
+
                 // now stick it back into the edit boxes.
-                if (patchedLeftStr !== leftHandSideHighlightHtml) {
-                    setLeftHandSideHighlightHtml(patchedLeftStr);
+                if (result.left.markupText !== leftHandSideHighlightHtml) {
+                    setLeftHandSideHighlightHtml(result.left.markupText);
                 }
 
                 // we only change the hightlighting on the BACKGROUND div so we don't mess up typing/cursor
-                if (patchedRightStr !== rightHandSideHighlightHtml) {
-                    setRightHandSideHighlightHtml(patchedRightStr);
+                if (result.right.markupText !== rightHandSideHighlightHtml) {
+                    setRightHandSideHighlightHtml(result.right.markupText);
                 }
             },
-            [leftHandSideHighlightHtml, rightHandSideHighlightHtml]
+            [
+                leftHandSideHighlightHtml,
+                rightHandSideHighlightHtml,
+                props.jsonDiffMode,
+            ]
         );
 
+        // on change, we highlight the errors
         const onChangeHandler = useCallback(
             (newText: string) => {
                 setTextAreaContent(newText);
@@ -155,6 +152,14 @@ export const EditableCompare = forwardRef(
             },
             [setTextAreaContent, refreshDiffCallback, props]
         );
+
+        const onBlurHandler = useCallback((newText: string) => {
+            const { valid, errorMsg } = checkJson(newText);
+            setIsValidSyntax(valid);
+            if (!valid) {
+                showError(`JSon data generated an error "${errorMsg}"`);
+            }
+        }, []);
 
         useEffect(() => {
             if (props.modified?.length > 0 && textAreaContent.length === 0) {
@@ -165,7 +170,7 @@ export const EditableCompare = forwardRef(
 
         return (
             <ScrollSync>
-                <div className="rs-editable-compare-container">
+                <div className="rs-editable-compare-container differ-marks">
                     <div className="rs-editable-stacked-container">
                         <ScrollSyncPane>
                             <div
@@ -197,14 +202,10 @@ export const EditableCompare = forwardRef(
                                 ref={editDiffRef}
                                 value={textAreaContent}
                                 onChange={(e) => {
-                                    onChangeHandler(e.target.value);
+                                    onChangeHandler(e?.target?.value || "");
                                 }}
                                 onBlur={(e) => {
-                                    checkTextAreaJson(
-                                        e?.target?.value,
-                                        "edited text",
-                                        editDiffRef
-                                    );
+                                    onBlurHandler(e?.target?.value || "");
                                 }}
                             />
                         </ScrollSyncPane>
