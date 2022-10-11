@@ -745,4 +745,23 @@ describe("JsonSourceMap suite", () => {
             )
         ).toThrow();
     });
+
+    test("special characters", () => {
+        const data = {
+            "special\\characters": [
+                {
+                    "quote-start-only": `"quote`,
+                    tab: "\t",
+                    lineFeeds: "\r\n",
+                },
+            ],
+        };
+
+        const result = jsonSourceMap(data, 2);
+        // this is the core of the test. Does it match JSON.stringify()'s parsing
+        expect(result.json).toEqual(JSON.stringify(data, null, 2));
+        expect(
+            result.pointers[`/special\\characters/0/quote-start-only`]
+        ).not.toBeUndefined();
+    });
 });

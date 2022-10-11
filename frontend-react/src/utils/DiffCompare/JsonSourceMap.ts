@@ -91,8 +91,8 @@ export const jsonSourceMap = (
     }
 
     function quote(str: string) {
-        const ESC_QUOTE = /"|\\/g;
-        const ESC_B = /[\b]/g;
+        const ESC_QUOTE = /["\\]/g;
+        const ESC_B = /[\b]/g; // ignore ide linter, keep []
         const ESC_F = /\f/g;
         const ESC_N = /\n/g;
         const ESC_R = /\r/g;
@@ -185,7 +185,7 @@ export const jsonSourceMap = (
             out(quote(key));
             map(propPtr, "keyEnd");
             out(":");
-            if (whitespace) {
+            if (spaces) {
                 out(" ");
             }
             stringifyRecursive(value, propLvl, propPtr);
