@@ -40,7 +40,7 @@ class FhirTranslatorTests {
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         "co-phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "co-phd", "topic", CustomerStatus.INACTIVE, "one"))
+        receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "one"))
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
@@ -55,7 +55,7 @@ class FhirTranslatorTests {
 
     // valid fhir, read file, one destination (hard coded for phase 1), generate output file, no message on queue
     @Test
-    fun `test full elr translation happy path, one recipo`() {
+    fun `test full elr translation happy path, one receiver`() {
         mockkObject(BlobAccess)
 
         // set up

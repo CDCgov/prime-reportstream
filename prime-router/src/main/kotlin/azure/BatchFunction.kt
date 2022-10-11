@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageRSHelpers
 import org.apache.logging.log4j.kotlin.Logging
@@ -118,14 +119,39 @@ class BatchFunction(
                         logger.info("Batch $message contains ${validHeaders.size} reports")
                     }
 
-                    // split reports that come from covid/mpx pipeline and universal pipeline
-                    val covidReports = validHeaders.filter { it.task.bodyFormat != "HL7" }
-                    val universalReports = validHeaders.filter { it.task.bodyFormat == "HL7" }
+                    // go through the universal pipeline reports to be batched
+                    if (receiver.topic != Topic.FULL_ELR.json_val) {
+                        validHeaders.forEach {
+                            // track reportId as 'parent'
+                            actionHistory.trackExistingInputReport(it.task.reportId)
 
-                    // this is for the covid pipeline, when batch is refactored this will change a lot
-                    if (covidReports.any()) {
+                            // download message
+                            val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+
+                            // get a Report from the hl7 message
+                            val (report, sendEvent, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
+                                Event.EventAction.SEND,
+                                bodyBytes,
+                                it.task.reportId,
+                                receiver,
+                                null,
+                                actionHistory
+                            )
+
+                            // insert the 'Send' task
+                            workflowEngine.db.insertTask(
+                                report,
+                                blobInfo.format.toString(),
+                                blobInfo.blobUrl,
+                                sendEvent,
+                                txn
+                            )
+                        }
+                    }
+                    // covid/mpx pipeline
+                    else {
                         // only batch files that have the expected content - only for reports that are not already HL7
-                        val inReports = covidReports.map {
+                        val inReports = validHeaders.map {
                             val report = workflowEngine.createReport(it)
                             // todo replace the use of task.reportId with info from ReportFile.
                             actionHistory.trackExistingInputReport(it.task.reportId)
@@ -155,36 +181,6 @@ class BatchFunction(
                             "No merging needed - batch of 1"
                         else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
                         actionHistory.trackActionResult(msg)
-                    }
-
-                    // go through the universal pipeline reports to be batched
-                    if (universalReports.any()) {
-                        validHeaders.forEach {
-                            // track reportId as 'parent'
-                            actionHistory.trackExistingInputReport(it.task.reportId)
-
-                            // download message
-                            val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
-
-                            // get a Report from the hl7 message
-                            val (report, sendEvent, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
-                                Event.EventAction.SEND,
-                                bodyBytes,
-                                it.task.reportId,
-                                receiver,
-                                null,
-                                actionHistory
-                            )
-
-                            // insert the 'Send' task
-                            workflowEngine.db.insertTask(
-                                report,
-                                blobInfo.format.toString(),
-                                blobInfo.blobUrl,
-                                sendEvent,
-                                txn
-                            )
-                        }
                     }
 
                     workflowEngine.recordAction(actionHistory, txn) // save to db

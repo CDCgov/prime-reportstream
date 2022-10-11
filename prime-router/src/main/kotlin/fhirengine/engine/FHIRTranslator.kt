@@ -5,6 +5,7 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -53,46 +54,47 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("co-phd.elr")
+            val receivers = listOf("co-phd.full-elr-hl7")
 
             receivers.forEach { recName ->
-                val receiver = settings.findReceiver(recName)!!
-                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
-                //  receiver-specific transforms
-                val converter = FhirToHl7Converter(
-                    bundle, "ORU_R01-base",
-                    "metadata/hl7_mapping/ORU_R01"
-                )
-                val hl7Message = converter.convert()
-                val bodyBytes = hl7Message.encode().toByteArray()
+                val receiver = settings.findReceiver(recName)
+                // We only process receivers that are active and for this pipeline.
+                if (receiver != null && receiver.topic == Topic.FULL_ELR.json_val) {
+                    val converter = FhirToHl7Converter(
+                        bundle, "ORU_R01-base",
+                        "metadata/hl7_mapping/ORU_R01"
+                    )
+                    val hl7Message = converter.convert()
+                    val bodyBytes = hl7Message.encode().toByteArray()
 
-                // get a Report from the hl7 message
-                val (report, event, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
-                    Event.EventAction.BATCH,
-                    bodyBytes,
-                    message.reportId,
-                    receiver,
-                    metadata,
-                    actionHistory
-                )
+                    // get a Report from the hl7 message
+                    val (report, event, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
+                        Event.EventAction.BATCH,
+                        bodyBytes,
+                        message.reportId,
+                        receiver,
+                        metadata,
+                        actionHistory
+                    )
 
-                // insert batch task into Task table
-                this.insertBatchTask(
-                    report,
-                    report.bodyFormat.toString(),
-                    blobInfo.blobUrl,
-                    event
-                )
+                    // insert batch task into Task table
+                    this.insertBatchTask(
+                        report,
+                        report.bodyFormat.toString(),
+                        blobInfo.blobUrl,
+                        event
+                    )
 
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.TRANSLATED_AT,
-                    null
-                )
+                    // nullify the previous task next_action
+                    db.updateTask(
+                        message.reportId,
+                        TaskAction.none,
+                        null,
+                        null,
+                        finishedField = Tables.TASK.TRANSLATED_AT,
+                        null
+                    )
+                }
             }
         } catch (e: IllegalArgumentException) {
             logger.error(e)
