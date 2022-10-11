@@ -1,5 +1,11 @@
-value :
+value_1 :
+  condition: $value CONTAINS_STRING '.'
   type: FLOAT
+  valueOf: $value
+value_2 :
+  # Try to keep implicit precision for integers
+  condition: $value NOT_CONTAINS_STRING '.'
+  type: INTEGER
   valueOf: $value
 comparator :
   type: String
