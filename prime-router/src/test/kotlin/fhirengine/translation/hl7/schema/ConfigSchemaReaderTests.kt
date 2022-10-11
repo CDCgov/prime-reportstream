@@ -84,7 +84,7 @@ class ConfigSchemaReaderTests {
         )
 
         assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU-R01-Base")
+        assertThat(schema.name).isEqualTo("ORU_R01") // match filename
         assertThat(schema.hl7Type).isEqualTo("ORU_R01")
         assertThat(schema.hl7Version).isEqualTo("2.5.1")
         assertThat(schema.elements).isNotEmpty()
@@ -94,7 +94,7 @@ class ConfigSchemaReaderTests {
         assertThat(patientInfoElement.schema!!).isNotEmpty()
         assertThat(patientInfoElement.schemaRef).isNotNull()
 
-        assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU-R01-patient")
+        assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU_R01/patient") // match filename
         val patientNameElement = patientInfoElement.schemaRef!!.elements.single { it.name == "patient-last-name" }
         assertThat(patientNameElement.hl7Spec).isNotEmpty()
 
@@ -140,7 +140,7 @@ class ConfigSchemaReaderTests {
         )
 
         assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU-R01-extended")
+        assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
         assertThat(schema.hl7Type).isEqualTo("ORU_R01")
         assertThat(schema.hl7Version).isEqualTo("2.7")
         assertThat(schema.elements).isNotEmpty()
