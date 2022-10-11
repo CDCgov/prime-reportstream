@@ -63,8 +63,8 @@ class FHIRTranslator(
                 val schemaName = destination?.schemaName ?: "ORU_R01-base"
                 val schemaFolderPath = destination?.schemaFolderPath ?: "metadata/hl7_mapping/ORU_R01"
 
-                val converter = FhirToHl7Converter(bundle, schemaName, schemaFolderPath)
-                val hl7Message = converter.convert()
+                val converter = FhirToHl7Converter(schemaName, schemaFolderPath)
+                val hl7Message = converter.convert(bundle)
 
                 // create report object
                 val sources = emptyList<Source>()
