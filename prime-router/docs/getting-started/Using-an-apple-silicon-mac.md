@@ -109,15 +109,15 @@ You should be able to run tests now to confirm that everything is working.
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 
--   `node` (version 14.20.0) via `nvm`
+-   `node` (see .nvmrc for version specification) via `nvm`
 -   `yarn` package manager
 
 Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--update-script
 Then:
 
 ```bash
-nvm install 14.20.0
-node -v # v14.20.0
+nvm install 14.20.x # refer to nvmrc for exact current version
+node -v # v14.20.x
 npm -v # v6.X.X
 
 npm install --global yarn
