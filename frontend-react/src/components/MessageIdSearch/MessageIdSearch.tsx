@@ -1,8 +1,9 @@
 import React, { FormEvent, useState } from "react";
 import { Label, Search } from "@trussworks/react-uswds";
-import Table, { TableConfig } from "../../components/Table/Table";
+
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import Spinner from "../Spinner";
+import Table, { TableConfig } from "../../components/Table/Table";
 
 const MOCK_MESSAGE_ID_DATA = [
     {
