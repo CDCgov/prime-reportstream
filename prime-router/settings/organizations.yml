@@ -3695,7 +3695,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: EASTERN
+        timeZone: MOUNTAIN
       transport:
         type: SFTP
         host: sftp
