@@ -1,4 +1,3 @@
-name: ORU-R01-software
 elements:
   - name: software-vendor-name
     value: [ '%resource.source.extension(%`rsext-software-vendor-org`).value.resolve().name' ]
