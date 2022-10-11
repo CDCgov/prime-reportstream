@@ -107,7 +107,9 @@ class FhirToHl7Converter(
                         // Schema references can have new index references
                         val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
                         else CustomContext.addConstant(
-                            element.resourceIndex!!, index.toString(), elementContext
+                            element.resourceIndex!!,
+                            index.toString(),
+                            elementContext
                         )
                         logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(element.schemaRef!!, bundle, singleFocusResource, indexContext)

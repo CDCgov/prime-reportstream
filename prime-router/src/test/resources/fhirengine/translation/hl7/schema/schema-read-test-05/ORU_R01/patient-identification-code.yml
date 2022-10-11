@@ -1,4 +1,3 @@
-name: ORU-R01-patient-identification
 elements:
   - name: name-type-code
     value:
