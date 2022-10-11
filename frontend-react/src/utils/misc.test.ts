@@ -28,7 +28,7 @@ test("splitOn test", () => {
     expect(JSON.stringify(r4)).toBe(`["","fooBAr",""]`);
 });
 
-test("checkTextAreaJson", () => {
+test("verify checking json for errors", () => {
     expect(checkJson(`{}`)).toStrictEqual({
         valid: true,
         offset: -1,
