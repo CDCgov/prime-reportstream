@@ -1,4 +1,3 @@
-name: ORU-R01-observation
 elements:
   - name: observation-set-ID
     value:

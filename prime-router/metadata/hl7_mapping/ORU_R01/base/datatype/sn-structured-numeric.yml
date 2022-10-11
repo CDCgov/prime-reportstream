@@ -1,4 +1,3 @@
-name: ORU-R01-structured-numeric
 elements:
   # FHIR Spec does not support "=" and "<>" comparators, so those are in an extension
   - name: observation-value-sn-comparator-1
