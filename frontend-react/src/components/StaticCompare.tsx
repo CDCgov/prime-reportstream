@@ -26,7 +26,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                 return;
             }
             const result = jsonDiffMode
-                ? jsonDifferMarkup(leftText, rightText)
+                ? jsonDifferMarkup(JSON.parse(leftText), JSON.parse(rightText))
                 : textDifferMarkup(leftText, rightText);
 
             setLeftHighlightHtml(result.left.markupText);
