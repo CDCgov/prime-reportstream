@@ -17,7 +17,8 @@ abstract class GenericActionLogDetail(override val message: String, override val
  * Message for a missing field of [fieldMapping].
  */
 class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
-    override val message = "Blank value for element $fieldMapping"
+    override val message = "Blank value for element $fieldMapping. " +
+        "Please refer to the ReportStream Programmer's Guide for required fields."
 }
 
 /**
@@ -109,8 +110,8 @@ class UnsupportedEIMessage(
 class InvalidEquipmentMessage(
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
-    override val message = "Invalid field $fieldMapping; please refer to the Department of Health and Human " +
-        "Services' (HHS) LOINC Mapping spreadsheet for acceptable values."
+    override val message = "Invalid field $fieldMapping; please refer to the " +
+        "CDC LIVD table LOINC Mapping spreadsheet for acceptable values."
 }
 
 /**
