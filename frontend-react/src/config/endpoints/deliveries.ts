@@ -4,8 +4,8 @@ export interface RSFacility {
     facility: string | undefined;
     location: string | undefined;
     CLIA: string | undefined;
-    positive: string | undefined;
-    total: string | undefined;
+    positive: number | undefined;
+    total: number | undefined;
 }
 
 /*

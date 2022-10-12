@@ -2,6 +2,21 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import { RSDelivery } from "../network/api/History/Reports";
+import { RSFacility } from "../config/endpoints/deliveries";
+import config from "../config";
+
+const { RS_API_URL } = config;
+
+const makeFacilityFixture = (
+    identifier: number,
+    overrides?: Partial<RSFacility>
+): RSFacility => ({
+    facility: overrides?.facility || "Facility Fixture",
+    location: overrides?.location || "DeliveriesMockServer.ts",
+    CLIA: identifier.toString(),
+    positive: overrides?.positive || 0,
+    total: overrides?.total || 0,
+});
 
 const handlers = [
     rest.get(
@@ -31,6 +46,13 @@ const handlers = [
                 ctx.status(200),
                 ctx.json(new RSDelivery({ reportId: "123" }))
             );
+        }
+    ),
+    rest.get(
+        `${RS_API_URL}/api/waters/report/123/facilities`,
+        (req, res, ctx) => {
+            const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
+            return res(ctx.status(200), ctx.json(testRes));
         }
     ),
 ];
