@@ -20,6 +20,7 @@ import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
 import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
 import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
+import { AdminMessageIdSearchWithAuth } from "./pages/admin/AdminMessageIdSearch";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DetailsWithAuth } from "./pages/details/Details";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
@@ -78,6 +79,10 @@ export const AppRouter = () => {
                 element={<AdminReceiverDashWithAuth />}
             />
             <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
+            <Route
+                path="/admin/message-id-search"
+                element={<AdminMessageIdSearchWithAuth />}
+            />
             <Route
                 path={"/admin/value-sets/:valueSetName"}
                 element={<ValueSetsDetailWithAuth />}
