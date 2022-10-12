@@ -1,20 +1,12 @@
-import { Method } from "axios";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
-import {
-    DeliveryApi,
-    DeliveryDetailParams,
-    DeliveryListParams,
-    RSDelivery,
-    RSReportInterface,
-} from "../../../network/api/History/Reports";
-import {
-    useAdminSafeOrgName,
-    useMemoizedConfig,
-    useMemoizedConfigParams,
-} from "../UseMemoizedConfig";
-import { BasicAPIResponse } from "../../../network/api/NewApi";
-import useRequestConfig from "../UseRequestConfig";
+import { useAdminSafeOrgName } from "../UseMemoizedConfig";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { deliveriesEndpoints } from "../../../config/endpoints/deliveries";
+import { RSDelivery } from "../../../network/api/History/Reports";
+
+const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
+    deliveriesEndpoints;
 
 /** Hook consumes the ReportsApi "list" endpoint and delivers the response
  *
@@ -22,46 +14,55 @@ import useRequestConfig from "../UseRequestConfig";
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
  * @returns {BasicAPIResponse<RSReportInterface[]>}
  * */
-const useReportsList = (org?: string, service?: string) => {
-    const adminSafeOrgName = useAdminSafeOrgName(org);
+const useOrgDeliveries = (org?: string, service?: string) => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery[]>();
+    const adminSafeOrgName = useAdminSafeOrgName(org); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
         [adminSafeOrgName, service]
+    ); // ex: xx-phd.elr
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getOrgDeliveries, {
+                segments: {
+                    orgAndService,
+                },
+            }),
+        [authorizedFetch, orgAndService]
     );
-    const configParams = useMemoizedConfigParams<DeliveryListParams>(
-        {
-            api: DeliveryApi,
-            endpointKey: "list",
-            method: "GET" as Method,
-            parameters: { orgAndService },
-            advancedConfig: { requireTrigger: true },
-        },
-        [orgAndService]
+    const { data } = rsUseQuery(
+        // sets key with orgAndService so multiple queries can be cached when swapping services
+        [getOrgDeliveries.queryKey, orgAndService],
+        memoizedDataFetch,
+        { enabled: !!service }
     );
-    const config = useMemoizedConfig(configParams);
-    return useRequestConfig(config) as BasicAPIResponse<
-        RSDelivery[] | RSReportInterface[]
-    >;
+    return { serviceReportsList: data };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
  *
  * @param id {string | number} Pass in the reportId OR deliveryId to query a single delivery
- * @returns {BasicAPIResponse<RSReportInterface>}
+ * @returns {detailedReport: RSDelivery}
  * */
-const useReportsDetail = (id: string | number) => {
-    const memoizedId = useMemo(() => `${id}`, [id]); // Stringify & memoize
-    const configParams = useMemoizedConfigParams<DeliveryDetailParams>(
-        {
-            api: DeliveryApi,
-            endpointKey: "detail",
-            method: "GET" as Method,
-            parameters: { id: memoizedId },
-        },
-        [memoizedId]
+const useReportsDetail = (id: string) => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery>();
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getDeliveryDetails, {
+                segments: {
+                    id: id,
+                },
+            }),
+        [authorizedFetch, id]
     );
-    const config = useMemoizedConfig(configParams);
-    return useRequestConfig(config) as BasicAPIResponse<RSDelivery>;
+    const { data } = rsUseQuery(
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        [getDeliveryDetails.queryKey, id],
+        memoizedDataFetch,
+        { enabled: !!id }
+    );
+    return { reportDetail: data };
 };
 
-export { useReportsList, useReportsDetail };
+export { useOrgDeliveries, useReportsDetail };

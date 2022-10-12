@@ -39,10 +39,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockDeliveryListHook.mockReturnValue({
-                data: deliveriesTestGenerator(101),
-                loading: false,
-                error: "",
-                trigger: () => {},
+                serviceReportsList: deliveriesTestGenerator(101),
             });
             // Render the component
             renderWithRouter(<ReportsTable />);
@@ -72,10 +69,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockDeliveryListHook.mockReturnValue({
-                data: deliveriesTestGenerator(0),
-                loading: false,
-                error: "",
-                trigger: () => {},
+                serviceReportsList: deliveriesTestGenerator(0),
             });
             // Render the component
             renderWithRouter(<ReportsTable />);
