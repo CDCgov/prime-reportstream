@@ -1,7 +1,5 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
-/* Theis interface/class combo is used elsewhere in the app to test UI
- * TODO: Refactor once we know how we want to handle test fixtures */
 export interface RSDelivery {
     deliveryId: number;
     batchReadyAt: string;
