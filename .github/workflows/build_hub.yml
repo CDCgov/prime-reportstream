@@ -1,11 +1,11 @@
 name: Build Hub
 
-on:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - "prime-router/**"
+on: push
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - "prime-router/**"
 
 env:
   # These are for CI and not credentials of any system
@@ -208,3 +208,6 @@ jobs:
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
+
+      - name: Perform Java CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
