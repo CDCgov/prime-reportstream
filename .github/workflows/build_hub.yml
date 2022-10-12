@@ -179,7 +179,7 @@ jobs:
           false
 
   docker_build_test:
-    name: Docker Build & Java CodeQl analysis
+    name: Docker Build & CodeQl analysis
     runs-on: ubuntu-latest
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
