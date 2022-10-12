@@ -7,5 +7,5 @@
       organizationName: color-labs
       topic: covid-19
       customerStatus: active
-      schemaName: hl7/color-labs-covid-19
+      schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7

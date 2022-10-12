@@ -8,8 +8,8 @@
     - name: default
       organizationName: color-labs
       topic: covid-19
-      customerStatus: active
-      schemaName: hl7/color-labs-covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
 - name: genabio
@@ -19,6 +19,6 @@
     - name: default
       organizationName: genabio
       topic: covid-19
-      customerStatus: active
+      customerStatus: testing
       schemaName: direct/genabio-covid-19
       format: CSV
