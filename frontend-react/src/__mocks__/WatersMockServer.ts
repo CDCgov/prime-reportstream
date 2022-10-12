@@ -72,10 +72,10 @@ const watersResponseError = {
     destinationCount: null,
 };
 
-enum WatersTestHeader {
+export enum WatersTestHeader {
     CLIENT = "client",
 }
-enum WatersTestHeaderValue {
+export enum WatersTestHeaderValue {
     TEST_BAD_CLIENT = "bad-client",
     TEST_NAME = "test-endpoint-name",
     FAIL = "test-fail",

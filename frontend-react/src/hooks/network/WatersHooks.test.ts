@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { watersServer } from "../../__mocks__/WatersMockServer";
+import {
+    watersServer,
+    WatersTestHeaderValue,
+} from "../../__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
 import { ContentType } from "../UseFileHandler";
 
@@ -31,7 +34,7 @@ describe("useWatersUploader", () => {
                 fileContent: "",
                 fileName: "",
                 // test response trigger
-                client: "test-endpoint-name",
+                client: WatersTestHeaderValue.TEST_NAME,
             });
             await waitForNextUpdate();
             expect(result.current.isWorking).toEqual(true);
@@ -55,7 +58,7 @@ describe("useWatersUploader", () => {
                 fileContent: "",
                 fileName: "",
                 // test response trigger
-                client: "test-endpoint-name",
+                client: WatersTestHeaderValue.TEST_NAME,
             });
             await waitForNextUpdate();
             expect(result.current.isWorking).toEqual(true);
