@@ -6,9 +6,10 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.apache.logging.log4j.kotlin.Logging
-import org.apache.logging.log4j.kotlin.logger
 import java.time.OffsetDateTime
 
 const val batch = "batch"
@@ -24,7 +25,9 @@ const val NUM_BATCH_RETRIES = 2
  * It will either send the reports directly or merge them together.  A [workflowEngine] can be passed in for
  * mocking/testing purposes.
  */
-class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
+class BatchFunction(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine()
+) : Logging {
     @FunctionName(batch)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -33,7 +36,6 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
         @Suppress("UNUSED_PARAMETER")
         context: ExecutionContext?,
     ) {
-        var backstopTime: OffsetDateTime? = null
         try {
             logger.trace("BatchFunction starting.  Message: $message")
             val event = Event.parseQueueMessage(message) as BatchEvent
@@ -41,13 +43,32 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                 logger.error("BatchFunction received a $message")
                 return
             }
-            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
-                ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(
                 event.eventAction.toTaskAction(),
                 event.isEmptyBatch
             )
+            doBatch(message, event, actionHistory)
+        } catch (e: Exception) {
+            // already logged, silent catch to not break existing functionality
+        }
+    }
+
+    /**
+     * Pulling the functionality out of the azure function so it is individually testable and we can pass in an
+     * [actionHistory] from the mocking framework. Does the batching for the [event] passed in; [message] is needed
+     * in this function for logging and tracking
+     */
+    internal fun doBatch(
+        message: String,
+        event: BatchEvent,
+        actionHistory: ActionHistory
+    ) {
+        var backstopTime: OffsetDateTime? = null
+        try {
+            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
+                ?: error("Internal Error: receiver name ${event.receiverName}")
+            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
+
             actionHistory.trackActionParams(message)
             backstopTime = OffsetDateTime.now().minusMinutes(
                 BaseEngine.getBatchLookbackMins(
@@ -83,12 +104,13 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                         .forEach {
                             // TODO: Need to add Action with error state of batch_error. See ticket #3642
                             logger.error(
-                                "Failure to download ${it.task.bodyUrl} from blobstore. ReportId: ${it.task.reportId}"
+                                "Failure to download ${it.task.bodyUrl} from blobstore. " +
+                                    "ReportId: ${it.task.reportId}"
                             )
                         }
 
                     // get a list of valid headers to process.
-                    val validHeaders = if (event.isEmptyBatch) headers else headers.filter { it.content != null }
+                    val validHeaders = headers.filter { it.content != null }
 
                     if (validHeaders.isEmpty()) {
                         logger.info("Batch $message: empty batch")
@@ -97,34 +119,70 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                         logger.info("Batch $message contains ${validHeaders.size} reports")
                     }
 
-                    // only batch files that have the expected content.
-                    val inReports = validHeaders.map {
-                        val report = workflowEngine.createReport(it)
-                        // todo replace the use of task.reportId with info from ReportFile.
-                        actionHistory.trackExistingInputReport(it.task.reportId)
-                        report
+                    // go through the universal pipeline reports to be batched
+                    if (receiver.topic == Topic.FULL_ELR.json_val) {
+                        validHeaders.forEach {
+                            // track reportId as 'parent'
+                            actionHistory.trackExistingInputReport(it.task.reportId)
+
+                            // download message
+                            val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+
+                            // get a Report from the hl7 message
+                            val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                                Event.EventAction.SEND,
+                                bodyBytes,
+                                it.task.reportId,
+                                receiver,
+                                workflowEngine.metadata,
+                                actionHistory
+                            )
+
+                            // insert the 'Send' task
+                            workflowEngine.db.insertTask(
+                                report,
+                                blobInfo.format.toString(),
+                                blobInfo.blobUrl,
+                                sendEvent,
+                                txn
+                            )
+                        }
                     }
-                    val mergedReports = when {
-                        receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
-                        receiver.timing?.operation == Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
-                        else -> inReports
+                    // covid/mpx pipeline
+                    else {
+                        // only batch files that have the expected content - only for reports that are not already HL7
+                        val inReports = validHeaders.map {
+                            val report = workflowEngine.createReport(it)
+                            // todo replace the use of task.reportId with info from ReportFile.
+                            actionHistory.trackExistingInputReport(it.task.reportId)
+                            report
+                        }
+                        val mergedReports = when {
+                            receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
+                            receiver.timing?.operation == Receiver.BatchOperation.MERGE ->
+                                listOf(Report.merge(inReports))
+                            else -> inReports
+                        }
+                        val outReports = if (receiver.format.isSingleItemFormat)
+                            mergedReports.flatMap { it.split() }
+                        else
+                            mergedReports
+
+                        outReports.forEach {
+                            val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
+                            val outEvent = ReportEvent(
+                                Event.EventAction.SEND,
+                                outReport.id,
+                                actionHistory.generatingEmptyReport
+                            )
+                            workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
+                        }
+                        val msg = if (inReports.size == 1 && outReports.size == 1) "Success: " +
+                            "No merging needed - batch of 1"
+                        else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
+                        actionHistory.trackActionResult(msg)
                     }
-                    val outReports = if (receiver.format.isSingleItemFormat)
-                        mergedReports.flatMap { it.split() }
-                    else
-                        mergedReports
-                    outReports.forEach {
-                        val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
-                        val outEvent = ReportEvent(
-                            Event.EventAction.SEND,
-                            outReport.id,
-                            actionHistory.generatingEmptyReport
-                        )
-                        workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
-                    }
-                    val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
-                    else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
-                    actionHistory.trackActionResult(msg)
+
                     workflowEngine.recordAction(actionHistory, txn) // save to db
                 }
             }
@@ -134,6 +192,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             logger.error(
                 "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString()
             )
+            throw e
         }
     }
 }
