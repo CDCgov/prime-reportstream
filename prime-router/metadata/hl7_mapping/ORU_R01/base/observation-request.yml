@@ -98,7 +98,7 @@ elements:
     value: [ '%resource.issued' ]
     hl7Spec: [ '%{fieldPath}-22' ]
 
-  - name: diganostic-serv-sect-id
+  - name: diagnostic-serv-sect-id
     value: [ '%resource.category' ]
     hl7Spec: [ '%{fieldPath}-24' ]
 
