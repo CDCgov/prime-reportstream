@@ -6,7 +6,7 @@ import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
-import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
 import { deliveriesTestGenerator } from "../../../network/api/History/Reports";
 
@@ -38,7 +38,7 @@ describe("ReportsTable", () => {
                 trigger: () => {},
             });
             // Mock the response from the Deliveries hook
-            mockDeliveryListHook.mockReturnValue({
+            mockUseOrgDeliveries.mockReturnValue({
                 serviceReportsList: deliveriesTestGenerator(101),
             });
             // Render the component
@@ -68,7 +68,7 @@ describe("ReportsTable", () => {
                 trigger: () => {},
             });
             // Mock the response from the Deliveries hook
-            mockDeliveryListHook.mockReturnValue({
+            mockUseOrgDeliveries.mockReturnValue({
                 serviceReportsList: deliveriesTestGenerator(0),
             });
             // Render the component
