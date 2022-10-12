@@ -1,6 +1,4 @@
-import { useResource } from "rest-hooks";
-
-import FacilityResource from "../../resources/FacilityResource";
+import { useReportsFacilities } from "../../hooks/network/History/DeliveryHooks";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -11,14 +9,11 @@ interface FacilitiesTableProps {
 
 function FacilitiesTable(props: FacilitiesTableProps) {
     const { reportId }: FacilitiesTableProps = props;
-    const facilities: FacilityResource[] = useResource(
-        FacilityResource.list(),
-        { reportId: reportId }
-    );
+    const { reportFacilities } = useReportsFacilities(reportId);
 
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
-            <h2>Facilities reporting ({facilities.length})</h2>
+            <h2>Facilities reporting ({reportFacilities?.length || 0})</h2>
             <table
                 id="facilitiestable"
                 className="usa-table usa-table--borderless prime-table"
@@ -34,8 +29,8 @@ function FacilitiesTable(props: FacilitiesTableProps) {
                     </tr>
                 </thead>
                 <tbody id="tBodyFac" className="font-mono-2xs">
-                    {facilities.map((facility) => (
-                        <tr key={facility.pk()}>
+                    {reportFacilities?.map((facility, idx) => (
+                        <tr key={idx}>
                             <td>{facility.facility}</td>
                             <td>
                                 {facility.location ? facility.location : "-"}

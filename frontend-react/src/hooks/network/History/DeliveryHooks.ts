@@ -2,7 +2,10 @@ import { useCallback, useMemo } from "react";
 
 import { useAdminSafeOrgName } from "../UseMemoizedConfig";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
-import { deliveriesEndpoints } from "../../../config/endpoints/deliveries";
+import {
+    deliveriesEndpoints,
+    RSFacility,
+} from "../../../config/endpoints/deliveries";
 import { RSDelivery } from "../../../network/api/History/Reports";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
@@ -12,7 +15,6 @@ const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
  *
  * @param org {string} the `parsedName` of user's active membership
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
- * @returns {BasicAPIResponse<RSReportInterface[]>}
  * */
 const useOrgDeliveries = (org?: string, service?: string) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery[]>();
@@ -41,8 +43,7 @@ const useOrgDeliveries = (org?: string, service?: string) => {
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
  *
- * @param id {string | number} Pass in the reportId OR deliveryId to query a single delivery
- * @returns {detailedReport: RSDelivery}
+ * @param id {string} Pass in the reportId to query a single delivery
  * */
 const useReportsDetail = (id: string) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery>();
@@ -65,4 +66,29 @@ const useReportsDetail = (id: string) => {
     return { reportDetail: data };
 };
 
-export { useOrgDeliveries, useReportsDetail };
+/** Hook consumes the ReportsApi "detail" endpoint and delivers the response
+ *
+ * @param id {string} Pass in the reportId to query for facilities on a report
+ * */
+const useReportsFacilities = (id: string) => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSFacility[]>();
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getDeliveryFacilities, {
+                segments: {
+                    id: id,
+                },
+            }),
+        [authorizedFetch, id]
+    );
+    const { data } = rsUseQuery(
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        [getDeliveryFacilities.queryKey, id],
+        memoizedDataFetch,
+        { enabled: !!id }
+    );
+    return { reportFacilities: data };
+};
+
+export { useOrgDeliveries, useReportsDetail, useReportsFacilities };

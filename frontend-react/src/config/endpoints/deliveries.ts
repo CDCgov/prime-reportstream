@@ -1,5 +1,13 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
+export interface RSFacility {
+    facility: string | undefined;
+    location: string | undefined;
+    CLIA: string | undefined;
+    positive: string | undefined;
+    total: string | undefined;
+}
+
 /*
 Deliveries API Endpoints
 
