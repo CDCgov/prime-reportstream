@@ -8,7 +8,7 @@ import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
-import { deliveriesTestGenerator } from "../../../network/api/History/Reports";
+import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 
 import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
 
@@ -39,7 +39,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockUseOrgDeliveries.mockReturnValue({
-                serviceReportsList: deliveriesTestGenerator(101),
+                serviceReportsList: makeDeliveryFixtureArray(101),
             });
             // Render the component
             renderWithRouter(<ReportsTable />);
@@ -69,7 +69,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockUseOrgDeliveries.mockReturnValue({
-                serviceReportsList: deliveriesTestGenerator(0),
+                serviceReportsList: makeDeliveryFixtureArray(0),
             });
             // Render the component
             renderWithRouter(<ReportsTable />);

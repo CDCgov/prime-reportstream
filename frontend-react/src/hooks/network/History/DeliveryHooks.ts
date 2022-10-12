@@ -4,9 +4,9 @@ import { useAdminSafeOrgName } from "../UseMemoizedConfig";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import {
     deliveriesEndpoints,
+    RSDelivery,
     RSFacility,
 } from "../../../config/endpoints/deliveries";
-import { RSDelivery } from "../../../network/api/History/Reports";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;

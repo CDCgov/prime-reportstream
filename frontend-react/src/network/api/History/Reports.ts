@@ -22,39 +22,3 @@ export interface RSReportInterface {
     fileName: string;
     mimeType: string;
 }
-export interface RSDeliveryInterface {
-    deliveryId: number;
-    batchReadyAt: string;
-    expires: string;
-    receiver: string;
-    reportId: string;
-    topic: string;
-    reportItemCount: number;
-    fileName: string;
-    fileType: string;
-}
-/** A class representing a Delivery object from the API */
-export class RSDelivery implements RSDeliveryInterface {
-    deliveryId: number = -1;
-    batchReadyAt: string = "";
-    expires: string = "";
-    receiver: string = "";
-    reportId: string = "";
-    topic: string = "";
-    reportItemCount: number = -1;
-    fileName: string = "";
-    fileType: string = "";
-    constructor(args: Partial<RSDeliveryInterface>) {
-        Object.assign(this, args);
-    }
-}
-/** TEST UTILITY - generates `RSDelivery[]`, each with a unique `reportId` (starting from "0")
- *
- * @param count {number} How many unique reports you want. */
-export const deliveriesTestGenerator = (count: number) => {
-    const deliveries: RSDelivery[] = [];
-    for (let i = 0; i < count; i++) {
-        deliveries.push(new RSDelivery({ reportId: `${i}` }));
-    }
-    return deliveries;
-};
