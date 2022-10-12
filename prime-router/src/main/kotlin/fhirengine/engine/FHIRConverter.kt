@@ -38,13 +38,11 @@ class FHIRConverter(
     /**
      * [message] is the incoming HL7 message to be turned into FHIR and saved
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        metadata: Metadata?,
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
@@ -77,7 +75,7 @@ class FHIRConverter(
                     itemLineage = listOf(
                         ItemLineage()
                     ),
-                    metadata = metadata
+                    metadata = this.metadata
                 )
 
                 // create item lineage

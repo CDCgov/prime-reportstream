@@ -25,7 +25,7 @@ object HL7MessageHelpers {
         hl7Message: ByteArray,
         sourceReportId: ReportId,
         receiver: Receiver,
-        metadata: Metadata?,
+        metadata: Metadata,
         actionHistory: ActionHistory
     ): Triple<Report, Event, BlobAccess.BlobInfo> {
         // create report object

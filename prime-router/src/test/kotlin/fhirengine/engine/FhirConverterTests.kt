@@ -119,7 +119,7 @@ class FhirConverterTests {
             .returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory, metadata)
+        engine.doWork(message, actionLogger, actionHistory)
 
         // assert
         verify(exactly = 1) {

@@ -36,13 +36,11 @@ class FHIRRouter(
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata?
+        actionHistory: ActionHistory
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
@@ -58,7 +56,7 @@ class FHIRRouter(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = metadata
+                metadata = this.metadata
             )
 
             // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO

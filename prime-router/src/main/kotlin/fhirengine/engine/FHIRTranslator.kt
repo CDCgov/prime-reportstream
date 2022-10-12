@@ -37,13 +37,11 @@ class FHIRTranslator(
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata?
+        actionHistory: ActionHistory
     ) {
         logger.trace("Translating FHIR file for receivers.")
         try {
@@ -73,7 +71,7 @@ class FHIRTranslator(
                         bodyBytes,
                         message.reportId,
                         receiver,
-                        metadata,
+                        this.metadata,
                         actionHistory
                     )
 

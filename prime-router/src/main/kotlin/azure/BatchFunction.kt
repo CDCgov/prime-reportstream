@@ -134,7 +134,7 @@ class BatchFunction(
                                 bodyBytes,
                                 it.task.reportId,
                                 receiver,
-                                null,
+                                workflowEngine.metadata,
                                 actionHistory
                             )
 
