@@ -37,30 +37,27 @@
 # processing ID
 - id: "source-processing-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id"
-# source system identifier
-- id: "source-identifier-system"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-identifier-system"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
-# receiving-application-identifier
-- id: "receiving-application-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-application-identifier"
-# receiving-facility-identifier
-- id: "receiving-facility-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-facility-identifier"
+# application-identifier
+- id: "application-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-identifier"
+# facility-identifier
+- id: "facility-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/facility-identifier"
 # software binary identifier
-- id: "source-software-binary-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id"
+- id: "software-binary-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id"
 # software product information
 - id: "source-software-description"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-description"
 # software install date
-- id: "source-software-install-date"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date"
+- id: "software-install-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date"
 # software vendor organization
-- id: "source-software-vendor-org"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org"
+- id: "software-vendor-org"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org"
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
@@ -95,8 +92,8 @@
 - id: "ethnic-group"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group"
 # Location point of care
-- id: "location-point-of-care"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-point-of-care"
+- id: "point-of-care"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/point-of-care"
 # Encounter financial class
 - id: "financial-class"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/financial-class"
@@ -130,6 +127,9 @@
 # Alternate version
 - id: "alternate-version"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
+# Alternate value
+- id: "alternate-value"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value"
 # Collector identifier
 - id: "collector-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier"

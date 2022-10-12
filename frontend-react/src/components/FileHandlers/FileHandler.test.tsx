@@ -55,7 +55,7 @@ jest.mock("../../hooks/UseSenderResource", () => ({
     useSenderResource: () => mockUseSenderResource(),
 }));
 
-/* 
+/*
   below is an example of a mocked File & mocked React file input change event we can use for future tests
   thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
 */
@@ -245,7 +245,7 @@ describe("FileHandler", () => {
             // testing creation of success messaging for upload + hl7
             // for now, assuming that if this works, it will work for the other 3 combinations as well
             const message = await screen.findByText(
-                "Your file meets the ReportStream standard HL7 v2.5.1 schema and will be transmitted."
+                "The file meets the ReportStream standard HL7 v2.5.1 schema and will be transmitted."
             );
             expect(message).toHaveClass("usa-alert__text");
 
@@ -298,7 +298,7 @@ describe("FileHandler", () => {
             // testing creation of success messaging for upload + hl7
             // for now, assuming that if this works, it will work for the other 3 combinations as well
             const message = await screen.findByText(
-                "Your file meets the ReportStream standard HL7 v2.5.1 schema."
+                "The file meets the ReportStream standard HL7 v2.5.1 schema."
             );
             expect(message).toHaveClass("usa-alert__text");
 
@@ -348,14 +348,9 @@ describe("FileHandler", () => {
             // testing creation of error messaging for upload
             // for now, assuming that if this works, it will work for validation as well
             const message = await screen.findByText(
-                "The following warnings were returned while processing your file. Your file has passed validation, but these warning areas can be addressed to enhance clarity."
+                "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
             );
             expect(message).toHaveClass("usa-alert__text");
-
-            const heading = await screen.findByText(
-                "We found non-critical issues in your file"
-            );
-            expect(heading).toHaveClass("usa-alert__heading");
         });
 
         test("renders as expected (warning banner)", async () => {
