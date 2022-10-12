@@ -13,7 +13,7 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportEvent
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 
-object HL7MessageRSHelpers {
+object HL7MessageHelpers {
     /**
      * Takes [nextAction] and an [hl7Message], convert it into a Report for the [receiver] specified with
      * any passed in [metadata]. Uploads to blob storage. Adds lineage showing the newly generated report

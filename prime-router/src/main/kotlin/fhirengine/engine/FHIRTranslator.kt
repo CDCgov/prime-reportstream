@@ -15,7 +15,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7MessageRSHelpers
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -68,7 +68,7 @@ class FHIRTranslator(
                     val bodyBytes = hl7Message.encode().toByteArray()
 
                     // get a Report from the hl7 message
-                    val (report, event, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
+                    val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
                         Event.EventAction.BATCH,
                         bodyBytes,
                         message.reportId,

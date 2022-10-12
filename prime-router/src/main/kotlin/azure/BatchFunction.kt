@@ -8,7 +8,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.fhirengine.utils.HL7MessageRSHelpers
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 
@@ -129,7 +129,7 @@ class BatchFunction(
                             val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
 
                             // get a Report from the hl7 message
-                            val (report, sendEvent, blobInfo) = HL7MessageRSHelpers.takeHL7GetReport(
+                            val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
                                 Event.EventAction.SEND,
                                 bodyBytes,
                                 it.task.reportId,
