@@ -113,20 +113,19 @@ elements:
     value: [ '%resource.interpretation.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-8' ]
 
-  - name: observation-result-status-preliminary
+  - name: observation-result-status
     condition: '%resource.status = "preliminary"'
     value: [ '"P"' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
-
-  - name: observation-result-status-corrected
-    condition: '%resource.status = "corrected"'
-    value: [ '"C"' ]
-    hl7Spec: [ '%{hl7OBXField}-11' ]
-
-  - name: observation-result-status-corrected
-    condition: '%resource.status = "final"'
-    value: [ '"F"' ]
-    hl7Spec: [ '%{hl7OBXField}-11' ]
+    valueSet:
+      - key: registered
+        value: I
+      - key: preliminary
+        value: P
+      - key: final
+        value: F
+      - key: corrected
+        value: C
 
   - name: observation-date-time
     value: [ '%resource.effective' ]
