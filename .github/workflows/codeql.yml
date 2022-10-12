@@ -76,7 +76,7 @@ jobs:
         category: "/language:${{matrix.language}}"
 
   Java_Codeql_Scan:
-    name: Codeql_Scan
+    name: Analyze
     runs-on: ubuntu-latest
     permissions:
       actions: read
