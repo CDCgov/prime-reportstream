@@ -100,7 +100,15 @@ abstract class RequestFunction(
 
         val content = request.body ?: ""
         if (content.isEmpty()) {
-            actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
+            when (contentType) {
+                "application/hl7-v2" ->
+                    actionLogs.error(
+                        InvalidParamMessage(
+                            "Cannot parse empty HL7 message. Please refer to the HL7 specification and resubmit."
+                        )
+                    )
+                else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
+            }
         }
 
         if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {

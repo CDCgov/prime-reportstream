@@ -1,4 +1,3 @@
-name: ORU-R01-contact
 elements:
   - name: id
     value: [ 1 ]
