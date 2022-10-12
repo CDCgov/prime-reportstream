@@ -111,10 +111,10 @@ jobs:
     - name: Spin up build containers
       run: docker-compose -f docker-compose.postgres.yml up -d
 
-    - name: Build Prime Router Package
+    - name: Build Prime Java Code
       run: ./gradlew package -x fatjar -x test
 
-    - name: Perform CodeQL Analysis
+    - name: Perform Java CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
     - name: Cleanup Gradle Cache
