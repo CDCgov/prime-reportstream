@@ -44,6 +44,11 @@ export interface ResponseError {
     rowList?: string;
 }
 
+export enum WatersUrls {
+    UPLOAD = "/waters",
+    VALIDATE = "/validate",
+}
+
 /*
 Waters Endpoints
 * waters -> uploads a file to the ReportStream service
@@ -51,12 +56,12 @@ Waters Endpoints
 */
 export const watersEndpoints: RSApiEndpoints = {
     upload: new RSEndpoint({
-        path: "/waters",
+        path: WatersUrls.UPLOAD,
         method: HTTPMethods.POST,
         queryKey: "watersPost",
     }),
     validate: new RSEndpoint({
-        path: "/validate",
+        path: WatersUrls.VALIDATE,
         method: HTTPMethods.POST,
         queryKey: "watersValidate",
     }),
