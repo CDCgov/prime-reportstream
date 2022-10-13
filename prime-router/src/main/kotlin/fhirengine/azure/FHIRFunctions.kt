@@ -21,7 +21,6 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
     private val actionLogger: ActionLogger = ActionLogger()
 ) : Logging {
 
@@ -43,16 +42,21 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    internal fun doConvert(message: String, dequeueCount: Int, fhirEngine: FHIREngine) {
+    internal fun doConvert(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.convert)
+    ) {
         val messageContent = readMessage("Convert", message, dequeueCount)
-
         try {
             fhirEngine.doWork(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
-        recordResults(message)
+        recordResults(message, actionHistory)
     }
 
     /**
@@ -73,8 +77,14 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    internal fun doRoute(message: String, dequeueCount: Int, fhirEngine: FHIRRouter) {
+    internal fun doRoute(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRRouter,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.route)
+    ) {
         val messageContent = readMessage("Route", message, dequeueCount)
 
         try {
@@ -82,7 +92,7 @@ class FHIRFunctions(
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
-        recordResults(message)
+        recordResults(message, actionHistory)
     }
 
     /**
@@ -103,8 +113,14 @@ class FHIRFunctions(
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
+     * [actionHistory] is an optional parameter for use in testing
      */
-    fun doTranslate(message: String, dequeueCount: Int, fhirEngine: FHIRTranslator) {
+    fun doTranslate(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIRTranslator,
+        actionHistory: ActionHistory = ActionHistory(TaskAction.translate)
+    ) {
         val messageContent = readMessage("Translate", message, dequeueCount)
 
         try {
@@ -112,7 +128,7 @@ class FHIRFunctions(
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
-        recordResults(message)
+        recordResults(message, actionHistory)
     }
 
     /**
@@ -132,7 +148,7 @@ class FHIRFunctions(
     /**
      * Tracks any action params that are part of the [message] and records the logs and actions to the database
      */
-    private fun recordResults(message: String) {
+    private fun recordResults(message: String, actionHistory: ActionHistory) {
         actionHistory.trackActionParams(message)
         actionHistory.trackLogs(actionLogger.logs)
         workflowEngine.recordAction(actionHistory)
