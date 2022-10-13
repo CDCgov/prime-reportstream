@@ -1,10 +1,10 @@
 
-### Schema: la/la-covid-19
+### Schema: hl7/color-labs-covid-19
 ### Topic: covid-19
-### Tracking Element: (message_id)
+### Tracking Element: (specimen_id)
 ### Base On: none
-### Extends: [covid-19](./covid-19.md)
-#### Description: LA COVID-19
+### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
+#### Description: Color Labs
 
 ---
 
@@ -529,7 +529,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck
+**Default Value**: 
 
 **Cardinality**: [0..1]
 
@@ -862,7 +862,7 @@ The phone number of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -871,6 +871,22 @@ The phone number of the facility which the test was ordered from
 **Documentation**:
 
 The state of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_state_zip_lookup
+
+**ReportStream Internal Name**: ordering_facility_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
 
 ---
 
@@ -1710,14 +1726,14 @@ The patient's drivers license number
 
 Code | Display | System
 ---- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
+2135-2|Hispanic or Latino|FHIR
+2186-5|Non Hispanic or Latino|FHIR
+UNK|Unknown|FHIR
+ASKU|Asked, but unknown|FHIR
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
-consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. Color uses the FHIR OMB Ethnicity dataset
 
 
 ---
@@ -2730,7 +2746,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -2739,6 +2755,22 @@ The patient's race. There is a common valueset defined for race values, but some
 **Documentation**:
 
 The patient's state
+
+---
+
+**Name**: patient_state_zip_lookup
+
+**ReportStream Internal Name**: patient_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
 
 ---
 
@@ -3550,7 +3582,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Format**: use value found in the Code column
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -3588,8 +3620,6 @@ P, D, or T for Production, Debugging, or Training
 
 **PII**: No
 
-**Default Value**: LA-ELR
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -3605,8 +3635,6 @@ The receiving application for the message (specified by the receiver)
 **Type**: HD
 
 **PII**: No
-
-**Default Value**: LADOH
 
 **Cardinality**: [0..1]
 
@@ -3660,6 +3688,7 @@ aggregator
 
 **HL7 Fields**
 
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
 - [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
 - [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
 - [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
@@ -3680,8 +3709,6 @@ The reporting facility's CLIA
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: CDC Prime - Atlanta
 
 **HL7 Fields**
 
@@ -3792,6 +3819,8 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
+**Default Value**: color-lab
+
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -3808,7 +3837,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+**Default Value**: 
 
 **Cardinality**: [0..1]
 
