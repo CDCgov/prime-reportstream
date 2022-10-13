@@ -1,11 +1,11 @@
 name: Build Hub
 
-on: 
-  pull_request:
-    branches:
-      - master
-    paths:
-      - "prime-router/**"
+on: push
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - "prime-router/**"
 
 env:
   # These are for CI and not credentials of any system
@@ -118,7 +118,7 @@ jobs:
           
       - name: Dump docker logs
         if: always()
-        uses: jwalton/gh-docker-logs@a8cb5301950dd4d2b86619cd487b3b281526b178
+        uses: jwalton/gh-docker-logs@af1a214d31adfb687695a02476263d26bd054ad9f
         with:
           images: 'prime-router_prime_dev,vault'
 
