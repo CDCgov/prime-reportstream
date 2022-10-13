@@ -1,26 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
-import { WatersPost } from "../../network/api/WatersApiFunctions";
-import { OverallStatus } from "../../network/api/WatersApi";
+import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
-    FileHandlerActionType,
     ErrorType,
+    FileHandlerActionType,
     FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
 
 import {
     FileErrorDisplay,
-    FileSuccessDisplay,
-    FileWarningsDisplay,
-    FileWarningBanner,
-    NoSenderBanner,
     FileQualityFilterDisplay,
+    FileSuccessDisplay,
+    FileWarningBanner,
+    FileWarningsDisplay,
+    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -64,33 +64,28 @@ export enum FileHandlerType {
 interface FileHandlerProps {
     headingText: string;
     handlerType: FileHandlerType;
-    fetcher: WatersPost;
     successMessage: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
     showWarningBanner: boolean;
     warningText?: string;
-    endpointName: string;
 }
 
 const FileHandler = ({
     headingText,
     handlerType,
-    fetcher,
     successMessage,
     resetText,
     submitText,
     showSuccessMetadata,
     showWarningBanner,
     warningText,
-    endpointName,
 }: FileHandlerProps) => {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
 
     const {
-        isSubmitting,
         fileInputResetValue,
         contentType,
         fileType,
@@ -113,16 +108,32 @@ const FileHandler = ({
         }
     }, [localError]);
 
-    const { activeMembership, oktaToken } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const { organization, loading: organizationLoading } =
         useOrganizationResource();
     // need to fetch sender from API to grab cvs vs hl7 format info
     const { sender, loading: senderLoading } = useSenderResource();
 
-    const accessToken = oktaToken?.accessToken;
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.senderName;
     const client = `${parsedName}.${senderName}`;
+    const validateOnly = useMemo(
+        () => handlerType !== FileHandlerType.UPLOAD,
+        [handlerType]
+    );
+    const uploaderCallback = useCallback(
+        (data?: WatersResponse) => {
+            dispatch({
+                type: FileHandlerActionType.REQUEST_COMPLETE,
+                payload: { response: data!! }, // Strong asserting that this won't be undefined
+            });
+        },
+        [dispatch]
+    );
+    const { sendFile, isWorking } = useWatersUploader(
+        uploaderCallback,
+        validateOnly
+    );
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -166,26 +177,12 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-
-        try {
-            const response = await fetcher(
-                client,
-                fileName,
-                contentType as string,
-                fileContent,
-                parsedName || "",
-                accessToken || "",
-                endpointName
-            );
-            // handles error and success cases via reducer
-            dispatch({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response },
-            });
-        } catch (error) {
-            // Noop.  Errors are collected below
-            console.error("Unexpected error in file handler", error);
-        }
+        await sendFile({
+            contentType: contentType,
+            fileContent: fileContent,
+            fileName: fileName,
+            client: client,
+        });
     };
 
     const resetState = () => {
@@ -318,10 +315,8 @@ const FileHandler = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-            {isSubmitting && (
-                <FileHandlerSpinner message="Processing file..." />
-            )}
-            {!isSubmitting && (
+            {isWorking && <FileHandlerSpinner message="Processing file..." />}
+            {!isWorking && (
                 <FileHandlerForm
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}
