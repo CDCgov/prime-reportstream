@@ -152,7 +152,9 @@ class FhirToHl7Converter(
         var retVal = ""
         run findValue@{
             element.value.forEach {
-                val value = if (it.isBlank()) ""
+                // @todo handle default on valueSet
+                val value = if (element.valueSet[it] != null) element.valueSet.getOrDefault(it, "")
+                else if (it.isBlank()) ""
                 else try {
                     FhirPathUtils.evaluateString(context, focusResource, bundle, it)
                 } catch (e: SchemaException) {
