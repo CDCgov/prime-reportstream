@@ -3787,6 +3787,15 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: NEDSS
+        receivingFacilityName: UDOH
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: false
+        suppressAoe: false
+        truncateHDNamespaceIds: true
+        replaceValueAwithB:
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
