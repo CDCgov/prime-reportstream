@@ -56,7 +56,7 @@ data class RawSubmission(
     val reportId: ReportId,
     val blobURL: String,
     val digest: String,
-    val sender: String,
+    val blobSubFolderName: String,
 //    val options: Options,
 //    val defaults: Map<String, String>,
 //    val routeTo: List<String>,
