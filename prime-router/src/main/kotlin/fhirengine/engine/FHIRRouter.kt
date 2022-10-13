@@ -13,6 +13,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
@@ -34,13 +36,11 @@ class FHIRRouter(
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata?
+        actionHistory: ActionHistory
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
@@ -56,7 +56,7 @@ class FHIRRouter(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = metadata
+                metadata = this.metadata
             )
 
             // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO
@@ -92,7 +92,7 @@ class FHIRRouter(
                 Report.Format.FHIR,
                 bodyBytes,
                 report.name,
-                message.sender,
+                message.blobSubFolderName,
                 translateEvent.eventAction
             )
 
@@ -107,6 +107,16 @@ class FHIRRouter(
                 translateEvent
             )
 
+            // nullify the previous task next_action
+            db.updateTask(
+                message.reportId,
+                TaskAction.none,
+                null,
+                null,
+                finishedField = Tables.TASK.ROUTED_AT,
+                null
+            )
+
             // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
             //  the destinations have been updated in the FHIR
             this.queue.sendMessage(
@@ -115,7 +125,7 @@ class FHIRRouter(
                     report.id,
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),
-                    message.sender
+                    message.blobSubFolderName
                 ).serialize()
             )
         } catch (e: IllegalArgumentException) {

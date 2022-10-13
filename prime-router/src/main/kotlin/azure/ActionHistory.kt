@@ -484,6 +484,10 @@ class ActionHistory(
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
+        if (report.destination != null) {
+            reportFile.receivingOrg = report.destination.organizationName
+            reportFile.receivingOrgSvc = report.destination.name
+        }
         reportsOut[reportFile.reportId] = reportFile
         trackItemLineages(report)
         trackFilteredItems(report)
