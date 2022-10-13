@@ -42,7 +42,7 @@ interface MessageListTableContentProps {
     messageIdData: MessageListResource[];
 }
 
-const MessageIdTableContent: React.FC<MessageListTableContentProps> = ({
+const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     isLoading,
     messageIdData,
 }) => {
@@ -51,6 +51,10 @@ const MessageIdTableContent: React.FC<MessageListTableContentProps> = ({
             {
                 dataAttr: "messageId",
                 columnHeader: "Message Id",
+                feature: {
+                    link: true,
+                    linkBasePath: "/message-details/",
+                },
             },
             {
                 dataAttr: "sender",
@@ -91,7 +95,7 @@ const MessageIdTableContent: React.FC<MessageListTableContentProps> = ({
 };
 
 // Main component.
-export function MessageIdSearch() {
+export function MessageTracker() {
     const [isLoading, setIsLoading] = useState(false);
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
 
@@ -128,10 +132,10 @@ export function MessageIdSearch() {
             </div>
 
             {withCatchAndSuspense(
-                <MessageIdTableContent
+                <MessageTrackerTableContent
                     isLoading={isLoading}
                     messageIdData={messagesData}
-                ></MessageIdTableContent>
+                ></MessageTrackerTableContent>
             )}
         </section>
     );
