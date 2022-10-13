@@ -118,7 +118,7 @@ jobs:
           
       - name: Dump docker logs
         if: always()
-        uses: jwalton/gh-docker-logs@a8cb5301950dd4d2b86619cd487b3b281526b178
+        uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
         with:
           images: 'prime-router_prime_dev,vault'
 
