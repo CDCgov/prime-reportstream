@@ -370,7 +370,8 @@ class Report : Logging {
         numberOfMessages: Int,
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
-        destination: Receiver? = null
+        destination: Receiver? = null,
+        nextAction: TaskAction = TaskAction.process
     ) {
         this.id = UUID.randomUUID()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -385,7 +386,7 @@ class Report : Logging {
         this.itemCount = numberOfMessages
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
-        this.nextAction = TaskAction.process
+        this.nextAction = nextAction
     }
 
     private constructor(
