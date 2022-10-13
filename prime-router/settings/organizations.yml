@@ -753,20 +753,21 @@
   description: Colorado Department of Public Health and Environment
   jurisdiction: STATE
   stateCode: CO
-  filters:
-    - topic: "covid-19"
-      jurisdictionalFilter:
-      - "orEquals(patient_state, CO, ordering_facility_state, CO)"
   receivers:
-    - name: elr
-      organizationName: co-phd
-      topic: covid-19
-      customerStatus: active
-      translation:
-        type: HL7
+    - name: "elr-hl7"
+      organizationName: "co-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: CO-ELR
-        receivingFacilityName: CO
+        receivingApplicationName: "CO-ELR"
+        receivingApplicationOID: null
+        receivingFacilityName: "CO"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
         replaceValueAwithB:
           MSH-6:
             - '*': "CO"
@@ -774,19 +775,92 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-        reportingFacilityName: CDC PRIME
-        reportingFacilityId: 11D2030855
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: true
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, CO, patient_state, CO)"
+      qualityFilter: [ ]
+      routingFilter: [ ]
+      processingModeFilter: [ ]
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
       timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: CENTRAL
-      transport:
+        operation: "MERGE"
+        numberPerDay: 4
+        initialTime: "09:30"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      transport: !<SFTP>
         type: SFTP
         host: sftp
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+    - name: "full-elr-hl7"
+      organizationName: "co-phd"
+      topic: "full-elr"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+      jurisdictionalFilter: [ ]
+      qualityFilter: [ ]
+      routingFilter: [ ]
+      processingModeFilter: [ ]
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "09:30"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      transport: !<SFTP>
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timeZone: null
+      dateTimeFormat: "OFFSET"
     - name: elr-secondary
       organizationName: co-phd
       topic: covid-19
@@ -2310,7 +2384,7 @@
     - name: ignore-full-elr      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
-      customerStatus: inactive
+      customerStatus: active
       format: HL7
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore

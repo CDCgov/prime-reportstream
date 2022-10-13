@@ -38,8 +38,8 @@ class FhirConverterTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(Receiver("elr", "co-phd", "topic", CustomerStatus.INACTIVE, "one"))
     )
 
     val valid_hl7 = "" +
@@ -119,7 +119,7 @@ class FhirConverterTests {
             .returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory, metadata)
+        engine.doWork(message, actionLogger, actionHistory)
 
         // assert
         verify(exactly = 1) {
