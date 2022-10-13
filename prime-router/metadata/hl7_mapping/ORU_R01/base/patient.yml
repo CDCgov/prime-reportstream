@@ -1,4 +1,3 @@
-name: ORU-R01-patient
 constants:
   hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
   hl7PatientGroup: '/PATIENT_RESULT/PATIENT'

@@ -12,6 +12,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -36,13 +38,11 @@ class FHIRConverter(
     /**
      * [message] is the incoming HL7 message to be turned into FHIR and saved
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        metadata: Metadata?
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
@@ -75,7 +75,7 @@ class FHIRConverter(
                     itemLineage = listOf(
                         ItemLineage()
                     ),
-                    metadata = metadata
+                    metadata = this.metadata
                 )
 
                 // create item lineage
@@ -108,7 +108,7 @@ class FHIRConverter(
                     Report.Format.FHIR,
                     bodyBytes,
                     report.name,
-                    message.sender,
+                    message.blobSubFolderName,
                     routeEvent.eventAction
                 )
 
@@ -123,6 +123,16 @@ class FHIRConverter(
                     routeEvent
                 )
 
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.PROCESSED_AT,
+                    null
+                )
+
                 // move to routing (send to <elrRoutingQueueName> queue)
                 this.queue.sendMessage(
                     elrRoutingQueueName,
@@ -130,7 +140,7 @@ class FHIRConverter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.sender
+                        message.blobSubFolderName
                     ).serialize()
                 )
             }

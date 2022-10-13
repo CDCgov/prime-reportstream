@@ -8,11 +8,12 @@ import {
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
-import { checkTextAreaJson } from "../../utils/misc";
+import { checkJson } from "../../utils/misc";
 import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
 } from "../../utils/TemporarySettingsAPITypes";
+import { showError } from "../AlertNotifications";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -86,10 +87,14 @@ export const TextAreaComponent = (params: {
                     onBlur={(e) => {
                         const text =
                             e?.target?.value || (defaultnullvalue as string);
-                        const result = checkTextAreaJson(text, key, inputRef);
-                        if (result !== false) {
-                            // checkTextAreaJson made sure the following call won't throw.
-                            params.savefunc(result);
+                        const { valid, errorMsg } = checkJson(text);
+                        if (valid) {
+                            // checkJson made sure the following JSON.parse won't throw.
+                            params.savefunc(JSON.parse(text));
+                        } else {
+                            showError(
+                                `JSON data generated an error "${errorMsg}"`
+                            );
                         }
                     }}
                     disabled={params.disabled}

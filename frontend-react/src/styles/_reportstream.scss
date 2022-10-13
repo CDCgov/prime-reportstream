@@ -349,7 +349,7 @@ ul.rb li .timestamp {
 
 .rs-editable-compare-background {
     grid-area: inner-div;
-    color: rgba(0,0,0,0); /* hide font we only want background colors */
+    color: transparent; /* hide font we only want background colors */
     border: 2px rgba(0,0,0,0) solid;    /* takes up same exact same space, just invisible */
 
     // enable these to debug alignment.
@@ -358,10 +358,23 @@ ul.rb li .timestamp {
     width: 100%;
     z-index: 2;
     pointer-events: none;
+    mark, s {
+        color: transparent;
+    }
+}
+
+.differ-marks {
     mark {
         border-radius: 3px;
-        color: transparent;
-        background-color: #f8dd70;
+        background-color: rgba(255, 200, 0, 0.25); /* transparent allows nested tags to be darker */
+    }
+    /* the `<s>` tag is used for errors, technically it's strikethrough but shouldn't used for that.
+       alternate could be `<var>`?  `<del>` and `<ins>` have paragraph issues
+     */
+    s {
+        text-decoration: none; /* not required, but adding makes it clear we're not using strikethrough */
+        border-radius: 3px;
+        background-color: rgba(255, 0, 0, 0.25); /* transparent allows nested tags to be darker */
     }
 }
 
