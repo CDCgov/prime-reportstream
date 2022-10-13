@@ -133,7 +133,8 @@ class FhirToHl7ConverterTests {
         assertThat(focusResources[0].primitiveValue()).isEqualTo("1")
 
         element = ConfigSchemaElement(
-            "name", resource = "Bundle.entry.resource.ofType(MessageHeader).destination[0].name"
+            "name",
+            resource = "Bundle.entry.resource.ofType(MessageHeader).destination[0].name"
         )
         focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
@@ -141,7 +142,8 @@ class FhirToHl7ConverterTests {
 
         // Let's test how the FHIR library handles the focus resource
         element = ConfigSchemaElement(
-            "name", resource = "Bundle.entry.resource.ofType(MessageHeader).destination",
+            "name",
+            resource = "Bundle.entry.resource.ofType(MessageHeader).destination",
             value = listOf("%resource.name")
         )
         focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
@@ -185,14 +187,17 @@ class FhirToHl7ConverterTests {
 
         // Condition is false and was not required
         var element = ConfigSchemaElement(
-            "name", condition = conditionFalse,
+            "name",
+            condition = conditionFalse,
             value = listOf(pathNoValue)
         )
         assertThat { converter.processElement(element, bundle, bundle, customContext) }.isSuccess()
 
         // Condition is false and was required
         element = ConfigSchemaElement(
-            "name", required = true, condition = conditionFalse,
+            "name",
+            required = true,
+            condition = conditionFalse,
             value = listOf(pathNoValue)
         )
         assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
@@ -200,13 +205,15 @@ class FhirToHl7ConverterTests {
 
         // Illegal states
         element = ConfigSchemaElement(
-            "name", condition = conditionTrue,
+            "name",
+            condition = conditionTrue,
             value = listOf(pathNoValue)
         )
         assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
             .hasClass(java.lang.IllegalStateException::class.java)
         element = ConfigSchemaElement(
-            "name", condition = conditionTrue,
+            "name",
+            condition = conditionTrue,
             value = listOf(pathWithValue)
         )
         assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
@@ -214,8 +221,10 @@ class FhirToHl7ConverterTests {
 
         // Process a value
         element = ConfigSchemaElement(
-            "name", condition = conditionTrue,
-            value = listOf(pathWithValue), hl7Spec = listOf("MSH-10")
+            "name",
+            condition = conditionTrue,
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-10")
         )
         justRun { mockTerser.set(any(), any()) }
         converter.processElement(element, bundle, bundle, customContext)
@@ -223,17 +232,21 @@ class FhirToHl7ConverterTests {
 
         // Process a schema
         element = ConfigSchemaElement(
-            "name", condition = conditionTrue,
-            value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name",
+            condition = conditionTrue,
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
         )
-        val schema = ConfigSchema("schema name", elements = mutableListOf(element))
+        val schema = ConfigSchema(elements = mutableListOf(element))
         val elementWithSchema = ConfigSchemaElement("name", schemaRef = schema)
         converter.processElement(elementWithSchema, bundle, bundle, customContext)
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
 
         // Test when a resource has no value
         element = ConfigSchemaElement(
-            "name", resource = pathNoValue, required = true
+            "name",
+            resource = pathNoValue,
+            required = true
         )
         assertThat { converter.processElement(element, bundle, bundle, customContext) }.isFailure()
             .hasClass(RequiredElementException::class.java)
@@ -255,12 +268,16 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
 
         val childElement = ConfigSchemaElement(
-            "childElement", value = listOf("1"),
+            "childElement",
+            value = listOf("1"),
             hl7Spec = listOf("/PATIENT_RESULT/ORDER_OBSERVATION(%{myindexvar})/OBX-1")
         )
-        val childSchema = ConfigSchema("childSchema", elements = mutableListOf(childElement))
+        val childSchema = ConfigSchema(elements = mutableListOf(childElement))
         val element = ConfigSchemaElement(
-            "name", resource = "Bundle.entry", resourceIndex = "myindexvar", schemaRef = childSchema
+            "name",
+            resource = "Bundle.entry",
+            resourceIndex = "myindexvar",
+            schemaRef = childSchema
         )
         justRun { mockTerser.set(any(), any()) }
         converter.processElement(element, bundle, bundle, CustomContext(bundle, bundle))
@@ -278,10 +295,14 @@ class FhirToHl7ConverterTests {
         val pathWithValue = "Bundle.id"
 
         var element = ConfigSchemaElement(
-            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
         )
         var schema = ConfigSchema(
-            "schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = mutableListOf(element)
+            hl7Type = "ORU_R01",
+            hl7Version = "2.5.1",
+            elements = mutableListOf(element)
         )
         val message = FhirToHl7Converter(schema).convert(bundle)
         assertThat(message.isEmpty).isFalse()
@@ -289,21 +310,25 @@ class FhirToHl7ConverterTests {
 
         // Hit the sanity checks
         element = ConfigSchemaElement(
-            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
         )
-        schema = ConfigSchema("schema name", hl7Type = "ORU_R01", elements = mutableListOf(element))
+        schema = ConfigSchema(hl7Type = "ORU_R01", elements = mutableListOf(element))
         assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
         element = ConfigSchemaElement(
-            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
         )
-        schema = ConfigSchema("schema name", hl7Version = "2.5.1", elements = mutableListOf(element))
+        schema = ConfigSchema(hl7Version = "2.5.1", elements = mutableListOf(element))
         assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
         assertThat {
             FhirToHl7Converter(
                 "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
         }.isFailure()
     }
