@@ -173,6 +173,29 @@ class FhirToHl7ConverterTests {
     }
 
     @Test
+    fun `test get value set`() {
+        val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val customContext = CustomContext(bundle, bundle)
+        val converter = FhirToHl7Converter(mockSchema)
+
+        val valueSet = mapOf(
+            Pair("stagnatious", "S"),
+            Pair("grompfle", "G")
+        )
+
+        var element = ConfigSchemaElement("name", value = listOf("stagnatious"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("S")
+
+        element = ConfigSchemaElement("name", value = listOf("grompfle"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+
+        element = ConfigSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
+    }
+
+    @Test
     fun `test process element with single focus resource`() {
         val mockTerser = mockk<Terser>()
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
