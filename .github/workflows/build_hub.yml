@@ -1,11 +1,11 @@
 name: Build Hub
 
-on: push
-  # pull_request:
-  #   branches:
-  #     - master
-  #   paths:
-  #     - "prime-router/**"
+on: 
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "prime-router/**"
 
 env:
   # These are for CI and not credentials of any system
