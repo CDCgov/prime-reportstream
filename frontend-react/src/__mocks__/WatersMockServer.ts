@@ -1,7 +1,11 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { WatersResponse, OverallStatus } from "../network/api/WatersApi";
+import {
+    WatersResponse,
+    OverallStatus,
+    WatersUrls,
+} from "../config/endpoints/waters";
 import config from "../config";
 
 const { RS_API_URL } = config;
@@ -68,24 +72,43 @@ const watersResponseError = {
     destinationCount: null,
 };
 
+export enum WatersTestHeader {
+    CLIENT = "client",
+}
+export enum WatersTestHeaderValue {
+    TEST_BAD_CLIENT = "bad-client",
+    TEST_NAME = "test-endpoint-name",
+    FAIL = "test-fail",
+}
+
 const handlers = [
-    rest.post(`${RS_API_URL}/api/waters`, (req, res, ctx) => {
-        if (req.headers["_headers"]["client"] === "bad-client") {
+    rest.post(`${RS_API_URL}/api${WatersUrls.UPLOAD}`, (req, res, ctx) => {
+        if (
+            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            WatersTestHeaderValue.TEST_NAME
+        )
+            return res(ctx.status(200), ctx.json({ endpoint: "upload" }));
+        if (
+            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            WatersTestHeaderValue.TEST_BAD_CLIENT
+        ) {
             return res(ctx.json(watersResponseError), ctx.status(400));
         }
-
-        if (
-            req.headers["_headers"]["client"] === "give me a very bad response"
-        ) {
-            return res(
-                ctx.text(
-                    "This response will not parse and will cause an error"
-                ),
-                ctx.status(500)
-            );
-        }
-
         return res(ctx.json(watersResponseSuccess), ctx.status(201));
+    }),
+    rest.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, (req, res, ctx) => {
+        if (
+            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            WatersTestHeaderValue.FAIL
+        )
+            return res(ctx.status(400));
+        if (
+            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            WatersTestHeaderValue.TEST_NAME
+        ) {
+            return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
+        }
+        return res(ctx.status(200));
     }),
 ];
 
