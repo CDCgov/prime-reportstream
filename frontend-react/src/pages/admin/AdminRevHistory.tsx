@@ -205,6 +205,7 @@ const AdminRevHistory = () => {
                             <StaticCompare
                                 leftText={leftJson}
                                 rightText={rightJson}
+                                jsonDiffMode={true}
                             />
                         </Grid>
                     </Grid>
