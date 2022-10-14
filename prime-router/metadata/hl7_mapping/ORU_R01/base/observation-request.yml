@@ -105,8 +105,14 @@ elements:
   - name: result-status
     resource: '%resource.status'
     condition: '%resource.exists()'
-    value: [ '%resource.getObservationResultsStatus()' ]
+    value: [ '%resource' ]
     hl7Spec: [ '%{fieldPath}-25' ]
+    valueSet:
+      partial: A
+      corrected: C
+      final: F
+      preliminary: P
+      cancelled: X
 
   - name: parent-observation-link
     resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'
