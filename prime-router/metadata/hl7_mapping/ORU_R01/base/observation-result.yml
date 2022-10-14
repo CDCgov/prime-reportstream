@@ -114,18 +114,13 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-8' ]
 
   - name: observation-result-status
-    condition: '%resource.status = "preliminary"'
-    value: [ '"P"' ]
+    value: [ '%resource.status' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
     valueSet:
-      - key: registered
-        value: I
-      - key: preliminary
-        value: P
-      - key: final
-        value: F
-      - key: corrected
-        value: C
+      registered: I
+      preliminary: P
+      final: F
+      corrected: C
 
   - name: observation-date-time
     value: [ '%resource.effective' ]
