@@ -385,6 +385,28 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: genabio
+  description: Genabio
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: genabio
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/genabio-covid-19
+      format: CSV
+
+- name: color-labs
+  description: Color Labs
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: color-labs
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/color-labs-covid-19
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
@@ -3765,6 +3787,15 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: NEDSS
+        receivingFacilityName: UDOH
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: false
+        suppressAoe: false
+        truncateHDNamespaceIds: true
+        replaceValueAwithB:
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
