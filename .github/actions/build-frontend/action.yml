@@ -16,11 +16,11 @@ inputs:
   GITHUB_TOKEN:
     description: Github provided token
     required: false
-    default: ''
+    default: ""
   SONAR_TOKEN:
     description: Token to communicate with Sonarcloud
     required: false
-    default: ''
+    default: ""
 
 runs:
   using: "composite"
@@ -28,7 +28,7 @@ runs:
     - name: Use Node.js ${{ matrix.node-version }} with yarn
       uses: actions/setup-node@337fdf2194d3e87cdd26672305866d19d404fcd3
       with:
-        node-version: "14"
+        node-version: "14.20.1"
 
     - run: yarn install
       working-directory: frontend-react
