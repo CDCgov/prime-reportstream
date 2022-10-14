@@ -185,7 +185,7 @@ data class ConfigSchemaElement(
     var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: Map<String, String> = emptyMap()
+    var valueSet: SortedMap<String, String> = sortedMapOf()
 ) {
     /**
      * Validate the element.

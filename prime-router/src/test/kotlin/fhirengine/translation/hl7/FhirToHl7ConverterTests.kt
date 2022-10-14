@@ -180,7 +180,7 @@ class FhirToHl7ConverterTests {
         val customContext = CustomContext(bundle, bundle)
         val converter = FhirToHl7Converter(mockSchema)
 
-        val valueSet = mapOf(
+        val valueSet = sortedMapOf(
             Pair("stagnatious", "S"),
             Pair("grompfle", "G")
         )
