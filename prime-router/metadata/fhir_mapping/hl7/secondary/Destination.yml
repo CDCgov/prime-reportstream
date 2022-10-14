@@ -22,7 +22,7 @@ extension_1:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: receiving-application-identifier
+    urlValue: application-identifier
 
 # For all other ID types
 extension_2:
@@ -37,7 +37,7 @@ extension_2:
   constants:
     idUrlPrefix: "urn:id:"
     KEY_NAME_SUFFIX: String
-    urlValue: receiving-application-identifier
+    urlValue: application-identifier
 
 # For OIDs
 extension_3:
@@ -52,7 +52,7 @@ extension_3:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: receiving-facility-identifier
+    urlValue: facility-identifier
 
 # For all other ID types
 extension_4:
@@ -67,4 +67,4 @@ extension_4:
   constants:
     idUrlPrefix: "urn:id:"
     KEY_NAME_SUFFIX: String
-    urlValue: receiving-facility-identifier
+    urlValue: facility-identifier

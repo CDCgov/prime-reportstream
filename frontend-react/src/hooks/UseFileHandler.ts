@@ -1,7 +1,7 @@
 import { useReducer } from "react";
 import pick from "lodash.pick";
 
-import { ResponseError, WatersResponse } from "../network/api/WatersApi";
+import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 
@@ -15,14 +15,13 @@ export enum FileType {
     "HL7" = "HL7",
 }
 
-enum ContentType {
+export enum ContentType {
     "CSV" = "text/csv",
     "HL7" = "application/hl7-v2",
 }
 
 // Internal state for the hook.
 export interface FileHandlerState {
-    isSubmitting: boolean;
     fileInputResetValue: number;
     fileContent: string;
     contentType?: ContentType;
@@ -30,6 +29,7 @@ export interface FileHandlerState {
     fileName: string;
     errors: ResponseError[];
     destinations: string;
+    reportItems: Destination[] | undefined; //FilteredReportItem[][];
     reportId: string;
     successTimestamp?: string;
     cancellable: boolean;
@@ -67,12 +67,12 @@ type FileHandlerReducer = (
 ) => FileHandlerState;
 
 export const INITIAL_STATE = {
-    isSubmitting: false,
     fileInputResetValue: 0,
     fileContent: "",
     fileName: "",
     errors: [],
     destinations: "",
+    reportItems: [],
     reportId: "",
     successTimestamp: "",
     cancellable: false,
@@ -99,7 +99,6 @@ function getPreSubmitState(): Partial<FileHandlerState> {
             "localError",
             "overallStatus",
         ]),
-        isSubmitting: true,
     };
 }
 
@@ -188,7 +187,7 @@ function calculateRequestCompleteState(
 
     return {
         destinations: destinationList,
-        isSubmitting: false,
+        reportItems: destinations, //destinationReportItemList,
         fileInputResetValue: state.fileInputResetValue + 1,
         errors,
         cancellable: errors?.length ? true : false,

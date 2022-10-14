@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -85,7 +84,7 @@ class ConfigSchemaReaderTests {
         )
 
         assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU-R01-Base")
+        assertThat(schema.name).isEqualTo("ORU_R01") // match filename
         assertThat(schema.hl7Type).isEqualTo("ORU_R01")
         assertThat(schema.hl7Version).isEqualTo("2.5.1")
         assertThat(schema.elements).isNotEmpty()
@@ -95,7 +94,7 @@ class ConfigSchemaReaderTests {
         assertThat(patientInfoElement.schema!!).isNotEmpty()
         assertThat(patientInfoElement.schemaRef).isNotNull()
 
-        assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU-R01-patient")
+        assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU_R01/patient") // match filename
         val patientNameElement = patientInfoElement.schemaRef!!.elements.single { it.name == "patient-last-name" }
         assertThat(patientNameElement.hl7Spec).isNotEmpty()
 
@@ -141,7 +140,7 @@ class ConfigSchemaReaderTests {
         )
 
         assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU-R01-extended")
+        assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
         assertThat(schema.hl7Type).isEqualTo("ORU_R01")
         assertThat(schema.hl7Version).isEqualTo("2.7")
         assertThat(schema.elements).isNotEmpty()
@@ -167,7 +166,7 @@ class ConfigSchemaReaderTests {
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-04"
             )
-        }.isFailure().hasMessage("Circular reference detected in schema")
+        }.isFailure()
     }
 
     @Test
@@ -177,6 +176,6 @@ class ConfigSchemaReaderTests {
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
             )
-        }.isFailure().hasMessage("Circular reference detected in schema")
+        }.isFailure()
     }
 }

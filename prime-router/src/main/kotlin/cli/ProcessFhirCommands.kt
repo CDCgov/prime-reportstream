@@ -109,9 +109,8 @@ class ProcessFhirCommands : CliktCommand(
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
-                    bundle, fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
-                )
-                    .convert()
+                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
+                ).convert(bundle)
             }
         }
     }
@@ -282,20 +281,25 @@ class FhirPathCommand : CliktCommand(
         if (inputParts.size != 2 || inputParts[1].isBlank())
             echo("Setting %resource must be in the form of 'resource[= | :]<FHIR path>'")
         else {
-            val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
-            val pathExpression = FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
-            val resourceList = FhirPathUtils.pathEngine.evaluate(
-                fhirPathContext, focusResource!!, bundle, bundle, pathExpression
-            )
-            if (resourceList.size == 1) {
-                setFocusPath(path)
-                focusResource = resourceList[0] as Base
-                fhirPathContext?.let { it.focusResource = focusResource as Base }
-            } else
-                echo(
-                    "Resource path must evaluate to 1 resource, but got a collection of " +
-                        "${resourceList.size} resources"
+            try {
+                val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
+                val pathExpression =
+                    FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
+                val resourceList = FhirPathUtils.pathEngine.evaluate(
+                    fhirPathContext, focusResource!!, bundle, bundle, pathExpression
                 )
+                if (resourceList.size == 1) {
+                    setFocusPath(path)
+                    focusResource = resourceList[0] as Base
+                    fhirPathContext?.let { it.focusResource = focusResource as Base }
+                } else
+                    echo(
+                        "Resource path must evaluate to 1 resource, but got a collection of " +
+                            "${resourceList.size} resources"
+                    )
+            } catch (e: Exception) {
+                echo("Error evaluating resource path: ${e.message}")
+            }
         }
     }
 

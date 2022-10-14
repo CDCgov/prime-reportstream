@@ -1,4 +1,3 @@
-name: ORU-R01-cx-extended-composite-id
 constants:
   hl7CXFieldPath: '%{hl7CXField}(%{idIndex})'
 elements:

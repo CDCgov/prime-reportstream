@@ -1,5 +1,6 @@
 import { screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AxiosResponse } from "axios";
 
 import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
@@ -34,7 +35,7 @@ const fakeMeta = {
     createdAt: "today",
     tableSha256Checksum: "sha",
 };
-
+const mockError = new RSNetworkError("test-error");
 let mockSaveData = jest.fn();
 let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
@@ -115,7 +116,7 @@ describe("ValueSetsDetail", () => {
 
     test("Handles error with table fetch", () => {
         mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", 404);
+            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
         });
         mockUseValueSetsMeta = jest.fn(
             () =>
@@ -135,6 +136,22 @@ describe("ValueSetsDetail", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
+    test("Handles fetch related errors", () => {
+        const mockSetAlert = jest.fn();
+        renderWithQueryProvider(
+            <ValueSetsDetailTable
+                valueSetName={"error"}
+                setAlert={mockSetAlert}
+                valueSetData={[]}
+                error={mockError}
+            />
+        );
+        expect(mockSetAlert).toHaveBeenCalled();
+        expect(mockSetAlert).toHaveBeenCalledWith({
+            type: "error",
+            message: "unknown-error: test-error",
+        });
+    });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockSaveData = jest.fn(() => {
             // to avoid unnecessary console error
