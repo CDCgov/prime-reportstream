@@ -139,6 +139,7 @@ export const useValueSetUpdate = () => {
     return {
         saveData: mutation.mutateAsync,
         isSaving: mutation.isLoading,
+        saveError: mutation.error,
     };
 };
 
@@ -163,5 +164,6 @@ export const useValueSetActivation = () => {
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,
+        activationError: mutation.error,
     };
 };
