@@ -71,7 +71,7 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function ReportsTable() {
+function DeliveriesTable() {
     const { oktaToken, activeMembership } = useSessionContext();
     const { loadingServices, services, activeService, setActiveService } =
         useReceiverFeeds();
@@ -175,4 +175,4 @@ function ReportsTable() {
     );
 }
 
-export default ReportsTable;
+export default DeliveriesTable;
