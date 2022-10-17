@@ -75,8 +75,12 @@ object ConfigSchemaReader : Logging {
             throw SchemaException(msg, e)
         }
 
-        if (ancestry.contains(rawSchema.name))
+        // set schema name to match the filename
+        rawSchema.name = schemaName
+
+        if (ancestry.contains(rawSchema.name)) {
             throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
+        }
         rawSchema.ancestry = ancestry + rawSchema.name!!
 
         // Process any schema references
@@ -95,8 +99,9 @@ object ConfigSchemaReader : Logging {
         val mapper = ObjectMapper(YAMLFactory())
         val rawSchema = mapper.readValue(inputStream, ConfigSchema::class.java)
         // Are there any null elements?  This may mean some unknown array value in the YAML
-        if (rawSchema.elements.any { false })
+        if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")
+        }
         return rawSchema
     }
 }

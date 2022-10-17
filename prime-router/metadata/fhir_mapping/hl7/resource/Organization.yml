@@ -151,3 +151,15 @@ extension_3:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: universal-id
+
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL && $systemStr NOT_EQUALS ISO
+  vars:
+    value: String, XON.6.2
+    systemStr: String, XON.6.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: universal-id

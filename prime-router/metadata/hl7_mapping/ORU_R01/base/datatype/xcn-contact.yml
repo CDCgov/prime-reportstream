@@ -1,4 +1,3 @@
-name: ORU-R01-xcn-contact
 constants:
   hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
 # Practitioner to XCN mapping
