@@ -8,22 +8,25 @@ import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
-import ReportsTable from "./Table/ReportsTable";
+import DeliveriesTable from "./Table/DeliveriesTable";
 
-function Daily() {
+function Deliveries() {
     const orgName: string = useOrgName();
     return (
         <>
-            <BasicHelmet pageTitle="Daily data" />
+            <BasicHelmet pageTitle="Deliveries data" />
             <section className="grid-container margin-bottom-5 tablet:margin-top-6">
                 <Title preTitle={orgName} title="COVID-19" />
             </section>
-            {withCatchAndSuspense(<ReportsTable />)}
+            {withCatchAndSuspense(<DeliveriesTable />)}
             <HipaaNotice />
         </>
     );
 }
 
-export const DailyWithAuth = () => (
-    <AuthElement element={<Daily />} requiredUserType={MemberType.RECEIVER} />
+export const DeliveriesWithAuth = () => (
+    <AuthElement
+        element={<Deliveries />}
+        requiredUserType={MemberType.RECEIVER}
+    />
 );
