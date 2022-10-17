@@ -1,7 +1,7 @@
-import React, { FormEvent, useState } from "react";
-import { Label, Search } from "@trussworks/react-uswds";
+import React, { useState } from "react";
+import { Label, Button, TextInput } from "@trussworks/react-uswds";
+import { isEmpty } from "lodash";
 
-import { withCatchAndSuspense } from "../RSErrorBoundary";
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
 
@@ -32,19 +32,19 @@ const MOCK_MESSAGE_ID_DATA = [
 // TODO: move this interface into the resources directory
 interface MessageListResource {
     messageId: string;
-    sender: string;
-    submittedDate: string;
+    sender: string | undefined;
+    submittedDate: string | undefined;
     reportId: string;
 }
 
 interface MessageListTableContentProps {
     isLoading: boolean;
-    messageIdData: MessageListResource[];
+    messagesData: MessageListResource[];
 }
 
 const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     isLoading,
-    messageIdData,
+    messagesData,
 }) => {
     const tableConfig: TableConfig = {
         columns: [
@@ -76,14 +76,18 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 },
             },
         ],
-        rows: messageIdData || [],
+        rows: messagesData || [],
     };
 
     if (isLoading) return <Spinner />;
 
+    // TODO: revisit
+    // if (!isLoading && messagesData.length === 0)
+    //     return <h2>No results found.</h2>;
+
     return (
         <>
-            {messageIdData.length > 0 && (
+            {messagesData.length > 0 && (
                 <Table
                     title="ReportStream Messages"
                     classes={"rs-no-padding"}
@@ -96,47 +100,69 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 
 // Main component.
 export function MessageTracker() {
+    const [searchFilter, setSearchFilter] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
 
-    const searchMessageId = (event: FormEvent<HTMLFormElement>) => {
-        // Prevent page refresh
-        event.preventDefault();
-
+    const searchMessageId = () => {
         setIsLoading(true);
+
         // TODO: make API call here to get data and remove timeout
         setTimeout(function () {
-            setMessagesData(MOCK_MESSAGE_ID_DATA);
+            if (!isEmpty(searchFilter)) setMessagesData(MOCK_MESSAGE_ID_DATA);
             setIsLoading(false);
         }, 1000);
+    };
+
+    const clearSearch = () => {
+        setSearchFilter("");
+        setMessagesData([]);
     };
 
     return (
         <section className="grid-container margin-bottom-5 tablet:margin-top-6">
             <h1>Message ID Search</h1>
 
-            <div>
-                <Label
-                    className="font-sans-xs usa-label"
-                    htmlFor="input_filter"
-                >
-                    Message ID (format as xx-xxxxxx)
-                </Label>
-                <Search
-                    id="search_filter"
-                    name="search_filter"
-                    inputMode="text"
+            <Label className="font-sans-xs usa-label" htmlFor="input_filter">
+                Message ID (format as xx-xxxxxx)
+            </Label>
+            <div className="grid-gap-lg display-flex">
+                <TextInput
+                    id="search-field"
+                    name="search"
+                    type="text"
+                    className={"usa-input"}
+                    autoFocus
+                    inputSize={"medium"}
                     aria-disabled={isLoading}
-                    onSubmit={searchMessageId}
+                    value={searchFilter}
+                    onChange={(evt) =>
+                        setSearchFilter((evt.target as HTMLInputElement).value)
+                    }
                 />
+                <Button
+                    onClick={() => searchMessageId()}
+                    type={"button"}
+                    name="submit-button"
+                    className="usa-button height-5 margin-top-1 radius-left-0"
+                >
+                    Search
+                </Button>
+                <Button
+                    onClick={() => clearSearch()}
+                    type={"button"}
+                    name="clear-button"
+                    className="font-sans-xs margin-top-1"
+                    unstyled
+                >
+                    Clear
+                </Button>
             </div>
 
-            {withCatchAndSuspense(
-                <MessageTrackerTableContent
-                    isLoading={isLoading}
-                    messageIdData={messagesData}
-                ></MessageTrackerTableContent>
-            )}
+            <MessageTrackerTableContent
+                isLoading={isLoading}
+                messagesData={messagesData}
+            ></MessageTrackerTableContent>
         </section>
     );
 }
