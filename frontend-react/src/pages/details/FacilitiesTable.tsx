@@ -1,4 +1,5 @@
 import { useReportsFacilities } from "../../hooks/network/History/DeliveryHooks";
+import Table, { TableConfig } from "../../components/Table/Table";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -11,37 +12,21 @@ function FacilitiesTable(props: FacilitiesTableProps) {
     const { reportId }: FacilitiesTableProps = props;
     const { reportFacilities } = useReportsFacilities(reportId);
 
+    const tableConfig: TableConfig = {
+        columns: [
+            { dataAttr: "facility", columnHeader: "Facility" },
+            { dataAttr: "location", columnHeader: "Location" },
+            { dataAttr: "CLIA", columnHeader: "CLIA" },
+            { dataAttr: "total", columnHeader: "Total tests" },
+            { dataAttr: "positive", columnHeader: "Total positive" },
+        ],
+        rows: reportFacilities!!,
+    };
+
     return (
         <section id="facilities" className="grid-container margin-bottom-5">
             <h2>Facilities reporting ({reportFacilities?.length || 0})</h2>
-            <table
-                id="facilitiestable"
-                className="usa-table usa-table--borderless prime-table"
-                aria-label="Facilities included in this report"
-            >
-                <thead>
-                    <tr>
-                        <th scope="col">Facility</th>
-                        <th scope="col">Location</th>
-                        <th scope="col">CLIA</th>
-                        <th scope="col">Total tests</th>
-                        <th scope="col">Total positive</th>
-                    </tr>
-                </thead>
-                <tbody id="tBodyFac" className="font-mono-2xs">
-                    {reportFacilities?.map((facility, idx) => (
-                        <tr key={idx}>
-                            <td>{facility.facility}</td>
-                            <td>
-                                {facility.location ? facility.location : "-"}
-                            </td>
-                            <td>{facility.CLIA}</td>
-                            <td>{facility.total}</td>
-                            <td>{facility.positive}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <Table config={tableConfig} />
         </section>
     );
 }
