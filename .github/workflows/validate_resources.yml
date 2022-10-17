@@ -66,7 +66,9 @@ jobs:
           command: dig google.com @10.0.2.4
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-dns
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-dns
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
       - name: Restart legacy SFTP if wrong ip
         if: needs.pre_job.outputs.env_name != 'prod'
@@ -82,5 +84,7 @@ jobs:
             if [[ $last_octet -ne 20 ]]; then exit 1; fi
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver 
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
