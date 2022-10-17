@@ -4,8 +4,8 @@ import { useOktaAuth } from "@okta/okta-react";
 
 import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../utils/SessionStorageTools";
-import { RSDelivery } from "../../../network/api/History/Reports";
 import config from "../../../config";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 
 const { RS_API_URL } = config;
 
