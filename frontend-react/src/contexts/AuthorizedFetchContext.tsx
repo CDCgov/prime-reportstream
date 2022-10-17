@@ -95,7 +95,7 @@ export const AuthorizedFetchProvider = ({
 };
 
 // an extra level of indirection here to allow for generic typing of the returned fetch function
-export const useAuthorizedFetch = <
+export function useAuthorizedFetch<
     TQueryFnData = unknown,
     TError = unknown,
     TData = TQueryFnData,
@@ -103,7 +103,7 @@ export const useAuthorizedFetch = <
 >(): {
     authorizedFetch: AuthorizedFetcher<TQueryFnData>;
     rsUseQuery: RSUseQuery<TQueryFnData, TError, TData, TQueryKey>;
-} => {
+} {
     const { authorizedFetchGenerator, initialized } = useContext(
         AuthorizedFetchContext
     );
@@ -113,4 +113,4 @@ export const useAuthorizedFetch = <
             initialized
         ),
     };
-};
+}

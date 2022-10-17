@@ -101,7 +101,7 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
+        uses: hashicorp/setup-terraform@bbe167fbdaa1a3bd046bdd70eba9dd3dddcca99c
         with:
           terraform_version: 1.2.0
           terraform_wrapper: false
