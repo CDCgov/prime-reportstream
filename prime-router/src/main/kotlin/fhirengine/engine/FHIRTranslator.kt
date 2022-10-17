@@ -3,19 +3,19 @@ package gov.cdc.prime.router.fhirengine.engine
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -37,13 +37,11 @@ class FHIRTranslator(
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata?
+        actionHistory: ActionHistory
     ) {
         logger.trace("Translating FHIR file for receivers.")
         try {
@@ -54,73 +52,47 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("ignore.FULL_ELR")
+            val receivers = listOf("co-phd.full-elr-hl7")
 
-            receivers.forEach { receiver ->
-                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
-                //  receiver-specific transforms
-                val converter = FhirToHl7Converter(
-                    "ORU_R01-base",
-                    "metadata/hl7_mapping/ORU_R01"
-                )
-                val hl7Message = converter.convert(bundle)
-
-                // create report object
-                val sources = emptyList<Source>()
-                val report = Report(
-                    Report.Format.HL7,
-                    sources,
-                    1,
-                    metadata = metadata,
-                    // todo: when we actually want to send HL7 data to a receiver, we will need to ensure the
-                    //  destination property of the report is set
-                    // destination = settings.findReceiver(it)
-                )
-
-                // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        message.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
+            receivers.forEach { recName ->
+                val receiver = settings.findReceiver(recName)
+                // We only process receivers that are active and for this pipeline.
+                if (receiver != null && receiver.topic == Topic.FULL_ELR.json_val) {
+                    val converter = FhirToHl7Converter(
+                        "ORU_R01-base",
+                        "metadata/hl7_mapping/ORU_R01"
                     )
-                )
+                    val hl7Message = converter.convert(bundle)
+                    val bodyBytes = hl7Message.encode().toByteArray()
 
-                // create batch event
-                val batchEvent = ProcessEvent(
-                    Event.EventAction.BATCH,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
+                    // get a Report from the hl7 message
+                    val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                        Event.EventAction.BATCH,
+                        bodyBytes,
+                        message.reportId,
+                        receiver,
+                        this.metadata,
+                        actionHistory
+                    )
 
-                // upload the translated copy to blobstore
-                val bodyBytes = hl7Message.encode().toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.HL7,
-                    bodyBytes,
-                    report.name,
-                    receiver,
-                    batchEvent.eventAction
-                )
+                    // insert batch task into Task table
+                    this.insertBatchTask(
+                        report,
+                        report.bodyFormat.toString(),
+                        blobInfo.blobUrl,
+                        event
+                    )
 
-                // track generated reports, one per receiver
-                actionHistory.trackCreatedReport(batchEvent, report, blobInfo)
-
-                // insert batch task into Task table
-                this.insertBatchTask(
-                    report,
-                    report.bodyFormat.toString(),
-                    blobInfo.blobUrl,
-                    batchEvent
-                )
+                    // nullify the previous task next_action
+                    db.updateTask(
+                        message.reportId,
+                        TaskAction.none,
+                        null,
+                        null,
+                        finishedField = Tables.TASK.TRANSLATED_AT,
+                        null
+                    )
+                }
             }
         } catch (e: IllegalArgumentException) {
             logger.error(e)

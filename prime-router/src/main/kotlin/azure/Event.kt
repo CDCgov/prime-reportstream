@@ -23,6 +23,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
+        CONVERT, // for universal pipeline converting to FHIR
         ROUTE, // calculate routing for a submission
         TRANSLATE,
         BATCH,
@@ -41,6 +42,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 PROCESS_WARNING -> TaskAction.process_warning
                 PROCESS_ERROR -> TaskAction.process_error
                 RECEIVE -> TaskAction.receive
+                CONVERT -> TaskAction.convert
                 ROUTE -> TaskAction.route
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
