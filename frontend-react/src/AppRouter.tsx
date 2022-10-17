@@ -47,7 +47,10 @@ export const AppRouter = () => {
             <Route path="/support/*" element={<Support />} />
             {/* User pages */}
             <Route path="/daily-data" element={<DailyWithAuth />} />
-            <Route path="/report-details" element={<DetailsWithAuth />} />
+            <Route
+                path="/report-details/:reportId"
+                element={<DetailsWithAuth />}
+            />
             <Route path="/upload" element={<UploadWithAuth />} />
             <Route path="/submissions" element={<SubmissionsWithAuth />} />
             <Route
