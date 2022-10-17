@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
+import { testQueryClient } from "../network/QueryClients";
+import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 
 import { mockToken } from "./TestUtils";
 
@@ -57,9 +59,15 @@ export const QueryWrapper =
     ({ children }: PropsWithChildren<{}>) =>
         (
             <QueryClientProvider client={client}>
-                <AuthorizedFetchProvider>{children}</AuthorizedFetchProvider>
+                <AuthorizedFetchProvider initializedOverride={true}>
+                    {children}
+                </AuthorizedFetchProvider>
             </QueryClientProvider>
         );
+
+const FeatureFlagWrapper: FC = ({ children }) => {
+    return <FeatureFlagProvider>{children}</FeatureFlagProvider>;
+};
 
 const AppWrapper =
     (mockOkta: OktaHook) =>
@@ -67,9 +75,11 @@ const AppWrapper =
         return (
             <RouterWrapper>
                 <SessionProvider oktaHook={mockOkta}>
-                    <QueryClientProvider client={new QueryClient()}>
+                    <QueryClientProvider client={testQueryClient}>
                         <AuthorizedFetchProvider>
-                            {children}
+                            <FeatureFlagProvider>
+                                {children}
+                            </FeatureFlagProvider>
                         </AuthorizedFetchProvider>
                     </QueryClientProvider>
                 </SessionProvider>
@@ -125,6 +135,16 @@ export const renderWithQueryProvider = (
 ) =>
     render(ui, {
         wrapper: QueryWrapper(),
+        ...options,
+    });
+
+// for testing components that need access to feature flags
+export const renderWithFeatureFlags = (
+    ui: ReactElement,
+    options?: Omit<RenderOptions, "wrapper">
+) =>
+    render(ui, {
+        wrapper: FeatureFlagWrapper,
         ...options,
     });
 

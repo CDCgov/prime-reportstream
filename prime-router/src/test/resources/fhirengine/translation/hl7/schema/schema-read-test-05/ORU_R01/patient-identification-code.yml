@@ -1,0 +1,6 @@
+elements:
+  - name: name-type-code
+    value:
+      - 'L'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-5-7

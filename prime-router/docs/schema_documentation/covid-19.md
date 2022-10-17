@@ -772,6 +772,10 @@ The city of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country of the facility
+
 ---
 
 **Name**: ordering_facility_county
@@ -4021,6 +4025,7 @@ Code | Display | System
 31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 39607008|Lung structure (body structure)|SNOMED_CT
 955009|Bronchial structure (body structure)|SNOMED_CT
+1797002|Structure of anterior nares (body structure)|SNOMED_CT
 
 **Documentation**:
 

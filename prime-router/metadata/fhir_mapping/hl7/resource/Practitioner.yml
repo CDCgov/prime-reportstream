@@ -1,7 +1,7 @@
 resourceType: Practitioner
 id:
   type: STRING
-  valueOf: 'UUID.randomUUID()'
+  valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
 # The FHIR practitioner resource doesn't have any required fields.
@@ -31,7 +31,10 @@ address:
 
 extension_1:
   generateList: true
+  condition: $locationName NOT_NULL
   expressionType: nested
+  vars:
+    locationName: String, XCN.14.1
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -55,7 +58,7 @@ extension_2:
       expressionType: resource
       specs: $contactSpec
 
-extension_3:
+extension_4:
   generateList: true
   expressionType: nested
   expressionsMap:

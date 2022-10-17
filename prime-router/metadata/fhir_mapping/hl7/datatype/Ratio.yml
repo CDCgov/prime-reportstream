@@ -1,0 +1,15 @@
+numerator_1:
+  valueOf: datatype/Quantity
+  expressionType: resource
+  vars:
+    value: String, $numerator
+    unit: $numunit | CE.1 | CWE.1
+    resolvedSystem: $unitSystem
+
+denominator_1:
+  valueOf: datatype/Quantity
+  expressionType: resource
+  vars:
+    value: String, $denominator
+    unit: $denunit | CE.1 | CWE.1
+    resolvedSystem: $unitSystem

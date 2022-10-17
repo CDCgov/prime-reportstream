@@ -80,7 +80,7 @@ runs:
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}"
 
-    - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+    - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50
       if: github.event_name != 'schedule'
       id: filter
       with:
@@ -107,7 +107,8 @@ runs:
       id: backend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
           echo "::set-output name=has_router_change::true"
         else
           echo "::set-output name=has_router_change::${{ steps.filter.outputs.router }}"
@@ -118,7 +119,8 @@ runs:
       id: frontend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
+        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
           echo "::set-output name=has_react_change::true"
         else
           echo "::set-output name=has_react_change::${{ steps.filter.outputs.frontend_react }}"

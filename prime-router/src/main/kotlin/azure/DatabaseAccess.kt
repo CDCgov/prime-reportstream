@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -27,11 +28,13 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
 import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
+import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
@@ -209,6 +212,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .count() > 0
     }
 
+    /**
+     * Returns the action_id PK of the newly inserted [action]. Uses [txn] as the context
+     */
+    internal fun insertAction(txn: Configuration, action: Action): Long {
+        val actionRecord = DSL.using(txn).newRecord(ACTION, action)
+        actionRecord.store()
+        val actionId = actionRecord.actionId
+        logger.debug("Saved to ACTION: ${action.actionName}, id=$actionId")
+        return actionId
+    }
+
     fun fetchTask(reportId: ReportId): Task {
         return create.selectFrom(TASK)
             .where(TASK.REPORT_ID.eq(reportId))
@@ -258,6 +272,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /*
      * ActionHistory queries
      */
+
+    fun insertReportFile(reportFile: ReportFile, txn: Configuration, action: Action) {
+        DSL.using(txn).newRecord(Tables.REPORT_FILE, reportFile).store()
+        val fromInfo =
+            if (!reportFile.sendingOrg.isNullOrEmpty())
+                "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> " else ""
+        val toInfo =
+            if (!reportFile.receivingOrg.isNullOrEmpty())
+                " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}" else ""
+        logger.debug(
+            "Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)"
+        )
+    }
 
     /** You should include org as a search criteria to enforce authorization to get that report. */
     fun fetchReportFile(
@@ -413,6 +440,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * @param actionId id to search by
      * @param txn an optional database transaction
      * @return a ReportFile, or null if no such actionId exists.
+     *
+     * Danger:  many actions create more than one report.  This method randomly returns the first it finds.
      */
     fun fetchReportForActionId(
         actionId: Long,
@@ -613,6 +642,95 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
+    }
+
+    /**
+     * data returned by fetchSettingRevisionHistory. Only used to shape json response.
+     * @param id settingId remaps to this
+     * @param name Every setting has a unique name for a given org
+     * @param version incrementing revision number zero based
+     * @param createdBy email address of account creating this revision
+     * @param createdAt timestamp of when this revision entry was created
+     * @param isDeleted tombstone marker
+     * @param isActive Only the latest revision can be active.
+     * @param settingJson Content of settings is stored as a JSONB. We treat it opaquely as a string by design
+     * **/
+    data class SettingsHistoryData(
+        val id: Int,
+        val name: String? = "",
+        val version: Int? = 0,
+        val createdBy: String?,
+        val createdAt: OffsetDateTime? = null,
+        val isDeleted: Boolean? = true,
+        val isActive: Boolean? = false,
+        val settingJson: String? = "",
+    )
+
+    /**
+     * DB call to return a list of all Settings for an org of a given type even if deleted
+     * It doesn't take a setting name since if a setting is deleted, it's hard to get that name
+     * without a name=* query like this.
+     *
+     * Query for org is a different query from sender/receiver because of schema, result data
+     * is the same.
+     *
+     * Returns a string for the Values JSONB column intentionally. The use case for this API call
+     * is to detect changes over time. If the format/content of the JSONB changes, then things get
+     * super complex AND it becomes likely that the schema for the JSONB will REMOVE
+     * entries it doesn't recognize. We want as little reintepretation of data as possible
+     *
+     * @param organizationName Org Name to match against
+     * @param settingType Settings type to match against
+     * @param txn DB transaction
+     * @return List of SettingsHistoryData. Intentionally returns JSONB "value" field as a string.
+     */
+    fun fetchSettingRevisionHistory(
+        organizationName: String,
+        settingType: SettingType,
+        txn: DataAccessTransaction
+    ): List<SettingsHistoryData> {
+        val org = SETTING.`as`("org")
+        val settings = SETTING.`as`("settings")
+        val selectCols = DSL.using(txn).select(
+            settings.SETTING_ID.`as`("id"),
+            settings.NAME,
+            settings.VERSION,
+            settings.CREATED_AT,
+            settings.CREATED_BY,
+            settings.IS_ACTIVE,
+            settings.IS_DELETED,
+            settings.VALUES.cast(String::class.java).`as`("settingJson") // see kdoc
+        )
+
+        when (settingType) {
+            SettingType.ORGANIZATION ->
+                return selectCols
+                    .from(settings)
+                    .where(
+                        settings.TYPE.eq(SettingType.ORGANIZATION)
+                            .and(settings.NAME.eq(organizationName))
+                    )
+                    .limit(MAX_RECORDS_TO_RETURN)
+                    .fetch()
+                    .into(SettingsHistoryData::class.java)
+
+            // Sending/receiver needs join with the latest organization setting record
+            // in order to restrict the organization
+            SettingType.SENDER, SettingType.RECEIVER ->
+                return selectCols
+                    .from(settings)
+                    .join(org)
+                    .on(settings.ORGANIZATION_ID.eq(org.SETTING_ID))
+                    .where(
+                        settings.TYPE.eq(settingType)
+                            .and(org.IS_ACTIVE.isTrue)
+                            .and(org.TYPE.eq(SettingType.ORGANIZATION))
+                            .and(org.NAME.eq(organizationName))
+                    )
+                    .limit(MAX_RECORDS_TO_RETURN)
+                    .fetch()
+                    .into(SettingsHistoryData::class.java)
+        }
     }
 
     fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int {
@@ -964,6 +1082,105 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .selectFrom(Routines.listSendFailures(daysBackSpan))
             .limit(MAX_RECORDS_TO_RETURN)
             .fetchInto(ListSendFailures::class.java)
+    }
+
+    /**
+     * Save all information that has been added into [actionHistory] to the database, using [txn] as the context
+     */
+    fun saveActionHistoryToDb(actionHistory: ActionHistory, txn: Configuration) {
+        val actionId = this.insertAction(txn, actionHistory.action)
+
+        // set the action id properly on all internal reports after getting one from the database
+        actionHistory.setActionId(actionId)
+
+        // save all reports to the database
+        insertReports(actionHistory, txn)
+
+        // todo: cd 9/1/2022 - do we actually need a companion object here at all?
+        // todo: migrate away from the covid test data which is legacy
+        // we are going to have a more generic full elr table that we want to use
+        // instead, but for now we need to maintain the older covid result metadata table
+        DatabaseAccess.saveTestData(actionHistory.elrMetaDataRecords, txn)
+        DatabaseAccess.saveCovidTestData(actionHistory.covidResultMetadataRecords, txn)
+
+        // generate lineage records
+        actionHistory.generateLineages()
+
+        // insert report lineages
+        actionHistory.reportLineages.forEach {
+            it.actionId = actionId
+            this.insertReportLineage(it, txn)
+        }
+
+        // insert item lineages
+        this.insertItemLineages(actionHistory.itemLineages, txn, actionHistory.action)
+
+        // remove the reportId value from actions if the report associated with that action is not actually tracked
+        actionHistory.nullifyReportIdsForNonTrackedReports()
+
+        // insert action logs
+        actionHistory.actionLogs.forEach {
+            this.insertActionLog(it, txn)
+        }
+    }
+
+    /**
+     * Inserts all reports tracked within [actionHistory] using [txn]
+     */
+    private fun insertReports(actionHistory: ActionHistory, txn: Configuration) {
+        actionHistory.reportsReceived.values.forEach {
+            this.insertReportFile(it, txn, actionHistory.action)
+        }
+        actionHistory.reportsOut.values.forEach {
+            this.insertReportFile(it, txn, actionHistory.action)
+        }
+        actionHistory.filteredOutReports.values.forEach {
+            this.insertReportFile(it, txn, actionHistory.action)
+        }
+    }
+
+    /**
+     * Inserts the provided [lineage] using [txn] as the data context
+     */
+    private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
+        DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
+        logger.debug(
+            "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
+        )
+    }
+
+    /**
+     * Inserts the provided [actionLog] using [txn] as the data context
+     */
+    private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
+        val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
+        detailRecord.store()
+    }
+
+    /**
+     * Inserts the provided [itemLineages] and logs the id and name from the provided [action]. [txn] is used as the
+     * data context.
+     */
+    internal fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration, action: Action) {
+        DSL.using(txn)
+            .batchInsert(
+                itemLineages.map { il ->
+                    ItemLineageRecord().also { record ->
+                        record.parentReportId = il.parentReportId
+                        record.parentIndex = il.parentIndex
+                        record.childReportId = il.childReportId
+                        record.childIndex = il.childIndex
+                        record.trackingId = il.trackingId
+                        record.itemHash = il.itemHash
+                    }
+                }
+            )
+            .execute()
+
+        logger.debug(
+            "Inserted ${itemLineages.size} " +
+                "Item lineages into db for action ${action.actionId}: ${action.actionName}"
+        )
     }
 
     /**

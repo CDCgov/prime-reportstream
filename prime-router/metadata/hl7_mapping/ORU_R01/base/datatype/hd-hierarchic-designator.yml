@@ -1,0 +1,39 @@
+elements:
+  - name: designator-namespace-id-from-namespace
+    condition: '%resource.extension(%`namespaceExtName`).exists()'
+    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-namespace-id-from-system
+    condition: >
+      %resource.extension(%`namespaceExtName`).exists().not() and 
+      %resource.system.startsWith('urn:id:')
+    value: [ '%resource.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-namespace-id-from-value
+    condition: >
+      %resource.system.exists().not() and 
+      %resource.extension(%`namespaceExtName`).exists().not() and 
+      %resource.value.exists() and
+      %resource.system.exists() and 
+      %resource.system = 'http://hl7.org/fhir/sid/us-npi'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-namespace-id-from-name
+    condition: >
+      %resource.system.exists().not() and 
+      %resource.extension(%`namespaceExtName`).exists().not() and 
+      %resource.value.exists().not() and 
+      %resource.name.exists()
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-universal-id
+    value: [ '%resource.extension(%`universalIdExtName`).value.getId()' ]
+    hl7Spec: [ '%{hl7HDField}-2' ]
+
+  - name: designator-universal-id-type
+    value: [ '%resource.extension(%`universalIdExtName`).value.getIdType()' ]
+    hl7Spec: [ '%{hl7HDField}-3' ]

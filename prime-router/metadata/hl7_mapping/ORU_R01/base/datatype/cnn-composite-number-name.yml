@@ -1,0 +1,32 @@
+# Practitioner to CNN
+elements:
+  - name: cnn-id
+    value: [ '%resource.identifier[0].value' ]
+    hl7Spec: [ '%{cnnFieldPath}-1' ]
+
+  - name: cnn-family-name
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '%{cnnFieldPath}-2' ]
+
+  - name: cnn-given-name
+    condition: '%resource.name.exists()'
+    value: [ '%resource.name.given[0]' ]
+    hl7Spec: [ '%{cnnFieldPath}-3' ]
+
+  - name: cnn-other-given-names
+    condition: '%resource.name.given.count() > 1'
+    value: [ '%resource.name.given.tail().toString().replace('','', '' '')' ]
+    hl7Spec: [ '%{cnnFieldPath}-4' ]
+
+  - name: cnn-suffix
+    value: [ '%resource.name.suffix.toString()' ]
+    hl7Spec: [ '%{cnnFieldPath}-5' ]
+
+  - name: cnn-prefix
+    value: [ '%resource.name.prefix.toString()' ]
+    hl7Spec: [ '%{cnnFieldPath}-6' ]
+
+  - name: cnn-namespace-id
+    condition: '%resource.identifier.exists()'
+    value: [ '%resource.identifier[0].system.getId()' ]
+    hl7Spec: [ '%{cnnFieldPath}-9' ]

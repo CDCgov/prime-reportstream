@@ -45,8 +45,8 @@ const lookupTables: LookupTable[] = [
 
 const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
-    created_by: "",
-    created_at: "",
+    created_by: "", // eslint-disable-line camelcase
+    created_at: "", // eslint-disable-line camelcase
     system: "LOCAL",
     reference: "unused",
     referenceURL: "https://unused",

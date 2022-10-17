@@ -1,0 +1,31 @@
+constants:
+  hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+elements:
+  # Source: HCA CO Requirements
+  # Always replace ORC-21.8 with NULL
+  - name: co-ordering-facility-assigning-facility
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7Order}/ORC-21-8' ]
+
+  # Source: HCA CO Requirements
+  # Always replace ORC-21.9 with NULL
+  - name: co-ordering-facility-name-code
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7Order}/ORC-21-9' ]
+
+  # Source: HCA CO Requirements
+  # If ORC-21.6 is populated then replace ORC-21.10 with value present in ORC-21.6.1
+  # We overwrite this field with a new element as XON elements are generic and reused in other conversions
+  - name: co-ordering-facility-organization-id
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve()'
+    value:
+      # ORC-21.6.1
+      - '%resource.extension(%`rsext-namespace-id`).value'
+      # Default ORC-21.10 value
+      - '%resource.identifier.value'
+    hl7Spec: [ '%{hl7Order}/ORC-21-10' ]
+
+  - name: co-observation-result
+    resource: '%resource.result.resolve()'
+    schema: co-observation-result
+    resourceIndex: resultIndex

@@ -2,6 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import React from "react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
 import { AdminDropdown } from "./DropdownNav";
 
@@ -45,7 +46,14 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
     };
 });
 
-describe("AdminDropdownNav", () => {
+describe("AdminDropdownNav - value-sets", () => {
+    beforeEach(() => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag === "value-sets"),
+        });
+    });
     test("Admin menu expands and contracts on click and selection", () => {
         renderWithRouter(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
@@ -68,26 +76,80 @@ describe("AdminDropdownNav", () => {
         renderWithRouter(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
+        const lastMileFailures = screen.getByText("Last Mile Failures");
+        const receiverStatus = screen.getByText("Receiver Status Dashboard");
 
         expect(settings).toBeInTheDocument();
         expect(featureFlags).toBeInTheDocument();
+        expect(lastMileFailures).toBeInTheDocument();
+        expect(receiverStatus).toBeInTheDocument();
     });
 
-    test("Flagged admin pages are hidden", () => {
+    test("Flagged value-sets page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "value-sets"),
+        });
         renderWithRouter(<AdminDropdown />);
-        const queryForNavItem = screen.queryByText("Value Sets");
+        const queryForNavItemValueSets = screen.queryByText("Value Sets");
 
         // Assert they're hidden without flag
-        expect(queryForNavItem).not.toBeInTheDocument();
+        expect(queryForNavItemValueSets).not.toBeInTheDocument();
     });
 
-    test("Flagged admin pages are shown when flag is set", () => {
-        mockLocalStorage.setItem("featureFlags", ["value-sets"]);
-
+    test("Flagged value-sets page is shown when flag is set", () => {
         renderWithRouter(<AdminDropdown />);
-        const queryForNavItem = screen.queryByText("Value Sets");
+        const queryForNavItemValueSets = screen.queryByText("Value Sets");
 
         // Assert not hidden
-        expect(queryForNavItem).toBeInTheDocument();
+        expect(queryForNavItemValueSets).toBeInTheDocument();
+    });
+});
+
+describe("AdminDropdownNav - message-id-search", () => {
+    beforeEach(() => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag === "message-id-search"),
+        });
+    });
+
+    test("Flagged message-id-search page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "message-id-search"),
+        });
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemValueSets =
+            screen.queryByText("Message Id Search");
+
+        // Assert they're hidden without flag
+        expect(queryForNavItemValueSets).not.toBeInTheDocument();
+    });
+
+    test("Flagged message-id-search page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "message-id-search"),
+        });
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemMessageIdSearch =
+            screen.queryByText("Message Id Search");
+
+        // Assert they're hidden without flag
+        expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
+    });
+
+    test("Flagged message-id-search page is shown when flag is set", () => {
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemMessageIdSearch =
+            screen.queryByText("Message Id Search");
+
+        // Assert not hidden
+        expect(queryForNavItemMessageIdSearch).toBeInTheDocument();
     });
 });

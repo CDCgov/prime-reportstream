@@ -1,5 +1,9 @@
+import config from "../config";
+
 import ActionResource from "./ActionResource";
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export default class ReportResource extends AuthResource {
     readonly sent: number = 1;
@@ -39,5 +43,5 @@ export default class ReportResource extends AuthResource {
         return this.reportId;
     }
 
-    static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/history/report`;
+    static urlRoot = `${RS_API_URL}/api/history/report`;
 }

@@ -13,14 +13,16 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.Destination
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -89,13 +91,10 @@ class ValidateFunction(
     ): HttpResponseMessage {
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
-        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+        var routedTo = emptyList<Translator.RoutedReport>()
         val httpStatus: HttpStatus =
             try {
-                val options = Options.valueOfOrNone(optionsText)
-                val payloadName = extractPayloadName(request)
                 val validatedRequest = validateRequest(request)
-                val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -105,16 +104,12 @@ class ValidateFunction(
                 }
 
                 val receiver = ValidationReceiver(workflowEngine, actionHistory)
-                receiver.validateAndMoveToProcessing(
+                routedTo = receiver.validateAndRoute(
                     sender,
                     validatedRequest.content,
                     validatedRequest.defaults,
-                    options,
                     validatedRequest.routeTo,
-                    false,
                     allowDuplicates,
-                    rawBody,
-                    payloadName
                 )
 
                 // return OK status, report validation was successful
@@ -151,6 +146,23 @@ class ValidateFunction(
                 )
             }
         )
+
+        // add quality filter results to the submission before returning
+        routedTo.forEach { it ->
+            submission.destinations.add(
+                Destination(
+                    it.receiver.organizationName,
+                    it.receiver.name,
+                    itemCount = it.report.itemCount,
+                    sentReports = mutableListOf(),
+                    downloadedReports = mutableListOf(),
+                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) },
+                    filteredReportRows = it.report.filteringResults.map { it.message },
+                    itemCountBeforeQualFilter = it.report.itemCountBeforeQualFilter,
+                    sendingAt = null
+                )
+            )
+        }
 
         // set status for validation response
         submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST)

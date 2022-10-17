@@ -401,14 +401,7 @@ class WorkflowEngine(
         routeTo: List<String>,
         actionHistory: ActionHistory,
     ): List<ActionLog> {
-        val (routedReports, warnings) = this.translator
-            .filterAndTranslateByReceiver(
-                report,
-                defaults,
-                routeTo,
-            )
-
-        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+        val (warnings, emptyReports, preparedReports) = translateAndRouteReport(report, defaults, routeTo)
 
         emptyReports.forEach { (filteredReport, receiver) ->
             if (!filteredReport.filteringResults.isEmpty()) {
@@ -428,6 +421,30 @@ class WorkflowEngine(
             }
         }
         return warnings
+    }
+
+    /**
+     * Do translation and routing as one atomic unit
+     *
+     * @param report The report file
+     * @param defaults Optional map of translation defaults
+     * @param routeTo Optional list of receivers to limit translation to
+     * @return The resulting set of warnings (ActionLogs), empty and prepared reports (RoutedReports)
+     */
+    internal fun translateAndRouteReport(
+        report: Report,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+    ): Triple<List<ActionLog>, List<Translator.RoutedReport>, List<Translator.RoutedReport>> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
+
+        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+        return Triple(warnings, emptyReports, preparedReports)
     }
 
     // 1. create <event, report> pair or pairs depending on input
@@ -514,7 +531,7 @@ class WorkflowEngine(
         }
         // save action record to db
         db.transact { txn ->
-            actionHistory.saveToDb(txn)
+            db.saveActionHistoryToDb(actionHistory, txn)
         }
     }
 
@@ -638,15 +655,12 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        // todo All of this info is already populated in the Header obj.
-        val schema = metadata.findSchema(header.task.schemaName)
-            ?: error("Invalid schema in queue: ${header.task.schemaName}")
         val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
-                    schema.name,
+                    header.task.schemaName,
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver
@@ -658,7 +672,7 @@ class WorkflowEngine(
             }
             "INTERNAL" -> {
                 csvSerializer.readInternal(
-                    schema.name,
+                    header.task.schemaName,
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver,
@@ -678,9 +692,9 @@ class WorkflowEngine(
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
         if (txn != null) {
-            actionHistory.saveToDb(txn)
+            db.saveActionHistoryToDb(actionHistory, txn)
         } else {
-            db.transact { innerTxn -> actionHistory.saveToDb(innerTxn) }
+            db.transact { innerTxn -> db.saveActionHistoryToDb(actionHistory, innerTxn) }
         }
     }
 
@@ -774,6 +788,9 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
+                //  for 'process' ... but 'process' is just too vague
+                Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date

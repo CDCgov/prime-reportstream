@@ -1,13 +1,27 @@
+import config from "../config";
+
 import AuthResource from "./AuthResource";
+
+const { RS_API_URL } = config;
 
 export interface Destination {
     organization_id: string;
     organization: string;
     service: string;
     filteredReportRows: string[];
+    filteredReportItems: FilteredReportItem[];
     sending_at: string;
     itemCount: number;
+    itemCountBeforeQualityFiltering: number;
     sentReports: string[];
+}
+
+export interface FilteredReportItem {
+    filterType: string;
+    filterName: string;
+    filteredTrackingElement: string;
+    filterArgs: string[];
+    message: string;
 }
 
 export interface ReportWarning {
@@ -52,7 +66,7 @@ export default class ActionDetailsResource extends AuthResource {
         organization: string;
     }): string {
         if (searchParams && Object.keys(searchParams).length) {
-            return `${process.env.REACT_APP_BACKEND_URL}/api/waters/report/${searchParams.actionId}/history`;
+            return `${RS_API_URL}/api/waters/report/${searchParams.actionId}/history`;
         }
         throw new Error("Action details require an ActionID to retrieve");
     }
