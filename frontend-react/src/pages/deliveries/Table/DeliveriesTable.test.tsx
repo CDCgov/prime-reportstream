@@ -10,9 +10,9 @@ import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/D
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 
-import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
+import DeliveriesTable, { useReceiverFeeds } from "./DeliveriesTable";
 
-describe("ReportsTable", () => {
+describe("DeliveriesTable", () => {
     beforeEach(() => {
         // Mock our SessionProvider's data
         mockSessionContext.mockReturnValue({
@@ -42,7 +42,7 @@ describe("ReportsTable", () => {
                 serviceReportsList: makeDeliveryFixtureArray(101),
             });
             // Render the component
-            renderWithRouter(<ReportsTable />);
+            renderWithRouter(<DeliveriesTable />);
         });
         test("renders with no error", async () => {
             // Column headers render
@@ -72,7 +72,7 @@ describe("ReportsTable", () => {
                 serviceReportsList: makeDeliveryFixtureArray(0),
             });
             // Render the component
-            renderWithRouter(<ReportsTable />);
+            renderWithRouter(<DeliveriesTable />);
         });
         test("renders 0 results (but 1 header row)", () => {
             const rows = screen.getAllByRole("row");
