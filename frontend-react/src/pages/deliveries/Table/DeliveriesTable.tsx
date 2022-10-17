@@ -7,8 +7,7 @@ import useFilterManager, {
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
-import { useReportsList } from "../../../hooks/network/History/DeliveryHooks";
-import { showError } from "../../../components/AlertNotifications";
+import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -72,41 +71,16 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function ReportsTable() {
+function DeliveriesTable() {
     const { oktaToken, activeMembership } = useSessionContext();
     const { loadingServices, services, activeService, setActiveService } =
         useReceiverFeeds();
     // TODO: Doesn't update parameters because of the config memo dependency array
-    const {
-        data: deliveries,
-        loading,
-        error,
-        trigger: getReportsList,
-    } = useReportsList(activeMembership?.parsedName, activeService?.name);
-    const filterManager = useFilterManager(filterManagerDefaults);
-
-    useEffect(
-        () => {
-            // IF parsedName and activeService.name are FOR SURE valid values
-            // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
-            if (
-                deliveries === undefined &&
-                activeMembership?.parsedName !== undefined &&
-                activeService?.name !== undefined
-            ) {
-                // Trigger useReportsList()
-                getReportsList();
-            }
-        },
-        // Ignoring getReportsList as dep
-        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line react-hooks/exhaustive-deps
+    const { serviceReportsList } = useOrgDeliveries(
+        activeMembership?.parsedName,
+        activeService?.name
     );
-
-    useEffect(() => {
-        if (error !== "") {
-            showError(error);
-        }
-    }, [error]);
+    const filterManager = useFilterManager(filterManagerDefaults);
 
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
@@ -127,7 +101,7 @@ function ReportsTable() {
                 columnHeader: "Report ID",
                 feature: {
                     link: true,
-                    linkBasePath: "/report-details?reportId=",
+                    linkBasePath: "/report-details/",
                 },
             },
             {
@@ -161,9 +135,9 @@ function ReportsTable() {
                 },
             },
         ],
-        rows: deliveries || [],
+        rows: serviceReportsList || [],
     };
-    if (loading || loadingServices) return <Spinner />;
+    if (loadingServices) return <Spinner />;
     return (
         <>
             <div className="grid-container grid-col-12">
@@ -192,11 +166,13 @@ function ReportsTable() {
             </div>
             <div className="grid-container margin-bottom-10">
                 <div className="grid-col-12">
-                    {deliveries?.length === 0 ? <p>No results</p> : null}
+                    {serviceReportsList?.length === 0 ? (
+                        <p>No results</p>
+                    ) : null}
                 </div>
             </div>
         </>
     );
 }
 
-export default ReportsTable;
+export default DeliveriesTable;

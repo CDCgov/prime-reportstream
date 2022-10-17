@@ -22,12 +22,12 @@ import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
 import { AdminMessageIdSearchWithAuth } from "./pages/admin/AdminMessageIdSearch";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
-import { DetailsWithAuth } from "./pages/details/Details";
+import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
 import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import Home from "./pages/home/Home";
-import { DailyWithAuth } from "./pages/daily/Daily";
+import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
@@ -46,8 +46,11 @@ export const AppRouter = () => {
             <Route path="/product/*" element={<Product />} />
             <Route path="/support/*" element={<Support />} />
             {/* User pages */}
-            <Route path="/daily-data" element={<DailyWithAuth />} />
-            <Route path="/report-details" element={<DetailsWithAuth />} />
+            <Route path="/daily-data" element={<DeliveriesWithAuth />} />
+            <Route
+                path="/report-details/:reportId"
+                element={<DeliveryDetailWithAuth />}
+            />
             <Route path="/upload" element={<UploadWithAuth />} />
             <Route path="/submissions" element={<SubmissionsWithAuth />} />
             <Route

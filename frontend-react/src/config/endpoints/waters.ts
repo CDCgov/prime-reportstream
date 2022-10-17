@@ -1,6 +1,6 @@
 import { Destination } from "../../resources/ActionDetailsResource";
 
-import { API } from "./NewApi";
+import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
 
 export enum OverallStatus {
     VALID = "Valid",
@@ -44,12 +44,25 @@ export interface ResponseError {
     rowList?: string;
 }
 
-export enum EndpointName {
-    WATERS = "waters",
-    VALIDATE = "validate",
+export enum WatersUrls {
+    UPLOAD = "/waters",
+    VALIDATE = "/validate",
 }
-const WatersApi: API = new API(WatersResponse, "/api")
-    .addEndpoint(EndpointName.WATERS.toString(), "/waters", ["POST"])
-    .addEndpoint(EndpointName.VALIDATE.toString(), "/validate", ["POST"]);
 
-export default WatersApi;
+/*
+Waters Endpoints
+* waters -> uploads a file to the ReportStream service
+* validate -> validates a file against ReportStream file requirements (filters, data quality, etc.)
+*/
+export const watersEndpoints: RSApiEndpoints = {
+    upload: new RSEndpoint({
+        path: WatersUrls.UPLOAD,
+        method: HTTPMethods.POST,
+        queryKey: "watersPost",
+    }),
+    validate: new RSEndpoint({
+        path: WatersUrls.VALIDATE,
+        method: HTTPMethods.POST,
+        queryKey: "watersValidate",
+    }),
+};
