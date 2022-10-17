@@ -1,7 +1,8 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
+    extractFiltersFromManager,
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
@@ -73,14 +74,19 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
 */
 function DeliveriesTable() {
     const { oktaToken, activeMembership } = useSessionContext();
+    const filterManager = useFilterManager(filterManagerDefaults);
     const { loadingServices, services, activeService, setActiveService } =
         useReceiverFeeds();
+    const filters = useMemo(
+        () => extractFiltersFromManager(filterManager),
+        [filterManager]
+    );
     // TODO: Doesn't update parameters because of the config memo dependency array
     const { serviceReportsList } = useOrgDeliveries(
         activeMembership?.parsedName,
-        activeService?.name
+        activeService?.name,
+        filters
     );
-    const filterManager = useFilterManager(filterManagerDefaults);
 
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));

@@ -7,6 +7,7 @@ import {
     RSDelivery,
     RSFacility,
 } from "../../../config/endpoints/deliveries";
+import { Filters } from "../../filters/UseFilterManager";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -15,9 +16,15 @@ const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
  *
  * @param org {string} the `parsedName` of user's active membership
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
+ * @param filters {Filters} the filters set by a user in the UI
  * */
-const useOrgDeliveries = (org?: string, service?: string) => {
+const useOrgDeliveries = (
+    org?: string,
+    service?: string,
+    filters?: Filters
+) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery[]>();
+
     const adminSafeOrgName = useAdminSafeOrgName(org); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
@@ -29,8 +36,9 @@ const useOrgDeliveries = (org?: string, service?: string) => {
                 segments: {
                     orgAndService,
                 },
+                params: filters,
             }),
-        [authorizedFetch, orgAndService]
+        [authorizedFetch, orgAndService, filters]
     );
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when swapping services
