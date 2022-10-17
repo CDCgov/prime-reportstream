@@ -5,6 +5,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -58,8 +59,15 @@ class FHIRRouter(
             val fhirDocument = FhirTranscoder.decode(message.downloadContent())
 
             // TODO: routing would need to happen here to generate a list of the receivers
-            val hardCodedReceiverNames = listOf("co-phd.elr")
-            addReceivers(fhirDocument, hardCodedReceiverNames)
+            val hardCodedPhase1ReceiverName = "co-phd.full-elr-hl7"
+            var receiver = settings.findReceiver(hardCodedPhase1ReceiverName)
+            if (receiver == null)
+                logger.error("Receiver $hardCodedPhase1ReceiverName was not found in the settings.")
+
+            val listOfReceivers = listOf(receiver!!)
+
+            // add the receivers to the fhir bundle
+            addReceivers(fhirDocument, listOfReceivers)
 
             // create report object
             val sources = emptyList<Source>()
@@ -159,16 +167,9 @@ class FHIRRouter(
     }
 
     /**
-     * Adds [receivers] to the [fhirBundle] as targets
+     * Adds [receiverList] to the [fhirBundle] as targets
      */
-    private fun addReceivers(fhirBundle: Bundle, receivers: List<String>) {
-        val receiverList = receivers.mapNotNull { receiverName ->
-            val receiver = settings.findReceiver(receiverName)
-            if (receiver == null)
-                logger.error("Receiver $receiverName was not found in the settings.")
-            receiver
-        }
-
+    internal fun addReceivers(fhirBundle: Bundle, receiverList: List<Receiver>) {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
@@ -180,20 +181,22 @@ class FHIRRouter(
         receiverList.forEach { receiver ->
             val endpoint = Endpoint()
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
-            endpoint.name = receiver.fullName
+            endpoint.name = receiver.displayName
             when (receiver.customerStatus) {
                 CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
                 CustomerStatus.INACTIVE -> endpoint.status = Endpoint.EndpointStatus.OFF
                 else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
             }
             val rsIdentifier = Identifier()
-            rsIdentifier.value = receiver.name
-            rsIdentifier.system = "https://reportstream.cdc.gov/"
+            rsIdentifier.value = receiver.fullName
+            rsIdentifier.system = "https://reportstream.cdc.gov/prime-router"
             endpoint.identifier.add(rsIdentifier)
-            fhirBundle.addEntry().resource = endpoint
+            val entry = fhirBundle.addEntry()
+                .setFullUrl("${endpoint.fhirType()}/${endpoint.id}")
+                .setResource(endpoint)
 
             val reference = Reference()
-            reference.reference = endpoint.idBase
+            reference.reference = entry.fullUrl
             targetList.add(reference)
         }
 
