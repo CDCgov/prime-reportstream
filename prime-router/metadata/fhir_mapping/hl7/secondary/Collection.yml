@@ -16,10 +16,11 @@ collectedPeriod:
     end: SPM.17.2
 
 quantity:
+  condition: $value NOT_NULL || $unit NOT_NULL
   valueOf: datatype/Quantity
   expressionType: resource
   vars:
-    value: SPM.12.1
+    value: String, SPM.12.1
     unit: SPM.12.2
 
 method:

@@ -3,10 +3,31 @@ name:
   valueOf: MSH.3
   expressionType: HL7Spec
 
-endpoint:
+# For OIDs
+endpoint_1:
   type: URL
-  valueOf: MSH.24.2
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  valueOf: $value
   expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+
+# For all other ID types
+endpoint_2:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    value: $idUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    idUrlPrefix: "urn:id:"
 
 version:
   type: STRING
@@ -18,37 +39,7 @@ software:
   valueOf: SFT.3
   expressionType: HL7Spec
 
-# For OIDs
 extension_1:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
-  vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
-  constants:
-    oidUrlPrefix: "urn:oid:"
-    KEY_NAME_SUFFIX: Oid
-    urlValue: source-identifier-system
-
-# For all other ID types
-extension_2:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
-  vars:
-    idStr: String, MSH.3.2
-    value: $idUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
-  constants:
-    idUrlPrefix: "urn:id:"
-    KEY_NAME_SUFFIX: String
-    urlValue: source-identifier-system
-
-extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -56,9 +47,9 @@ extension_3:
     value: String, SFT.4
   constants:
     KEY_NAME_SUFFIX: String
-    urlValue: source-software-binary-id
+    urlValue: software-binary-id
 
-extension_4:
+extension_2:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -68,7 +59,7 @@ extension_4:
     KEY_NAME_SUFFIX: String
     urlValue: source-software-description
 
-extension_5:
+extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -76,15 +67,15 @@ extension_5:
     value: SFT.6, GeneralUtils.dateTimeWithZoneId(value,ZONEID)
   constants:
     KEY_NAME_SUFFIX: DateTime
-    urlValue: source-software-install-date
+    urlValue: software-install-date
 
-extension_6:
+extension_4:
   generateList: true
   expressionType: nested
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "source-software-vendor-org"
+      value: "software-vendor-org"
     valueReference:
       valueOf: resource/Organization
       expressionType: reference

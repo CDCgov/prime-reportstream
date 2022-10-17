@@ -106,7 +106,7 @@ open class Receiver(
     )
 
     @get:JsonIgnore
-    val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    val fullName: String get() = createFullName(organizationName, name)
     @get:JsonIgnore
     val schemaName: String get() = translation.schemaName
     @get:JsonIgnore
@@ -216,6 +216,13 @@ open class Receiver(
 
     companion object {
         const val fullNameSeparator = "."
+
+        /** Global function to create receiver fullNames using
+         * the [organizationName] and the [receiverName].
+         */
+        fun createFullName(organizationName: String, receiverName: String): String {
+            return "$organizationName$fullNameSeparator$receiverName"
+        }
 
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(Sender.fullNameSeparator)

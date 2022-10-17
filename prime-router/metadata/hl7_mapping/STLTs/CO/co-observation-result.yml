@@ -1,0 +1,23 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+elements:
+  # If OBX-3.4 is equals to “HCVRNA” or “HCVLOG” AND OBX-5.2 is NON-Numeric result, AND OBX-15.1 equals to “QDI”,
+  # THEN replace the OBX-2 with “CWE” and remove OBX-5.1.
+  # Follow this same rule for all non-numeric results
+  - name: co-result-value-type-fix-sn-obx2
+    resource: '%resource.value'
+    condition: >
+      %resource is Ratio and
+      %resource.numerator.value.exists().not() and
+      %resource.numerator.extension(%`rsext-alternate-value`).exists()
+    value: [ '"CE"' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-2' ]
+
+  - name: co-result-value-type-fix-sn-obx5
+    resource: '%resource.value'
+    condition: >
+      %resource is Ratio and
+      %resource.numerator.value.exists().not() and
+      %resource.numerator.extension(%`rsext-alternate-value`).exists()
+    value: [ '%resource.numerator.extension(%`rsext-alternate-value`).value' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-5-2' ]

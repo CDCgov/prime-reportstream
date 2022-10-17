@@ -8,6 +8,8 @@ import {
     VersionWarningType,
     toHumanReadable,
     capitalizeFirst,
+    groupBy,
+    checkJson,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -24,6 +26,24 @@ test("splitOn test", () => {
     // boundary conditions
     const r4 = splitOn("fooBAr", 0, 6);
     expect(JSON.stringify(r4)).toBe(`["","fooBAr",""]`);
+});
+
+test("verify checking json for errors", () => {
+    expect(checkJson(`{}`)).toStrictEqual({
+        valid: true,
+        offset: -1,
+        errorMsg: "",
+    });
+    expect(checkJson(`{`)).toStrictEqual({
+        valid: false,
+        offset: 1,
+        errorMsg: "Unexpected end of JSON input",
+    });
+    expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
+        valid: false,
+        offset: 16,
+        errorMsg: "Unexpected token } in JSON at position 16",
+    });
 });
 
 const mockErrorEvent = mockEvent({
@@ -92,5 +112,20 @@ describe("capitalizeFirst", () => {
         expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual(
             "VdpoiENUpajfPWEOIWA"
         );
+    });
+});
+
+describe("groupBy ", () => {
+    test("groupBy basic", () => {
+        expect(
+            groupBy(
+                ["one", "two", "three", "four", "five"],
+                (v) => `${v.length}`
+            )
+        ).toStrictEqual({
+            3: ["one", "two"],
+            4: ["four", "five"],
+            5: ["three"],
+        });
     });
 });

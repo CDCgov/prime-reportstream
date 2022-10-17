@@ -29,7 +29,7 @@ import java.util.Properties
 import kotlin.collections.mutableMapOf
 
 plugins {
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm") version "1.7.20"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -38,7 +38,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
-    id("com.avast.gradle.docker-compose") version "0.16.4"
+    id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
 }
 
@@ -103,6 +103,7 @@ defaultTasks("package")
 
 val ktorVersion = "2.1.1"
 val kotlinVersion = "1.7.10"
+val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -679,11 +680,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.32.0")
-    implementation("com.azure:azure-core-http-netty:1.12.2")
-    implementation("com.azure:azure-storage-blob:12.19.0") {
+    implementation("com.azure:azure-core-http-netty:1.12.5")
+    implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.14.1") {
+    implementation("com.azure:azure-storage-queue:12.15.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.4.6") {
@@ -701,23 +702,23 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.1")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.3")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
@@ -758,14 +759,14 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
-    implementation("org.apache.poi:poi:5.2.2")
+    implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.15.3")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.3")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.6")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
@@ -779,9 +780,9 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }

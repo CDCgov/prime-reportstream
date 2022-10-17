@@ -1,0 +1,80 @@
+value_1 :
+  condition: $value CONTAINS_STRING '.'
+  type: FLOAT
+  valueOf: $value
+value_2 :
+  # Try to keep implicit precision for integers
+  condition: $value NOT_CONTAINS_STRING '.'
+  type: INTEGER
+  valueOf: $value
+comparator :
+  type: String
+  # Hl7 supports an equal sign as a comparator that FHIR does not, making sure its a supported comparator.
+  # see extensions on this config for handling of unsupported comparators
+  condition: $sComparator EQUALS_STRING '<' || $sComparator EQUALS_STRING '<=' || $sComparator EQUALS_STRING '>=' || $sComparator EQUALS_STRING '>'
+  valueOf: $sComparator
+  vars:
+    sComparator: String, $comparator
+unit :
+  type: String
+  valueOf: $unit
+system_1 :
+  type: URI
+  valueOf: $system
+system_2:
+  type: STRING
+  valueOf: $resolvedSystem
+system_3:
+  condition: $sys NOT_NULL
+  valueOf: $systemCWE
+  vars:
+    systemCWE: $urn + $sys
+code:
+  condition: $system NOT_NULL || $resolvedSystem NOT_NULL || $sys NOT_NULL
+  type: String
+  valueOf: $code
+
+extension_1:
+  condition: $value NOT_EQUALS_STRING '<' && $value NOT_EQUALS_STRING '<=' && $value NOT_EQUALS_STRING '>=' && $value NOT_EQUALS_STRING '>'
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, $comparator
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: comparator
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, $separator
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: separator
+
+extension_3:
+  condition: $units NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: units
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      specs: $units
+      expressionType: resource
+
+# The raw value in case it is not really a quantity
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, $value
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: alternate-value

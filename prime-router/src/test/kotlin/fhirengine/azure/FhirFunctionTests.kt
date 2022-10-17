@@ -90,7 +90,7 @@ class FhirFunctionTests {
         "42&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^" +
         "SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeWorkfloweEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+    private fun makeWorkflowEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
@@ -134,28 +134,29 @@ class FhirFunctionTests {
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val workflowEngine = makeWorkfloweEngine(metadata, settings)
+        val workflowEngine = makeWorkflowEngine(metadata, settings)
 
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine, actionHistory))
+        val fhirFunc = spyk(FHIRFunctions(workflowEngine))
 
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
+        every { accessSpy.insertAction(any(), any()) } returns 0
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
-            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
+            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
+        fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {
@@ -186,28 +187,28 @@ class FhirFunctionTests {
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val workflowEngine = makeWorkfloweEngine(metadata, settings)
+        val workflowEngine = makeWorkflowEngine(metadata, settings)
 
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine, actionHistory))
-
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
+        val fhirFunc = spyk(FHIRFunctions(workflowEngine))
+        every { accessSpy.insertAction(any(), any()) } returns 0
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
-            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
+            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.doRoute(queueMessage, 1, fhirEngine)
+        fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {
@@ -238,28 +239,29 @@ class FhirFunctionTests {
         )
 
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val workflowEngine = makeWorkfloweEngine(metadata, settings)
+        val workflowEngine = makeWorkflowEngine(metadata, settings)
 
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine, actionHistory))
+        val fhirFunc = spyk(FHIRFunctions(workflowEngine))
 
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
+        every { accessSpy.insertAction(any(), any()) } returns 0
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
-            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
+            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.doTranslate(queueMessage, 1, fhirEngine)
+        fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)
 
         // assert
         verify(exactly = 1) {

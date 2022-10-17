@@ -1,0 +1,16 @@
+hl7Type: ORU_R01
+hl7Version: 2.5.1
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(Provenance).exists() and
+      Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
+    required: true
+    schema: ORU_R01/header
+
+  - name: patient-information
+    resource: Bundle.entry.resource.ofType(Patient)
+    condition: '%resource.count() = 1'
+    required: true
+    schema: ORU_R01/patient

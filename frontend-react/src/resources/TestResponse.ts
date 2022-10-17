@@ -52,6 +52,8 @@ export class TestResponse {
                 sending_at: "1970-04-07T16:26:14.345Z",
                 itemCount: 3,
                 sentReports: [],
+                filteredReportItems: [],
+                itemCountBeforeQualityFiltering: 0,
             },
         ],
         errors: [

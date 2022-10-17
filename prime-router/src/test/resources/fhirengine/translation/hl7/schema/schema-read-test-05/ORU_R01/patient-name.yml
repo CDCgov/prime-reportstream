@@ -1,0 +1,5 @@
+elements:
+  - name: patient-last-name
+    condition: '%resource is Patient and %resource.name.family.exists()'
+    required: true
+    schema: patient-last-name

@@ -1,17 +1,11 @@
-import { Helmet } from "react-helmet";
-
+import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuideIa = () => {
     return (
         <>
-            <Helmet>
-                <title>
-                    CSV upload guide | Resources | {process.env.REACT_APP_TITLE}
-                </title>
-            </Helmet>
-
+            <BasicHelmet pageTitle="CSV upload guide | Resources" />
             <h1 id="anchor-top">CSV upload guide </h1>
             <h2 className="usa-intro">
                 Step-by-step instructions and guidance for preparing and
