@@ -171,12 +171,12 @@ const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
         parts.push(`${hrs}h`);
     }
     if (parts.length || mins !== "0") {
-        const mins_pad = mins.length < 2 ? "0" + mins : mins;
-        parts.push(`${mins_pad}m`);
+        const minsPad = mins.length < 2 ? "0" + mins : mins;
+        parts.push(`${minsPad}m`);
     }
     if (parts.length || secs !== "0") {
-        const secs_pad = secs.indexOf(".") < 2 ? "0" + secs : secs;
-        parts.push(`${secs_pad}s`);
+        const secsPad = secs.indexOf(".") < 2 ? "0" + secs : secs;
+        parts.push(`${secsPad}s`);
     }
     return parts.join(" ");
 };
@@ -335,7 +335,7 @@ const sortStatusData = (
     return dataIn; // we modified array in place, but returning value is handy for chaining.
 };
 
-// PreRenderedRowComponents breaks out row status and org+reciever name into props
+// PreRenderedRowComponents breaks out row status and org+receiver name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
 function renderAllReceiverRows(props: {
     data: AdmConnStatusDataType[];

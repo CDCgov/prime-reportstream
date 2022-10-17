@@ -99,7 +99,8 @@
         },
         "globals": {
             "RequestInit": true,
-            "process": "readonly"
+            "process": "readonly",
+            "cy": "readonly"
         },
         "rules": {
             "import/no-unresolved": 0,
@@ -125,7 +126,8 @@
                     "args": "after-used",
                     "argsIgnorePattern": "^_"
                 }
-            ]
+            ],
+            "camelcase": ["warn", { "allow": ["days_to_show", "organization_id", "sending_at" ]}]
         },
         "overrides": [
             {
@@ -226,5 +228,8 @@
     "resolutions": {
         "@types/react": "<18.0.0",
         "@types/react-dom": "<18.0.0"
+    },
+    "engines": {
+      "node": "~14.20.0"
     }
 }

@@ -20,6 +20,7 @@ import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
 import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
 import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
+import { AdminMessageIdSearchWithAuth } from "./pages/admin/AdminMessageIdSearch";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DetailsWithAuth } from "./pages/details/Details";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
@@ -28,6 +29,7 @@ import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import Home from "./pages/home/Home";
 import { DailyWithAuth } from "./pages/daily/Daily";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
+import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 
 export const AppRouter = () => {
@@ -45,7 +47,10 @@ export const AppRouter = () => {
             <Route path="/support/*" element={<Support />} />
             {/* User pages */}
             <Route path="/daily-data" element={<DailyWithAuth />} />
-            <Route path="/report-details" element={<DetailsWithAuth />} />
+            <Route
+                path="/report-details/:reportId"
+                element={<DetailsWithAuth />}
+            />
             <Route path="/upload" element={<UploadWithAuth />} />
             <Route path="/submissions" element={<SubmissionsWithAuth />} />
             <Route
@@ -78,12 +83,20 @@ export const AppRouter = () => {
             />
             <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
             <Route
+                path="/admin/message-id-search"
+                element={<AdminMessageIdSearchWithAuth />}
+            />
+            <Route
                 path={"/admin/value-sets/:valueSetName"}
                 element={<ValueSetsDetailWithAuth />}
             />
             <Route
                 path={"/admin/value-sets"}
                 element={<ValueSetsIndexWithAuth />}
+            />
+            <Route
+                path="/admin/revisionhistory/org/:org/settingtype/:settingType"
+                element={<AdminRevHistoryWithAuth />}
             />
             {/* Feature-flagged pages */}
             <Route

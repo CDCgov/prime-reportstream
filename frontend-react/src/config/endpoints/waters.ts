@@ -1,8 +1,14 @@
 import { Destination } from "../../resources/ActionDetailsResource";
 
-import { API } from "./NewApi";
+import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
 
-/* 
+export enum OverallStatus {
+    VALID = "Valid",
+    ERROR = "Error",
+    WAITING_TO_DELIVER = "Waiting to Deliver",
+}
+
+/*
   shape of response from the Waters API
   @todo refactor to move away from all of these optional fields. Which of these are actually optional?
 */
@@ -15,7 +21,7 @@ export class WatersResponse {
     externalName?: string;
     httpStatus?: number;
     id?: string;
-    overallStatus?: string;
+    overallStatus?: OverallStatus;
     plannedCompletionAt?: string;
     reportItemCount?: number;
     sender?: string;
@@ -38,12 +44,25 @@ export interface ResponseError {
     rowList?: string;
 }
 
-export enum EndpointName {
-    WATERS = "waters",
-    VALIDATE = "validate",
+export enum WatersUrls {
+    UPLOAD = "/waters",
+    VALIDATE = "/validate",
 }
-const WatersApi: API = new API(WatersResponse, "/api")
-    .addEndpoint(EndpointName.WATERS.toString(), "/waters", ["POST"])
-    .addEndpoint(EndpointName.VALIDATE.toString(), "/validate", ["POST"]);
 
-export default WatersApi;
+/*
+Waters Endpoints
+* waters -> uploads a file to the ReportStream service
+* validate -> validates a file against ReportStream file requirements (filters, data quality, etc.)
+*/
+export const watersEndpoints: RSApiEndpoints = {
+    upload: new RSEndpoint({
+        path: WatersUrls.UPLOAD,
+        method: HTTPMethods.POST,
+        queryKey: "watersPost",
+    }),
+    validate: new RSEndpoint({
+        path: WatersUrls.VALIDATE,
+        method: HTTPMethods.POST,
+        queryKey: "watersValidate",
+    }),
+};

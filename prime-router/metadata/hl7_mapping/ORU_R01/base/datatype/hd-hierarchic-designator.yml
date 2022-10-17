@@ -1,4 +1,3 @@
-name: ORU-R01-hd-hierarchic-designator
 elements:
   - name: designator-namespace-id-from-namespace
     condition: '%resource.extension(%`namespaceExtName`).exists()'

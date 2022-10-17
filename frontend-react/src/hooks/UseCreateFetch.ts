@@ -40,7 +40,12 @@ function createTypeWrapperForAuthorizedFetch(
         // this system assumes that we want to be making authenticated
         // requests whenever possible
         if (!headers.authorization || headers.authorization.length < 8) {
-            console.warn("Unauthenticated request to ", options.url);
+            console.warn(
+                `Unauthenticated request to '${EndpointConfig.url}'\n Options:`,
+                options,
+                `\n Endpoint: `,
+                EndpointConfig
+            );
         }
         const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
@@ -49,7 +54,7 @@ function createTypeWrapperForAuthorizedFetch(
         return axios(axiosConfig)
             .then(({ data }) => data)
             .catch((e: any) => {
-                throw new RSNetworkError(e.message, e.response.status);
+                throw new RSNetworkError(e.message, e.response);
             });
     };
 }
