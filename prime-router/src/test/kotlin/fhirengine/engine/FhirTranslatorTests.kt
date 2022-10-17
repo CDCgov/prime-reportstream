@@ -39,7 +39,9 @@ class FhirTranslatorTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "one"))
     )
     private val colorado = DeepOrganization(
