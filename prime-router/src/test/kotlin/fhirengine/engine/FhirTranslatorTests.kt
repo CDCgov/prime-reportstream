@@ -42,7 +42,7 @@ class FhirTranslatorTests {
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "one"))
+        receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "ORU_R01-base"))
     )
     private val colorado = DeepOrganization(
         "co-phd",
@@ -54,19 +54,19 @@ class FhirTranslatorTests {
                 "co-phd",
                 "topic",
                 CustomerStatus.INACTIVE,
-                "one"
+                "ORU_R01-base"
             ),
             Receiver(
                 "elr",
                 "co-phd",
                 "topic",
                 CustomerStatus.INACTIVE,
-                "one",
+                "CO",
                 Report.Format.CSV,
                 null,
                 null,
                 null,
-                "metadata/hl7_mapping/ORU_R01"
+                "metadata/hl7_mapping/STLTs/CO"
             )
         )
     )
@@ -161,9 +161,6 @@ class FhirTranslatorTests {
         }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), any())
-            BlobAccess.Companion.uploadBlob(any(), any())
-            accessSpy.insertTask(any(), any(), any(), any())
         }
     }
 }
