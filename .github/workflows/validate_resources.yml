@@ -58,7 +58,7 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
       - name: Restart DNS if failure
-        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
         with:
           timeout_seconds: 60
           max_attempts: 3
@@ -66,11 +66,13 @@ jobs:
           command: dig google.com @10.0.2.4
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-dns
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-dns
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
       - name: Restart legacy SFTP if wrong ip
         if: needs.pre_job.outputs.env_name != 'prod'
-        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
         with:
           timeout_seconds: 60
           max_attempts: 3
@@ -82,5 +84,7 @@ jobs:
             if [[ $last_octet -ne 20 ]]; then exit 1; fi
           shell: bash
           on_retry_command: >-
-            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver 
+            az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            az container start --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}

@@ -11,8 +11,8 @@ interface Props {
 
     /* REQUIRED
     A function passed in by the parent prop to sync chosen state
-    This can be seen in-use by <ReportsTable>. The chosen state in sync'd
-    and ReportsTable filters by the chosen sender */
+    This can be seen in-use by <DeliveriesTable>. The chosen state in sync'd
+    and DeliveriesTable filters by the chosen sender */
     chosenCallback: (s: string) => void;
 }
 
