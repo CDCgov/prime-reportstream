@@ -14,7 +14,7 @@ function Deliveries() {
     const orgName: string = useOrgName();
     return (
         <>
-            <BasicHelmet pageTitle="Deliveries data" />
+            <BasicHelmet pageTitle="Daily Data" />
             <section className="grid-container margin-bottom-5 tablet:margin-top-6">
                 <Title preTitle={orgName} title="COVID-19" />
             </section>
