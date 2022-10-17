@@ -192,7 +192,7 @@ class FhirToHl7ConverterTests {
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
 
         element = ConfigSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("unmapped")
     }
 
     @Test

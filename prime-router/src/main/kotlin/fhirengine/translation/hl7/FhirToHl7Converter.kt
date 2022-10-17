@@ -168,10 +168,9 @@ class FhirToHl7Converter(
             }
         }
 
-        // @todo what do we do when we get a value that is not in the map
-        // e.g. if positive = Garbage, do we return "Garbage","", throw error, what do we do?
-        // @todo self reminder to bring this up on the sync
-        if (element.valueSet.isNotEmpty()) retVal = element.valueSet.getOrDefault(retVal, "")
+        // when valueSet is available, use the matching value
+        // if no matches, just pass the value as is
+        if (element.valueSet.isNotEmpty()) retVal = element.valueSet.getOrDefault(retVal, retVal)
 
         return retVal
     }
