@@ -6,7 +6,7 @@ import config from "../config";
 
 const { RS_API_URL } = config;
 
-const makeFacilityFixture = (
+export const makeFacilityFixture = (
     identifier: number,
     overrides?: Partial<RSFacility>
 ): RSFacility => ({
