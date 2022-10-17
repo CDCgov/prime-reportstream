@@ -6,13 +6,13 @@ import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
-import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
-import { deliveriesTestGenerator } from "../../../network/api/History/Reports";
+import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 
-import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
+import DeliveriesTable, { useReceiverFeeds } from "./DeliveriesTable";
 
-describe("ReportsTable", () => {
+describe("DeliveriesTable", () => {
     beforeEach(() => {
         // Mock our SessionProvider's data
         mockSessionContext.mockReturnValue({
@@ -38,14 +38,11 @@ describe("ReportsTable", () => {
                 trigger: () => {},
             });
             // Mock the response from the Deliveries hook
-            mockDeliveryListHook.mockReturnValue({
-                data: deliveriesTestGenerator(101),
-                loading: false,
-                error: "",
-                trigger: () => {},
+            mockUseOrgDeliveries.mockReturnValue({
+                serviceReportsList: makeDeliveryFixtureArray(101),
             });
             // Render the component
-            renderWithRouter(<ReportsTable />);
+            renderWithRouter(<DeliveriesTable />);
         });
         test("renders with no error", async () => {
             // Column headers render
@@ -71,14 +68,11 @@ describe("ReportsTable", () => {
                 trigger: () => {},
             });
             // Mock the response from the Deliveries hook
-            mockDeliveryListHook.mockReturnValue({
-                data: deliveriesTestGenerator(0),
-                loading: false,
-                error: "",
-                trigger: () => {},
+            mockUseOrgDeliveries.mockReturnValue({
+                serviceReportsList: makeDeliveryFixtureArray(0),
             });
             // Render the component
-            renderWithRouter(<ReportsTable />);
+            renderWithRouter(<DeliveriesTable />);
         });
         test("renders 0 results (but 1 header row)", () => {
             const rows = screen.getAllByRole("row");
