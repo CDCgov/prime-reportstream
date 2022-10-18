@@ -77,10 +77,6 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 
     if (isLoading) return <Spinner />;
 
-    // TODO: revisit
-    // if (!isLoading && messagesData.length === 0)
-    //     return <h2>No results found.</h2>;
-
     return (
         <>
             {messagesData.length > 0 && (
