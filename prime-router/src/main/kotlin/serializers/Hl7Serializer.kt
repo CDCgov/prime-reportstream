@@ -238,7 +238,12 @@ class Hl7Serializer(
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            warnings.add(InvalidHL7Message("Cannot parse empty HL7 message"))
+            warnings.add(
+                InvalidHL7Message(
+                    "Cannot parse empty HL7 message. Please " +
+                        "refer to the HL7 specification and resubmit."
+                )
+            )
             return MessageResult(emptyMap(), errors, warnings)
         }
 
@@ -249,7 +254,7 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9"))
+                    errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9."))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -259,18 +264,27 @@ class Hl7Serializer(
                 else -> {
                     warnings.add(
                         InvalidHL7Message
-                        ("Ignoring unsupported HL7 message type ${msgType.joinToString(",")}")
+                        (
+                            "Unsupported HL7 message type. Only ORU-R01 message type supported. " +
+                                "Please refer to the ReportStream Programmer's Guide and resubmit."
+                        )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
                 }
             }
         } catch (e: HL7Exception) {
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
-            if (e is EncodingNotSupportedException) {
-                // This exception error message is a bit cryptic, so let's provide a better one.
-                errors.add(InvalidHL7Message("Error parsing HL7 message: Invalid HL7 message format"))
-            } else {
-                errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
+            when (e) {
+                is EncodingNotSupportedException ->
+                    // This exception error message is a bit cryptic, so let's provide a better one.
+                    errors.add(
+                        InvalidHL7Message(
+                            "Invalid HL7 message format. Please " +
+                                "refer to the HL7 specification and resubmit."
+                        )
+                    )
+                else ->
+                    errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -335,7 +349,11 @@ class Hl7Serializer(
                                 }
                             } catch (e: IllegalStateException) {
                                 warnings.add(
-                                    InvalidHL7Message("The code $rawValue for field $hl7Field is invalid.")
+                                    InvalidHL7Message(
+                                        "The code $rawValue for field $hl7Field is " +
+                                            "invalid. Please refer to the HL7 specification and " +
+                                            "resubmit."
+                                    )
                                 )
                                 ""
                             }
@@ -1924,6 +1942,7 @@ class Hl7Serializer(
      * Get a phone number from an XTN (e.g. phone number) field of an HL7 message.
      * @param terser the HL7 terser
      * @param element the element to decode
+     * @param hl7Field the HL7 field name
      * @return the phone number or empty string
      */
     internal fun decodeHl7TelecomData(terser: Terser, element: Element, hl7Field: String): String {
@@ -2045,8 +2064,7 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Timestamp for $hl7Field - ${element.name} should provide more " +
-                                            "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ. " +
-                                            "Received '$rawValue'"
+                                            "precision. Reformat as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ."
                                     )
                                 )
                             }
@@ -2061,7 +2079,7 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Date for $hl7Field - ${element.name} should provide more " +
-                                            "precision. Should be formatted as YYYYMMDD"
+                                            "precision. Reformat as YYYYMMDD."
                                     )
                                 )
                             }

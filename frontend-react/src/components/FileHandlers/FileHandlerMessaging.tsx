@@ -7,7 +7,7 @@ import {
 } from "../../utils/DateTimeUtils";
 import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
-import { ResponseError } from "../../network/api/WatersApi";
+import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 
 type ExtendedSuccessMetadata = {
