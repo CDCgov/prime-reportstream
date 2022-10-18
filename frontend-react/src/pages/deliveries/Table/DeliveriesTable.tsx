@@ -10,7 +10,6 @@ import { useReceiversList } from "../../../hooks/network/Organizations/Receivers
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
-import TableFilters from "../../../components/Table/TableFilters";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -66,6 +65,36 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
         activeService: active,
         setActiveService: setActive,
     };
+};
+
+const ServiceDisplay = ({
+    services,
+    activeService,
+    handleSetActive,
+}: {
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    handleSetActive: (v: string) => void;
+}) => {
+    return (
+        <div className="grid-container grid-col-12">
+            {services && services?.length > 1 ? (
+                <ServicesDropdown
+                    services={services}
+                    active={activeService?.name || ""}
+                    chosenCallback={handleSetActive}
+                />
+            ) : (
+                <p>
+                    Default service:{" "}
+                    <strong>
+                        {(services?.length && services[0].name.toUpperCase()) ||
+                            ""}
+                    </strong>
+                </p>
+            )}
+        </div>
+    );
 };
 
 /*
@@ -147,38 +176,12 @@ function DeliveriesTable() {
     if (loadingServices) return <Spinner />;
     return (
         <>
-            <div className="grid-container grid-col-12">
-                {services && services?.length > 1 ? (
-                    <ServicesDropdown
-                        services={services}
-                        active={activeService?.name || ""}
-                        chosenCallback={handleSetActive}
-                    />
-                ) : (
-                    <p>
-                        Default service:{" "}
-                        <strong>
-                            {(services?.length &&
-                                services[0].name.toUpperCase()) ||
-                                ""}
-                        </strong>
-                    </p>
-                )}
-            </div>
-            <div className="grid-col-12">
-                <TableFilters filterManager={filterManager} />
-                <Table
-                    config={resultsTableConfig}
-                    filterManager={filterManager}
-                />
-            </div>
-            <div className="grid-container margin-bottom-10">
-                <div className="grid-col-12">
-                    {serviceReportsList?.length === 0 ? (
-                        <p>No results</p>
-                    ) : null}
-                </div>
-            </div>
+            <ServiceDisplay
+                services={services}
+                activeService={activeService}
+                handleSetActive={handleSetActive}
+            />
+            <Table config={resultsTableConfig} filterManager={filterManager} />
         </>
     );
 }
