@@ -10,6 +10,7 @@ import { useReceiversList } from "../../../hooks/network/Organizations/Receivers
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
+import TableFilters from "../../../components/Table/TableFilters";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -181,6 +182,7 @@ function DeliveriesTable() {
                 activeService={activeService}
                 handleSetActive={handleSetActive}
             />
+            <TableFilters filterManager={filterManager} />
             <Table config={resultsTableConfig} filterManager={filterManager} />
         </>
     );
