@@ -167,9 +167,9 @@ class FhirToHl7Converter(
             }
         }
 
-        // when valueSet is available, use the matching value
-        // if no matches, just pass the value as is
-        if (element.valueSet.isNotEmpty()) retVal = element.valueSet.getOrDefault(retVal, retVal)
+        // when valueSet is available, use the matching value else just pass the value as is
+        // does a lowerCase comparison
+        if (element.valueSet.isNotEmpty()) retVal = element.valueSet.getOrDefault(retVal.lowercase(), retVal)
 
         return retVal
     }
