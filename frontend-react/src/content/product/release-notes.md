@@ -3,6 +3,9 @@
 ## Stay up to date with new features, enhancements, and fixes
 
 ---
+### November 2022
+
+Here are all the releases for this month: 
 
 ### June 2022
 
