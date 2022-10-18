@@ -110,6 +110,7 @@ elements:
     valueSet:
       partial: A
       corrected: C
+      amended: C
       final: F
       preliminary: P
       cancelled: X
