@@ -2,45 +2,45 @@
 
 ## Problems
 
-In general, running Intel Docker images on Apple Silicon is a hit-or-miss proposition even with Apple's Rosetta technology. 
+In general, running Intel Docker images on Apple Silicon is a hit-or-miss proposition even with Apple's Rosetta technology.
 See the known Docker's documentation for known limitations: https://docs.docker.com/desktop/mac/apple-silicon/#known-issues
 
-At the time of the writing of this note, Microsoft's Azure Function Docker image is only `amd64` compatible, and  not compatible with Apple Silicon processors. 
-Microsoft has not announced plans to fix this problem. 
+At the time of the writing of this note, Microsoft's Azure Function Docker image is only `amd64` compatible, and not compatible with Apple Silicon processors.
+Microsoft has not announced plans to fix this problem.
 
-Many of our local developer tools are set up to run in Docker containers. 
+Many of our local developer tools are set up to run in Docker containers.
 Looking at our `docker-compose.yml` file, the `web_receiver`, `prime_dev`, and `settings` services do not work on Apple Silicon.
-Likewise, the `builder` service in our `docker-compose.build.yml` does not work as well. 
+Likewise, the `builder` service in our `docker-compose.build.yml` does not work as well.
 
 ## Workaround
 
-Fortunately, ReportStream can run directly on your Apple Silicon computer, outside of Docker containers. 
-The approach outlined in this note uses `gradle` to set up your environment and to run your code directly. 
-This approach has the benefit of reducing your build-debug cycle time and is detailed in the [Running Faster](faster-development.md) document. 
+Fortunately, ReportStream can run directly on your Apple Silicon computer, outside of Docker containers.
+The approach outlined in this note uses `gradle` to set up your environment and to run your code directly.
+This approach has the benefit of reducing your build-debug cycle time and is detailed in the [Running Faster](faster-development.md) document.
 
 ### Step 1 - Read the getting started instructions
 
-Read the [Getting Started](./getting-started.md) instructions as background information about various components 
-needed to work in ReportStream. The [Getting Started](./getting-started.md) document may have new information not found in this document. 
+Read the [Getting Started](./getting-started.md) instructions as background information about various components
+needed to work in ReportStream. The [Getting Started](./getting-started.md) document may have new information not found in this document.
 
 ### Step 2 - Install dev tools
 
 Installing the recommend tools including these for this note.
 
-* [git](./install-git.md) 
-* [Docker Desktop](./install-docker.md) Install Docker Desktop directly. 
-* [OpenJDK](./install-openjdk.md) Install OpenJDK 11 using Brew. 
-* [Azure Functions Core Tools](./install-afct.md) Install the v3 of Azure Functions.
-* [Gradle](./install-gradle.md) Install Gradle using Brew. 
+-   [git](./install-git.md)
+-   [Docker Desktop](./install-docker.md) Install Docker Desktop directly.
+-   [OpenJDK](./install-openjdk.md) Install OpenJDK 11 using Brew.
+-   [Azure Functions Core Tools](./install-afct.md) Install the v3 of Azure Functions.
+-   [Gradle](./install-gradle.md) Install Gradle using Brew.
 
-An IDE of your choice. Both VS Code and JetBrain's IntelliJ have ARM64 versions. 
+An IDE of your choice. Both VS Code and JetBrain's IntelliJ have ARM64 versions.
 
 ### Step 3 - Run `cleanslate.sh`
 
-The `cleanslate.sh` script does the base work needed to start developing for ReportStream. 
+The `cleanslate.sh` script does the base work needed to start developing for ReportStream.
 It only needs to be run once.  
 This script runs on Apple processors, but it skips a few steps.  
-We will need to do these missing steps by hand. 
+We will need to do these missing steps by hand.
 
 ```bash
 # build the project
@@ -57,10 +57,10 @@ docker ps
 
 ReportStream depends on set of services to be up before running the main Azure service. The `cleanslate.sh` script starts a Postgres database but skips starting a few more that are otherwise started by default when `cleanslate.sh` start is run on a non-Apple processor:
 
-* Azurite - a simulator of Azure storage
-* Vault - a secret store
-* SFTP - an SFTP server
-* soap-webservice - SOAP web service emulator
+-   Azurite - a simulator of Azure storage
+-   Vault - a secret store
+-   SFTP - an SFTP server
+-   soap-webservice - SOAP web service emulator
 
 ```bash
 docker-compose -f docker-compose.build.yml up --detach
@@ -70,21 +70,23 @@ You can take down these services by running `./gradlew composeDown` or `docker-c
 For now, leave these services running and open up a new terminal session.
 
 ### Step 5 - Run ReportStream locally
+
 Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs.
 
 ```bash
 ./gradlew run
 ```
 
-*Note:* for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
-caution as it will not build the FatJar, run database related tasks, or run the tests.  
+_Note:_ for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
+caution as it will not build the FatJar, run database related tasks, or run the tests.
 
-ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. 
+ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance.
 For now, keep ReportStream running, open a new terminal session.
 
 ### Step 6 - Seed the Postgres DB and Vault
-To run tests, the Postgres DB and the credential vault need to be seeded with values. 
-We will need to have ReportStream running for these steps to work (see previous steps). 
+
+To run tests, the Postgres DB and the credential vault need to be seeded with values.
+We will need to have ReportStream running for these steps to work (see previous steps).
 Again, we will use a Gradle task to do these steps.
 
 ```bash
@@ -94,7 +96,8 @@ Again, we will use a Gradle task to do these steps.
 ```
 
 ### Step 7 - Run tests
-You should be able to run tests now to confirm that everything is working. 
+
+You should be able to run tests now to confirm that everything is working.
 
 ```bash
 # Smoke test checks that most of the system is working
@@ -105,13 +108,16 @@ You should be able to run tests now to confirm that everything is working.
 
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
-- `node` (version 14.x)
-- `yarn` package manager
+
+-   `node` (see .nvmrc for version specification) via `nvm`
+-   `yarn` package manager
+
+Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--update-script
+Then:
+
 ```bash
-brew install node@14
-# Follow the instructions at the end of the brew installation process
-# and use the following command to ensure node is working.
-node -v # v14.X.X
+nvm install 14.20.x # refer to nvmrc for exact current version
+node -v # v14.20.x
 npm -v # v6.X.X
 
 npm install --global yarn
@@ -146,61 +152,74 @@ For more information on the front-end React app, head to the front-end [README](
 
 ## Next Steps
 
-Now that you have builds and tests running, here are a few pointers to common recipes that developers use. 
+Now that you have builds and tests running, here are a few pointers to common recipes that developers use.
 
 ### Build and run the ReportStream functions
 
 After a code update, a fast way to build and run the code again is
+
 ```bash
 gradle package fatjar
 gradle quickrun
 ```
 
 ### Debugging
-`gradle quickrun` will open a debug port on your locally running ReportStream instance. 
-Connect your debugger remotely to port 5005. 
+
+`gradle quickrun` will open a debug port on your locally running ReportStream instance.
+Connect your debugger remotely to port 5005.
 For profiling use the JMX port 9090.
 
 ### Using gradle
-`gradle tasks` will list all the tasks that Gradle can do for you. 
+
+`gradle tasks` will list all the tasks that Gradle can do for you.
 
 ### Start and stop dependent services
 
 Instead of using a `docker-compose up sftp azurite vault` to bring up dependent services, you can use a script.
+
 ```bash
 ./devenv-infrastructure.sh up
 ```
-This script runs in a detached mode so the rather noisy logs of these services are not in your face. 
+
+This script runs in a detached mode so the rather noisy logs of these services are not in your face.
 The same script can bring down dependent services.
+
 ```bash
 ./devenv-infrastructure.sh down
 ```
-To see what containers are currently running: 
+
+To see what containers are currently running:
+
 ```bash
 docker ps
 ```
+
 To examine the logs of dependent service that is currently running.
+
 ```bash
 docker logs NAME --follow
 ```
-where NAME is replaced by the container name. 
+
+where NAME is replaced by the container name.
 For example, `prime-router_azurite_1` is the name of the Azurite container.
 
 ### Format your code
-The Kotlin code in the project follows the KTLint style guide. 
+
+The Kotlin code in the project follows the KTLint style guide.
 There is a git hook that checks for conformance to this style guide.
-To reformat your new code to be in compliance: 
+To reformat your new code to be in compliance:
+
 ```bash
-gradle ktlintFormat 
+gradle ktlintFormat
 ```
 
 ### Add environment variables to your shell profile
 
-Both the ReportStream Azure Functions and ReportStream CLI use environment variables extensively. 
-This note uses `gradle` tasks to set up these environment variables for you. 
-You can, however, set up these variables directly in your shell profile script. 
+Both the ReportStream Azure Functions and ReportStream CLI use environment variables extensively.
+This note uses `gradle` tasks to set up these environment variables for you.
+You can, however, set up these variables directly in your shell profile script.
 In this way, you can run the './prime' CLI and functions directly.  
-Here's a list of environment variables that are used at the time of writing this note. 
+Here's a list of environment variables that are used at the time of writing this note.
 
 ```bash
 CREDENTIAL_STORAGE_METHOD=HASHICORP_VAULT
@@ -229,18 +248,23 @@ Building while Azurite is running can cause a problem if the `clean` Gradle task
 ### Vault files
 
 A message like
+
 ```
 Couldn't find env file: /Users/username/Projects/prime-reportstream/prime-router/.vault/env/.env.local
 ```
+
 usually means that local vault files have been deleted.
 Running `.cleanslate.sh` again will populate these files.
 
 ### Docker-compose warnings
+
 A warning that is common is an orphan container warning.
+
 ```
 WARNING: Found orphan containers (prime-router_postgresql_1) for this project.
 ```
-This is a benign warning caused by running Postgres in different `docker-compose` script. 
+
+This is a benign warning caused by running Postgres in different `docker-compose` script.
 
 ### IntelliJ IDEA can't find Node in $PATH
 
@@ -252,5 +276,3 @@ ex: `/opt/homebrew/opt/node@14/bin/node`
 
 This should simultaneously solve the Node interpreter and Package manager errors and display proper version numbers for
 `npm` and `yarn` on the list of package managers.
-
-

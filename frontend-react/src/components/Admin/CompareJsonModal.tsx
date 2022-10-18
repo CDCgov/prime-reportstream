@@ -135,6 +135,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                             ref={diffEditorRef}
                             original={oldjson}
                             modified={newjson}
+                            jsonDiffMode={true}
                         />
                     </div>
                     <ModalFooter>

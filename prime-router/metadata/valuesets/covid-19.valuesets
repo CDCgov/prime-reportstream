@@ -266,6 +266,9 @@
     - code: 955009
       display: Bronchial structure (body structure)
       version: 2020-09-01
+    - code: 1797002
+      display: Structure of anterior nares (body structure)
+      version: 2002-01-31
 
 - name: covid-19/yesno
   # See YES, NO, UNK in the reference URL.

@@ -109,9 +109,8 @@ class ProcessFhirCommands : CliktCommand(
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
-                    bundle, fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
-                )
-                    .convert()
+                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
+                ).convert(bundle)
             }
         }
     }

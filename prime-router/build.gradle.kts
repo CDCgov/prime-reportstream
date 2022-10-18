@@ -684,7 +684,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.14.1") {
+    implementation("com.azure:azure-storage-queue:12.15.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.4.6") {
@@ -737,7 +737,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.8")
     implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.helger.as2:as2-lib:4.10.1")
+    implementation("com.helger.as2:as2-lib:4.11.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
@@ -759,7 +759,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
-    implementation("org.apache.poi:poi:5.2.2")
+    implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")

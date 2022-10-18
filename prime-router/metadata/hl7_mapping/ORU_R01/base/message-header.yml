@@ -1,4 +1,3 @@
-name: ORU-R01-message-header
 elements:
   - name: sending-application-namespace-id
     value: [ '%resource.source.name' ]
