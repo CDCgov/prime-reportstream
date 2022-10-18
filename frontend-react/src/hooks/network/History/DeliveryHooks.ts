@@ -36,13 +36,19 @@ const useOrgDeliveries = (
                 segments: {
                     orgAndService,
                 },
-                params: filters,
+                params: {
+                    sortDir: filters?.order,
+                    since: filters?.from,
+                    until: filters?.to,
+                    pageSize: filters?.size,
+                    cursor: "",
+                },
             }),
         [authorizedFetch, orgAndService, filters]
     );
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when swapping services
-        [getOrgDeliveries.queryKey, orgAndService],
+        [getOrgDeliveries.queryKey, { orgAndService, filters }],
         memoizedDataFetch,
         { enabled: !!service }
     );

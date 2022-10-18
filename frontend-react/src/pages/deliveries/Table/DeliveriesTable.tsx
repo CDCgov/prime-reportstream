@@ -10,6 +10,7 @@ import { useReceiversList } from "../../../hooks/network/Organizations/Receivers
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
+import TableFilters from "../../../components/Table/TableFilters";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -17,7 +18,7 @@ import ServicesDropdown from "./ServicesDropdown";
 /** @todo: page size default set to 10 once paginated */
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
-        column: "sent",
+        column: "expires",
         locally: true,
     },
     pageDefaults: {
@@ -165,6 +166,7 @@ function DeliveriesTable() {
                 )}
             </div>
             <div className="grid-col-12">
+                <TableFilters filterManager={filterManager} />
                 <Table
                     config={resultsTableConfig}
                     filterManager={filterManager}
