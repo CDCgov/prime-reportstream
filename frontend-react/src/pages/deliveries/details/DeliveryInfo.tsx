@@ -1,15 +1,15 @@
 import moment from "moment";
 
-import { RSDelivery } from "../../network/api/History/Reports";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (type, sent,
-    total, and expires) and display them on the Details page. */
+    total, and expires) and display them on the DeliveryDetail page. */
     report: RSDelivery | undefined;
 }
 
-function ReportDetails(props: Props) {
+function DeliveryInfo(props: Props) {
     const { report } = props;
 
     if (!report) return <></>;
@@ -17,7 +17,7 @@ function ReportDetails(props: Props) {
         <section className="grid-container margin-top-0 margin-bottom-5">
             <hr />
             <div id="details" className="grid-row grid-gap margin-top-0">
-                <div className="tablet:grid-col-3">
+                <div className="tablet:grid-col">
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Report type
                     </h4>
@@ -32,7 +32,7 @@ function ReportDetails(props: Props) {
                             .format("dddd, MMM DD, YYYY  HH:mm")}
                     </p>
                 </div>
-                <div className="tablet:grid-col-3">
+                <div className="tablet:grid-col">
                     <h4 className="text-base-darker text-normal margin-bottom-0">
                         Total tests reported
                     </h4>
@@ -55,4 +55,4 @@ function ReportDetails(props: Props) {
     );
 }
 
-export default ReportDetails;
+export default DeliveryInfo;
