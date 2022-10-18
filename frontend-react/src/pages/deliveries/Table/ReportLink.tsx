@@ -4,8 +4,8 @@ import { useOktaAuth } from "@okta/okta-react";
 
 import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../utils/SessionStorageTools";
-import { RSDelivery } from "../../../network/api/History/Reports";
 import config from "../../../config";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 
 const { RS_API_URL } = config;
 
@@ -17,7 +17,7 @@ interface Props {
 
     /* OPTIONAL
     This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)
-    so this single component can be used in Daily.tsx and Details.tsx */
+    so this single component can be used in Deliveries.tsx and DeliveryDetail.tsx */
     button?: boolean;
 }
 

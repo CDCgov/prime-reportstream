@@ -44,7 +44,7 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.18.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.19.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
