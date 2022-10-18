@@ -176,7 +176,7 @@ class FhirToHl7ConverterTests {
     fun `test get value set`() {
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
-        bundle.id = "abc123"
+        bundle.id = "stagnatious"
         val customContext = CustomContext(bundle, bundle)
         val converter = FhirToHl7Converter(mockSchema)
 
@@ -185,14 +185,19 @@ class FhirToHl7ConverterTests {
             Pair("grompfle", "G")
         )
 
-        var element = ConfigSchemaElement("name", value = listOf("stagnatious"), valueSet = valueSet)
+        var element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("S")
 
-        element = ConfigSchemaElement("name", value = listOf("grompfle"), valueSet = valueSet)
+        bundle.id = "grompfle"
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
 
-        element = ConfigSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
+        bundle.id = "unmapped"
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("unmapped")
+
+        element = ConfigSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
     }
 
     @Test
