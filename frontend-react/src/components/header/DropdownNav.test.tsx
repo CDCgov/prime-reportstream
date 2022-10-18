@@ -107,12 +107,12 @@ describe("AdminDropdownNav - value-sets", () => {
     });
 });
 
-describe("AdminDropdownNav - message-id-search", () => {
+describe("AdminDropdownNav - message-tracker", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag === "message-id-search"),
+            checkFlag: jest.fn((flag) => flag === "message-tracker"),
         });
     });
 

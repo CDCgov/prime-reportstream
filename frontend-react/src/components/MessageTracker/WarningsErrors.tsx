@@ -1,26 +1,26 @@
 import React from "react";
 
 // TODO: move this interface into the resources directory
-interface ResponseWarning {
+interface Warnings {
     field: string | undefined;
     description: string | undefined;
     type: string | undefined;
     trackingIds: string[] | undefined;
 }
 
-type WarningsDisplayProps = {
+type WarningsErrorsDisplayProps = {
     title: string;
-    warnings: ResponseWarning[];
+    data: Warnings[];
 };
 
-export const WarningsDisplay = ({ title, warnings }: WarningsDisplayProps) => {
+export const WarningsErrors = ({ title, data }: WarningsErrorsDisplayProps) => {
     return (
         <>
             <section className="margin-bottom-5">
                 <h3>{title}</h3>
                 <table
                     className="usa-table usa-table--borderless usa-table--striped width-full"
-                    data-testid="warning-table"
+                    data-testid="warning-error-table"
                 >
                     <thead>
                         <tr>
@@ -31,12 +31,12 @@ export const WarningsDisplay = ({ title, warnings }: WarningsDisplayProps) => {
                         </tr>
                     </thead>
                     <tbody className="font-body-xs">
-                        {warnings.map((w, i) => {
+                        {data.map((d, i) => {
                             return (
-                                <WarningRow
-                                    warning={w}
+                                <Row
+                                    data={d}
                                     index={i}
-                                    key={`warning${i}`}
+                                    key={`warning_error${i}`}
                                 />
                             );
                         })}
@@ -47,15 +47,15 @@ export const WarningsDisplay = ({ title, warnings }: WarningsDisplayProps) => {
     );
 };
 
-interface WarningRowProps {
-    warning: ResponseWarning;
+interface RowProps {
+    data: Warnings;
     index: number;
 }
 
-const WarningRow = ({ warning, index }: WarningRowProps) => {
-    const { field, description, type, trackingIds } = warning;
+const Row = ({ data, index }: RowProps) => {
+    const { field, description, type, trackingIds } = data;
     return (
-        <tr key={"warning_" + index}>
+        <tr key={"warning_error_" + index}>
             <td>{field}</td>
             <td>{description}</td>
             <td>{type}</td>

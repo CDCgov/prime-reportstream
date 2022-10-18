@@ -1,27 +1,23 @@
 import React, { useState } from "react";
 import { Label, Button, TextInput } from "@trussworks/react-uswds";
-import { isEmpty } from "lodash";
 
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
 
-const MOCK_MESSAGE_ID_DATA = [
+const MOCK_MESSAGE_SENDER_DATA = [
     {
-        id: 1,
         messageId: "12-234567",
         sender: "somebody 1",
         submittedDate: "09/28/2022",
         reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
     },
     {
-        id: 2,
         messageId: "12-234567",
         sender: "somebody 2",
         submittedDate: "09/29/2022",
         reportId: "86c4c66f-3d99-4845-8bea-111210c05e63",
     },
     {
-        id: 3,
         messageId: "12-234567",
         sender: "somebody 3",
         submittedDate: "09/30/2022",
@@ -30,7 +26,7 @@ const MOCK_MESSAGE_ID_DATA = [
 ];
 
 // TODO: move this interface into the resources directory
-interface MessageListResource {
+export interface MessageListResource {
     messageId: string;
     sender: string | undefined;
     submittedDate: string | undefined;
@@ -89,8 +85,8 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
         <>
             {messagesData.length > 0 && (
                 <Table
-                    title="ReportStream Messages"
-                    classes={"rs-no-padding"}
+                    title=""
+                    classes={"rs-no-padding margin-top-5"}
                     config={tableConfig}
                 />
             )}
@@ -104,14 +100,16 @@ export function MessageTracker() {
     const [isLoading, setIsLoading] = useState(false);
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
 
-    const searchMessageId = () => {
+    const searchMessageId = async () => {
         setIsLoading(true);
 
-        // TODO: make API call here to get data and remove timeout
-        setTimeout(function () {
-            if (!isEmpty(searchFilter)) setMessagesData(MOCK_MESSAGE_ID_DATA);
-            setIsLoading(false);
-        }, 1000);
+        // TODO: make API call here to get data
+        const senderResponse: MessageListResource[] = MOCK_MESSAGE_SENDER_DATA;
+        if (senderResponse.length) {
+            setMessagesData(senderResponse);
+        }
+
+        setIsLoading(false);
     };
 
     const clearSearch = () => {
@@ -142,7 +140,7 @@ export function MessageTracker() {
                 />
                 <Button
                     onClick={() => searchMessageId()}
-                    type={"button"}
+                    type="button"
                     name="submit-button"
                     className="usa-button height-5 margin-top-1 radius-left-0"
                 >
@@ -150,7 +148,7 @@ export function MessageTracker() {
                 </Button>
                 <Button
                     onClick={() => clearSearch()}
-                    type={"button"}
+                    type="button"
                     name="clear-button"
                     className="font-sans-xs margin-top-1"
                     unstyled
@@ -161,7 +159,7 @@ export function MessageTracker() {
 
             <MessageTrackerTableContent
                 isLoading={isLoading}
-                messagesData={messagesData}
+                messagesData={messagesData || []}
             ></MessageTrackerTableContent>
         </section>
     );

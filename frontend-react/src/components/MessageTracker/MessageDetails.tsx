@@ -7,9 +7,9 @@ import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 
-import { WarningsDisplay } from "./WarningsDisplay";
-import { MessageSenderDisplay } from "./MessageSender";
-import { QualityFiltersDisplay } from "./QualityFiltersDisplay";
+import { WarningsErrors } from "./WarningsErrors";
+import { MessageSender } from "./MessageSender";
+import { QualityFilters } from "./QualityFilters";
 
 // type MessageDetailsProps = {
 //     messageId: string | undefined;
@@ -31,7 +31,7 @@ function MessageDetailsSender() {
 
     if (!senderDetails) return <ErrorPage type="page" />;
 
-    return <MessageSenderDisplay senderDetails={senderDetails} />;
+    return <MessageSender senderDetails={senderDetails} />;
 }
 
 function Warnings() {
@@ -56,7 +56,7 @@ function Warnings() {
     // TODO: call endpoint with messageId to get warnings
     const warnings = MOCK_MESSAGE_WARNINGS;
 
-    return <WarningsDisplay title={"Warnings:"} warnings={warnings} />;
+    return <WarningsErrors title={"Warnings:"} data={warnings} />;
 }
 
 function Errors() {
@@ -79,7 +79,7 @@ function Errors() {
     // TODO: call endpoint with messageId to get errors
     const errors = MOCK_MESSAGE_ERRORS;
 
-    return <WarningsDisplay title={"Errors:"} warnings={errors} />;
+    return <WarningsErrors title={"Errors:"} data={errors} />;
 }
 
 function Jurisdictions() {
@@ -150,7 +150,7 @@ function Jurisdictions() {
     // TODO: call endpoint with messageId to get errors
     const qualityFilters = MOCK_MESSAGE_QUALITY_FILTERS;
 
-    return <QualityFiltersDisplay qualityFilters={qualityFilters} />;
+    return <QualityFilters qualityFilters={qualityFilters} />;
 }
 
 export function MessageDetails() {

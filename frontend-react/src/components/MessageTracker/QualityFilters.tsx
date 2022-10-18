@@ -7,7 +7,7 @@ type QualityFiltersDisplayProps = {
     qualityFilters: Destination[] | undefined;
 };
 
-export const QualityFiltersDisplay = ({
+export const QualityFilters = ({
     qualityFilters,
 }: QualityFiltersDisplayProps) => {
     return (
@@ -34,7 +34,7 @@ export const QualityFiltersDisplay = ({
                                     <th>Tracking element</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="font-body-xs">
                                 {d.filteredReportItems.map((f, i) => {
                                     return (
                                         <tr key={i}>

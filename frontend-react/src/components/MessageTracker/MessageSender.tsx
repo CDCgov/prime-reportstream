@@ -11,13 +11,11 @@ interface ResponseSender {
     reportId: string;
     fileUrl: string | undefined;
 }
-type MessageSenderDisplayProps = {
+type MessageSenderProps = {
     senderDetails: ResponseSender;
 };
 
-export const MessageSenderDisplay = ({
-    senderDetails,
-}: MessageSenderDisplayProps) => {
+export const MessageSender = ({ senderDetails }: MessageSenderProps) => {
     return (
         <div className="display-flex flex-column margin-bottom-5">
             <DetailItem
