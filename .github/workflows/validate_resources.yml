@@ -67,9 +67,9 @@ jobs:
           shell: bash
           on_retry_command: >-
             az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-dns
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
             az container start --name pdh${{ needs.pre_job.outputs.env_name }}-dns
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
       - name: Restart legacy SFTP if wrong ip
         if: needs.pre_job.outputs.env_name != 'prod'
         uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
@@ -85,6 +85,6 @@ jobs:
           shell: bash
           on_retry_command: >-
             az container stop --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
             az container start --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
-            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
