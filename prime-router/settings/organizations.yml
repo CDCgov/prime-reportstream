@@ -1747,6 +1747,11 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        replaceValueAwithB:
+          ORC-12-2:
+            - ' ': "Dr. Gregory"
+          ORC-12-3:
+            - ' ': "Warner"
       transport:
         type: SFTP
         host: sftp
