@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -38,7 +39,7 @@ class DocumentationTests {
 ---
 """
 
-        val docString = DocumentationFactory.getElementDocumentation(elem)
+        val docString = MarkdownDocumentationFactory.getElementDocumentation(elem)
         assertThat(docString).isEqualTo(expected)
     }
 
@@ -67,7 +68,7 @@ class DocumentationTests {
 ---
 """
 
-        val actual = DocumentationFactory.getSchemaDocumentation(schema)
+        val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -90,7 +91,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithDocumentation)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertThat(actual).isEqualTo(expected)
     }
     @Test
@@ -115,7 +116,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -141,7 +142,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -167,7 +168,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -193,7 +194,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -228,7 +229,7 @@ Code | Display | System
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -268,7 +269,7 @@ Code | Display | System
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }
 }
