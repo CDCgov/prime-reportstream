@@ -96,6 +96,9 @@ resource "azurerm_function_app" "admin" {
       site_config[0].ip_restriction
     ]
   }
+  depends_on = [
+    var.app_service_plan
+  ]
   tags = {
     environment = local.config.environment
     managed-by  = "terraform"
@@ -141,7 +144,7 @@ data "archive_file" "admin_function_app" {
 
 resource "null_resource" "admin_function_app_publish" {
   provisioner "local-exec" {
-    command = local.admin_publish_command
+    command = var.is_temp_env == true ? "echo 'admin app disabled'" : local.admin_publish_command
   }
   depends_on = [
     local.admin_publish_command,
