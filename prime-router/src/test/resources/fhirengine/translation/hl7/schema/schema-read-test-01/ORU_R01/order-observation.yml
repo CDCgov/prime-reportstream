@@ -1,4 +1,3 @@
-name: ORU-R01-order-observation
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
 elements:

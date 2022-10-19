@@ -1,4 +1,3 @@
-name: ORU-R01-patient-visit
 constants:
   hl7PV1Field: /PATIENT_RESULT/PATIENT/VISIT/PV1
 elements:
