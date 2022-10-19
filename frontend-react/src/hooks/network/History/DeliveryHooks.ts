@@ -40,8 +40,6 @@ const useOrgDeliveries = (
                     sortDir: filters?.order,
                     since: filters?.from,
                     until: filters?.to,
-                    pageSize: filters?.size,
-                    cursor: "",
                 },
             }),
         [authorizedFetch, orgAndService, filters]
