@@ -1,4 +1,10 @@
-import React, { useState, Dispatch, SetStateAction, useMemo } from "react";
+import React, {
+    useState,
+    Dispatch,
+    SetStateAction,
+    useMemo,
+    useEffect,
+} from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { ReactNode } from "react-markdown/lib/react-markdown";
@@ -21,7 +27,10 @@ import {
     ValueSetRow,
 } from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
-import { ReportStreamAlert } from "../../../utils/ErrorUtils";
+import {
+    handleErrorWithAlert,
+    ReportStreamAlert,
+} from "../../../utils/ErrorUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
@@ -122,15 +131,26 @@ export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
     valueSetData,
+    error,
     Legend,
 }: {
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
     valueSetData: ValueSetRow[];
+    error?: Error;
     Legend?: ReactNode; //  not using this yet, but may want to some day
 }) => {
     const { saveData, isSaving } = useValueSetUpdate();
     const { activateTable, isActivating } = useValueSetActivation();
+    useEffect(() => {
+        if (error) {
+            handleErrorWithAlert({
+                logMessage: "Error occurred fetching value set",
+                error,
+                setAlert,
+            });
+        }
+    }, [error, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetData),
@@ -160,19 +180,28 @@ export const ValueSetsDetailTable = ({
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
-                const dataToSave = prepareRowsForSave(
-                    row,
-                    valueSetsWithIds,
-                    valueSetName
-                );
-                const saveResponse = await saveData({
-                    data: dataToSave,
-                    tableName: valueSetName,
-                });
-                await activateTable({
-                    tableVersion: saveResponse.tableVersion,
-                    tableName: valueSetName,
-                });
+                try {
+                    const dataToSave = prepareRowsForSave(
+                        row,
+                        valueSetsWithIds,
+                        valueSetName
+                    );
+                    const saveResponse = await saveData({
+                        data: dataToSave,
+                        tableName: valueSetName,
+                    });
+                    await activateTable({
+                        tableVersion: saveResponse.tableVersion,
+                        tableName: valueSetName,
+                    });
+                } catch (e: any) {
+                    handleErrorWithAlert({
+                        logMessage: "Error occurred saving value set",
+                        error: e,
+                        setAlert,
+                    });
+                    return;
+                }
                 setAlert({ type: "success", message: "Value Saved" });
             }}
         />

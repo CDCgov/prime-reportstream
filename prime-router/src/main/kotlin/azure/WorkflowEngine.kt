@@ -655,15 +655,12 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        // todo All of this info is already populated in the Header obj.
-        val schema = metadata.findSchema(header.task.schemaName)
-            ?: error("Invalid schema in queue: ${header.task.schemaName}")
         val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
-                    schema.name,
+                    header.task.schemaName,
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver
@@ -675,7 +672,7 @@ class WorkflowEngine(
             }
             "INTERNAL" -> {
                 csvSerializer.readInternal(
-                    schema.name,
+                    header.task.schemaName,
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver,
@@ -791,6 +788,9 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
+                //  for 'process' ... but 'process' is just too vague
+                Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date

@@ -1,4 +1,3 @@
-name: ORU-R01-order-observation-timing
 constants:
   hl7TQ1: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/TIMING_QTY/TQ1'
 elements:
