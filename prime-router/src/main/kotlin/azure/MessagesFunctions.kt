@@ -23,8 +23,8 @@ const val MESSAGE_SEARCH_ID_PARAMETER = "messageId"
  * Azure Functions with HTTP Trigger.
  * Search and retrieve messages
  */
-class MessagesFunction(
-    private val dbAccess: DatabaseAccess = DatabaseAccess(),
+class MessageSearch(
+    private val dbAccess: DatabaseAccess = DatabaseAccess()
 ) : Logging {
 
     /**
@@ -41,7 +41,6 @@ class MessagesFunction(
             route = "messages/search"
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-
         return try {
             val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
@@ -70,7 +69,6 @@ class MessagesFunction(
     internal fun processSearchRequest(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-
         val messageId = request.queryParameters
             .getOrDefault(
                 MESSAGE_SEARCH_ID_PARAMETER,
@@ -94,12 +92,115 @@ class MessagesFunction(
                                 it.messageId,
                                 it.senderId,
                                 it.createdAt,
-                                it.reportId.toString()
+                                it.reportId.toString(),
+                                null,
+                                null
                             )
                         }
 
                     HttpStatus.OK
                 }
+            } catch (e: Exception) {
+                errorMessage = e.message
+                logger.error { e.message }
+                HttpStatus.BAD_REQUEST
+            }
+
+        if (httpStatus == HttpStatus.BAD_REQUEST) {
+            response = mapOf(
+                "error" to true,
+                "status" to httpStatus.value(),
+                "message" to errorMessage
+            )
+        }
+
+        return request.createResponseBuilder(httpStatus)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            .body(
+                JacksonMapperUtilities.allowUnknownsMapper
+                    .writeValueAsString(response)
+            )
+            .build()
+    }
+}
+
+/**
+ * Azure Functions with HTTP Trigger.
+ * Retrieve message details
+ */
+class MessageDetails(
+    private val dbAccess: DatabaseAccess = DatabaseAccess()
+) : Logging {
+
+    /**
+     * entry point for the /message/{id} endpoint,
+     * which searches for a given messageId in the database
+     */
+    @FunctionName("messageDetails")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "messageDetails",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "message/{messageId}"
+        ) request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // admin permissions only
+            if (!claims.isPrimeAdmin) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            processMessageDetailRequest(request)
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    /**
+     * Handles an incoming message search request.
+     * @param request The incoming request
+     * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
+     */
+    internal fun processMessageDetailRequest(
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        val messageId = request.queryParameters
+            .getOrDefault(
+                MESSAGE_SEARCH_ID_PARAMETER,
+                null
+            )
+
+        // return a message or an error
+        var response: Any = ""
+        var errorMessage: String? = ""
+
+        val httpStatus: HttpStatus =
+            try {
+                val result = dbAccess.fetchSingleMetadata(messageId)
+                response = if (result == null) {
+                    "No message found."
+                } else {
+                    val reportResult = dbAccess.fetchReportFile(result.reportId)
+                    Message(
+                        result.messageId,
+                        result.senderId,
+                        result.createdAt,
+                        result.reportId.toString(),
+                        reportResult.externalName,
+                        reportResult.bodyUrl
+                    )
+                }
+                HttpStatus.OK
             } catch (e: Exception) {
                 errorMessage = e.message
                 logger.error { e.message }

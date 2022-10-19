@@ -6,5 +6,7 @@ data class Message(
     val messageId: String,
     val sender: String,
     val submittedDate: LocalDateTime,
-    val reportId: String
+    val reportId: String,
+    val reportFileName: String?,
+    val reportFileUrl: String?
 )
