@@ -7,14 +7,14 @@ import React from "react";
 
 import { DatasetAction } from "./TableInfo";
 
-interface DatasetActionProps extends DatasetAction {
+type TableActionButtonProps = DatasetAction & {
     disabled: boolean;
-}
+};
 export const TableActionButton = ({
     label,
     method = () => {},
     disabled,
-}: DatasetActionProps) => (
+}: TableActionButtonProps) => (
     <Button type={"button"} onClick={() => method()} disabled={disabled}>
         {label}
     </Button>
