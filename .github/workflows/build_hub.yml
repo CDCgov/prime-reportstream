@@ -159,7 +159,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@c9fcb64660bc90ec1cc535646af190c992007c32
+        uses: peter-evans/create-or-update-comment@2b2c85d0bf1b8a7b4e7e344bd5c71dc4b9196e9f
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}

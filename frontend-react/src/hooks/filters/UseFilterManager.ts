@@ -26,6 +26,14 @@ export interface FilterManager {
     updatePage: Dispatch<PageSettingsAction>;
     resetAll: () => void;
 }
+/** Keeps dispatch functions out of the filter shape at the network call level */
+export type Filters = RangeSettings & SortSettings & PageSettings;
+/** Pass in a {@link FilterManager} and receive only its filters back, no dispatch functions */
+export const extractFiltersFromManager = (fm: FilterManager): Filters => ({
+    ...fm.rangeSettings,
+    ...fm.pageSettings,
+    ...fm.sortSettings,
+});
 
 interface FilterManagerDefaults {
     sortDefaults?: Partial<SortSettings>;

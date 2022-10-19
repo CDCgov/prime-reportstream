@@ -68,10 +68,8 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Last Mile Failures", "lastmile"),
         makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
     ];
-    if (checkFlag("message-id-search"))
-        pages.push(
-            makeNonStaticOption("Message Id Search", "message-id-search")
-        );
+    if (checkFlag("message-tracker"))
+        pages.push(makeNonStaticOption("Message Id Search", "message-tracker"));
     if (checkFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));
     return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
