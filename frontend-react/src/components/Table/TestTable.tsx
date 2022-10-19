@@ -5,8 +5,9 @@ import useCursorManager, {
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
-import Table, { ColumnConfig, DatasetAction, TableConfig } from "./Table";
+import Table, { ColumnConfig, TableConfig } from "./Table";
 import TableFilters from "./TableFilters";
+import { DatasetAction } from "./TableInfo";
 
 const testDataRowOne = {
     one: "value one",

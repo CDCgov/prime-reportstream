@@ -1,4 +1,4 @@
-import { within, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
@@ -10,13 +10,13 @@ import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
 import { TestTable } from "./TestTable";
-import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
-import { TableRows } from "./TableRows";
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import { TableRowData, TableRows } from "./TableRows";
 import { ColumnData } from "./ColumnData";
 /* Table generation tools */
 
 const getSetOfRows = (count: number, linkable: boolean = true) => {
-    const testRows: TableRow[] = [];
+    const testRows: TableRowData[] = [];
     for (let i = 0; i < count; i++) {
         // this is bad, but I couldn't figure out how to do it another way
         // without jumping through lots of typescript hoops - DWS
@@ -45,7 +45,7 @@ const getSetOfRows = (count: number, linkable: boolean = true) => {
     return testRows;
 };
 
-const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
+const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     const sampleMapper = new Map<number, string>([[2, "Mapped Item"]]);
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
@@ -74,7 +74,7 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
 };
 
 const getTestConfig = (rowCount: number): TableConfig => {
-    const testRows: TableRow[] = getSetOfRows(rowCount);
+    const testRows: TableRowData[] = getSetOfRows(rowCount);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
         rows: testRows,
@@ -487,34 +487,5 @@ describe("ColumnData", () => {
             `${initialValue}fakeItem`,
             "editableColumn"
         );
-    });
-});
-
-describe("Adding New Rows", () => {
-    test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", () => {
-        render(<TestTable linkable={false} editable={true} />);
-
-        let rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 data rows and 1 header row
-
-        const addRowButton = screen.getByText("Test Action");
-        userEvent.click(addRowButton);
-
-        rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(4);
-    });
-
-    test("All fields on new editable row are editable", () => {
-        render(<TestTable linkable={false} editable={true} />);
-
-        const addRowButton = screen.getByText("Test Action");
-        userEvent.click(addRowButton);
-
-        const rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(4);
-
-        const newRow = rows[3];
-        const inputs = within(newRow).getAllByRole("textbox");
-        expect(inputs).toHaveLength(4);
     });
 });

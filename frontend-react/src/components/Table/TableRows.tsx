@@ -8,9 +8,12 @@ import React, {
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { StringIndexed } from "../../utils/UsefulTypes";
 
-import { RowSideEffect, TableRow as TableRowData, ColumnConfig } from "./Table";
+import { RowSideEffect, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
+
+export type TableRowData = StringIndexed;
 
 interface RowProps {
     columns: ColumnConfig[];

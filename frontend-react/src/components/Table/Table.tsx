@@ -1,12 +1,12 @@
 /* Makes row objects string-indexed */
-import { Button } from "@trussworks/react-uswds";
 import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
-import { TableRows } from "./TableRows";
+import { TableRowData, TableRows } from "./TableRows";
 import { TableHeaders } from "./TableHeaders";
+import { DatasetAction, TableInfo } from "./TableInfo";
 
 export interface ActionableColumn {
     action: Function;
@@ -17,14 +17,6 @@ export interface LinkableColumn {
     link: boolean;
     linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
-}
-
-// each table row will be a map keyed off the dataAttr value of
-// a column from the column config from the same tableConfig.
-// values will largely be assumed to be primitive values, or values
-// to be passed into a transform function defined in the column config
-export interface TableRow {
-    [key: string]: any;
 }
 
 /** @alias for any type of feature column */
@@ -51,19 +43,10 @@ export interface ColumnConfig {
 
 export interface TableConfig {
     columns: Array<ColumnConfig>;
-    rows: Array<TableRow>;
+    rows: Array<TableRowData>;
 }
 
-export interface DatasetAction {
-    label: string;
-    method?: Function;
-}
-
-export interface DatasetActionProps extends DatasetAction {
-    disabled: boolean;
-}
-
-export type RowSideEffect = (row: TableRow | null) => Promise<void>;
+export type RowSideEffect = (row: TableRowData | null) => Promise<void>;
 
 /** Configuration pattern for Table component
  * @remarks Working to deprecate cursorManager for paginationProps */
@@ -147,43 +130,27 @@ const Table = ({
         setRowToEdit(memoizedRows.length);
     }, [memoizedRows, setRowToEdit]);
 
-    // this button will be placed above the rendered table and on `click` will run an arbitrary function
-    // passed in from the Table's parent, or an addRow function defined by the Table.
-    // in order to avoid problems around timing, takes a `disabled` prop.
-    // TODO: split this out of Table component
-    const DatasetActionButton = ({
-        label,
-        method = () => {},
-        disabled,
-    }: DatasetActionProps) => (
-        <Button type={"button"} onClick={() => method()} disabled={disabled}>
-            {label}
-        </Button>
-    );
-
-    const TableInfo = () => {
-        return (
-            <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
-                <div className="grid-col-8 display-flex flex-column">
-                    {title ? <h2>{title}</h2> : null}
-                    {legend ? legend : null}
-                </div>
-                <div className="grid-col-2 display-flex flex-column">
-                    {datasetAction ? (
-                        <DatasetActionButton
-                            label={datasetAction.label}
-                            method={datasetAction.method || addRow}
-                            disabled={!!rowToEdit}
-                        />
-                    ) : null}
-                </div>
-            </div>
-        );
-    };
+    /** If a user provides a label with no method, we supply the basic "Add Row" method with whatever
+     * label they gave. Otherwise, we provide their entire DatasetAction */
+    const memoizedDatasetAction = useMemo(() => {
+        if (!!datasetAction && !datasetAction.method) {
+            return {
+                label: datasetAction?.label,
+                method: addRow,
+            };
+        } else {
+            return datasetAction;
+        }
+    }, [addRow, datasetAction]);
 
     return (
         <div className={wrapperClasses}>
-            <TableInfo />
+            <TableInfo
+                title={title}
+                legend={legend}
+                datasetAction={memoizedDatasetAction}
+                rowToEdit={rowToEdit}
+            />
             <div className="grid-col-12">
                 <table
                     className="usa-table usa-table--borderless usa-table--striped prime-table"
