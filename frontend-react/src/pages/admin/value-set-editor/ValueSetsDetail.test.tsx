@@ -1,5 +1,6 @@
 import { screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AxiosResponse } from "axios";
 
 import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
@@ -115,7 +116,7 @@ describe("ValueSetsDetail", () => {
 
     test("Handles error with table fetch", () => {
         mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", 404);
+            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
         });
         mockUseValueSetsMeta = jest.fn(
             () =>
