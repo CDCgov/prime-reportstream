@@ -13,10 +13,17 @@ import Spinner from "../../../components/Spinner";
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
 
+enum DeliveriesDataAttr {
+    REPORT_ID = "reportId",
+    BATCH_READY = "batchReadyAt",
+    EXPIRES = "expires",
+    ITEM_COUNT = "reportItemCount",
+    FILE_TYPE = "fileType",
+}
 /** @todo: page size default set to 10 once paginated */
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
-        column: "sent",
+        column: DeliveriesDataAttr.BATCH_READY,
         locally: true,
     },
     pageDefaults: {
@@ -97,7 +104,7 @@ function DeliveriesTable() {
     const resultsTableConfig: TableConfig = {
         columns: [
             {
-                dataAttr: "reportId",
+                dataAttr: DeliveriesDataAttr.REPORT_ID,
                 columnHeader: "Report ID",
                 feature: {
                     link: true,
@@ -105,7 +112,7 @@ function DeliveriesTable() {
                 },
             },
             {
-                dataAttr: "batchReadyAt",
+                dataAttr: DeliveriesDataAttr.BATCH_READY,
                 columnHeader: "Available",
                 sortable: true,
                 localSort: true,
@@ -114,7 +121,7 @@ function DeliveriesTable() {
                 },
             },
             {
-                dataAttr: "expires",
+                dataAttr: DeliveriesDataAttr.EXPIRES,
                 columnHeader: "Expires",
                 sortable: true,
                 localSort: true,
@@ -123,15 +130,15 @@ function DeliveriesTable() {
                 },
             },
             {
-                dataAttr: "reportItemCount",
+                dataAttr: DeliveriesDataAttr.ITEM_COUNT,
                 columnHeader: "Items",
             },
             {
-                dataAttr: "fileType",
+                dataAttr: DeliveriesDataAttr.FILE_TYPE,
                 columnHeader: "File",
                 feature: {
                     action: handleFetchAndDownload,
-                    param: "reportId",
+                    param: DeliveriesDataAttr.FILE_TYPE,
                 },
             },
         ],
