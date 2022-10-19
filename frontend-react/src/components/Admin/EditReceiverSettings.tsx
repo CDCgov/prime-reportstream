@@ -26,6 +26,7 @@ import {
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 
 import {
     ConfirmSaveSettingModal,
@@ -44,7 +45,7 @@ const { RS_API_URL } = config;
 type EditReceiverSettingsFormProps = {
     orgname: string;
     receivername: string;
-    action: string;
+    action: "edit" | "clone";
 };
 
 const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
@@ -67,6 +68,40 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     const [orgReceiverSettingsNewJson, setOrgReceiverSettingsNewJson] =
         useState("");
     const { invalidate } = useController();
+
+    const modalRef = useRef<ModalConfirmRef>(null);
+    const ShowDeleteConfirm = (deleteItemId: string) => {
+        modalRef?.current?.showModal({
+            title: "Confirm Delete",
+            message:
+                "Deleting a setting will only mark it deleted. It can be accessed via the revision history",
+            okButtonText: "Delete",
+            itemId: deleteItemId,
+        });
+    };
+    const doDelete = async (deleteItemId: string) => {
+        try {
+            await fetchController(OrgReceiverSettingsResource.deleteSetting(), {
+                orgname: orgname,
+                receivername: deleteItemId,
+            });
+
+            showAlertNotification(
+                "success",
+                `Item '${deleteItemId}' has been deleted`
+            );
+
+            // navigate back to list since this item was just deleted
+            navigate(-1);
+            return true;
+        } catch (e: any) {
+            console.trace(e);
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
+            return false;
+        }
+    };
 
     async function getLatestReceiverResponse() {
         const accessToken = getStoredOktaToken();
@@ -314,23 +349,35 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     savefunc={(v) => (orgReceiverSettings.externalName = v)}
                 />
                 <Grid row className="margin-top-2">
-                    <Button
-                        type="button"
-                        onClick={async () =>
-                            (await resetReceiverList()) && navigate(-1)
-                        }
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        form="edit-setting"
-                        type="submit"
-                        data-testid="submit"
-                        disabled={loading}
-                        onClick={showCompareConfirm}
-                    >
-                        Preview...
-                    </Button>
+                    <Grid col={6}>
+                        <Button
+                            type={"button"}
+                            secondary={true}
+                            onClick={() => ShowDeleteConfirm(receivername)}
+                        >
+                            Delete...
+                        </Button>
+                    </Grid>
+                    <Grid col={6} className={"text-right"}>
+                        <Button
+                            type="button"
+                            outline={true}
+                            onClick={async () =>
+                                (await resetReceiverList()) && navigate(-1)
+                            }
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            form="edit-setting"
+                            type="submit"
+                            data-testid="submit"
+                            disabled={loading}
+                            onClick={showCompareConfirm}
+                        >
+                            Edit json and save...
+                        </Button>
+                    </Grid>
                 </Grid>
                 <ConfirmSaveSettingModal
                     uniquid={
@@ -344,6 +391,11 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     newjson={orgReceiverSettingsNewJson}
                 />
             </GridContainer>
+            <ModalConfirmDialog
+                id={"deleteConfirm"}
+                onConfirm={doDelete}
+                ref={modalRef}
+            ></ModalConfirmDialog>
         </section>
     );
 };
@@ -370,7 +422,7 @@ export function EditReceiverSettings() {
             <EditReceiverSettingsForm
                 orgname={orgname || ""}
                 receivername={receivername || ""}
-                action={action || ""}
+                action={action || "edit"}
             />
         </AdminFormWrapper>
     );
