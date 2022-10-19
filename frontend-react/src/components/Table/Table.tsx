@@ -125,7 +125,7 @@ const Table = ({
      * this reactively updates to account for that, too. */
     const memoizedRows = useMemo(() => {
         if (!config?.rows.length) {
-            return [];
+            return null;
         }
         const column = filterManager?.sortSettings?.column || "";
         const locally = filterManager?.sortSettings?.locally || false;
@@ -159,7 +159,7 @@ const Table = ({
     );
 
     const addRow = useCallback(() => {
-        setRowToEdit(memoizedRows.length);
+        setRowToEdit(memoizedRows?.length || 0);
     }, [memoizedRows, setRowToEdit]);
 
     const renderArrow = () => {
@@ -352,15 +352,19 @@ const Table = ({
                         <TableHeaders />
                     </thead>
                     <tbody className="font-mono-2xs">
-                        <TableRows
-                            rows={memoizedRows}
-                            onSave={editableCallback}
-                            enableEditableRows={enableEditableRows}
-                            filterManager={filterManager}
-                            columns={config.columns}
-                            rowToEdit={rowToEdit}
-                            setRowToEdit={setRowToEdit}
-                        />
+                        {!!memoizedRows ? (
+                            <TableRows
+                                rows={memoizedRows}
+                                onSave={editableCallback}
+                                enableEditableRows={enableEditableRows}
+                                filterManager={filterManager}
+                                columns={config.columns}
+                                rowToEdit={rowToEdit}
+                                setRowToEdit={setRowToEdit}
+                            />
+                        ) : (
+                            <span>No data to show</span>
+                        )}
                     </tbody>
                 </table>
                 {/** @todo Deprecate cursorManager for paginationProps */}

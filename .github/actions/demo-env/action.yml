@@ -111,30 +111,20 @@ runs:
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
 
-    - env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-        ENV_NAME: ${{ inputs.env-name }}
-      run: |
-        gh workflow run "Restore databases" \
-        -f backup_from=test \
-        -f restore_to=$ENV_NAME \
-        -f backup_age_limit_mins=2880 \
-        -f restore_ignore_backup_age=true \
-        --ref josiahsiegel/create/demo-tf \
-        -f databases='[\"prime_data_hub\",\"prime_data_hub_candidate\"]'
-
-        sleep 10;
+    - name: Run DB restores and wait
       if: inputs.github-token && inputs.destroy == 'false'
-      shell: bash
-
-    - name: Await the completion of DB restores
-      if: inputs.github-token && inputs.destroy == 'false'
-      uses: Codex-/await-local-workflow-run@v1.3.1
+      uses: convictional/trigger-workflow-and-wait@d7939b40c3bebe9dfe6cca096f8413f8c7e01560
       with:
-        token: ${{ inputs.github-token }}
-        workflow: restore_databases.yml
-        timeout_mins: 300
-        poll_interval_ms: 120000
+        owner: CDCgov
+        repo: prime-reportstream
+        github_token: ${{ inputs.github-token }}
+        workflow_file_name: restore_databases.yml
+        ref: josiahsiegel/create/demo-tf
+        wait_interval: 120
+        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"2880", "restore_ignore_backup_age":"true" }'
+        propagate_failure: true
+        trigger_workflow: true
+        wait_workflow: true
 
     - name: Optimize db server size after restore
       if: inputs.github-token && inputs.destroy == 'false'
