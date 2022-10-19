@@ -295,14 +295,14 @@ export const FileQualityFilterDisplay = ({
             {destinations?.map((d) => (
                 <React.Fragment key={d.organization_id}>
                     <table
-                        className="usa-table usa-table--borderless"
+                        className="usa-table usa-table--borderless width-full"
                         data-testid="error-table"
                     >
                         <thead>
-                            <tr>
+                            <tr className="text-baseline">
                                 <th>
-                                    {d.organization}
-                                    <span className="font-ui-3xs">
+                                    {d.organization} <br />
+                                    <span className="font-sans-3xs text-normal">
                                         {" "}
                                         ({d.filteredReportItems.length})
                                         record(s) filtered out
