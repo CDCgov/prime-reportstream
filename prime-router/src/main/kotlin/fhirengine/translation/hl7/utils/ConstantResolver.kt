@@ -304,13 +304,13 @@ object CustomFHIRFunctions {
             focus.size == 1 &&
             focus.first() is StringType
         ) {
-
             val delimeter = (parameters.first().first()).primitiveValue()
             val stringToSplit = focus.first().primitiveValue()
 
             stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
-        } else
+        } else {
             mutableListOf()
+        }
     }
 
     /**
@@ -324,6 +324,7 @@ object CustomFHIRFunctions {
             else -> mutableListOf(StringType(""))
         }
     }
+
     /**
      * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
      * HL7 v2.5.1 - 0396 - Coding system.
@@ -447,14 +448,14 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         return if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
-            if (values.size != 1)
+            if (values.size != 1) {
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
-            else {
+            } else {
                 logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
-                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue()))
+                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
                     IntegerType(values[0].primitiveValue())
-                else values[0]
+                } else values[0]
             }
         }
     }
