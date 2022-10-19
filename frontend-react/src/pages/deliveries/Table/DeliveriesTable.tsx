@@ -1,7 +1,8 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
+    extractFiltersFromManager,
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
@@ -9,6 +10,7 @@ import { useReceiversList } from "../../../hooks/network/Organizations/Receivers
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
+import TableFilters from "../../../components/Table/TableFilters";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -16,7 +18,7 @@ import ServicesDropdown from "./ServicesDropdown";
 /** @todo: page size default set to 10 once paginated */
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
-        column: "sent",
+        column: "expires",
         locally: true,
     },
     pageDefaults: {
@@ -66,6 +68,36 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     };
 };
 
+const ServiceDisplay = ({
+    services,
+    activeService,
+    handleSetActive,
+}: {
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    handleSetActive: (v: string) => void;
+}) => {
+    return (
+        <div className="grid-container grid-col-12">
+            {services && services?.length > 1 ? (
+                <ServicesDropdown
+                    services={services}
+                    active={activeService?.name || ""}
+                    chosenCallback={handleSetActive}
+                />
+            ) : (
+                <p>
+                    Default service:{" "}
+                    <strong>
+                        {(services?.length && services[0].name.toUpperCase()) ||
+                            ""}
+                    </strong>
+                </p>
+            )}
+        </div>
+    );
+};
+
 /*
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
@@ -73,14 +105,19 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
 */
 function DeliveriesTable() {
     const { oktaToken, activeMembership } = useSessionContext();
+    const filterManager = useFilterManager(filterManagerDefaults);
     const { loadingServices, services, activeService, setActiveService } =
         useReceiverFeeds();
+    const filters = useMemo(
+        () => extractFiltersFromManager(filterManager),
+        [filterManager]
+    );
     // TODO: Doesn't update parameters because of the config memo dependency array
     const { serviceReportsList } = useOrgDeliveries(
         activeMembership?.parsedName,
-        activeService?.name
+        activeService?.name,
+        filters
     );
-    const filterManager = useFilterManager(filterManagerDefaults);
 
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
@@ -140,24 +177,12 @@ function DeliveriesTable() {
     if (loadingServices) return <Spinner />;
     return (
         <>
-            <div className="grid-container grid-col-12">
-                {services && services?.length > 1 ? (
-                    <ServicesDropdown
-                        services={services}
-                        active={activeService?.name || ""}
-                        chosenCallback={handleSetActive}
-                    />
-                ) : (
-                    <p>
-                        Default service:{" "}
-                        <strong>
-                            {(services?.length &&
-                                services[0].name.toUpperCase()) ||
-                                ""}
-                        </strong>
-                    </p>
-                )}
-            </div>
+            <ServiceDisplay
+                services={services}
+                activeService={activeService}
+                handleSetActive={handleSetActive}
+            />
+            <TableFilters filterManager={filterManager} />
             <Table config={resultsTableConfig} filterManager={filterManager} />
         </>
     );
