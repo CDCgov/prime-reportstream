@@ -1,29 +1,26 @@
 import React from "react";
-import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
-import { MessageIdSearch } from "../../components/MessageIdSearch/MessageIdSearch";
-import { ErrorPage } from "../error/ErrorPage";
+import { MessageTracker } from "../../components/MessageTracker/MessageTracker";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
-export function AdminMessageIdSearch() {
+export function AdminMessageTracker() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <>
             <BasicHelmet pageTitle="Message Id Search" />
-            <MessageIdSearch />
+            <MessageTracker />
             <HipaaNotice />
-        </NetworkErrorBoundary>
+        </>
     );
 }
 
-export function AdminMessageIdSearchWithAuth() {
+export function AdminMessageTrackerWithAuth() {
     return (
         <AuthElement
-            element={<AdminMessageIdSearch />}
+            element={withCatchAndSuspense(<AdminMessageTracker />)}
             requiredUserType={MemberType.PRIME_ADMIN}
         />
     );

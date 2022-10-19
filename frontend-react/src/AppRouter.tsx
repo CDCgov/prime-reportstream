@@ -20,7 +20,7 @@ import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
 import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
 import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
-import { AdminMessageIdSearchWithAuth } from "./pages/admin/AdminMessageIdSearch";
+import { AdminMessageTrackerWithAuth } from "./pages/admin/AdminMessageTracker";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
@@ -31,6 +31,7 @@ import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
+import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 
 export const AppRouter = () => {
     return (
@@ -83,8 +84,12 @@ export const AppRouter = () => {
             />
             <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
             <Route
-                path="/admin/message-id-search"
-                element={<AdminMessageIdSearchWithAuth />}
+                path="/admin/message-tracker"
+                element={<AdminMessageTrackerWithAuth />}
+            />
+            <Route
+                path="/message-details/:messageId"
+                element={<MessageDetailsWithAuth />}
             />
             <Route
                 path={"/admin/value-sets/:valueSetName"}
