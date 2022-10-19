@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
-import { ResponseError } from "../network/api/WatersApi";
+import { ResponseError } from "../config/endpoints/waters";
 
 import useFileHandler, {
     INITIAL_STATE,

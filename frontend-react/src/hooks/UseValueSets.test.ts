@@ -89,9 +89,10 @@ describe("useValueSetUpdate", () => {
 
     test("returns trigger and loading indicator", async () => {
         const { result } = renderWithQueryWrapper();
-        const { saveData, isSaving } = result.current;
+        const { saveData, isSaving, saveError } = result.current;
         expect(isSaving).toEqual(false);
         expect(saveData).toBeInstanceOf(Function);
+        expect(saveError).toBeNull();
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
@@ -146,9 +147,10 @@ describe("useValueSetActivation", () => {
 
     test("returns trigger and loading indicator", async () => {
         const { result } = renderWithQueryWrapper();
-        const { activateTable, isActivating } = result.current;
+        const { activateTable, isActivating, activationError } = result.current;
         expect(isActivating).toEqual(false);
         expect(activateTable).toBeInstanceOf(Function);
+        expect(activationError).toBeNull();
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
