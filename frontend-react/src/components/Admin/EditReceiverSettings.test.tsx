@@ -66,7 +66,6 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-// TODO: Auto mock module?
 jest.mock("react-router-dom", () => ({
     useNavigate: () => {
         return jest.fn();
@@ -97,5 +96,8 @@ describe("EditReceiverSettings", () => {
         });
 
         expect(descriptionField).toHaveValue("Testing Edit");
+        fireEvent.click(screen.getByTestId("submit"));
+        fireEvent.click(screen.getByTestId("editCompareCancelButton"));
+        fireEvent.click(screen.getByTestId("receiverSettingDeleteButton"));
     });
 });

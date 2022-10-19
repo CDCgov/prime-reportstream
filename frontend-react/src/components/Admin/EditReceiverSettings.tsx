@@ -353,6 +353,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                         <Button
                             type={"button"}
                             secondary={true}
+                            data-testid={"receiverSettingDeleteButton"}
                             onClick={() => ShowDeleteConfirm(receivername)}
                         >
                             Delete...

@@ -262,6 +262,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                         <Button
                             type={"button"}
                             secondary={true}
+                            data-testid={"senderSettingDeleteButton"}
                             onClick={() => ShowDeleteConfirm(sendername)}
                         >
                             Delete...
