@@ -576,6 +576,7 @@ Code | Display | System
 31389004|Oropharyngeal structure (body structure)|SNOMED_CT
 39607008|Lung structure (body structure)|SNOMED_CT
 955009|Bronchial structure (body structure)|SNOMED_CT
+1797002|Structure of anterior nares (body structure)|SNOMED_CT
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
 
 **Alt Value Sets**

@@ -1,0 +1,22 @@
+---
+name: color-labs-covid-19
+description: Color Labs
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    default: color-lab
+
+  - name: processing_mode_code
+    default: T
+
+  - name: patient_ethnicity
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    valueSet: omb_ethnicity
+    hl7Field: PID-22
+    documentation: |
+      The patient's ethnicity. Color uses the FHIR OMB Ethnicity dataset

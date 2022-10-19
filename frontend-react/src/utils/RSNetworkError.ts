@@ -1,6 +1,9 @@
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorComponent code={RSError.NOT_FOUND} /> */
+import { AxiosResponse } from "axios";
+
 export enum ErrorName {
+    BAD_REQUEST = "bad-request", //400
     UNAUTHORIZED = "unauthorized", //401
     NOT_FOUND = "not-found", //404
     SERVER_ERROR = "server-error", //500-599
@@ -15,15 +18,20 @@ export enum ErrorName {
 export class RSNetworkError extends Error {
     /* Used for identifying unique content to display for error */
     name: ErrorName;
+    /* API response data, because we use this to get back error messaging on mutations */
+    data?: object;
     /* Build a new RSNetworkError */
-    constructor(message: string, statusCode?: number) {
+    constructor(message: string, response?: AxiosResponse) {
         super(message); // Sets message
-        this.name = this.parseStatus(statusCode); // Sets code using child's parseStatus
+        this.name = this.parseStatus(response?.status); // Sets code using child's parseStatus
+        this.data = response?.data;
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Map response status code to error name */
     parseStatus(statusCode?: number) {
         switch (true) {
+            case statusCode === 400:
+                return ErrorName.BAD_REQUEST;
             case statusCode === 401:
                 return ErrorName.UNAUTHORIZED;
             case statusCode === 404:

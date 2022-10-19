@@ -93,7 +93,7 @@ valueQuantity_1:
   expressionType: resource
   condition: $obx2 EQUALS NM
   vars:
-    value: OBX.5
+    value: String, OBX.5
     unit: OBX.6.1
     code: OBX.6.1
     obx2: STRING, OBX.2
@@ -118,7 +118,7 @@ valueQuantity_3:
   expressionType: resource
   condition: $obx2 EQUALS SN && $separator NOT_NULL && $separator NOT_EQUALS ':' && $separator NOT_EQUALS '/'
   vars:
-    value: OBX.5.2
+    value: String, OBX.5.2
     unit: OBX.6.1
     code: OBX.6.1
     comparator: OBX.5.1
