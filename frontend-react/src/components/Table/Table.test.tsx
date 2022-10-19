@@ -238,49 +238,6 @@ describe("Sorting integration", () => {
 /* TODO:
  *   Refactor these tests to use new functions instead of TestTable
  * */
-describe("Table, pagination button tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
-
-    test("Next button appears when hasNext is true", () => {
-        const next = screen.getByText("Next");
-        expect(next).toBeInTheDocument();
-    });
-
-    test("Next button disappears when hasNext is false", () => {
-        let next: HTMLElement | null = screen.getByText("Next");
-        fireEvent.click(next);
-        next = screen.queryByText("Next");
-        expect(next).not.toBeInTheDocument();
-    });
-
-    test("Previous button appears when hasPrevious is true", () => {
-        const next = screen.getByText("Next");
-        fireEvent.click(next);
-        const prev = screen.queryByText("Previous");
-        expect(prev).toBeInTheDocument();
-    });
-
-    test("Previous button disappears when hasPrevious is false", () => {
-        // First load
-        const next = screen.getByText("Next");
-        let prev = screen.queryByText("Previous");
-        expect(prev).not.toBeInTheDocument();
-
-        // Simulate clicking next
-        fireEvent.click(next);
-        prev = screen.getByText("Previous");
-        expect(prev).toBeInTheDocument();
-
-        // Simulate clicking previous back to page 1
-        fireEvent.click(prev);
-        prev = screen.queryByText("Previous");
-        expect(prev).not.toBeInTheDocument();
-    });
-});
-
-/* TODO:
- *   Refactor these tests to use new functions instead of TestTable
- * */
 describe("Table, filter integration tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
     test("date range selection and clearing", () => {

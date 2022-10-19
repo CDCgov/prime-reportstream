@@ -170,7 +170,7 @@ export const TableRows = ({
     }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
-        <>
+        <tbody className="font-mono-2xs">
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
@@ -199,6 +199,6 @@ export const TableRows = ({
                     />
                 );
             })}
-        </>
+        </tbody>
     );
 };

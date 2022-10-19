@@ -1,25 +1,12 @@
 /* Makes row objects string-indexed */
-import {
-    Button,
-    IconArrowDownward,
-    IconArrowUpward,
-    IconNavigateBefore,
-    IconNavigateNext,
-} from "@trussworks/react-uswds";
+import { Button } from "@trussworks/react-uswds";
 import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
-import {
-    CursorActionType,
-    CursorManager,
-} from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import {
-    SortOrder,
-    SortSettingsActionType,
-} from "../../hooks/filters/UseSortOrder";
 
 import { TableRows } from "./TableRows";
+import { TableHeaders } from "./TableHeaders";
 
 export interface ActionableColumn {
     action: Function;
@@ -89,7 +76,6 @@ export interface TableProps {
     legend?: ReactNode;
     datasetAction?: DatasetAction;
     filterManager?: FilterManager;
-    cursorManager?: CursorManager;
     paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
     editableCallback?: RowSideEffect;
@@ -111,7 +97,6 @@ const Table = ({
     legend,
     datasetAction,
     filterManager,
-    cursorManager,
     paginationProps,
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
@@ -162,113 +147,6 @@ const Table = ({
         setRowToEdit(memoizedRows.length);
     }, [memoizedRows, setRowToEdit]);
 
-    const renderArrow = () => {
-        const { order, localOrder, locally } = filterManager?.sortSettings || {
-            order: "DESC",
-            locally: false,
-            localOrder: "DESC",
-        };
-
-        const isOrder = (sortOrder: SortOrder) =>
-            order === sortOrder || (locally && localOrder === sortOrder);
-
-        if (filterManager && isOrder("ASC")) {
-            return <IconArrowUpward />;
-        } else if (filterManager && isOrder("DESC")) {
-            return <IconArrowDownward />;
-        }
-    };
-
-    const swapSort = (currentColumn: ColumnConfig) => {
-        if (currentColumn.localSort) {
-            // Sets local sort to true and swaps local sort order
-            filterManager?.updateSort({
-                type: SortSettingsActionType.APPLY_LOCAL_SORT,
-                payload: {
-                    locally: true,
-                },
-            });
-            filterManager?.updateSort({
-                type: SortSettingsActionType.SWAP_LOCAL_ORDER,
-            });
-        } else {
-            // Sets local sort to false and swaps the order
-            filterManager?.updateSort({
-                type: SortSettingsActionType.APPLY_LOCAL_SORT,
-                payload: {
-                    locally: false,
-                },
-            });
-            filterManager?.updateSort({
-                type: SortSettingsActionType.SWAP_ORDER,
-            });
-        }
-        filterManager?.updateSort({
-            type: SortSettingsActionType.CHANGE_COL,
-            payload: {
-                column: currentColumn.dataAttr,
-            },
-        });
-    };
-
-    const updateCursorForNetworkSort = () => {
-        /* IMPORTANT:
-         * The conditional presented in this call is measuring
-         * sortSettings.order BEFORE it's swapped (which we do
-         * above this). This is why the logic is backwards */
-        cursorManager?.update({
-            type: CursorActionType.RESET,
-            payload:
-                filterManager?.sortSettings.order === "ASC"
-                    ? filterManager?.rangeSettings.to
-                    : filterManager?.rangeSettings.from,
-        });
-    };
-
-    /* Renders the header row of the table from columns.values() */
-    const TableHeaders = () => {
-        const isSortedColumn = (colConfig: ColumnConfig) =>
-            colConfig.sortable &&
-            filterManager?.sortSettings.column === colConfig.dataAttr;
-        return (
-            <tr>
-                {config.columns?.map((colConfig) => {
-                    if (colConfig.sortable && filterManager) {
-                        return (
-                            <th
-                                className="rs-sortable-header"
-                                key={colConfig.columnHeader}
-                                onClick={() => {
-                                    // Swaps the order and set column
-                                    swapSort(colConfig);
-                                    // Only updates cursor when NOT locally sorting
-                                    if (!colConfig.localSort) {
-                                        updateCursorForNetworkSort();
-                                    }
-                                }}
-                            >
-                                {colConfig.columnHeader}
-                                {isSortedColumn(colConfig)
-                                    ? renderArrow()
-                                    : null}
-                            </th>
-                        );
-                    } else {
-                        return (
-                            <th key={colConfig.columnHeader}>
-                                {colConfig.columnHeader}
-                            </th>
-                        );
-                    }
-                })}
-                {enableEditableRows ? (
-                    // This extends the header bottom border to cover this column
-                    <th key={"edit"}>{""}</th>
-                ) : null}
-            </tr>
-        );
-    };
-
     // this button will be placed above the rendered table and on `click` will run an arbitrary function
     // passed in from the Table's parent, or an addRow function defined by the Table.
     // in order to avoid problems around timing, takes a `disabled` prop.
@@ -303,43 +181,6 @@ const Table = ({
         );
     };
 
-    /* Handles pagination button logic and display */
-    function PaginationButtons(cm: CursorManager) {
-        return (
-            <div className="float-right margin-top-5">
-                {cm.hasPrev && (
-                    <Button
-                        unstyled
-                        type="button"
-                        className="margin-right-2"
-                        onClick={() =>
-                            cm.update({ type: CursorActionType.PAGE_DOWN })
-                        }
-                    >
-                        <span>
-                            <IconNavigateBefore className="text-middle" />
-                            Previous
-                        </span>
-                    </Button>
-                )}
-                {cm.hasNext && (
-                    <Button
-                        unstyled
-                        type="button"
-                        onClick={() =>
-                            cm.update({ type: CursorActionType.PAGE_UP })
-                        }
-                    >
-                        <span>
-                            Next
-                            <IconNavigateNext className="text-middle" />
-                        </span>
-                    </Button>
-                )}
-            </div>
-        );
-    }
-
     return (
         <div className={wrapperClasses}>
             <TableInfo />
@@ -348,23 +189,21 @@ const Table = ({
                     className="usa-table usa-table--borderless usa-table--striped prime-table"
                     aria-label="Submission history from the last 30 days"
                 >
-                    <thead>
-                        <TableHeaders />
-                    </thead>
-                    <tbody className="font-mono-2xs">
-                        <TableRows
-                            rows={memoizedRows}
-                            onSave={editableCallback}
-                            enableEditableRows={enableEditableRows}
-                            filterManager={filterManager}
-                            columns={config.columns}
-                            rowToEdit={rowToEdit}
-                            setRowToEdit={setRowToEdit}
-                        />
-                    </tbody>
+                    <TableHeaders
+                        config={config}
+                        filterManager={filterManager}
+                        enableEditableRows={enableEditableRows}
+                    />
+                    <TableRows
+                        rows={memoizedRows}
+                        onSave={editableCallback}
+                        enableEditableRows={enableEditableRows}
+                        filterManager={filterManager}
+                        columns={config.columns}
+                        rowToEdit={rowToEdit}
+                        setRowToEdit={setRowToEdit}
+                    />
                 </table>
-                {/** @todo Deprecate cursorManager for paginationProps */}
-                {cursorManager && <PaginationButtons {...cursorManager} />}
                 {paginationProps && <Pagination {...paginationProps} />}
             </div>
         </div>

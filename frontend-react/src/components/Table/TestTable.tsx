@@ -150,12 +150,6 @@ export const TestTable = ({
                 datasetAction={datasetAction}
                 config={config}
                 filterManager={filterManager}
-                cursorManager={{
-                    cursors,
-                    hasNext,
-                    hasPrev,
-                    update: updateCursors,
-                }}
             />
         </>
     );
