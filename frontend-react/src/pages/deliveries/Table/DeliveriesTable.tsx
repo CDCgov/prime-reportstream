@@ -158,19 +158,7 @@ function DeliveriesTable() {
                     </p>
                 )}
             </div>
-            <div className="grid-col-12">
-                <Table
-                    config={resultsTableConfig}
-                    filterManager={filterManager}
-                />
-            </div>
-            <div className="grid-container margin-bottom-10">
-                <div className="grid-col-12">
-                    {serviceReportsList?.length === 0 ? (
-                        <p>No results</p>
-                    ) : null}
-                </div>
-            </div>
+            <Table config={resultsTableConfig} filterManager={filterManager} />
         </>
     );
 }
