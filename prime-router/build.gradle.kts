@@ -39,7 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
     id("com.avast.gradle.docker-compose") version "0.16.9"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
 }
 
 group = "gov.cdc.prime"
@@ -101,7 +101,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.1.1"
+val ktorVersion = "2.1.2"
 val kotlinVersion = "1.7.10"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
@@ -717,7 +717,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.9.1")
+    implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -737,7 +737,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.8")
     implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.helger.as2:as2-lib:4.10.1")
+    implementation("com.helger.as2:as2-lib:4.11.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")

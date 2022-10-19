@@ -17,7 +17,7 @@ interface Props {
 
     /* OPTIONAL
     This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)
-    so this single component can be used in Daily.tsx and Details.tsx */
+    so this single component can be used in Deliveries.tsx and DeliveryDetail.tsx */
     button?: boolean;
 }
 
