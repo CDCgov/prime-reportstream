@@ -339,9 +339,11 @@ object CustomFHIRFunctions {
     private val oidRegex = """^[0-2](.(0|[1-9]\d*))+$""".toRegex()
 
     /**
-     * Regex to identify CLIAs.  CLIAs are just 10 alphanumeric characters.
+     * Regex to identify CLIAs.
+     * CLIAs are defined as "10-digit alphanumeric numbers, with the "D"in the third position.
+     * One exception is DoD numbers, where the first character is also "D".
      */
-    private val cliaRegex = """^[a-zA-Z\d]{10}$""".toRegex()
+    private val cliaRegex = """^[dD\d]\dD\d{7}$""".toRegex()
 
     /**
      * Get the ID for the value in [focus].
