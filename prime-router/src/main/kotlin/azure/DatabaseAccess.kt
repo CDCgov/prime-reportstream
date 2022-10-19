@@ -380,6 +380,20 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(CovidResultMetadata::class.java)
     }
 
+    fun fetchCovidResultMetadatasByMessageId(
+        messageId: String,
+        txn: DataAccessTransaction? = null
+    ): List<CovidResultMetadata> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(COVID_RESULT_METADATA)
+            .where(
+                COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
+            )
+            .fetch()
+            .into(CovidResultMetadata::class.java)
+    }
+
     /** Returns null if report has no item-level lineage info tracked. */
     fun fetchItemLineagesForReport(
         reportId: ReportId,
