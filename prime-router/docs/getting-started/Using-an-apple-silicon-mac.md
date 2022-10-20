@@ -106,7 +106,7 @@ You should be able to run tests now to confirm that everything is working.
 
 ### Step 8 - Build Front-end
 
-> See the [Front-end README.md](../../../frontend-react/README.md) for more information.
+> This will help you build and serve the front-end. For more information on the build, commands to know, etc, see the [Front-end README.md](../../../frontend-react/README.md).
 
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
@@ -141,16 +141,12 @@ yarn start:localdev
 The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
 render when a file's changes are saved, eliminating the need to rebuild and serve the project!
 
-### Step 9 - Test Front-end
+### Step 9 - Test if the Front-end Served
 
 If the window hasn't automatically opened, navigate to `http://localhost:3000`.
 You should be able to login and utilize the interface. To ensure the front-end is talking to the `prime-router` application,
 log in and access `localhost:3000/daily-data`. Observe your network calls through your browser's dev tools, checking
 for any error status codes.
-
-### More Info
-
-For more information on the front-end React app, head to the front-end [README](../../../frontend-react/README.md)
 
 ## Next Steps
 
