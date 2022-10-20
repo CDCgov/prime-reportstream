@@ -14,6 +14,10 @@ output "storage_account_id" {
   value = azurerm_storage_account.storage_account.id
 }
 
+output "storage_account" {
+  value = azurerm_storage_account.storage_account
+}
+
 output "storage_public_id" {
   value = azurerm_storage_account.storage_public.id
 }
