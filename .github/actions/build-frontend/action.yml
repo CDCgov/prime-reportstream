@@ -28,7 +28,7 @@ runs:
     - name: Use Node.js ${{ matrix.node-version }} with yarn
       uses: actions/setup-node@337fdf2194d3e87cdd26672305866d19d404fcd3
       with:
-        node-version: "14.20.1"
+        node-version: "16.18.0"
 
     - run: yarn install
       working-directory: frontend-react
