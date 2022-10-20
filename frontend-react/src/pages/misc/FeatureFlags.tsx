@@ -28,6 +28,7 @@ export enum FeatureFlagName {
     VALIDATION_SERVICE = "validation-service",
     NEW_IA = "new-ia",
     USER_UPLOAD = "user-upload",
+    MESSAGE_ID_SEARCH = "message-tracker",
 }
 
 export function FeatureFlagUIComponent() {
