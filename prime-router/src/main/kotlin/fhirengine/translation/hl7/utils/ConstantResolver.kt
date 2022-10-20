@@ -58,7 +58,7 @@ data class CustomContext(
 /**
  * String substitution for constants.
  */
-object ConstantSubstitutor {
+class ConstantSubstitutor {
     /**
      * The resolver.  Uses %{} instead of the default to match the FHIR path use of %.
      */

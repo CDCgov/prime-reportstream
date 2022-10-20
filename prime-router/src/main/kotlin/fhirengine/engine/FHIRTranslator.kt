@@ -16,6 +16,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -51,8 +53,8 @@ class FHIRTranslator(
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
 
-            // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("co-phd.full-elr-hl7")
+            val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+            val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
 
             receivers.forEach { recName ->
                 val receiver = settings.findReceiver(recName)
