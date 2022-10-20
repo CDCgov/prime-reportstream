@@ -7,8 +7,6 @@ import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
 import { withCatch } from "../components/RSErrorBoundary";
 
-import { FeatureFlagName } from "./misc/FeatureFlags";
-
 const Validate = () => {
     return withCatch(
         <FileHandler
@@ -29,6 +27,5 @@ export const ValidateWithAuth = () => (
     <AuthElement
         element={<Validate />}
         requiredUserType={MemberType.PRIME_ADMIN}
-        requiredFeatureFlag={FeatureFlagName.VALIDATION_SERVICE}
     />
 );
