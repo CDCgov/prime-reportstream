@@ -1,8 +1,8 @@
-import { mockUseReportDetail } from "../../hooks/network/History/__mocks__/DeliveryHooks";
-import { RSDelivery } from "../../config/endpoints/deliveries";
-import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 
-import { Details } from "./Details";
+import { DeliveryDetail } from "./DeliveryDetail";
 
 const TEST_ID = "test-id-123";
 jest.mock("react-router-dom", () => ({
@@ -14,13 +14,13 @@ jest.mock("react-router-dom", () => ({
 
 describe("DeliveryDetails", () => {
     /* Render tests for the Table component cover the generation of a table via config. The only untested
-     * unit inside FacilitiesTable was the link between the reportId and the hook we pass it into to
+     * unit inside DeliveryFacilitiesTable was the link between the reportId and the hook we pass it into to
      * fetch data. */
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportDetail.mockReturnValueOnce({
             reportDetail: {} as RSDelivery,
         });
-        renderWithFullAppContext(<Details />);
+        renderWithFullAppContext(<DeliveryDetail />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

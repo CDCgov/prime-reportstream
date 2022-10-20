@@ -1,5 +1,5 @@
-import { useReportsFacilities } from "../../hooks/network/History/DeliveryHooks";
-import Table, { TableConfig } from "../../components/Table/Table";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import Table, { TableConfig } from "../../../components/Table/Table";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -8,7 +8,7 @@ interface FacilitiesTableProps {
     reportId: string;
 }
 
-function FacilitiesTable(props: FacilitiesTableProps) {
+function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
     const { reportId }: FacilitiesTableProps = props;
     const { reportFacilities } = useReportsFacilities(reportId);
 
@@ -31,4 +31,4 @@ function FacilitiesTable(props: FacilitiesTableProps) {
     );
 }
 
-export default FacilitiesTable;
+export default DeliveryFacilitiesTable;

@@ -1,7 +1,42 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-import useFilterManager, { cursorOrRange } from "./UseFilterManager";
-import { RangeField } from "./UseDateRange";
+import useFilterManager, {
+    cursorOrRange,
+    extractFiltersFromManager,
+    FilterManager,
+} from "./UseFilterManager";
+import { RangeField, RangeSettings } from "./UseDateRange";
+import { PageSettings } from "./UsePages";
+import { SortSettings } from "./UseSortOrder";
+
+const mockUpdateSort = jest.fn();
+const mockUpdatePage = jest.fn();
+const mockUpdateRange = jest.fn();
+const mockResetAll = jest.fn();
+const mockSortSettings: SortSettings = {
+    column: "",
+    order: "DESC",
+    locally: false,
+    localOrder: "DESC",
+};
+const mockPageSettings: PageSettings = {
+    size: 10,
+    currentPage: 0,
+};
+const mockRangeSettings: RangeSettings = {
+    to: "",
+    from: "",
+};
+
+const TEST_FILTER_MANAGER: FilterManager = {
+    sortSettings: mockSortSettings,
+    pageSettings: mockPageSettings,
+    rangeSettings: mockRangeSettings,
+    updateSort: mockUpdateSort,
+    updatePage: mockUpdatePage,
+    updateRange: mockUpdateRange,
+    resetAll: mockResetAll,
+};
 
 describe("UseFilterManager", () => {
     test("renders with default FilterState", () => {
@@ -81,5 +116,26 @@ describe("Helper functions", () => {
         expect(rangeAsEnd).toEqual("range");
         expect(cursorAsStart).toEqual("cursor");
         expect(cursorAsEnd).toEqual("cursor");
+    });
+});
+
+describe("extractFiltersFromManager", () => {
+    test("gives only filters back", () => {
+        const filters = extractFiltersFromManager(TEST_FILTER_MANAGER);
+        const {
+            to,
+            from,
+            currentPage,
+            size,
+            column,
+            locally,
+            order,
+            localOrder,
+        } = filters;
+        expect({ to, from }).toEqual(mockRangeSettings);
+        expect({ currentPage, size }).toEqual(mockPageSettings);
+        expect({ column, locally, order, localOrder }).toEqual(
+            mockSortSettings
+        );
     });
 });
