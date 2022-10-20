@@ -60,9 +60,8 @@ class FHIRRouter(
 
             // TODO: routing would need to happen here to generate a list of the receivers
             val hardCodedPhase1ReceiverName = "co-phd.full-elr-hl7"
-            var receiver = settings.findReceiver(hardCodedPhase1ReceiverName)
-            if (receiver == null)
-                logger.error("Receiver $hardCodedPhase1ReceiverName was not found in the settings.")
+            var receiver: Receiver? = settings.findReceiver(hardCodedPhase1ReceiverName)
+                ?: throw IllegalStateException("Receiver $hardCodedPhase1ReceiverName was not found in the settings.")
 
             val listOfReceivers = listOf(receiver!!)
 
