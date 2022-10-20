@@ -122,7 +122,7 @@ export const ReportStreamHeader = () => {
             // Validate NavLink
             const features = [
                 {
-                    access: checkFlag(FeatureFlagName.VALIDATION_SERVICE),
+                    access: true, // Open for all admins
                     slug: "validate",
                     title: "Validate",
                 },
