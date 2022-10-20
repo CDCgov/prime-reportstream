@@ -181,7 +181,7 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema)
 
         val valueSet = sortedMapOf(
-            Pair("stagnatious", "S"),
+            Pair("Stagnatious", "S"), // casing should not matter
             Pair("grompfle", "G")
         )
 
@@ -189,6 +189,10 @@ class FhirToHl7ConverterTests {
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("S")
 
         bundle.id = "grompfle"
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+
+        bundle.id = "GRompfle" // verify case insensitivity
         element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
 
