@@ -119,7 +119,6 @@ runs:
         repo: prime-reportstream
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
-        ref: josiahsiegel/create/demo-tf
         wait_interval: 120
         client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"2880", "restore_ignore_backup_age":"true" }'
         propagate_failure: true
