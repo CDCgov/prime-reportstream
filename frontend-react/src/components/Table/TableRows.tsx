@@ -26,6 +26,7 @@ interface TableRowsProps extends RowProps {
     filterManager?: FilterManager;
     onSave?: RowSideEffect;
     setRowToEdit: Dispatch<SetStateAction<number | undefined>>;
+    fontClass?: string;
 }
 
 interface TableRowProps extends RowProps {
@@ -99,6 +100,7 @@ const TableRow = ({
  * POSSIBLE TODO: do we want to split out the editing stuff into a plugin / hook / different component?
  */
 export const TableRows = ({
+    fontClass = "font-mono-2xs", // Default font to mono if not overridden
     rows,
     onSave = () => Promise.resolve(),
     enableEditableRows,
@@ -173,7 +175,7 @@ export const TableRows = ({
     }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
-        <tbody className="font-mono-2xs">
+        <tbody className={fontClass}>
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
