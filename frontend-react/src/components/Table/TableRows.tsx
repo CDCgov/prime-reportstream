@@ -100,7 +100,6 @@ const TableRow = ({
  * POSSIBLE TODO: do we want to split out the editing stuff into a plugin / hook / different component?
  */
 export const TableRows = ({
-    fontClass = "font-mono-2xs", // Default font to mono if not overridden
     rows,
     onSave = () => Promise.resolve(),
     enableEditableRows,
@@ -108,7 +107,18 @@ export const TableRows = ({
     columns,
     setRowToEdit,
     rowToEdit,
+    fontClass = "font-mono-2xs", // Default font to mono if not overridden
 }: TableRowsProps) => {
+    // Prevents class names not affecting the font class
+    const safeFontClass = useMemo(() => {
+        if (fontClass?.startsWith("font")) return fontClass;
+        else {
+            console.warn(
+                "Oops! The Table.fontClass prop only accepts USWDS font utility classes (i.e. font-mono-2xs)"
+            );
+            return undefined;
+        }
+    }, [fontClass]);
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
     const [updatedRow, setUpdatedRow] = useState<TableRowData | null>(null);
@@ -175,7 +185,7 @@ export const TableRows = ({
     }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
-        <tbody className={fontClass}>
+        <tbody className={safeFontClass}>
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
