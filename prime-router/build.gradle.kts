@@ -39,7 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
     id("com.avast.gradle.docker-compose") version "0.16.9"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
 }
 
 group = "gov.cdc.prime"
@@ -101,7 +101,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.1.1"
+val ktorVersion = "2.1.2"
 val kotlinVersion = "1.7.10"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
@@ -691,7 +691,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.5.5") {
+    implementation("com.azure:azure-identity:1.6.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -703,21 +703,19 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion") {
-        exclude(group = "org.yaml", module = "snakeyaml")
-    }
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.github.javafaker:javafaker:1.0.2") {
-        exclude(group = "org.yaml", module = "snakeyaml")
-    }
+    implementation("com.github.javafaker:javafaker:1.0.2")
+    // Pin snakeyaml since it is getting included regardless of exclude attempts
+    implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.9.1")
+    implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -729,7 +727,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("org.apache.commons:commons-text:1.9")
+    implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.4.1")

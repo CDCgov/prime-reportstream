@@ -149,7 +149,7 @@ class SenderFilesFunctionTests {
         assertThat {
             senderFileFunctions.checkParameters(mockRequestMissing)
         }.isFailure()
-        verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
+        verify(atLeast = 1) { mockRequestMissing.queryParameters }
 
         // MessageID
         val mockRequestWithMessageId = buildRequest(mapOf("message-id" to "1234"))
