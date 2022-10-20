@@ -78,49 +78,30 @@ describe("AdminDropdownNav - value-sets", () => {
         const featureFlags = screen.getByText("Feature Flags");
         const lastMileFailures = screen.getByText("Last Mile Failures");
         const receiverStatus = screen.getByText("Receiver Status Dashboard");
+        const queryForNavItemValueSets = screen.queryByText("Value Sets");
 
         expect(settings).toBeInTheDocument();
         expect(featureFlags).toBeInTheDocument();
         expect(lastMileFailures).toBeInTheDocument();
         expect(receiverStatus).toBeInTheDocument();
-    });
-
-    test("Flagged value-sets page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "value-sets"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemValueSets = screen.queryByText("Value Sets");
-
-        // Assert they're hidden without flag
-        expect(queryForNavItemValueSets).not.toBeInTheDocument();
-    });
-
-    test("Flagged value-sets page is shown when flag is set", () => {
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemValueSets = screen.queryByText("Value Sets");
-
-        // Assert not hidden
         expect(queryForNavItemValueSets).toBeInTheDocument();
     });
 });
 
-describe("AdminDropdownNav - message-id-search", () => {
+describe("AdminDropdownNav - message-tracker", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag === "message-id-search"),
+            checkFlag: jest.fn((flag) => flag === "message-tracker"),
         });
     });
 
-    test("Flagged message-id-search page is hidden by default", () => {
+    test("Flagged message-tracker page is hidden by default", () => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "message-id-search"),
+            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
         });
         renderWithRouter(<AdminDropdown />);
         const queryForNavItemValueSets =
@@ -130,11 +111,11 @@ describe("AdminDropdownNav - message-id-search", () => {
         expect(queryForNavItemValueSets).not.toBeInTheDocument();
     });
 
-    test("Flagged message-id-search page is hidden by default", () => {
+    test("Flagged message-tracker page is hidden by default", () => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "message-id-search"),
+            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
         });
         renderWithRouter(<AdminDropdown />);
         const queryForNavItemMessageIdSearch =
@@ -144,7 +125,7 @@ describe("AdminDropdownNav - message-id-search", () => {
         expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
     });
 
-    test("Flagged message-id-search page is shown when flag is set", () => {
+    test("Flagged message-tracker page is shown when flag is set", () => {
         renderWithRouter(<AdminDropdown />);
         const queryForNavItemMessageIdSearch =
             screen.queryByText("Message Id Search");

@@ -50,11 +50,21 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
-  secret_permissions = [
-    "Get",
-  ]
   key_permissions = [
+    "Create",
     "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
   ]
 }
 
@@ -100,8 +110,21 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
-  secret_permissions = [
+  key_permissions = [
+    "Create",
     "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
   ]
 }
 
@@ -124,6 +147,8 @@ module "app_config_private_endpoint" {
 
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
+  #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
+  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
   name = var.client_config_kv_name
 
   location                        = var.location
@@ -133,7 +158,7 @@ resource "azurerm_key_vault" "client_config" {
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
   enabled_for_template_deployment = true
-  purge_protection_enabled        = true
+  purge_protection_enabled        = var.is_temp_env == true ? false : true
 
   network_acls {
     bypass         = "AzureServices"
