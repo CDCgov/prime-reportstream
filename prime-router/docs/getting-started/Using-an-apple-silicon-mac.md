@@ -106,6 +106,8 @@ You should be able to run tests now to confirm that everything is working.
 
 ### Step 8 - Build Front-end
 
+> See the [Front-end README.md](../../../frontend-react/README.md) for more information.
+
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 
@@ -116,9 +118,9 @@ Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--u
 Then:
 
 ```bash
-nvm install 14.20.x # refer to nvmrc for exact current version
-node -v # v14.20.x
-npm -v # v6.X.X
+nvm install 16.18.x # refer to nvmrc for exact current version
+node -v # v16.18.x
+npm -v # v8.x.x
 
 npm install --global yarn
 ```
@@ -133,11 +135,6 @@ cd ../frontend-react
 yarn
 yarn start:localdev
 ```
-
-#### Refreshing
-
-The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
-render when a file's changes are saved, eliminating the need to rebuild and serve the project!
 
 ### Step 9 - Test Front-end
 
