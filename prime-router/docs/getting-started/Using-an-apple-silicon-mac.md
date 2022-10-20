@@ -136,6 +136,11 @@ yarn
 yarn start:localdev
 ```
 
+#### Refreshing & stopping
+
+The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
+render when a file's changes are saved, eliminating the need to rebuild and serve the project!
+
 ### Step 9 - Test Front-end
 
 If the window hasn't automatically opened, navigate to `http://localhost:3000`.
