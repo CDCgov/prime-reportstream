@@ -78,31 +78,12 @@ describe("AdminDropdownNav - value-sets", () => {
         const featureFlags = screen.getByText("Feature Flags");
         const lastMileFailures = screen.getByText("Last Mile Failures");
         const receiverStatus = screen.getByText("Receiver Status Dashboard");
+        const queryForNavItemValueSets = screen.queryByText("Value Sets");
 
         expect(settings).toBeInTheDocument();
         expect(featureFlags).toBeInTheDocument();
         expect(lastMileFailures).toBeInTheDocument();
         expect(receiverStatus).toBeInTheDocument();
-    });
-
-    test("Flagged value-sets page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "value-sets"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemValueSets = screen.queryByText("Value Sets");
-
-        // Assert they're hidden without flag
-        expect(queryForNavItemValueSets).not.toBeInTheDocument();
-    });
-
-    test("Flagged value-sets page is shown when flag is set", () => {
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemValueSets = screen.queryByText("Value Sets");
-
-        // Assert not hidden
         expect(queryForNavItemValueSets).toBeInTheDocument();
     });
 });

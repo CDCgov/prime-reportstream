@@ -25,6 +25,30 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set Build Environment - DEMO1
+      id: build_demo1
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo1')
+      shell: bash
+      run: echo "::set-output name=env_name::demo1"
+
+    - name: Set Build Environment - DEMO2
+      id: build_demo2
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo2') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo2')
+      shell: bash
+      run: echo "::set-output name=env_name::demo2"
+
+    - name: Set Build Environment - DEMO3
+      id: build_demo3
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'demo3') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo3')
+      shell: bash
+      run: echo "::set-output name=env_name::demo3"
+
     - name: Set Build Environment - TEST
       id: build_test
       if: |
@@ -60,6 +84,9 @@ runs:
       shell: bash
       run: |
         echo "::set-output name=env_name::\
+        ${{ steps.build_demo1.outputs.env_name }}\
+        ${{ steps.build_demo2.outputs.env_name }}\
+        ${{ steps.build_demo3.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
         ${{ steps.build_prod.outputs.env_name }}"
@@ -107,8 +134,13 @@ runs:
       id: backend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
-        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
+        if [[ \
+        '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
+        ]]; then
           echo "::set-output name=has_router_change::true"
         else
           echo "::set-output name=has_router_change::${{ steps.filter.outputs.router }}"
@@ -119,8 +151,13 @@ runs:
       id: frontend_change_result
       shell: bash
       run: |
-        if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
-        '${{ steps.build_result.outputs.env_name }}' == 'test' ]]; then
+        if [[ \
+        '${{ steps.build_result.outputs.env_name }}' == 'prod' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'test' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo1' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
+        '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
+        ]]; then
           echo "::set-output name=has_react_change::true"
         else
           echo "::set-output name=has_react_change::${{ steps.filter.outputs.frontend_react }}"

@@ -1,0 +1,133 @@
+# action.yml
+name: 'Demo Environment'
+description: 'Provision and deploy a demo environment'
+inputs:
+  env-name:
+    required: true
+    description: "Environment name"
+  destroy:
+    description: "Destroy demo env. true or false"
+    default: false
+  github-token:
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get runner ip
+      id: runner_ip
+      uses: ./.github/actions/runner-ip
+
+    - name: Terraform - init
+      working-directory: operations/app/terraform/vars/demo
+      run: |
+        terraform init \
+        -reconfigure \
+        -var-file=${{ inputs.env-name }}/env.tfvars.json \
+        -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+        -backend-config=${{ inputs.env-name }}/env.tfbackend
+      shell: bash
+
+    - name: Terraform - destroy
+      if: inputs.destroy == 'true'
+      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      with:
+        timeout_minutes: 30
+        max_attempts: 3
+        retry_wait_seconds: 180
+        command: |
+          for i in {1..3}; do \
+          terraform -chdir=operations/app/terraform/vars/demo destroy \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -target=module.app_service_plan \
+          -target=module.application_insights \
+          -target=module.container_registry \
+          -target=module.database \
+          -target=module.function_app \
+          -target=module.log_analytics_workspace \
+          -target=module.sftp_container \
+          -target=module.storage \
+          -refresh=false \
+          -auto-approve; 2>&1; \
+          sleep 60; \
+          done
+
+          az monitor diagnostic-settings delete --name 'pdh${{ inputs.env-name }}-postgres_server-diag' \
+          --resource 'pdh${{ inputs.env-name }}-pgsql' --resource-group prime-data-hub-${{ inputs.env-name }} --resource-type 'microsoft.dbforpostgresql/servers' --verbose
+
+          az monitor diagnostic-settings delete --name 'pdh${{ inputs.env-name }}-service_plan-diag' \
+          --resource 'pdh${{ inputs.env-name }}-serviceplan' --resource-group prime-data-hub-${{ inputs.env-name }} --resource-type 'microsoft.web/serverfarms' --verbose
+
+          terraform -chdir=$path destroy -var-file=$env/env.tfvars.json \
+          -target=module.log_analytics_workspace.data.azurerm_monitor_diagnostic_categories.diagnostics[\"postgres_server\"]
+          terraform -chdir=$path destroy -var-file=$env/env.tfvars.json \
+          -target=module.log_analytics_workspace.data.azurerm_monitor_diagnostic_categories.diagnostics[\"service_plan\"]
+
+          resources="$(az resource list --resource-group prime-data-hub-${{ inputs.env-name }} --query "[?contains(type, 'AlertRules') \
+          || contains(type, 'server') || contains(type, 'nsights') || contains(name, 'sftp') \
+          || contains(name, 'functionapp')].id" | jq -r '.[] | @base64')"
+          for id in $resources; do \
+            echo \"$id\" | jq '@base64d' | xargs az resource delete --resource-group prime-data-hub-${{ inputs.env-name }} --verbose --ids | sleep 1; \
+          done
+        shell: bash
+
+    - name: Terraform - validate
+      if: inputs.destroy == 'false'
+      working-directory: operations/app/terraform/vars/demo
+      run: terraform validate
+      shell: bash
+
+    - name: Terraform - apply
+      if: inputs.destroy == 'false'
+      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      with:
+        timeout_minutes: 45
+        max_attempts: 3
+        retry_wait_seconds: 180
+        command: |
+          for i in {1..3}; do \
+          terraform -chdir=operations/app/terraform/vars/demo apply \
+          -target=module.init \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -auto-approve; \
+          sleep 60; \
+          done
+
+          for i in {1..3}; do \
+          terraform -chdir=operations/app/terraform/vars/demo apply \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -auto-approve; \
+          sleep 120; \
+          done
+        shell: bash
+
+    - name: Optimize db server size before restore
+      if: inputs.github-token && inputs.destroy == 'false'
+      shell: bash
+      run: |
+        az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
+        -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
+
+    - name: Run DB restores and wait
+      if: inputs.github-token && inputs.destroy == 'false'
+      uses: convictional/trigger-workflow-and-wait@d7939b40c3bebe9dfe6cca096f8413f8c7e01560
+      with:
+        owner: CDCgov
+        repo: prime-reportstream
+        github_token: ${{ inputs.github-token }}
+        workflow_file_name: restore_databases.yml
+        wait_interval: 120
+        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"2880", "restore_ignore_backup_age":"true" }'
+        propagate_failure: true
+        trigger_workflow: true
+        wait_workflow: true
+
+    - name: Optimize db server size after restore
+      if: inputs.github-token && inputs.destroy == 'false'
+      shell: bash
+      run: |
+        az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
+        -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_4

@@ -7,8 +7,13 @@ elements:
 
   - name: patient-class
     condition: '%resource.class.code.exists()'
-    value: [ '%resource.class.code.getPatientClass()' ]
+    value: [ '%resource.class.code' ]
     hl7Spec: [ '%{hl7PV1Field}-2' ]
+    valueSet:
+      emer: E
+      imp: I
+      prenc: P
+      amb: O
 
   - name: patient-assigned-location-point-of-care
     value: [ '%resource.location[0].location.resolve().extension(%`rsext-point-of-care`).value' ]

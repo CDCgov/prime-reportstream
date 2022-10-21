@@ -1,8 +1,12 @@
 elements:
   - name: xtn-use-code
     condition: '%resource.use.exists()'
-    value: [ '%resource.use.getTelecomUseCode()' ]
+    value: [ '%resource.use' ]
     hl7Spec: [ '%{hl7TelecomField}-2' ]
+    valueSet:
+      home: PRN
+      work: WPN
+      mobile: CP
 
   - name: xtn-system
     condition: '%resource.system.exists() and %resource.system = "phone"'

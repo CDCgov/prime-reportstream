@@ -12,6 +12,21 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set environment variables - demo1
+      if: inputs.env-name == 'demo1'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo2
+      if: inputs.env-name == 'demo2'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhdemo2" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo3
+      if: inputs.env-name == 'demo3'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhdemo3" >> $GITHUB_ENV
+
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash
