@@ -271,14 +271,5 @@ class ConstantResolverTests {
 
         cliaId.value = "D5D945836K" // letter where it's not allowed
         assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
-
-        cliaId.value = "D5L9458360" // invalid third char
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
-
-        cliaId.value = "15d9458360" // lower-case is invalid #1
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
-
-        cliaId.value = "d5D9458360" // lower-case is invalid #2
-        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
     }
 }

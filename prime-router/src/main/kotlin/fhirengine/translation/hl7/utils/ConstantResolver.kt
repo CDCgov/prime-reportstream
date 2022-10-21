@@ -221,10 +221,11 @@ object CustomFHIRFunctions {
 
     /**
      * Regex to identify CLIAs.
-     * CLIAs are defined as "10-digit alphanumeric numbers, with the "D"in the third position.
-     * One exception is DoD numbers, where the first character is also "D".
+     * CLIAs are 10-character strings
+     * The first char is alphanumeric, the 3rd is always a letter (usually "D").
+     * Every other char is numeric.
      */
-    private val cliaRegex = """^[A-Z\d]\dD\d{7}$""".toRegex()
+    private val cliaRegex = """^[a-zA-Z\d]\d[a-zA-Z]\d{7}$""".toRegex()
 
     /**
      * Get the ID for the value in [focus].
