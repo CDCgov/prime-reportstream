@@ -11,13 +11,8 @@ resource "azurerm_storage_account" "storage_account" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Deny"
+    default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["AzureServices"]
-
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
 
     virtual_network_subnet_ids = var.subnets.primary_subnets
   }
@@ -125,14 +120,15 @@ resource "azurerm_storage_management_policy" "retention_policy" {
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 
@@ -215,16 +211,15 @@ resource "azurerm_storage_account" "storage_partner" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Deny"
+    default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
+    # Storage accounts only allow CIDR-notation for /[0-30]
     ip_rules = sensitive(concat(
-      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
+      split(",", coalesce(data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value, "127.0.0.1")),
+      split(",", coalesce(data.azurerm_key_vault_secret.cyberark_ip_ingress.value, "127.0.0.1")),
+      var.terraform_caller_ip_address
     ))
-
-    # ip_rules = [var.terraform_caller_ip_address]
 
     virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   }
@@ -247,8 +242,6 @@ resource "azurerm_storage_account" "storage_partner" {
     environment = var.environment
   }
 }
-
-
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
@@ -282,14 +275,15 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 30
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = 30
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = 30
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 

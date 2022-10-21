@@ -1,4 +1,4 @@
-import { within, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
@@ -10,13 +10,13 @@ import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
 import { TestTable } from "./TestTable";
-import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
-import { TableRows } from "./TableRows";
+import Table, { ColumnConfig, TableConfig } from "./Table";
+import { TableRowData, TableRows } from "./TableRows";
 import { ColumnData } from "./ColumnData";
 /* Table generation tools */
 
 const getSetOfRows = (count: number, linkable: boolean = true) => {
-    const testRows: TableRow[] = [];
+    const testRows: TableRowData[] = [];
     for (let i = 0; i < count; i++) {
         // this is bad, but I couldn't figure out how to do it another way
         // without jumping through lots of typescript hoops - DWS
@@ -45,7 +45,7 @@ const getSetOfRows = (count: number, linkable: boolean = true) => {
     return testRows;
 };
 
-const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
+const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     const sampleMapper = new Map<number, string>([[2, "Mapped Item"]]);
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
@@ -74,7 +74,7 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
 };
 
 const getTestConfig = (rowCount: number): TableConfig => {
-    const testRows: TableRow[] = getSetOfRows(rowCount);
+    const testRows: TableRowData[] = getSetOfRows(rowCount);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
         rows: testRows,
@@ -232,49 +232,6 @@ describe("Sorting integration", () => {
             type: SortSettingsActionType.SWAP_ORDER,
         });
         expect(mockSortUpdater).toHaveBeenCalledTimes(3);
-    });
-});
-
-/* TODO:
- *   Refactor these tests to use new functions instead of TestTable
- * */
-describe("Table, pagination button tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
-
-    test("Next button appears when hasNext is true", () => {
-        const next = screen.getByText("Next");
-        expect(next).toBeInTheDocument();
-    });
-
-    test("Next button disappears when hasNext is false", () => {
-        let next: HTMLElement | null = screen.getByText("Next");
-        fireEvent.click(next);
-        next = screen.queryByText("Next");
-        expect(next).not.toBeInTheDocument();
-    });
-
-    test("Previous button appears when hasPrevious is true", () => {
-        const next = screen.getByText("Next");
-        fireEvent.click(next);
-        const prev = screen.queryByText("Previous");
-        expect(prev).toBeInTheDocument();
-    });
-
-    test("Previous button disappears when hasPrevious is false", () => {
-        // First load
-        const next = screen.getByText("Next");
-        let prev = screen.queryByText("Previous");
-        expect(prev).not.toBeInTheDocument();
-
-        // Simulate clicking next
-        fireEvent.click(next);
-        prev = screen.getByText("Previous");
-        expect(prev).toBeInTheDocument();
-
-        // Simulate clicking previous back to page 1
-        fireEvent.click(prev);
-        prev = screen.queryByText("Previous");
-        expect(prev).not.toBeInTheDocument();
     });
 });
 

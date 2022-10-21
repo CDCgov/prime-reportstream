@@ -28,7 +28,7 @@ runs:
     - name: Use Node.js ${{ matrix.node-version }} with yarn
       uses: actions/setup-node@337fdf2194d3e87cdd26672305866d19d404fcd3
       with:
-        node-version: "14.20.1"
+        node-version: "16.18.0"
 
     - run: yarn install
       working-directory: frontend-react
@@ -48,11 +48,13 @@ runs:
       if: inputs.env-name != 'prod'
       working-directory: frontend-react
       run: |
-        echo "" >> .env.staging
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.staging
+        ENV=${{ inputs.env-name }}
+        if [[ $ENV != demo* && $ENV != "test" ]]; then ENV="staging"; fi
+        echo "" >> .env.$ENV
+        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
         yarn lint
         yarn test:ci
-        yarn build:staging
+        yarn build:$ENV
       shell: bash
 
     - name: SonarCloud Scan

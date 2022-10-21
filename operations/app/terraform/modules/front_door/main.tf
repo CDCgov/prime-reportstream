@@ -17,6 +17,8 @@ locals {
   dev_env      = length(local.static_endpoints) == 0 ? [1] : []
 }
 
+data "azurerm_client_config" "current" {}
+
 # TODO: Terraform does not support Azure's rules engine yet
 # We have an HSTS rule that must be manually configured
 # Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
@@ -279,6 +281,11 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
+
+  depends_on = [
+    azurerm_frontdoor.front_door,
+    azurerm_key_vault_access_policy.frontdoor_access_policy
+  ]
 }
 
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {
@@ -299,17 +306,25 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
+
+  depends_on = [
+    azurerm_frontdoor.front_door,
+    azurerm_key_vault_access_policy.frontdoor_access_policy
+  ]
 }
 
-# resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
-#   key_vault_id = azurerm_key_vault.application.id
-#   tenant_id    = data.azurerm_client_config.current.tenant_id
-#   object_id    = azurerm_frontdoor.front_door.id
+resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
+  key_vault_id = var.application_key_vault_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  # Microsoft.Azure.Frontdoor
+  object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
 
-#   secret_permissions = [
-#     "Get",
-#   ]
-#   certificate_permissions = [
-#     "Get",
-#   ]
-# }
+  secret_permissions = [
+    "Get",
+    "List",
+  ]
+  certificate_permissions = [
+    "Get",
+    "List",
+  ]
+}
