@@ -173,6 +173,38 @@ class FhirToHl7ConverterTests {
     }
 
     @Test
+    fun `test get value set`() {
+        val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "stagnatious"
+        val customContext = CustomContext(bundle, bundle)
+        val converter = FhirToHl7Converter(mockSchema)
+
+        val valueSet = sortedMapOf(
+            Pair("Stagnatious", "S"), // casing should not matter
+            Pair("grompfle", "G")
+        )
+
+        var element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("S")
+
+        bundle.id = "grompfle"
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+
+        bundle.id = "GRompfle" // verify case insensitivity
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+
+        bundle.id = "unmapped"
+        element = ConfigSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("unmapped")
+
+        element = ConfigSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
+    }
+
+    @Test
     fun `test process element with single focus resource`() {
         val mockTerser = mockk<Terser>()
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
