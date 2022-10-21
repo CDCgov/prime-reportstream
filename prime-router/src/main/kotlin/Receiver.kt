@@ -75,9 +75,16 @@ open class Receiver(
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
+        translation: TranslatorConfiguration = CustomConfiguration(
+            schemaName = schemaName,
+            format = format,
+            emptyMap(),
+            "standard",
+            null
+        )
     ) : this(
         name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        translation,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
