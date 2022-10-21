@@ -1,17 +1,13 @@
 import React, { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
-import {
-    ColumnConfig,
-    LinkableColumn,
-    ActionableColumn,
-    TableRow,
-} from "./Table";
+import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
+import { TableRowData } from "./TableRows";
 
 export interface ColumnProps {
     rowIndex: number;
     colIndex: number;
-    rowData: TableRow;
+    rowData: TableRowData;
     columnConfig: ColumnConfig;
     editing?: boolean;
     setUpdatedRow?: (value: any, field: string) => void;
@@ -19,7 +15,7 @@ export interface ColumnProps {
 
 const showMappedFieldValue = (
     columnConfig: ColumnConfig,
-    rowData: TableRow
+    rowData: TableRowData
 ) => {
     const rawFieldValue = rowData[columnConfig.dataAttr];
     if (columnConfig.valueMap) {
