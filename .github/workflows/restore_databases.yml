@@ -18,6 +18,9 @@ on:
         options:
         - staging
         - test
+        - demo1
+        - demo2
+        - demo3
         default: 'test'
         type: choice
       backup_age_limit_mins:
@@ -97,11 +100,15 @@ jobs:
         run: |
           source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
             --query 'storageProfile.storageMb' -o tsv)
-          sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }}-replica --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
+          sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }} --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
             --query 'storageProfile.storageMb' -o tsv)
           if [[ ${source_size} -gt ${sink_size} ]]; then 
-            az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
-            az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
+            if [[ $(az postgres server list -g ${{ env.SINK_RESOURCE_GROUP }} --query '[].name | join(`, `, @) | contains(@, `replica`)') == true ]]; then 
+              az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} \
+              --storage-size $source_size
+            fi
+            az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} \
+            --storage-size $source_size
           fi
 
   backup_source:
@@ -126,15 +133,9 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+      - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
         with:
-          env-name: ${{ env.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get public ip
         shell: bash
@@ -144,12 +145,12 @@ jobs:
       - name: Confirm last backup age valid
         shell: bash
         run: |
-          backup_exists=$(az storage file exists --account-name ${{ env.sink_backup_storage }} --path ${{ env.env_name }}_${{ matrix.db }}.dump \
+          backup_exists=$(az storage directory exists --account-name ${{ env.sink_backup_storage }} --name ${{ env.env_name }}_${{ matrix.db }} \
             --share-name dbbackups --query 'exists' -o tsv --only-show-errors)
           if [ $backup_exists == "false" ]; then
               lastModified="1970-01-01"
           else 
-              lastModified=$(az storage file show --path ${{ env.env_name }}_${{ matrix.db }}.dump --share-name dbbackups \
+              lastModified=$(az storage directory show --name ${{ env.env_name }}_${{ matrix.db }} --share-name dbbackups \
                 --account-name ${{ env.sink_backup_storage }} --query 'properties.lastModified' --only-show-errors -o tsv)
           fi
           currentDate=$(date +%s)
@@ -186,8 +187,8 @@ jobs:
           port: 5432
           user: prime
           database: ${{ matrix.db }}
-          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ env.env_name }}_${{ matrix.db }}.dump
-          options: -Fc --compress=1
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ env.env_name }}_${{ matrix.db }}
+          options: -Z2 -j 16 -Fd
 
       # Remove runner db access
       - name: Remove db access
@@ -204,14 +205,13 @@ jobs:
       - backup_source
     # Restore only if backup age is less than limit, backup age is ignored, and the restore destination is either staging or test
     if: |
-      (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid == 'true') &&
+      (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid != 'true') &&
       (needs.pre_job.outputs.sink_env_name != 'prod')
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
         db: ${{ fromJson(needs.pre_job.outputs.databases) }}
-    concurrency: ${{ needs.pre_job.outputs.sink_env_name }}
     environment: ${{ needs.pre_job.outputs.sink_env_name }}
     env:
       sink_env_name: ${{ needs.pre_job.outputs.sink_env_name }}
@@ -221,15 +221,9 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+      - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
         with:
-          env-name: ${{ env.sink_env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get public ip
         shell: bash
@@ -261,9 +255,9 @@ jobs:
           port: 5432
           user: prime
           database: ${{ matrix.db }}
-          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}.dump
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}
           resource-group: ${{ env.sink_resource_group }}
-          options: -Fc -j 16
+          options: -j 32 -Fd -O
 
       - name: Clean sink db
         if: |
