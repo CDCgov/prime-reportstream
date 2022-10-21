@@ -20,11 +20,14 @@ import org.hl7.fhir.r4.model.Bundle
  * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
  * the schema validation process.
  * @property terser the terser to use for building the HL7 message (use for dependency injection)
+ * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
 class FhirToHl7Converter(
     private val schemaRef: ConfigSchema,
     private val strict: Boolean = false,
-    private var terser: Terser? = null
+    private var terser: Terser? = null,
+    // the constant substituor is not thread save, so we need one instance per converter instead of using a shared copy
+    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : Logging {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
@@ -222,7 +225,7 @@ class FhirToHl7Converter(
             throw RequiredElementException(element)
         }
         element.hl7Spec.forEach { rawHl7Spec ->
-            val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
+            val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")

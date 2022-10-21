@@ -11,13 +11,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Deny"
+    default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
-
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
 
     ip_rules = var.terraform_caller_ip_address
 
@@ -120,8 +115,11 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
@@ -172,7 +170,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Deny"
+    default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
     # ip_rules = sensitive(concat(
@@ -242,8 +240,11 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 30
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = 30
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = 30

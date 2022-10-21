@@ -1,3 +1,4 @@
+
 name: Release to Azure
 
 on:
@@ -6,6 +7,9 @@ on:
       - master
       - production
       - test
+      - demo1
+      - demo2
+      - demo3
 
 defaults:
   run:
@@ -64,14 +68,60 @@ jobs:
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
 
+  deploy_infrastructure:
+    name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+    if: |
+      needs.pre_job.outputs.env_name == 'demo1' ||
+      needs.pre_job.outputs.env_name == 'demo2' ||
+      needs.pre_job.outputs.env_name == 'demo3'
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
+        with:
+          terraform_version: 1.2.0
+          terraform_wrapper: false
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Destroy demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          destroy: true
+
+      - name: Provision demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          github-token: ${{ secrets.DEMO_ENV }}
+
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
       - build_release
       - build_frontend_react_release
+      - deploy_infrastructure
     if: |
-      always() && 
+      always() &&
+      failure() != 'true' &&
       (needs.pre_job.outputs.has_router_change == 'true' ||
       needs.pre_job.outputs.has_react_change == 'true')
     environment: ${{ needs.pre_job.outputs.env_name }}
