@@ -20,6 +20,7 @@
         "@types/lodash.uniq": "^4.5.7",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
+        "@xmldom/xmldom": "0.7.6",
         "axios": "^0.26.0",
         "classnames": "^2.3.1",
         "dompurify": "^2.3.4",
@@ -56,6 +57,9 @@
     "scripts": {
         "clean": "rimraf ./build &&  rimraf ./src/content/generated",
         "start:localdev": "env-cmd -f .env.development npm-run-all -p watch-scss start-js",
+        "build:demo1": "env-cmd -f .env.demo1 yarn build-base-prod",
+        "build:demo2": "env-cmd -f .env.demo2 yarn build-base-prod",
+        "build:demo3": "env-cmd -f .env.demo3 yarn build-base-prod",
         "build:test": "env-cmd -f .env.test yarn build-base-prod",
         "build:staging": "env-cmd -f .env.staging yarn build-base-prod",
         "build:production": "env-cmd -f .env.production yarn build-base-prod",
@@ -127,7 +131,16 @@
                     "argsIgnorePattern": "^_"
                 }
             ],
-            "camelcase": ["warn", { "allow": ["days_to_show", "organization_id", "sending_at" ]}]
+            "camelcase": [
+                "warn",
+                {
+                    "allow": [
+                        "days_to_show",
+                        "organization_id",
+                        "sending_at"
+                    ]
+                }
+            ]
         },
         "overrides": [
             {
@@ -230,6 +243,6 @@
         "@types/react-dom": "<18.0.0"
     },
     "engines": {
-      "node": "~14.20.0"
+      "node": "~16.18.0"
     }
 }
