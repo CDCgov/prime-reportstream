@@ -37,7 +37,7 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**

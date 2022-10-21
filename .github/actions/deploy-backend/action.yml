@@ -18,6 +18,39 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set environment variables - demo1
+      if: inputs.env-name == 'demo1'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo1" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo1" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo1containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo1-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo2
+      if: inputs.env-name == 'demo2'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo2" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo2" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo2containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo2" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo2-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo3
+      if: inputs.env-name == 'demo3'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo3" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo3" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo3containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo3" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo3-functionapp" >> $GITHUB_ENV
+
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash

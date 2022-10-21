@@ -169,6 +169,13 @@ class FhirToHl7Converter(
                 }
             }
         }
+
+        // when valueSet is available, use the matching value else just pass the value as is
+        // does a lowerCase comparison
+        if (element.valueSet.isNotEmpty()) {
+            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
+            retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
+        }
         return retVal
     }
 
