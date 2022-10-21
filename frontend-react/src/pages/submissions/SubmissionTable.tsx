@@ -1,26 +1,18 @@
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useEffect } from "react";
+import { useController } from "rest-hooks";
+import React, { useCallback } from "react";
 
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
 import usePagination from "../../hooks/UsePagination";
-import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
-    cursorOrRange,
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
-import useCursorManager, {
-    CursorActionType,
-    CursorManager,
-} from "../../hooks/filters/UseCursorManager";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
+import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -32,14 +24,12 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface SubmissionTableContentProps {
-    cursorManager?: CursorManager;
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
     submissions: SubmissionsResource[];
 }
 
 const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
-    cursorManager,
     filterManager,
     paginationProps,
     submissions,
@@ -79,77 +69,15 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters
-                filterManager={filterManager}
-                cursorManager={cursorManager}
-            />
+            <TableFilters filterManager={filterManager} />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
-                cursorManager={cursorManager}
                 paginationProps={paginationProps}
             />
         </>
     );
 };
-
-/** @deprecated Replace with new numbered pagination version */
-function SubmissionTableWithCursorManager() {
-    const { activeMembership } = useSessionContext();
-    const filterManager = useFilterManager(filterManagerDefaults);
-    const cursorManager = useCursorManager(filterManager.rangeSettings.to);
-
-    /* Our API call! Updates when any of the given state variables update.
-     * The logical swap of cursors and range value is to account for which end of the
-     * range needs to update when paginating with a specific sort order.
-     *
-     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-     */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: activeMembership?.parsedName,
-            cursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.TO,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.to
-            ),
-            endCursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.FROM,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.from
-            ),
-            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-            sort: filterManager.sortSettings.order,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
-
-    /* Effect to add next cursor whenever submissions returns a new array */
-    const updateCursor = cursorManager.update;
-    useEffect(() => {
-        const nextCursor =
-            submissions[filterManager.pageSettings.size]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            updateCursor({
-                type: CursorActionType.ADD_NEXT,
-                payload: nextCursor,
-            });
-        }
-    }, [submissions, filterManager.pageSettings.size, updateCursor]);
-
-    return (
-        <SubmissionTableContent
-            cursorManager={cursorManager}
-            filterManager={filterManager}
-            submissions={submissions}
-        />
-    );
-}
 
 function SubmissionTableWithNumberedPagination() {
     const { activeMembership } = useSessionContext();
@@ -232,25 +160,7 @@ function SubmissionTableWithNumberedPagination() {
     );
 }
 
-function SubmissionTable() {
-    const { checkFlag } = useFeatureFlags();
-    const isNumberedPaginationOn = checkFlag(
-        FeatureFlagName.NUMBERED_PAGINATION
-    );
-    return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="message" />}
-        >
-            <Suspense fallback={<Spinner />}>
-                {isNumberedPaginationOn && (
-                    <SubmissionTableWithNumberedPagination />
-                )}
-                {!isNumberedPaginationOn && (
-                    <SubmissionTableWithCursorManager />
-                )}
-            </Suspense>
-        </NetworkErrorBoundary>
-    );
-}
+const SubmissionTable = () =>
+    withCatchAndSuspense(<SubmissionTableWithNumberedPagination />);
 
 export default SubmissionTable;

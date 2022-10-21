@@ -27,6 +27,21 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set environment variables - demo1
+      if: inputs.env-name == 'demo1'
+      shell: bash
+      run: echo "VPN_ENV=demo1" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo2
+      if: inputs.env-name == 'demo2'
+      shell: bash
+      run: echo "VPN_ENV=demo2" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo3
+      if: inputs.env-name == 'demo3'
+      shell: bash
+      run: echo "VPN_ENV=demo3" >> $GITHUB_ENV
+
     - name: Set environment variables - dev
       if: inputs.env-name == 'dev'
       shell: bash
@@ -65,7 +80,7 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
+    - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
       with:
         creds: ${{ inputs.sp-creds }}
 

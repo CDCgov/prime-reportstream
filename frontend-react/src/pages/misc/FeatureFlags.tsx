@@ -23,11 +23,8 @@ const { DEFAULT_FEATURE_FLAGS } = config;
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
-    VALUE_SETS_ADMIN = "value-sets",
-    BUILT_FOR_YOU = "built-for-you",
-    VALIDATION_SERVICE = "validation-service",
-    NEW_IA = "new-ia",
     USER_UPLOAD = "user-upload",
+    MESSAGE_TRACKER = "message-tracker",
 }
 
 export function FeatureFlagUIComponent() {
