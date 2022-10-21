@@ -121,22 +121,63 @@ class BatchFunction(
 
                     // go through the universal pipeline reports to be batched
                     if (receiver.topic == Topic.FULL_ELR.json_val) {
-                        validHeaders.forEach {
-                            // track reportId as 'parent'
-                            actionHistory.trackExistingInputReport(it.task.reportId)
+                        if (receiver.format.isSingleItemFormat) {
+                            validHeaders.forEach {
+                                // track reportId as 'parent'
+                                actionHistory.trackExistingInputReport(it.task.reportId)
 
-                            // download message
-                            val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+                                // download message
+                                val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+
+                                // get a Report from the hl7 message
+                                val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                                    Event.EventAction.SEND,
+                                    bodyBytes,
+                                    listOf(it.task.reportId),
+                                    receiver,
+                                    workflowEngine.metadata,
+                                    actionHistory
+                                )
+
+                                // insert the 'Send' task
+                                workflowEngine.db.insertTask(
+                                    report,
+                                    blobInfo.format.toString(),
+                                    blobInfo.blobUrl,
+                                    sendEvent,
+                                    txn
+                                )
+                            }
+                        } else if (validHeaders.isNotEmpty() ||
+                            (
+                                receiver.timing != null &&
+                                    receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND
+                                )
+                        ) {
+                            val messages = validHeaders.map {
+                                // track reportId as 'parent'
+                                actionHistory.trackExistingInputReport(it.task.reportId)
+
+                                // download message
+                                val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+                                String(bodyBytes)
+                            }
+
+                            // Generate the batch message
+                            val batchMessage = HL7MessageHelpers.batchMessages(messages, receiver)
 
                             // get a Report from the hl7 message
                             val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
                                 Event.EventAction.SEND,
-                                bodyBytes,
-                                it.task.reportId,
+                                batchMessage.toByteArray(),
+                                // listOf(validHeaders[0].task.reportId),
+                                validHeaders.map { it.task.reportId },
                                 receiver,
                                 workflowEngine.metadata,
                                 actionHistory
                             )
+
+                            // report.itemLineages = Report.createItemLineages(validHeaders[0].r, report)
 
                             // insert the 'Send' task
                             workflowEngine.db.insertTask(

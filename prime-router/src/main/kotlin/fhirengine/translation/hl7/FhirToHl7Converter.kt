@@ -26,6 +26,8 @@ class FhirToHl7Converter(
     private val strict: Boolean = false,
     private var terser: Terser? = null
 ) : Logging {
+
+    private val hl7StringSubstitutor = ConstantSubstitutor()
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
      * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
@@ -222,7 +224,8 @@ class FhirToHl7Converter(
             throw RequiredElementException(element)
         }
         element.hl7Spec.forEach { rawHl7Spec ->
-            val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
+            logger.trace("Setting HL7 value for element ${element.name}, spec $rawHl7Spec")
+            val resolvedHl7Spec = hl7StringSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
