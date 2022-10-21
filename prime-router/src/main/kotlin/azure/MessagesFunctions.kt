@@ -6,26 +6,34 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.Message
+import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.messageTracker.Message
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
-const val MESSAGE_SEARCH_ID_PARAMETER = "messageId"
+const val MESSAGE_ID_PARAMETER = "messageId"
 
 /**
  * Azure Functions with HTTP Trigger.
  * Search and retrieve messages
  */
-class MessageSearch(
+class MessagesFunctions(
     private val dbAccess: DatabaseAccess = DatabaseAccess()
 ) : Logging {
+    /**
+     * To indicate a bad request error throw an [IllegalArgumentException] with [message]
+     */
+    private fun badRequest(message: String): Nothing {
+        throw IllegalArgumentException(message)
+    }
 
     /**
      * entry point for the /messages/search endpoint,
@@ -33,7 +41,7 @@ class MessageSearch(
      */
     @FunctionName("messageSearch")
     @StorageAccount("AzureWebJobsStorage")
-    fun run(
+    fun messageSearch(
         @HttpTrigger(
             name = "messageSearch",
             methods = [HttpMethod.GET],
@@ -71,7 +79,7 @@ class MessageSearch(
     ): HttpResponseMessage {
         val messageId = request.queryParameters
             .getOrDefault(
-                MESSAGE_SEARCH_ID_PARAMETER,
+                MESSAGE_ID_PARAMETER,
                 null
             )
 
@@ -89,6 +97,7 @@ class MessageSearch(
                     response = results
                         .map {
                             Message(
+                                it.covidResultsMetadataId,
                                 it.messageId,
                                 it.senderId,
                                 it.createdAt,
@@ -122,29 +131,21 @@ class MessageSearch(
             )
             .build()
     }
-}
-
-/**
- * Azure Functions with HTTP Trigger.
- * Retrieve message details
- */
-class MessageDetails(
-    private val dbAccess: DatabaseAccess = DatabaseAccess()
-) : Logging {
 
     /**
      * entry point for the /message/{id} endpoint,
-     * which searches for a given messageId in the database
+     * which searches for a given id of a metadata result in the database
      */
     @FunctionName("messageDetails")
     @StorageAccount("AzureWebJobsStorage")
-    fun run(
+    fun messageDetails(
         @HttpTrigger(
             name = "messageDetails",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "message/{messageId}"
-        ) request: HttpRequestMessage<String?>
+            route = "message/{id}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("id") id: Long
     ): HttpResponseMessage {
         return try {
             val claims = AuthenticatedClaims.authenticate(request)
@@ -155,7 +156,7 @@ class MessageDetails(
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
 
-            processMessageDetailRequest(request)
+            processMessageDetailRequest(request, id)
         } catch (ex: Exception) {
             if (ex.message != null) {
                 logger.error(ex.message!!, ex)
@@ -167,37 +168,45 @@ class MessageDetails(
     }
 
     /**
-     * Handles an incoming message search request.
-     * @param request The incoming request
+     * Handles an incoming id to retrieve message details request.
+     * @param id to search by
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processMessageDetailRequest(
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
+        id: Long
     ): HttpResponseMessage {
-        val messageId = request.queryParameters
-            .getOrDefault(
-                MESSAGE_SEARCH_ID_PARAMETER,
-                null
-            )
-
         // return a message or an error
         var response: Any = ""
         var errorMessage: String? = ""
 
         val httpStatus: HttpStatus =
             try {
-                val result = dbAccess.fetchSingleMetadata(messageId)
+                val result = dbAccess.fetchSingleMetadataById(id)
                 response = if (result == null) {
-                    "No message found."
+                    badRequest("No message found.")
                 } else {
                     val reportResult = dbAccess.fetchReportFile(result.reportId)
+                    val actionLogWarnings = dbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
+                        result.reportId,
+                        result.messageId,
+                        ActionLogType.warning
+                    )
+                    val actionLogErrors = dbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
+                        result.reportId,
+                        result.messageId,
+                        ActionLogType.error
+                    )
                     Message(
+                        result.covidResultsMetadataId,
                         result.messageId,
                         result.senderId,
                         result.createdAt,
                         result.reportId.toString(),
                         reportResult.externalName,
-                        reportResult.bodyUrl
+                        reportResult.bodyUrl,
+                        actionLogWarnings,
+                        actionLogErrors
                     )
                 }
                 HttpStatus.OK
