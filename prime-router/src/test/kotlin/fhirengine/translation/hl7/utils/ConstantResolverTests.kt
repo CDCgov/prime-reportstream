@@ -258,5 +258,18 @@ class ConstantResolverTests {
         id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
+
+        cliaId.value = "D5D9458360" // DoD-style CLIA
+        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
+
+        cliaId.value = "P5D9458369" // other valid CLIA
+        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
+
+        cliaId.value = "D5D945836K" // letter where it's not allowed
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
     }
 }
