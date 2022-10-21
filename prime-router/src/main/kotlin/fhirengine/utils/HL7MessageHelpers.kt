@@ -34,10 +34,14 @@ object HL7MessageHelpers : Logging {
         metadata: Metadata,
         actionHistory: ActionHistory
     ): Triple<Report, Event, BlobAccess.BlobInfo> {
+        check(hl7Message.isNotEmpty())
+        check(sourceReportIds.isNotEmpty())
+
         // create report object
         val sources = emptyList<Source>()
+        val reportFormat = if (sourceReportIds.size > 1) Report.Format.HL7_BATCH else Report.Format.HL7
         val report = Report(
-            Report.Format.HL7,
+            reportFormat,
             sources,
             sourceReportIds.size,
             metadata = metadata,
@@ -83,7 +87,7 @@ object HL7MessageHelpers : Logging {
 
         // upload the translated copy to blobstore
         val blobInfo = BlobAccess.uploadBody(
-            Report.Format.HL7,
+            reportFormat,
             hl7Message,
             report.name,
             receiver.fullName,
@@ -133,32 +137,36 @@ object HL7MessageHelpers : Logging {
         time.setValue(Date())
 
         val builder = StringBuilder()
-        builder.append(
-            "FHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                time.value
-        )
-        builder.append(hl7SegmentDelimiter)
-        builder.append(
-            "BHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                time.value
-        )
-        builder.append(hl7SegmentDelimiter)
+        if (receiver.translation.useBatchHeaders) {
+            builder.append(
+                "FHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    time.value
+            )
+            builder.append(hl7SegmentDelimiter)
+            builder.append(
+                "BHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    time.value
+            )
+            builder.append(hl7SegmentDelimiter)
+        }
         hl7RawMsgs.forEach {
             builder.append(it)
             if (!it.endsWith(hl7SegmentDelimiter)) builder.append(hl7SegmentDelimiter)
         }
-        builder.append("BTS|${hl7RawMsgs.size}")
-        builder.append(hl7SegmentDelimiter)
-        builder.append("FTS|1")
-        builder.append(hl7SegmentDelimiter)
+        if (receiver.translation.useBatchHeaders) {
+            builder.append("BTS|${hl7RawMsgs.size}")
+            builder.append(hl7SegmentDelimiter)
+            builder.append("FTS|1")
+            builder.append(hl7SegmentDelimiter)
+        }
         return builder.toString()
     }
 }
