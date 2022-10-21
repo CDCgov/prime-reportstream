@@ -53,7 +53,7 @@ export type RowSideEffect = (row: TableRowData | null) => Promise<void>;
 export interface TableProps {
     config: TableConfig;
     title?: string;
-    fontClass?: string;
+    tableRowsClassName?: string;
     /* The Legend component is the responsibility
      * of the parent to pass in, allowing it to be as
      * versatile as possible */
@@ -76,7 +76,7 @@ export interface LegendItem {
  * which gives us number pagination
  * */
 const Table = ({
-    fontClass,
+    tableRowsClassName,
     config,
     title,
     legend,
@@ -165,7 +165,7 @@ const Table = ({
                     />
                     {!!memoizedRows ? (
                         <TableRows
-                            fontClass={fontClass}
+                            className={tableRowsClassName}
                             rows={memoizedRows}
                             onSave={editableCallback}
                             enableEditableRows={enableEditableRows}
