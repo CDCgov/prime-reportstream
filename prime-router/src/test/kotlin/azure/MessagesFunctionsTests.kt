@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.InvalidCodeMessage
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.messageTracker.MessageActionLog
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
@@ -11,6 +15,7 @@ import io.mockk.spyk
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
@@ -18,14 +23,18 @@ class MessagesFunctionsTests {
 
     private fun buildMessagesFunction(
         mockDbAccess: DatabaseAccess? = null
-    ): MessageSearch {
+    ): MessagesFunctions {
         val dbAccess = mockDbAccess ?: mockk()
-        return MessageSearch(dbAccess)
+        return MessagesFunctions(dbAccess)
     }
 
-    private fun buildCovidResultMetadata(reportId: UUID? = null, messageId: String? = null): CovidResultMetadata {
+    private fun buildCovidResultMetadata(
+        reportId: UUID? = null,
+        messageId: String? = null,
+        id: Long? = 0
+    ): CovidResultMetadata {
         return CovidResultMetadata(
-            0,
+            id,
             reportId,
             1,
             messageId,
@@ -73,12 +82,49 @@ class MessagesFunctionsTests {
         )
     }
 
+    private fun buildReportFile(reportId: UUID): ReportFile {
+        return ReportFile(
+            reportId,
+            1,
+            TaskAction.send,
+            OffsetDateTime.now().minusWeeks(1),
+            "test",
+            "test-sender",
+            "test",
+            "test-receiver",
+            "",
+            "",
+            "covid-19",
+            "covid-19",
+            "https://localhost/blob",
+            "",
+            "CSV",
+            byteArrayOf(),
+            1,
+            null,
+            OffsetDateTime.now().minusWeeks(1),
+            "",
+            null
+        )
+    }
+
+    private fun buildActionLogs(): List<MessageActionLog> {
+        val actionLogDetail = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
+
+        return listOf(
+            MessageActionLog(
+                "trackingId",
+                actionLogDetail
+            )
+        )
+    }
+
     @Test
     fun `test processSearchRequest function`() {
         val reportId: UUID = UUID.randomUUID()
         val messageId: String = UUID.randomUUID().toString()
         val mockDbAccess = mockk<DatabaseAccess>()
-        val MessageSearch = spyk(buildMessagesFunction(mockDbAccess))
+        val MessagesFunctions = spyk(buildMessagesFunction(mockDbAccess))
 
         // Happy path
         val mockRequestWithMessageId = MockHttpRequestMessage()
@@ -86,7 +132,7 @@ class MessagesFunctionsTests {
         every { mockDbAccess.fetchCovidResultMetadatasByMessageId(any(), any()) } returns listOf(
             buildCovidResultMetadata(reportId, messageId)
         )
-        val response = MessageSearch.processSearchRequest(mockRequestWithMessageId)
+        val response = MessagesFunctions.processSearchRequest(mockRequestWithMessageId)
 
         val jsonResponse = JSONArray(response.body.toString())
         val messageObject = jsonResponse.first() as JSONObject
@@ -96,7 +142,7 @@ class MessagesFunctionsTests {
 
         // Missing message id param
         val mockRequestMissingMessageIdParam = MockHttpRequestMessage()
-        val missingMessageIdParamsResponse = MessageSearch.processSearchRequest(mockRequestMissingMessageIdParam)
+        val missingMessageIdParamsResponse = MessagesFunctions.processSearchRequest(mockRequestMissingMessageIdParam)
         assert(missingMessageIdParamsResponse.status.equals(HttpStatus.BAD_REQUEST))
 
         // empty message id
@@ -104,7 +150,7 @@ class MessagesFunctionsTests {
         mockRequestEmptyMessageId.parameters += mapOf(
             "messageId" to ""
         )
-        val emptyMessageIdResponse = MessageSearch.processSearchRequest(mockRequestEmptyMessageId)
+        val emptyMessageIdResponse = MessagesFunctions.processSearchRequest(mockRequestEmptyMessageId)
         assert(emptyMessageIdResponse.status.equals(HttpStatus.BAD_REQUEST))
 
         // whitespace message id
@@ -112,7 +158,7 @@ class MessagesFunctionsTests {
         mockRequestWhitespaceMessageId.parameters += mapOf(
             "messageId" to " "
         )
-        val whitespaceMessageIdResponse = MessageSearch.processSearchRequest(mockRequestWhitespaceMessageId)
+        val whitespaceMessageIdResponse = MessagesFunctions.processSearchRequest(mockRequestWhitespaceMessageId)
         assert(whitespaceMessageIdResponse.status.equals(HttpStatus.BAD_REQUEST))
 
         // Exception in the database
@@ -124,21 +170,21 @@ class MessagesFunctionsTests {
                 any()
             )
         }.throws(Exception("missing a message id"))
-        val missingMessageIdValueResponse = MessageSearch.processSearchRequest(mockRequestMissingMessageIdValue)
+        val missingMessageIdValueResponse = MessagesFunctions.processSearchRequest(mockRequestMissingMessageIdValue)
         assert(missingMessageIdValueResponse.status.equals(HttpStatus.BAD_REQUEST))
     }
 
     @Test
-    fun `test run function`() {
-        val MessageSearch = spyk(MessageSearch())
+    fun `test search function`() {
+        val MessagesFunctions = spyk(MessagesFunctions())
 
         // Happy path
         val req = MockHttpRequestMessage()
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { MessageSearch.processSearchRequest(any()) } returns resp
+        every { MessagesFunctions.processSearchRequest(any()) } returns resp
 
-        val res = MessageSearch.run(req)
+        val res = MessagesFunctions.messageSearch(req)
         assert(res.status.equals(HttpStatus.OK))
 
         // unauthorized - no claims
@@ -147,7 +193,7 @@ class MessagesFunctionsTests {
             "authorization" to "x.y.z"
         )
 
-        val unAuthRes = MessageSearch.run(unAuthReq)
+        val unAuthRes = MessagesFunctions.messageSearch(unAuthReq)
         assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
 
         // unauthorized - not an admin
@@ -162,25 +208,135 @@ class MessagesFunctionsTests {
             "authorization" to "x.y.z"
         )
 
-        val unAuthRes2 = MessageSearch.run(unAuthReq)
+        val unAuthRes2 = MessagesFunctions.messageSearch(unAuthReq)
         assert(unAuthRes2.status.equals(HttpStatus.UNAUTHORIZED))
     }
 
     @Test
-    fun `test run function internal server error`() {
+    fun `test search function internal server error`() {
         // throw exception
         val internalServerErrorReq = MockHttpRequestMessage()
-        val MessageSearch = spyk(buildMessagesFunction())
+        val MessagesFunctions = spyk(buildMessagesFunction())
 
-        every { MessageSearch.processSearchRequest(any()) }.throws(Exception("something went wrong somewhere"))
+        every { MessagesFunctions.processSearchRequest(any()) }.throws(Exception("something went wrong somewhere"))
 
-        var internalErrorRes = MessageSearch.run(internalServerErrorReq)
+        var internalErrorRes = MessagesFunctions.messageSearch(internalServerErrorReq)
 
         assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
 
-        every { MessageSearch.processSearchRequest(any()) }.throws(Exception())
+        every { MessagesFunctions.processSearchRequest(any()) }.throws(Exception())
 
-        internalErrorRes = MessageSearch.run(internalServerErrorReq)
+        internalErrorRes = MessagesFunctions.messageSearch(internalServerErrorReq)
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+    }
+
+    @Test
+    fun `test processMessageDetailRequest function`() {
+        val id: Long = 6
+        val reportId: UUID = UUID.randomUUID()
+        val messageId: String = UUID.randomUUID().toString()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val messagesFunctions = spyk(buildMessagesFunction(mockDbAccess))
+
+        // Happy path
+        val mockRequestWithMessageId = MockHttpRequestMessage()
+        every { mockDbAccess.fetchSingleMetadataById(any(), any()) } returns buildCovidResultMetadata(
+            reportId,
+            messageId,
+            id
+        )
+        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(reportId)
+        every {
+            mockDbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns buildActionLogs()
+        val response = messagesFunctions.processMessageDetailRequest(mockRequestWithMessageId, id)
+
+        val jsonResponse = JSONObject(response.body.toString())
+        val messageDetailObjectId = jsonResponse.get("id") as Int
+        assert(messageDetailObjectId.toLong() == id)
+        assert(response.status.equals(HttpStatus.OK))
+    }
+
+    @Test
+    fun `test processMessageDetailRequest function no id found`() {
+        val id: Long = 6
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val messagesFunctions = spyk(buildMessagesFunction(mockDbAccess))
+
+        // No id in the database
+        val mockRequestNoIdFound = MockHttpRequestMessage()
+        every { mockDbAccess.fetchSingleMetadataById(any(), any()) } returns null
+
+        val response = messagesFunctions.processMessageDetailRequest(mockRequestNoIdFound, id)
+
+        val responseBody = JSONObject(response.body.toString())
+        val messageObject = responseBody.get("message")
+        assert(messageObject.equals("No message found."))
+        assert(response.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test messageDetails function`() {
+        val MessagesFunctions = spyk(MessagesFunctions())
+        val id: Long = 6
+
+        // Happy path
+        val req = MockHttpRequestMessage()
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+
+        every { MessagesFunctions.processSearchRequest(any()) } returns resp
+
+        val res = MessagesFunctions.messageDetails(req, id)
+        assert(res.status.equals(HttpStatus.OK))
+
+        // unauthorized - no claims
+        val unAuthReq = MockHttpRequestMessage()
+        unAuthReq.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes = MessagesFunctions.messageDetails(unAuthReq, id)
+        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+
+        // unauthorized - not an admin
+        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+        val unAuthReq2 = MockHttpRequestMessage()
+        unAuthReq2.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes2 = MessagesFunctions.messageDetails(unAuthReq, id)
+        assert(unAuthRes2.status.equals(HttpStatus.UNAUTHORIZED))
+    }
+
+    @Test
+    fun `test messageDetails function internal server error`() {
+        // throw exception
+        val id: Long = 6
+        val internalServerErrorReq = MockHttpRequestMessage()
+        val MessagesFunctions = spyk(buildMessagesFunction())
+
+        every { MessagesFunctions.processMessageDetailRequest(any(), id) }.throws(
+            Exception("something went wrong somewhere")
+        )
+
+        var internalErrorRes = MessagesFunctions.messageDetails(internalServerErrorReq, id)
+
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+
+        every { MessagesFunctions.processMessageDetailRequest(any(), id) }.throws(Exception())
+
+        internalErrorRes = MessagesFunctions.messageDetails(internalServerErrorReq, id)
         assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
     }
 }
