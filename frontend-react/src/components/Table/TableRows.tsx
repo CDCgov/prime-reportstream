@@ -8,9 +8,12 @@ import React, {
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { StringIndexed } from "../../utils/UsefulTypes";
 
-import { RowSideEffect, TableRow as TableRowData, ColumnConfig } from "./Table";
+import { RowSideEffect, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
+
+export type TableRowData = StringIndexed;
 
 interface RowProps {
     columns: ColumnConfig[];
@@ -23,6 +26,7 @@ interface TableRowsProps extends RowProps {
     filterManager?: FilterManager;
     onSave?: RowSideEffect;
     setRowToEdit: Dispatch<SetStateAction<number | undefined>>;
+    className?: string;
 }
 
 interface TableRowProps extends RowProps {
@@ -103,6 +107,7 @@ export const TableRows = ({
     columns,
     setRowToEdit,
     rowToEdit,
+    className = "font-mono-2xs", // Default font to mono if not overridden
 }: TableRowsProps) => {
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
@@ -170,7 +175,7 @@ export const TableRows = ({
     }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
-        <>
+        <tbody className={className}>
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
@@ -199,6 +204,6 @@ export const TableRows = ({
                     />
                 );
             })}
-        </>
+        </tbody>
     );
 };

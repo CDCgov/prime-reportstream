@@ -30,8 +30,12 @@ elements:
 
   - name: xad-use
     condition: '%resource.use.exists()'
-    value: [ '%resource.use.value.getAddressUse()' ]
+    value: [ '%resource.use.value' ]
     hl7Spec: [ '%{hl7XADField}-7' ]
+    valueSet:
+      home: H
+      work: B
+      temp: C
 
   - name: xad-county
     value: [ '%resource.district' ]
