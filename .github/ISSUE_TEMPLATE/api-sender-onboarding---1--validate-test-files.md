@@ -1,8 +1,8 @@
 ---
-name: API Sender Onboarding – Validate Test Files
+name: API Sender Onboarding – 1. Validate Test Files
 about: This Issue is used for "validating test files" for the individual sender's
   API Sender Onboarding epic.
-title: "[name of company] Onboarding - Validate Test Files "
+title: "[name of company] Onboarding - 1. Validate Test Files "
 labels: onboarding-ops, sender
 assignees: ''
 
@@ -20,7 +20,7 @@ assignees: ''
 ### To Do 
 - [ ] RS engineer: update this ticket with comments with every interaction with sender 
 - [ ] RS team member who originates this ticket: add any dependencies, as needed 
-- [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
+- [ ] RS team member who originates this ticket: make sure the following are included when creating this Issue. 
      - [ ] Pipelines: Onboarding & Operations (New) 
      - [ ] Labels: "Onboarding-ops" and "Sender" 
      - [ ] Epics: [select the epic for this API onboarding sender]
