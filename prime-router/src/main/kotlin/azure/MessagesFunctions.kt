@@ -29,13 +29,6 @@ class MessagesFunctions(
     private val dbAccess: DatabaseAccess = DatabaseAccess()
 ) : Logging {
     /**
-     * To indicate a bad request error throw an [IllegalArgumentException] with [message]
-     */
-    private fun badRequest(message: String): Nothing {
-        throw IllegalArgumentException(message)
-    }
-
-    /**
      * entry point for the /messages/search endpoint,
      * which searches for a given messageId in the database
      */
@@ -115,21 +108,7 @@ class MessagesFunctions(
                 HttpStatus.BAD_REQUEST
             }
 
-        if (httpStatus == HttpStatus.BAD_REQUEST) {
-            response = mapOf(
-                "error" to true,
-                "status" to httpStatus.value(),
-                "message" to errorMessage
-            )
-        }
-
-        return request.createResponseBuilder(httpStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(response)
-            )
-            .build()
+        return responseBuilder(httpStatus, errorMessage, response, request)
     }
 
     /**
@@ -183,8 +162,9 @@ class MessagesFunctions(
         val httpStatus: HttpStatus =
             try {
                 val result = dbAccess.fetchSingleMetadataById(id)
-                response = if (result == null) {
-                    badRequest("No message found.")
+                if (result == null) {
+                    errorMessage = "No message found."
+                    HttpStatus.BAD_REQUEST
                 } else {
                     val reportResult = dbAccess.fetchReportFile(result.reportId)
                     val actionLogWarnings = dbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
@@ -197,7 +177,7 @@ class MessagesFunctions(
                         result.messageId,
                         ActionLogType.error
                     )
-                    Message(
+                    response = Message(
                         result.covidResultsMetadataId,
                         result.messageId,
                         result.senderId,
@@ -208,27 +188,38 @@ class MessagesFunctions(
                         actionLogWarnings,
                         actionLogErrors
                     )
+                    HttpStatus.OK
                 }
-                HttpStatus.OK
             } catch (e: Exception) {
                 errorMessage = e.message
                 logger.error { e.message }
                 HttpStatus.BAD_REQUEST
             }
 
-        if (httpStatus == HttpStatus.BAD_REQUEST) {
-            response = mapOf(
+        return responseBuilder(httpStatus, errorMessage, response, request)
+    }
+
+    internal fun responseBuilder(
+        httpStatus: HttpStatus,
+        errorMessage: String?,
+        response: Any,
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        var responseMessage = if (httpStatus == HttpStatus.BAD_REQUEST) {
+            mapOf(
                 "error" to true,
                 "status" to httpStatus.value(),
                 "message" to errorMessage
             )
+        } else {
+            response
         }
 
         return request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
                 JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(response)
+                    .writeValueAsString(responseMessage)
             )
             .build()
     }
