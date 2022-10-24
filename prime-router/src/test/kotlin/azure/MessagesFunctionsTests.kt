@@ -15,7 +15,7 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -121,7 +121,7 @@ class MessagesFunctionsTests {
         )
     }
 
-    @AfterEach
+    @BeforeEach
     fun reset() {
         clearAllMocks()
     }
@@ -296,10 +296,12 @@ class MessagesFunctionsTests {
         val req = MockHttpRequestMessage()
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { messagesFunctions.processSearchRequest(any()) } returns resp
+        every { messagesFunctions.messageDetails(any(), any()) } returns resp
 
         val res = messagesFunctions.messageDetails(req, id)
         assert(res.status.equals(HttpStatus.OK))
+
+        clearAllMocks()
 
         // unauthorized - no claims
         val unAuthReq = MockHttpRequestMessage()
