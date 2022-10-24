@@ -105,7 +105,7 @@ object HL7MessageHelpers : Logging {
     /**
      * Encoding characters for the HL7 batch headers.
      */
-    const val hl7BatchHeaderEncodingChar = """^~\&"""
+    const val hl7BatchHeaderEncodingChar = "^~\\&"
 
     /**
      * HL7 segment delimiter.  This is the line break between segments.
@@ -137,18 +137,20 @@ object HL7MessageHelpers : Logging {
         time.setValue(Date())
 
         val builder = StringBuilder()
+        builder.append("FHS|")
+        builder.append(hl7BatchHeaderEncodingChar)
         builder.append(
-            "FHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
+            "|$sendingApp|" +
                 "|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
                 time.value
         )
         builder.append(hl7SegmentDelimiter)
+        builder.append("BHS|")
+        builder.append(hl7BatchHeaderEncodingChar)
         builder.append(
-            "BHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
+            "|$sendingApp|" +
                 "|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
