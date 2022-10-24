@@ -1805,7 +1805,7 @@
         replaceUnicodeWithAscii: false
         useBlankInsteadOfUnknown: null
         truncateHDNamespaceIds: true
-        truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-3, ORC-12-3, PID-5-1, PID-5-2,\
+        truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-1, OBR-16-3, ORC-12-1, ORC-12-3, PID-5-1, PID-5-2,\
         \ PID-5-3"
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null

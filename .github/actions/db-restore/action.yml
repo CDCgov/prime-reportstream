@@ -23,16 +23,22 @@ runs:
   using: 'composite'
   steps:
     # Drop existing connections, drop/create db, and restore from backup file
-    - run: |
-        sudo PGPASSWORD=${{ inputs.pass }} \
-        PGSSLMODE=require \
-        psql -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} -d ${{ inputs.database }} \
-          -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${{ inputs.database }}' AND pid <> pg_backend_pid()"
-        az postgres db delete -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} --yes
-        az postgres db create -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} \
-          --charset "UTF8" --collation "English_United States.1252"
-        sudo PGPASSWORD=${{ inputs.pass }} \
-        PGSSLMODE=require \
-        pg_restore ${{ inputs.options }} -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} \
-          -d ${{ inputs.database }} ${{ inputs.file-path }}
-      shell: bash
+    - uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      with:
+        timeout_minutes: 240
+        max_attempts: 3
+        retry_wait_seconds: 5
+        command: |
+          sudo PGPASSWORD=${{ inputs.pass }} \
+          PGSSLMODE=require \
+          psql -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} -d ${{ inputs.database }} \
+            -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${{ inputs.database }}' AND pid <> pg_backend_pid()"
+          az postgres db delete -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} --yes
+          az postgres db create -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} \
+            --charset "UTF8" --collation "English_United States.1252"
+          sleep 15;
+          sudo PGPASSWORD=${{ inputs.pass }} \
+          PGSSLMODE=require \
+          pg_restore ${{ inputs.options }} -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} \
+            -d ${{ inputs.database }} ${{ inputs.file-path }}
+        shell: bash
