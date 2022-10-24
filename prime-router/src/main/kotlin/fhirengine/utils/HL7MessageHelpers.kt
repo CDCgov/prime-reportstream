@@ -137,36 +137,35 @@ object HL7MessageHelpers : Logging {
         time.setValue(Date())
 
         val builder = StringBuilder()
-        if (receiver.translation.useBatchHeaders) {
-            builder.append(
-                "FHS|$hl7BatchHeaderEncodingChar|" +
-                    "$sendingApp|" +
-                    "|" +
-                    "$receivingApp|" +
-                    "$receivingFacility|" +
-                    time.value
-            )
-            builder.append(hl7SegmentDelimiter)
-            builder.append(
-                "BHS|$hl7BatchHeaderEncodingChar|" +
-                    "$sendingApp|" +
-                    "|" +
-                    "$receivingApp|" +
-                    "$receivingFacility|" +
-                    time.value
-            )
-            builder.append(hl7SegmentDelimiter)
-        }
+        builder.append(
+            "FHS|$hl7BatchHeaderEncodingChar|" +
+                "$sendingApp|" +
+                "|" +
+                "$receivingApp|" +
+                "$receivingFacility|" +
+                time.value
+        )
+        builder.append(hl7SegmentDelimiter)
+        builder.append(
+            "BHS|$hl7BatchHeaderEncodingChar|" +
+                "$sendingApp|" +
+                "|" +
+                "$receivingApp|" +
+                "$receivingFacility|" +
+                time.value
+        )
+        builder.append(hl7SegmentDelimiter)
+
         hl7RawMsgs.forEach {
             builder.append(it)
             if (!it.endsWith(hl7SegmentDelimiter)) builder.append(hl7SegmentDelimiter)
         }
-        if (receiver.translation.useBatchHeaders) {
-            builder.append("BTS|${hl7RawMsgs.size}")
-            builder.append(hl7SegmentDelimiter)
-            builder.append("FTS|1")
-            builder.append(hl7SegmentDelimiter)
-        }
+
+        builder.append("BTS|${hl7RawMsgs.size}")
+        builder.append(hl7SegmentDelimiter)
+        builder.append("FTS|1")
+        builder.append(hl7SegmentDelimiter)
+
         return builder.toString()
     }
 }

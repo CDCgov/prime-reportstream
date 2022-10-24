@@ -182,7 +182,9 @@ class BatchFunction(
         receiver: Receiver,
         txn: Configuration?
     ) {
-        if (receiver.format.isSingleItemFormat) {
+        if (receiver.format.isSingleItemFormat || receiver.timing == null ||
+            receiver.timing.operation != Receiver.BatchOperation.MERGE
+        ) {
             // Send each report separately
             validHeaders.forEach {
                 // track reportId as 'parent'
@@ -211,7 +213,7 @@ class BatchFunction(
                 )
             }
         } else if (validHeaders.isNotEmpty() ||
-            (receiver.timing != null && receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
+            (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
         ) {
             // Batch all reports into one
             val messages = validHeaders.map {

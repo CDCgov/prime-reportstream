@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
-import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -120,25 +119,6 @@ class HL7MessageHelpersTests {
                 3 -> assertThat(s).isEqualTo(messages[1])
             }
         }
-
-        // Test the don't use batch headers
-        // Now the sample HL7 is first, so we can grab data from it
-        receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
-            translation = Hl7Configuration(
-                receivingApplicationName = null, receivingApplicationOID = null,
-                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
-                messageProfileId = null, useBatchHeaders = false
-            )
-        )
-        messages = listOf(sampleHl7, "message1", "message2")
-        result = HL7MessageHelpers.batchMessages(messages, receiver)
-        assertThat(result).startsWith("MSH")
-        messages.forEach { assertThat(result.contains(it)) }
-        assertThat(result).doesNotContain("FHS")
-        assertThat(result).doesNotContain("BHS")
-        assertThat(result).doesNotContain("FTS")
-        assertThat(result).doesNotContain("BTS")
     }
 
     @Test
