@@ -105,7 +105,7 @@ object HL7MessageHelpers : Logging {
     /**
      * Encoding characters for the HL7 batch headers.
      */
-    const val hl7BatchHeaderEncodingChar = "^~\\&"
+    const val hl7BatchHeaderEncodingChar = """^~\&"""
 
     /**
      * HL7 segment delimiter.  This is the line break between segments.
