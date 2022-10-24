@@ -37,16 +37,22 @@ class HL7MessageHelpersTests {
         var result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
+                0 -> {
+                    // There is a weirdness with testing for a backslash using regex in Java 11 v 18, so test it here
+                    assertThat(s, s).startsWith("FHS|${HL7MessageHelpers.hl7BatchHeaderEncodingChar}")
+                    """^FHS\|[^|]+\|[^|]+\|\|\|\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
+                }
+                1 -> {
+                    // There is a weirdness with testing for a backslash using regex in Java 11 v 18, so test it here
+                    assertThat(s, s).startsWith("BHS|${HL7MessageHelpers.hl7BatchHeaderEncodingChar}")
+                    """^BHS\|[^|]+\|[^|]+\|\|\|\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
+                }
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> null
             }
             if (s.isNotEmpty()) {
                 assertThat(regex).isNotNull()
-                if (index < 2) assertThat(s.substring(4, 8), "${s.substring(4, 7)} | $s")
-                    .isEqualTo(HL7MessageHelpers.hl7BatchHeaderEncodingChar)
                 assertThat(regex!!.matches(s), s).isTrue()
             }
         }
@@ -63,8 +69,8 @@ class HL7MessageHelpersTests {
         result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
+                0 -> """^FHS\|[^|]+\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]+\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}-\d{4}.*""".toRegex()
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> {
