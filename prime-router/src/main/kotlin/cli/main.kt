@@ -148,10 +148,7 @@ class GenerateDocs : CliktCommand(
         if (generateCsv) docGenerators.add(CsvDocumentationFactory)
         if (generateExcel) docGenerators.add(ExcelDocumentationFactory)
 
-        if (!generateMarkup && !generateHtml) {
-            println("Nothing generated.  You need to specify at least one type of output.")
-            return
-        } else if (inputSchema.isNullOrBlank()) {
+        if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
 
             // Clear the existing schema (we want to remove deleted schemas)

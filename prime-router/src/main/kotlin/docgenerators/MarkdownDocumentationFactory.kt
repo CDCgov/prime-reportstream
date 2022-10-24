@@ -5,10 +5,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /** a singleton instance to let us build documentation off of a schema or off of an element */
 object MarkdownDocumentationFactory : DocumentationFactory(), Logging {
@@ -98,8 +94,7 @@ ${element.documentation}
     }
 
     // gets the documentation
-    override fun getSchemaDocumentation(schema: Schema): String {
-        val sb = StringBuilder()
+    override fun getSchemaDocumentation(schema: Schema) = sequence {
         val schemaTrackingName =
             if (schema.trackingElement.isNullOrEmpty()) {
                 logger.warn("Schema ${schema.name}: TrackingElement is empty")
@@ -124,7 +119,7 @@ ${element.documentation}
         val schemaExtends = if (schema.extends.isNullOrBlank()) "none" else "[${schema.extends}](./$extendName.md)"
         val schemaDescription = if (schema.description.isNullOrBlank()) "none" else "${schema.description}"
 
-        sb.appendLine(
+        yield(
             """
 ### Schema: ${schema.name}
 ### Topic: ${schema.topic}
@@ -133,17 +128,15 @@ ${element.documentation}
 ### Extends: $schemaExtends
 #### Description: $schemaDescription
 
----"""
+---""" + "\n"
         )
 
         schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
-            sb.append(getElementDocumentation(element))
+            yield(getElementDocumentation(element))
         }
         schema.elements.filter { it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
-            sb.append(getElementDocumentation(element))
+            yield(getElementDocumentation(element))
         }
-
-        return sb.toString()
     }
 
     /**
@@ -163,14 +156,17 @@ ${element.documentation}
         includeTimestamps: Boolean
     ) {
         // change any slashes to dashes for the file name
+        val sb = StringBuilder()
+        getSchemaDocumentation(schema).forEach {
+            sb.append(it)
+        }
         val schemaName = canonicalizeSchemaName(schema)
-        val mdText = getSchemaDocumentation(schema)
 
         // Generate the markup file
         File(
             ensureOutputDirectory(outputDir),
             getOutputFileName(outputFileName, schemaName, includeTimestamps, this.fileExtension)
-        ).writeText(mdText)
+        ).writeText(sb.toString())
     }
 
     private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {

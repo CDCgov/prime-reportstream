@@ -10,8 +10,8 @@ object ExcelDocumentationFactory : DocumentationFactory(), Logging {
     override val fileExtension: String
         get() = "xlsx"
 
-    override fun getSchemaDocumentation(schema: Schema): String {
-        TODO("Not yet implemented")
+    override fun getSchemaDocumentation(schema: Schema) = sequence {
+        yield("")
     }
 
     override fun writeDocumentationForSchema(

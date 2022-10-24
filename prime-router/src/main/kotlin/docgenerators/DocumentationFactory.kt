@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 abstract class DocumentationFactory {
     abstract val fileExtension: String
 
-    abstract fun getSchemaDocumentation(schema: Schema): String
+    abstract fun getSchemaDocumentation(schema: Schema): Sequence<String>
 
     abstract fun writeDocumentationForSchema(
         schema: Schema,
@@ -37,7 +37,7 @@ abstract class DocumentationFactory {
             fileExtension: String
         ): String {
             return (outputFileName ?: schemaName) + if (includeTimestamps) {
-                "-${LocalDate.now().format(formatter)}.${HtmlDocumentationFactory.fileExtension}"
+                "-${LocalDate.now().format(formatter)}.$fileExtension"
             } else {
                 fileExtension
             }

@@ -13,7 +13,8 @@ class DocumentationTests {
         > This is preformatted text
     """.trimIndent()
     private val elem = Element(
-        name = "a", type = Element.Type.TEXT,
+        name = "a",
+        type = Element.Type.TEXT,
         csvFields = Element.csvFields("Test TrackingElement")
     )
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
@@ -68,7 +69,7 @@ class DocumentationTests {
 ---
 """
 
-        val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema)
+        val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema).joinToString(separator = "")
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -94,6 +95,7 @@ $documentation
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertThat(actual).isEqualTo(expected)
     }
+
     @Test
     fun `test documentation for element with type CODE with Format $display`() {
         val elemWithTypeCode = Element(
@@ -142,8 +144,9 @@ $documentation
 
 ---
 """
-        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
-        assertThat(actual).isEqualTo(expected)
+        MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
+            assertThat(actual).isEqualTo(expected)
+        }
     }
 
     @Test
@@ -168,8 +171,9 @@ $documentation
 
 ---
 """
-        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
-        assertThat(actual).isEqualTo(expected)
+        MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
+            assertThat(actual).isEqualTo(expected)
+        }
     }
 
     @Test
@@ -200,7 +204,6 @@ $documentation
 
     @Test
     fun `test documentation for element with type CODE and valueSet table with special char`() {
-
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
@@ -235,14 +238,14 @@ Code | Display | System
 
     @Test
     fun `test documentation for element with valueSet table generation`() {
-
         // Test case that contains element.system = HL7 and element.ValueSet.Values.system = LOINC
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
             values = listOf(
                 ValueSet.Value(
-                    ">", "Above absolute high-off instrument scale",
+                    ">",
+                    "Above absolute high-off instrument scale",
                     system = ValueSet.SetSystem.LOINC
                 )
             )

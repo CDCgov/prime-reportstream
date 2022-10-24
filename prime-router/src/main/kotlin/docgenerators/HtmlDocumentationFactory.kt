@@ -14,9 +14,7 @@ object HtmlDocumentationFactory : DocumentationFactory(), Logging {
     /**
      * Given a [schema] this calls into the markdown documentation factory and gets the string value there
      * */
-    override fun getSchemaDocumentation(schema: Schema): String {
-        return MarkdownDocumentationFactory.getSchemaDocumentation(schema)
-    }
+    override fun getSchemaDocumentation(schema: Schema) = MarkdownDocumentationFactory.getSchemaDocumentation(schema)
 
     /**
      * Writes out the markdown to HTML
@@ -29,7 +27,8 @@ object HtmlDocumentationFactory : DocumentationFactory(), Logging {
     ) {
         // change any slashes to dashes for the file name
         val schemaName = canonicalizeSchemaName(schema)
-        val mdText = MarkdownDocumentationFactory.getSchemaDocumentation(schema)
+        // get the schema documentation as a sequence and then write it out to a single string
+        val mdText = getSchemaDocumentation(schema).joinToString(separator = "")
 
         File(
             ensureOutputDirectory(outputDir),
