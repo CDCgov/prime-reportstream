@@ -132,6 +132,17 @@
       schemaName: csv-otc-covid-19
       format: CSV
 
+- name: osang-otc
+  description: Osang Healthcare - OTC Testing
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: osang-otc
+      topic: covid-19
+      customerStatus: active
+      schemaName: csv-otc-covid-19
+      format: CSV
+
 - name: vaulthealth
   description: Vault Health
   jurisdiction: FEDERAL
@@ -2345,7 +2356,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth,osang-otc)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
