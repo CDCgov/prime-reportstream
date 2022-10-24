@@ -16,6 +16,9 @@ object MarkdownDocumentationFactory : DocumentationFactory(), Logging {
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
 
+    override val fileExtension: String
+        get() = "md"
+
     /** converts an HL7 field to a URL at Caristix */
     private fun convertHl7FieldToUrl(segmentName: String?): String {
         if (segmentName.isNullOrEmpty()) return ""
@@ -159,24 +162,15 @@ ${element.documentation}
         outputFileName: String?,
         includeTimestamps: Boolean
     ) {
-        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-        val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
         val schemaName = canonicalizeSchemaName(schema)
-
         val mdText = getSchemaDocumentation(schema)
-        val path = Paths.get(outputDir)
-        if (!Files.exists(path)) {
-            Files.createDirectory(path)
-        }
 
         // Generate the markup file
-        val markupName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-            "-$createDate.md"
-        } else {
-            ".md"
-        }
-        File(outputDir, markupName).writeText(mdText)
+        File(
+            ensureOutputDirectory(outputDir),
+            getOutputFileName(outputFileName, schemaName, includeTimestamps, this.fileExtension)
+        ).writeText(mdText)
     }
 
     private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {

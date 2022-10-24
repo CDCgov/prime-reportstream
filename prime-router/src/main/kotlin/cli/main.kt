@@ -17,7 +17,9 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.TestReportStream
+import gov.cdc.prime.router.docgenerators.CsvDocumentationFactory
 import gov.cdc.prime.router.docgenerators.DocumentationFactory
+import gov.cdc.prime.router.docgenerators.ExcelDocumentationFactory
 import gov.cdc.prime.router.docgenerators.HtmlDocumentationFactory
 import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
 import java.io.File
@@ -106,11 +108,23 @@ class GenerateDocs : CliktCommand(
         "--mapped-hl7-elements"
     ).flag(default = false)
     private val generateHtml by option(
-        "--generate-html", help = "generate the HTML version of the documentation. Default is not to generate HTML."
+        "--generate-html",
+        help = "generate the HTML version of the documentation. Default is not to generate HTML."
     ).flag("--no-generate-html", default = false)
     private val generateMarkup by option(
-        "--generate-markup", help = "generate the markup version of the documentation.  Default is to generate markup."
+        "--generate-markup",
+        help = "generate the markup version of the documentation.  Default is to generate markup."
     ).flag("--no-generate-markup", default = true)
+    private val generateCsv by option(
+        "--generate-csv",
+        help = "generate the CSV data dictionary version of the documentation. " +
+            "Default is to not generate the CSV data dictionary"
+    ).flag("--no-generate-csv", default = false)
+    private val generateExcel by option(
+        "--generate-xl",
+        help = "generate the Excel version of the data dictionary for the schema. " +
+            "Default is to not generate the Excel data dictionary"
+    ).flag("--no-generate-xl", default = false)
     private val outputFileName by option(
         "--output",
         metavar = "<path>",
@@ -124,10 +138,15 @@ class GenerateDocs : CliktCommand(
     )
         .default(defaultOutputDir)
 
+    /**
+     * Generates schema documentation based on the parameters passed in
+     */
     fun generateSchemaDocumentation(metadata: Metadata) {
         val docGenerators = mutableListOf<DocumentationFactory>()
         if (generateHtml) docGenerators.add(HtmlDocumentationFactory)
         if (generateMarkup) docGenerators.add(MarkdownDocumentationFactory)
+        if (generateCsv) docGenerators.add(CsvDocumentationFactory)
+        if (generateExcel) docGenerators.add(ExcelDocumentationFactory)
 
         if (!generateMarkup && !generateHtml) {
             println("Nothing generated.  You need to specify at least one type of output.")
