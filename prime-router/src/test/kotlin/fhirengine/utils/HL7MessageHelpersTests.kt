@@ -45,6 +45,8 @@ class HL7MessageHelpersTests {
             }
             if (s.isNotEmpty()) {
                 assertThat(regex).isNotNull()
+                if (index < 2) assertThat(s.substring(4, 8), "${s.substring(4, 7)} | $s")
+                    .isEqualTo(HL7MessageHelpers.hl7BatchHeaderEncodingChar)
                 assertThat(regex!!.matches(s), s).isTrue()
             }
         }

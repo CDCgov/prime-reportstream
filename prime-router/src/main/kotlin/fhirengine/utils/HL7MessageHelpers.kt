@@ -137,20 +137,18 @@ object HL7MessageHelpers : Logging {
         time.setValue(Date())
 
         val builder = StringBuilder()
-        builder.append("FHS|")
-        builder.append(hl7BatchHeaderEncodingChar)
         builder.append(
-            "|$sendingApp|" +
+            "FHS|$hl7BatchHeaderEncodingChar|" +
+                "$sendingApp|" +
                 "|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
                 time.value
         )
         builder.append(hl7SegmentDelimiter)
-        builder.append("BHS|")
-        builder.append(hl7BatchHeaderEncodingChar)
         builder.append(
-            "|$sendingApp|" +
+            "BHS|$hl7BatchHeaderEncodingChar|" +
+                "$sendingApp|" +
                 "|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
