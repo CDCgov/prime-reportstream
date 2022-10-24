@@ -188,10 +188,8 @@ internal class ReceiverTests {
             Report.Format.CSV,
             null,
             null,
-            null,
-            "metadata/hl7_mapping/ORU_R01"
+            null
         )
         assertThat(receiver.schemaName).isEqualTo("CO")
-        assertThat(receiver.schemaFolderPath).isEqualTo("metadata/hl7_mapping/ORU_R01")
     }
 }

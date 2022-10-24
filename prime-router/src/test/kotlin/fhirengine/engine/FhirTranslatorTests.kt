@@ -42,7 +42,15 @@ class FhirTranslatorTests {
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "ORU_R01-base"))
+        receivers = listOf(
+            Receiver(
+                "full-elr-hl7",
+                "co-phd",
+                "full-elr",
+                CustomerStatus.ACTIVE,
+                "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+            )
+        )
     )
     private val colorado = DeepOrganization(
         "co-phd",
@@ -54,19 +62,18 @@ class FhirTranslatorTests {
                 "co-phd",
                 "topic",
                 CustomerStatus.INACTIVE,
-                "ORU_R01-base"
+                "metadata/hl7_mapping/STLTs/CO/CO"
             ),
             Receiver(
                 "elr",
                 "co-phd",
                 "topic",
                 CustomerStatus.INACTIVE,
-                "CO",
+                "metadata/hl7_mapping/STLTs/CO/CO",
                 Report.Format.CSV,
                 null,
                 null,
-                null,
-                "metadata/hl7_mapping/STLTs/CO"
+                null
             )
         )
     )

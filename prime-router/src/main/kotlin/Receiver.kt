@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -19,7 +21,7 @@ import java.time.ZoneId
  * @param jurisdictionalFilter defines the geographic region filters for this receiver
  * @param qualityFilter defines the filters that remove data, based on quality criteria
  * @param routingFilter The original use case was for filters that remove data the
- * receiver does not want, based on who sent it.  However, its available for any general purpose use.
+ * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
@@ -62,11 +64,7 @@ open class Receiver(
      * while someone set to LOCAL would have their date formatted "uuuuMMdd HH:mm:ss" without the offset. Instead,
      * the date time would have the offset applied to it
      */
-    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
-    /**
-     * Location of the custom configuration files for this receiver
-     */
-    val schemaFolderPath: String? = null
+    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET
 ) {
     /** A custom constructor primarily used for testing */
     constructor(
@@ -78,8 +76,7 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
-        dateTimeFormat: DateUtilities.DateTimeFormat? = null,
-        schemaFolderPath: String? = null
+        dateTimeFormat: DateUtilities.DateTimeFormat? = null
     ) : this(
         name,
         organizationName,
@@ -88,8 +85,7 @@ open class Receiver(
         CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
         timing = timing,
         timeZone = timeZone,
-        dateTimeFormat = dateTimeFormat,
-        schemaFolderPath = schemaFolderPath
+        dateTimeFormat = dateTimeFormat
     )
 
     /** A copy constructor for the receiver */
@@ -111,8 +107,7 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.timeZone,
-        copy.dateTimeFormat,
-        copy.schemaFolderPath
+        copy.dateTimeFormat
     )
 
     @get:JsonIgnore
@@ -218,10 +213,20 @@ open class Receiver(
         // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
         if (topic == Topic.FULL_ELR.json_val) return null
 
-        when (translation) {
-            is CustomConfiguration -> {
-                if (metadata.findSchema(translation.schemaName) == null) {
-                    return "Invalid schemaName: ${translation.schemaName}"
+        if (translation is CustomConfiguration) {
+            when (this.topic) {
+                Topic.FULL_ELR.json_val -> {
+                    try {
+                        FhirToHl7Converter(translation.schemaName)
+                    } catch (e: SchemaException) {
+                        return e.message
+                    }
+                }
+
+                else -> {
+                    if (metadata.findSchema(translation.schemaName) == null) {
+                        return "Invalid schemaName: ${translation.schemaName}"
+                    }
                 }
             }
         }
