@@ -131,7 +131,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setOrgReceiverSettingsNewJson(
                 JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
             );
-            if (latestResponse?.version !== orgReceiverSettings?.version) {
+            if (
+                action === "edit" &&
+                latestResponse?.version !== orgReceiverSettings?.version
+            ) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -350,14 +353,16 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 />
                 <Grid row className="margin-top-2">
                     <Grid col={6}>
-                        <Button
-                            type={"button"}
-                            secondary={true}
-                            data-testid={"receiverSettingDeleteButton"}
-                            onClick={() => ShowDeleteConfirm(receivername)}
-                        >
-                            Delete...
-                        </Button>
+                        {action === "edit" ? (
+                            <Button
+                                type={"button"}
+                                secondary={true}
+                                data-testid={"receiverSettingDeleteButton"}
+                                onClick={() => ShowDeleteConfirm(receivername)}
+                            >
+                                Delete...
+                            </Button>
+                        ) : null}
                     </Grid>
                     <Grid col={6} className={"text-right"}>
                         <Button

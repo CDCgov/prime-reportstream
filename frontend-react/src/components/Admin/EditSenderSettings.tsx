@@ -74,6 +74,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     };
     const doDelete = async (deleteItemId: string) => {
         try {
+            debugger;
             await fetchController(OrgSenderSettingsResource.deleteSetting(), {
                 orgname: orgname,
                 sendername: deleteItemId,
@@ -125,7 +126,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
             );
 
-            if (latestResponse?.version !== orgSenderSettings?.version) {
+            if (
+                action === "edit" &&
+                latestResponse?.version !== orgSenderSettings?.version
+            ) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -259,14 +263,16 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 />
                 <Grid row className="margin-top-2">
                     <Grid col={6}>
-                        <Button
-                            type={"button"}
-                            secondary={true}
-                            data-testid={"senderSettingDeleteButton"}
-                            onClick={() => ShowDeleteConfirm(sendername)}
-                        >
-                            Delete...
-                        </Button>
+                        {action === "edit" ? (
+                            <Button
+                                type={"button"}
+                                secondary={true}
+                                data-testid={"senderSettingDeleteButton"}
+                                onClick={() => ShowDeleteConfirm(sendername)}
+                            >
+                                Delete...
+                            </Button>
+                        ) : null}
                     </Grid>
                     <Grid col={6} className={"text-right"}>
                         <Button
