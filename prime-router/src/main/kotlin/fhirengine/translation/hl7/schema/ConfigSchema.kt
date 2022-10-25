@@ -184,7 +184,8 @@ data class ConfigSchemaElement(
     var value: List<String> = emptyList(),
     var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
-    var constants: SortedMap<String, String> = sortedMapOf()
+    var constants: SortedMap<String, String> = sortedMapOf(),
+    var valueSet: SortedMap<String, String> = sortedMapOf()
 ) {
     /**
      * Validate the element.
@@ -207,14 +208,20 @@ data class ConfigSchemaElement(
                 addError("Schema property is required to use the resourceIndex property")
         }
 
-        // Hl7spec and value cannot be used with schema.
+        // Hl7spec, value and valueSet cannot be used with schema.
         when {
-            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty()) ->
-                addError("Schema property cannot be used with hl7Spec or value properties")
+            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty() || valueSet.isNotEmpty()) ->
+                addError("Schema property cannot be used with hl7Spec, value or valueSet properties")
             schema.isNullOrBlank() && hl7Spec.isEmpty() ->
                 addError("Hl7Spec property is required when not using a schema")
             schema.isNullOrBlank() && value.isEmpty() ->
                 addError("Value property is required when not using a schema")
+        }
+
+        // value sets need a value to be...set
+        when {
+            valueSet.isNotEmpty() && value.isEmpty() ->
+                addError("Value property is required when using a value set")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {

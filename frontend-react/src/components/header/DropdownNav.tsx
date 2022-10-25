@@ -4,6 +4,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
+import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 
 export interface NonStaticOption {
     title: string;
@@ -67,11 +68,10 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Last Mile Failures", "lastmile"),
         makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
+        makeNonStaticOption("Value Sets", "value-sets"),
     ];
-    if (checkFlag("message-tracker"))
+    if (checkFlag(FeatureFlagName.MESSAGE_TRACKER))
         pages.push(makeNonStaticOption("Message Id Search", "message-tracker"));
-    if (checkFlag("value-sets"))
-        pages.push(makeNonStaticOption("Value Sets", "value-sets"));
     return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
 };
 
