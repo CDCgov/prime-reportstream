@@ -160,12 +160,11 @@ ${element.documentation}
         getSchemaDocumentation(schema).forEach {
             sb.append(it)
         }
-        val schemaName = canonicalizeSchemaName(schema)
 
         // Generate the markup file
         File(
             ensureOutputDirectory(outputDir),
-            getOutputFileName(outputFileName, schemaName, includeTimestamps, this.fileExtension)
+            getOutputFileName(outputFileName, schema, includeTimestamps, this.fileExtension)
         ).writeText(sb.toString())
     }
 

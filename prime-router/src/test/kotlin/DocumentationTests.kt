@@ -2,10 +2,15 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.docgenerators.DocumentationFactory
 import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
+import java.time.LocalDate
 import kotlin.test.Ignore
 import kotlin.test.Test
 
+/**
+ * A collection of tests for the documentation generation
+ */
 class DocumentationTests {
     private val documentation = """
         ##### This is a test documentation field
@@ -27,6 +32,51 @@ class DocumentationTests {
         extends = "test/extends",
         basedOn = "TestBaseOn"
     )
+
+    @Test
+    fun `test getting output file name`() {
+        // check a schema with no slash in the name
+        Schema(
+            name = "covid-19",
+            topic = "Test Topic"
+        ).also { schema ->
+            DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
+                assertThat(it).isEqualTo("covid-19.md")
+            }
+            DocumentationFactory.getOutputFileName(null, schema, true, "html").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("covid-19-$timestamp.html")
+            }
+        }
+
+        // check a schema with a slash in the name
+        Schema(
+            name = "direct/cue-covid-19",
+            topic = "Test Topic"
+        ).also { schema ->
+            DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
+                assertThat(it).isEqualTo("direct-cue-covid-19.md")
+            }
+            DocumentationFactory.getOutputFileName(null, schema, true, "csv").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("direct-cue-covid-19-$timestamp.csv")
+            }
+        }
+
+        // check an output file name
+        Schema(
+            name = "covid-19",
+            topic = "Test Topic"
+        ).also {
+            DocumentationFactory.getOutputFileName("test-file-name", schema, false, "txt").also {
+                assertThat(it).isEqualTo("test-file-name.txt")
+            }
+            DocumentationFactory.getOutputFileName("test-file-name", schema, true, "xlsx").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("test-file-name-$timestamp.xlsx")
+            }
+        }
+    }
 
     @Test
     @Ignore

@@ -18,8 +18,6 @@ abstract class DocumentationFactory {
         includeTimestamps: Boolean = false
     )
 
-    fun canonicalizeSchemaName(schema: Schema) = schema.name.replace("/", "-")
-
     companion object {
         /** The output pattern for the dates in the file names */
         const val createdDateFormatterPattern = "yyyy.MM.dd"
@@ -27,19 +25,22 @@ abstract class DocumentationFactory {
         /** The formatter we use for the file names */
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(createdDateFormatterPattern)
 
+        /** Given a schema name, convert slashes to dashes, so they don't break path logic */
+        private fun canonicalizeSchemaName(schema: Schema) = schema.name.replace("/", "-")
+
         /**
          * Gets the output file name based on the settings passed in
          */
         fun getOutputFileName(
             outputFileName: String?,
-            schemaName: String,
+            schema: Schema,
             includeTimestamps: Boolean,
             fileExtension: String
         ): String {
-            return (outputFileName ?: schemaName) + if (includeTimestamps) {
+            return (outputFileName ?: canonicalizeSchemaName(schema)) + if (includeTimestamps) {
                 "-${LocalDate.now().format(formatter)}.$fileExtension"
             } else {
-                fileExtension
+                ".$fileExtension"
             }
         }
 
