@@ -125,8 +125,7 @@ class FHIRTranslator(
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
         val converter = FhirToHl7Converter(
-            "ORU_R01-base",
-            "metadata/hl7_mapping/ORU_R01"
+            receiver.schemaName
         )
         val hl7Message = converter.convert(bundle)
 
