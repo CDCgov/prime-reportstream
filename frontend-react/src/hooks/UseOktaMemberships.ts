@@ -11,10 +11,7 @@ import {
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 
-import {
-    RSService,
-    useMembershipServices,
-} from "./network/Organizations/ServicesHooks";
+import { RSService } from "./network/Organizations/ServicesHooks";
 
 export enum MemberType {
     SENDER = "sender",
@@ -244,10 +241,6 @@ export const useOktaMemberships = (
 ): MembershipController => {
     const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);
-    const { servicesArray } = useMembershipServices(
-        state?.activeMembership?.memberType,
-        state?.activeMembership?.parsedName
-    );
 
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
@@ -289,13 +282,13 @@ export const useOktaMemberships = (
 
     // any time the servicesArray updates (whenever active membership changes), the react-query call runs and
     // we update the membership state here with the services array
-    useEffect(() => {
-        if (state.initialized)
-            dispatch({
-                type: MembershipActionType.UPDATE_SERVICES_LIST,
-                payload: servicesArray,
-            });
-    }, [servicesArray, state.initialized]);
+    // TODO Just do fetch in here for now, use API config if possible!
+    // useEffect(() => {
+    //     dispatch({
+    //         type: MembershipActionType.UPDATE_SERVICES_LIST,
+    //         payload: servicesArray,
+    //     });
+    // }, [servicesArray, state.initialized]);
 
     return { state, dispatch };
 };
