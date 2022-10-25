@@ -39,8 +39,43 @@ class FhirTranslatorTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "co-phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("full-elr-hl7", "co-phd", "full-elr", CustomerStatus.ACTIVE, "one"))
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "full-elr-hl7",
+                "co-phd",
+                "full-elr",
+                CustomerStatus.ACTIVE,
+                "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+            )
+        )
+    )
+    private val colorado = DeepOrganization(
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "elr.secondary",
+                "co-phd",
+                "topic",
+                CustomerStatus.INACTIVE,
+                "metadata/hl7_mapping/STLTs/CO/CO"
+            ),
+            Receiver(
+                "elr",
+                "co-phd",
+                "topic",
+                CustomerStatus.INACTIVE,
+                "metadata/hl7_mapping/STLTs/CO/CO",
+                Report.Format.CSV,
+                null,
+                null,
+                null
+            )
+        )
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
@@ -94,6 +129,45 @@ class FhirTranslatorTests {
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
+        }
+    }
+
+    // happy path, with a receiver that has a custom schema
+    @Test
+    fun `test full elr translation happy path, custom schema`() {
+        mockkObject(BlobAccess)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(colorado)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = makeFhirEngine(metadata, settings, TaskAction.translate)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }.returns(Unit)
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            queueMock.sendMessage(any(), any())
+        }
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
         }
     }
 }
