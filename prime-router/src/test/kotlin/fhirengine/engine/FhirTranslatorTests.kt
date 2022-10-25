@@ -227,7 +227,7 @@ class FhirTranslatorTests {
             "full-elr",
             CustomerStatus.ACTIVE,
             schemaName,
-            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName)
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
         )
         val testOrg = DeepOrganization(
             "co-phd", "test", Organization.Jurisdiction.FEDERAL,
