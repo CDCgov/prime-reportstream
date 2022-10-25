@@ -145,6 +145,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                                 closer
                                 unstyled
                                 className="padding-105 text-center"
+                                data-testid={"editCompareCancelButton"}
                             >
                                 Go back
                             </ModalToggleButton>
@@ -152,6 +153,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                                 uniquid={uniquid}
                                 handleClose={scopedConfirm}
                                 disabled={saveDisabled}
+                                data-testid={"editCompareSaveButton"}
                             >
                                 Save
                             </ModalConfirmSaveButton>
