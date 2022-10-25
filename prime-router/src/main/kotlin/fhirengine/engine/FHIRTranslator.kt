@@ -65,6 +65,9 @@ class FHIRTranslator(
                 val receiver = settings.findReceiver(recName)
                 // We only process receivers that are active and for this pipeline.
                 if (receiver != null && receiver.topic == Topic.FULL_ELR.json_val) {
+                    val converter = FhirToHl7Converter(
+                        receiver.schemaName
+                    )
                     val hl7Message = getHL7MessageFromBundle(bundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()
 
