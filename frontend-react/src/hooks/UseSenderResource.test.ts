@@ -33,7 +33,7 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "senderName",
+                service: "senderName",
             },
             dispatch: () => {},
         });
@@ -67,7 +67,7 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "a different name",
+                service: "a different name",
             },
             dispatch: () => {},
         });
@@ -85,7 +85,7 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "senderName",
+                service: "senderName",
             },
             dispatch: () => {},
         });

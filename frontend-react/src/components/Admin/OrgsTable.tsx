@@ -30,7 +30,7 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { senderName, memberType } = activeMembership || {};
+        const { service, memberType } = activeMembership || {};
 
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
@@ -39,7 +39,7 @@ export function OrgsTable() {
             memberType === MemberType.SENDER ||
             memberType === MemberType.PRIME_ADMIN
         ) {
-            payload.senderName = senderName || "default";
+            payload.service = service || "default";
         }
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,

@@ -31,7 +31,7 @@ export interface MembershipSettings {
     // The type of membership
     memberType: MemberType;
     // Optional sender name
-    senderName?: string;
+    service?: string;
 }
 
 export interface MembershipState {
@@ -39,6 +39,7 @@ export interface MembershipState {
     activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
+    services?: string[];
     initialized?: boolean;
 }
 
@@ -80,16 +81,16 @@ export const getSettingsFromOrganization = (
 ): MembershipSettings => {
     const parsedName = parseOrgName(org);
     const memberType = getTypeOfGroup(org);
-    let senderName = extractSenderName(org);
+    let service = extractSenderName(org);
 
-    if (memberType === MemberType.SENDER && !senderName) {
-        senderName = "default";
+    if (memberType === MemberType.SENDER && !service) {
+        service = "default";
     }
 
     return {
         parsedName,
         memberType,
-        senderName,
+        service,
     };
 };
 

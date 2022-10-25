@@ -23,7 +23,7 @@ describe("DeliveryHooks", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                senderName: undefined,
+                service: undefined,
             },
             dispatch: () => {},
             initialized: true,
@@ -43,7 +43,7 @@ describe("DeliveryHooks", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                senderName: undefined,
+                service: undefined,
             },
             dispatch: () => {},
             initialized: true,
@@ -63,7 +63,7 @@ describe("DeliveryHooks", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                senderName: undefined,
+                service: undefined,
             },
             dispatch: () => {},
             initialized: true,
