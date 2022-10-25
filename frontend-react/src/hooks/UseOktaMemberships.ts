@@ -11,6 +11,11 @@ import {
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 
+import {
+    RSService,
+    useMembershipServices,
+} from "./network/Organizations/ServicesHooks";
+
 export enum MemberType {
     SENDER = "sender",
     RECEIVER = "receiver",
@@ -22,16 +27,25 @@ export enum MembershipActionType {
     ADMIN_OVERRIDE = "override",
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
+    UPDATE_SERVICES_LIST = "setServices",
     INITIALIZE = "initialize",
 }
+
+export type MembershipActionPayload =
+    | string
+    | AccessToken
+    | Partial<MembershipSettings>
+    | RSService[];
 
 export interface MembershipSettings {
     // The org header value
     parsedName: string;
     // The type of membership
     memberType: MemberType;
-    // Optional sender name
+    // Optional service name (i.e. "elr", "default")
     service?: string;
+    // List of available services for the current org
+    allServices?: RSService[];
 }
 
 export interface MembershipState {
@@ -51,7 +65,7 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload?: string | AccessToken | Partial<MembershipSettings>;
+    payload?: MembershipActionPayload;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -167,6 +181,11 @@ const calculateNewState = (
                 ),
                 initialized: true,
             };
+        case MembershipActionType.UPDATE_SERVICES_LIST:
+            return {
+                ...state,
+                allServices: payload,
+            };
         case MembershipActionType.ADMIN_OVERRIDE:
             const newActive = {
                 ...state.activeMembership,
@@ -225,6 +244,10 @@ export const useOktaMemberships = (
 ): MembershipController => {
     const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);
+    const { servicesArray } = useMembershipServices(
+        state?.activeMembership?.memberType,
+        state?.activeMembership?.parsedName
+    );
 
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
@@ -263,6 +286,16 @@ export const useOktaMemberships = (
             dispatch({ type: MembershipActionType.RESET });
         }
     }, [!!authState, authState?.isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // any time the servicesArray updates (whenever active membership changes), the react-query call runs and
+    // we update the membership state here with the services array
+    useEffect(() => {
+        if (state.initialized)
+            dispatch({
+                type: MembershipActionType.UPDATE_SERVICES_LIST,
+                payload: servicesArray,
+            });
+    }, [servicesArray, state.initialized]);
 
     return { state, dispatch };
 };
