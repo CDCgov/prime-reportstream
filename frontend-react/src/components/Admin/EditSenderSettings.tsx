@@ -74,7 +74,6 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     };
     const doDelete = async (deleteItemId: string) => {
         try {
-            debugger;
             await fetchController(OrgSenderSettingsResource.deleteSetting(), {
                 orgname: orgname,
                 sendername: deleteItemId,
