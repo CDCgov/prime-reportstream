@@ -61,8 +61,7 @@ class FHIRTranslator(
                 // We only process receivers that are active and for this pipeline.
                 if (receiver != null && receiver.topic == Topic.FULL_ELR.json_val) {
                     val converter = FhirToHl7Converter(
-                        "ORU_R01-base",
-                        "metadata/hl7_mapping/ORU_R01"
+                        receiver.schemaName
                     )
                     val hl7Message = converter.convert(bundle)
                     val bodyBytes = hl7Message.encode().toByteArray()
