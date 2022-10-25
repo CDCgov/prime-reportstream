@@ -1,8 +1,12 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
@@ -16,6 +20,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
+import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Provenance
 
@@ -60,10 +65,7 @@ class FHIRTranslator(
                 val receiver = settings.findReceiver(recName)
                 // We only process receivers that are active and for this pipeline.
                 if (receiver != null && receiver.topic == Topic.FULL_ELR.json_val) {
-                    val converter = FhirToHl7Converter(
-                        receiver.schemaName
-                    )
-                    val hl7Message = converter.convert(bundle)
+                    val hl7Message = getHL7MessageFromBundle(bundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()
 
                     // get a Report from the hl7 message
@@ -115,5 +117,28 @@ class FHIRTranslator(
         nextAction: Event
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
+    }
+
+    /**
+     * Turn a fhir [bundle] into an hl7 message formatter for the [receiver] specified.
+     * @return HL7 Message in the format required by the receiver
+     */
+    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
+        val converter = FhirToHl7Converter(
+            receiver.schemaName
+        )
+        val hl7Message = converter.convert(bundle)
+
+        // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
+        if (receiver.customerStatus == CustomerStatus.TESTING ||
+            (
+                (receiver.translation is Hl7Configuration) &&
+                    receiver.translation.useTestProcessingMode
+                )
+        ) {
+            Terser(hl7Message).set("MSH-11-1", "T")
+        }
+
+        return hl7Message
     }
 }
