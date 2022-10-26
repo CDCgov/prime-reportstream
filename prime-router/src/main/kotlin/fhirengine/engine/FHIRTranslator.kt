@@ -72,7 +72,7 @@ class FHIRTranslator(
                     val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
                         Event.EventAction.BATCH,
                         bodyBytes,
-                        message.reportId,
+                        listOf(message.reportId),
                         receiver,
                         this.metadata,
                         actionHistory
