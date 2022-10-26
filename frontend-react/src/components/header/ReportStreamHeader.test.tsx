@@ -54,6 +54,7 @@ describe("ReportStreamHeader", () => {
                 memberType: MemberType.PRIME_ADMIN,
                 parsedName: "PrimeAdmins",
             },
+            adminHardCheck: true,
             dispatch: () => {},
             initialized: true,
         });
