@@ -10,8 +10,11 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
+import { servicesEndpoints } from "../config/endpoints/services";
+import { RSNetworkError } from "../utils/RSNetworkError";
 
 import { RSService } from "./network/Organizations/ServicesHooks";
+import { auxExports } from "./UseCreateFetch";
 
 export enum MemberType {
     SENDER = "sender",
@@ -280,15 +283,44 @@ export const useOktaMemberships = (
         }
     }, [!!authState, authState?.isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // any time the servicesArray updates (whenever active membership changes), the react-query call runs and
-    // we update the membership state here with the services array
     // TODO Just do fetch in here for now, use API config if possible!
-    // useEffect(() => {
-    //     dispatch({
-    //         type: MembershipActionType.UPDATE_SERVICES_LIST,
-    //         payload: servicesArray,
-    //     });
-    // }, [servicesArray, state.initialized]);
+    useEffect(() => {
+        // Fetch here, then dispatch
+        const authFetchServices = () => {
+            return auxExports.createTypeWrapperForAuthorizedFetch(token!!, {
+                parsedName: state?.activeMembership?.parsedName || "",
+                memberType:
+                    state?.activeMembership?.memberType || MemberType.NON_STAND,
+            });
+        };
+        if (
+            state.initialized &&
+            !!state?.activeMembership?.memberType &&
+            !!state?.activeMembership?.parsedName
+        ) {
+            const { senders, receivers } = servicesEndpoints;
+            const fetchConfig =
+                state?.activeMembership?.memberType === MemberType.SENDER
+                    ? senders
+                    : receivers;
+            authFetchServices()(fetchConfig, {
+                segments: {
+                    orgName: state?.activeMembership?.parsedName,
+                },
+            })
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((e) => {
+                    throw new RSNetworkError(e);
+                });
+        }
+    }, [
+        state?.activeMembership?.memberType,
+        state?.activeMembership?.parsedName,
+        state.initialized,
+        token,
+    ]);
 
     return { state, dispatch };
 };
