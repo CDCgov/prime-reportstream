@@ -35,6 +35,8 @@ object UnitTestUtils {
         convertPositiveDateTimeOffsetToNegative: Boolean = false,
         useHighPrecisionHeaderDateTimeFormat: Boolean = false,
         convertDateTimesToReceiverLocalTime: Boolean = false,
+        useTestProcessingMode: Boolean = false,
+        schemaName: String = "covid-19"
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -52,6 +54,8 @@ object UnitTestUtils {
             convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
             useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat,
             convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
+            useTestProcessingMode = useTestProcessingMode,
+            schemaName = schemaName
         )
     }
 }
