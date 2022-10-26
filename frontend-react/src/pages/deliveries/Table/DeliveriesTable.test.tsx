@@ -1,10 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 
@@ -20,7 +18,7 @@ describe("DeliveriesTable", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                service: undefined,
+                service: "testReceiver",
             },
             initialized: true,
             dispatch: () => {},
@@ -28,13 +26,6 @@ describe("DeliveriesTable", () => {
     });
     describe("with services and deliveries data", () => {
         beforeEach(() => {
-            // Mock the response from the Receivers hook
-            mockReceiverHook.mockReturnValue({
-                data: receiversGenerator(3),
-                loading: false,
-                error: "",
-                trigger: () => {},
-            });
             // Mock the response from the Deliveries hook
             mockUseOrgDeliveries.mockReturnValue({
                 serviceReportsList: makeDeliveryFixtureArray(101),
@@ -58,13 +49,6 @@ describe("DeliveriesTable", () => {
     });
     describe("with no data", () => {
         beforeEach(() => {
-            // Mock the response from the Receivers hook
-            mockReceiverHook.mockReturnValue({
-                data: receiversGenerator(0),
-                loading: false,
-                error: "",
-                trigger: () => {},
-            });
             // Mock the response from the Deliveries hook
             mockUseOrgDeliveries.mockReturnValue({
                 serviceReportsList: makeDeliveryFixtureArray(0),
