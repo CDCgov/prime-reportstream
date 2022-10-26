@@ -21,7 +21,7 @@ import {
     FileSuccessDisplay,
     FileWarningBanner,
     FileWarningsDisplay,
-}
+} from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
 const FileHandlerSpinner = ({ message }: { message: string }) => (

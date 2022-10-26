@@ -8,7 +8,7 @@ import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { NoServiceBanner } from "../../components/FileHandlers/FileHandlerMessaging";
+import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
 
 import DeliveriesTable from "./Table/DeliveriesTable";
 
@@ -27,8 +27,8 @@ function Deliveries() {
             </section>
             {notReadyToLoad ? (
                 <div className={"grid-container"}>
-                    <NoServiceBanner
-                        action={"deliveries"}
+                    <NoServicesBanner
+                        featureName={"deliveries"}
                         organization={orgName}
                         serviceType={"receiver"}
                     />
