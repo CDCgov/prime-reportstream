@@ -48,7 +48,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
@@ -208,7 +208,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
