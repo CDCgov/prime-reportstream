@@ -9,21 +9,13 @@ import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.exceptions.PathEngineException
-import org.hl7.fhir.r4.model.Address.AddressUse
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.CodeType
-import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse
-import org.hl7.fhir.r4.model.DiagnosticReport.DiagnosticReportStatus
-import org.hl7.fhir.r4.model.Enumeration
-import org.hl7.fhir.r4.model.HumanName.NameUse
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
-import org.hl7.fhir.r4.model.codesystems.AdministrativeGender
-import org.hl7.fhir.r4.model.codesystems.V3ActCode
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
@@ -103,17 +95,10 @@ class ConstantSubstitutor {
  * to the function name in the CustomFHIRFunctions class
  */
 enum class CustomFHIRFunctionNames {
-    GetAddressUse,
     GetPhoneNumberCountryCode,
     GetPhoneNumberAreaCode,
     GetPhoneNumberLocalNumber,
     GetPhoneNumberExtension,
-    GetTelecomUseCode,
-    GetNameUseCode,
-    GetPatientClass,
-    GetAdministrativeGenderCode,
-    GetYesNoValue,
-    GetObservationResultsStatus,
     GetCodingSystemMapping,
     Split,
     GetId,
@@ -150,34 +135,6 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
 object CustomFHIRFunctions {
-
-    /**
-     * Converts a FHIR AddressUse enum the [focus] to the correct HL7 v2.5.1 - 0190 - Address type
-     * @return a mutable list containing the appropriate HL7 Address type string
-     */
-    fun getAddressUse(focus: MutableList<Base>): MutableList<Base> {
-        return when (AddressUse.fromCode(focus[0].primitiveValue())) {
-            AddressUse.HOME -> mutableListOf(StringType("H"))
-            AddressUse.WORK -> mutableListOf(StringType("B"))
-            AddressUse.TEMP -> mutableListOf(StringType("C"))
-            else -> mutableListOf()
-        }
-    }
-
-    /**
-     * Converts a FHIR ContactPointUse enum the [focus] to the correct
-     * HL7 v2.5.1 - 0201 - Telecommunication use code
-     * @return a mutable list containing the appropriate HL7 telecommunication use string
-     */
-    fun getTelecomUseCode(focus: MutableList<Base>): MutableList<Base> {
-        return when (ContactPointUse.fromCode((focus[0] as Enumeration<*>).code)) {
-            ContactPointUse.HOME -> mutableListOf(StringType("PRN"))
-            ContactPointUse.WORK -> mutableListOf(StringType("WPN"))
-            ContactPointUse.MOBILE -> mutableListOf(StringType("CP"))
-            else -> mutableListOf()
-        }
-    }
-
     /**
      * Gets the phone number country code from the full FHIR phone number stored in
      * the [focus] element.
@@ -231,69 +188,6 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5.1 - 0200 - Name type.
-     * @return a mutable list containing the single character HL7 name type
-     */
-    fun getNameUseCode(focus: MutableList<Base>): MutableList<Base> {
-        return when (NameUse.fromCode((focus[0] as Enumeration<*>).code)) {
-            NameUse.OFFICIAL -> mutableListOf(StringType("L"))
-            NameUse.USUAL -> mutableListOf(StringType("D"))
-            NameUse.MAIDEN -> mutableListOf(StringType("M"))
-            NameUse.NICKNAME -> mutableListOf(StringType("N"))
-            NameUse.ANONYMOUS -> mutableListOf(StringType("S"))
-            else -> mutableListOf()
-        }
-    }
-
-    /**
-     * Gets the FHIR V3 act code stored in the [focus] element and converts to HL7 v2.5.1
-     * Some segments such as PV1.2 use string versions of this field in HL7 v2
-     * @return a mutable list containing the HL7 single character version of the code
-     */
-    fun getPatientClass(focus: MutableList<Base>): MutableList<Base> {
-        return when (V3ActCode.fromCode((focus[0] as CodeType).code)) {
-            V3ActCode.EMER -> mutableListOf(StringType("E"))
-            V3ActCode.IMP -> mutableListOf(StringType("I"))
-            V3ActCode.PRENC -> mutableListOf(StringType("P"))
-            V3ActCode.AMB -> mutableListOf(StringType("O"))
-            else -> mutableListOf()
-        }
-    }
-
-    /**
-     * Gets the FHIR gender stored in the [focus] element
-     * and converts to HL7 v2.5.1 - 0001 - Administrative Sex
-     * @return a mutable list containing the HL7 single character version of the code
-     */
-    fun getAdministrativeGenderCode(focus: MutableList<Base>): MutableList<Base> {
-        return when (AdministrativeGender.fromCode((focus[0] as Enumeration<*>).code)) {
-            AdministrativeGender.UNKNOWN -> mutableListOf(StringType("U"))
-            AdministrativeGender.FEMALE -> mutableListOf(StringType("F"))
-            AdministrativeGender.MALE -> mutableListOf(StringType("M"))
-            AdministrativeGender.OTHER -> mutableListOf(StringType("O"))
-            else -> mutableListOf()
-        }
-    }
-
-    /**
-     * Gets the FHIR DiagnosticResultStatus stored in the [focus] element and converts
-     * to an HL7 v2.5.1 - 0123 - Result Status.
-     * @return a mutable list containing the single character HL7 result status
-     */
-    fun getObservationResultsStatus(focus: MutableList<Base>): MutableList<Base> {
-        return when (DiagnosticReportStatus.fromCode((focus[0] as Enumeration<*>).code)) {
-            // Partial could be either A or R I've chosen A, but we should probably figure out better answer
-            DiagnosticReportStatus.PARTIAL -> mutableListOf(StringType("A"))
-            DiagnosticReportStatus.CORRECTED -> mutableListOf(StringType("C"))
-            DiagnosticReportStatus.FINAL -> mutableListOf(StringType("F"))
-            DiagnosticReportStatus.PRELIMINARY -> mutableListOf(StringType("P"))
-            DiagnosticReportStatus.CANCELLED -> mutableListOf(StringType("X"))
-            // Unknown could be multiple values. Will map to empty using the else clause
-            else -> mutableListOf()
-        }
-    }
-
-    /**
      * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
      * @returns list of strings
      */
@@ -304,26 +198,13 @@ object CustomFHIRFunctions {
             focus.size == 1 &&
             focus.first() is StringType
         ) {
-
             val delimeter = (parameters.first().first()).primitiveValue()
             val stringToSplit = focus.first().primitiveValue()
 
             stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
-        } else
-            mutableListOf()
+        } else mutableListOf()
     }
 
-    /**
-     * Translate a boolean-type value into the single character Y/N value used by HL7.
-     * @return a mutable list containing the HL7 single character version of the code
-     */
-    fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
-        return when (focus[0].primitiveValue()) {
-            "true" -> mutableListOf(StringType("Y"))
-            "false" -> mutableListOf(StringType("N"))
-            else -> mutableListOf(StringType(""))
-        }
-    }
     /**
      * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
      * HL7 v2.5.1 - 0396 - Coding system.
@@ -339,9 +220,12 @@ object CustomFHIRFunctions {
     private val oidRegex = """^[0-2](.(0|[1-9]\d*))+$""".toRegex()
 
     /**
-     * Regex to identify CLIAs.  CLIAs are just 10 alphanumeric characters.
+     * Regex to identify CLIAs.
+     * CLIAs are 10-character strings
+     * The first char is alphanumeric, the 3rd is always a letter (usually "D").
+     * Every other char is numeric.
      */
-    private val cliaRegex = """^[a-zA-Z\d]{10}$""".toRegex()
+    private val cliaRegex = """^[a-zA-Z\d]\d[a-zA-Z]\d{7}$""".toRegex()
 
     /**
      * Get the ID for the value in [focus].
@@ -445,14 +329,14 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         return if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
-            if (values.size != 1)
+            if (values.size != 1) {
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
-            else {
+            } else {
                 logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
-                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue()))
+                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
                     IntegerType(values[0].primitiveValue())
-                else values[0]
+                } else values[0]
             }
         }
     }
@@ -468,9 +352,6 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     override fun resolveFunction(functionName: String?): FunctionDetails {
         check(!functionName.isNullOrBlank())
         return when (CustomFHIRFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
-            CustomFHIRFunctionNames.GetAddressUse -> {
-                FunctionDetails("convert FHIR address type to HL7", 0, 0)
-            }
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
@@ -485,24 +366,6 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             }
             CustomFHIRFunctionNames.HasExtension -> {
                 FunctionDetails("see if extension exists in FHIR phone number", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetTelecomUseCode -> {
-                FunctionDetails("convert FHIR contact point use to HL7 telecom use code", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetNameUseCode -> {
-                FunctionDetails("convert FHIR name use code and coverts it to HL7 name type code", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetPatientClass -> {
-                FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
-                FunctionDetails("convert FHIR class code and coverts it to HL7 gender", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetYesNoValue -> {
-                FunctionDetails("convert FHIR class code and coverts it to Y/N", 0, 0)
-            }
-            CustomFHIRFunctionNames.GetObservationResultsStatus -> {
-                FunctionDetails("convert FHIR DiagnosticReportStatus to HL7 0123 - Result Status", 0, 0)
             }
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                 FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
@@ -537,9 +400,6 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         check(!functionName.isNullOrBlank())
         return (
             when (CustomFHIRFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
-                CustomFHIRFunctionNames.GetAddressUse -> {
-                    CustomFHIRFunctions.getAddressUse(focus)
-                }
                 CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                     CustomFHIRFunctions.getPhoneNumberCountryCode(focus)
                 }
@@ -554,24 +414,6 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
                 }
                 CustomFHIRFunctionNames.HasExtension -> {
                     CustomFHIRFunctions.hasExtension(focus)
-                }
-                CustomFHIRFunctionNames.GetTelecomUseCode -> {
-                    CustomFHIRFunctions.getTelecomUseCode(focus)
-                }
-                CustomFHIRFunctionNames.GetNameUseCode -> {
-                    CustomFHIRFunctions.getNameUseCode(focus)
-                }
-                CustomFHIRFunctionNames.GetPatientClass -> {
-                    CustomFHIRFunctions.getPatientClass(focus)
-                }
-                CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
-                    CustomFHIRFunctions.getAdministrativeGenderCode(focus)
-                }
-                CustomFHIRFunctionNames.GetYesNoValue -> {
-                    CustomFHIRFunctions.getYesNoValue(focus)
-                }
-                CustomFHIRFunctionNames.GetObservationResultsStatus -> {
-                    CustomFHIRFunctions.getObservationResultsStatus(focus)
                 }
                 CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                     CustomFHIRFunctions.getCodingSystemMapping(focus)

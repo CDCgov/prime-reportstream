@@ -29,8 +29,7 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
 let mockCheckFlag = jest.fn();
 
 describe("SubmissionTable", () => {
-    test("renders a table with the returned resources", async () => {
-        mockCheckFlag.mockReturnValue(false);
+    test("renders a placeholder", async () => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
@@ -53,7 +52,7 @@ describe("SubmissionTable", () => {
                         organization: "testOrg",
                         cursor: "3000-01-01T00:00:00.000Z",
                         endCursor: "2000-01-01T00:00:00.000Z",
-                        pageSize: 11,
+                        pageSize: 61,
                         sort: "DESC",
                         showFailed: false,
                     },
@@ -67,6 +66,11 @@ describe("SubmissionTable", () => {
         ];
         renderWithResolver(<SubmissionTable />, fixtures);
 
+        const pagination = await screen.findByLabelText(
+            /submissions pagination/i
+        );
+        expect(pagination).toBeInTheDocument();
+
         const filter = await screen.findByTestId("filter-container");
         expect(filter).toBeInTheDocument();
 
@@ -75,60 +79,5 @@ describe("SubmissionTable", () => {
         const tBody = rowGroups[1];
         const rows = within(tBody).getAllByRole("row");
         expect(rows).toHaveLength(2);
-    });
-
-    describe("when the numbered pagination feature flag is on", () => {
-        test("renders a placeholder", async () => {
-            mockCheckFlag.mockReturnValue(true);
-            mockFeatureFlagContext.mockReturnValue({
-                dispatch: () => {},
-                featureFlags: [],
-                checkFlag: mockCheckFlag,
-            });
-            mockSessionContext.mockReturnValue({
-                activeMembership: {
-                    memberType: MemberType.SENDER,
-                    parsedName: "testOrg",
-                    senderName: "testSender",
-                },
-                dispatch: () => {},
-                initialized: true,
-            });
-            const fixtures: Fixture[] = [
-                {
-                    endpoint: SubmissionsResource.list(),
-                    args: [
-                        {
-                            organization: "testOrg",
-                            cursor: "3000-01-01T00:00:00.000Z",
-                            endCursor: "2000-01-01T00:00:00.000Z",
-                            pageSize: 61,
-                            sort: "DESC",
-                            showFailed: false,
-                        },
-                    ],
-                    error: false,
-                    response: [
-                        { submissionId: 0 },
-                        { submissionId: 1 },
-                    ] as SubmissionsResource[],
-                },
-            ];
-            renderWithResolver(<SubmissionTable />, fixtures);
-
-            const pagination = await screen.findByLabelText(
-                /submissions pagination/i
-            );
-            expect(pagination).toBeInTheDocument();
-
-            const filter = await screen.findByTestId("filter-container");
-            expect(filter).toBeInTheDocument();
-
-            const rowGroups = screen.getAllByRole("rowgroup");
-            expect(rowGroups).toHaveLength(2);
-            const tBody = rowGroups[1];
-            const rows = within(tBody).getAllByRole("row");
-            expect(rows).toHaveLength(2);
-        });
     });
 });
