@@ -10,6 +10,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -26,7 +27,7 @@ class FhirToHl7Converter(
     private val schemaRef: ConfigSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null,
-    // the constant substituor is not thread save, so we need one instance per converter instead of using a shared copy
+    // the constant substitutor is not thread save, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : Logging {
     /**
@@ -42,6 +43,26 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null
     ) : this(ConfigSchemaReader.fromFile(schema, schemaFolder), strict, terser)
+
+    /**
+     * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
+     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
+     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+     * the schema validation process.
+     * @param terser the terser to use for building the HL7 message (use for dependency injection)
+     */
+    constructor(
+        schema: String,
+        strict: Boolean = false,
+        terser: Terser? = null
+    ) : this(
+        ConfigSchemaReader.fromFile(
+            FilenameUtils.getName(schema),
+            FilenameUtils.getPathNoEndSeparator(schema)
+        ),
+        strict,
+        terser
+    )
 
     /**
      * Convert the given [bundle] to an HL7 message.
