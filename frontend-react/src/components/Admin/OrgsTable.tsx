@@ -43,10 +43,10 @@ const OrgTableNotice = () => (
                 Not setting mocking user type, resulting in no available
                 services for your user session, will break the following
                 queries:
-                <ul>
-                    <li>Daily Data deliveries list call</li>
-                </ul>
             </p>
+            <ul>
+                <li>Daily Data deliveries list call</li>
+            </ul>
         </StaticAlert>
     </div>
 );

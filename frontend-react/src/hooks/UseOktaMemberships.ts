@@ -11,7 +11,6 @@ import {
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 import { RSService, servicesEndpoints } from "../config/endpoints/services";
-import { RSNetworkError } from "../utils/RSNetworkError";
 
 import { auxExports } from "./UseCreateFetch";
 
@@ -314,12 +313,14 @@ export const useOktaMemberships = (
             let fetchConfig;
             if (state.activeMembership.memberType === MemberType.SENDER) {
                 fetchConfig = senders;
-            } else if (
-                state.activeMembership.memberType === MemberType.RECEIVER
-            ) {
+            }
+            if (state.activeMembership.memberType === MemberType.RECEIVER) {
                 fetchConfig = receivers;
             }
-            if (!!fetchConfig) {
+            if (
+                !!fetchConfig &&
+                state?.activeMembership?.parsedName !== "PrimeAdmins"
+            ) {
                 authFetchServices()<RSService[]>(fetchConfig, {
                     segments: {
                         orgName: state?.activeMembership?.parsedName,
@@ -339,7 +340,10 @@ export const useOktaMemberships = (
                         }
                     })
                     .catch((e) => {
-                        throw new RSNetworkError(e);
+                        console.error(
+                            `ERROR FETCHING SERVICES: ${state?.activeMembership?.parsedName}:`,
+                            e
+                        );
                     });
             }
         }
