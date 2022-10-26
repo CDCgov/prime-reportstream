@@ -15,6 +15,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -187,6 +188,7 @@ class FhirRouterTests {
     @Test
     fun `test full elr routing happy path`() {
         mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -209,7 +211,7 @@ class FhirRouterTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { (engine as FHIRRouter).addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -221,29 +223,24 @@ class FhirRouterTests {
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            (engine as FHIRRouter).addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any())
         }
     }
 
     @Test
     fun `test adding receivers to bundle`() {
         // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
-        val engine = makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter
-
         val bundle = FhirTranscoder.decode(valid_fhir_with_provenance)
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        engine.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
 
-        val stringDoc = FhirTranscoder.encode(bundle)
-        val reparse = FhirTranscoder.decode(stringDoc)
+//        val stringDoc = FhirTranscoder.encode(bundle)
+//        val reparse = FhirTranscoder.decode(stringDoc)
 
         // assert
-        val provenance = reparse.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
