@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
@@ -6,11 +6,11 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
 import TableFilters from "../../../components/Table/TableFilters";
+import { MembershipActionType } from "../../../hooks/UseOktaMemberships";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -33,55 +33,13 @@ const filterManagerDefaults: FilterManagerDefaults = {
     },
 };
 
-interface ReceiverFeeds {
-    loadingServices: boolean;
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
- * between them */
-export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { activeMembership } = useSessionContext();
-    const {
-        data: receivers,
-        loading,
-        trigger: getReceiversList,
-    } = useReceiversList(activeMembership?.parsedName);
-    const [active, setActive] = useState<RSReceiver | undefined>();
-    useEffect(() => {
-        // IF activeMembership?.parsedName is not undefined
-        if (
-            activeMembership?.parsedName !== undefined &&
-            receivers === undefined
-        ) {
-            // Trigger useReceiversList()
-            getReceiversList();
-        }
-        // Ignoring getReceiverList() as dep
-    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
-
-    useEffect(() => {
-        if (receivers?.length) {
-            setActive(receivers[0]);
-        }
-    }, [receivers]);
-
-    return {
-        loadingServices: loading,
-        services: receivers,
-        activeService: active,
-        setActiveService: setActive,
-    };
-};
-
 const ServiceDisplay = ({
     services,
     activeService,
     handleSetActive,
 }: {
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
+    services: RSReceiver[] | undefined;
+    activeService: string | undefined;
     handleSetActive: (v: string) => void;
 }) => {
     return (
@@ -89,7 +47,7 @@ const ServiceDisplay = ({
             {services && services?.length > 1 ? (
                 <ServicesDropdown
                     services={services}
-                    active={activeService?.name || ""}
+                    active={activeService || ""}
                     chosenCallback={handleSetActive}
                 />
             ) : (
@@ -111,10 +69,12 @@ const ServiceDisplay = ({
     component.
 */
 function DeliveriesTable() {
-    const { oktaToken, activeMembership } = useSessionContext();
+    const {
+        oktaToken,
+        activeMembership,
+        dispatch: updateSession,
+    } = useSessionContext();
     const filterManager = useFilterManager(filterManagerDefaults);
-    const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
     const filters = useMemo(
         () => extractFiltersFromManager(filterManager),
         [filterManager]
@@ -122,12 +82,20 @@ function DeliveriesTable() {
     // TODO: Doesn't update parameters because of the config memo dependency array
     const { serviceReportsList } = useOrgDeliveries(
         activeMembership?.parsedName,
-        activeService?.name,
+        activeMembership?.service,
         filters
     );
 
     const handleSetActive = (name: string) => {
-        setActiveService(services.find((item) => item.name === name));
+        const val = activeMembership?.allServices?.find(
+            (item) => item.name === name
+        );
+        if (!!val?.name) {
+            updateSession({
+                type: MembershipActionType.SET_ACTIVE_SERVICE,
+                payload: val.name,
+            });
+        }
     };
 
     const handleFetchAndDownload = (id: string) => {
@@ -181,12 +149,12 @@ function DeliveriesTable() {
         ],
         rows: serviceReportsList || [],
     };
-    if (loadingServices) return <Spinner />;
+    if (activeMembership?.allServices === undefined) return <Spinner />;
     return (
         <>
             <ServiceDisplay
-                services={services}
-                activeService={activeService}
+                services={activeMembership?.allServices}
+                activeService={activeMembership?.service}
                 handleSetActive={handleSetActive}
             />
             <TableFilters filterManager={filterManager} />

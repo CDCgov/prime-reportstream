@@ -1,5 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
-import { act, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
@@ -7,10 +6,9 @@ import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { orgServer } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 
-import DeliveriesTable, { useReceiverFeeds } from "./DeliveriesTable";
+import DeliveriesTable from "./DeliveriesTable";
 
 describe("DeliveriesTable", () => {
     beforeEach(() => {
@@ -78,45 +76,6 @@ describe("DeliveriesTable", () => {
             const rows = screen.getAllByRole("row");
             expect(rows.length).toBeLessThan(2);
             expect(rows.length).toBeGreaterThan(0);
-        });
-    });
-});
-
-describe("useReceiverFeed", () => {
-    beforeAll(() => orgServer.listen());
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
-    beforeEach(() => {
-        // Mock our SessionProvider's data
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
-                service: undefined,
-            },
-            initialized: true,
-            dispatch: () => {},
-        });
-        mockReceiverHook.mockReturnValue({
-            data: receiversGenerator(2),
-            error: "",
-            loading: false,
-            trigger: () => {},
-        });
-    });
-    test("setActive sets an active receiver", async () => {
-        const { result } = renderHook(() => useReceiverFeeds());
-        expect(result.current.activeService).toEqual({
-            name: "elr-0",
-            organizationName: "testOrg",
-        });
-        act(() => result.current.setActiveService(result.current.services[1]));
-        expect(result.current.activeService).toEqual({
-            name: "elr-1",
-            organizationName: "testOrg",
         });
     });
 });

@@ -18,6 +18,38 @@ import {
     MemberType,
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
+import { StaticAlert } from "../StaticAlert";
+
+/* TODO: When should we remove this notice? */
+const OrgTableNotice = () => (
+    <div className={"grid-container"}>
+        <StaticAlert
+            type={"warning"}
+            heading={"Updates to Membership mocking workflow"}
+        >
+            <p>
+                When a user's session is created in the SessionContext, we are
+                fetching a list of either Receivers or Senders to populate their
+                available services array, and which service type is decided by
+                their MemberType assignment. As Admins, we do not have any
+                services to fetch, so when mocking a membership from this UI,{" "}
+                <b>
+                    use the dropdown next to search, labeled Mimic User Type, to
+                    tell your session to fetch a list of either sender or
+                    receiver services.
+                </b>
+            </p>
+            <p>
+                Not setting mocking user type, resulting in no available
+                services for your user session, will break the following
+                queries:
+                <ul>
+                    <li>Daily Data deliveries list call</li>
+                </ul>
+            </p>
+        </StaticAlert>
+    </div>
+);
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -97,6 +129,7 @@ export function OrgsTable() {
             <Helmet>
                 <title>Admin-Organizations</title>
             </Helmet>
+            <OrgTableNotice />
             <section
                 id="orgsettings"
                 className="grid-container margin-bottom-5"

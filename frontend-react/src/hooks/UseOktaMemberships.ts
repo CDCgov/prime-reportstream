@@ -10,10 +10,9 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { servicesEndpoints } from "../config/endpoints/services";
+import { RSService, servicesEndpoints } from "../config/endpoints/services";
 import { RSNetworkError } from "../utils/RSNetworkError";
 
-import { RSService } from "./network/Organizations/ServicesHooks";
 import { auxExports } from "./UseCreateFetch";
 
 export enum MemberType {
@@ -28,6 +27,7 @@ export enum MembershipActionType {
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
     UPDATE_SERVICES_LIST = "setServices",
+    SET_ACTIVE_SERVICE = "setActiveService",
     INITIALIZE = "initialize",
 }
 
@@ -53,7 +53,6 @@ export interface MembershipState {
     activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
-    services?: string[];
     initialized?: boolean;
 }
 
@@ -182,10 +181,23 @@ const calculateNewState = (
                 initialized: true,
             };
         case MembershipActionType.UPDATE_SERVICES_LIST:
-            return {
-                ...state,
+            const activeWithServicesList = {
+                ...state.activeMembership,
                 allServices: payload,
             };
+            return {
+                ...state,
+                activeMembership: activeWithServicesList,
+            } as MembershipState;
+        case MembershipActionType.SET_ACTIVE_SERVICE:
+            const activeWithSetService = {
+                ...state.activeMembership,
+                service: payload,
+            };
+            return {
+                ...state,
+                activeMembership: activeWithSetService,
+            } as MembershipState;
         case MembershipActionType.ADMIN_OVERRIDE:
             const newActive = {
                 ...state.activeMembership,
@@ -299,21 +311,37 @@ export const useOktaMemberships = (
             !!state?.activeMembership?.parsedName
         ) {
             const { senders, receivers } = servicesEndpoints;
-            const fetchConfig =
-                state?.activeMembership?.memberType === MemberType.SENDER
-                    ? senders
-                    : receivers;
-            authFetchServices()(fetchConfig, {
-                segments: {
-                    orgName: state?.activeMembership?.parsedName,
-                },
-            })
-                .then((res) => {
-                    console.log(res);
+            let fetchConfig;
+            if (state.activeMembership.memberType === MemberType.SENDER) {
+                fetchConfig = senders;
+            } else if (
+                state.activeMembership.memberType === MemberType.RECEIVER
+            ) {
+                fetchConfig = receivers;
+            }
+            if (!!fetchConfig) {
+                authFetchServices()<RSService[]>(fetchConfig, {
+                    segments: {
+                        orgName: state?.activeMembership?.parsedName,
+                    },
                 })
-                .catch((e) => {
-                    throw new RSNetworkError(e);
-                });
+                    .then((res) => {
+                        console.log(res);
+                        dispatch({
+                            type: MembershipActionType.UPDATE_SERVICES_LIST,
+                            payload: res as RSService[],
+                        });
+                        if (res.length) {
+                            dispatch({
+                                type: MembershipActionType.SET_ACTIVE_SERVICE,
+                                payload: res?.[0].name,
+                            });
+                        }
+                    })
+                    .catch((e) => {
+                        throw new RSNetworkError(e);
+                    });
+            }
         }
     }, [
         state?.activeMembership?.memberType,
