@@ -40,6 +40,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.7.10"
     id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
+    id("com.nocwriter.runsql") version ("1.0.3")
 }
 
 group = "gov.cdc.prime"
@@ -631,6 +632,29 @@ tasks.register("resetDB") {
     description = "Delete all tables in the database and recreate from the latest schema"
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
+}
+
+task<RunSQL>("clearDB") {
+    group = rootProject.description ?: ""
+    description = "Truncate/empty all tables in the database that hold report and related data, and leave settings"
+    config {
+        username = dbUser
+        password = dbPassword
+        url = dbUrl
+        driverClassName = "org.postgresql.Driver"
+        script = """
+            TRUNCATE TABLE public.action CASCADE;
+            TRUNCATE TABLE public.action_log CASCADE;
+            TRUNCATE TABLE public.covid_result_metadata CASCADE;
+            TRUNCATE TABLE public.elr_result_metadata CASCADE;
+            TRUNCATE TABLE public.item_lineage CASCADE;
+            TRUNCATE TABLE public.jti_cache CASCADE;
+            TRUNCATE TABLE public.receiver_connection_check_results CASCADE;
+            TRUNCATE TABLE public.report_file CASCADE;
+            TRUNCATE TABLE public.report_lineage CASCADE;
+            TRUNCATE TABLE public.task CASCADE;
+        """.trimIndent()
+    }
 }
 
 repositories {

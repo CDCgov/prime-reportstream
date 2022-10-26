@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -15,6 +16,8 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -169,5 +172,161 @@ class FhirTranslatorTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
         }
+    }
+
+    /**
+     * When the receiver is in test mode, all output HL7 should have processingId = T
+     */
+    @Test
+    fun `test when customerStatus = testing`() {
+
+        // set up
+        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "full-elr",
+            CustomerStatus.TESTING,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
+        )
+
+        val testOrg = DeepOrganization(
+            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
+        val terser = Terser(hl7Message)
+
+        // assert
+        assert(terser.get("MSH-11-1") == "T")
+    }
+
+    /**
+     * When the receiver is in active mode but the override boolean is set to true,
+     * all output HL7 should have processingId = T
+     */
+    @Test
+    fun `test when customerStatus = active, useTestProcessingMode = true`() {
+        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        // set up
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "full-elr",
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
+        )
+        val testOrg = DeepOrganization(
+            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
+        val terser = Terser(hl7Message)
+
+        // assert
+        assert(terser.get("MSH-11-1") == "T")
+    }
+
+    /**
+     * When the receiver is in production mode and sender is in production mode, output HL7 should be 'P'
+     */
+    @Test
+    fun `test when customerStatus = active, useTestProcessingMode = false, P from sender`() {
+        // set up
+        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "full-elr",
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName)
+        )
+
+        val testOrg = DeepOrganization(
+            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
+        val terser = Terser(hl7Message)
+
+        // assert
+        val code = terser.get("MSH-11-1")
+        assert(code == "P")
+    }
+
+    /**
+     * When the receiver is in production mode and sender is in testing mode, output HL7 should be 'T'
+     */
+    @Test
+    fun `test when customerStatus = active, useTestProcessingMode = false, T from sender`() {
+        // set up
+        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "full-elr",
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName)
+        )
+
+        val testOrg = DeepOrganization(
+            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        // dodo - make Testing sender fhir
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
+        val terser = Terser(hl7Message)
+
+        // assert
+        assert(terser.get("MSH-11-1") == "T")
     }
 }

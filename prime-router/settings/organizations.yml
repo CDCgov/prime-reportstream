@@ -871,6 +871,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       jurisdictionalFilter: [ ]
       qualityFilter: [ ]
       routingFilter: [ ]
