@@ -5,6 +5,7 @@ import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
+import { RSService } from "../../../config/endpoints/services";
 
 import DeliveriesTable from "./DeliveriesTable";
 
@@ -19,6 +20,10 @@ describe("DeliveriesTable", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
                 service: "testReceiver",
+                allServices: [
+                    { name: "testReceiver" } as RSService,
+                    { name: "testReceiver2" } as RSService,
+                ],
             },
             initialized: true,
             dispatch: () => {},
