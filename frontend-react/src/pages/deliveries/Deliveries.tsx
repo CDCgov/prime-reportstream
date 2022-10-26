@@ -23,7 +23,7 @@ function Deliveries() {
         <>
             <BasicHelmet pageTitle="Daily Data" />
             <section className="grid-container margin-bottom-5 tablet:margin-top-6">
-                <Title preTitle={orgName} title="COVID-19" />
+                <Title preTitle={orgName} title="Daily Data" />
             </section>
             {notReadyToLoad ? (
                 <div className={"grid-container"}>

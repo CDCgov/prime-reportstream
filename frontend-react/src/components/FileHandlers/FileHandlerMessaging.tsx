@@ -5,7 +5,6 @@ import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
@@ -252,28 +251,6 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
                 )}
             </td>
         </tr>
-    );
-};
-
-interface NoSenderBannerProps {
-    action: string;
-    organization: string;
-    serviceType?: "sender" | "receiver";
-}
-
-export const NoServiceBanner = ({
-    action,
-    organization,
-    serviceType,
-}: NoSenderBannerProps) => {
-    return (
-        <StaticAlert
-            type={"error"}
-            heading={`${capitalizeFirst(action)} unavailable`}
-            message={`No valid ${
-                serviceType || "service"
-            } found for ${organization}`}
-        />
     );
 };
 

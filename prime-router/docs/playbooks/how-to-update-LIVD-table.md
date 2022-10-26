@@ -8,13 +8,14 @@ HHS maintains a list of all authorized covid test devices as an xlsx. ReportStre
 keeps a local csv version copy of that list. This local csv file needs to be updated
 once the new LIVD table comes out. 
 
-## Steps
----
+##  Steps
+Download the latest  LIVD-SARS-CoV-2-yyyy-mm-dd.xlsx from  https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html
+
 The LIVD table needs to be updated locally, in production, and in staging.
 
 For prod and staging use --env and assign the prod or staging. For local don't include --env option.
 
-1. Run ./prime livd-table-update --activate --env < prod or staging >
+1. Run ./prime livd-table-update --activate --env < prod or staging > --input-file <LOCALDIR>/LIVD-SARS-CoV-2-yyyy-mm-dd.xlsx 
 
 ### Note:
 
