@@ -190,7 +190,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     (t).let {
                         context.logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "from server ${it.response.request.url}. This may be recoverable. Will retry."
+                                "from server ${it.response.request.url}, ${it.response.version}." +
+                                " This may be recoverable. Will retry."
                         )
                     }
                     actionHistory.setActionType(TaskAction.send_warning)
