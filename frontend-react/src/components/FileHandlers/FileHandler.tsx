@@ -20,7 +20,7 @@ import {
     FileSuccessDisplay,
     FileWarningBanner,
     FileWarningsDisplay,
-    NoSenderBanner,
+    NoServiceBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -252,7 +252,7 @@ const FileHandler = ({
             <div className="grid-container usa-section margin-bottom-10">
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoSenderBanner
+                <NoServiceBanner
                     action={handlerType}
                     organization={
                         organization?.description || "your organization"

@@ -8,7 +8,6 @@ import useFilterManager, {
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
-import Spinner from "../../../components/Spinner";
 import TableFilters from "../../../components/Table/TableFilters";
 import { MembershipActionType } from "../../../hooks/UseOktaMemberships";
 
@@ -149,7 +148,6 @@ function DeliveriesTable() {
         ],
         rows: serviceReportsList || [],
     };
-    if (activeMembership?.allServices === undefined) return <Spinner />;
     return (
         <>
             <ServiceDisplay

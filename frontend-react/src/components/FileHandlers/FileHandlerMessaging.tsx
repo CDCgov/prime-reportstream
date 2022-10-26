@@ -258,17 +258,21 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
 interface NoSenderBannerProps {
     action: string;
     organization: string;
+    serviceType?: "sender" | "receiver";
 }
 
-export const NoSenderBanner = ({
+export const NoServiceBanner = ({
     action,
     organization,
+    serviceType,
 }: NoSenderBannerProps) => {
     return (
         <StaticAlert
             type={"error"}
             heading={`${capitalizeFirst(action)} unavailable`}
-            message={`No valid sender found for ${organization}`}
+            message={`No valid ${
+                serviceType || "service"
+            } found for ${organization}`}
         />
     );
 };

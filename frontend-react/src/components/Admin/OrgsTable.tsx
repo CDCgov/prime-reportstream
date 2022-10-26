@@ -62,17 +62,9 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
-
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
-        if (
-            memberType === MemberType.SENDER ||
-            memberType === MemberType.PRIME_ADMIN
-        ) {
-            payload.service = service || "default";
-        }
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload,
@@ -80,11 +72,14 @@ export function OrgsTable() {
     };
 
     const handleSetUserType = (type: MemberType) => {
+        let payload: Partial<MembershipSettings> = {
+            memberType: type,
+            allServices: undefined,
+            service: undefined,
+        };
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
-            payload: {
-                memberType: type,
-            },
+            payload: payload,
         });
     };
 
