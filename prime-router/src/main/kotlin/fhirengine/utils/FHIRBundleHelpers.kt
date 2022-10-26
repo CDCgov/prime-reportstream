@@ -26,12 +26,13 @@ object FHIRBundleHelpers {
         // Create the list of target receivers to be added to the Provenance of the bundle
         val targetList = mutableListOf<Reference>()
         receiverList.forEach { receiver ->
+            if (receiver.customerStatus == CustomerStatus.INACTIVE) return@forEach
+
             val endpoint = Endpoint()
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
             endpoint.name = receiver.displayName
             when (receiver.customerStatus) {
                 CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
-                CustomerStatus.INACTIVE -> endpoint.status = Endpoint.EndpointStatus.OFF
                 else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
             }
             val rsIdentifier = Identifier()
