@@ -56,6 +56,7 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            adminHardCheck: true, // This is how we authorize admin nav, not activeMembership.memberType
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Admin")).toBeInTheDocument();

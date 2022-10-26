@@ -60,7 +60,7 @@ const SupportIA = () => (
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
-    const { activeMembership } = useSessionContext();
+    const { activeMembership, adminHardCheck } = useSessionContext();
     const { checkFlag } = useFeatureFlags();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
@@ -114,11 +114,11 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        /* ADMIN ONLY 
-        
+        /* ADMIN ONLY
           Build a drop down for file handler links
         */
-        if (activeMembership?.memberType === MemberType.PRIME_ADMIN) {
+        // AdminHardCheck means even your actively mocked MemberType won't remove these from your UI
+        if (adminHardCheck) {
             // Validate NavLink
             const features = [
                 {
@@ -150,7 +150,6 @@ export const ReportStreamHeader = () => {
                     />
                 );
             }
-
             itemsMenu.push(<AdminDropdown />);
         }
     }
