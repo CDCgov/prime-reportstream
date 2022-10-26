@@ -4,20 +4,20 @@ import { StaticAlert } from "../StaticAlert";
 import { capitalizeFirst } from "../../utils/misc";
 
 interface NoServicesBannerProps {
-    action: string;
+    featureName?: string;
     organization?: string;
     serviceType?: "sender" | "receiver";
 }
 
 export const NoServicesBanner = ({
-    action,
+    featureName,
     organization,
     serviceType,
 }: NoServicesBannerProps) => {
     return (
         <StaticAlert
             type={"error"}
-            heading={`${capitalizeFirst(action)} unavailable`}
+            heading={`${capitalizeFirst(featureName || "feature")} unavailable`}
             message={`No valid ${serviceType || "service"} found for ${
                 organization || "your organization"
             }`}

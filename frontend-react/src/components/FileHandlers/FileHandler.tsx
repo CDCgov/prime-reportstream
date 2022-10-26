@@ -253,7 +253,7 @@ const FileHandler = ({
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
                 <NoServicesBanner
-                    action={handlerType}
+                    featureName={handlerType}
                     organization={organization?.description}
                     serviceType={"sender"}
                 />
