@@ -285,8 +285,8 @@ class SettingsFacade(
 
             db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
             db.deactivateSettingAndChildren(current.settingId, txn)
-
-            Pair(AccessResult.SUCCESS, "")
+            // returned content-type is json/application, so return empty json not empty string
+            Pair(AccessResult.SUCCESS, "{}")
         }
     }
 
