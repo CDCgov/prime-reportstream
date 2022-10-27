@@ -48,7 +48,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
@@ -159,7 +159,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@2b2c85d0bf1b8a7b4e7e344bd5c71dc4b9196e9f
+        uses: peter-evans/create-or-update-comment@5adcb0bb0f9fb3f95ef05400558bdb3f329ee808
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -208,7 +208,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d

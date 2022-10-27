@@ -42,7 +42,7 @@ data class ActionLog(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: ActionLogLevel = ActionLogLevel.info,
-    val created_at: Instant = Instant.now(),
+    val created_at: Instant = Instant.now()
 ) {
     val scope = detail.scope
 

@@ -8,6 +8,22 @@
 
 ---
 
+**Name**: Screening
+
+**ReportStream Internal Name**: Screening
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Screening
+
+---
+
 **Name**: abnormal_flag
 
 **ReportStream Internal Name**: abnormal_flag
@@ -58,6 +74,38 @@ W|Worse--use when direction not relevant|HL7
 **Documentation**:
 
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
+**Name**: clia_complexity
+
+**ReportStream Internal Name**: clia_complexity
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: CLIAComplexity
+
+---
+
+**Name**: collection_kit
+
+**ReportStream Internal Name**: collection_kit
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Collection Kit
 
 ---
 
@@ -178,6 +226,22 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 **Documentation**:
 
 Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+
+---
+
+**Name**: direct_to_consumer
+
+**ReportStream Internal Name**: direct_to_consumer
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Direct to Consumer (DTC)
 
 ---
 
@@ -435,6 +499,22 @@ Is this the patient's first test for this condition?
 
 ---
 
+**Name**: home_collection
+
+**ReportStream Internal Name**: home_collection
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Home Collection
+
+---
+
 **Name**: hospitalized
 
 **ReportStream Internal Name**: hospitalized
@@ -590,6 +670,22 @@ The message profile identifer universal id
 **Documentation**:
 
 The message profile identifer universal id type
+
+---
+
+**Name**: nonprescription_testing
+
+**ReportStream Internal Name**: nonprescription_testing
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Non-prescription Testing
 
 ---
 
@@ -1249,6 +1345,22 @@ The zip code of the provider
 **Documentation**:
 
 The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+
+---
+
+**Name**: over_the_counter_home_testing
+
+**ReportStream Internal Name**: over_the_counter_home_testing
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Over the Counter (OTC) Home Testing
 
 ---
 
@@ -3551,6 +3663,22 @@ Is the patient pregnant?
 
 ---
 
+**Name**: prescription_home_testing
+
+**ReportStream Internal Name**: prescription_home_testing
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Prescription Home Testing
+
+---
+
 **Name**: previous_message_id
 
 **ReportStream Internal Name**: previous_message_id
@@ -3876,6 +4004,22 @@ The name and OID for the application sending information to the receivers
 
 ---
 
+**Name**: serial_screening
+
+**ReportStream Internal Name**: serial_screening
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Serial Screening
+
+---
+
 **Name**: site_of_care
 
 **ReportStream Internal Name**: site_of_care
@@ -4168,6 +4312,22 @@ Is the patient symptomatic?
 
 ---
 
+**Name**: telehealth_proctor_supervised
+
+**ReportStream Internal Name**: telehealth_proctor_supervised
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Telehealth Proctor Supervised
+
+---
+
 **Name**: test_authorized_for_home
 
 **ReportStream Internal Name**: test_authorized_for_home
@@ -4319,6 +4479,22 @@ Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID Type
+
+---
+
+**Name**: test_method
+
+**ReportStream Internal Name**: test_method
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Test Method
 
 ---
 
@@ -4539,6 +4715,22 @@ the test result is in some intermediate status, is a correction, or is the final
 **Documentation**:
 
 The units the test result is measured in.
+
+---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
 
 ---
 
