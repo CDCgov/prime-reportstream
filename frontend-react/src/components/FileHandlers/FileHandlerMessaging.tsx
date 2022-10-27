@@ -169,9 +169,13 @@ export const RequestedChangesDisplay = ({
                     >
                         <thead>
                             <tr>
-                                <th>Requested Edit</th>
-                                <th>Field</th>
-                                <th>
+                                <th className="rs-table-column-minwidth">
+                                    Requested Edit
+                                </th>
+                                <th className="rs-table-column-minwidth">
+                                    Field
+                                </th>
+                                <th className="rs-table-column-minwidth">
                                     Tracking ID(s) <TrackingIDTooltip />
                                 </th>
                             </tr>
@@ -212,8 +216,8 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     return (
         <tr key={"error_" + index}>
             <td>{truncateErrorMessage(message)}</td>
-            <td className="rs-td-minwidth">{field}</td>
-            <td className="rs-td-minwidth">
+            <td className="rs-table-column-minwidth">{field}</td>
+            <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
                     <span>{trackingIds.join(", ")}</span>
                 )}

@@ -211,7 +211,7 @@ const FileHandler = ({
         return handlerType === FileHandlerType.VALIDATION
             ? `${successMessage} with recommended edits`
             : "";
-    }, [handlerType]);
+    }, [handlerType, successMessage]);
 
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
