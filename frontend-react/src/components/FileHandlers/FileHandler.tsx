@@ -207,6 +207,12 @@ const FileHandler = ({
         return `The file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
+    const warningHeading = useMemo(() => {
+        return handlerType === FileHandlerType.VALIDATION
+            ? `${successMessage} with recommended edits`
+            : "";
+    }, [handlerType]);
+
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
             ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
@@ -295,8 +301,8 @@ const FileHandler = ({
                 <RequestedChangesDisplay
                     title={ErrorLevel.WARNING}
                     data={warnings}
-                    message={errorMessaging.message}
-                    heading={""}
+                    message={warningDescription}
+                    heading={warningHeading}
                     handlerType={handlerType}
                 />
             )}

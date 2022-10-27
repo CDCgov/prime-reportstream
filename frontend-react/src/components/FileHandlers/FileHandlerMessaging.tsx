@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { IconHelp, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
@@ -112,6 +113,18 @@ export enum ErrorLevel {
     ERROR = "Errors",
 }
 
+const TrackingIDTooltip = () => {
+    return (
+        <Tooltip
+            className="fixed-tooltip"
+            position="right"
+            label={"Defaults to MSH-10"}
+        >
+            <IconHelp />
+        </Tooltip>
+    );
+};
+
 type RequestedChangesDisplayProps = {
     title: ErrorLevel;
     data: ResponseError[];
@@ -158,7 +171,9 @@ export const RequestedChangesDisplay = ({
                             <tr>
                                 <th>Requested Edit</th>
                                 <th>Field</th>
-                                <th>Tracking ID(s)</th>
+                                <th>
+                                    Tracking ID(s) <TrackingIDTooltip />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
