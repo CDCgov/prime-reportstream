@@ -11,9 +11,11 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messageTracker.Message
+import gov.cdc.prime.router.messageTracker.MessageReceiver
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -177,6 +179,7 @@ class MessagesFunctions(
                         result.messageId,
                         ActionLogType.error
                     )
+                    val receiverData = getReceiverData(result.reportId, result.messageId)
                     response = Message(
                         result.covidResultsMetadataId,
                         result.messageId,
@@ -186,7 +189,8 @@ class MessagesFunctions(
                         reportResult.externalName,
                         reportResult.bodyUrl,
                         actionLogWarnings,
-                        actionLogErrors
+                        actionLogErrors,
+                        receiverData
                     )
                     HttpStatus.OK
                 }
@@ -222,5 +226,26 @@ class MessagesFunctions(
                     .writeValueAsString(responseMessage)
             )
             .build()
+    }
+
+    internal fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
+        val itemLineages = dbAccess.fetchItemLineagesByParentReportIdAndTrackingId(reportId, trackingId)
+        val childReportIds = itemLineages.map { it.childReportId }
+        val reportFiles = dbAccess.fetchReportFileByIds(childReportIds)
+
+        return reportFiles.map {
+            val qualityFilters = dbAccess.fetchActionLogsByReportIdAndFilterType(it.reportId, "QUALITY_FILTER")
+
+            MessageReceiver(
+                it.reportId.toString(),
+                it.receivingOrg,
+                it.receivingOrgSvc,
+                it.transportResult,
+                it.externalName,
+                it.bodyUrl,
+                it.createdAt.toLocalDateTime(),
+                qualityFilters
+            )
+        }
     }
 }
