@@ -310,6 +310,11 @@ class Hl7Serializer(
                 var value = ""
                 for (i in 0 until hl7Fields.size) {
                     val hl7Field = hl7Fields[i]
+//                    val rawValue = queryTerserForValue(
+//                        terser,
+//                        getTerserSpec(hl7Field)
+//                    )
+
                     value = when {
                         // Decode a phone number
                         element.type == Element.Type.TELEPHONE ||
@@ -327,12 +332,26 @@ class Hl7Serializer(
                         hl7Field == "AOE" ->
                             decodeAOEQuestion(element, hapiMsg)
 
+
+//                        hl7Field == "OBX-5" && rawValue in TEST_RESULT_VALUES ->
+//                            decodeOBX5(element, hapiMsg)
+
                         // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
                         element.type == Element.Type.CODE -> {
+
+                            if (hl7Field == "OBX-5") {
+                                println("*** Found OBX-5 ***")
+                            }
+
                             val rawValue = queryTerserForValue(
                                 terser,
                                 getTerserSpec(hl7Field)
                             )
+
+                            if (hl7Field == "OBX-5" && rawValue in TEST_RESULT_VALUES) {
+                                println("*** OBX-5 = $rawValue ***")
+                            }
+
                             // This verifies the code received is good.  Note the translated value will be the same as
                             // the raw value for valuesets and altvalues
                             try {
@@ -2149,6 +2168,8 @@ class Hl7Serializer(
             "MSH-3-2", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
         )
+
+        val TEST_RESULT_VALUES = listOf("260415000")
 
         /**
          * List of fields that have a CE type. Note: this is only really used in places
