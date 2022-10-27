@@ -121,11 +121,10 @@ describe("FileErrorDisplay", () => {
         expect(rows).toHaveLength(3); // 2 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
+        expect(firstCells).toHaveLength(3);
         expect(firstCells[0]).toHaveTextContent("Exception: first error");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
+        expect(firstCells[1]).toHaveTextContent("first field");
+        expect(firstCells[2]).toHaveTextContent("first_id");
     });
 });
 
@@ -173,11 +172,10 @@ describe("FileWarningsDisplay", () => {
         expect(rows).toHaveLength(3); // 2 warnings + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
+        expect(firstCells).toHaveLength(3);
         expect(firstCells[0]).toHaveTextContent("first warning");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
+        expect(firstCells[1]).toHaveTextContent("first field");
+        expect(firstCells[2]).toHaveTextContent("first_id");
     });
 });
 

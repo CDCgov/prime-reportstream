@@ -155,7 +155,6 @@ export const FileErrorDisplay = ({
                         <thead>
                             <tr>
                                 <th>Requested Edit</th>
-                                <th>Areas Containing the Requested Edit</th>
                                 <th>Field</th>
                                 <th>Tracking ID(s)</th>
                             </tr>
@@ -211,8 +210,7 @@ export const FileWarningsDisplay = ({
             >
                 <thead>
                     <tr>
-                        <th>Warning</th>
-                        <th>Indices</th>
+                        <th>Requested Change</th>
                         <th>Field</th>
                         <th>Tracking ID(s)</th>
                     </tr>
@@ -235,15 +233,10 @@ interface ErrorRowProps {
 }
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { message, indices, field, trackingIds } = error;
+    const { message, field, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
             <td>{truncateErrorMessage(message)}</td>
-            <td>
-                {indices?.length && indices.length > 0 && (
-                    <span>Row(s): {indices.join(", ")}</span>
-                )}
-            </td>
             <td>{field}</td>
             <td>
                 {trackingIds?.length && trackingIds.length > 0 && (
