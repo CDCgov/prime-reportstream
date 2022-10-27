@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -107,49 +107,51 @@ const truncateErrorMessage = (errorMessage: string | undefined): string => {
     return errorMessage;
 };
 
-type FileErrorDisplayProps = {
-    errors: ResponseError[];
+export enum ErrorLevel {
+    WARNING = "Warnings",
+    ERROR = "Errors",
+}
+
+type RequestedChangesDisplayProps = {
+    title: ErrorLevel;
+    data: ResponseError[];
     message: string;
-    fileName: string;
-    handlerType: string;
     heading: string;
+    handlerType: string;
 };
 
-export const FileErrorDisplay = ({
-    fileName,
-    errors,
+export const RequestedChangesDisplay = ({
+    title,
+    data,
     message,
     heading,
     handlerType,
-}: FileErrorDisplayProps) => {
-    const showErrorTable =
-        errors && errors.length && errors.some((error) => error.message);
+}: RequestedChangesDisplayProps) => {
+    const alertType = useMemo(
+        () => (title === ErrorLevel.WARNING ? "warning" : "error"),
+        [title]
+    );
+    const showTable =
+        data &&
+        data.length &&
+        data.some((responseItem) => responseItem.message);
 
     useEffect(() => {
-        errors.forEach((error: ResponseError) => {
-            if (error.details) {
+        data.forEach((error: ResponseError) => {
+            if (title === ErrorLevel.ERROR && error.details) {
                 console.error(`${handlerType} failure: ${error.details}`);
             }
         });
-    }, [errors, handlerType]);
+    }, [data, handlerType, title]);
 
     return (
         <>
-            <StaticAlert type={"error"} heading={heading} message={message} />
-            <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
-            </div>
-            {showErrorTable && (
+            <StaticAlert type={alertType} heading={heading} message={message} />
+            {showTable && (
                 <>
-                    <h3>Errors</h3>
+                    <h3>{title}</h3>
                     <table
-                        className="usa-table usa-table--borderless"
+                        className="usa-table usa-table--borderless rs-width-100"
                         data-testid="error-table"
                     >
                         <thead>
@@ -160,7 +162,7 @@ export const FileErrorDisplay = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {errors.map((e, i) => {
+                            {data.map((e, i) => {
                                 return (
                                     <ErrorRow
                                         error={e}
@@ -185,48 +187,6 @@ export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
     return <StaticAlert type={"warning"} heading="Warning" message={message} />;
 };
 
-type FileWarningsDisplayProps = {
-    warnings: ResponseError[];
-    message: string;
-    heading: string;
-};
-
-export const FileWarningsDisplay = ({
-    warnings,
-    message,
-    heading,
-}: FileWarningsDisplayProps) => {
-    return (
-        <>
-            <StaticAlert
-                type={"warning slim"}
-                heading={heading}
-                message={message}
-            />
-            <h3>Warnings</h3>
-            <table
-                className="usa-table usa-table--borderless"
-                data-testid="error-table"
-            >
-                <thead>
-                    <tr>
-                        <th>Requested Change</th>
-                        <th>Field</th>
-                        <th>Tracking ID(s)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {warnings.map((w, i) => {
-                        return (
-                            <ErrorRow error={w} index={i} key={`warning${i}`} />
-                        );
-                    })}
-                </tbody>
-            </table>
-        </>
-    );
-};
-
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
@@ -237,8 +197,8 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     return (
         <tr key={"error_" + index}>
             <td>{truncateErrorMessage(message)}</td>
-            <td>{field}</td>
-            <td>
+            <td className="rs-td-minwidth">{field}</td>
+            <td className="rs-td-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
                     <span>{trackingIds.join(", ")}</span>
                 )}

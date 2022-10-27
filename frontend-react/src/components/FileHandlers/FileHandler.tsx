@@ -16,11 +16,11 @@ import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 import {
-    FileErrorDisplay,
+    ErrorLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
     FileWarningBanner,
-    FileWarningsDisplay,
+    RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -265,7 +265,7 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
-            {isFileSuccess && (
+            {fileName && (
                 <>
                     <p
                         id="validatedFilename"
@@ -279,14 +279,7 @@ const FileHandler = ({
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
             )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading=""
-                    message={warningDescription}
-                />
-            )}
-            {isFileSuccess && (
+            {isFileSuccess && warnings.length === 0 && (
                 <FileSuccessDisplay
                     extendedMetadata={{
                         destinations,
@@ -298,13 +291,22 @@ const FileHandler = ({
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
-            {errors.length > 0 && (
-                <FileErrorDisplay
-                    fileName={fileName}
-                    handlerType={handlerType}
-                    errors={errors}
-                    heading={errorMessaging.heading}
+            {warnings.length > 0 && (
+                <RequestedChangesDisplay
+                    title={ErrorLevel.WARNING}
+                    data={warnings}
                     message={errorMessaging.message}
+                    heading={""}
+                    handlerType={handlerType}
+                />
+            )}
+            {errors.length > 0 && (
+                <RequestedChangesDisplay
+                    title={ErrorLevel.ERROR}
+                    data={errors}
+                    message={errorMessaging.message}
+                    heading={errorMessaging.heading}
+                    handlerType={handlerType}
                 />
             )}
             {hasQualityFilterMessages && (

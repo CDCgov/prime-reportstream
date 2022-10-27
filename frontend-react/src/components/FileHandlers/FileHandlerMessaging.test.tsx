@@ -1,14 +1,14 @@
-import { screen, render, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 
 import {
-    FileSuccessDisplay,
-    FileErrorDisplay,
-    FileWarningsDisplay,
+    ErrorLevel,
     FileQualityFilterDisplay,
+    FileSuccessDisplay,
+    RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -57,22 +57,19 @@ describe("FileSuccessDisplay", () => {
 });
 
 describe("FileErrorDisplay", () => {
-    test("renders expected content (no error table)", async () => {
+    test("renders expected content", async () => {
         render(
-            <FileErrorDisplay
-                fileName={"file.file"}
+            <RequestedChangesDisplay
+                title={ErrorLevel.WARNING}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
-                errors={[]}
+                data={[]}
                 handlerType={""}
             />
         );
 
         const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--error");
-
-        const fileName = await screen.findByText("file.file");
-        expect(fileName).toHaveClass("margin-top-05");
+        expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText("Broken Glass, Everywhere");
         expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
@@ -84,7 +81,7 @@ describe("FileErrorDisplay", () => {
         expect(table).not.toBeInTheDocument();
     });
 
-    test("renders expected content (with error table)", async () => {
+    test("renders table when data is given", async () => {
         // implicitly testing message truncation functionality here as well
         const errors = [
             {
@@ -105,11 +102,11 @@ describe("FileErrorDisplay", () => {
             },
         ];
         render(
-            <FileErrorDisplay
-                fileName={"file.file"}
+            <RequestedChangesDisplay
+                title={ErrorLevel.ERROR}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
-                errors={errors}
+                data={errors}
                 handlerType={""}
             />
         );
@@ -123,57 +120,6 @@ describe("FileErrorDisplay", () => {
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
         expect(firstCells[0]).toHaveTextContent("Exception: first error");
-        expect(firstCells[1]).toHaveTextContent("first field");
-        expect(firstCells[2]).toHaveTextContent("first_id");
-    });
-});
-
-describe("FileWarningsDisplay", () => {
-    test("renders expected content", async () => {
-        const warnings = [
-            {
-                message: "first warning",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "second warning",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
-        render(
-            <FileWarningsDisplay
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                warnings={warnings}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--warning");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading"); // imperfect, just want to make sure it's there
-
-        const table = screen.queryByRole("table");
-        expect(table).toBeInTheDocument();
-
-        const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 warnings + header
-
-        const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(3);
-        expect(firstCells[0]).toHaveTextContent("first warning");
         expect(firstCells[1]).toHaveTextContent("first field");
         expect(firstCells[2]).toHaveTextContent("first_id");
     });
