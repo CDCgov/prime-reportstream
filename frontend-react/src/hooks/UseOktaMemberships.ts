@@ -10,6 +10,7 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
+import { RSService } from "../config/endpoints/services";
 
 export enum MemberType {
     SENDER = "sender",
@@ -30,8 +31,10 @@ export interface MembershipSettings {
     parsedName: string;
     // The type of membership
     memberType: MemberType;
-    // Optional sender name
-    senderName?: string;
+    // Optional service name (i.e. "elr", "default")
+    service?: string;
+    // List of available services for the current org
+    allServices?: RSService[];
 }
 
 export interface MembershipState {
@@ -89,7 +92,7 @@ export const getSettingsFromOrganization = (
     return {
         parsedName,
         memberType,
-        senderName,
+        service: senderName,
     };
 };
 

@@ -1,6 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { useSenderResource } from "./UseSenderResource";
+import { MembershipSettings } from "./UseOktaMemberships";
 
 const fakeSender = {
     allowDuplicates: false,
@@ -33,8 +34,8 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "senderName",
-            },
+                service: "senderName",
+            } as MembershipSettings,
             dispatch: () => {},
         });
 
@@ -67,8 +68,8 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "a different name",
-            },
+                service: "a different name",
+            } as MembershipSettings,
             dispatch: () => {},
         });
 
@@ -85,8 +86,8 @@ describe("useSenderResource", () => {
         });
         mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "senderName",
-            },
+                service: "senderName",
+            } as MembershipSettings,
             dispatch: () => {},
         });
 
