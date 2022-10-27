@@ -250,7 +250,7 @@ class FhirRouterTests {
     }
 
     @Test
-    fun `test skipping inactive receivers`() {
+    fun `test skipping inactive receivers (only inactive)`() {
         // set up
         val bundle = FhirTranscoder.decode(validFhirWithProvenance)
         val receiversIn = listOf(oneOrganization.receivers[1])
@@ -263,5 +263,22 @@ class FhirRouterTests {
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isEmpty())
+    }
+
+    @Test
+    fun `test skipping inactive receivers (mixed)`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = oneOrganization.receivers
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isNotEmpty())
+        assert(receiversOut[0] == "co-phd.full-elr-hl7")
     }
 }
