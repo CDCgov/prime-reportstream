@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { IconHelp, Tooltip } from "@trussworks/react-uswds";
 
 import {
@@ -159,7 +159,19 @@ export const RequestedChangesDisplay = ({
 
     return (
         <>
-            <StaticAlert type={alertType} heading={heading} message={message} />
+            <StaticAlert type={alertType} heading={heading} message={message}>
+                <h5 className="margin-bottom-1">Resources</h5>
+                <ul className={"margin-0"}>
+                    <li>
+                        <NavLink
+                            target="_blank"
+                            to={"/resources/programmers-guide"}
+                        >
+                            Programmers Guide
+                        </NavLink>
+                    </li>
+                </ul>
+            </StaticAlert>
             {showTable && (
                 <>
                     <h3>{title}</h3>
