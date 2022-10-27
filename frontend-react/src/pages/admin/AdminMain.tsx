@@ -15,11 +15,6 @@ export function AdminMain() {
             fallbackComponent={() => <ErrorPage type="page" />}
         >
             <BasicHelmet pageTitle="Admin" />
-            <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense fallback={<Spinner />} />
-                </h3>
-            </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >

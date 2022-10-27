@@ -13,6 +13,7 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 import {
     FileErrorDisplay,
@@ -20,7 +21,6 @@ import {
     FileSuccessDisplay,
     FileWarningBanner,
     FileWarningsDisplay,
-    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -252,11 +252,10 @@ const FileHandler = ({
             <div className="grid-container usa-section margin-bottom-10">
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoSenderBanner
-                    action={handlerType}
-                    organization={
-                        organization?.description || "your organization"
-                    }
+                <NoServicesBanner
+                    featureName={handlerType}
+                    organization={organization?.description}
+                    serviceType={"sender"}
                 />
             </div>
         );
