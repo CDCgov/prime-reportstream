@@ -8,13 +8,13 @@ import {
     MembershipAction,
 } from "../hooks/UseOktaMemberships";
 
-export interface ISessionContext {
+export interface RSSessionContext {
     memberships?: Map<string, MembershipSettings>;
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
-    adminHardCheck?: boolean;
+    isAdminStrictCheck?: boolean;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -23,13 +23,13 @@ interface ISessionProviderProps {
     oktaHook: OktaHook;
 }
 
-export const SessionContext = createContext<ISessionContext>({
+export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
     memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
     initialized: false,
-    adminHardCheck: false,
+    isAdminStrictCheck: false,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -46,7 +46,7 @@ const SessionProvider = ({
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
-    const adminHardCheck = useMemo(() => {
+    const isAdminStrictCheck = useMemo(() => {
         if (initialized && memberships) {
             return memberships.has("DHPrimeAdmins");
         }
@@ -58,7 +58,7 @@ const SessionProvider = ({
                 oktaToken: authState?.accessToken,
                 memberships,
                 activeMembership,
-                adminHardCheck,
+                isAdminStrictCheck,
                 dispatch,
                 initialized: authState !== null && !!initialized,
             }}
