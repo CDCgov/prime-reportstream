@@ -4,6 +4,7 @@ import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
+import { RSSessionContext } from "../contexts/SessionContext";
 
 import { AuthElement } from "./AuthElement";
 
@@ -220,8 +221,8 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
-            adminHardCheck: true,
-        });
+            isAdminStrictCheck: true,
+        } as RSSessionContext);
         render(
             <AuthElement
                 element={<TestElement />}

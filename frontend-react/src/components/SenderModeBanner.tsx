@@ -37,7 +37,7 @@ const useSenderResource = () => {
                 activeMembership?.parsedName,
                 {
                     org: activeMembership?.parsedName || "",
-                    sender: activeMembership?.senderName || "default",
+                    sender: activeMembership?.service || "default",
                 }
             ),
         /* Note: we DO want to update config ONLY when these values update. If the linter
