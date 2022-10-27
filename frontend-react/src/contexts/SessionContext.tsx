@@ -46,7 +46,7 @@ const SessionProvider = ({
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
-    const adminHardCheck = useMemo(() => {
+    const isAdminStrictCheck = useMemo(() => {
         if (initialized && memberships) {
             return memberships.has("DHPrimeAdmins");
         }
@@ -58,7 +58,7 @@ const SessionProvider = ({
                 oktaToken: authState?.accessToken,
                 memberships,
                 activeMembership,
-                isAdminStrictCheck: adminHardCheck,
+                isAdminStrictCheck,
                 dispatch,
                 initialized: authState !== null && !!initialized,
             }}
