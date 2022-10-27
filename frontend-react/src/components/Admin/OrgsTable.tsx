@@ -22,30 +22,27 @@ import { StaticAlert } from "../StaticAlert";
 
 /* TODO: When should we remove this notice? */
 const OrgTableNotice = () => (
-    <div className={"grid-container"}>
-        <StaticAlert
-            type={"warning"}
-            heading={"Updates to Membership mocking workflow"}
-        >
+    <div className={"grid-container margin-top-3"}>
+        <StaticAlert type={"warning"} heading={"Updates to Admin Workflow"}>
             <p>
-                When a user's session is created in the SessionContext, we are
-                fetching a list of either Receivers or Senders to populate their
-                available services array, and which service type is decided by
-                their MemberType assignment. As Admins, we do not have any
-                services to fetch, so when mocking a membership from this UI,{" "}
-                <b>
-                    use the dropdown next to search, labeled Mimic User Type, to
-                    tell your session to fetch a list of either sender or
-                    receiver services.
-                </b>
+                As services (i.e. an Organization's senders and receivers) are
+                becoming required by more ReportStream web application features,
+                fetching of services now occurs at the SessionContext level.
+                Now, a user's available services, and chosen active service, are
+                continuously provided to the app, rather than being fetched on
+                an as-needed basis.
             </p>
             <p>
-                Not setting mocking user type, resulting in no available
-                services for your user session, will break the following
-                queries:
+                To take advantage of these features,{" "}
+                <strong>
+                    be sure to mimic either a Sender or Receiver from user type
+                    dropdown
+                </strong>{" "}
+                Features that break without services :
             </p>
             <ul>
-                <li>Daily Data deliveries list call</li>
+                <li>Daily Data (receivers)</li>
+                <li>Validate (senders)</li>
             </ul>
         </StaticAlert>
     </div>
@@ -153,7 +150,7 @@ export function OrgsTable() {
                             className="font-sans-xs usa-label"
                             htmlFor="input-filter"
                         >
-                            Mimic user type:
+                            User Type:
                         </Label>
                         <Dropdown
                             name="user-type-select"

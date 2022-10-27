@@ -10,9 +10,9 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService, servicesEndpoints } from "../config/endpoints/services";
+import { RSService } from "../config/endpoints/services";
 
-import { auxExports } from "./UseCreateFetch";
+import { useSessionServices } from "./network/ServicesHooks";
 
 export enum MemberType {
     SENDER = "sender",
@@ -259,6 +259,19 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
+    const services = useSessionServices(state, token);
+    useEffect(() => {
+        if (!!services && services?.length) {
+            dispatch({
+                type: MembershipActionType.UPDATE_SERVICES_LIST,
+                payload: services,
+            });
+            dispatch({
+                type: MembershipActionType.SET_ACTIVE_SERVICE,
+                payload: services?.[0].name,
+            });
+        }
+    }, [services]);
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login
     // but could also happen in a token refresh scenario if a users organizations claim is updated while they are logged in
@@ -293,66 +306,6 @@ export const useOktaMemberships = (
             dispatch({ type: MembershipActionType.RESET });
         }
     }, [!!authState, authState?.isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // TODO Just do fetch in here for now, use API config if possible!
-    useEffect(() => {
-        // Fetch here, then dispatch
-        const authFetchServices = () => {
-            return auxExports.createTypeWrapperForAuthorizedFetch(token!!, {
-                parsedName: state?.activeMembership?.parsedName || "",
-                memberType:
-                    state?.activeMembership?.memberType || MemberType.NON_STAND,
-            });
-        };
-        if (
-            state.initialized &&
-            !!state?.activeMembership?.memberType &&
-            !!state?.activeMembership?.parsedName
-        ) {
-            const { senders, receivers } = servicesEndpoints;
-            let fetchConfig;
-            if (state.activeMembership.memberType === MemberType.SENDER) {
-                fetchConfig = senders;
-            }
-            if (state.activeMembership.memberType === MemberType.RECEIVER) {
-                fetchConfig = receivers;
-            }
-            if (
-                !!fetchConfig &&
-                state?.activeMembership?.parsedName !== "PrimeAdmins"
-            ) {
-                authFetchServices()<RSService[]>(fetchConfig, {
-                    segments: {
-                        orgName: state?.activeMembership?.parsedName,
-                    },
-                })
-                    .then((res) => {
-                        console.log(res);
-                        dispatch({
-                            type: MembershipActionType.UPDATE_SERVICES_LIST,
-                            payload: res as RSService[],
-                        });
-                        if (res.length) {
-                            dispatch({
-                                type: MembershipActionType.SET_ACTIVE_SERVICE,
-                                payload: res?.[0].name,
-                            });
-                        }
-                    })
-                    .catch((e) => {
-                        console.error(
-                            `ERROR FETCHING SERVICES: ${state?.activeMembership?.parsedName}:`,
-                            e
-                        );
-                    });
-            }
-        }
-    }, [
-        state?.activeMembership?.memberType,
-        state?.activeMembership?.parsedName,
-        state.initialized,
-        token,
-    ]);
 
     return { state, dispatch };
 };

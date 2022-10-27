@@ -7,7 +7,7 @@ const getSender = (org: string, sender: string) =>
 const testSender = getSender("testOrg", "testSender");
 const firstSender = getSender("firstOrg", "firstSender");
 
-export const dummySender = {
+export const dummyService = {
     name: "testSender",
     organizationName: "testOrg",
     format: "CSV",
@@ -36,13 +36,16 @@ const handlers = [
         );
     }),
     rest.get(testSender, (req, res, ctx) => {
-        return res(ctx.json(dummySender), ctx.status(200));
+        return res(ctx.json(dummyService), ctx.status(200));
     }),
     rest.get(firstSender, (req, res, ctx) => {
         return res(ctx.status(200));
     }),
     rest.get(`${base}/testOrg/receivers`, (req, res, context) => {
-        return res(context.status(200));
+        return res(context.status(200), context.json([dummyService]));
+    }),
+    rest.get(`${base}/testOrg/senders`, (req, res, context) => {
+        return res(context.status(200), context.json([dummyService]));
     }),
 ];
 
