@@ -35,8 +35,8 @@ export const useSenderResource = () => {
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () => {
-            const { parsedName, senderName } = activeMembership || {};
-            if (!senderName || !parsedName) {
+            const { parsedName, service } = activeMembership || {};
+            if (!service || !parsedName) {
                 return new SimpleError("Missing sender or organization");
             }
             return createRequestConfig<{ org: string; sender: string }>(
@@ -47,7 +47,7 @@ export const useSenderResource = () => {
                 activeMembership?.parsedName,
                 {
                     org: activeMembership?.parsedName || "",
-                    sender: activeMembership?.senderName || "",
+                    sender: activeMembership?.service || "",
                 }
             );
         },
@@ -80,7 +80,7 @@ export const useSenderResource = () => {
             );
             return null;
         }
-        if (!activeMembership?.senderName) {
+        if (!activeMembership?.service) {
             console.error("No sender available on active membership");
             return null;
         }
