@@ -4,7 +4,7 @@ import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
 import { renderWithSession } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { ISessionContext } from "../../contexts/SessionContext";
+import { RSSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
 
@@ -26,7 +26,7 @@ jest.mock("./SignInOrUser", () => ({
 describe("ReportStreamHeader", () => {
     test("renders without errors", () => {
         mockAuth.mockReturnValue({} as IOktaContext);
-        mockSessionContext.mockReturnValue({} as ISessionContext);
+        mockSessionContext.mockReturnValue({} as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
     });
 
@@ -54,9 +54,10 @@ describe("ReportStreamHeader", () => {
                 memberType: MemberType.PRIME_ADMIN,
                 parsedName: "PrimeAdmins",
             },
+            isAdminStrictCheck: true,
             dispatch: () => {},
             initialized: true,
-        });
+        } as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Admin")).toBeInTheDocument();
         expect(screen.getByText("Daily data")).toBeInTheDocument();
