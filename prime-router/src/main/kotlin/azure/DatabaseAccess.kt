@@ -224,7 +224,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
         actionRecord.store()
         val actionId = actionRecord.actionId
-        logger.debug("Saved to ACTION: ${action.actionName}, id=$actionId")
+        logger.info(
+            "Inserted row into ACTION: action_name=${action.actionName}" +
+                // The action_params value is huge and low value for receive actions, so skip it.
+                (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "") +
+                ", action_id=$actionId"
+        )
         return actionId
     }
 
