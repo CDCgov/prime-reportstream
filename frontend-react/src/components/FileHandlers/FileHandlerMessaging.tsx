@@ -167,8 +167,19 @@ export const RequestedChangesDisplay = ({
                             target="_blank"
                             to={"/resources/programmers-guide"}
                         >
-                            Programmers Guide
+                            ReportStream Programmers Guide
                         </NavLink>
+                    </li>
+                    <li>
+                        <a
+                            target={"_blank"}
+                            href={
+                                "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
+                            }
+                            rel="noreferrer"
+                        >
+                            LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
+                        </a>
                     </li>
                 </ul>
             </StaticAlert>
