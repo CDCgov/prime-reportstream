@@ -61,7 +61,8 @@
       ],
       "enabled": true,
       "randomResponse": false
-    },    {
+    },    
+    {
       "uuid": "",
       "documentation": "Submit a report",
       "method": "post",
@@ -70,6 +71,33 @@
         {
           "uuid": "",
           "body": "{\r\n  \"status\": \"Success\",\r\n  \"statusDesc\": \"Received. LIN:4299844\",\r\n  \"respTrackingId\": \"UT-20211119-746000000-54\"\r\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false
+      },    {
+        "uuid": "",
+      "documentation": "Submit an HL7 report",
+      "method": "post",
+      "endpoint": "hl7",
+      "responses": [
+        {
+          "uuid": "",
+          "body": "{\r\n \"fileName\": \"file-name-assigned-to-the-message-by-GCP-system\",\r\n \"status\": \"fileName received successfully. Processing in progress\"\r\n }",
           "latency": 0,
           "statusCode": 200,
           "label": "Created",

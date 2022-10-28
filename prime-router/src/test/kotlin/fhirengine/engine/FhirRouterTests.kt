@@ -60,7 +60,7 @@ class FhirRouterTests {
         )
     )
 
-    val valid_fhir = "{\n" +
+    private val validFhir = "{\n" +
         "\t\"resourceType\": \"Bundle\",\n" +
         "\t\"id\": \"d848a959-e466-42c8-aec7-44c8f1024f91\",\n" +
         "\t\"meta\": {\n" +
@@ -148,7 +148,7 @@ class FhirRouterTests {
         "\t]\n" +
         "}"
 
-    val valid_fhir_with_provenance = """
+    private val validFhirWithProvenance = """
     {
         "resourceType": "Bundle",
         "id": "1666038428133786000.94addcb6-835c-4883-a095-0c50cf113744",
@@ -221,7 +221,7 @@ class FhirRouterTests {
         val filter = listOf(listOf("Bundle.entry.resource.ofType(MessageHeader).count() > 0"))
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir)
+        every { message.downloadContent() }.returns(validFhir)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -248,8 +248,41 @@ class FhirRouterTests {
     @Test
     fun `test adding receivers to bundle`() {
         // set up
-        val bundle = FhirTranscoder.decode(valid_fhir_with_provenance)
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
         val receiversIn = listOf(oneOrganization.receivers[0])
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isNotEmpty())
+        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+    }
+
+    @Test
+    fun `test skipping inactive receivers (only inactive)`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = listOf(oneOrganization.receivers[1])
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isEmpty())
+    }
+
+    @Test
+    fun `test skipping inactive receivers (mixed)`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = oneOrganization.receivers
 
         // act
         FHIRBundleHelpers.addReceivers(bundle, receiversIn)
@@ -470,7 +503,7 @@ class FhirRouterTests {
         val filter = listOf<ReportStreamFilter>()
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir)
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -511,7 +544,7 @@ class FhirRouterTests {
         val filter = listOf(listOf("Bundle.entry.resource.ofType(Provenance).count() > 0"))
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir_with_provenance)
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -552,7 +585,7 @@ class FhirRouterTests {
         val filter = listOf(listOf("Bundle.entry.resource.ofType(Provenance).count() = 0"))
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir_with_provenance)
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -598,7 +631,7 @@ class FhirRouterTests {
         )
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir_with_provenance)
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -644,7 +677,7 @@ class FhirRouterTests {
         )
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir_with_provenance)
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
