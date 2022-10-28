@@ -31,7 +31,7 @@ import kotlin.collections.mutableMapOf
 plugins {
     kotlin("jvm") version "1.7.20"
     id("org.flywaydb.flyway") version "8.5.13"
-    id("nu.studer.jooq") version "7.1.1"
+    id("nu.studer.jooq") version "8.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.10.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
