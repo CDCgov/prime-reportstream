@@ -15,6 +15,8 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -22,6 +24,8 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -38,11 +42,16 @@ class FhirRouterTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "co-phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "co-phd", "topic", CustomerStatus.INACTIVE, "one"))
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver("full-elr-hl7", "co-phd", "topic", CustomerStatus.TESTING, "one"),
+            Receiver("full-elr-hl7-inactive", "co-phd", "full-elr", CustomerStatus.INACTIVE, "one")
+        )
     )
 
-    val valid_fhir = "{\n" +
+    private val validFhir = "{\n" +
         "\t\"resourceType\": \"Bundle\",\n" +
         "\t\"id\": \"d848a959-e466-42c8-aec7-44c8f1024f91\",\n" +
         "\t\"meta\": {\n" +
@@ -130,6 +139,46 @@ class FhirRouterTests {
         "\t]\n" +
         "}"
 
+    private val validFhirWithProvenance = """
+    {
+        "resourceType": "Bundle",
+        "id": "1666038428133786000.94addcb6-835c-4883-a095-0c50cf113744",
+        "meta": {
+        "lastUpdated": "2022-10-17T20:27:08.149+00:00",
+        "security": [
+            {
+                "code": "SECURITY",
+                "display": "SECURITY"
+            }
+        ]
+    },
+        "identifier": {
+        "value": "MT_COCAA_ORU_AAPHELR.1.6214638"
+    },
+        "type": "message",
+        "timestamp": "2028-08-08T15:28:05.000+00:00",
+        "entry": [
+            {
+                "fullUrl": "Provenance/1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
+                "resource": {
+                    "resourceType": "Provenance",
+                    "id": "1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
+                    "occurredDateTime": "2028-08-08T09:28:05-06:00",
+                    "recorded": "2028-08-08T09:28:05-06:00",
+                    "activity": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+                                "code": "R01",
+                                "display": "ORU_R01"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }"""
+
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
@@ -144,6 +193,7 @@ class FhirRouterTests {
     @Test
     fun `test full elr routing happy path`() {
         mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -152,20 +202,21 @@ class FhirRouterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = makeFhirEngine(metadata, settings, TaskAction.route)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route))
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_fhir)
+        every { message.downloadContent() }.returns(validFhir)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -177,6 +228,57 @@ class FhirRouterTests {
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any())
         }
+    }
+
+    @Test
+    fun `test adding receivers to bundle`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = listOf(oneOrganization.receivers[0])
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isNotEmpty())
+        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+    }
+
+    @Test
+    fun `test skipping inactive receivers (only inactive)`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = listOf(oneOrganization.receivers[1])
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isEmpty())
+    }
+
+    @Test
+    fun `test skipping inactive receivers (mixed)`() {
+        // set up
+        val bundle = FhirTranscoder.decode(validFhirWithProvenance)
+        val receiversIn = oneOrganization.receivers
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
+        assert(receiversOut.isNotEmpty())
+        assert(receiversOut[0] == "co-phd.full-elr-hl7")
     }
 }

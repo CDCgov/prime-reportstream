@@ -4,6 +4,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -16,6 +17,7 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
 /**
@@ -50,6 +52,16 @@ class FHIRRouter(
             // pull fhir document and parse FHIR document
             val fhirDocument = FhirTranscoder.decode(message.downloadContent())
 
+            // TODO: routing would need to happen here to generate a list of the receivers
+            val hardCodedPhase1ReceiverName = "co-phd.full-elr-hl7"
+            var receiver: Receiver? = settings.findReceiver(hardCodedPhase1ReceiverName)
+                ?: throw IllegalStateException("Receiver $hardCodedPhase1ReceiverName was not found in the settings.")
+
+            val listOfReceivers = listOf(receiver!!)
+
+            // add the receivers to the fhir bundle
+            FHIRBundleHelpers.addReceivers(fhirDocument, listOfReceivers)
+
             // create report object
             val sources = emptyList<Source>()
             val report = Report(
@@ -58,9 +70,6 @@ class FHIRRouter(
                 1,
                 metadata = this.metadata
             )
-
-            // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO
-            //  (hardcoded in FHIRTranslator)
 
             // create item lineage
             report.itemLineages = listOf(

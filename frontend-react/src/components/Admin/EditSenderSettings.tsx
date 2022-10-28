@@ -21,6 +21,7 @@ import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
+import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 
 import {
     DropdownComponent,
@@ -38,7 +39,7 @@ const { RS_API_URL } = config;
 type EditSenderSettingsFormProps = {
     orgname: string;
     sendername: string;
-    action: string;
+    action: "edit" | "clone";
 };
 const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     orgname,
@@ -60,6 +61,40 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     const { fetch: fetchController } = useController();
     const { invalidate } = useController();
     const [loading, setLoading] = useState(false);
+
+    const modalRef = useRef<ModalConfirmRef>(null);
+    const ShowDeleteConfirm = (deleteItemId: string) => {
+        modalRef?.current?.showModal({
+            title: "Confirm Delete",
+            message:
+                "Deleting a setting will only mark it deleted. It can be accessed via the revision history",
+            okButtonText: "Delete",
+            itemId: deleteItemId,
+        });
+    };
+    const doDelete = async (deleteItemId: string) => {
+        try {
+            await fetchController(OrgSenderSettingsResource.deleteSetting(), {
+                orgname: orgname,
+                sendername: deleteItemId,
+            });
+
+            showAlertNotification(
+                "success",
+                `Item '${deleteItemId}' has been deleted`
+            );
+
+            // navigate back to list since this item was just deleted
+            navigate(-1);
+            return true;
+        } catch (e: any) {
+            console.trace(e);
+            showError(
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+            );
+            return false;
+        }
+    };
 
     async function getLatestSenderResponse() {
         const accessToken = getStoredOktaToken();
@@ -90,7 +125,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
             );
 
-            if (latestResponse?.version !== orgSenderSettings?.version) {
+            if (
+                action === "edit" &&
+                latestResponse?.version !== orgSenderSettings?.version
+            ) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -223,23 +261,37 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     valuesFrom={"processingType"}
                 />
                 <Grid row className="margin-top-2">
-                    <Button
-                        type="button"
-                        onClick={async () =>
-                            (await resetSenderList()) && navigate(-1)
-                        }
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        form="edit-setting"
-                        type="submit"
-                        data-testid="submit"
-                        disabled={loading}
-                        onClick={() => ShowCompareConfirm()}
-                    >
-                        Preview...
-                    </Button>
+                    <Grid col={6}>
+                        {action === "edit" ? (
+                            <Button
+                                type={"button"}
+                                secondary={true}
+                                data-testid={"senderSettingDeleteButton"}
+                                onClick={() => ShowDeleteConfirm(sendername)}
+                            >
+                                Delete...
+                            </Button>
+                        ) : null}
+                    </Grid>
+                    <Grid col={6} className={"text-right"}>
+                        <Button
+                            type="button"
+                            onClick={async () =>
+                                (await resetSenderList()) && navigate(-1)
+                            }
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            form="edit-setting"
+                            type="submit"
+                            data-testid="submit"
+                            disabled={loading}
+                            onClick={() => ShowCompareConfirm()}
+                        >
+                            Edit json and save...
+                        </Button>
+                    </Grid>
                 </Grid>
                 <ConfirmSaveSettingModal
                     uniquid={
@@ -251,6 +303,11 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     newjson={orgSenderSettingsNewJson}
                 />
             </GridContainer>
+            <ModalConfirmDialog
+                id={"deleteConfirm"}
+                onConfirm={doDelete}
+                ref={modalRef}
+            ></ModalConfirmDialog>
         </section>
     );
 };
@@ -277,7 +334,7 @@ export function EditSenderSettings() {
             <EditSenderSettingsForm
                 orgname={orgname || ""}
                 sendername={sendername || ""}
-                action={action || ""}
+                action={action || "edit"}
             />
         </AdminFormWrapper>
     );

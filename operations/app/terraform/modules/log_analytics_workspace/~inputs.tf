@@ -56,6 +56,7 @@ variable "function_app_id" {
 variable "front_door_id" {
   type        = string
   description = "Front Door resource id"
+  default     = ""
 }
 
 variable "nat_gateway_id" {
@@ -96,9 +97,11 @@ variable "action_group_businesshours_id" {
 variable "data_factory_id" {
   type        = string
   description = "Data factory resource id"
+  default     = ""
 }
 
 variable "sftp_instance_01_id" {
   type        = string
   description = "SFTP instance 01 resource id"
+  default     = ""
 }
