@@ -56,6 +56,14 @@ class FhirRouterTests {
                 "full-elr",
                 CustomerStatus.ACTIVE,
                 "one"
+            ),
+            Receiver
+            (
+                "full-elr-hl7-2",
+                "co-phd",
+                "full-elr",
+                CustomerStatus.INACTIVE,
+                "one"
             )
         )
     )
