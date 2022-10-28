@@ -3575,7 +3575,7 @@
       transport:
         type: REST
         authTokenUrl: http://rest-webservice:3001/idtoken
-        reportUrl:  http://rest-webservice:3001/report
+        reportUrl:  http://rest-webservice:3001/hl7
         #authTokenUrl: https://labupload-uat.health.ok.gov/api/auth/token #test URL
         #reportUrl:  https://labupload-uat.health.ok.gov/api/document/hl7 #test URL
         #authTokenUrl: https://labupload.health.ok.gov/api/auth/token #PRODUCTION URL
@@ -3583,8 +3583,8 @@
         tlsKeystore: null
         headers:
           RecordId: 'header.reportFile.reportId'
-          senderLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-the-sending-user-belongs-to
-          sourceLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+          senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
 
 - name: or-phd
   description: Oregon Public Health Department
