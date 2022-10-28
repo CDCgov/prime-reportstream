@@ -1,6 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import {
+    renderWithFullAppContext,
+    renderWithRouter,
+} from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 
@@ -58,7 +61,7 @@ describe("FileSuccessDisplay", () => {
 
 describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
-        render(
+        renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={ErrorLevel.WARNING}
                 heading={"THE HEADING"}
@@ -101,7 +104,7 @@ describe("FileErrorDisplay", () => {
                 details: "none",
             },
         ];
-        render(
+        renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={ErrorLevel.ERROR}
                 heading={"THE HEADING"}
