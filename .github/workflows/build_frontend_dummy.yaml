@@ -15,7 +15,7 @@ on:
 
 jobs:
   Build_Router:
-    name: Build frontend
+    name: Build Frontend React
     runs-on: ubuntu-latest
     steps:
       - name: Build frontend

@@ -118,29 +118,38 @@ If you are using OpenVPN Connect, uninstall it and install the [OpenVPN Client](
    * `prime-data-hub-staging.ovpn`
    * `prime-data-hub-test.ovpn`
    * `createKey.sh`
-1. Run `createKey.sh` and follow the prompts
-1. The user's VPN profile with be outputted in a folder with their name
-1. Securely transmit the VPN profile to the recipient
+   > If **new** Virtual Network Gateway, update the appropriate `.ovpn` file above with new `remote`, `verify-x509-name`, and `<tls-auth>` values.
+2. Run `createKey.sh` and follow the prompts
+3. The user's VPN profile with be outputted in a folder with their name
+4. Securely transmit the VPN profile to the recipient
 
 ## Generate a VPN Profile (Manual)
 
 To generate keys for a VPN profile, follow the below steps. These steps [are derived from this Azure document](https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site-linux).
 
 * Obtain the root VPN keys `caKey.pem` and `caCert.pem`
+  * If you need new root VPN keys, run the following to generate a new public root cert base64 to add to the Virtual Network Gateway:
+    ```bash
+    ipsec pki --gen --outform pem > caKey.pem
+    ipsec pki --self --in caKey.pem --dn "CN=VPN CA" --ca --outform pem > caCert.pem
+
+    openssl x509 -in caCert.pem -outform der | base64 -w0 ; echo
+    ```
+  * If replacing an existing public root cert base64, it may not apply unless you first delete the pre-existing instead of overwriting.
+  * [Resource](https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site-linux#cli)
 * Generate a user certificate:
 
-```
-export VPN_USERNAME="client"
+    ```bash
+    export VPN_USERNAME="client"
 
-ipsec pki --gen --outform pem > "${VPN_USERNAME}Key.pem"
-ipsec pki --pub --in "${VPN_USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${VPN_USERNAME}" --san "${VPN_USERNAME}" --flag clientAuth --outform pem > "${VPN_USERNAME}Cert.pem"
-```
+    ipsec pki --gen --outform pem > "${VPN_USERNAME}Key.pem"
+    ipsec pki --pub --in "${VPN_USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${VPN_USERNAME}" --san "${VPN_USERNAME}" --flag clientAuth --outform pem > "${VPN_USERNAME}Cert.pem"
+    ```
 
 * Generate a p12 bundle from the user certificate:
-
-```
-openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -certfile caCert.pem -export -out "${VPN_USERNAME}.p12"
-```
+    ```bash
+    openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -certfile caCert.pem -export -out "${VPN_USERNAME}.p12"
+    ```
 
 * In the VPN profile, add the contents of the following files to the specified sections:
     * `${VPN_USERNAME}Cert.pem` to `<cert></cert>`

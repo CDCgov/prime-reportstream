@@ -11,9 +11,7 @@ import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
-    DatasetAction,
     TableConfig,
-    TableRow,
 } from "../../../components/Table/Table";
 import {
     useValueSetActivation,
@@ -35,6 +33,8 @@ import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
+import { TableRowData } from "../../../components/Table/TableRows";
+import { DatasetAction } from "../../../components/Table/TableInfo";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -84,7 +84,7 @@ const ValueSetsDetailHeader = ({
 // splices the new row in the list of all rows,
 // since we can't save one row at a time
 const prepareRowsForSave = (
-    row: TableRow | null,
+    row: TableRowData | null,
     allRows: SenderAutomationDataRow[],
     valueSetName: string
 ): ValueSetRow[] => {

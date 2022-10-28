@@ -60,7 +60,7 @@ const SupportIA = () => (
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
-    const { activeMembership } = useSessionContext();
+    const { activeMembership, isAdminStrictCheck } = useSessionContext();
     const { checkFlag } = useFeatureFlags();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
@@ -114,15 +114,14 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        /* ADMIN ONLY 
-        
-          Build a drop down for file handler links
+        /* ADMIN ONLY (hard check)
+          Build a drop-down for file handler links
         */
-        if (activeMembership?.memberType === MemberType.PRIME_ADMIN) {
+        if (isAdminStrictCheck) {
             // Validate NavLink
             const features = [
                 {
-                    access: checkFlag(FeatureFlagName.VALIDATION_SERVICE),
+                    access: true, // Open for all admins
                     slug: "validate",
                     title: "Validate",
                 },

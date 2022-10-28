@@ -132,6 +132,17 @@
       schemaName: csv-otc-covid-19
       format: CSV
 
+- name: osang-otc
+  description: Osang Healthcare - OTC Testing
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: osang-otc
+      topic: covid-19
+      customerStatus: active
+      schemaName: csv-otc-covid-19
+      format: CSV
+
 - name: vaulthealth
   description: Vault Health
   jurisdiction: FEDERAL
@@ -860,6 +871,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       jurisdictionalFilter: [ ]
       qualityFilter: [ ]
       routingFilter: [ ]
@@ -2345,7 +2358,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth,osang-otc)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3562,7 +3575,7 @@
       transport:
         type: REST
         authTokenUrl: http://rest-webservice:3001/idtoken
-        reportUrl:  http://rest-webservice:3001/report
+        reportUrl:  http://rest-webservice:3001/hl7
         #authTokenUrl: https://labupload-uat.health.ok.gov/api/auth/token #test URL
         #reportUrl:  https://labupload-uat.health.ok.gov/api/document/hl7 #test URL
         #authTokenUrl: https://labupload.health.ok.gov/api/auth/token #PRODUCTION URL
@@ -3570,8 +3583,8 @@
         tlsKeystore: null
         headers:
           RecordId: 'header.reportFile.reportId'
-          senderLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-the-sending-user-belongs-to
-          sourceLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+          senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
 
 - name: or-phd
   description: Oregon Public Health Department
