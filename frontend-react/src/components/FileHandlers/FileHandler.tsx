@@ -16,7 +16,7 @@ import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 import {
-    ErrorLevel,
+    RequestLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
     FileWarningBanner,
@@ -299,7 +299,7 @@ const FileHandler = ({
             )}
             {warnings.length > 0 && (
                 <RequestedChangesDisplay
-                    title={ErrorLevel.WARNING}
+                    title={RequestLevel.WARNING}
                     data={warnings}
                     message={warningDescription}
                     heading={warningHeading}
@@ -308,7 +308,7 @@ const FileHandler = ({
             )}
             {errors.length > 0 && (
                 <RequestedChangesDisplay
-                    title={ErrorLevel.ERROR}
+                    title={RequestLevel.ERROR}
                     data={errors}
                     message={errorMessaging.message}
                     heading={errorMessaging.heading}

@@ -8,7 +8,7 @@ import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 
 import {
-    ErrorLevel,
+    RequestLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
     RequestedChangesDisplay,
@@ -63,7 +63,7 @@ describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
         renderWithFullAppContext(
             <RequestedChangesDisplay
-                title={ErrorLevel.WARNING}
+                title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
@@ -106,7 +106,7 @@ describe("FileErrorDisplay", () => {
         ];
         renderWithFullAppContext(
             <RequestedChangesDisplay
-                title={ErrorLevel.ERROR}
+                title={RequestLevel.ERROR}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}

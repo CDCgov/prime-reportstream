@@ -108,7 +108,7 @@ const truncateErrorMessage = (errorMessage: string | undefined): string => {
     return errorMessage;
 };
 
-export enum ErrorLevel {
+export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
 }
@@ -126,7 +126,7 @@ const TrackingIDTooltip = () => {
 };
 
 type RequestedChangesDisplayProps = {
-    title: ErrorLevel;
+    title: RequestLevel;
     data: ResponseError[];
     message: string;
     heading: string;
@@ -141,7 +141,7 @@ export const RequestedChangesDisplay = ({
     handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
-        () => (title === ErrorLevel.WARNING ? "warning" : "error"),
+        () => (title === RequestLevel.WARNING ? "warning" : "error"),
         [title]
     );
     const showTable =
@@ -151,7 +151,7 @@ export const RequestedChangesDisplay = ({
 
     useEffect(() => {
         data.forEach((error: ResponseError) => {
-            if (title === ErrorLevel.ERROR && error.details) {
+            if (title === RequestLevel.ERROR && error.details) {
                 console.error(`${handlerType} failure: ${error.details}`);
             }
         });
