@@ -728,7 +728,8 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    // $jacksonVersion does not quite work for vulnerability remediation point releases.  The point release below can be delete on the next major/minor version update
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2")
     // Pin snakeyaml since it is getting included regardless of exclude attempts
