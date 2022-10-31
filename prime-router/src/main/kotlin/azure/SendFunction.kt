@@ -29,7 +29,6 @@ import kotlin.random.Random
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
  */
-// const val dataRetentionDays = 7L // removed: unused
 const val send = "send"
 // needed in case retry index is out-of-bounds call but should not be every be used
 const val defaultMaxDurationValue = 120L
