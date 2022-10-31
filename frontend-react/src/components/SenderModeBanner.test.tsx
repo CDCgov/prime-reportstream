@@ -19,7 +19,7 @@ describe("SenderModeBanner", () => {
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                senderName: "testSender",
+                service: "testSender",
             },
             dispatch: () => {},
             initialized: true,
