@@ -1,17 +1,26 @@
 elements:
   - name: xtn-use-code
-    condition: '%resource.use.exists()'
     value: [ '%resource.use' ]
     hl7Spec: [ '%{hl7TelecomField}-2' ]
     valueSet:
       home: PRN
       work: WPN
-      mobile: CP
+      mobile: PRN
+      temp: ORN
+
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "pager"'
+    value: [ '"BPN"' ]
+    hl7Spec: [ '%{hl7TelecomField}-2' ]
 
   - name: xtn-system
-    condition: '%resource.system.exists() and %resource.system = "phone"'
-    value: [ '"PH"' ]
+    value: [ '%resource.system' ]
     hl7Spec: [ '%{hl7TelecomField}-3' ]
+    valueSet:
+      phone: PH
+      pager: BP
+      email: Internet
+      fax: FX
 
   - name: xtn-country-code
     condition: '%resource.value.exists()'
