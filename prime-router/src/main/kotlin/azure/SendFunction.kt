@@ -31,24 +31,25 @@ import kotlin.random.Random
  */
 // const val dataRetentionDays = 7L // removed: unused
 const val send = "send"
-const val defaultMaxDurationValue = 120L // needed in case retry index is out-of-bounds.
-// const val maxRetryCount = 4 // removed, use retryDuration.size
+// needed in case retry index is out-of-bounds call but should not be every be used
+const val defaultMaxDurationValue = 120L
 
-// index is retryCount, value is in minutes
+// exact time of next retry is slightly randomized to avoid the situation when
+// there's a system-wide failure and everything that's failed retries at the exact
+// same time producing a spike that makes things worse.
+// This is +/- around the actual retry, so they are spread out by up to 2x the value
+// It should always be > than the first entry of the retryDurationInMin above
+const val initialRetryInMin = 10
+const val ditherRetriesInSec = (initialRetryInMin / 2 * 60)
+
 // Note: failure point is the SUM of all retry delays.
 val retryDurationInMin = mapOf(
-    1 to 10L,
+    1 to (initialRetryInMin * 1L), // dither might subtract half from this value
     2 to 60L, // 1hr10m later
     3 to (4 * 60L), // 5hr 10m since submission
     4 to (12 * 60L), // 17hr 10m since submission
     5 to (24 * 60L) //  1d 17r 10m since submission
 )
-// exact time of next retry is slightly randomized to avoid the situation when
-// there's a system-wide failure that happens and everything that's failed and
-// all retries at the exact same time producing a spike.
-// This is +/- around the actual retry, so they are spread out by up to 10 minutes total
-// It should be > than the first entry of the retryDurationInMin above
-const val ditherRetriesInSec = (5 * 60)
 
 // Use this for testing retries:
 // val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
