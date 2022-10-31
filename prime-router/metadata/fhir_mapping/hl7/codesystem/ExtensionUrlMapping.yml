@@ -112,9 +112,6 @@
 # Service request order control
 - id: "order-control"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control"
-# Callback number
-- id: "callback-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"

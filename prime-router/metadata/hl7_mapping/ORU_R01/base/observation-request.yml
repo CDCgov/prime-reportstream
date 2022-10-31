@@ -63,7 +63,7 @@ elements:
     resourceIndex: contactIndex
 
   - name: callback-phone-number
-    resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{fieldPath}-17(%{callbackIndex})'
