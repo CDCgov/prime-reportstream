@@ -38,7 +38,7 @@ elements:
     hl7Spec: [ '%{hl7TelecomField}-7' ]
 
   - name: xtn-extension
-    condition: '%resource.value.hasExtension()'
+    condition: '%resource.value.hasPhoneNumberExtension()'
     value: [ '%resource.value.getPhoneNumberExtension()' ]
     hl7Spec: [ '%{hl7TelecomField}-8' ]
 
