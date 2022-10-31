@@ -1,12 +1,6 @@
 import React from "react";
 
-// TODO: move this interface into the resources directory
-interface Warnings {
-    field: string | undefined;
-    description: string | undefined;
-    type: string | undefined;
-    trackingIds: string[] | undefined;
-}
+import { Warnings } from "../../config/endpoints/messageTracker";
 
 type WarningsErrorsDisplayProps = {
     title: string;

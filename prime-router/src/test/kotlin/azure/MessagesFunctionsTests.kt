@@ -169,18 +169,18 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildActionLogsByReportIdAndFilterType():
+    private fun buildActionLogsByReportIdAndFilterType(trackingId: String):
         List<MessageActionLog> {
         val actionLogDetail1 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
         val actionLogDetail2 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
 
         return listOf(
             MessageActionLog(
-                "trackingId1",
+                trackingId,
                 actionLogDetail1
             ),
             MessageActionLog(
-                "trackingId2",
+                trackingId,
                 actionLogDetail2
             )
         )
@@ -336,9 +336,10 @@ class MessagesFunctionsTests {
         every {
             mockDbAccess.fetchActionLogsByReportIdAndFilterType(
                 any(),
+                any(),
                 any()
             )
-        } returns buildActionLogsByReportIdAndFilterType()
+        } returns buildActionLogsByReportIdAndFilterType(messageId)
 
         val response = messagesFunctions.processMessageDetailRequest(mockRequestWithMessageId, id)
 
