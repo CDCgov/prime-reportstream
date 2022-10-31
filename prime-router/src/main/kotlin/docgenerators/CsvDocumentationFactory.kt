@@ -24,15 +24,15 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
 
     /** Collects and returns the format for the schema in the way that the output understands */
     override fun getSchemaDocumentation(schema: Schema) = sequence {
-        schema.elements.sortedBy { it -> it.name }.forEach { element ->
+        schema.elements.sortedBy { it -> it.name.lowercase().trim() }.forEach { element ->
             yield(
                 listOf(
-                    element.name,
+                    element.name.lowercase().trim(),
                     (element.type?.name ?: ""),
                     element.csvFields?.get(0)?.name ?: "",
                     element.valueSet ?: "",
                     element.hl7Field ?: "",
-                    element.documentation?.replace(newlineRegex, "") ?: "",
+                    element.documentation?.replace(newlineRegex, "")?.trim() ?: "",
                     element.table ?: "",
                     element.tableColumn ?: "",
                     element.mapper ?: "",

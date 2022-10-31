@@ -4,6 +4,7 @@ import gov.cdc.prime.router.Schema
 import org.apache.logging.log4j.kotlin.Logging
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.File
 import java.io.FileOutputStream
 
 /**
@@ -36,8 +37,8 @@ object ExcelDocumentationFactory : TableBasedDocumentationFactory(), Logging {
         ensureOutputDirectory(outputDir)
         // generate a file name
         val outName = getOutputFileName(outputFileName, schema, includeTimestamps, this.fileExtension)
-
-        FileOutputStream(outName).also { outputStream ->
+        // create our output file, wrap it in a stream, and write to it
+        FileOutputStream(File(outputDir, outName)).also { outputStream ->
             getExcelWorkbook(schema).also { workbook ->
                 workbook.write(outputStream)
             }
