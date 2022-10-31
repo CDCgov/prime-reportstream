@@ -29,14 +29,24 @@ import kotlin.random.Random
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
  */
-const val dataRetentionDays = 7L
+// const val dataRetentionDays = 7L // removed: unused
 const val send = "send"
-const val maxRetryCount = 4
-const val maxDurationValue = 120L
+const val defaultMaxDurationValue = 120L // needed in case retry index is out-of-bounds.
+// const val maxRetryCount = 4 // removed, use retryDuration.size
 
 // index is retryCount, value is in minutes
-// We often send every 2 hours.   Idea here is that the 4th retry occurs *before* the next round of sends, in 111 mins.
-val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 75L, 5 to 120L)
+// Note: failure point is the SUM of all retry delays.
+val retryDurationInMin = mapOf(
+    1 to 10L,
+    2 to 60L, // 1hr10m later
+    3 to (4 * 60L), // 5hr 10m since submission
+    4 to (12 * 60L), // 17hr 10m since submission
+    5 to (24 * 60L) //  1d 17r 10m since submission
+)
+// exact time of next retry is slightly randomized to avoid the situation when there's a
+// system-wide failure situation where every single retry happens at the same time.
+const val ditherRetriesInSec = (5 * 60)
+
 // Use this for testing retries:
 // val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
@@ -146,7 +156,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
-            if (nextRetryCount > maxRetryCount) {
+            if (nextRetryCount > retryDurationInMin.size) {
                 // Stop retrying and just put the task into an error state
                 val msg = "All retries failed.  Manual Intervention Required.  " +
                     "Send Error report for: $reportId to ${receiver.fullName}"
@@ -160,8 +170,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
             } else {
                 // retry using a back-off strategy
-                val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
-                val randomSeconds = Random.nextInt(-30, 31)
+                val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
+                val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
                 val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
                 val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
                 val msg = "Send Failed.  Will retry sending report: $reportId to ${receiver.fullName}" +
