@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -432,7 +433,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         trackingId: String,
         type: ActionLogType,
         txn: DataAccessTransaction? = null
-    ): List<MessageActionLog> {
+    ): List<ActionLogDetail> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
             .selectFrom(Tables.ACTION_LOG)
@@ -442,7 +443,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     .and(Tables.ACTION_LOG.TYPE.eq(type))
             )
             .limit(100)
-            .fetchInto(MessageActionLog::class.java)
+            .fetchInto(ActionLogDetail::class.java)
     }
 
     /** Returns null if report has no item-level lineage info tracked. */

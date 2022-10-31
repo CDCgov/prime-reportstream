@@ -15,8 +15,8 @@ export interface ResponseReceiver {
 }
 
 export interface Warnings {
-    field: string | undefined;
-    description: string | undefined;
-    type: string | undefined;
-    trackingIds: string[] | undefined;
+    class: string | null;
+    fieldMapping: string | null;
+    scope: string | null;
+    message: string | null;
 }

@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.InvalidCodeMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -113,14 +114,11 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildActionLogs(): List<MessageActionLog> {
+    private fun buildActionLogs(): List<ActionLogDetail> {
         val actionLogDetail = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
 
         return listOf(
-            MessageActionLog(
-                "trackingId",
-                actionLogDetail
-            )
+            actionLogDetail
         )
     }
 

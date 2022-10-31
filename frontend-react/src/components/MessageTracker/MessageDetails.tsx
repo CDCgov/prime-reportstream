@@ -15,32 +15,32 @@ type MessageDetailsProps = {
 
 const MOCK_MESSAGE_WARNINGS = [
     {
-        field: "first field",
-        description:
-            "Invalid code: 123 is not a display value in altValues set for Specimen_type_code (specimen_type).",
-        type: "Invalid code",
-        trackingIds: ["first_id1", "first_id3", "first_id4"],
+        class: "gov.cdc.prime.router.InvalidCodeMessage",
+        fieldMapping: "Specimen_type_code (specimen_type)",
+        scope: "item",
+        message:
+            "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
     },
     {
-        field: "second field",
-        description:
-            "Missing Ordering_facility_email (ordering_facility_email) header",
-        type: "Missing email",
-        trackingIds: ["second_id"],
+        class: "gov.cdc.prime.router.InvalidEquipmentMessage",
+        fieldMapping: "Equipment_Model_ID (equipment_model_id)",
+        scope: "item",
+        message:
+            "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
     },
 ];
 const MOCK_MESSAGE_ERRORS = [
     {
-        field: "first field",
-        description: "Missing required HL7 message type",
-        type: "Missing type",
-        trackingIds: ["first_id1", "first_id3", "first_id4"],
+        class: "first field",
+        fieldMapping: "Missing type",
+        message: "Missing required HL7 message type",
+        scope: "error",
     },
     {
-        field: "second field",
-        description: "Expecting content type of 'application/hl7 -v2",
-        type: "Invalid content type",
-        trackingIds: ["second_id"],
+        class: "second field",
+        fieldMapping: "Invalid content type",
+        message: "Expecting content type of 'application/hl7 -v2",
+        scope: "error",
     },
 ];
 const MOCK_RECEIVER_DATA = [
