@@ -9,9 +9,14 @@ import java.io.File
 import java.io.FileWriter
 
 /** Writes out the schema documentation in a CSV data dictionary format */
-object CsvDocumentationFactory : DocumentationFactory(), Logging {
-    private const val delimiter = "|"
+object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
     private val newlineRegex = "[\r\n]".toRegex()
+
+    /** Gets the headers for the document */
+    override fun getHeaders(): Array<String> = arrayOf(
+        "field_name", "type", "csv_field_name", "valueSet", "hl7Field", "documentation", "table",
+        "tableColumn", "mapper", "default", "cardinality", "pii"
+    )
 
     /** Get the file extension for this type of file */
     override val fileExtension: String
@@ -57,10 +62,7 @@ object CsvDocumentationFactory : DocumentationFactory(), Logging {
         // create a csv format
         val csvFormat = CSVFormat.Builder
             .create(CSVFormat.DEFAULT)
-            .setHeader(
-                "field_name", "type", "csv_field_name", "valueSet", "hl7Field", "documentation", "table",
-                "tableColumn", "mapper", "default", "cardinality", "pii"
-            )
+            .setHeader(*getHeaders())
             .build()
         // create a writer
         val csvWriter = CSVPrinter(

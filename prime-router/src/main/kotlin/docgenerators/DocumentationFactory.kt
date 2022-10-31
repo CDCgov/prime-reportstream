@@ -56,3 +56,8 @@ abstract class DocumentationFactory {
         }
     }
 }
+
+abstract class TableBasedDocumentationFactory : DocumentationFactory() {
+    open val delimiter = "|"
+    abstract fun getHeaders(): Array<String>
+}
