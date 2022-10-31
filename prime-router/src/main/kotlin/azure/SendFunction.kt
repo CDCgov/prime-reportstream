@@ -159,7 +159,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
-            if (nextRetryCount > retryDurationInMin.size) {
+            if (nextRetryCount > (retryDurationInMin.size - 1)) {
                 // Stop retrying and just put the task into an error state
                 val msg = "All retries failed.  Manual Intervention Required.  " +
                     "Send Error report for: $reportId to ${receiver.fullName}"
