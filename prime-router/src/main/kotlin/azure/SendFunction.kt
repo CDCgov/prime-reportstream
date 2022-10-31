@@ -44,7 +44,8 @@ val retryDurationInMin = mapOf(
     5 to (24 * 60L) //  1d 17r 10m since submission
 )
 // exact time of next retry is slightly randomized to avoid the situation when there's a
-// system-wide failure situation where every single retry happens at the same time.
+// system-wide failure happens and everything that's failed all retries at the exact same time.
+// This is +/- around the actual retry, so they are spread out by up to 10 minutes
 const val ditherRetriesInSec = (5 * 60)
 
 // Use this for testing retries:
