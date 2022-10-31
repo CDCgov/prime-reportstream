@@ -222,9 +222,23 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     internal fun insertAction(txn: Configuration, action: Action): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
-        actionRecord.store()
+        try {
+            actionRecord.store()
+        } catch (e: Exception) {
+            logger.error(
+                "FAILED to insert row into ACTION: action_name=${action.actionName}" +
+                    // The action_params value is huge and low value for receive actions, so skip it.
+                    (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "")
+            )
+            throw e
+        }
         val actionId = actionRecord.actionId
-        logger.debug("Saved to ACTION: ${action.actionName}, id=$actionId")
+        logger.info(
+            "Inserted row into ACTION: action_name=${action.actionName}" +
+                // The action_params value is huge and low value for receive actions, so skip it.
+                (if (action.actionName != TaskAction.receive) ", params= " + action.actionParams else "") +
+                ", action_id=$actionId"
+        )
         return actionId
     }
 
