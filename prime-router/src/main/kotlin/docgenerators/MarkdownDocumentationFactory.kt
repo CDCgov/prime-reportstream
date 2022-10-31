@@ -7,11 +7,12 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 
 /** a singleton instance to let us build documentation off of a schema or off of an element */
-object MarkdownDocumentationFactory : DocumentationFactory(), Logging {
+object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
 
+    /** The extension for this file type */
     override val fileExtension: String
         get() = "md"
 

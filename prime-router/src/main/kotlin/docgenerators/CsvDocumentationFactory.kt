@@ -10,6 +10,7 @@ import java.io.FileWriter
 
 /** Writes out the schema documentation in a CSV data dictionary format */
 object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
+    /** What we used to strip off newlines in the documentation text */
     private val newlineRegex = "[\r\n]".toRegex()
 
     /** Gets the headers for the document */
@@ -26,7 +27,7 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
     override fun getSchemaDocumentation(schema: Schema) = sequence {
         schema.elements.sortedBy { it -> it.name.lowercase().trim() }.forEach { element ->
             yield(
-                listOf(
+                listOf<String>(
                     element.name.lowercase().trim(),
                     (element.type?.name ?: ""),
                     element.csvFields?.get(0)?.name ?: "",
@@ -37,9 +38,9 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
                     element.tableColumn ?: "",
                     element.mapper ?: "",
                     element.default ?: "",
-                    element.cardinality ?: "",
-                    element.pii ?: "false"
-                ).joinToString(delimiter)
+                    element.cardinality?.toString() ?: "",
+                    element.pii?.toString() ?: "false"
+                )
             )
         }
     }
@@ -71,7 +72,7 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
         )
 
         getSchemaDocumentation(schema).forEach { row ->
-            csvWriter.printRecord(row.split("|"))
+            csvWriter.printRecord(row)
         }
 
         // some clean up

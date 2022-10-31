@@ -6,10 +6,11 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/** The base documentation factory with core logic */
 abstract class DocumentationFactory {
     abstract val fileExtension: String
 
-    abstract fun getSchemaDocumentation(schema: Schema): Sequence<String>
+    abstract fun getSchemaDocumentation(schema: Schema): Sequence<*>
 
     abstract fun writeDocumentationForSchema(
         schema: Schema,
@@ -57,7 +58,23 @@ abstract class DocumentationFactory {
     }
 }
 
+/**
+ * A string based documentation factory that returns a sequence of strings,
+ * as opposed to the [TableBasedDocumentationFactory] that returns a sequence of a list of strings
+ * for generating things like CSV and Excel. This is used for Markdown and HTML which have a non-table
+ * layout
+ **/
+abstract class StringBasedDocumentationFactory : DocumentationFactory() {
+    abstract override fun getSchemaDocumentation(schema: Schema): Sequence<String>
+}
+
+/** A documentation factory that is based on a table of data */
 abstract class TableBasedDocumentationFactory : DocumentationFactory() {
     open val delimiter = "|"
+
+    /** Gets the headers for the documentation factory */
     abstract fun getHeaders(): Array<String>
+
+    /** Override for the  */
+    abstract override fun getSchemaDocumentation(schema: Schema): Sequence<List<String>>
 }

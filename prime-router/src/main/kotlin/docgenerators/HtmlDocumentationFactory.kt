@@ -7,7 +7,8 @@ import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
 
 /** Wraps around the MD generator and creates HTML out of it */
-object HtmlDocumentationFactory : DocumentationFactory(), Logging {
+object HtmlDocumentationFactory : StringBasedDocumentationFactory(), Logging {
+    /** Returns the file extension we use for this type of documentation */
     override val fileExtension: String
         get() = "html"
 

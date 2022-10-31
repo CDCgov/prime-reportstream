@@ -66,7 +66,7 @@ object ExcelDocumentationFactory : TableBasedDocumentationFactory(), Logging {
                     // create the next row
                     sheet.createRow(index + 1).also { row ->
                         // split the values
-                        s.split(delimiter).forEachIndexed { cellIndex, cellValue ->
+                        s.forEachIndexed { cellIndex, cellValue ->
                             row.createCell(cellIndex).setCellValue(cellValue)
                         }
                     }
