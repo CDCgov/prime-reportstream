@@ -134,6 +134,7 @@ const MOCK_MESSAGE_SENDER_DETAILS = {
     sender: "somebody 1",
     submittedDate: "09/28/2022",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
+    fileName: "simple_report_example.csv",
     fileUrl: "https://someurl",
     warnings: MOCK_MESSAGE_WARNINGS,
     errors: MOCK_MESSAGE_ERRORS,
@@ -171,6 +172,10 @@ export function MessageDetails() {
                     <DetailItem
                         item={"Incoming Report ID"}
                         content={messageDetails.reportId}
+                    ></DetailItem>
+                    <DetailItem
+                        item={"Incoming File Name"}
+                        content={messageDetails.fileName}
                     ></DetailItem>
                     <DetailItem
                         item={"Incoming File URL"}

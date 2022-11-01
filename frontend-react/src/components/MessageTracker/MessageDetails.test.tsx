@@ -8,6 +8,7 @@ const mockData = {
     sender: "somebody 1",
     submittedDate: "2022-10-03T18:09:45.129997",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
+    fileName: "simple_report_example.csv",
     fileUrl: "https://someurl",
     warnings: [],
     errors: [],
@@ -37,6 +38,9 @@ describe("MessageDetails component", () => {
         expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
         expect(
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText("simple_report_example.csv")
         ).toBeInTheDocument();
         expect(screen.getByText("https://someurl")).toBeInTheDocument();
     });
