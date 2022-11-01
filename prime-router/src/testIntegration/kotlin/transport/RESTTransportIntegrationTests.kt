@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -31,87 +32,70 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     private val responseHeaders = headersOf("Content-Type" to listOf("application/json;charset=UTF-8"))
 
-    private val mockClientAuthOk = HttpClient(MockEngine) {
-        engine {
-            addHandler {
-                respond(
-                    """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
+    private val mockClientAuthOk = mockJsonResponseWithSuccess(
+        """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
-                        |"token_type": "Bearer", "expires_in": 3600}
-                    """.trimMargin(),
-                    HttpStatusCode.OK,
-                    responseHeaders
-                )
-            }
-        }
-        install(ClientContentNegotiation) { json() }
-    }
+                        |"token_type": "Bearer", "expires_in": 3600}"""
+    )
 
-    private val mockClientAuthError = HttpClient(MockEngine) {
-        engine {
-            addHandler {
-                respond(
-                    """{"error": {"code": 500,"message": "Mock internal server error."}}""",
-                    HttpStatusCode.InternalServerError,
-                    responseHeaders
-                )
-            }
-        }
-        install(ClientContentNegotiation) { json() }
-    }
+    private val mockClientAuthIDTokenOk = mockJsonResponseWithSuccess(
+        """{"email": "test-email@test.com",
+                        "idToken": "AYjcyMzY3ZDhiNmJkNTY", 
+                        |"expiresIn": 3600,
+                        "refreshToken": "RjY2NjM5NzA2OWJjuE7c"}"""
+    )
 
-    private val mockClientUnauthorized = HttpClient(MockEngine) {
-        engine {
-            addHandler {
-                respond(
-                    """{"error": {"code": 401,"message": "Mock unauthorized error."}}""",
-                    HttpStatusCode.Unauthorized,
-                    responseHeaders
-                )
-            }
-        }
-        install(ClientContentNegotiation) { json() }
-    }
+    private val mockClientAuthError = mockJsonResponseWithError(
+        """{"error": {"code": 500,"message": "Mock internal server error."}}"""
+    )
 
-    private val mockClientPostOk = HttpClient(MockEngine) {
-        engine {
-            addHandler { _ ->
-                respond(
-                    """{"status": "Success", 
+    private val mockClientUnauthorized = mockJsonResponseWithUnauthorized(
+        """{"error": {"code": 401,"message": "Mock unauthorized error."}}"""
+    )
+
+    private val mockClientPostOk = mockJsonResponseWithSuccess(
+        """{"status": "Success", 
                         |"statusDesc": "Received. LIN:4299844", 
-                        |"respTrackingId": "UT-20211119-746000000-54"}""".trimMargin(),
-                    HttpStatusCode.OK,
-                    responseHeaders
-                )
-            }
-        }
-        install(ClientContentNegotiation) { json() }
+                        |"respTrackingId": "UT-20211119-746000000-54"}"""
+    )
+
+    private val mockClientPostError = mockJsonResponseWithError(
+        """{"error": {"code": 500,"message": "Mock internal server error."}}"""
+    )
+
+    private val mockClientUnknownError = mockJsonResponseWithUnknown(
+        """{"error": {"code": 999,"message": "Mock internal server error."}}"""
+    )
+
+    private fun mockJsonResponseWithSuccess(jsonResponse: String): HttpClient {
+        return mockJsonResponse(jsonResponse, HttpStatusCode.OK)
     }
 
-    private val mockClientPostError = HttpClient(MockEngine) {
-        engine {
-            addHandler {
-                respond(
-                    """{"error": {"code": 500,"message": "Mock internal server error."}}""",
-                    HttpStatusCode.InternalServerError,
-                    responseHeaders
-                )
-            }
-        }
-        install(ClientContentNegotiation) { json() }
+    private fun mockJsonResponseWithError(jsonResponse: String): HttpClient {
+        return mockJsonResponse(jsonResponse, HttpStatusCode.InternalServerError)
     }
 
-    private val mockClientUnknownError = HttpClient(MockEngine) {
-        engine {
-            addHandler {
-                respond(
-                    """{"error": {"code": 999,"message": "Mock internal server error."}}""",
-                    HttpStatusCode(999, "Unknown error"),
-                    responseHeaders
-                )
+    private fun mockJsonResponseWithUnauthorized(jsonResponse: String): HttpClient {
+        return mockJsonResponse(jsonResponse, HttpStatusCode.Unauthorized)
+    }
+
+    private fun mockJsonResponseWithUnknown(jsonResponse: String): HttpClient {
+        return mockJsonResponse(jsonResponse, HttpStatusCode(999, "Uknown Error"))
+    }
+
+    private fun mockJsonResponse(jsonResponse: String, whatStatusCode: HttpStatusCode): HttpClient {
+        return HttpClient(MockEngine) {
+            engine {
+                addHandler {
+                    respond(
+                        jsonResponse.trimMargin(),
+                        whatStatusCode,
+                        responseHeaders
+                    )
+                }
             }
+            install(ClientContentNegotiation) { json() }
         }
-        install(ClientContentNegotiation) { json() }
     }
 
     private var actionHistory = ActionHistory(TaskAction.send)
@@ -164,7 +148,34 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserApiKeyCredential("test-user", "test-key")
+            UserApiKeyCredential(
+                "test-user",
+                "test-key"
+            )
+        )
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test connecting to mock service getIdToken happy path`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("test-user", "test-pass")
+        )
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test connecting to mock service credential happy path`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("test-user", "test-pass")
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)

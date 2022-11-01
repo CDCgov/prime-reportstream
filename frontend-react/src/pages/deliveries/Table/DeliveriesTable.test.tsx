@@ -22,7 +22,6 @@ describe("DeliveriesTable", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                senderName: undefined,
             },
             initialized: true,
             dispatch: () => {},
@@ -95,7 +94,6 @@ describe("useReceiverFeed", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                senderName: undefined,
             },
             initialized: true,
             dispatch: () => {},

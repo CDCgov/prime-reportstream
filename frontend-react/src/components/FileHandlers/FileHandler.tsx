@@ -115,7 +115,7 @@ const FileHandler = ({
     const { sender, loading: senderLoading } = useSenderResource();
 
     const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.senderName;
+    const senderName = activeMembership?.service;
     const client = `${parsedName}.${senderName}`;
     const validateOnly = useMemo(
         () => handlerType !== FileHandlerType.UPLOAD,
