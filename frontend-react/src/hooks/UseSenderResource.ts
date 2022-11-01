@@ -4,28 +4,6 @@ import { useSessionContext } from "../contexts/SessionContext";
 import { RSService, servicesEndpoints } from "../config/endpoints/services";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 
-interface SenderKeys {
-    scope: string;
-    keys: {}[];
-}
-
-export interface RSSender extends RSService {
-    allowDuplicates: boolean;
-    createdAt?: string;
-    createdBy?: string;
-    customerStatus: string;
-    format: string;
-    keys?: SenderKeys;
-    name: string;
-    organizationName: string;
-    primarySubmissionMethod?: string;
-    processingType: string;
-    schemaName: string;
-    senderType?: string;
-    topic: string;
-    version?: number;
-}
-
 const { senderDetail } = servicesEndpoints;
 export const useSenderResource = () => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSService>();
