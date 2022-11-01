@@ -2,8 +2,10 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.InvalidCodeMessage
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.messageTracker.MessageActionLog
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -22,6 +24,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 class MessagesFunctionsTests {
+    val id: Long = 6
 
     private fun buildMessagesFunction(
         mockDbAccess: DatabaseAccess? = null
@@ -117,6 +120,68 @@ class MessagesFunctionsTests {
             MessageActionLog(
                 "trackingId",
                 actionLogDetail
+            )
+        )
+    }
+
+    private fun buildItemLineagesByParentReportIdAndTrackingId(parentReportId: ReportId, trackingId: String):
+        List<ItemLineage> {
+        return listOf(
+            ItemLineage(
+                1,
+                parentReportId,
+                14,
+                UUID.randomUUID(),
+                1,
+                trackingId,
+                null,
+                OffsetDateTime.now().minusWeeks(1),
+                ""
+            )
+        )
+    }
+
+    private fun buildReportFileByIds(reportId: ReportId): List<ReportFile> {
+        return listOf(
+            ReportFile(
+                reportId,
+                1,
+                null,
+                null,
+                null,
+                null,
+                "md-phd",
+                "elr",
+                null,
+                "Success: sftp upload of covid-19-123.hl7 to SFTPTransportType",
+                "covid-19",
+                "covid-19",
+                null,
+                "covid-19-c74ddaa2-4a8b-4a6a-ba04-9635d8ed7432-20220928195607.hl7",
+                "HL7_BATCH",
+                null,
+                2,
+                null,
+                OffsetDateTime.now().minusWeeks(1),
+                null,
+                null
+            )
+        )
+    }
+
+    private fun buildActionLogsByReportIdAndFilterType():
+        List<MessageActionLog> {
+        val actionLogDetail1 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
+        val actionLogDetail2 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
+
+        return listOf(
+            MessageActionLog(
+                "trackingId1",
+                actionLogDetail1
+            ),
+            MessageActionLog(
+                "trackingId2",
+                actionLogDetail2
             )
         )
     }
@@ -239,7 +304,6 @@ class MessagesFunctionsTests {
 
     @Test
     fun `test processMessageDetailRequest function`() {
-        val id: Long = 6
         val reportId: UUID = UUID.randomUUID()
         val messageId: String = UUID.randomUUID().toString()
         val mockDbAccess = mockk<DatabaseAccess>()
@@ -261,17 +325,43 @@ class MessagesFunctionsTests {
                 any()
             )
         } returns buildActionLogs()
+        every {
+            mockDbAccess.fetchItemLineagesByParentReportIdAndTrackingId(
+                any(),
+                any(),
+                any()
+            )
+        } returns buildItemLineagesByParentReportIdAndTrackingId(reportId, messageId)
+        every { mockDbAccess.fetchReportFileByIds(any()) } returns buildReportFileByIds(reportId)
+        every {
+            mockDbAccess.fetchActionLogsByReportIdAndFilterType(
+                any(),
+                any()
+            )
+        } returns buildActionLogsByReportIdAndFilterType()
+
         val response = messagesFunctions.processMessageDetailRequest(mockRequestWithMessageId, id)
 
         val jsonResponse = JSONObject(response.body.toString())
         val messageDetailObjectId = jsonResponse.get("id") as Int
         assert(messageDetailObjectId.toLong() == id)
         assert(response.status.equals(HttpStatus.OK))
+
+        // Exception in the database
+        val mockRequestInvalidReportIdValue = MockHttpRequestMessage()
+        mockRequestInvalidReportIdValue.parameters["reportId"] = "report-id"
+        every {
+            mockDbAccess.fetchReportFile(any())
+        }.throws(Exception("missing a report id"))
+        val missingReportIdValueResponse = messagesFunctions.processMessageDetailRequest(
+            mockRequestInvalidReportIdValue,
+            id
+        )
+        assert(missingReportIdValueResponse.status.equals(HttpStatus.BAD_REQUEST))
     }
 
     @Test
     fun `test processMessageDetailRequest function no id found`() {
-        val id: Long = 6
         val mockDbAccess = mockk<DatabaseAccess>()
         val messagesFunctions = spyk(buildMessagesFunction(mockDbAccess))
 
@@ -290,7 +380,6 @@ class MessagesFunctionsTests {
     @Test
     fun `test messageDetails function`() {
         val messagesFunctions = spyk(MessagesFunctions())
-        val id: Long = 6
 
         // Happy path
         val req = MockHttpRequestMessage()
@@ -331,7 +420,6 @@ class MessagesFunctionsTests {
     @Test
     fun `test messageDetails function internal server error`() {
         // throw exception
-        val id: Long = 6
         val internalServerErrorReq = MockHttpRequestMessage()
         val messagesFunctions = spyk(buildMessagesFunction())
 

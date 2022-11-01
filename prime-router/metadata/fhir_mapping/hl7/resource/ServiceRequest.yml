@@ -144,7 +144,7 @@ requester:
   expressionType: reference
   vars:
     rolePractitioner: ORC.12 | OBR.16
-    rolePractitionerCallbackNumber: ORC.14 | OBR.17
+    useObrOrcCallbackNumber: ORC.14 | OBR.17
     roleOrganization: ORC.21
     roleOrganizationAddress: ORC.22
     roleOrganizationPhone: ORC.23

@@ -11,6 +11,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import org.apache.commons.io.FilenameUtils
+import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -83,32 +84,37 @@ class FhirToHl7Converter(
 
     /**
      * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
-     * [focusResource] in the bundle.
+     * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     internal fun processSchema(
         schema: ConfigSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle)
+        context: CustomContext = CustomContext(bundle, bundle),
+        debug: Boolean = false
     ) {
-        logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
+        val logLevel = if (debug) Level.INFO else Level.DEBUG
+        logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
         schema.elements.forEach { element ->
-            processElement(element, bundle, focusResource, schemaContext)
+            processElement(element, bundle, focusResource, schemaContext, debug)
         }
     }
 
     /**
      * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [focusResource] in the bundle.
+     * Set [debug] to true to enable debug statements to the logs.
      */
     internal fun processElement(
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext
+        context: CustomContext,
+        debug: Boolean = false
     ) {
+        val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
@@ -135,8 +141,10 @@ class FhirToHl7Converter(
                             index.toString(),
                             elementContext
                         )
-                        logger.debug("Processing element ${element.name} with schema ${element.schema} ...")
-                        processSchema(element.schemaRef!!, bundle, singleFocusResource, indexContext)
+                        logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
+                        processSchema(
+                            element.schemaRef!!, bundle, singleFocusResource, indexContext, element.debug || debug
+                        )
                     }
 
                     // A value
@@ -158,7 +166,7 @@ class FhirToHl7Converter(
             }
         }
         // Only log for elements that require values
-//        if (element.schemaRef == null) logger.debug(debugMsg)
+        if (element.schemaRef == null) logger.log(logLevel, debugMsg)
         logger.trace("End processing of element ${element.name}.")
     }
 
