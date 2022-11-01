@@ -158,6 +158,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             logger.info("Successfully sent report: $reportId to ${receiver.fullName}")
             ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
         } else {
+            // mapOf() in kotlin is `1` based (not `0`), but always +1
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
             if (nextRetryCount > retryDurationInMin.size) {
                 // Stop retrying and just put the task into an error state
