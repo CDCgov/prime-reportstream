@@ -198,7 +198,7 @@ describe("FileHandler", () => {
                 uploaderError: null,
                 sendFile: () => Promise.resolve({}),
             });
-            renderWithQueryProvider(
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
@@ -365,7 +365,7 @@ describe("FileHandler", () => {
                 uploaderError: null,
                 sendFile: () => Promise.resolve({}),
             });
-            renderWithQueryProvider(
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
