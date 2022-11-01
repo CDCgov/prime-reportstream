@@ -100,8 +100,10 @@ class FhirToHl7Converter(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         // check for duplicate named schema elements before processing
-        if (schema.elements.filter { it.name != null }.groupingBy { it.name }.eachCount().any { it.value > 1 }) {
-            throw SchemaException("Schema ${schema.name} had multiple elements with the same name.")
+        val dupes =
+            schema.elements.filter { it.name != null }.groupingBy { it.name }.eachCount().filter { it.value > 1 }
+        if (dupes.isNotEmpty()) { // value is the number of matches
+            throw SchemaException("Schema ${schema.name} had multiple elements with the same name: $dupes")
         }
 
         schema.elements.forEach { element ->
