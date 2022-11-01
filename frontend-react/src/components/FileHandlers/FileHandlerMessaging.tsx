@@ -172,6 +172,7 @@ export const RequestedChangesDisplay = ({
                     </li>
                     <li>
                         <a
+                            className={"usa-link--external"}
                             target={"_blank"}
                             href={
                                 "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
