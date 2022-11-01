@@ -8,7 +8,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
@@ -226,7 +225,7 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // condition passes
-        val filter = listOf(listOf("Bundle.entry.resource.ofType(MessageHeader).count() > 0"))
+        val filter = listOf("Bundle.entry.resource.ofType(MessageHeader).count() > 0")
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhir)
@@ -327,10 +326,10 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getJurisFilters(receiver)
+        val filter = engine.getJurisFilters(receiver)
 
         // assert
-        assert(filters.isEmpty())
+        assert(filter == null)
     }
 
     @Test
@@ -369,8 +368,8 @@ class FhirRouterTests {
         val filters = engine.getJurisFilters(receiver)
 
         // assert
-        assert(filters.size == 1)
-        assert(filters[0][0] == "test")
+        assert(filters != null)
+        assert(filters!![0] == "test")
     }
 
     @Test
@@ -407,12 +406,13 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getJurisFilters(receiver)
+        val filter = engine.getJurisFilters(receiver)
 
         // assert
-        assert(filters.size == 1)
-        assert(filters.flatten().any { it == "testRec" })
-        assert(filters.flatten().none { it == "testOrg" })
+        assert(filter != null)
+        check(filter != null)
+        assert(filter.any { it == "testRec" })
+        assert(filter.none { it == "testOrg" })
     }
 
     @Test
@@ -443,8 +443,8 @@ class FhirRouterTests {
         val filters = engine.getJurisFilters(receiver)
 
         // assert
-        assert(filters.size == 1)
-        assert(filters.flatten().any { it == "testRec" })
+        assert(filters != null)
+        assert(filters!!.any { it == "testRec" })
     }
 
     @Test
@@ -481,13 +481,14 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getJurisFilters(receiver)
+        val filter = engine.getJurisFilters(receiver)
 
         // assert
-        assert(filters.size == 1)
-        assert(filters.flatten().any { it == "testRec" })
-        assert(filters.flatten().any { it == "testRec2" })
-        assert(filters.flatten().none { it == "testOrg" })
+        assert(filter != null)
+        check(filter != null)
+        assert(filter.any { it == "testRec" })
+        assert(filter.any { it == "testRec2" })
+        assert(filter.none { it == "testOrg" })
     }
 
     @Test
@@ -508,7 +509,7 @@ class FhirRouterTests {
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
 
-        val filter = listOf<ReportStreamFilter>()
+        val filter: List<String>? = null
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -549,7 +550,7 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // condition passes
-        val filter = listOf(listOf("Bundle.entry.resource.ofType(Provenance).count() > 0"))
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -590,7 +591,7 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // condition does not pass
-        val filter = listOf(listOf("Bundle.entry.resource.ofType(Provenance).count() = 0"))
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 0")
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -631,12 +632,11 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // both conditions pass
-        val filter = listOf(
+        val filter =
             listOf(
                 "Bundle.entry.resource.ofType(Provenance).count() > 0",
                 "Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R01'"
             )
-        )
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -677,12 +677,11 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // first condition passes, 2nd doesn't
-        val filter = listOf(
+        val filter =
             listOf(
                 "Bundle.entry.resource.ofType(Provenance).count() > 0",
                 "Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R02'"
             )
-        )
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)

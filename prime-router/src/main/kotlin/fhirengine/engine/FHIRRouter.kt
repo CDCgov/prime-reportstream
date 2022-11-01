@@ -60,20 +60,20 @@ class FHIRRouter(
             // find all receivers that have the full ELR topic and determine which applies
             val fullElrReceivers = settings.receivers.filter { it.topic == Topic.FULL_ELR.json_val }
             fullElrReceivers.forEach { receiver ->
-                // get the correct filters for the receiver. If the receiver has juris filters, get those
-                //  otherwise, pull the parent organization's juris filters
-                val filters = getJurisFilters(receiver)
+                // Get the applicable filters, either receiver or organization level if there are no receiver
+                //  filters. If there are no filters, the default juris rule is allowNone
+                val filter = getJurisFilters(receiver)
 
                 // default filter is 'allowNone', so there has to be at least one configured filter for the receiver
                 //  to get this record
-                if (filters.any()) {
+                if (filter != null) {
                     // go through all filter conditions in all juris filters that are configured and boolean AND each
                     //  predicate
-                    val passesFilter = filters.all { jurisFilter ->
-                        jurisFilter.all {
+                    val passesFilter =
+                        filter.all {
                             FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
                         }
-                    }
+
                     if (passesFilter)
                         listOfReceivers.add(receiver)
                 }
@@ -82,7 +82,7 @@ class FHIRRouter(
             // TODO: other filter types
 
             // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.any()) {
+            if (listOfReceivers.isNotEmpty()) {
                 FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
             }
 
@@ -188,18 +188,16 @@ class FHIRRouter(
      * first and looks at the parent organization if the receiver does not have any jurs filters configured for
      * this topic
      */
-    internal fun getJurisFilters(receiver: Receiver): List<ReportStreamFilter> {
-        val filters = mutableListOf<ReportStreamFilter>()
-        if (receiver.jurisdictionalFilter.any())
-            filters.add(receiver.jurisdictionalFilter)
-        else {
+    internal fun getJurisFilters(receiver: Receiver): ReportStreamFilter? {
+        return receiver.jurisdictionalFilter.ifEmpty {
             val org = settings.findOrganization(receiver.organizationName)!!
             if (org.filters != null &&
                 org.filters.any { it.topic == Topic.FULL_ELR.json_val } &&
                 org.filters.first { it.topic == Topic.FULL_ELR.json_val }.jurisdictionalFilter != null
             )
-                filters.add(org.filters.first { it.topic == Topic.FULL_ELR.json_val }.jurisdictionalFilter!!)
+                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.jurisdictionalFilter!!
+            else
+                null
         }
-        return filters.map { it }
     }
 }

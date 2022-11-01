@@ -879,8 +879,6 @@
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
-#      jurisdictionalFilter:
-#        - "FHIRPATH STRING"
       qualityFilter: [ ]
       routingFilter: [ ]
       processingModeFilter: [ ]
