@@ -15,6 +15,12 @@ updates:
       interval: "weekly"
       day: "sunday"
 
+  - package-ecosystem: "github-actions"
+    # test action/demo-env
+    directory: "/actions/demo-env"
+    schedule:
+      interval: "daily""
+
   # FRONTEND
   - package-ecosystem: "npm"
     directory: "/frontend-react"
