@@ -11,7 +11,7 @@ describe("MessageReceivers component", () => {
                 receivingOrgSvc: "elr",
                 transportResult: "Transport result",
                 fileName: "fl-covid-19.hl7",
-                fileUrl: "http://azurite:10000/devstoreaccount1.csv",
+                fileUrl: "https://azurite:10000/devstoreaccount1.csv",
                 createdAt: "2022-09-28T19:55:12.46782",
                 qualityFilters: [
                     {
@@ -65,7 +65,7 @@ describe("MessageReceivers component", () => {
         expect(screen.getByText(/fl-covid-19.hl7/)).toBeInTheDocument();
         expect(screen.getByText(/Incoming File URL/)).toBeInTheDocument();
         expect(
-            screen.getByText("http://azurite:10000/devstoreaccount1.csv")
+            screen.getByText("https://azurite:10000/devstoreaccount1.csv")
         ).toBeInTheDocument();
         expect(screen.getByText("Date/Time Submitted")).toBeInTheDocument();
         expect(screen.getByText(/September 28 2022/)).toBeInTheDocument();

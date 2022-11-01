@@ -62,7 +62,7 @@ const MOCK_RECEIVER_DATA = [
         transportResult: "FAILED Sftp Upload blah blah blah",
         fileName: null,
         fileUrl:
-            "http://azurite:10000/devstoreaccount1/reports/batch%2Fak-phd.elr%2Fcovid-19-6d2d1ad0-1bdf-4d0b-804a-1e3494928f0f-20220928195512.internal.csv",
+            "https://azurite:10000/devstoreaccount1/reports/batch%2Fak-phd.elr%2Fcovid-19-6d2d1ad0-1bdf-4d0b-804a-1e3494928f0f-20220928195512.internal.csv",
         createdAt: "2022-09-28T19:55:12.46782",
         qualityFilters: [
             {
