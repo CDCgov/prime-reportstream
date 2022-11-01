@@ -29,6 +29,7 @@ describe("useSenderResource", () => {
             wrapper: QueryWrapper(),
         });
         expect(result.current.senderDetail).toEqual(undefined);
+        expect(result.current.senderIsLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
         mockSessionContext.mockReturnValue({
@@ -49,5 +50,6 @@ describe("useSenderResource", () => {
         );
         await waitForNextUpdate();
         expect(result.current.senderDetail).toEqual(dummySender);
+        expect(result.current.senderIsLoading).toEqual(false);
     });
 });

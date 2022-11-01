@@ -23,7 +23,7 @@ export const useSenderResource = () => {
             authorizedFetch,
         ]
     );
-    const { data } = rsUseQuery(
+    const { data, isLoading } = rsUseQuery(
         [senderDetail.queryKey, activeMembership],
         memoizedDataFetch,
         {
@@ -31,5 +31,5 @@ export const useSenderResource = () => {
                 !!activeMembership?.parsedName && !!activeMembership.service,
         }
     );
-    return { senderDetail: data };
+    return { senderDetail: data, senderIsLoading: isLoading };
 };
