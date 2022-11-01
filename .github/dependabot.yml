@@ -17,7 +17,7 @@ updates:
 
   - package-ecosystem: "github-actions"
     # test action/demo-env
-    directory: "/actions/demo-env"
+    directory: "/.github/actions/demo-env"
     schedule:
       interval: "daily""
 
