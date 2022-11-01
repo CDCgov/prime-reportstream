@@ -31,7 +31,7 @@ runs:
 
     - name: Terraform - destroy
       if: inputs.destroy == 'true'
-      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
       with:
         timeout_minutes: 30
         max_attempts: 3
@@ -80,7 +80,7 @@ runs:
 
     - name: Terraform - apply
       if: inputs.destroy == 'false'
-      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
       with:
         timeout_minutes: 45
         max_attempts: 3
