@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
-import { RSService, servicesEndpoints } from "../config/endpoints/services";
+import { RSSender, servicesEndpoints } from "../config/endpoints/services";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 
 const { senderDetail } = servicesEndpoints;
 export const useSenderResource = () => {
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSService>();
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();
     /* Access the session. */
     const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(

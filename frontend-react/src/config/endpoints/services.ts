@@ -14,6 +14,28 @@ export interface RSService {
     customerStatus: string;
 }
 
+interface SenderKeys {
+    scope: string;
+    keys: {}[];
+}
+
+export interface RSSender extends RSService {
+    allowDuplicates: boolean;
+    createdAt?: string;
+    createdBy?: string;
+    customerStatus: string;
+    format: string;
+    keys?: SenderKeys;
+    name: string;
+    organizationName: string;
+    primarySubmissionMethod?: string;
+    processingType: string;
+    schemaName: string;
+    senderType?: string;
+    topic: string;
+    version?: number;
+}
+
 /*
 Services Endpoints
 * senders -> fetches a list of organization's senders
