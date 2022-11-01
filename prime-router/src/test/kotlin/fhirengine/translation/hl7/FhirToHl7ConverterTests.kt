@@ -363,5 +363,26 @@ class FhirToHl7ConverterTests {
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
         }.isFailure()
+
+        // check that duplicate names trigger an exception when attempting to convert
+        element = ConfigSchemaElement(
+            "iMustBeUnique",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
+        )
+
+        val dupe = ConfigSchemaElement(
+            "iMustBeUnique",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-12")
+        )
+        schema = ConfigSchema(
+            hl7Type = "ORU_R01",
+            hl7Version = "2.5.1",
+            elements = mutableListOf(element, dupe)
+        )
+
+        assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
+            .hasClass(SchemaException::class.java)
     }
 }

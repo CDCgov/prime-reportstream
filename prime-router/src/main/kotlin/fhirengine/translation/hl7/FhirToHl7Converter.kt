@@ -98,6 +98,12 @@ class FhirToHl7Converter(
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
+
+        // check for duplicate named schema elements before processing
+        if (schema.elements.filter { it.name != null }.groupingBy { it.name }.eachCount().any { it.value > 1 }) {
+            throw SchemaException("Schema ${schema.name} had multiple elements with the same name.")
+        }
+
         schema.elements.forEach { element ->
             processElement(element, bundle, focusResource, schemaContext, debug)
         }
