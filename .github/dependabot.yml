@@ -15,14 +15,12 @@ updates:
       interval: "weekly"
       day: "sunday"
 
-  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
-    # Workflow files stored in "actions"
-    directory: "/.github/actions"
+    # test action/demo-env
+    directory: "/.github/actions/demo-env"
     schedule:
-      interval: "weekly"
-      day: "sunday"
-  
+      interval: "daily"
+
   # FRONTEND
   - package-ecosystem: "npm"
     directory: "/frontend-react"
