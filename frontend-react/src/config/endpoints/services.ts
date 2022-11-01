@@ -2,6 +2,7 @@ import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
 
 export enum ServicesUrls {
     SENDERS = "/settings/organizations/:orgName/senders",
+    SENDER_DETAIL = "/settings/organizations/:orgName/senders/:sender",
     RECEIVERS = "/settings/organizations/:orgName/receivers",
 }
 
@@ -23,6 +24,11 @@ export const servicesEndpoints: RSApiEndpoints = {
         path: ServicesUrls.SENDERS,
         method: HTTPMethods.GET,
         queryKey: "servicesSenders",
+    }),
+    senderDetail: new RSEndpoint({
+        path: ServicesUrls.SENDER_DETAIL,
+        method: HTTPMethods.GET,
+        queryKey: "servicesSenderDetail",
     }),
     receivers: new RSEndpoint({
         path: ServicesUrls.RECEIVERS,
