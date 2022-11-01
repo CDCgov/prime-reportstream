@@ -501,8 +501,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .toList()
     }
 
+    fun fetchReportDescendantsFromReportId(
+        parentReportId: ReportId,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val sql = """select * FROM 
+                report_file where report_id in (
+                select * from report_descendants(?)
+                where report_id != ?
+                limit(100)
+                )
+              """
+        return ctx.fetch(sql, parentReportId, parentReportId)
+            .into(ReportFile::class.java)
+            .toList()
+    }
+
     fun fetchActionLogsByReportIdAndFilterType(
         reportId: ReportId,
+        trackingId: String,
         filterType: String,
         txn: DataAccessTransaction? = null
     ): List<MessageActionLog> {
@@ -512,6 +530,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(ACTION_LOG.REPORT_ID.eq(reportId))
             .and(ACTION_LOG.TYPE.eq(ActionLogType.filter))
             .and(detailField.eq(filterType))
+            .and(ACTION_LOG.TRACKING_ID.eq(trackingId))
+            .limit(100)
             .fetch()
             .into(MessageActionLog::class.java)
             .toList()

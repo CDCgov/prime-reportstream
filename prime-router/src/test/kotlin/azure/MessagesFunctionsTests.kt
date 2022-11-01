@@ -6,7 +6,6 @@ import gov.cdc.prime.router.InvalidCodeMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.messageTracker.MessageActionLog
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -122,19 +121,31 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildItemLineagesByParentReportIdAndTrackingId(parentReportId: ReportId, trackingId: String):
-        List<ItemLineage> {
+    private fun buildReportDescendantsFromReportId():
+        List<ReportFile> {
         return listOf(
-            ItemLineage(
-                1,
-                parentReportId,
-                14,
+            ReportFile(
                 UUID.randomUUID(),
-                1,
-                trackingId,
+                11,
+                TaskAction.send,
+                null,
+                null,
+                null,
+                "md-phd",
+                "elr",
+                null,
+                null,
+                "covid-19",
+                "covid-19",
+                "http://azurite:10000/devstoreaccount1/reports/20220928195607.hl7",
+                null,
+                "HL7_BATCH",
+                null,
+                2,
                 null,
                 OffsetDateTime.now().minusWeeks(1),
-                ""
+                null,
+                null
             )
         )
     }
@@ -324,12 +335,11 @@ class MessagesFunctionsTests {
             )
         } returns buildActionLogs()
         every {
-            mockDbAccess.fetchItemLineagesByParentReportIdAndTrackingId(
-                any(),
+            mockDbAccess.fetchReportDescendantsFromReportId(
                 any(),
                 any()
             )
-        } returns buildItemLineagesByParentReportIdAndTrackingId(reportId, messageId)
+        } returns buildReportDescendantsFromReportId()
         every { mockDbAccess.fetchReportFileByIds(any()) } returns buildReportFileByIds(reportId)
         every {
             mockDbAccess.fetchActionLogsByReportIdAndFilterType(
