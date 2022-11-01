@@ -86,7 +86,7 @@ class FhirToHl7Converter(
      * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
-    internal fun processSchema(
+    private fun processSchema(
         schema: ConfigSchema,
         bundle: Bundle,
         focusResource: Base,
@@ -143,7 +143,11 @@ class FhirToHl7Converter(
                         )
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
-                            element.schemaRef!!, bundle, singleFocusResource, indexContext, element.debug || debug
+                            element.schemaRef!!,
+                            bundle,
+                            singleFocusResource,
+                            indexContext,
+                            element.debug || debug
                         )
                     }
 
