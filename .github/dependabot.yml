@@ -19,7 +19,7 @@ updates:
     # test action/demo-env
     directory: "/.github/actions/demo-env"
     schedule:
-      interval: "daily""
+      interval: "daily"
 
   # FRONTEND
   - package-ecosystem: "npm"
