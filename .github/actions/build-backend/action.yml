@@ -47,7 +47,7 @@ runs:
         files: prime-router/build/test-results/test/**/*.xml
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
