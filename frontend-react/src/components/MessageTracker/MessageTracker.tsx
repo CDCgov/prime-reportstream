@@ -28,8 +28,8 @@ const MOCK_MESSAGE_SENDER_DATA = [
 // TODO: move this interface into the resources directory
 export interface MessageListResource {
     messageId: string;
-    sender: string | undefined;
-    submittedDate: string | undefined;
+    sender: string;
+    submittedDate: string;
     reportId: string;
 }
 
