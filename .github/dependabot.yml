@@ -6,7 +6,7 @@
 version: 2
 updates:
 
-  # Maintain dependencies for GitHub Actions
+  # Maintain dependencies for GitHub Actions Workflows
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
     # default location of `.github/workflows`
@@ -15,9 +15,65 @@ updates:
       interval: "weekly"
       day: "sunday"
 
+  # Maintain dependencies for GitHub Actions custom actions
+  # These entries need to be updated for every new action created
   - package-ecosystem: "github-actions"
-    # test action/demo-env
+    directory: "/.github/actions/build-backend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-frontend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-vars"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-backup"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-query"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-restore"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
     directory: "/.github/actions/demo-env"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/deploy-backend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/deploy-frontend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/mount-share"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/runner-ip"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
 
