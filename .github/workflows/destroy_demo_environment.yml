@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@bbe167fbdaa1a3bd046bdd70eba9dd3dddcca99c
+        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
         with:
           terraform_version: 1.2.0
           terraform_wrapper: false
