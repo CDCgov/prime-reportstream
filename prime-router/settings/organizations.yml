@@ -786,6 +786,12 @@
   description: Colorado Department of Public Health and Environment
   jurisdiction: STATE
   stateCode: CO
+  filters: # default filters applied for all receivers of this organization, if not overridden by receiver filter
+    - topic: "full-elr"
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CO') or (Bundle.entry.resource.ofType(Patient).address.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'CO')"
+        # TODO If we had constants defined, this is how this would look
+#        - "%performerState = 'CO' or %patientState = 'CO'"
   receivers:
     - name: "elr-hl7"
       organizationName: "co-phd"
@@ -873,7 +879,6 @@
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
-      jurisdictionalFilter: [ ]
       qualityFilter: [ ]
       routingFilter: [ ]
       processingModeFilter: [ ]
