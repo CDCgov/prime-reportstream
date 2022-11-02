@@ -106,7 +106,7 @@ runs:
       run: az acr login --name ${{ env.ACR_NAME }}
       shell: bash
 
-    - uses: Azure/get-keyvault-secrets@71857adb0104f2651bcd91bef5e55f3d6c28a16a
+    - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
       if: env.USE_DCT == 'true'
       with:
         keyvault: ${{ env.KEY_VAULT }}
