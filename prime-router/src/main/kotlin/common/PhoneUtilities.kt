@@ -45,7 +45,7 @@ object PhoneUtilities {
      * Parses a passed in [cleanedValue] into a PhoneNumber and determines if it has an extension or not.
      * @return a boolean indicating if the value passed in is a phone number with an extension
      */
-    fun hasExtension(cleanedValue: String): Boolean {
+    fun hasPhoneNumberExtension(cleanedValue: String): Boolean {
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
         // determine if this is a phone number
         if (
