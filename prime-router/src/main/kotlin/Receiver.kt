@@ -83,13 +83,15 @@ open class Receiver(
             emptyMap(),
             "standard",
             null
-        )
+        ),
+        jurisdictionalFilter: ReportStreamFilter = emptyList(),
     ) : this(
         name,
         organizationName,
         topic,
         customerStatus,
         translation,
+        jurisdictionalFilter = jurisdictionalFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat

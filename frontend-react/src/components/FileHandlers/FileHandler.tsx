@@ -112,7 +112,7 @@ const FileHandler = ({
     const { organization, loading: organizationLoading } =
         useOrganizationResource();
     // need to fetch sender from API to grab cvs vs hl7 format info
-    const { sender, loading: senderLoading } = useSenderResource();
+    const { senderDetail: sender, senderIsLoading } = useSenderResource();
 
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.service;
@@ -249,7 +249,7 @@ const FileHandler = ({
         (reportId || overallStatus === OverallStatus.VALID) &&
         !hasQualityFilterMessages;
 
-    if (senderLoading || organizationLoading) {
+    if (senderIsLoading || organizationLoading) {
         return <FileHandlerSpinner message="Loading..." />;
     }
 
