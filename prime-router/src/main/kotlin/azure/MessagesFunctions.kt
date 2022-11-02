@@ -168,6 +168,7 @@ class MessagesFunctions(
                     errorMessage = "No message found."
                     HttpStatus.BAD_REQUEST
                 } else {
+                    // incoming report from the sender
                     val reportResult = dbAccess.fetchReportFile(result.reportId)
                     val actionLogWarnings = dbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
                         result.reportId,
@@ -229,12 +230,17 @@ class MessagesFunctions(
     }
 
     internal fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
-        val itemLineages = dbAccess.fetchItemLineagesByParentReportIdAndTrackingId(reportId, trackingId)
-        val childReportIds = itemLineages.map { it.childReportId }
+        val reportDescendants = dbAccess.fetchReportDescendantsFromReportId(reportId).filter { it.receivingOrg != null }
+        val childReportIds = reportDescendants.map { it.reportId }
         val reportFiles = dbAccess.fetchReportFileByIds(childReportIds)
 
         return reportFiles.map {
-            val qualityFilters = dbAccess.fetchActionLogsByReportIdAndFilterType(it.reportId, "QUALITY_FILTER")
+            // Should we filter by trackingId???
+            val qualityFilters = dbAccess.fetchActionLogsByReportIdAndFilterType(
+                it.reportId,
+                trackingId,
+                "QUALITY_FILTER"
+            )
 
             MessageReceiver(
                 it.reportId.toString(),

@@ -60,11 +60,12 @@ elements:
     resourceIndex: contactIndex
 
   - name: order-callback-phone-number
-    resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{hl7Order}-14'
+      hl7TelecomField: '%{hl7Order}-14(%{callbackIndex})'
     schema: datatype/xtn-telecom
+    resourceIndex: callbackIndex
 
   - name: order-effective-date
     value: [ '%service.occurrence' ]
