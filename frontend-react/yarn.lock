@@ -2801,10 +2801,10 @@
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
 
-"@xmldom/xmldom@0.7.7", "@xmldom/xmldom@^0.7.2":
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.7.tgz#16bd8a4e5c953018b8168e5d0a7d26b117cd7fa9"
-  integrity sha512-RwEdIYho2kjbSZ7fpvhkHy5wk1Y3x0O6e/EHL3/SoiAfFWH+yhV2/XZQvsBoAeGRNFwgScJS/gRZv+uIwoj7yA==
+"@xmldom/xmldom@0.7.8", "@xmldom/xmldom@^0.7.2":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.8.tgz#a8d0a0067c9554c187b0d04e86ad1845053c0e06"
+  integrity sha512-PrJx38EfpitFhwmILRl37jAdBlsww6AZ6rRVK4QS7T7RHLhX7mSs647sTmgr9GIxe3qjXdesmomEgbgaokrVFg==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
