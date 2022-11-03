@@ -74,6 +74,10 @@
     },
     {
       "status": "Live",
+      "state": "Missouri"
+    },
+    {
+      "status": "Live",
       "state": "Nevada"
     },
     {
@@ -107,6 +111,10 @@
     {
       "status": "Live",
       "state": "Pennsylvania"
+    },
+    {
+      "status": "Live",
+      "state": "Rhode Island"
     },
     {
       "status": "Live",
