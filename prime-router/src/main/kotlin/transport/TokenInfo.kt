@@ -27,7 +27,7 @@ data class TokenInfo(
  * IdToken models the authentication token used by OK
  * https:/labupload.health.ok.gov/api/auth/token
  *
- * @param email username used to login to the app
+ * @param email username used to log in to the app
  * @param idToken id-token used in Authorization header
  * @param expiresIn seconds until token expires
  * @param refreshToken get new access tokens without having to log in again
@@ -36,6 +36,6 @@ data class TokenInfo(
 data class IdToken(
     val email: String,
     val idToken: String,
-    val expiresIn: Int,
-    val refreshToken: String
+    val expiresIn: Int? = null,
+    val refreshToken: String? = null
 )
