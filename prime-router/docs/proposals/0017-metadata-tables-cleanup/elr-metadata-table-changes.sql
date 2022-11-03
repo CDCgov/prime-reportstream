@@ -1,81 +1,3 @@
-# Metadata Table Reorganization
-2022 November 03
-
-## Background
-At the beginning of the PRIME ReportStream project we endeavored to create a website that STLTs could use to review some basic metadata about their feed that included an aggregation of sending facilities, their CLIAs, and counts of test events per file. The original implementation of this involved reading the actual content of the report files and extracting that data in real-time. This was not sustainable.
-
-The original `covid_result_metadata` table was an attempt to capture that data, as well as additional other non-PII demographic data from the test results we were receiving to not only provide the aggregated test information to STLTs, but also to see rough trends by state or by county, or to aggregate data by patient demographics. This was a big leap forward for those needs, but the table quickly revealed a second use: customer support.
-
-Very soon after we started collecting test event information we realized that the table was beneficial for conducting investigations into customer support questions. Because the data in the table was created on the ingestion of the data (as opposed to batching or delivery), we were able to use this to collection information for STLTs. Common support inquiries included things like:
-
-- How many facilities are reporting to me?
-- What are all of the CLIAs of facilities reporting to me?
-- How many messages were sent on a specific day?
-- What kinds of tests are being used?
-
-The `covid_result_metadata` table proved useful to diagnosing issues with decoding sender test names via the LIVD table, and monitoring the overall health of the application.
-
-Unfortunately, as the volume in ReportStream has grown, the deliberately denormalized structure of the data has proven to be unwieldy. Attempts to do clean-up and put some rigor around the data have only temporarily alleviated the issues we are experiencing. It is difficult to query the table at this juncture, and slow, and no amount of indexing will correct that. This has been known for a while, but we have not been able to remediate these issues. We are now overdue, and as we face the coming release of the Universal Pipeline which can handle all manner of ELR messages, we need to prioritize this work.
-
-Furthermore, we have duplicated many of the same bad decisions present in the `covid_result_metadata` table in the `elr_result_metadata` table, which was intended to be a more generic table that accepted and tracked more data. It currently contains a much lower volume of data, so while it is currently performant, long-term it also would not be usable.
-
-## Requirements
-
-- The new table structure must be able to capture incoming ELR messages of any type, not just SARS-CoV-2 or hMPXv
-- It must be flexible enough to accept incomplete data because we receive data that is
-    - Deidentified
-    - Low or very low quality, for example OTC records
-    - Non-standardized, for example, not all jurisdictions or senders will use correct or standardized values for CE and CWE segments
-    - From non-US jurisdictions
-    - Non-human data (potential future use case)
-- Minimize the amount of duplication to the barest minimum
-- Maximize our ability to use indexing, foreign keys, etc
-- Represent the hierarchical structure of HL7 and FHIR ELR messages
-- Not impact the existing codebase or Metabase in any way
-- Have near-zero disruption when deployed
-
-## Proposed Solution
-
-Please refer to the below diagram which shows a proposed reorganization of the data that currently exists in the CovidResultMetadata and ElrResultMetadata tables.
-
-![](0017-metadata-tables-cleanup/proposed-metadata-restructuring.png)
-
-There are a few pieces to this work that I will briefly outline here and then go into deeper detail. There are two stages to this work, one set that is immediate, and then a second stage that will come later. They are identified as `Phase 1` and `Phase 2`.
-
-### Solution Outline
-
-#### Phase 1
-This work will happen almost immediately in an effort to prepare for the Universal Pipeline
-
-1. Create the agreed upon table structure that will meet the requirements above
-2. Create a stored procedure that takes the data it is given, and then handles the separation and normalization of the data as needed
-    - This stored procedure will in the short term do the insert into the existing tables as well, so there's no disruption to existing the existing process. 
-    - Create a flag in the database as a configuration setting that controls whether to insert into the legacy table or not 
-3. Create a script that will migrate existing legacy data from the `covid_result_metadata` and `elr_result_metadata` tables into the new table structure
-4. Create two materialized views, one named `covid_result_metadata` and one named `elr_result_metadata` that will exactly replicate the layout of the current tables in order to prevent breakage of any dashboards in Metabase or existing queries
-    - As part of this, the two existing tables will be renamed but preserved for some period of time until we can be sure we have not lost any data
-
-#### Phase 2
-This work will happen as a second step, hopefully in Q1 2023, and reflect a move towards more independent microservices. On ingestion, ReportStream will invoke a separate Azure function that will queue up messages to process, which will then be saved into our metadata tables. The goal is to separate the concerns of processing from the goal of tracking metadata from the messages we receive.
-
-1. Create a new independent queue in distinct namespace that will hold the raw messages to be processed
-2. Create a separate Azure function that will accept the message and process the contents of the queue
-
-### Discussion
-By implementing these changes, repeated information like facility details, provider information, as well as geographic information can be cleaned up and more easily indexed. In addition, we are able to collect more complex information in this structure, for example a message having multiple AOE questions, or multiple specimens, or multiple ordered tests. We also can begin to build in more advanced data verification, such as checking CLIAs or NPIs. We also have the option to extend out features like our address enrichment by adding things like census tract details and ZIP+4.  
-
-### Link to the proposed changes
-You can review the currently proposed SQL changes here, or at the bottom in Appendix 1:
-
-
-## Further Work
-Once feedback has been provided about the structure of the tables and the plan above, any proposed changes will go through an acceptance/rejection process, and then the actual changes will be put into a PR for a final review. This document has been created on 3 November 2022, and will be reviewed at the developer sync on Monday, 7 November 2022 with a targeted proposal acceptance date of 14 November 2022. At that point the work will begin on Phase 1 with an expected completion date of 21 November 2022. Start and completion date for Phase 2 TBD.
-
-It should also be noted that this work is not to make a system of record for the CDC or for our STLT partners. We are still only acting as a hub for the transferring of data. That said, having the ability to provide usage and demographic data to our senders and receivers means we provide a richer and better experience for our users, and it empowers our support staff.
-
-## Appendix 1
-
-```postgresql
 /**
     Changes to the metadata tables, unifying them to a single normalized view
     Part of proposal 0017-metadata-table-cleanup
@@ -323,7 +245,7 @@ create table elr_message_aoe_question
 -- add a composite key
 alter table elr_message_aoe_question
     add constraint elr_message_aoe_question_pk
-        primary key (elr_message_id, aoe_set_id, aoe_question_id)
+    primary key (elr_message_id, aoe_set_id, aoe_question_id)
 ;
 
 
@@ -412,7 +334,7 @@ comment on column elr_message_specimen.specimen_set_id is
 -- add our primary key
 alter table elr_message_specimen
     add constraint elr_message_specimen_pk
-        primary key (elr_message_id, test_order_id, specimen_id)
+    primary key (elr_message_id, test_order_id, specimen_id)
 ;
 
 
@@ -436,6 +358,24 @@ comment on column elr_message_facilities.facility_role_id is
 -- add a primary key to the table
 alter table elr_message_facilities
     add constraint elr_message_facilities_pk
-        primary key (elr_message_id, facility_id, facility_role_id)
+    primary key (elr_message_id, facility_id, facility_role_id)
 ;
-```
+
+
+/*
+-- CLEAN UP FROM DEV
+
+drop table if exists elr_message_aoe_question;
+drop table if exists elr_message_facilities;
+drop table if exists elr_message_specimen;
+drop table if exists elr_message_ordered_test;
+drop table if exists elr_message;
+drop table if exists sender;
+drop table if exists provider;
+drop table if exists facility;
+drop table if exists facility_role;
+drop table if exists county;
+drop table if exists state;
+drop table if exists country;
+
+*/
