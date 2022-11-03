@@ -789,7 +789,7 @@ dependencies {
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.15.3")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.6")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
