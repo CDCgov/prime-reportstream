@@ -69,7 +69,7 @@ runs:
         sudo apt install openvpn-systemd-resolved
       shell: bash
 
-    - uses: golfzaptw/action-connect-ovpn@ac87cf86ad6d45eb238d327fb5f327296f446f13
+    - uses: golfzaptw/action-connect-ovpn@9dba43b36861c6c2520045898bb709e8f11443dc
       if: env.VPN_ENV
       id: connect_vpn
       with:

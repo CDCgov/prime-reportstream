@@ -1,7 +1,10 @@
 import { screen } from "@testing-library/react";
 
 import { orgServer } from "../__mocks__/OrganizationMockServer";
-import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
+import {
+    makeOktaHook,
+    renderWithFullAppContext,
+} from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 
@@ -16,6 +19,9 @@ describe("SenderModeBanner", () => {
 
     test("renders when sender is testing", async () => {
         mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
@@ -24,7 +30,7 @@ describe("SenderModeBanner", () => {
             dispatch: () => {},
             initialized: true,
         });
-        renderWithSession(
+        renderWithFullAppContext(
             <SenderModeBanner />,
             makeOktaHook({
                 authState: {
