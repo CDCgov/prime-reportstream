@@ -5,7 +5,7 @@ export interface QualityFilter {
     detail: any;
 }
 
-export interface ResponseReceiver {
+export interface ReceiverData {
     reportId: string;
     receivingOrg: string;
     receivingOrgSvc: string;
@@ -16,11 +16,24 @@ export interface ResponseReceiver {
     qualityFilters: QualityFilter[];
 }
 
-export interface Warnings {
+export interface WarningError {
     class: string | null;
     fieldMapping: string | null;
     scope: string | null;
     message: string | null;
+}
+
+export interface RSMessageDetail {
+    id: number;
+    messageId: string;
+    sender: string | null;
+    submittedDate: string | null;
+    reportId: string;
+    fileName: string | null;
+    fileUrl: string | null;
+    warnings: WarningError[];
+    errors: WarningError[];
+    receiverData: ReceiverData[];
 }
 
 export interface MessageListResource {
@@ -35,5 +48,10 @@ export const messageTrackerEndpoints: RSApiEndpoints = {
         path: "/messages/search",
         method: HTTPMethods.GET,
         queryKey: "messagesSearch",
+    }),
+    getMessageDetails: new RSEndpoint({
+        path: "/message/:id",
+        method: HTTPMethods.GET,
+        queryKey: "messageDetails",
     }),
 };
