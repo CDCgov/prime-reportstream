@@ -22,6 +22,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 columnHeader: "Message Id",
                 feature: {
                     link: true,
+                    linkAttr: "id",
                     linkBasePath: "/message-details/",
                 },
             },
