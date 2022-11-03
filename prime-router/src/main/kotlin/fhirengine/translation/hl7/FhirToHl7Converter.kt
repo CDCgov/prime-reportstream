@@ -78,6 +78,14 @@ class FhirToHl7Converter(
         // Sanity check, but at this point we know we have a good schema
         check(message != null)
         terser = Terser(message)
+        val dupes = (
+            schemaRef.elements.filter { it.name != null } +
+                schemaRef.elements.flatMap { it.schemaRef?.elements ?: emptyList() }
+            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
+
+        if (dupes.isNotEmpty()) { // value is the number of matches
+            throw SchemaException("Schema ${schemaRef.name} had multiple elements with the same name: $dupes")
+        }
         processSchema(schemaRef, bundle, bundle)
         return message
     }
@@ -98,13 +106,6 @@ class FhirToHl7Converter(
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
-
-        // check for duplicate named schema elements before processing
-        val dupes =
-            schema.elements.filter { it.name != null }.groupingBy { it.name }.eachCount().filter { it.value > 1 }
-        if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schema.name} had multiple elements with the same name: $dupes")
-        }
 
         schema.elements.forEach { element ->
             processElement(element, bundle, focusResource, schemaContext, debug)
