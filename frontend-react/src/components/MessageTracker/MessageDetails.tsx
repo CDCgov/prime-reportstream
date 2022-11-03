@@ -12,13 +12,13 @@ import { WarningsErrors } from "./WarningsErrors";
 import { MessageReceivers } from "./MessageReceivers";
 
 type MessageDetailsProps = {
-    messageId: string | undefined;
+    id: string | undefined;
 };
 
 export function MessageDetails() {
     const navigate = useNavigate();
-    const { messageId } = useParams<MessageDetailsProps>();
-    const { messageDetails } = useMessageDetails(messageId!!);
+    const { id } = useParams<MessageDetailsProps>();
+    const { messageDetails } = useMessageDetails(id!!);
 
     return (
         <>
