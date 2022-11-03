@@ -12,9 +12,9 @@ describe("SessionContext admin hard check", () => {
      * any provider logic (i.e. adminHardCheck) to be executed. Otherwise, you're just rendering the default
      * Context, which sets everything to undefined, null, or empty. */
     const TestComponent = () => {
-        const { adminHardCheck } = useSessionContext();
+        const { isAdminStrictCheck } = useSessionContext();
         // Conditions to fail
-        if (!adminHardCheck) return <>failed</>;
+        if (!isAdminStrictCheck) return <>failed</>;
         return <>passed</>;
     };
     test("admin hard check is true when user has admin org in memberships map", async () => {

@@ -11,9 +11,11 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messageTracker.Message
+import gov.cdc.prime.router.messageTracker.MessageReceiver
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -166,6 +168,7 @@ class MessagesFunctions(
                     errorMessage = "No message found."
                     HttpStatus.BAD_REQUEST
                 } else {
+                    // incoming report from the sender
                     val reportResult = dbAccess.fetchReportFile(result.reportId)
                     val actionLogWarnings = dbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
                         result.reportId,
@@ -177,6 +180,7 @@ class MessagesFunctions(
                         result.messageId,
                         ActionLogType.error
                     )
+                    val receiverData = getReceiverData(result.reportId, result.messageId)
                     response = Message(
                         result.covidResultsMetadataId,
                         result.messageId,
@@ -186,7 +190,8 @@ class MessagesFunctions(
                         reportResult.externalName,
                         reportResult.bodyUrl,
                         actionLogWarnings,
-                        actionLogErrors
+                        actionLogErrors,
+                        receiverData
                     )
                     HttpStatus.OK
                 }
@@ -222,5 +227,31 @@ class MessagesFunctions(
                     .writeValueAsString(responseMessage)
             )
             .build()
+    }
+
+    internal fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
+        val reportDescendants = dbAccess.fetchReportDescendantsFromReportId(reportId).filter { it.receivingOrg != null }
+        val childReportIds = reportDescendants.map { it.reportId }
+        val reportFiles = dbAccess.fetchReportFileByIds(childReportIds)
+
+        return reportFiles.map {
+            // Should we filter by trackingId???
+            val qualityFilters = dbAccess.fetchActionLogsByReportIdAndFilterType(
+                it.reportId,
+                trackingId,
+                "QUALITY_FILTER"
+            )
+
+            MessageReceiver(
+                it.reportId.toString(),
+                it.receivingOrg,
+                it.receivingOrgSvc,
+                it.transportResult,
+                it.externalName,
+                it.bodyUrl,
+                it.createdAt.toLocalDateTime(),
+                qualityFilters
+            )
+        }
     }
 }

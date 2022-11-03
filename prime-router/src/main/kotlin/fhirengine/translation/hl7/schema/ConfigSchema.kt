@@ -172,6 +172,7 @@ data class ConfigSchema(
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
+ * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
@@ -185,7 +186,8 @@ data class ConfigSchemaElement(
     var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: SortedMap<String, String> = sortedMapOf()
+    var valueSet: SortedMap<String, String> = sortedMapOf(),
+    var debug: Boolean = false
 ) {
     /**
      * Validate the element.
