@@ -12,7 +12,7 @@ See Github release notes anytime at [https://github.com/CDCgov/prime-reportstrea
 
 * ReportStream launched a new online support center, which you can access on our website at [reportstream.cdc.gov/support](reportstream.cdc.gov/support). Submit any support requests directly to our team by filling out this form: [https://reportstream.cdc.gov/support/service-request]([url](https://reportstream.cdc.gov/support/service-request)). 
 
-* If you are a STLT set up to download data from the ReportStream web application, you can now filter the daily data table by date range.  
+* If you are set up to download data from the ReportStream web application, you can now filter the daily data table by date range.  
 
 #### Improvements 
 
