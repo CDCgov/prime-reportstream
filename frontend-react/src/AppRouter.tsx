@@ -88,7 +88,7 @@ export const AppRouter = () => {
                 element={<AdminMessageTrackerWithAuth />}
             />
             <Route
-                path="/message-details/:messageId"
+                path="/message-details/:id"
                 element={<MessageDetailsWithAuth />}
             />
             <Route
