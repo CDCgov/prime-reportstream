@@ -6,6 +6,12 @@ import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 // compiled css so the resources process for the static site by the compiler
 import "./content/generated/global.out.css";
+import { ai } from "./TelemetryService";
+
+// Set up App Insights connection
+// SimpleReport does this both in index.tsx and as an effect in a HOC...
+// I assume only one is needed
+ai.initialize();
 
 ReactDOM.render(
     <CacheProvider>
