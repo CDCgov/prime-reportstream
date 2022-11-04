@@ -415,6 +415,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 COVID_RESULT_METADATA.CREATED_AT,
                 COVID_RESULT_METADATA.REPORT_ID
             )
+            .from(COVID_RESULT_METADATA)
             .where(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
             .fetchOne()
             ?.into(CovidResultMetadata::class.java)
@@ -433,6 +434,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 COVID_RESULT_METADATA.CREATED_AT,
                 COVID_RESULT_METADATA.REPORT_ID
             )
+            .from(COVID_RESULT_METADATA)
             .where(
                 COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
             )
