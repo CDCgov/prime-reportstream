@@ -1,3 +1,9 @@
+import {
+    useAppInsightsContext,
+    useTrackMetric,
+} from "@microsoft/applicationinsights-react-js";
+import { useEffect } from "react";
+
 import content from "../../content/content.json";
 
 import Hero from "./Hero";
@@ -9,6 +15,14 @@ import Feature from "./Features/Feature";
    to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
    content is hard-coded in this file. */
 export const Home = () => {
+    // This whole thing could probably be its own custom hook like usePageHitInsight
+    const appInsights = useAppInsightsContext();
+    const pageHitTracker = useTrackMetric(appInsights, "Home Page");
+    useEffect(() => {
+        // Should run once on page load
+        // sends simple page hit to app insights
+        pageHitTracker();
+    }, []); //eslint-disable-line
     return (
         <>
             <Hero />
