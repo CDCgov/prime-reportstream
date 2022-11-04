@@ -15,6 +15,7 @@ resource "azurerm_app_service" "metabase" {
       name                      = "AllowVNetTraffic"
       priority                  = 100
       virtual_network_subnet_id = var.subnets.public_subnets[2]
+      ftps_state                = "Disabled"
     }
 
     ip_restriction {
