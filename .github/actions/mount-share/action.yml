@@ -71,4 +71,4 @@ runs:
 
         sudo mount -a
 
-        echo "::set-output name=mount_path::$mntPath"
+        echo "mount_path=$mntPath" >> $GITHUB_OUTPUT
