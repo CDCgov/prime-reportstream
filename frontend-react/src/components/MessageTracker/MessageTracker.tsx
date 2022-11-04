@@ -89,7 +89,7 @@ export function MessageTracker() {
             <h1>Message ID Search</h1>
 
             <Label className="font-sans-xs usa-label" htmlFor="input_filter">
-                Message ID (format as xx-xxxxxx)
+                Message ID
             </Label>
             <div className="grid-gap-lg display-flex">
                 <TextInput
