@@ -31,7 +31,7 @@ resource "azurerm_app_service" "metabase" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
-    ftps_state                  = "Disabled"
+    ftps_state = "Disabled"
 
     scm_use_main_ip_restriction = true
 
