@@ -9,12 +9,12 @@ import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
-import { reactPlugin } from "../TelemetryService";
+import { ai } from "../TelemetryService";
 
 import children = ReactMarkdown.propTypes.children;
 
 const AppInsightsProvider: FC<PropsWithChildren<{}>> = () => (
-    <AppInsightsContext.Provider value={reactPlugin}>
+    <AppInsightsContext.Provider value={ai.reactPlugin}>
         {children}
     </AppInsightsContext.Provider>
 );
