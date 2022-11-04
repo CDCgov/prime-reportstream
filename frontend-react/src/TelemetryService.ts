@@ -34,11 +34,13 @@ const createTelemetryService = () => {
     };
 
     return {
+        // Use for React integration
         reactPlugin,
+        // Use for insight tracking outside of React Hooks & Components
         appInsights,
+        // Use to initialize App Insights instance
         initialize,
     };
 };
 
 export const ai = createTelemetryService();
-export const getAppInsights = () => appInsights;
