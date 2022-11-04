@@ -1,13 +1,13 @@
 import React from "react";
 
 import { DetailItem } from "../DetailItem/DetailItem";
-import { ResponseReceiver } from "../../config/endpoints/messageTracker";
+import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 
 import { QualityFilters } from "./QualityFilters";
 
 type MessageReceiverProps = {
-    receiverDetails: ResponseReceiver[] | undefined;
+    receiverDetails: ReceiverData[] | undefined;
 };
 
 export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
