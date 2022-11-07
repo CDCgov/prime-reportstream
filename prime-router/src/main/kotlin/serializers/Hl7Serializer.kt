@@ -265,8 +265,7 @@ class Hl7Serializer(
                     warnings.add(
                         FieldPrecisionMessage(
                             "ORU_R01",
-                            "Unsupported HL7 message type. Please refer to the ReportStream Programmer's Guide and " +
-                                "resubmit."
+                            "Unsupported HL7 message type."
                         )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
