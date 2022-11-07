@@ -2062,8 +2062,8 @@ class Hl7Serializer(
                                 warnings.add(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
-                                        "Timestamp for ${element.name} should provide more " +
-                                            "precision. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format."
+                                        "Timestamp for ${element.name} should be precise. Reformat " +
+                                            "to either the HL7 v2.4 TS or ISO 8601 standard format."
                                     )
                                 )
                             }
