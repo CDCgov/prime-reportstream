@@ -138,9 +138,6 @@ class CheckFunction : Logging {
      *  - Move CGI parameter into path
      *  - Reply is 200 for check success and check failure cases.
      *  - Reply is always in json since this is a REST api.
-     *
-     *  Notes:
-     *  - `sftpsetting` in path could support different connection types in the future.
      */
     @FunctionName("checkreceiver")
     fun checkreceiver(
