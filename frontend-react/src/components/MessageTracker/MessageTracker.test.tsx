@@ -1,13 +1,28 @@
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, cleanup, within } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 
 import { MessageTracker } from "./MessageTracker";
 
+const mockUseMessageSearch = {
+    search: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
+    isLoading: false,
+    error: null,
+};
+
+jest.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", () => {
+    return {
+        useMessageSearch: () => mockUseMessageSearch,
+    };
+});
+
 describe("MessageTracker component", () => {
     beforeEach(() => {
-        renderWithRouter(<MessageTracker />);
+        renderWithFullAppContext(<MessageTracker />);
     });
+
+    afterEach(cleanup);
 
     test("should be able to edit search field", () => {
         const searchField = screen.getByTestId("textInput");
@@ -48,7 +63,7 @@ describe("MessageTracker component", () => {
         fireEvent.change(textInput, { target: { value: "123" } });
         fireEvent.click(submitButton);
 
-        const table = screen.queryByRole("table");
+        const table = await screen.findByRole("table");
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
