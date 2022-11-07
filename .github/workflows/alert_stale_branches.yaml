@@ -19,15 +19,15 @@ jobs:
         shell: bash
       - name: Get our Merged Count
         id: merged
-        run: echo "::set-output name=MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)"
+        run: echo "MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)" >> $GITHUB_OUTPUT
         shell: bash
       - name: Get our Not Merged Count
         id: notmerged
-        run: echo "::set-output name=NOT_MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)"
+        run: echo "NOT_MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)" >> $GITHUB_OUTPUT
         shell: bash
       - name: Get URL
         id: url
-        run: echo "::set-output name=ACTION_URL::$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
+        run: echo "ACTION_URL=$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> $GITHUB_OUTPUT
         shell: bash
       - name: Send output to slack
         id: slack
