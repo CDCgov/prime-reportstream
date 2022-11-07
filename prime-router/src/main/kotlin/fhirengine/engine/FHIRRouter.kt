@@ -249,7 +249,7 @@ class FHIRRouter(
      * return [defaultResponse]
      * @return Boolean indicating if the bundle passes the filter or not
      */
-    private fun evaluateFilterCondition(
+    internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean
