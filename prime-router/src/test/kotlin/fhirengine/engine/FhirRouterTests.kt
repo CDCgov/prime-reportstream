@@ -67,7 +67,6 @@ class FhirRouterTests {
         )
     )
 
-
     private val validFhirWithProvenance = """
     {
         "resourceType": "Bundle",
@@ -281,7 +280,6 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val orgFilters = emptyList<ReportStreamFilters>()
 
-
         // do work
         val filters = engine.getJurisFilters(receiver, orgFilters)
 
@@ -323,7 +321,6 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val orgFilters = emptyList<ReportStreamFilters>()
 
-
         // do work
         val filter = engine.getJurisFilters(receiver, orgFilters)
 
@@ -356,7 +353,6 @@ class FhirRouterTests {
         val metadata = Metadata(schema = one)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val orgFilters = emptyList<ReportStreamFilters>()
-
 
         // do work
         val filters = engine.getJurisFilters(receiver, orgFilters)
@@ -399,7 +395,6 @@ class FhirRouterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val orgFilters = emptyList<ReportStreamFilters>()
 
-
         // do work
         val filter = engine.getJurisFilters(receiver, orgFilters)
 
@@ -408,8 +403,6 @@ class FhirRouterTests {
         assert(filter.any { it == "testRec2" })
         assert(filter.none { it == "testOrg" })
     }
-
-
 
     @Test
     fun `test no filter (allowNone)`() {
