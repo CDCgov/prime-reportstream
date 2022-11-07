@@ -789,9 +789,12 @@
   filters: # default filters applied for all receivers of this organization, if not overridden by receiver filter
     - topic: "full-elr"
       jurisdictionalFilter:
+        # this is equivalent to orEquals(ordering_facility_state, CO, patient_state, CO)
         - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CO') or (Bundle.entry.resource.ofType(Patient).address.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'CO')"
         # TODO If we had constants defined, this is how this would look
 #        - "%performerState = 'CO' or %patientState = 'CO'"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(Provenance).exists() and Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01')"
   receivers:
     - name: "elr-hl7"
       organizationName: "co-phd"
