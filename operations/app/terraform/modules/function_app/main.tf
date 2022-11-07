@@ -59,8 +59,8 @@ locals {
     "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
 
-  functionapp_slot_prod_settings_names      = keys(azurerm_function_app.function_app.app_settings)
-  functionapp_slot_candidate_settings_names = keys(azurerm_function_app_slot.candidate.app_settings)
+  functionapp_slot_prod_settings_names      = keys(azurerm_linux_function_app.function_app.app_settings)
+  functionapp_slot_candidate_settings_names = keys(azurerm_linux_function_app_slot.candidate.app_settings)
 
   functionapp_slot_settings_names = distinct(concat(local.functionapp_slot_prod_settings_names, local.functionapp_slot_candidate_settings_names))
 
@@ -97,17 +97,17 @@ locals {
   ]
 }
 
-resource "azurerm_function_app" "function_app" {
+resource "azurerm_linux_function_app" "function_app" {
   name                       = "${var.resource_prefix}-functionapp"
   location                   = var.location
   resource_group_name        = var.resource_group
-  app_service_plan_id        = var.app_service_plan
+  service_plan_id            = var.service_plan
   storage_account_name       = "${var.resource_prefix}storageaccount"
   storage_account_access_key = var.primary_access_key
   https_only                 = true
-  os_type                    = "linux"
-  version                    = var.function_runtime_version
-  enable_builtin_logging     = false
+  #os_type                    = "linux"
+  #version                    = var.function_runtime_version
+  #enable_builtin_logging     = false
 
   site_config {
     ip_restriction {
@@ -135,7 +135,7 @@ resource "azurerm_function_app" "function_app" {
 
     http2_enabled             = true
     always_on                 = true
-    use_32_bit_worker_process = false
+    #use_32_bit_worker_process = false
     linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
     ftps_state                = "Disabled"
 
@@ -180,8 +180,8 @@ resource "azurerm_function_app" "function_app" {
 
 resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
   key_vault_id = var.app_config_key_vault_id
-  tenant_id    = azurerm_function_app.function_app.identity[0].tenant_id
-  object_id    = azurerm_function_app.function_app.identity[0].principal_id
+  tenant_id    = azurerm_linux_function_app.function_app.identity[0].tenant_id
+  object_id    = azurerm_linux_function_app.function_app.identity[0].principal_id
 
   secret_permissions = [
     "Get",
@@ -190,8 +190,8 @@ resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy
 
 resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
   key_vault_id = var.client_config_key_vault_id
-  tenant_id    = azurerm_function_app.function_app.identity.0.tenant_id
-  object_id    = azurerm_function_app.function_app.identity.0.principal_id
+  tenant_id    = azurerm_linux_function_app.function_app.identity.0.tenant_id
+  object_id    = azurerm_linux_function_app.function_app.identity.0.principal_id
 
   secret_permissions = [
     "Get",
@@ -200,7 +200,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
-  app_service_id = azurerm_function_app.function_app.id
+  app_service_id = azurerm_linux_function_app.function_app.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }
 
@@ -243,7 +243,7 @@ DEPLOY
 
   parameters_content = jsonencode({
     webAppName = {
-      value = azurerm_function_app.function_app.name
+      value = azurerm_linux_function_app.function_app.name
     }
     stickyAppSettingNames = {
       value = join(",", concat(local.sticky_slot_implicit_settings_names, local.sticky_slot_unique_settings_names))
@@ -251,7 +251,7 @@ DEPLOY
   })
 
   depends_on = [
-    azurerm_function_app.function_app,
-    azurerm_function_app_slot.candidate,
+    azurerm_linux_function_app.function_app,
+    azurerm_linux_function_app_slot.candidate,
   ]
 }

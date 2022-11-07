@@ -1,8 +1,8 @@
-resource "azurerm_app_service" "metabase" {
+resource "azurerm_linux_web_app" "metabase" {
   name                = "${var.resource_prefix}-metabase"
   location            = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = var.service_plan_id
+  service_plan_id     = var.service_plan_id
   https_only          = true
 
   identity {
@@ -34,7 +34,7 @@ resource "azurerm_app_service" "metabase" {
     scm_use_main_ip_restriction = true
 
     always_on        = true
-    linux_fx_version = "DOCKER|metabase/metabase"
+    #linux_fx_version = var.linux_fx_version
   }
 
   app_settings = {
@@ -74,6 +74,6 @@ resource "azurerm_app_service" "metabase" {
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
-  app_service_id = azurerm_app_service.metabase.id
+  app_service_id = var.service_plan_id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }

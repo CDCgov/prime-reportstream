@@ -148,6 +148,9 @@ module "function_app" {
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
+  function_app                      = module.function_app.function_app_name
+  service_plan                      = module.app_service_plan.service_plan_id
+  function_app_id                   = module.function_app.function_app_id
 }
 
 module "front_door" {

@@ -1,22 +1,23 @@
 locals {
   slots = {
-    active : azurerm_function_app.function_app
-    candidate : azurerm_function_app_slot.candidate
+    active : azurerm_linux_function_app.function_app
+    candidate : azurerm_linux_function_app_slot.candidate
   }
 }
 
-resource "azurerm_function_app_slot" "candidate" {
-  function_app_name          = azurerm_function_app.function_app.name
+resource "azurerm_linux_function_app_slot" "candidate" {
+  #function_app_name          = azurerm_linux_function_app.function_app.name
   name                       = "candidate"
-  location                   = var.location
-  resource_group_name        = var.resource_group
-  app_service_plan_id        = var.app_service_plan
+  #location                   = var.location
+  #resource_group_name        = var.resource_group
+  #service_plan_id            = var.service_plan
   storage_account_name       = "${var.resource_prefix}candidate"
+  function_app_id            = var.function_app_id
   storage_account_access_key = var.primary_access_key
   https_only                 = true
-  os_type                    = "linux"
-  version                    = var.function_runtime_version
-  enable_builtin_logging     = false
+  #os_type                    = "linux"
+  #version                    = var.function_runtime_version
+  #enable_builtin_logging     = false
 
   site_config {
     ip_restriction {
@@ -44,7 +45,7 @@ resource "azurerm_function_app_slot" "candidate" {
 
     http2_enabled             = true
     always_on                 = true
-    use_32_bit_worker_process = false
+    #use_32_bit_worker_process = false
     linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
 
     cors {
@@ -92,8 +93,8 @@ resource "azurerm_function_app_slot" "candidate" {
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_policy" {
   key_vault_id = var.app_config_key_vault_id
-  tenant_id    = azurerm_function_app_slot.candidate.identity.0.tenant_id
-  object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
+  tenant_id    = azurerm_linux_function_app_slot.candidate.identity.0.tenant_id
+  object_id    = azurerm_linux_function_app_slot.candidate.identity.0.principal_id
 
   secret_permissions = [
     "Get",
@@ -102,8 +103,8 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_pol
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_policy" {
   key_vault_id = var.client_config_key_vault_id
-  tenant_id    = azurerm_function_app_slot.candidate.identity.0.tenant_id
-  object_id    = azurerm_function_app_slot.candidate.identity.0.principal_id
+  tenant_id    = azurerm_linux_function_app_slot.candidate.identity.0.tenant_id
+  object_id    = azurerm_linux_function_app_slot.candidate.identity.0.principal_id
 
   secret_permissions = [
     "Get",
@@ -111,7 +112,7 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
 }
 
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
-  slot_name      = azurerm_function_app_slot.candidate.name
-  app_service_id = azurerm_function_app.function_app.id
+  slot_name      = azurerm_linux_function_app_slot.candidate.name
+  app_service_id = azurerm_linux_function_app.function_app.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[0]
 }

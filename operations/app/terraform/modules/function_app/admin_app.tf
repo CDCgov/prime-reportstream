@@ -57,21 +57,21 @@ locals {
 #
 ########################################
 
-resource "azurerm_function_app" "admin" {
+resource "azurerm_linux_function_app" "admin" {
   name                       = local.interface.function_app_name
   location                   = local.interface.location
   resource_group_name        = local.interface.resource_group_name
-  app_service_plan_id        = local.interface.app_service_plan_id
+  service_plan_id            = local.interface.app_service_plan_id
   storage_account_name       = local.interface.storage_account_name
   storage_account_access_key = local.interface.storage_account_access_key
   https_only                 = true
-  os_type                    = "linux"
-  version                    = "~4"
-  enable_builtin_logging     = false
+  #os_type                    = "linux"
+  #version                    = "~4"
+  #enable_builtin_logging     = false
   site_config {
     ftps_state                = "Disabled"
-    linux_fx_version          = local.config.linux_fx_version
-    use_32_bit_worker_process = local.config.use_32_bit_worker_process
+    #linux_fx_version          = local.config.linux_fx_version
+    #use_32_bit_worker_process = local.config.use_32_bit_worker_process
     vnet_route_all_enabled    = local.config.vnet_route_all_enabled
     always_on                 = local.config.always_on
     dynamic "ip_restriction" {
@@ -105,21 +105,21 @@ resource "azurerm_function_app" "admin" {
 resource "time_sleep" "wait_admin_function_app" {
   create_duration = "2m"
 
-  depends_on = [azurerm_function_app.admin]
+  depends_on = [azurerm_linux_function_app.admin]
   triggers = {
-    function_app = azurerm_function_app.admin.identity.0.principal_id
+    function_app = azurerm_linux_function_app.admin.identity.0.principal_id
   }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_app_vnet_integration" {
-  app_service_id = azurerm_function_app.admin.id
+  app_service_id = azurerm_linux_function_app.admin.id
   subnet_id      = local.network.subnet_id
 }
 
 locals {
   admin_publish_command = <<EOF
       az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} \
-      --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} \
+      --name ${azurerm_linux_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} \
       --build-remote false --timeout 600
     EOF
 }
@@ -145,7 +145,7 @@ resource "null_resource" "admin_function_app_publish" {
   }
   depends_on = [
     local.admin_publish_command,
-    azurerm_function_app.admin,
+    azurerm_linux_function_app.admin,
     time_sleep.wait_admin_function_app
   ]
   triggers = {
