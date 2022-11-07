@@ -254,7 +254,7 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9."))
+                    errors.add(FieldPrecisionMessage("MSH-9", "Missing required HL7 message type field."))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -263,10 +263,10 @@ class Hl7Serializer(
                 arrayOf("ORU_R01") contentEquals altMsgType -> parser.parse(cleanedMessage)
                 else -> {
                     warnings.add(
-                        InvalidHL7Message
-                        (
-                            "Unsupported HL7 message type. Only ORU-R01 message type supported. " +
-                                "Please refer to the ReportStream Programmer's Guide and resubmit."
+                        FieldPrecisionMessage(
+                            "ORU_R01",
+                            "Unsupported HL7 message type. Please refer to the ReportStream Programmer's Guide and " +
+                                "resubmit."
                         )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
