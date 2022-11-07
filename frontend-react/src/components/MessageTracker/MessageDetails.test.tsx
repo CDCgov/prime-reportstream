@@ -5,7 +5,7 @@ import { RSMessageDetail } from "../../config/endpoints/messageTracker";
 
 import { MessageDetails } from "./MessageDetails";
 
-const TEST_ID = "12-234567";
+const TEST_ID = 1;
 const MOCK_MESSAGE_WARNINGS = [
     {
         class: "gov.cdc.prime.router.InvalidCodeMessage",
@@ -122,8 +122,8 @@ const MOCK_RECEIVER_DATA = [
     },
 ];
 const MOCK_MESSAGE_DETAIL = {
-    id: 1,
-    messageId: TEST_ID,
+    id: TEST_ID,
+    messageId: "12-234567",
     sender: "somebody 1",
     submittedDate: "09/28/2022",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
@@ -140,7 +140,7 @@ jest.mock("react-router-dom", () => ({
         return jest.fn();
     },
     useParams: () => ({
-        messageId: TEST_ID,
+        id: TEST_ID,
     }),
 }));
 
