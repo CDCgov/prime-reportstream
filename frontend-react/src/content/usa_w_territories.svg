@@ -37,7 +37,7 @@
     /* .me, Maine */
     /* .mi, Michigan */
     .mn, /* Minnesota */
-    /* .mo, Missouri */
+    .mo, /* Missouri */
     .ms, /* Mississippi */
     .mt, /* Montana */
     /* .nc, North Carolina */
@@ -53,7 +53,7 @@
     .or, /* Oregon */
     .pa, /* Pennsylvania */
     /* .pr, Puerto Rico */
-    /* .ri, Rhode Island */
+    .ri, /* Rhode Island */
     /* .sc, South Carolina */
     /* .sd, South Dakota */
     .tn, /* Tennessee */

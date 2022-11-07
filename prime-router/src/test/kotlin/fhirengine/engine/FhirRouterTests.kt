@@ -8,8 +8,10 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -46,8 +48,22 @@ class FhirRouterTests {
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
-            Receiver("full-elr-hl7", "co-phd", "topic", CustomerStatus.TESTING, "one"),
-            Receiver("full-elr-hl7-inactive", "co-phd", "full-elr", CustomerStatus.INACTIVE, "one")
+            Receiver
+            (
+                "full-elr-hl7",
+                "co-phd",
+                "full-elr",
+                CustomerStatus.ACTIVE,
+                "one"
+            ),
+            Receiver
+            (
+                "full-elr-hl7-2",
+                "co-phd",
+                "full-elr",
+                CustomerStatus.INACTIVE,
+                "one"
+            )
         )
     )
 
@@ -202,11 +218,14 @@ class FhirRouterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route))
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
+
+        // condition passes
+        val filter = listOf("Bundle.entry.resource.ofType(MessageHeader).count() > 0")
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhir)
@@ -217,6 +236,7 @@ class FhirRouterTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -280,5 +300,406 @@ class FhirRouterTests {
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
         assert(receiversOut[0] == "co-phd.full-elr-hl7")
+    }
+
+    @Test
+    fun `test getJurisFilter no filters`() {
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one"
+        )
+        val testOrg = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(
+                receiver
+            )
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // do work
+        val filter = engine.getJurisFilters(receiver)
+
+        // assert
+        assert(filter == null)
+    }
+
+    @Test
+    fun `test getJurisFilter org filter, no receiver`() {
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one"
+        )
+        val testOrg = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            filters = listOf(
+                ReportStreamFilters(
+                    topic = Topic.FULL_ELR.json_val,
+                    jurisdictionalFilter = listOf("test"),
+                    qualityFilter = null,
+                    routingFilter = null,
+                    processingModeFilter = null
+                )
+            ),
+            receivers = listOf(
+                receiver
+            )
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // do work
+        val filters = engine.getJurisFilters(receiver)
+
+        // assert
+        assert(filters != null)
+        assert(filters!![0] == "test")
+    }
+
+    @Test
+    fun `test getJurisFilter org filter, receiver override`() {
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one",
+            jurisdictionalFilter = listOf("testRec")
+        )
+        val testOrg = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            filters = listOf(
+                ReportStreamFilters(
+                    topic = Topic.FULL_ELR.json_val,
+                    jurisdictionalFilter = listOf("testOrg"),
+                    qualityFilter = null,
+                    routingFilter = null,
+                    processingModeFilter = null
+                )
+            ),
+            receivers = listOf(
+                receiver
+            )
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // do work
+        val filter = engine.getJurisFilters(receiver)
+
+        // assert
+        assert(filter != null)
+        check(filter != null)
+        assert(filter.any { it == "testRec" })
+        assert(filter.none { it == "testOrg" })
+    }
+
+    @Test
+    fun `test getJurisFilter receiver filter, no org`() {
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one",
+            jurisdictionalFilter = listOf("testRec")
+        )
+        val testOrg = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(
+                receiver
+            )
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // do work
+        val filters = engine.getJurisFilters(receiver)
+
+        // assert
+        assert(filters != null)
+        assert(filters!!.any { it == "testRec" })
+    }
+
+    @Test
+    fun `test getJurisFilter receiver multi line`() {
+        val receiver = Receiver(
+            "full-elr-hl7",
+            "co-phd",
+            "topic",
+            CustomerStatus.INACTIVE,
+            "one",
+            jurisdictionalFilter = listOf("testRec", "testRec2")
+        )
+        val testOrg = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            filters = listOf(
+                ReportStreamFilters(
+                    topic = Topic.FULL_ELR.json_val,
+                    jurisdictionalFilter = listOf("testOrg"),
+                    qualityFilter = null,
+                    routingFilter = null,
+                    processingModeFilter = null
+                )
+            ),
+            receivers = listOf(
+                receiver
+            )
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // do work
+        val filter = engine.getJurisFilters(receiver)
+
+        // assert
+        assert(filter != null)
+        check(filter != null)
+        assert(filter.any { it == "testRec" })
+        assert(filter.any { it == "testRec2" })
+        assert(filter.none { it == "testOrg" })
+    }
+
+    @Test
+    fun `test no filter (allowNone)`() {
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        val filter: List<String>? = null
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
+    }
+
+    @Test
+    fun `test passes`() {
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // condition passes
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 1) {
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
+    }
+
+    @Test
+    fun `test no pass`() {
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // condition does not pass
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 0")
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
+    }
+
+    @Test
+    fun `test multiline passes`() {
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // both conditions pass
+        val filter =
+            listOf(
+                "Bundle.entry.resource.ofType(Provenance).count() > 0",
+                "Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R01'"
+            )
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 1) {
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
+    }
+
+    @Test
+    fun `test multiline no pass`() {
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // first condition passes, 2nd doesn't
+        val filter =
+            listOf(
+                "Bundle.entry.resource.ofType(Provenance).count() > 0",
+                "Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R02'"
+            )
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any()) } returns filter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
     }
 }

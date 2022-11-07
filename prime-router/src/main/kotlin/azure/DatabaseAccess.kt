@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -406,8 +407,16 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
-            .where(Tables.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
+        return ctx
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
             .fetchOne()
             ?.into(CovidResultMetadata::class.java)
     }
@@ -418,7 +427,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     ): List<CovidResultMetadata> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
-            .selectFrom(COVID_RESULT_METADATA)
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
             .where(
                 COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
             )
@@ -432,7 +448,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         trackingId: String,
         type: ActionLogType,
         txn: DataAccessTransaction? = null
-    ): List<MessageActionLog> {
+    ): List<ActionLogDetail> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
             .selectFrom(Tables.ACTION_LOG)
@@ -442,7 +458,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     .and(Tables.ACTION_LOG.TYPE.eq(type))
             )
             .limit(100)
-            .fetchInto(MessageActionLog::class.java)
+            .fetchInto(ActionLogDetail::class.java)
     }
 
     /** Returns null if report has no item-level lineage info tracked. */
@@ -500,8 +516,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .toList()
     }
 
+    fun fetchReportDescendantsFromReportId(
+        parentReportId: ReportId,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val sql = """select * FROM 
+                report_file where report_id in (
+                select * from report_descendants(?)
+                where report_id != ?
+                limit(100)
+                )
+              """
+        return ctx.fetch(sql, parentReportId, parentReportId)
+            .into(ReportFile::class.java)
+            .toList()
+    }
+
     fun fetchActionLogsByReportIdAndFilterType(
         reportId: ReportId,
+        trackingId: String,
         filterType: String,
         txn: DataAccessTransaction? = null
     ): List<MessageActionLog> {
@@ -511,6 +545,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(ACTION_LOG.REPORT_ID.eq(reportId))
             .and(ACTION_LOG.TYPE.eq(ActionLogType.filter))
             .and(detailField.eq(filterType))
+            .and(ACTION_LOG.TRACKING_ID.eq(trackingId))
+            .limit(100)
             .fetch()
             .into(MessageActionLog::class.java)
             .toList()

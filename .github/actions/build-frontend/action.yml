@@ -26,7 +26,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js ${{ matrix.node-version }} with yarn
-      uses: actions/setup-node@337fdf2194d3e87cdd26672305866d19d404fcd3
+      uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
       with:
         node-version: "16.18.0"
 
@@ -59,7 +59,7 @@ runs:
 
     - name: SonarCloud Scan
       if: inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
-      uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
+      uses: sonarsource/sonarcloud-github-action@156db6fef3e168e4972abb76de0b32bbce8ec77a
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
@@ -78,7 +78,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz
