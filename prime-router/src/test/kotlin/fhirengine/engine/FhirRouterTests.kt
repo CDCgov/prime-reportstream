@@ -225,11 +225,10 @@ class FhirRouterTests {
         val bodyUrl = "http://anyblob.com"
 
         // condition passes
-        val jFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        val qFilter = listOf("Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R01'")
+        val filter = listOf("Bundle.entry.resource.ofType(MessageHeader).count() > 0")
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validFhirWithProvenance)
+        every { message.downloadContent() }.returns(validFhir)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -237,8 +236,7 @@ class FhirRouterTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
-        every { engine.getJurisFilters(any()) } returns jFilter
-        every { engine.getQualityFilters(any()) } returns qFilter
+        every { engine.getJurisFilters(any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -564,7 +562,6 @@ class FhirRouterTests {
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any()) } returns filter
-        every { engine.getQualityFilters(any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -606,7 +603,6 @@ class FhirRouterTests {
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any()) } returns filter
-        every { engine.getQualityFilters(any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -652,7 +648,6 @@ class FhirRouterTests {
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any()) } returns filter
-        every { engine.getQualityFilters(any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -698,52 +693,6 @@ class FhirRouterTests {
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any()) } returns filter
-        every { engine.getQualityFilters(any()) } returns filter
-
-        // act
-        engine.doWork(message, actionLogger, actionHistory)
-
-        // assert
-        verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
-        }
-    }
-
-    @Test
-    fun `test jurisfilter pass, qualfilter no pass`() {
-        mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
-
-        // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
-        val actionHistory = mockk<ActionHistory>()
-        val actionLogger = mockk<ActionLogger>()
-
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
-
-        // first condition passes, 2nd doesn't
-        val jurisFilter =
-            listOf(
-                "Bundle.entry.resource.ofType(Provenance).count() > 0"
-            )
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validFhirWithProvenance)
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
-        every { engine.getJurisFilters(any()) } returns jurisFilter
-        every { engine.getQualityFilters(any()) } returns null
 
         // act
         engine.doWork(message, actionLogger, actionHistory)

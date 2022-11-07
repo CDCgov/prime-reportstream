@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -24,7 +23,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import org.hl7.fhir.r4.model.Bundle
+
 /**
  * [metadata] mockable metadata
  * [settings] mockable settings
@@ -56,9 +55,31 @@ class FHIRRouter(
 
             // pull fhir document and parse FHIR document
             val bundle = FhirTranscoder.decode(message.downloadContent())
+            val listOfReceivers = mutableListOf<Receiver>()
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle)
+            // find all receivers that have the full ELR topic and determine which applies
+            val fullElrReceivers = settings.receivers.filter { it.topic == Topic.FULL_ELR.json_val }
+            fullElrReceivers.forEach { receiver ->
+                // Get the applicable filters, either receiver or organization level if there are no receiver
+                //  filters. If there are no filters, the default juris rule is allowNone
+                val filter = getJurisFilters(receiver)
+
+                // default filter is 'allowNone', so there has to be at least one configured filter for the receiver
+                //  to get this record
+                if (filter != null) {
+                    // go through all filter conditions in all juris filters that are configured and boolean AND each
+                    //  predicate
+                    val passesFilter =
+                        filter.all {
+                            FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
+                        }
+
+                    if (passesFilter)
+                        listOfReceivers.add(receiver)
+                }
+            }
+
+            // TODO: other filter types
 
             // add the receivers, if any, to the fhir bundle
             if (listOfReceivers.isNotEmpty()) {
@@ -163,94 +184,6 @@ class FHIRRouter(
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message\
-     * @return list of receivers that should receive this bundle
-     */
-    internal fun applyFilters(bundle: Bundle): List<Receiver> {
-        val listOfReceivers = mutableListOf<Receiver>()
-        // find all receivers that have the full ELR topic and determine which applies
-        val fullElrReceivers = settings.receivers.filter {
-            it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic == Topic.FULL_ELR.json_val
-        }
-
-        /**
-         * Default Rules:
-         *   Must have message ID, patient last name, patient first name, DOB, specimen type
-         *   At least one of patient street, patient zip code, patient phone number, patient email
-         *   At least one of order test date, specimen collection date/time, test result date
-         */
-        val qualityFilterDefault: ReportStreamFilter = listOf(
-            "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
-            "Bundle.entry.resource.ofType(Patient).name.family.exists()",
-            "Bundle.entry.resource.ofType(Patient).name.given.length() > 0",
-            "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
-            "Bundle.entry.resource.ofType(Specimen).type.exists()",
-            "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
-                "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
-                "Bundle.entry.resource.ofType(Patient).telecom.exists())",
-            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
-                "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or" +
-                "Bundle.entry.resource.ofType(Observation).effective.exists())"
-        )
-
-        // TODO: CD - verify that by lazy is actually doing something here
-        // get the quality filter default result for the bundle, but only if it is needed
-        val qualFilterDefaultResult: Boolean by lazy { evaluateFilterCondition(qualityFilterDefault, bundle, false) }
-
-        fullElrReceivers.forEach { receiver ->
-            // Get the applicable filters, either receiver or organization level if there are no receiver filters
-
-            // NOTE: these could all be combined into a single `if` statement, but that would reduce readability and
-            // ability to debug this section so is being left split out like this
-
-            // JURIS FILTER
-            //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver), bundle, false)
-            // QUALITY FILTER
-            //  default: must have message id, patient last name, patient first name, dob, specimen type
-            //           must have at least one of patient street, zip code, phone number, email
-            //           must have at least one of order test date, specimen collection date/time, test result date
-            passes = passes &&
-                evaluateFilterCondition(getQualityFilters(receiver), bundle, qualFilterDefaultResult)
-            // ROUTING FILTER
-            //  default: allowAll
-            passes = passes &&
-                evaluateFilterCondition(getRoutingFilter(receiver), bundle, true)
-            // PROCESSING MODE FILTER
-            //  default: allowAll
-            passes = passes &&
-                evaluateFilterCondition(getProcessingModeFilter(receiver), bundle, true)
-
-            // if all filters pass, add this receiver to the list of valid receivers
-            if (passes) {
-                listOfReceivers.add(receiver)
-            }
-        }
-
-        return listOfReceivers
-    }
-
-    /**
-     * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
-     * return [defaultResponse]
-     * @return Boolean indicating if the bundle passes the filter or not
-     */
-    private fun evaluateFilterCondition(
-        filter: ReportStreamFilter?,
-        bundle: Bundle,
-        defaultResponse: Boolean
-    ): Boolean {
-        // the filter needs to check all expressions passed in, or if the filter is null will return the
-        // default response
-        return filter?.all {
-            FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
-        }
-            ?: defaultResponse
-    }
-
-    /**
      * Gets the applicable jurisdictional filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
      * first and looks at the parent organization if the receiver does not have any jurs filters configured for
      * this topic
@@ -263,60 +196,6 @@ class FHIRRouter(
                 org.filters.first { it.topic == Topic.FULL_ELR.json_val }.jurisdictionalFilter != null
             )
                 org.filters.first { it.topic == Topic.FULL_ELR.json_val }.jurisdictionalFilter!!
-            else
-                null
-        }
-    }
-
-    /**
-     * Gets the applicable quality filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any quality filters configured for
-     * this topic
-     */
-    internal fun getQualityFilters(receiver: Receiver): ReportStreamFilter? {
-        return receiver.qualityFilter.ifEmpty {
-            val org = settings.findOrganization(receiver.organizationName)!!
-            if (org.filters != null &&
-                org.filters.any { it.topic == Topic.FULL_ELR.json_val } &&
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.qualityFilter != null
-            )
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.qualityFilter!!
-            else
-                null
-        }
-    }
-
-    /**
-     * Gets the applicable routing filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any routing filters configured for
-     * this topic
-     */
-    internal fun getRoutingFilter(receiver: Receiver): ReportStreamFilter? {
-        return receiver.routingFilter.ifEmpty {
-            val org = settings.findOrganization(receiver.organizationName)!!
-            if (org.filters != null &&
-                org.filters.any { it.topic == Topic.FULL_ELR.json_val } &&
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.routingFilter != null
-            )
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.routingFilter!!
-            else
-                null
-        }
-    }
-
-    /**
-     * Gets the applicable processing mode filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any processing mode filters configured
-     * for this topic
-     */
-    internal fun getProcessingModeFilter(receiver: Receiver): ReportStreamFilter? {
-        return receiver.processingModeFilter.ifEmpty {
-            val org = settings.findOrganization(receiver.organizationName)!!
-            if (org.filters != null &&
-                org.filters.any { it.topic == Topic.FULL_ELR.json_val } &&
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.processingModeFilter != null
-            )
-                org.filters.first { it.topic == Topic.FULL_ELR.json_val }.processingModeFilter!!
             else
                 null
         }
