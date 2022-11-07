@@ -117,6 +117,7 @@ runs:
       with:
         owner: CDCgov
         repo: prime-reportstream
+        ref: master
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120
@@ -126,7 +127,7 @@ runs:
         wait_workflow: true
 
     - name: Optimize db server size after restore
-      if: inputs.github-token && inputs.destroy == 'false'
+      if: always() && (inputs.github-token && inputs.destroy == 'false')
       shell: bash
       run: |
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
