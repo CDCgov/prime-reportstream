@@ -84,7 +84,7 @@ class FhirToHl7Converter(
             ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
 
         if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schemaRef.name} had multiple elements with the same name: $dupes")
+            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: $dupes")
         }
         processSchema(schemaRef, bundle, bundle)
         return message
