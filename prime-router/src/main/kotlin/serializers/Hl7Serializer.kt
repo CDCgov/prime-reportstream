@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.Varies
 import ca.uhn.hl7v2.model.v251.datatype.CE
@@ -12,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.datatype.NM
 import ca.uhn.hl7v2.model.v251.datatype.SN
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_OBSERVATION
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
@@ -2092,6 +2094,41 @@ class Hl7Serializer(
         return valueString
     }
 
+    fun confirmObservationOrder(
+        message: Message
+    ): Message {
+        val oruR01: ORU_R01 = (message as? ORU_R01) ?: return message
+
+        val loincRepOne = oruR01.patienT_RESULT.ordeR_OBSERVATION.observation.obx.observationIdentifier.identifier.toString()
+
+        if (!checkLIVDValueExists("Test Performed LOINC Code", loincRepOne)) {
+            var resultObservation: ORU_R01_OBSERVATION? = null
+            oruR01.patienT_RESULT.ordeR_OBSERVATION.observationAll.forEachIndexed { index, observation ->
+                val loinc = observation.obx.observationIdentifier.identifier.toString()
+                if (checkLIVDValueExists("Test Performed LOINC Code", loinc)) {
+                    resultObservation = observation
+                    oruR01.patienT_RESULT.ordeR_OBSERVATION.removeOBSERVATION(index)
+                    return@forEachIndexed
+                }
+            }
+
+            oruR01.patienT_RESULT.ordeR_OBSERVATION.insertOBSERVATION(resultObservation, 1)
+
+            oruR01.patienT_RESULT.ordeR_OBSERVATIONAll.forEachIndexed { index, orderObservation ->
+                orderObservation.observation.obx.setIDOBX.value = index.toString()
+            }
+
+            return oruR01
+        } else {
+            return message
+        }
+    }
+
+    fun checkLIVDValueExists(column: String, value: String): Boolean {
+        val rowCount = livdLookupTable.value.FilterBuilder().isEqualTo(column, value).filter().rowCount
+        return rowCount > 0
+    }
+
     /**
      * Gets the HAPI Terser spec from the provided [hl7Field] string.
      * @returns the HAPI Terser spec
@@ -2200,6 +2237,13 @@ class Hl7Serializer(
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        // Do a lazy init because this table may never be used and it is large
+        val livdLookupTable = lazy {
+            Metadata.getInstance().findLookupTable("LIVD-SARS-CoV-2") ?: error(
+                "Unable to find the LIVD-SARS-CoV-2 lookup table."
+            )
         }
 
         /**
