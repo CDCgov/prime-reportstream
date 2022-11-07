@@ -1,6 +1,6 @@
 resource "azurerm_data_factory_trigger_schedule" "sftp_share_to_archive" {
   name                = "SFTPtoArchive"
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   data_factory_id     = azurerm_data_factory.primary.id
   pipeline_name       = azurerm_data_factory_pipeline.sftp_share_to_archive.name
 

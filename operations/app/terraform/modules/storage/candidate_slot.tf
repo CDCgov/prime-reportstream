@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   account_tier              = "Standard"
   account_replication_type  = "GRS"
   min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
+  #allow_blob_public_access  = false
   enable_https_traffic_only = true
 
   network_rules {
@@ -143,7 +143,11 @@ resource "azurerm_key_vault_access_policy" "storage_policy_candidate" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_account_candidate.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = [
+    "Get",  
+    "UnwrapKey", 
+    "WrapKey"
+    ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" {
@@ -168,7 +172,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   is_hns_enabled            = true # This enable Data Lake v2 for HHS Protect
   account_replication_type  = "GRS"
   min_tls_version           = "TLS1_2"
-  allow_blob_public_access  = false
+  #allow_blob_public_access  = false
   enable_https_traffic_only = true
 
   network_rules {
@@ -211,7 +215,11 @@ resource "azurerm_key_vault_access_policy" "storage_candidate_partner_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_partner_candidate.identity.0.principal_id
 
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = [
+    "Get",  
+    "UnwrapKey", 
+    "WrapKey"
+    ]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partner_key" {

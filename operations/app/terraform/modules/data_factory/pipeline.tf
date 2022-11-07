@@ -6,7 +6,7 @@ resource "azurerm_data_factory_pipeline" "sftp_share_to_archive" {
   concurrency         = 1
   folder              = "SFTP-share-to-archive"
   parameters          = {}
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   variables = {
     "SFTPShareNames" = ""
   }

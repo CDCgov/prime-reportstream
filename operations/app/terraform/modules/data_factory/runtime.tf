@@ -2,7 +2,7 @@ resource "azurerm_data_factory_integration_runtime_azure" "vnet" {
   name                = "VnetIR"
   data_factory_id     = azurerm_data_factory.primary.id
   location            = var.location
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
 
   cleanup_enabled         = false
   compute_type            = "General"

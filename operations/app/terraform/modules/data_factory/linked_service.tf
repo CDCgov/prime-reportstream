@@ -1,6 +1,6 @@
 resource "azurerm_data_factory_linked_service_azure_file_storage" "sftp_share" {
   name                = "SFTPShare"
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   data_factory_id     = azurerm_data_factory.primary.id
 
   connection_string        = var.sftp_storage.primary_connection_string
@@ -17,7 +17,7 @@ resource "azurerm_data_factory_linked_service_azure_file_storage" "sftp_share" {
 
 resource "azurerm_data_factory_linked_service_azure_blob_storage" "sftp_archive" {
   name                = "SFTPArchive"
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   data_factory_id     = azurerm_data_factory.primary.id
 
   connection_string        = var.sa_primary_connection_string

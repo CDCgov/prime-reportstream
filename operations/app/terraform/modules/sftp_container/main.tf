@@ -84,6 +84,7 @@ resource "azurerm_container_group" "sftp_container" {
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
   storage_account_name = "${var.resource_prefix}storageaccount"
+  quota                = 1
 }
 
 resource "azurerm_private_dns_a_record" "sftp_prime_local" {
