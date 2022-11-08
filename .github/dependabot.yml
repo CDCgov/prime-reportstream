@@ -12,8 +12,7 @@ updates:
     # default location of `.github/workflows`
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "sunday"
+      interval: "daily"
 
   # Maintain dependencies for GitHub Actions custom actions
   # These entries need to be updated for every new action created
@@ -78,6 +77,7 @@ updates:
       interval: "daily"
 
   # FRONTEND
+  # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
     schedule:
@@ -115,6 +115,7 @@ updates:
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+  # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
     schedule:
