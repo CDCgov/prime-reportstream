@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.engine.fhirRouter
+package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -337,6 +337,11 @@ class RoutingTests {
 
         // assert
         verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackCreatedReport(any(), any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any())
+            queueMock.sendMessage(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any())
         }
     }

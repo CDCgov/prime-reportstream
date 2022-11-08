@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.engine.fhirRouter
+package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
