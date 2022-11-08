@@ -178,8 +178,6 @@ class FhirRouterTests {
         // condition passes
         val jFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val qFilter = listOf("Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R01'")
-//        val rFilter = listOf()
-//        val pmFilter = listOf()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -192,8 +190,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jFilter
         every { engine.getQualityFilters(any(), any()) } returns qFilter
-//        every { engine.getRoutingFilter(any(), any()) } returns rFilter
-//        every { engine.getProcessingModeFilter(any(), any()) } returns pmFilter
+        every { engine.getRoutingFilter(any(), any()) } returns jFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns jFilter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -412,6 +410,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns filter
         every { engine.getQualityFilters(any(), any()) } returns filter
+        every { engine.getRoutingFilter(any(), any()) } returns filter
+        every { engine.getProcessingModeFilter(any(), any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -449,6 +449,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns filter
         every { engine.getQualityFilters(any(), any()) } returns filter
+        every { engine.getRoutingFilter(any(), any()) } returns filter
+        every { engine.getProcessingModeFilter(any(), any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -490,6 +492,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns filter
         every { engine.getQualityFilters(any(), any()) } returns filter
+        every { engine.getRoutingFilter(any(), any()) } returns filter
+        every { engine.getProcessingModeFilter(any(), any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -531,6 +535,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns filter
         every { engine.getQualityFilters(any(), any()) } returns filter
+        every { engine.getRoutingFilter(any(), any()) } returns filter
+        every { engine.getProcessingModeFilter(any(), any()) } returns filter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -571,72 +577,14 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns emptyList()
+        every { engine.getRoutingFilter(any(), any()) } returns emptyList()
+        every { engine.getProcessingModeFilter(any(), any()) } returns emptyList()
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
-        }
-    }
-
-    @Test
-    fun `test jurisFilter uses default when no org no receiver`() {
-        mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validFhirWithProvenance)
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
-
-        // act
-        engine.doWork(message, actionLogger, actionHistory)
-
-        // assert
-        verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
-        }
-    }
-
-    @Test
-    fun `test jurisFilter uses org when no receiver`() {
-        mockkObject(BlobAccess)
-        mockkObject(FHIRBundleHelpers)
-        val settings = FileSettings().loadOrganizations(jurisOrgFilterOrg)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(validFhirWithProvenance)
-        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
-        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
-//        every { engine.getJurisFilters(any()) } returns filter
-//        every { engine.getQualityFilters(any()) } returns null
-
-        // do work
-//        val filter = engine.getJurisFilters(defaultReceivers.first())
-
-        // assert
-//        assert(filter == null)
-
-        // act
-        engine.doWork(message, actionLogger, actionHistory)
-
-        // assert
-        verify(exactly = 1) {
             FHIRBundleHelpers.addReceivers(any(), any())
         }
     }
