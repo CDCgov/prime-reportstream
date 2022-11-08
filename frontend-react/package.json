@@ -27,6 +27,7 @@
         "dotenv": "^16.0.1",
         "downloadjs": "^1.4.7",
         "env-cmd": "^10.1.0",
+        "loader-utils": "2.0.3",
         "lodash.chunk": "^4.2.0",
         "lodash.omit": "^4.5.0",
         "lodash.pick": "^4.4.0",
