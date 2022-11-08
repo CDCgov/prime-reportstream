@@ -59,7 +59,7 @@ export function MessageDetails() {
                     receiverDetails={messageDetails!.receiverData}
                 />
                 <WarningsErrors
-                    title={"WarningError:"}
+                    title={"Warnings:"}
                     data={messageDetails!.warnings}
                 />
                 <WarningsErrors
