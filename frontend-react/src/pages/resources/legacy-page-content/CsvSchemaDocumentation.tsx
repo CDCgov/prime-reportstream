@@ -210,7 +210,7 @@ export const CsvSchemaDocumentation = () => {
                     <li>Column headers can be placed in any order.</li>
                     <li>
                         Column headers must be included as specified in this
-                        documentation.{" "}
+                        docgenerators.{" "}
                     </li>
                 </ul>
 
