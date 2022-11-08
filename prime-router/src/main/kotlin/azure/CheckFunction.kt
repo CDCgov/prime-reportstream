@@ -177,7 +177,7 @@ class CheckFunction : Logging {
                         "'transport' section of setting is missing or empty - SFTP only supported"
                 )
             } else {
-                val sftpFile = SftpFile("hello-test-${UUID.randomUUID()}.txt", "")
+                val sftpFile = SftpFile("hello-prime-test-${UUID.randomUUID()}.txt", "")
                 val responseBody = mutableListOf<String>()
                 val checkResult = testTransport(receiver, sftpFile, responseBody)
                 JsonResponse(
