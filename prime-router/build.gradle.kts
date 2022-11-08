@@ -751,6 +751,8 @@ dependencies {
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.commons:commons-csv:1.9.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
