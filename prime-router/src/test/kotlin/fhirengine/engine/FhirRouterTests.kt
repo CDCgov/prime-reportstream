@@ -43,6 +43,9 @@ class FhirRouterTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
+    val metadata = Metadata(schema = Schema(name = "None", topic = "full-elr", elements = emptyList()))
+    private val bodyFormat = Report.Format.FHIR
+    val bodyUrl = "http://anyblob.com"
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
@@ -68,14 +71,13 @@ class FhirRouterTests {
     private val orgJurisFilter = listOf(
         ReportStreamFilters(
             topic = Topic.FULL_ELR.json_val,
-            jurisdictionalFilter = listOf("test"),
+            jurisdictionalFilter = listOf("testOrg"),
             qualityFilter = null,
             routingFilter = null,
             processingModeFilter = null
         )
     )
-
-    private val orgFilterOrg = DeepOrganization(
+    private val jurisOrgFilterOrg = DeepOrganization(
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
@@ -92,14 +94,14 @@ class FhirRouterTests {
             jurisdictionalFilter = listOf("testRec")
         )
     )
-    val orgAndReceiverFilterOrg = DeepOrganization(
+    private val jurisBothFiltersOrg = DeepOrganization(
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
         filters = orgJurisFilter,
         receivers = jurisFilterReceivers
     )
-    val receiverFilterOrg = DeepOrganization(
+    private val jurisRecFilterOrg = DeepOrganization(
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
@@ -167,20 +169,17 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
-
         // condition passes
         val jFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val qFilter = listOf("Bundle.entry.resource.ofType(Provenance)[0].activity.coding[0].code = 'R01'")
+//        val rFilter = listOf()
+//        val pmFilter = listOf()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -193,6 +192,8 @@ class FhirRouterTests {
         every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jFilter
         every { engine.getQualityFilters(any(), any()) } returns qFilter
+//        every { engine.getRoutingFilter(any(), any()) } returns rFilter
+//        every { engine.getProcessingModeFilter(any(), any()) } returns pmFilter
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -260,147 +261,52 @@ class FhirRouterTests {
 
     @Test
     fun `test getJurisFilter no filters`() {
-        val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
-            "topic",
-            CustomerStatus.INACTIVE,
-            "one"
-        )
-        val testOrg = DeepOrganization(
-            "co-phd",
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(
-                receiver
-            )
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val orgFilters = emptyList<ReportStreamFilters>()
 
         // do work
-        val filter = engine.getJurisFilters(receiver, orgFilters)
+        val filters = engine.getJurisFilters(defaultReceivers[0], emptyList())
 
         // assert
-        assert(filter.isEmpty())
+        assert(filters.isEmpty())
     }
 
     @Test
     fun `test getJurisFilter org filter, no receiver`() {
-        val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
-            "topic",
-            CustomerStatus.INACTIVE,
-            "one"
-        )
-        val testOrg = DeepOrganization(
-            "co-phd",
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            filters = listOf(
-                ReportStreamFilters(
-                    topic = Topic.FULL_ELR.json_val,
-                    jurisdictionalFilter = listOf("test"),
-                    qualityFilter = null,
-                    routingFilter = null,
-                    processingModeFilter = null
-                )
-            ),
-            receivers = listOf(
-                receiver
-            )
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(jurisOrgFilterOrg)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val orgFilters = emptyList<ReportStreamFilters>()
 
         // do work
-        val filters = engine.getJurisFilters(receiver, orgFilters)
+        val filters = engine.getJurisFilters(defaultReceivers[0], orgJurisFilter)
 
         // assert
-        assert(filters[0] == "test")
+        assert(filters[0] == "testOrg")
     }
 
     @Test
     fun `test getJurisFilter org filter, receiver override`() {
-        val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
-            "topic",
-            CustomerStatus.INACTIVE,
-            "one",
-            jurisdictionalFilter = listOf("testRec")
-        )
-        val testOrg = DeepOrganization(
-            "co-phd",
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            filters = listOf(
-                ReportStreamFilters(
-                    topic = Topic.FULL_ELR.json_val,
-                    jurisdictionalFilter = listOf("testOrg"),
-                    qualityFilter = null,
-                    routingFilter = null,
-                    processingModeFilter = null
-                )
-            ),
-            receivers = listOf(
-                receiver
-            )
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(jurisOrgFilterOrg)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val orgFilters = emptyList<ReportStreamFilters>()
 
         // do work
-        val filter = engine.getJurisFilters(receiver, orgFilters)
+        val filters = engine.getJurisFilters(jurisFilterReceivers[0], orgJurisFilter)
 
         // assert
-        assert(filter.any { it == "testRec" })
-        assert(filter.none { it == "testOrg" })
+        assert(filters.any { it == "testRec" })
+        assert(filters.any { it == "testOrg" })
     }
 
     @Test
     fun `test getJurisFilter receiver filter, no org`() {
-        val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
-            "topic",
-            CustomerStatus.INACTIVE,
-            "one",
-            jurisdictionalFilter = listOf("testRec")
-        )
-        val testOrg = DeepOrganization(
-            "co-phd",
-            "test",
-            Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(
-                receiver
-            )
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(jurisRecFilterOrg)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val orgFilters = emptyList<ReportStreamFilters>()
 
         // do work
-        val filters = engine.getJurisFilters(receiver, orgFilters)
+        val filters = engine.getJurisFilters(jurisFilterReceivers[0], emptyList())
 
         // assert
         assert(filters.any { it == "testRec" })
+        assert(filters.none { it == "testOrg" })
     }
 
     @Test
@@ -432,8 +338,6 @@ class FhirRouterTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val orgFilters = emptyList<ReportStreamFilters>()
 
@@ -453,16 +357,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         val filter: List<String> = emptyList()
 
@@ -493,16 +392,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         // condition passes
         val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -535,16 +429,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         // condition does not pass
         val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 0")
@@ -577,16 +466,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         // both conditions pass
         val filter =
@@ -623,16 +507,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         // first condition passes, 2nd doesn't
         val filter =
@@ -669,16 +548,11 @@ class FhirRouterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         // first condition passes, 2nd doesn't
         val jurisFilter =
@@ -712,12 +586,7 @@ class FhirRouterTests {
         mockkObject(BlobAccess)
         mockkObject(FHIRBundleHelpers)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
@@ -742,17 +611,8 @@ class FhirRouterTests {
     fun `test jurisFilter uses org when no receiver`() {
         mockkObject(BlobAccess)
         mockkObject(FHIRBundleHelpers)
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val settings = FileSettings().loadOrganizations(orgFilterOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(jurisOrgFilterOrg)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
-
-//        val passyfilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-//        val blockyFilter: List<String>? = null
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(validFhirWithProvenance)
