@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.InvalidCodeMessage
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -22,6 +24,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 class MessagesFunctionsTests {
+    val id: Long = 6
 
     private fun buildMessagesFunction(
         mockDbAccess: DatabaseAccess? = null
@@ -110,13 +113,84 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildActionLogs(): List<MessageActionLog> {
+    private fun buildActionLogs(): List<ActionLogDetail> {
         val actionLogDetail = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
 
         return listOf(
+            actionLogDetail
+        )
+    }
+
+    private fun buildReportDescendantsFromReportId():
+        List<ReportFile> {
+        return listOf(
+            ReportFile(
+                UUID.randomUUID(),
+                11,
+                TaskAction.send,
+                null,
+                null,
+                null,
+                "md-phd",
+                "elr",
+                null,
+                null,
+                "covid-19",
+                "covid-19",
+                "http://azurite:10000/devstoreaccount1/reports/20220928195607.hl7",
+                null,
+                "HL7_BATCH",
+                null,
+                2,
+                null,
+                OffsetDateTime.now().minusWeeks(1),
+                null,
+                null
+            )
+        )
+    }
+
+    private fun buildReportFileByIds(reportId: ReportId): List<ReportFile> {
+        return listOf(
+            ReportFile(
+                reportId,
+                1,
+                null,
+                null,
+                null,
+                null,
+                "md-phd",
+                "elr",
+                null,
+                "Success: sftp upload of covid-19-123.hl7 to SFTPTransportType",
+                "covid-19",
+                "covid-19",
+                null,
+                "covid-19-c74ddaa2-4a8b-4a6a-ba04-9635d8ed7432-20220928195607.hl7",
+                "HL7_BATCH",
+                null,
+                2,
+                null,
+                OffsetDateTime.now().minusWeeks(1),
+                null,
+                null
+            )
+        )
+    }
+
+    private fun buildActionLogsByReportIdAndFilterType(trackingId: String):
+        List<MessageActionLog> {
+        val actionLogDetail1 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
+        val actionLogDetail2 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
+
+        return listOf(
             MessageActionLog(
-                "trackingId",
-                actionLogDetail
+                trackingId,
+                actionLogDetail1
+            ),
+            MessageActionLog(
+                trackingId,
+                actionLogDetail2
             )
         )
     }
@@ -239,7 +313,6 @@ class MessagesFunctionsTests {
 
     @Test
     fun `test processMessageDetailRequest function`() {
-        val id: Long = 6
         val reportId: UUID = UUID.randomUUID()
         val messageId: String = UUID.randomUUID().toString()
         val mockDbAccess = mockk<DatabaseAccess>()
@@ -261,17 +334,43 @@ class MessagesFunctionsTests {
                 any()
             )
         } returns buildActionLogs()
+        every {
+            mockDbAccess.fetchReportDescendantsFromReportId(
+                any(),
+                any()
+            )
+        } returns buildReportDescendantsFromReportId()
+        every { mockDbAccess.fetchReportFileByIds(any()) } returns buildReportFileByIds(reportId)
+        every {
+            mockDbAccess.fetchActionLogsByReportIdAndFilterType(
+                any(),
+                any(),
+                any()
+            )
+        } returns buildActionLogsByReportIdAndFilterType(messageId)
+
         val response = messagesFunctions.processMessageDetailRequest(mockRequestWithMessageId, id)
 
         val jsonResponse = JSONObject(response.body.toString())
         val messageDetailObjectId = jsonResponse.get("id") as Int
         assert(messageDetailObjectId.toLong() == id)
         assert(response.status.equals(HttpStatus.OK))
+
+        // Exception in the database
+        val mockRequestInvalidReportIdValue = MockHttpRequestMessage()
+        mockRequestInvalidReportIdValue.parameters["reportId"] = "report-id"
+        every {
+            mockDbAccess.fetchReportFile(any())
+        }.throws(Exception("missing a report id"))
+        val missingReportIdValueResponse = messagesFunctions.processMessageDetailRequest(
+            mockRequestInvalidReportIdValue,
+            id
+        )
+        assert(missingReportIdValueResponse.status.equals(HttpStatus.BAD_REQUEST))
     }
 
     @Test
     fun `test processMessageDetailRequest function no id found`() {
-        val id: Long = 6
         val mockDbAccess = mockk<DatabaseAccess>()
         val messagesFunctions = spyk(buildMessagesFunction(mockDbAccess))
 
@@ -290,7 +389,6 @@ class MessagesFunctionsTests {
     @Test
     fun `test messageDetails function`() {
         val messagesFunctions = spyk(MessagesFunctions())
-        val id: Long = 6
 
         // Happy path
         val req = MockHttpRequestMessage()
@@ -331,7 +429,6 @@ class MessagesFunctionsTests {
     @Test
     fun `test messageDetails function internal server error`() {
         // throw exception
-        val id: Long = 6
         val internalServerErrorReq = MockHttpRequestMessage()
         val messagesFunctions = spyk(buildMessagesFunction())
 

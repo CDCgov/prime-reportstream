@@ -33,7 +33,7 @@ plugins {
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.microsoft.azure.azurefunctions") version "1.10.0"
+    id("com.microsoft.azure.azurefunctions") version "1.11.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
@@ -696,7 +696,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.4.1")
+    jooqGenerator("org.postgresql:postgresql:42.5.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -728,13 +728,14 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    // $jacksonVersion does not quite work for vulnerability remediation point releases.  The point release below can be delete on the next major/minor version update
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2")
     // Pin snakeyaml since it is getting included regardless of exclude attempts
     implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
@@ -750,6 +751,8 @@ dependencies {
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.commons:commons-csv:1.9.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
@@ -788,7 +791,7 @@ dependencies {
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.15.3")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.6")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
@@ -806,5 +809,5 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
