@@ -2099,7 +2099,8 @@ class Hl7Serializer(
     ): Message {
         val oruR01: ORU_R01 = (message as? ORU_R01) ?: return message
 
-        val loincRepOne = oruR01.patienT_RESULT.ordeR_OBSERVATION.observation.obx.observationIdentifier.identifier.toString()
+        val loincRepOne = oruR01
+            .patienT_RESULT.ordeR_OBSERVATION.observation.obx.observationIdentifier.identifier.toString()
 
         if (!checkLIVDValueExists("Test Performed LOINC Code", loincRepOne)) {
             var resultObservation: ORU_R01_OBSERVATION? = null
