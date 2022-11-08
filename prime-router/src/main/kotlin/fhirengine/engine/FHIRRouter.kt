@@ -43,6 +43,39 @@ class FHIRRouter(
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
+     * Default Rules:
+     *   Must have message ID, patient last name, patient first name, DOB, specimen type
+     *   At least one of patient street, patient zip code, patient phone number, patient email
+     *   At least one of order test date, specimen collection date/time, test result date
+     */
+    val qualityFilterDefault: ReportStreamFilter = listOf(
+        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.family.exists()",
+        "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
+        "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
+        "Bundle.entry.resource.ofType(Specimen).type.exists()",
+        "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
+            "Bundle.entry.resource.ofType(Patient).telecom.exists())",
+        "(" +
+            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
+            "Bundle.entry.resource.ofType(Specimen).collection.collected.exists()" +
+            ") or " +
+            "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
+            "Bundle.entry.resource.ofType(Observation).effective.exists())"
+    )
+
+    /**
+     * Default Rule:
+     *  Must have a processing mode id of 'P'
+     */
+    val processingModeFilterDefault: ReportStreamFilter = listOf(
+        "Bundle.entry.resource.ofType(MessageHeader).meta" +
+            ".extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id')" +
+            ".value.coding.code = 'P'"
+    )
+
+    /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
@@ -149,8 +182,9 @@ class FHIRRouter(
     }
 
     /**
-     * Inserts a 'translate' task into the task table for the [report] in question. This is just a pass-through function
-     * but is present here for proper separation of layers and testing. This may need to be modified in the future.
+     * Inserts a 'translate' task into the task table for the [report] in question. This is just a pass-through
+     * function but is present here for proper separation of layers and testing. This may need to be modified in
+     * the future.
      * The task will track the [report] in the [format] specified and knows it is located at [reportUrl].
      * [nextAction] specifies what is going to happen next for this report
      *
@@ -177,36 +211,20 @@ class FHIRRouter(
                 it.topic == Topic.FULL_ELR.json_val
         }
 
-        /**
-         * Default Rules:
-         *   Must have message ID, patient last name, patient first name, DOB, specimen type
-         *   At least one of patient street, patient zip code, patient phone number, patient email
-         *   At least one of order test date, specimen collection date/time, test result date
-         */
-        val qualityFilterDefault: ReportStreamFilter = listOf(
-            "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
-            "Bundle.entry.resource.ofType(Patient).name.family.exists()",
-            "Bundle.entry.resource.ofType(Patient).name.given.length() > 0",
-            "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
-            "Bundle.entry.resource.ofType(Specimen).type.exists()",
-            "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
-                "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
-                "Bundle.entry.resource.ofType(Patient).telecom.exists())",
-            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
-                "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
-                "Bundle.entry.resource.ofType(Observation).effective.exists())"
-        )
-
-        val processingModeFilterDefault: ReportStreamFilter = listOf(
-            "Bundle.entry.resource.ofType(MessageHeader).meta" +
-                ".extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id')" +
-                ".value.coding.code = 'P'"
-        )
-
         // get the quality filter default result for the bundle, but only if it is needed
-        val qualFilterDefaultResult: Boolean by lazy { evaluateFilterCondition(qualityFilterDefault, bundle, false) }
+        val qualFilterDefaultResult: Boolean by lazy {
+            evaluateFilterCondition(
+                qualityFilterDefault, bundle,
+                false
+            )
+        }
         // get the processing mode (processing id) default result for the bundle, but only if it is needed
-        val processingModeDefaultResult: Boolean by lazy { evaluateFilterCondition(processingModeFilterDefault, bundle, false) }
+        val processingModeDefaultResult: Boolean by lazy {
+            evaluateFilterCondition(
+                processingModeFilterDefault, bundle,
+                false
+            )
+        }
 
         fullElrReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
@@ -233,7 +251,10 @@ class FHIRRouter(
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes &&
-                evaluateFilterCondition(getProcessingModeFilter(receiver, orgFilters), bundle, processingModeDefaultResult)
+                evaluateFilterCondition(
+                    getProcessingModeFilter(receiver, orgFilters), bundle,
+                    processingModeDefaultResult
+                )
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
@@ -269,10 +290,11 @@ class FHIRRouter(
      * first and looks at the parent organization if the receiver does not have any jurs filters configured for
      * this topic
      */
-    internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?)
-    : ReportStreamFilter {
-        return (orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR.json_val }?.jurisdictionalFilter ?:
-        emptyList()).plus(receiver.jurisdictionalFilter)
+    internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR.json_val }?.jurisdictionalFilter
+                ?: emptyList()
+            ).plus(receiver.jurisdictionalFilter)
     }
 
     /**
@@ -280,10 +302,11 @@ class FHIRRouter(
      * first and looks at the parent organization if the receiver does not have any quality filters configured for
      * this topic
      */
-    internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?)
-    : ReportStreamFilter {
-        return (orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.qualityFilter ?:
-        emptyList()).plus(receiver.qualityFilter)
+    internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.qualityFilter
+                ?: emptyList()
+            ).plus(receiver.qualityFilter)
     }
 
     /**
@@ -291,10 +314,11 @@ class FHIRRouter(
      * first and looks at the parent organization if the receiver does not have any routing filters configured for
      * this topic
      */
-    internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?)
-    : ReportStreamFilter {
-        return (orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.routingFilter ?:
-        emptyList()).plus(receiver.routingFilter)
+    internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.routingFilter
+                ?: emptyList()
+            ).plus(receiver.routingFilter)
     }
 
     /**
@@ -302,9 +326,11 @@ class FHIRRouter(
      * first and looks at the parent organization if the receiver does not have any processing mode filters configured
      * for this topic
      */
-    internal fun getProcessingModeFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?)
-    : ReportStreamFilter {
-        return (orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.processingModeFilter ?:
-        emptyList()).plus(receiver.processingModeFilter)
+    internal fun getProcessingModeFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?):
+        ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.processingModeFilter
+                ?: emptyList()
+            ).plus(receiver.processingModeFilter)
     }
 }
