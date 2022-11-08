@@ -151,7 +151,7 @@ jobs:
             FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
             FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
             FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
-            echo "::set-output name=files::$FILES_ESCAPED"
+            echo "files=$FILES_ESCAPED" >> $GITHUB_OUTPUT
 
             # End with an error
             false
