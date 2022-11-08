@@ -7,7 +7,10 @@ import {
     RSDelivery,
     RSFacility,
 } from "../../../config/endpoints/deliveries";
-import { Filters } from "../../filters/UseFilterManager";
+import useFilterManager, {
+    extractFiltersFromManager,
+    FilterManagerDefaults,
+} from "../../filters/UseFilterManager";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -21,7 +24,7 @@ const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
 const useOrgDeliveries = (
     org?: string,
     service?: string,
-    filters?: Filters
+    filterManagerDefaults?: FilterManagerDefaults
 ) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery[]>();
 
@@ -29,28 +32,44 @@ const useOrgDeliveries = (
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
         [adminSafeOrgName, service]
-    ); // ex: xx-phd.elr
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getOrgDeliveries, {
+    );
+    const filterManager = useFilterManager(filterManagerDefaults);
+    const filters = useMemo(
+        () => extractFiltersFromManager(filterManager),
+        [filterManager]
+    );
+
+    const fetchResults = useCallback(
+        (currentCursor: string, numResults: number) => {
+            const cursor =
+                filters?.order === "DESC" ? currentCursor : filters?.to;
+            const endCursor =
+                filters?.order === "DESC" ? filters?.from : currentCursor;
+
+            return authorizedFetch(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
                 params: {
                     sortDir: filters?.order,
-                    since: filters?.from,
-                    until: filters?.to,
+                    since: endCursor,
+                    until: cursor,
+                    pageSize: numResults,
+                    // currentCursor: currentCursor,
+                    // numResults: filters?.size,
                 },
-            }),
+            });
+        },
         [authorizedFetch, orgAndService, filters]
     );
-    const { data } = rsUseQuery(
-        // sets key with orgAndService so multiple queries can be cached when swapping services
-        [getOrgDeliveries.queryKey, { orgAndService, filters }],
-        memoizedDataFetch,
-        { enabled: !!service }
-    );
-    return { serviceReportsList: data };
+
+    // const { data } = rsUseQuery(
+    //     // sets key with orgAndService so multiple queries can be cached when swapping services
+    //     [getOrgDeliveries.queryKey, { orgAndService, filters }],
+    //     memoizedDataFetch,
+    //     { enabled: !!service }
+    // );
+    return { fetchResults, filterManager };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response

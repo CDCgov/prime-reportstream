@@ -10,6 +10,17 @@ import {
     useOrgDeliveries,
     useReportsFacilities,
 } from "./DeliveryHooks";
+import { FilterManagerDefaults } from "../../filters/UseFilterManager";
+
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: "batchReadyAt",
+        locally: true,
+    },
+    pageDefaults: {
+        size: 5,
+    },
+};
 
 describe("DeliveryHooks", () => {
     beforeAll(() => deliveryServer.listen());
@@ -27,12 +38,19 @@ describe("DeliveryHooks", () => {
             dispatch: () => {},
             initialized: true,
         });
+
         const { result, waitForNextUpdate } = renderHook(
-            () => useOrgDeliveries("testOrg", "testService"),
+            () =>
+                useOrgDeliveries(
+                    "testOrg",
+                    "testService",
+                    filterManagerDefaults
+                ),
             { wrapper: QueryWrapper() }
         );
         await waitForNextUpdate();
-        expect(result.current.serviceReportsList).toHaveLength(3);
+        expect(result.current.fetchResults).toHaveLength(3);
+        expect(result.current.filterManager).toEqual(filterManagerDefaults);
     });
     test("useReportDetail", async () => {
         mockSessionContext.mockReturnValue({
