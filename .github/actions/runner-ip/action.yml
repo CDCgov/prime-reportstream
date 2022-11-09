@@ -15,4 +15,4 @@ runs:
       shell: bash
       run: |
         PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-        echo "::set-output name=ip::$PUBLIC_IP"
+        echo "ip=$PUBLIC_IP" >> $GITHUB_OUTPUT

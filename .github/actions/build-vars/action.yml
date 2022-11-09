@@ -31,7 +31,7 @@ runs:
         (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
         (github.event_name == 'pull_request' && github.base_ref == 'demo1')
       shell: bash
-      run: echo "::set-output name=env_name::demo1"
+      run: echo "env_name=demo1" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - DEMO2
       id: build_demo2
@@ -39,7 +39,7 @@ runs:
         (github.event_name != 'pull_request' && github.ref_name == 'demo2') ||
         (github.event_name == 'pull_request' && github.base_ref == 'demo2')
       shell: bash
-      run: echo "::set-output name=env_name::demo2"
+      run: echo "env_name=demo2" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - DEMO3
       id: build_demo3
@@ -47,7 +47,7 @@ runs:
         (github.event_name != 'pull_request' && github.ref_name == 'demo3') ||
         (github.event_name == 'pull_request' && github.base_ref == 'demo3')
       shell: bash
-      run: echo "::set-output name=env_name::demo3"
+      run: echo "env_name=demo3" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - TEST
       id: build_test
@@ -55,7 +55,7 @@ runs:
         (github.event_name != 'pull_request' && github.ref_name == 'test') ||
         (github.event_name == 'pull_request' && github.base_ref == 'test')
       shell: bash
-      run: echo "::set-output name=env_name::test"
+      run: echo "env_name=test" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - STAGING
       id: build_staging
@@ -64,9 +64,9 @@ runs:
         (github.event_name == 'pull_request' && github.base_ref == 'master')
       shell: bash
       run: |
-        echo "::set-output name=env_name::staging"
-        echo "::set-output name=prerelease::true"
-        echo "::set-output name=version::v-pre-release"
+        echo "env_name=staging" >> $GITHUB_OUTPUT
+        echo "prerelease=true" >> $GITHUB_OUTPUT
+        echo "version=v-pre-release" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - PROD
       id: build_prod
@@ -75,37 +75,37 @@ runs:
         (github.event_name == 'pull_request' && github.base_ref == 'production')
       shell: bash
       run: |
-        echo "::set-output name=env_name::prod"
-        echo "::set-output name=prerelease::false"
-        echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
+        echo "env_name=prod" >> $GITHUB_OUTPUT
+        echo "prerelease=false" >> $GITHUB_OUTPUT
+        echo "version=v-$(date +%Y.%m.%d-%H%M%S)" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - RESULT
       id: build_result
       shell: bash
       run: |
-        echo "::set-output name=env_name::\
+        echo "env_name=\
         ${{ steps.build_demo1.outputs.env_name }}\
         ${{ steps.build_demo2.outputs.env_name }}\
         ${{ steps.build_demo3.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
-        ${{ steps.build_prod.outputs.env_name }}"
+        ${{ steps.build_prod.outputs.env_name }}" >> $GITHUB_OUTPUT
 
     - name: Set if prerelease - RESULT
       id: prerelease_result
       shell: bash
       run: |
-        echo "::set-output name=prerelease::\
+        echo "prerelease=\
         ${{ steps.build_staging.outputs.prerelease }}\
-        ${{ steps.build_prod.outputs.prerelease }}"
+        ${{ steps.build_prod.outputs.prerelease }}" >> $GITHUB_OUTPUT
 
     - name: Set tag version - RESULT
       id: version_result
       shell: bash
       run: |
-        echo "::set-output name=version::\
+        echo "version=\
         ${{ steps.build_staging.outputs.version }}\
-        ${{ steps.build_prod.outputs.version }}"
+        ${{ steps.build_prod.outputs.version }}" >> $GITHUB_OUTPUT
 
     - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50
       if: github.event_name != 'schedule'
@@ -141,9 +141,9 @@ runs:
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
         ]]; then
-          echo "::set-output name=has_router_change::true"
+          echo "has_router_change=true" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=has_router_change::${{ steps.filter.outputs.router }}"
+          echo "has_router_change=${{ steps.filter.outputs.router }}" >> $GITHUB_OUTPUT
         fi
 
     - name: Front frontend change if prod
@@ -158,7 +158,7 @@ runs:
         '${{ steps.build_result.outputs.env_name }}' == 'demo2' || \
         '${{ steps.build_result.outputs.env_name }}' == 'demo3' \
         ]]; then
-          echo "::set-output name=has_react_change::true"
+          echo "has_react_change=true" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=has_react_change::${{ steps.filter.outputs.frontend_react }}"
+          echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi

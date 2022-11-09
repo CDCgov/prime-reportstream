@@ -407,8 +407,16 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
-            .where(Tables.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
+        return ctx
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.eq(id))
             .fetchOne()
             ?.into(CovidResultMetadata::class.java)
     }
@@ -419,7 +427,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     ): List<CovidResultMetadata> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
-            .selectFrom(COVID_RESULT_METADATA)
+            .select(
+                COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID,
+                COVID_RESULT_METADATA.MESSAGE_ID,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.CREATED_AT,
+                COVID_RESULT_METADATA.REPORT_ID
+            )
+            .from(COVID_RESULT_METADATA)
             .where(
                 COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
             )
