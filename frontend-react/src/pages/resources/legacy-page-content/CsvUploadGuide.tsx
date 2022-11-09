@@ -105,7 +105,7 @@ export const CsvUploadGuideIa = () => {
                             Whether you're modifying an existing file or
                             creating a new one from scratch, be sure to include
                             all column headers outlined in the standard file and
-                            documentation. Do not include any additional column
+                            docgenerators. Do not include any additional column
                             headers. Make sure headers are written exactly as
                             defined.
                         </p>
