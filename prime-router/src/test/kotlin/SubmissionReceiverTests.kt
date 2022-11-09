@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
@@ -35,7 +36,9 @@ class SubmissionReceiverTests {
     val timing1 = mockkClass(Receiver.Timing::class)
 
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "elr",
@@ -45,7 +48,7 @@ class SubmissionReceiverTests {
                 "one",
                 timing = timing1
             )
-        ),
+        )
     )
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
@@ -370,9 +373,11 @@ class SubmissionReceiverTests {
 
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
-
-        every { blobMock.generateBodyAndUploadReport(any(), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         // act
@@ -385,7 +390,8 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any())
+            blobMock.uploadReport(any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any())
             engine.insertProcessTask(any(), any(), any(), any())
         }
@@ -415,8 +421,11 @@ class SubmissionReceiverTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
 
-        every { blobMock.generateBodyAndUploadReport(any(), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         // act
@@ -893,7 +902,7 @@ class SubmissionReceiverTests {
                 hl7_record_bad_type,
                 emptyMap(),
                 emptyList(),
-                true,
+                true
             )
         }.isFailure()
 
@@ -952,7 +961,7 @@ class SubmissionReceiverTests {
                 hl7_record,
                 emptyMap(),
                 emptyList(),
-                false,
+                false
             )
         }.isSuccess()
 
@@ -1008,7 +1017,7 @@ class SubmissionReceiverTests {
                 hl7_record_bad_type,
                 emptyMap(),
                 emptyList(),
-                false,
+                false
             )
         }.isSuccess()
 
