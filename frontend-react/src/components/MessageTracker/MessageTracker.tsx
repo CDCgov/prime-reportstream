@@ -9,11 +9,13 @@ import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrac
 interface MessageListTableContentProps {
     isLoading: boolean;
     messagesData: MessageListResource[];
+    hasSearched: boolean;
 }
 
 const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     isLoading,
     messagesData,
+    hasSearched,
 }) => {
     const tableConfig: TableConfig = {
         columns: [
@@ -53,7 +55,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 
     return (
         <>
-            {messagesData.length > 0 && (
+            {hasSearched && (
                 <Table
                     title=""
                     classes={"rs-no-padding margin-top-5"}
@@ -68,15 +70,17 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 export function MessageTracker() {
     const [searchFilter, setSearchFilter] = useState("");
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
     const { search, isLoading } = useMessageSearch();
 
     const searchMessageId = async () => {
         const senderResponse: MessageListResource[] = await search(
             searchFilter
         );
-        if (senderResponse.length) {
-            setMessagesData(senderResponse);
-        }
+
+        setHasSearched(true);
+
+        setMessagesData(senderResponse);
     };
 
     const clearSearch = () => {
@@ -127,6 +131,7 @@ export function MessageTracker() {
             <MessageTrackerTableContent
                 isLoading={isLoading}
                 messagesData={messagesData || []}
+                hasSearched={hasSearched}
             ></MessageTrackerTableContent>
         </section>
     );
