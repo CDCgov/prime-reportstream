@@ -102,7 +102,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.1.2"
+val ktorVersion = "2.1.3"
 val kotlinVersion = "1.7.20"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
@@ -703,7 +703,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
-    implementation("com.azure:azure-core:1.32.0")
+    implementation("com.azure:azure-core:1.34.0")
     implementation("com.azure:azure-core-http-netty:1.12.5")
     implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
@@ -735,7 +735,7 @@ dependencies {
     // Pin snakeyaml since it is getting included regardless of exclude attempts
     implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
@@ -751,13 +751,15 @@ dependencies {
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.commons:commons-csv:1.9.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.4.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:8.5.8")
+    implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.11.0")

@@ -1,19 +1,20 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.docgenerators
 
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /** a singleton instance to let us build documentation off of a schema or off of an element */
-object DocumentationFactory : Logging {
+object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
     private const val hl7DocumentationUrl = "https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/"
+
+    /** The extension for this file type */
+    override val fileExtension: String
+        get() = "md"
 
     /** converts an HL7 field to a URL at Caristix */
     private fun convertHl7FieldToUrl(segmentName: String?): String {
@@ -49,12 +50,13 @@ object DocumentationFactory : Logging {
         }
 
         appendLabelAndData(sb, "Default Value", element.default)
-        if (hl7Fields?.isNullOrEmpty() == false) {
+        if (hl7Fields?.isEmpty() == false) {
             appendLabelAndList(sb, "HL7 Fields", hl7Fields.toSet().map { convertHl7FieldToUrl(it) })
         }
         if (element.hl7Field == "AOE") appendLabelAndData(sb, "LOINC Code", element.hl7AOEQuestion)
         appendLabelAndData(
-            sb, "Cardinality",
+            sb,
+            "Cardinality",
             element.cardinality?.toFormatted() ?: Element.Cardinality.ZERO_OR_ONE.toFormatted()
         )
 
@@ -93,49 +95,49 @@ ${element.documentation}
     }
 
     // gets the documentation
-    fun getSchemaDocumentation(schema: Schema): String {
-        val sb = StringBuilder()
-        var schemaTrackingName =
+    override fun getSchemaDocumentation(schema: Schema) = sequence {
+        val schemaTrackingName =
             if (schema.trackingElement.isNullOrEmpty()) {
                 logger.warn("Schema ${schema.name}: TrackingElement is empty")
                 "none"
             } else {
-                var trackingName = schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name
+                val trackingName = schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name
                 if (trackingName == null)
                     "(${schema.trackingElement})"
                 else
                     "$trackingName (${schema.trackingElement})"
             }
-        var schemabaseOn = if (schema.basedOn.isNullOrBlank()) "none" else "[${schema.basedOn}](./${schema.basedOn}.md)"
-        var extendName =
+        val schemaBasedOn = if (schema.basedOn.isNullOrBlank())
+            "none"
+        else
+            "[${schema.basedOn}](./${schema.basedOn}.md)"
+        val extendName =
             if (schema.extends.isNullOrBlank()) {
                 "none"
             } else {
                 schema.extends.replace('/', '-')
             }
-        var schemaExtends = if (schema.extends.isNullOrBlank()) "none" else "[${schema.extends}](./$extendName.md)"
-        var schemaDescription = if (schema.description.isNullOrBlank()) "none" else "${schema.description}"
+        val schemaExtends = if (schema.extends.isNullOrBlank()) "none" else "[${schema.extends}](./$extendName.md)"
+        val schemaDescription = if (schema.description.isNullOrBlank()) "none" else "${schema.description}"
 
-        sb.appendLine(
+        yield(
             """
 ### Schema: ${schema.name}
 ### Topic: ${schema.topic}
 ### Tracking Element: $schemaTrackingName
-### Base On: $schemabaseOn
+### Base On: $schemaBasedOn
 ### Extends: $schemaExtends
 #### Description: $schemaDescription
 
----"""
+---""" + "\n"
         )
 
         schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
-            sb.append(getElementDocumentation(element))
+            yield(getElementDocumentation(element))
         }
         schema.elements.filter { it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
-            sb.append(getElementDocumentation(element))
+            yield(getElementDocumentation(element))
         }
-
-        return sb.toString()
     }
 
     /**
@@ -148,58 +150,23 @@ ${element.documentation}
      *        set, the file will be named after the schema.
      * @param includeTimestamps Append the current date to the filename.
      */
-    fun writeDocumentationForSchema(
+    override fun writeDocumentationForSchema(
         schema: Schema,
-        outputDir: String = ".",
-        outputFileName: String? = null,
-        includeTimestamps: Boolean = false,
-        generateMarkupFile: Boolean = true,
-        generateHtmlFile: Boolean = false
+        outputDir: String,
+        outputFileName: String?,
+        includeTimestamps: Boolean
     ) {
-        // Why are you even calling this
-        if (!generateMarkupFile && !generateHtmlFile) return
-
-        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-        val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
-        val schemaName = schema.name.replace("/", "-")
-
-        val mdText = getSchemaDocumentation(schema)
-        val path = Paths.get(outputDir)
-        if (!Files.exists(path)) {
-            Files.createDirectory(path)
+        val sb = StringBuilder()
+        getSchemaDocumentation(schema).forEach {
+            sb.append(it)
         }
 
         // Generate the markup file
-        if (generateMarkupFile) {
-            val markupName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-                "-$createDate.md"
-            } else {
-                ".md"
-            }
-            File(outputDir, markupName).writeText(mdText)
-        }
-
-        // Generate the HTML file
-        if (generateHtmlFile) {
-            val htmlName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-                "-$createDate.html"
-            } else {
-                ".html"
-            }
-            File(outputDir, htmlName).writeText(convertMarkdownToHtml(mdText))
-        }
-    }
-
-    /**
-     * Convert [markdown] text to HTML.
-     * @return HTML text
-     */
-    private fun convertMarkdownToHtml(markdown: String): String {
-        val parser = Parser.builder().build()
-        val document = parser.parse(markdown)
-        val renderer = HtmlRenderer.builder().build()
-        return renderer.render(document)
+        File(
+            ensureOutputDirectory(outputDir),
+            getOutputFileName(outputFileName, schema, includeTimestamps, this.fileExtension)
+        ).writeText(sb.toString())
     }
 
     private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {
@@ -239,7 +206,6 @@ ${element.documentation}
         }
 
         if (values?.isNotEmpty() == true) {
-
             appendable.appendLine("**$label**\n")
             appendable.appendLine("Code | Display | System")
             appendable.appendLine("---- | ------- | ------")

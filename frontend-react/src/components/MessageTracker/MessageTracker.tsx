@@ -9,11 +9,13 @@ import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrac
 interface MessageListTableContentProps {
     isLoading: boolean;
     messagesData: MessageListResource[];
+    hasSearched: boolean;
 }
 
 const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     isLoading,
     messagesData,
+    hasSearched,
 }) => {
     const tableConfig: TableConfig = {
         columns: [
@@ -22,6 +24,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 columnHeader: "Message Id",
                 feature: {
                     link: true,
+                    linkAttr: "id",
                     linkBasePath: "/message-details/",
                 },
             },
@@ -52,7 +55,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 
     return (
         <>
-            {messagesData.length > 0 && (
+            {hasSearched && (
                 <Table
                     title=""
                     classes={"rs-no-padding margin-top-5"}
@@ -67,15 +70,17 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 export function MessageTracker() {
     const [searchFilter, setSearchFilter] = useState("");
     const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
     const { search, isLoading } = useMessageSearch();
 
     const searchMessageId = async () => {
         const senderResponse: MessageListResource[] = await search(
             searchFilter
         );
-        if (senderResponse.length) {
-            setMessagesData(senderResponse);
-        }
+
+        setHasSearched(true);
+
+        setMessagesData(senderResponse);
     };
 
     const clearSearch = () => {
@@ -88,7 +93,7 @@ export function MessageTracker() {
             <h1>Message ID Search</h1>
 
             <Label className="font-sans-xs usa-label" htmlFor="input_filter">
-                Message ID (format as xx-xxxxxx)
+                Message ID
             </Label>
             <div className="grid-gap-lg display-flex">
                 <TextInput
@@ -126,6 +131,7 @@ export function MessageTracker() {
             <MessageTrackerTableContent
                 isLoading={isLoading}
                 messagesData={messagesData || []}
+                hasSearched={hasSearched}
             ></MessageTrackerTableContent>
         </section>
     );

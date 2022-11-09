@@ -1,15 +1,14 @@
 import React from "react";
 
-import { Warnings } from "../../config/endpoints/messageTracker";
+import { WarningError } from "../../config/endpoints/messageTracker";
 import Table, { TableConfig } from "../Table/Table";
 
 type WarningsErrorsDisplayProps = {
     title: string;
-    data: Warnings[];
+    data: WarningError[];
 };
 
 export const WarningsErrors = ({ title, data }: WarningsErrorsDisplayProps) => {
-    debugger;
     const tableConfig: TableConfig = {
         columns: [
             {
