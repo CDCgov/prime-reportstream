@@ -344,7 +344,7 @@ class MessagesFunctionsTests {
                 any(),
                 any()
             )
-        } returns listOf()
+        } returns buildActionLogs()
 
         every {
             mockDbAccess.fetchReportDescendantsFromReportId(
