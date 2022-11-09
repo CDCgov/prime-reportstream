@@ -132,8 +132,11 @@ class DatabaseSubmissionsAccess(
             // flexibility in the pipelines to not have a child report on the very first action on a submitted report.
             // Report lineages for a parent report that is the submitted report (what was received) always have the same
             // action ID.
-            val actionId = DSL.using(txn).selectDistinct(REPORT_LINEAGE.ACTION_ID).from(REPORT_LINEAGE)
-                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId)).fetchOneInto(Long::class.java)
+            val actionId = DSL.using(txn)
+                .selectDistinct(REPORT_LINEAGE.ACTION_ID)
+                .from(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetchOneInto(Long::class.java)
             if (actionId != null) {
                 val cte = reportDescendantExpression(actionId)
                 DSL.using(txn)
