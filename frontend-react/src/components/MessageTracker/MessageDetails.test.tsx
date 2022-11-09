@@ -129,6 +129,18 @@ const MOCK_RECEIVER_DATA = [
         ],
     },
 ];
+const MOCK_EMPTY_MESSAGE_DETAIL = {
+    id: 0,
+    messageId: "",
+    sender: "",
+    submittedDate: "",
+    reportId: "",
+    fileName: "",
+    fileUrl: "",
+    warnings: [],
+    errors: [],
+    receiverData: [],
+};
 const MOCK_MESSAGE_DETAIL = {
     id: TEST_ID,
     messageId: "12-234567",
@@ -155,7 +167,7 @@ jest.mock("react-router-dom", () => ({
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: {} as RSMessageDetail,
+            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as RSMessageDetail,
         });
         render(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
