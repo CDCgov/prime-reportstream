@@ -363,5 +363,62 @@ class FhirToHl7ConverterTests {
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
         }.isFailure()
+
+        // check that duplicate names trigger an exception when attempting to convert
+        element = ConfigSchemaElement(
+            "iMustBeUnique",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
+        )
+
+        val dupe = ConfigSchemaElement(
+            "iMustBeUnique",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-12")
+        )
+        schema = ConfigSchema(
+            hl7Type = "ORU_R01",
+            hl7Version = "2.5.1",
+            elements = mutableListOf(element, dupe)
+        )
+
+        assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
+            .hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test convert with nested schemas`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        // check for dupes in various scenarios:
+        // root -> A -> C
+        //      -> B
+        val elemB = ConfigSchemaElement("elementB", value = listOf("Bundle.id"), hl7Spec = listOf("MSH-11"))
+        val elemC = ConfigSchemaElement("elementC", value = listOf("Bundle.id"), hl7Spec = listOf("MSH-11"))
+
+        val childSchema = ConfigSchema(elements = mutableListOf(elemC))
+        val elemA = ConfigSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
+
+        val rootSchema = ConfigSchema(hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = mutableListOf(elemA, elemB))
+
+        // nobody sharing the same name
+        assertThat(FhirToHl7Converter(rootSchema).convert(bundle).isEmpty).isFalse()
+
+        // B/C sharing the same name
+        elemC.name = "elementB"
+        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
+            .hasClass(SchemaException::class.java)
+
+        // A/B sharing the same name
+        elemC.name = "elementC"
+        elemA.name = "elementB"
+        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
+            .hasClass(SchemaException::class.java)
+
+        // A/C sharing the same name
+        elemA.name = "elementC"
+        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
+            .hasClass(SchemaException::class.java)
     }
 }

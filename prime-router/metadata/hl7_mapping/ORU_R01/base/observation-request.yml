@@ -1,7 +1,7 @@
 constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
-  - name: request-set-ID
+  - name: request-set-id
     value: [ '%orderIndex  + 1' ]
     hl7Spec: [ '%{fieldPath}-1' ]
 
