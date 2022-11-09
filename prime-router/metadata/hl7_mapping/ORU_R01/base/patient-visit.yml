@@ -1,7 +1,7 @@
 constants:
   hl7PV1Field: /PATIENT_RESULT/PATIENT/VISIT/PV1
 elements:
-  - name: set-id
+  - name: patient-visit-set-id
     value: [ '"1"' ]
     hl7Spec: [ '%{hl7PV1Field}-1' ]
 
@@ -90,10 +90,10 @@ elements:
     value: [ '%resource.extension(%`rsext-account-status`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-41' ]
 
-  - name: patient-admit-datetime
+  - name: patient-admit-datetime-start
     value: [ '%resource.period.start' ]
     hl7Spec: [ '%{hl7PV1Field}-44' ]
 
-  - name: patient-admit-datetime
+  - name: patient-admit-datetime-end
     value: [ '%resource.period.end' ]
     hl7Spec: [ '%{hl7PV1Field}-45' ]
