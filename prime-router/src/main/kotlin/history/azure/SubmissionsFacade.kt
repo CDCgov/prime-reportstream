@@ -10,6 +10,7 @@ import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * Submissions / history API
@@ -111,7 +112,7 @@ class SubmissionsFacade(
     /**
      * Get expanded details for a single report
      *
-     * @param submissionId id for the submission being used
+     * @param action the action being used
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
@@ -128,7 +129,7 @@ class SubmissionsFacade(
 
         submission?.let {
             val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
-                submission.actionId,
+                UUID.fromString(submission.reportId),
                 DetailedSubmissionHistory::class.java
             )
             it.enrichWithDescendants(relatedSubmissions)

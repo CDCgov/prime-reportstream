@@ -74,7 +74,7 @@ class SubmissionsFacadeTests {
         } returns goodReturn
         every {
             mockSubmissionAccess.fetchRelatedActions(
-                550, DetailedSubmissionHistory::class.java
+                any(), DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
         // Happy path
