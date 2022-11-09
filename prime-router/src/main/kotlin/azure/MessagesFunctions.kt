@@ -210,7 +210,7 @@ class MessagesFunctions(
         response: Any,
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        var responseMessage = if (httpStatus == HttpStatus.BAD_REQUEST) {
+        val responseMessage = if (httpStatus == HttpStatus.BAD_REQUEST) {
             mapOf(
                 "error" to true,
                 "status" to httpStatus.value(),
