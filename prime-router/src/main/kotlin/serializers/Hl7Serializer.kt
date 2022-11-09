@@ -292,7 +292,8 @@ class Hl7Serializer(
         }
 
         try {
-            val terser = Terser(hapiMsg)
+            val organizedHapiMsg = confirmObservationOrder(hapiMsg)
+            val terser = Terser(organizedHapiMsg)
 
             val orc23 = terser.getSegment("/.ORC")
             logger.debug(orc23.name)
@@ -2113,10 +2114,10 @@ class Hl7Serializer(
                 }
             }
 
-            oruR01.patienT_RESULT.ordeR_OBSERVATION.insertOBSERVATION(resultObservation, 1)
+            oruR01.patienT_RESULT.ordeR_OBSERVATION.insertOBSERVATION(resultObservation, 0)
 
-            oruR01.patienT_RESULT.ordeR_OBSERVATIONAll.forEachIndexed { index, orderObservation ->
-                orderObservation.observation.obx.setIDOBX.value = index.toString()
+            oruR01.patienT_RESULT.ordeR_OBSERVATION.observationAll.forEachIndexed { index, observation ->
+                observation.obx.setIDOBX.value = index.plus(1).toString()
             }
 
             return oruR01
@@ -2126,8 +2127,12 @@ class Hl7Serializer(
     }
 
     fun checkLIVDValueExists(column: String, value: String): Boolean {
-        val rowCount = livdLookupTable.value.FilterBuilder().isEqualTo(column, value).filter().rowCount
-        return rowCount > 0
+        return if (livdLookupTable.value.hasColumn(column)) {
+            val rowCount = livdLookupTable.value.FilterBuilder().equalsIgnoreCase(column, value).filter().rowCount
+            rowCount > 0
+        } else {
+            false
+        }
     }
 
     /**

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -63,6 +64,81 @@ import kotlin.test.assertEquals
 class Hl7SerializerTests {
     private val context = DefaultHapiContext()
     private val emptyTerser = Terser(ORU_R01())
+
+    @Test
+    fun `test checkLIVDValueExists`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+
+        // happy path success
+        val modelCOVIDSeqTest = serializer.checkLIVDValueExists("Model", "COVIDSeq Test")
+        assertThat(modelCOVIDSeqTest).isTrue()
+
+        // happy path fail
+        val modelFake = serializer.checkLIVDValueExists("Model", "Fake")
+        assertThat(modelFake).isFalse()
+
+        // unhappy path input 1
+        val fakeCOVIDSeqTest = serializer.checkLIVDValueExists("fake", "COVIDSeq Test")
+        assertThat(fakeCOVIDSeqTest).isFalse()
+
+        // unhappy path input 1 and 2
+        val fakeFake = serializer.checkLIVDValueExists("fake", "fake")
+        assertThat(fakeFake).isFalse()
+    }
+
+//    @Test
+//    fun `test confirmObservationOrder`() {
+//        val settings = FileSettings("./settings")
+//        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+//        val parser = context.pipeParser
+//
+//        val sampleRegMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+//        SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+//        PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+//        ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+//        OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+//        OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+//        NTE|1|L|This is a comment|RE
+//        OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+//
+//        val hapiMsg = parser.parse(sampleRegMessage)
+//        val oruR01SampleReg: ORU_R01? = (hapiMsg as? ORU_R01)
+//
+//        val sampleObsID = oruR01SampleReg?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier
+//
+//        // happy path
+//        val happyORUR01 = serializer.confirmObservationOrder(hapiMsg) as? ORU_R01
+//        val happyFullObsIdentifier = happyORUR01
+//            ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier
+//        assertThat(sampleObsID).isEqualTo(happyFullObsIdentifier)
+//
+//        val sampleComplexMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+//        SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+//        PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+//        ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+//        OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+//        OBX|1|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|2|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|3|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|4|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+//        OBX|5|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+//        NTE|1|L|This is a comment|RE
+//        SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+//
+//        val hapiComplexMsg = parser.parse(sampleComplexMessage)
+//        val complexORUR01 = serializer.confirmObservationOrder(hapiComplexMsg) as? ORU_R01
+//        val happyComplexObsIdentifier = complexORUR01
+//            ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier
+//        assertThat(sampleObsID).isNotEqualTo(happyComplexObsIdentifier)
+//
+//        val happyComplexSetID = complexORUR01?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.setIDOBX
+//        assertThat(happyComplexSetID).isNotEqualTo(1)
+//    }
 
     @Test
     fun `test XTN phone decoding`() {
