@@ -9,9 +9,11 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
 import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
+import org.jooq.exception.TooManyRowsException
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.util.UUID
@@ -21,7 +23,7 @@ import java.util.UUID
  */
 class DatabaseSubmissionsAccess(
     db: DatabaseAccess = BaseEngine.databaseAccessSingleton
-) : HistoryDatabaseAccess(db) {
+) : HistoryDatabaseAccess(db), Logging {
 
     /**
      * Creates a condition filter based on the given organization parameters.
@@ -132,11 +134,16 @@ class DatabaseSubmissionsAccess(
             // flexibility in the pipelines to not have a child report on the very first action on a submitted report.
             // Report lineages for a parent report that is the submitted report (what was received) always have the same
             // action ID.
-            val actionId = DSL.using(txn)
-                .selectDistinct(REPORT_LINEAGE.ACTION_ID)
-                .from(REPORT_LINEAGE)
-                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
-                .fetchOneInto(Long::class.java)
+            val actionId = try {
+                DSL.using(txn)
+                    .selectDistinct(REPORT_LINEAGE.ACTION_ID)
+                    .from(REPORT_LINEAGE)
+                    .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                    .fetchOneInto(Long::class.java)
+            } catch (e: TooManyRowsException) {
+                logger.warn("Invalid report file lineage with multiple action IDs for parent report $reportId")
+                null
+            }
             if (actionId != null) {
                 val cte = reportDescendantExpression(actionId)
                 DSL.using(txn)
