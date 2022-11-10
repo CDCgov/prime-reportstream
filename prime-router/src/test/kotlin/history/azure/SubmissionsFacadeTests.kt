@@ -17,6 +17,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {
@@ -65,6 +66,7 @@ class SubmissionsFacadeTests {
             550, TaskAction.receive, OffsetDateTime.now(),
             null, null, emptyList()
         )
+        goodReturn.reportId = UUID.randomUUID().toString()
         every {
             mockSubmissionAccess.fetchAction(
                 any(),
@@ -74,7 +76,7 @@ class SubmissionsFacadeTests {
         } returns goodReturn
         every {
             mockSubmissionAccess.fetchRelatedActions(
-                any(), DetailedSubmissionHistory::class.java
+                UUID.fromString(goodReturn.reportId), DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
         // Happy path
