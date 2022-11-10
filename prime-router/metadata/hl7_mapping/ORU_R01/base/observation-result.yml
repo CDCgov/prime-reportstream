@@ -3,7 +3,7 @@ constants:
   hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
   observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
-  - name: result-set-ID
+  - name: result-set-id
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 

@@ -17,6 +17,10 @@ export interface ReceiverData {
 }
 
 export interface WarningError {
+    detail: WarningErrorDetail;
+}
+
+export interface WarningErrorDetail {
     class: string | null;
     fieldMapping: string | null;
     scope: string | null;
