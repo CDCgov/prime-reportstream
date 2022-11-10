@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.common
 
+import com.github.doyaaaaaken.kotlincsv.dsl.context.ExcessFieldsRowBehaviour
+import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -45,7 +47,8 @@ class CsvUtilities {
                 quoteChar = '"'
                 delimiter = ','
                 skipEmptyLine = false
-                skipMissMatchedRow = false
+                insufficientFieldsRowBehaviour = InsufficientFieldsRowBehaviour.ERROR
+                excessFieldsRowBehaviour = ExcessFieldsRowBehaviour.ERROR
             }.readAll(csvTable)
         }
 
