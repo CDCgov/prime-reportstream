@@ -85,6 +85,9 @@ open class Receiver(
             null
         ),
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
+        qualityFilter: ReportStreamFilter = emptyList(),
+        routingFilter: ReportStreamFilter = emptyList(),
+        processingModeFilter: ReportStreamFilter = emptyList()
     ) : this(
         name,
         organizationName,
@@ -92,6 +95,9 @@ open class Receiver(
         customerStatus,
         translation,
         jurisdictionalFilter = jurisdictionalFilter,
+        qualityFilter = qualityFilter,
+        routingFilter = routingFilter,
+        processingModeFilter = processingModeFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat
