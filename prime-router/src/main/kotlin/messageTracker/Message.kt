@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.messageTracker
 
-import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.history.DetailedActionLog
 import java.time.LocalDateTime
 
 data class Message(
@@ -11,8 +11,8 @@ data class Message(
     val reportId: String,
     val fileName: String?,
     val fileUrl: String?,
-    val warnings: List<ActionLogDetail>? = emptyList(),
-    val errors: List<ActionLogDetail>? = emptyList(),
+    val warnings: List<DetailedActionLog> = emptyList(),
+    val errors: List<DetailedActionLog> = emptyList(),
     val receiverData: List<MessageReceiver>? = emptyList()
 )
 

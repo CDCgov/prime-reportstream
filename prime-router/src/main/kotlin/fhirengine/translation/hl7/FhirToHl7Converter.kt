@@ -78,6 +78,14 @@ class FhirToHl7Converter(
         // Sanity check, but at this point we know we have a good schema
         check(message != null)
         terser = Terser(message)
+        val dupes = (
+            schemaRef.elements.filter { it.name != null } +
+                schemaRef.elements.flatMap { it.schemaRef?.elements ?: emptyList() }
+            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
+
+        if (dupes.isNotEmpty()) { // value is the number of matches
+            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
+        }
         processSchema(schemaRef, bundle, bundle)
         return message
     }
@@ -86,7 +94,7 @@ class FhirToHl7Converter(
      * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
-    internal fun processSchema(
+    private fun processSchema(
         schema: ConfigSchema,
         bundle: Bundle,
         focusResource: Base,
@@ -98,6 +106,7 @@ class FhirToHl7Converter(
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
+
         schema.elements.forEach { element ->
             processElement(element, bundle, focusResource, schemaContext, debug)
         }
@@ -143,7 +152,11 @@ class FhirToHl7Converter(
                         )
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
-                            element.schemaRef!!, bundle, singleFocusResource, indexContext, element.debug || debug
+                            element.schemaRef!!,
+                            bundle,
+                            singleFocusResource,
+                            indexContext,
+                            element.debug || debug
                         )
                     }
 
