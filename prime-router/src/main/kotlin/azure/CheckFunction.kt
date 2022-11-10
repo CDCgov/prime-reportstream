@@ -143,7 +143,7 @@ class CheckFunction : Logging {
     fun checkreceiver(
         @HttpTrigger(
             name = "checkreceiver",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "checkreceiver/org/{orgName}/setting/{settingName}"
         ) request: HttpRequestMessage<String?>,
@@ -177,6 +177,8 @@ class CheckFunction : Logging {
                         "'transport' section of setting is missing or empty - SFTP only supported"
                 )
             } else {
+                // Could have an option to create a blank file like this:
+                // val sftpFile = SftpFile("prime-test-${UUID.randomUUID()}.txt", "")
                 val responseBody = mutableListOf<String>()
                 val checkResult = testTransport(receiver, null, responseBody)
                 JsonResponse(

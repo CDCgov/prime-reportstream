@@ -18,7 +18,7 @@ paths:
           description: success call
 
   /api/checkreceiver/org/{orgName}/setting/{settingName}:
-    get:
+    post:
       description: Load Receiver Settings and verifies connecting to the external server works.
       security:
         - OAuth2: [ org_admin, system_admin ]
