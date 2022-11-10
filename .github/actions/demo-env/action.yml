@@ -10,6 +10,10 @@ inputs:
     default: false
   github-token:
     required: false
+  backup-age-limit:
+    default: 2880
+    required: false
+    description: "Backup age limit in minutes before a restore is required"
 
 runs:
   using: "composite"
@@ -18,6 +22,23 @@ runs:
     - name: Get runner ip
       id: runner_ip
       uses: ./.github/actions/runner-ip
+
+    - name: Check if database restore can be ignored
+      working-directory: operations/app/terraform/vars/demo
+      run: |
+        DB_COUNT=$(az postgres db list -g prime-data-hub-${{ inputs.env-name }} --server-name pdh${{ inputs.env-name }}-pgsql | jq '. | length')
+        LAST_MODIFIED=$(az storage directory show --name test_prime_data_hub --share-name dbbackups --account-name pdh${{ inputs.env-name }}terraform \
+        --query 'properties.lastModified' --only-show-errors -o tsv)
+
+        CURRENT_DATE=$(date +%s)
+        LAST_MODIFIED=$(date +%s -d $LAST_MODIFIED)
+        BACKUP_AGE=$(( ( $CURRENT_DATE - $LAST_MODIFIED ) / 60 ))
+        if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_COUNT -gt 3 ]]; then 
+          echo "IGNORE_DB=true" >> $GITHUB_ENV; 
+        else
+          echo "IGNORE_DB=false" >> $GITHUB_ENV; 
+        fi
+      shell: bash
 
     - name: Terraform - init
       working-directory: operations/app/terraform/vars/demo
@@ -105,14 +126,14 @@ runs:
         shell: bash
 
     - name: Optimize db server size before restore
-      if: inputs.github-token && inputs.destroy == 'false'
+      if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
       shell: bash
       run: |
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
 
     - name: Run DB restores and wait
-      if: inputs.github-token && inputs.destroy == 'false'
+      if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
       uses: convictional/trigger-workflow-and-wait@d7939b40c3bebe9dfe6cca096f8413f8c7e01560
       with:
         owner: CDCgov
@@ -121,13 +142,13 @@ runs:
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120
-        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"2880", "restore_ignore_backup_age":"true" }'
+        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"${{ inputs.backup-age-limit }}", "restore_ignore_backup_age":"true" }'
         propagate_failure: true
         trigger_workflow: true
         wait_workflow: true
 
     - name: Optimize db server size after restore
-      if: always() && (inputs.github-token && inputs.destroy == 'false')
+      if: always() && (inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false')
       shell: bash
       run: |
         sleep 120;
