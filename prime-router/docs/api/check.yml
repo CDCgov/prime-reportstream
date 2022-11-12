@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: ReportStream Check API
-  description: "This is a stub to be completed when this API is reviewed"
+  description: "Commands to verify Receiver settings by connecting to the external server."
   version: "1.0"
   contact:
     name: USDS at Centers for Disease Control and Prevention
@@ -48,6 +48,7 @@ paths:
             text/plain:
               schema:
                 type: string
+                example: User FAILED authorized for endpoint
 
 components:
   securitySchemes:
@@ -55,13 +56,6 @@ components:
       $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
 
   schemas:
-    ErrorMsg:
-      description: Text error message
-      type: object
-      properties:
-        error:
-          type: string
-
     CheckReceiverResponse:
       description: A json object with a result and message field.
       type: object
