@@ -263,12 +263,6 @@ resource "azurerm_frontdoor" "front_door" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      explicit_resource_order
-    ]
-  }
 }
 
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https" {
