@@ -3,14 +3,16 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isFailure
-import assertk.doesNotThrowAnyException
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
-import java.lang.IllegalStateException
 
 class ReportWriterTests {
     private val csvSerializer: CsvSerializer = BaseEngine.csvSerializerSingleton
@@ -18,6 +20,21 @@ class ReportWriterTests {
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
     private val comparison = ByteArrayOutputStream()
+
+    /**
+     * Compare and assert the output of most test cases in this file
+     * Stringify the input data, then split and assert a comparison
+     * Note: Other segments may include timestamps generated at the time of execution (which will fail)
+     *
+     * @param bodyBytes Output of ReportWriter.getBodyBytes
+     * @param comparison Output of a manually converted file
+     * @param index Index for the segment to compare
+     */
+    private fun assertByteArrayMatch(bodyBytes: ByteArray, comparison: ByteArrayOutputStream, index: Int = 0) {
+        val bbString = String(bodyBytes).split('\r')
+        val comp = String(comparison.toByteArray()).split('\r')
+        assert(bbString[index] == comp[index])
+    }
 
     @Test
     fun `test getBodyBytes INTERNAL format`() {
@@ -28,9 +45,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.INTERNAL,
             metadata = metadata
         )
-        csvSerializer.writeInternal(report, comparison)
         val bodyBytes = ReportWriter.getBodyBytes(report)
-        assertThat { bodyBytes }.equals(comparison.toByteArray())
+        csvSerializer.writeInternal(report, comparison)
+        assertByteArrayMatch(bodyBytes, comparison)
     }
 
     @Test
@@ -42,9 +59,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7,
             metadata = metadata
         )
-        hl7Serializer.write(report, comparison)
         val bodyBytes = ReportWriter.getBodyBytes(report)
-        assertThat { bodyBytes }.equals(comparison.toByteArray())
+        hl7Serializer.write(report, comparison)
+        assertByteArrayMatch(bodyBytes, comparison, 1)
     }
 
     @Test
@@ -56,9 +73,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7_BATCH,
             metadata = metadata
         )
-        hl7Serializer.writeBatch(report, comparison)
         val bodyBytes = ReportWriter.getBodyBytes(report)
-        assertThat { bodyBytes }.equals(comparison.toByteArray())
+        hl7Serializer.writeBatch(report, comparison)
+        assertByteArrayMatch(bodyBytes, comparison)
     }
 
     @Test
@@ -70,9 +87,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV,
             metadata = metadata
         )
-        csvSerializer.write(report, comparison)
         val bodyBytes = ReportWriter.getBodyBytes(report)
-        assertThat { bodyBytes }.equals(comparison.toByteArray())
+        csvSerializer.write(report, comparison)
+        assertByteArrayMatch(bodyBytes, comparison)
     }
 
     @Test
@@ -84,9 +101,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV_SINGLE,
             metadata = metadata
         )
-        csvSerializer.write(report, comparison)
         val bodyBytes = ReportWriter.getBodyBytes(report)
-        assertThat { bodyBytes }.equals(comparison.toByteArray())
+        csvSerializer.write(report, comparison)
+        assertByteArrayMatch(bodyBytes, comparison)
     }
 
     @Test
@@ -101,7 +118,4 @@ class ReportWriterTests {
         assertThat { ReportWriter.getBodyBytes(report) }.isFailure()
             .hasClass(UnsupportedOperationException::class)
     }
-
-    @Test
-    fun `test getBodyBytes happy path`() {}
 }
