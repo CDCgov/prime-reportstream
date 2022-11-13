@@ -23,12 +23,11 @@ class ReportWriterTests {
 
     /**
      * Compare and assert the output of most test cases in this file
-     * Stringify the input data, then split and assert a comparison
-     * Note: Other segments may include timestamps generated at the time of execution (which will fail)
+     * Stringify the input data, then split and assert a comparison on a specific segment
      *
      * @param bodyBytes Output of ReportWriter.getBodyBytes
      * @param comparison Output of a manually converted file
-     * @param index Index for the segment to compare
+     * @param index Index for the segment to compare. Play with this value to avoid timestamp conflicts!
      */
     private fun assertByteArrayMatch(bodyBytes: ByteArray, comparison: ByteArrayOutputStream, index: Int = 0) {
         val bbString = String(bodyBytes).split('\r')
@@ -75,7 +74,7 @@ class ReportWriterTests {
         )
         val bodyBytes = ReportWriter.getBodyBytes(report)
         hl7Serializer.writeBatch(report, comparison)
-        assertByteArrayMatch(bodyBytes, comparison)
+        assertByteArrayMatch(bodyBytes, comparison, 3)
     }
 
     @Test
