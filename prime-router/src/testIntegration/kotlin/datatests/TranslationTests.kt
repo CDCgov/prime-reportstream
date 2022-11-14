@@ -193,7 +193,6 @@ class TranslationTests {
             val inputStream = this::class.java.getResourceAsStream(inputFile)
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
-
                 if (result.passed) {
                     when {
                         // Compare the output of an HL7 to FHIR conversion
