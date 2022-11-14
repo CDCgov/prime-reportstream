@@ -17,6 +17,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {
@@ -72,16 +73,21 @@ class SubmissionsFacadeTests {
                 DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
-        every {
-            mockSubmissionAccess.fetchRelatedActions(
-                550, DetailedSubmissionHistory::class.java
-            )
-        } returns emptyList()
-        // Happy path
+
+        // No lineage since we have no report ID
         val action1 = Action()
         action1.actionId = 550
         action1.sendingOrg = "myOrg"
         action1.actionName = TaskAction.receive
+        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
+
+        // Happy path
+        goodReturn.reportId = UUID.randomUUID().toString()
+        every {
+            mockSubmissionAccess.fetchRelatedActions(
+                UUID.fromString(goodReturn.reportId), DetailedSubmissionHistory::class.java
+            )
+        } returns emptyList()
         assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
         // Failures
         val action2 = Action()
