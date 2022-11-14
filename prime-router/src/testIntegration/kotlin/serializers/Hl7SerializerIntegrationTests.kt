@@ -564,7 +564,7 @@ NTE|1|L|This is a final comment|RE"""
 
         // message where first OBX segment contains the test result
         val sampleRegMessage = File("./src/testIntegration/resources/serializers/test_result_first_rep.hl7")
-            .toString()
+            .readText()
 
         arrangeTest(sampleRegMessage).run {
             val oruR01SampleReg: ORU_R01? = this as? ORU_R01
@@ -584,7 +584,7 @@ NTE|1|L|This is a final comment|RE"""
         }
         // message where first OBX segment does not contain the test result
         val sampleComplexMessage = File("./src/testIntegration/resources/serializers/test_result_not_first_rep.hl7")
-            .toString()
+            .readText()
 
         arrangeTest(sampleComplexMessage).run {
             val oruR01SampleComplex: ORU_R01? = this as? ORU_R01
