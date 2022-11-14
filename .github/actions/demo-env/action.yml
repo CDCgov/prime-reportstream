@@ -14,6 +14,10 @@ inputs:
     default: 2880
     required: false
     description: "Backup age limit in minutes before a restore is required"
+  backup-from:
+    default: test
+    required: false
+    description: "Env to backup database from"
 
 runs:
   using: "composite"
@@ -26,17 +30,23 @@ runs:
     - name: Check if database restore can be ignored
       working-directory: operations/app/terraform/vars/demo
       run: |
-        DB_COUNT=$(az postgres db list -g prime-data-hub-${{ inputs.env-name }} --server-name pdh${{ inputs.env-name }}-pgsql | jq '. | length')
-        LAST_MODIFIED=$(az storage directory show --name test_prime_data_hub --share-name dbbackups --account-name pdh${{ inputs.env-name }}terraform \
-        --query 'properties.lastModified' --only-show-errors -o tsv)
+        SERVER_COUNT=$(az postgres server list -g prime-data-hub-${{ inputs.env-name }} | jq '. | length')
 
-        CURRENT_DATE=$(date +%s)
-        LAST_MODIFIED=$(date +%s -d $LAST_MODIFIED)
-        BACKUP_AGE=$(( ( $CURRENT_DATE - $LAST_MODIFIED ) / 60 ))
-        if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_COUNT -gt 3 ]]; then 
-          echo "IGNORE_DB=true" >> $GITHUB_ENV; 
+        if [[ ${SERVER_COUNT} -gt 0 ]]; then
+          DB_COUNT=$(az postgres db list -g prime-data-hub-${{ inputs.env-name }} --server-name pdh${{ inputs.env-name }}-pgsql | jq '. | length')
+          LAST_MODIFIED=$(az storage directory show --name ${{ inputs.backup-from }}_prime_data_hub --share-name dbbackups --account-name pdh${{ inputs.env-name }}terraform \
+          --query 'properties.lastModified' --only-show-errors -o tsv)
+          CURRENT_DATE=$(date +%s)
+          LAST_MODIFIED=$(date +%s -d $LAST_MODIFIED)
+          BACKUP_AGE=$(( ( $CURRENT_DATE - $LAST_MODIFIED ) / 60 ))
+
+          if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_COUNT -gt 3 ]]; then
+            echo "IGNORE_DB=true" >> $GITHUB_ENV;
+          else
+            echo "IGNORE_DB=false" >> $GITHUB_ENV;
+          fi
         else
-          echo "IGNORE_DB=false" >> $GITHUB_ENV; 
+          echo "IGNORE_DB=false" >> $GITHUB_ENV;
         fi
       shell: bash
 
@@ -142,7 +152,7 @@ runs:
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120
-        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"${{ inputs.backup-age-limit }}", "restore_ignore_backup_age":"true" }'
+        client_payload: '{ "backup_from":"${{ inputs.backup-from }}", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"${{ inputs.backup-age-limit }}", "restore_ignore_backup_age":"true" }'
         propagate_failure: true
         trigger_workflow: true
         wait_workflow: true
