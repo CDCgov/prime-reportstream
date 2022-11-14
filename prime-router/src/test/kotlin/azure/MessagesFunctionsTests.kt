@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.InvalidCodeMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
@@ -113,11 +115,18 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildActionLogs(): List<ActionLogDetail> {
+    private fun buildActionLogs(): List<DetailedActionLog> {
         val actionLogDetail = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
-
-        return listOf(
+        val actionLog = DetailedActionLog(
+            ActionLogScope.item,
+            UUID.randomUUID(),
+            1,
+            "message1",
+            ActionLogLevel.filter,
             actionLogDetail
+        )
+        return listOf(
+            actionLog
         )
     }
 
@@ -320,27 +329,31 @@ class MessagesFunctionsTests {
 
         // Happy path
         val mockRequestWithMessageId = MockHttpRequestMessage()
-        every { mockDbAccess.fetchSingleMetadataById(any(), any()) } returns buildCovidResultMetadata(
+
+        every { mockDbAccess.fetchSingleMetadataById(any()) } returns buildCovidResultMetadata(
             reportId,
             messageId,
             id
         )
-        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(reportId)
+
+        every { mockDbAccess.fetchReportFile(any()) } returns buildReportFile(reportId)
+
         every {
             mockDbAccess.fetchActionLogsByReportIdAndTrackingIdAndType(
-                any(),
                 any(),
                 any(),
                 any()
             )
         } returns buildActionLogs()
+
         every {
             mockDbAccess.fetchReportDescendantsFromReportId(
-                any(),
                 any()
             )
         } returns buildReportDescendantsFromReportId()
+
         every { mockDbAccess.fetchReportFileByIds(any()) } returns buildReportFileByIds(reportId)
+
         every {
             mockDbAccess.fetchActionLogsByReportIdAndFilterType(
                 any(),

@@ -60,11 +60,11 @@ export function MessageDetails() {
                 />
                 <WarningsErrors
                     title={"Warnings:"}
-                    data={messageDetails!.warnings}
+                    data={messageDetails!.warnings.map((md) => md.detail)}
                 />
                 <WarningsErrors
                     title={"Errors:"}
-                    data={messageDetails!.errors}
+                    data={messageDetails!.errors.map((md) => md.detail)}
                 />
             </div>
         </>
