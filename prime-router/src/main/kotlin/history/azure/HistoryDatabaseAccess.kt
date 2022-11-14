@@ -8,6 +8,7 @@ import org.jooq.Condition
 import org.jooq.SortField
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
+import java.util.UUID
 
 abstract class HistoryDatabaseAccess(
     internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
@@ -174,12 +175,12 @@ abstract class HistoryDatabaseAccess(
      * Fetch the details of an action's relations (descendants).
      * This is done through a recursive query on the report_lineage table.
      *
-     * @param actionId the action id attached to the action to find relations for.
+     * @param reportId the report id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.
      * @return a list of descendants for the given action id.
      */
     abstract fun <T> fetchRelatedActions(
-        actionId: Long,
+        reportId: UUID,
         klass: Class<T>
     ): List<T>
 }
