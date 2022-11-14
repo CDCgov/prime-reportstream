@@ -558,6 +558,8 @@ class ReportFunctionTests {
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
+        // every { }
+
         // act
         val resp = reportFunc.processRequest(req, sender)
 
