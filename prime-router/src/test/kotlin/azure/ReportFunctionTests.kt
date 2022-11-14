@@ -16,7 +16,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -478,7 +477,6 @@ class ReportFunctionTests {
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val serializer = spyk(Hl7Serializer(metadata, settings))
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -507,10 +505,10 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { engine.hl7Serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns true
 
-        every { serializer.checkLIVDValueExists(any(), any()) } returns true
         // act
         val resp = reportFunc.processRequest(req, sender)
 
@@ -530,7 +528,7 @@ class ReportFunctionTests {
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val serializer = spyk(Hl7Serializer(metadata, settings))
+
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -559,10 +557,9 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { engine.hl7Serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
-
-        every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
         // act
         val resp = reportFunc.processRequest(req, sender)
