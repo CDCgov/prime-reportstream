@@ -127,12 +127,13 @@ class SubmissionsFacade(
             DetailedSubmissionHistory::class.java
         )
 
-        submission?.let {
+        // Submissions with a report ID (means had no errors) can have a lineage
+        submission?.reportId?.let {
             val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
-                UUID.fromString(submission.reportId),
+                UUID.fromString(it),
                 DetailedSubmissionHistory::class.java
             )
-            it.enrichWithDescendants(relatedSubmissions)
+            submission.enrichWithDescendants(relatedSubmissions)
         }
 
         submission?.enrichWithSummary()

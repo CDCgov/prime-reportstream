@@ -66,7 +66,6 @@ class SubmissionsFacadeTests {
             550, TaskAction.receive, OffsetDateTime.now(),
             null, null, emptyList()
         )
-        goodReturn.reportId = UUID.randomUUID().toString()
         every {
             mockSubmissionAccess.fetchAction(
                 any(),
@@ -74,16 +73,21 @@ class SubmissionsFacadeTests {
                 DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
+
+        // No lineage since we have no report ID
+        val action1 = Action()
+        action1.actionId = 550
+        action1.sendingOrg = "myOrg"
+        action1.actionName = TaskAction.receive
+        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
+
+        // Happy path
+        goodReturn.reportId = UUID.randomUUID().toString()
         every {
             mockSubmissionAccess.fetchRelatedActions(
                 UUID.fromString(goodReturn.reportId), DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
-        // Happy path
-        val action1 = Action()
-        action1.actionId = 550
-        action1.sendingOrg = "myOrg"
-        action1.actionName = TaskAction.receive
         assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
         // Failures
         val action2 = Action()
