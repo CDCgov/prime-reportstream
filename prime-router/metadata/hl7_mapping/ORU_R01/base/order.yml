@@ -83,7 +83,7 @@ elements:
     constants:
       hl7OrgField: '%{hl7Order}-21'
 
-  - name: ordering-facility-address
+  - name: ordering-facility-organization-address
     resource: '%service.requester.resolve().organization.resolve().address'
     schema: datatype/xad-extended-address
     constants:
@@ -95,7 +95,7 @@ elements:
     constants:
       hl7TelecomField: '%{hl7Order}-23'
 
-  - name: ordering-facility-address
+  - name: ordering-facility-practitioner-address
     resource: '%service.requester.resolve().practitioner.resolve().address'
     schema: datatype/xad-extended-address
     constants:

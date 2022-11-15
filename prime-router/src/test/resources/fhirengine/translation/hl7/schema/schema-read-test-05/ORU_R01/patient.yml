@@ -1,5 +1,5 @@
 elements:
-  - name: patient-segment-set-ID
+  - name: patient-segment-set-id
     value:
       - '1'
     hl7Spec:

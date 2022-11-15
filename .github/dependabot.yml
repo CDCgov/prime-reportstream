@@ -77,12 +77,6 @@ updates:
       interval: "daily"
 
   # FRONTEND
-  # Security only daily
-  - package-ecosystem: "npm"
-    directory: "/frontend-react"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
   # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
@@ -121,12 +115,6 @@ updates:
     directory: "/prime-router"
     schedule:
       interval: "weekly"
-  # Security only daily
-  - package-ecosystem: "gradle"
-    directory: "/prime-router"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
