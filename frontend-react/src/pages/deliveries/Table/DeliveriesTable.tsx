@@ -4,44 +4,25 @@ import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import {
-    FilterManager,
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
-import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
+import {
+    useOrgDeliveries,
+    DeliveriesDataAttr,
+} from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
 import TableFilters from "../../../components/Table/TableFilters";
-import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
+import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
 
-enum DeliveriesDataAttr {
-    REPORT_ID = "reportId",
-    BATCH_READY = "batchReadyAt",
-    EXPIRES = "expires",
-    ITEM_COUNT = "reportItemCount",
-    FILE_TYPE = "fileType",
-}
-
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
-
-/** @todo: page size default set to 10 once paginated */
-const filterManagerDefaults: FilterManagerDefaults = {
-    sortDefaults: {
-        column: DeliveriesDataAttr.BATCH_READY,
-        locally: true,
-    },
-    pageDefaults: {
-        size: 5,
-    },
-};
 
 interface ReceiverFeeds {
     loadingServices: boolean;
@@ -118,12 +99,14 @@ const ServiceDisplay = ({
 interface DeliveriesTableContentProps {
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
+    isLoading: boolean;
     serviceReportsList: RSDelivery[] | undefined;
 }
 
 const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     filterManager,
     paginationProps,
+    isLoading,
     serviceReportsList,
 }) => {
     const { oktaToken, activeMembership } = useSessionContext();
@@ -133,6 +116,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             oktaToken?.accessToken || "",
             activeMembership?.parsedName || ""
         );
+    };
+    const transformDate = (s: string) => {
+        return new Date(s).toLocaleString();
     };
     const columns: Array<ColumnConfig> = [
         {
@@ -147,19 +133,13 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             dataAttr: DeliveriesDataAttr.BATCH_READY,
             columnHeader: "Available",
             sortable: true,
-            localSort: true,
-            transform: (s: string) => {
-                return new Date(s).toLocaleString();
-            },
+            transform: transformDate,
         },
         {
             dataAttr: DeliveriesDataAttr.EXPIRES,
             columnHeader: "Expires",
             sortable: true,
-            localSort: true,
-            transform: (s: string) => {
-                return new Date(s).toLocaleString();
-            },
+            transform: transformDate,
         },
         {
             dataAttr: DeliveriesDataAttr.ITEM_COUNT,
@@ -180,6 +160,8 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
         rows: serviceReportsList || [],
     };
 
+    if (isLoading) return <Spinner />;
+
     return (
         <>
             <TableFilters filterManager={filterManager} />
@@ -192,22 +174,22 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     );
 };
 
-function DeliveriesTableWithNumberedPagination() {
-    const { activeMembership } = useSessionContext();
-
-    const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
+const DeliveriesTableWithNumberedPagination = ({
+    services,
+    activeService,
+    setActiveService,
+}: {
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}) => {
     const handleSetActive = (name: string) => {
         setActiveService(services.find((item) => item.name === name));
     };
 
-    // Callback for generating the fetcher, moved outside useEffect to reduce effect dependencies
     const { fetchResults, filterManager } = useOrgDeliveries(
-        activeMembership?.parsedName,
-        activeService?.name,
-        filterManagerDefaults
+        activeService?.name
     );
-    debugger;
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
@@ -230,8 +212,6 @@ function DeliveriesTableWithNumberedPagination() {
         extractCursor,
     });
 
-    if (loadingServices || isLoading) return <Spinner />;
-
     if (paginationProps) {
         paginationProps.label = "Deliveries pagination";
     }
@@ -246,13 +226,41 @@ function DeliveriesTableWithNumberedPagination() {
             <DeliveriesTableContent
                 filterManager={filterManager}
                 paginationProps={paginationProps}
+                isLoading={isLoading}
                 serviceReportsList={serviceReportsList}
             />
         </>
     );
-}
+};
 
-const DeliveriesTable = () =>
-    withCatchAndSuspense(<DeliveriesTableWithNumberedPagination />);
+export const DeliveriesTable = () => {
+    const { loadingServices, services, activeService, setActiveService } =
+        useReceiverFeeds();
+
+    if (loadingServices) return <Spinner />;
+
+    if (!loadingServices && !activeService)
+        return (
+            <div className="grid-container usa-section margin-bottom-10">
+                <NoServicesBanner
+                    featureName="Active Services"
+                    organization=""
+                    serviceType={"sender"}
+                />
+            </div>
+        );
+
+    return (
+        <>
+            {activeService && (
+                <DeliveriesTableWithNumberedPagination
+                    services={services}
+                    activeService={activeService}
+                    setActiveService={setActiveService}
+                />
+            )}
+        </>
+    );
+};
 
 export default DeliveriesTable;

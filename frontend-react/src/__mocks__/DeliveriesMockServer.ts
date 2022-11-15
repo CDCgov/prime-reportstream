@@ -3,7 +3,6 @@ import { setupServer } from "msw/node";
 
 import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
 import config from "../config";
-import { FilterManager } from "../hooks/filters/UseFilterManager";
 
 const { RS_API_URL } = config;
 
@@ -30,7 +29,7 @@ export const makeDeliveryFixture = (
     topic: overrides?.topic || "",
     reportItemCount: overrides?.reportItemCount || 0,
     fileName: overrides?.fileName || "",
-    fileType: overrides?.fileType || "",
+    fileType: overrides?.fileType || "CSV",
 });
 export const makeDeliveryFixtureArray = (count: number) => {
     const fixtures: RSDelivery[] = [];

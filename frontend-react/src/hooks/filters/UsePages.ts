@@ -7,7 +7,7 @@ enum PageSettingsActionType {
     RESET = "reset",
 }
 
-type PageSize = 5 | 10 | 25 | 50 | 100;
+type PageSize = 10 | 25 | 50 | 100;
 
 interface PageSettings {
     size: PageSize;

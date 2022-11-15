@@ -10,17 +10,6 @@ import {
     useOrgDeliveries,
     useReportsFacilities,
 } from "./DeliveryHooks";
-import { FilterManagerDefaults } from "../../filters/UseFilterManager";
-
-const filterManagerDefaults: FilterManagerDefaults = {
-    sortDefaults: {
-        column: "batchReadyAt",
-        locally: true,
-    },
-    pageDefaults: {
-        size: 5,
-    },
-};
 
 describe("DeliveryHooks", () => {
     beforeAll(() => deliveryServer.listen());
@@ -39,18 +28,20 @@ describe("DeliveryHooks", () => {
             initialized: true,
         });
 
-        const { result, waitForNextUpdate } = renderHook(
-            () =>
-                useOrgDeliveries(
-                    "testOrg",
-                    "testService",
-                    filterManagerDefaults
-                ),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useOrgDeliveries("testService"));
+        const fetchResults = await result.current.fetchResults(" ", 10);
+        expect(fetchResults).toHaveLength(3);
+        expect(result.current.filterManager.pageSettings.currentPage).toEqual(
+            1
         );
-        await waitForNextUpdate();
-        expect(result.current.fetchResults).toHaveLength(3);
-        expect(result.current.filterManager).toEqual(filterManagerDefaults);
+        expect(result.current.filterManager.pageSettings.size).toEqual(10);
+        expect(result.current.filterManager.rangeSettings.from).toEqual(
+            "2000-01-01T00:00:00.000Z"
+        );
+        expect(result.current.filterManager.rangeSettings.to).toEqual(
+            "3000-01-01T00:00:00.000Z"
+        );
+        expect(result.current.filterManager.sortSettings.order).toEqual("DESC");
     });
     test("useReportDetail", async () => {
         mockSessionContext.mockReturnValue({

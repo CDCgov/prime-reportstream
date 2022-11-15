@@ -15,7 +15,7 @@ import org.jooq.impl.DSL
  * Class to access lookup tables stored in the database.
  */
 class DatabaseDeliveryAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    db: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : HistoryDatabaseAccess(db) {
 
     /**
@@ -38,7 +38,7 @@ class DatabaseDeliveryAccess(
      */
     override fun organizationFilter(
         organization: String,
-        orgService: String?,
+        orgService: String?
     ): Condition {
         var filter = ACTION.ACTION_NAME.eq(TaskAction.batch)
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
@@ -78,7 +78,7 @@ class DatabaseDeliveryAccess(
                     REPORT_FILE.ITEM_COUNT,
                     REPORT_FILE.BODY_URL,
                     REPORT_FILE.SCHEMA_NAME,
-                    REPORT_FILE.BODY_FORMAT,
+                    REPORT_FILE.BODY_FORMAT
                 )
                 .from(
                     ACTION.join(REPORT_FILE).on(
@@ -114,7 +114,7 @@ class DatabaseDeliveryAccess(
     fun fetchFacilityList(
         reportId: ReportId,
         sortDir: SortDir,
-        sortColumn: FacilitySortColumn,
+        sortColumn: FacilitySortColumn
     ): List<DeliveryFacility> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
