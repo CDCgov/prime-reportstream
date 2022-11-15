@@ -11,7 +11,7 @@ import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { ai } from "../TelemetryService";
 
 const AppInsightsProvider = (props: PropsWithChildren<{}>) => (
-    <AppInsightsContext.Provider value={ai.reactPlugin}>
+    <AppInsightsContext.Provider value={ai.reactPlugin!!}>
         {props.children}
     </AppInsightsContext.Provider>
 );

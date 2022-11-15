@@ -1,7 +1,7 @@
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
-const reactPlugin = new ReactPlugin();
+let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
 const createTelemetryService = () => {
@@ -15,6 +15,7 @@ const createTelemetryService = () => {
             return;
         }
 
+        reactPlugin = new ReactPlugin();
         appInsights = new ApplicationInsights({
             config: {
                 connectionString,
