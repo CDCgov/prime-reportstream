@@ -17,7 +17,7 @@ class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
-    dbAccess,
+    dbAccess
 ) {
     /**
      * Find deliveries based on parameters.

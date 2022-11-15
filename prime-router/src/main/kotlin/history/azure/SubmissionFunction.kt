@@ -21,10 +21,10 @@ import gov.cdc.prime.router.history.DetailedSubmissionHistory
  */
 class SubmissionFunction(
     val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
-    workflowEngine: WorkflowEngine = WorkflowEngine(),
+    workflowEngine: WorkflowEngine = WorkflowEngine()
 ) : ReportFileFunction(
     submissionsFacade,
-    workflowEngine,
+    workflowEngine
 ) {
     /**
      * Get the correct name for an organization sender based on the name.
@@ -66,7 +66,7 @@ class SubmissionFunction(
             params.since,
             params.until,
             params.pageSize,
-            params.showFailed,
+            params.showFailed
         )
     }
 
@@ -97,7 +97,7 @@ class SubmissionFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/org/{organization}/submissions"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organization") organization: String,
+        @BindingName("organization") organization: String
     ): HttpResponseMessage {
         return this.getListByOrg(request, organization)
     }
@@ -114,7 +114,7 @@ class SubmissionFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/history"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("id") id: String
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
     }

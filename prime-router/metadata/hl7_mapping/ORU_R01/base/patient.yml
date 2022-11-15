@@ -2,7 +2,7 @@ constants:
   hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
   hl7PatientGroup: '/PATIENT_RESULT/PATIENT'
 elements:
-  - name: set-id
+  - name: patient-set-id
     value: [ '"1"' ]
     hl7Spec: [ '%{hl7PIDField}-1' ]
 
