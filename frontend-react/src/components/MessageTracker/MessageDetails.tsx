@@ -12,13 +12,13 @@ import { WarningsErrors } from "./WarningsErrors";
 import { MessageReceivers } from "./MessageReceivers";
 
 type MessageDetailsProps = {
-    messageId: string | undefined;
+    id: string | undefined;
 };
 
 export function MessageDetails() {
     const navigate = useNavigate();
-    const { messageId } = useParams<MessageDetailsProps>();
-    const { messageDetails } = useMessageDetails(messageId!!);
+    const { id } = useParams<MessageDetailsProps>();
+    const { messageDetails } = useMessageDetails(id!!);
 
     return (
         <>
@@ -59,12 +59,12 @@ export function MessageDetails() {
                     receiverDetails={messageDetails!.receiverData}
                 />
                 <WarningsErrors
-                    title={"WarningError:"}
-                    data={messageDetails!.warnings}
+                    title={"Warnings:"}
+                    data={messageDetails!.warnings.map((md) => md.detail)}
                 />
                 <WarningsErrors
                     title={"Errors:"}
-                    data={messageDetails!.errors}
+                    data={messageDetails!.errors.map((md) => md.detail)}
                 />
             </div>
         </>

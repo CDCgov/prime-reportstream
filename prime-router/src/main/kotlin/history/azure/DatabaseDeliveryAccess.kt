@@ -10,6 +10,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
 import org.jooq.impl.DSL
+import java.util.UUID
 
 /**
  * Class to access lookup tables stored in the database.
@@ -91,15 +92,7 @@ class DatabaseDeliveryAccess(
         }
     }
 
-    /**
-     * Fetch the details of an action's relations (descendants).
-     * This is done through a recursive query on the report_lineage table.
-     *
-     * @param actionId the action id attached to the action to find relations for.
-     * @param klass the class that the found data will be converted to.
-     * @return a list of descendants for the given action id.
-     */
-    override fun <T> fetchRelatedActions(actionId: Long, klass: Class<T>): List<T> {
+    override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {
         TODO("Not yet implemented")
     }
 
