@@ -59,12 +59,12 @@ export function MessageDetails() {
                     receiverDetails={messageDetails!.receiverData}
                 />
                 <WarningsErrors
-                    title={"WarningError:"}
-                    data={messageDetails!.warnings}
+                    title={"Warnings:"}
+                    data={messageDetails!.warnings.map((md) => md.detail)}
                 />
                 <WarningsErrors
                     title={"Errors:"}
-                    data={messageDetails!.errors}
+                    data={messageDetails!.errors.map((md) => md.detail)}
                 />
             </div>
         </>

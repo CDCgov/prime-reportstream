@@ -4,22 +4,26 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
 import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
+import org.jooq.exception.TooManyRowsException
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
+import java.util.UUID
 
 /**
  * Class to access lookup tables stored in the database.
  */
 class DatabaseSubmissionsAccess(
     db: DatabaseAccess = BaseEngine.databaseAccessSingleton
-) : HistoryDatabaseAccess(db) {
+) : HistoryDatabaseAccess(db), Logging {
 
     /**
      * Creates a condition filter based on the given organization parameters.
@@ -124,17 +128,33 @@ class DatabaseSubmissionsAccess(
         )
     }
 
-    override fun <T> fetchRelatedActions(actionId: Long, klass: Class<T>): List<T> {
-        val cte = reportDescendantExpression(actionId)
+    override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {
         return db.transactReturning { txn ->
-            DSL.using(txn)
-                .withRecursive(cte)
-                .selectDistinct(detailedSelect())
-                .from(ACTION)
-                .join(cte)
-                .on(ACTION.ACTION_ID.eq(cte.field("action_id", SQLDataType.BIGINT)))
-                .where(ACTION.ACTION_ID.ne(actionId))
-                .fetchInto(klass)
+            // We need to use the report ID to find the correct start of the report lineage. This allows for
+            // flexibility in the pipelines to not have a child report on the very first action on a submitted report.
+            // Report lineages for a parent report that is the submitted report (what was received) always have the same
+            // action ID.
+            val actionId = try {
+                DSL.using(txn)
+                    .selectDistinct(REPORT_LINEAGE.ACTION_ID)
+                    .from(REPORT_LINEAGE)
+                    .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                    .fetchOneInto(Long::class.java)
+            } catch (e: TooManyRowsException) {
+                logger.warn("Invalid report file lineage with multiple action IDs for parent report $reportId")
+                null
+            }
+            if (actionId != null) {
+                val cte = reportDescendantExpression(actionId)
+                DSL.using(txn)
+                    .withRecursive(cte)
+                    .selectDistinct(detailedSelect())
+                    .from(ACTION)
+                    .join(cte)
+                    .on(ACTION.ACTION_ID.eq(cte.field("action_id", SQLDataType.BIGINT)))
+                    .where(ACTION.ACTION_ID.ne(actionId))
+                    .fetchInto(klass)
+            } else emptyList()
         }
     }
 
@@ -153,23 +173,23 @@ class DatabaseSubmissionsAccess(
             // Backticks escape the kotlin reserved word, so JOOQ can use it's "as"
         ).`as`(
             DSL.select(
-                Tables.REPORT_LINEAGE.ACTION_ID,
-                Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                Tables.REPORT_LINEAGE.PARENT_REPORT_ID
+                REPORT_LINEAGE.ACTION_ID,
+                REPORT_LINEAGE.CHILD_REPORT_ID,
+                REPORT_LINEAGE.PARENT_REPORT_ID
             )
-                .from(Tables.REPORT_LINEAGE)
-                .where(Tables.REPORT_LINEAGE.ACTION_ID.eq(actionId))
+                .from(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.ACTION_ID.eq(actionId))
                 .unionAll(
                     DSL.select(
-                        Tables.REPORT_LINEAGE.ACTION_ID,
-                        Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                        Tables.REPORT_LINEAGE.PARENT_REPORT_ID
+                        REPORT_LINEAGE.ACTION_ID,
+                        REPORT_LINEAGE.CHILD_REPORT_ID,
+                        REPORT_LINEAGE.PARENT_REPORT_ID
                     )
                         .from(DSL.table(DSL.name("t")))
-                        .join(Tables.REPORT_LINEAGE)
+                        .join(REPORT_LINEAGE)
                         .on(
                             DSL.field(DSL.name("t", "child_report_id"), SQLDataType.UUID)
-                                .eq(Tables.REPORT_LINEAGE.PARENT_REPORT_ID)
+                                .eq(REPORT_LINEAGE.PARENT_REPORT_ID)
                         )
                 )
         )
