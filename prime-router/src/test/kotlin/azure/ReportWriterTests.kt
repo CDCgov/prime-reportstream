@@ -20,12 +20,13 @@ class ReportWriterTests {
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
     private val comparison = ByteArrayOutputStream()
+    private val writer = ReportWriter()
 
     /**
      * Compare and assert the output of most test cases in this file
      * Stringify the input data, then split and assert a comparison on a specific segment
      *
-     * @param bodyBytes Output of ReportWriter.getBodyBytes
+     * @param bodyBytes Output of ReportWriter::getBodyBytes
      * @param comparison Output of a manually converted file
      * @param index Index for the segment to compare. Play with this value to avoid timestamp conflicts!
      */
@@ -44,7 +45,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.INTERNAL,
             metadata = metadata
         )
-        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val bodyBytes = writer.getBodyBytes(report)
         csvSerializer.writeInternal(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)
     }
@@ -58,7 +59,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7,
             metadata = metadata
         )
-        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val bodyBytes = writer.getBodyBytes(report)
         hl7Serializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison, 1)
     }
@@ -72,7 +73,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7_BATCH,
             metadata = metadata
         )
-        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val bodyBytes = writer.getBodyBytes(report)
         hl7Serializer.writeBatch(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison, 3)
     }
@@ -86,7 +87,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV,
             metadata = metadata
         )
-        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val bodyBytes = writer.getBodyBytes(report)
         csvSerializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)
     }
@@ -100,7 +101,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV_SINGLE,
             metadata = metadata
         )
-        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val bodyBytes = writer.getBodyBytes(report)
         csvSerializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)
     }
@@ -114,7 +115,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.FHIR, // so this test freaks out if fhir gets support
             metadata = metadata
         )
-        assertThat { ReportWriter.getBodyBytes(report) }.isFailure()
+        assertThat { writer.getBodyBytes(report) }.isFailure()
             .hasClass(UnsupportedOperationException::class)
     }
 }

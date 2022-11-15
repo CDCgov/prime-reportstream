@@ -59,7 +59,8 @@ class WorkflowEngine(
     val as2Transport: AS2Transport = AS2Transport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport(),
-    val restTransport: RESTTransport = RESTTransport()
+    val restTransport: RESTTransport = RESTTransport(),
+    val reportWriter: ReportWriter = ReportWriter()
 ) : BaseEngine(queue) {
 
     /**
@@ -72,7 +73,8 @@ class WorkflowEngine(
         var blobAccess: BlobAccess? = null,
         var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
-        var csvSerializer: CsvSerializer? = null
+        var csvSerializer: CsvSerializer? = null,
+        var reportWriter: ReportWriter? = null
     ) {
         /**
          * Set the metadata instance.
@@ -117,6 +119,12 @@ class WorkflowEngine(
         fun csvSerializer(csvSerializer: CsvSerializer) = apply { this.csvSerializer = csvSerializer }
 
         /**
+         * Set the report writer instance.
+         * @return the modified workflow engine
+         */
+        fun reportWriter(reportWriter: ReportWriter) = apply { this.reportWriter = reportWriter }
+
+        /**
          * Build the workflow engine instance.
          * @return the workflow engine instance
          */
@@ -138,7 +146,8 @@ class WorkflowEngine(
                 csvSerializer!!,
                 databaseAccess ?: databaseAccessSingleton,
                 blobAccess ?: BlobAccess(),
-                queueAccess ?: QueueAccess
+                queueAccess ?: QueueAccess,
+                reportWriter = reportWriter ?: ReportWriter(),
             )
         }
     }
@@ -220,7 +229,7 @@ class WorkflowEngine(
         } else null
 
         val blobInfo = try {
-            val bodyBytes = ReportWriter.getBodyBytes(
+            val bodyBytes = this.reportWriter.getBodyBytes(
                 report,
                 sendingApp,
                 receivingApp,
