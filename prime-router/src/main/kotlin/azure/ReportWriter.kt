@@ -6,7 +6,7 @@ import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.ByteArrayOutputStream
 
-class ReportWriter {
+object ReportWriter {
     private val csvSerializer: CsvSerializer = BaseEngine.csvSerializerSingleton
     private val hl7Serializer: Hl7Serializer = BaseEngine.hl7SerializerSingleton
 

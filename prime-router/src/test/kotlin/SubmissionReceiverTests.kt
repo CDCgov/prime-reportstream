@@ -50,7 +50,6 @@ class SubmissionReceiverTests {
             )
         )
     )
-    private val writerMock = mockkClass(ReportWriter::class)
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
         "testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace," +
@@ -146,7 +145,7 @@ class SubmissionReceiverTests {
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).reportWriter(writerMock).build()
+                .blobAccess(blobMock).queueAccess(queueMock).build()
         )
     }
 
@@ -375,7 +374,8 @@ class SubmissionReceiverTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
@@ -390,7 +390,7 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            writerMock.getBodyBytes(any(), any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
             blobMock.uploadReport(any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any())
             engine.insertProcessTask(any(), any(), any(), any())
@@ -422,7 +422,8 @@ class SubmissionReceiverTests {
         val bodyUrl = "http://anyblob.com"
 
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit

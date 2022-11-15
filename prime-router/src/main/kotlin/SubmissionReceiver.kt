@@ -225,7 +225,7 @@ class TopicReceiver : SubmissionReceiver {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val bodyBytes = workflowEngine.reportWriter.getBodyBytes(report)
+        val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
 

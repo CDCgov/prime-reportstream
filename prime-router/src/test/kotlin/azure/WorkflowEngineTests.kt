@@ -41,7 +41,6 @@ class WorkflowEngineTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
-    val writerMock = mockkClass(ReportWriter::class)
     val oneOrganization = DeepOrganization(
         "phd",
         "test",
@@ -51,7 +50,7 @@ class WorkflowEngineTests {
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).reportWriter(writerMock).build()
+            .blobAccess(blobMock).queueAccess(queueMock).build()
     }
 
     @BeforeEach
@@ -71,7 +70,8 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
@@ -88,7 +88,7 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackCreatedReport(any(), any(), any(), any())
-            writerMock.getBodyBytes(any(), any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
             blobMock.uploadReport(any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
@@ -106,7 +106,8 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
@@ -123,7 +124,7 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any())
-            writerMock.getBodyBytes(any(), any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
             blobMock.uploadReport(any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
@@ -143,7 +144,8 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
@@ -162,7 +164,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            writerMock.getBodyBytes(any(), any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
             blobMock.uploadReport(any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())

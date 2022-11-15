@@ -54,7 +54,6 @@ class ReportFunctionTests {
             )
         )
     )
-    private val writerMock = mockkClass(ReportWriter::class)
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
         "testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace," +
@@ -158,7 +157,7 @@ class ReportFunctionTests {
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).reportWriter(writerMock).build()
+                .blobAccess(blobMock).queueAccess(queueMock).build()
         )
     }
 
@@ -248,7 +247,8 @@ class ReportFunctionTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
@@ -511,7 +511,8 @@ class ReportFunctionTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
@@ -563,7 +564,8 @@ class ReportFunctionTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
@@ -615,7 +617,8 @@ class ReportFunctionTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         val bodyBytes = "".toByteArray()
-        every { writerMock.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
