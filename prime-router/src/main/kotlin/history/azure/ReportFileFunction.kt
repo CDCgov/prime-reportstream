@@ -24,7 +24,7 @@ import java.util.UUID
  */
 abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
-    internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    internal val workflowEngine: WorkflowEngine = WorkflowEngine()
 ) : Logging {
 
     /**
@@ -76,7 +76,7 @@ abstract class ReportFileFunction(
      */
     fun getListByOrg(
         request: HttpRequestMessage<String?>,
-        organization: String,
+        organization: String
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -114,22 +114,23 @@ abstract class ReportFileFunction(
      */
     fun getDetailedView(
         request: HttpRequestMessage<String?>,
-        id: String,
+        id: String
     ): HttpResponseMessage {
         try {
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
 
-            return if (authResult != null)
+            return if (authResult != null) {
                 authResult
-            else {
+            } else {
                 val action = this.actionFromId(id)
                 val history = this.singleDetailedHistory(request.queryParameters, action)
 
-                if (history != null)
+                if (history != null) {
                     HttpUtilities.okJSONResponse(request, history)
-                else
+                } else {
                     HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
+                }
             }
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
@@ -150,7 +151,7 @@ abstract class ReportFileFunction(
      */
     fun authSingleBlocks(
         request: HttpRequestMessage<String?>,
-        id: String,
+        id: String
     ): HttpResponseMessage? {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -160,8 +161,9 @@ abstract class ReportFileFunction(
 
         val action: Action = this.actionFromId(id)
 
-        return if (!this.actionIsValid(action))
+        return if (!this.actionIsValid(action)) {
             HttpUtilities.notFoundResponse(request, "$id is not a valid report")
+        }
         // todo bug:  we need to find the report_file id's receiving_org, and send it here.
         else if (!reportFileFacade.checkAccessAuthorization(claims, action.sendingOrg, null, request)) {
             logger.warn(
@@ -189,9 +191,9 @@ abstract class ReportFileFunction(
     private fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
-        return if (currentAction != null && currentAction!!.actionId == actionId)
+        return if (currentAction != null && currentAction!!.actionId == actionId) {
             currentAction!!
-        else if (actionId == null) {
+        } else if (actionId == null) {
             val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
             reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
         } else {
@@ -237,10 +239,11 @@ abstract class ReportFileFunction(
              */
             fun extractSortDir(query: Map<String, String>): HistoryDatabaseAccess.SortDir {
                 val sort = query["sortdir"]
-                return if (sort == null)
+                return if (sort == null) {
                     HistoryDatabaseAccess.SortDir.DESC
-                else
+                } else {
                     HistoryDatabaseAccess.SortDir.valueOf(sort)
+                }
             }
 
             /**
@@ -251,10 +254,11 @@ abstract class ReportFileFunction(
             fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
                 // check if col matches one of the values in HistoryDatabaseAccess.SortColumn
-                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
+                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col }) {
                     HistoryDatabaseAccess.SortColumn.valueOf(col)
-                else
+                } else {
                     HistoryDatabaseAccess.SortColumn.CREATED_AT
+                }
             }
 
             /**
@@ -279,7 +283,7 @@ abstract class ReportFileFunction(
              * @return converted params
              */
             fun extractPageSize(query: Map<String, String>): Int {
-                val size = query.getOrDefault("pagesize", "50").toInt()
+                val size = query.getOrDefault("pageSize", "50").toInt()
                 require(size > 0) { "Page size must be a positive integer" }
                 return size
             }
