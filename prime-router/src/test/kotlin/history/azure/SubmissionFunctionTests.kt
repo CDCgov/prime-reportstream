@@ -168,24 +168,24 @@ class SubmissionFunctionTests : Logging {
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "-1"),
+                mapOf("pageSize" to "-1"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize"
+                "bad pageSize"
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "fads"),
+                mapOf("pageSize" to "fads"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize, garbage"
+                "bad pageSize, garbage"
             ),
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
                     "sortDir" to "ASC"
                 ),
@@ -197,7 +197,7 @@ class SubmissionFunctionTests : Logging {
             SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "since" to "2021-11-30T16:36:54.307109Z",
                     "until" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
@@ -229,7 +229,7 @@ class SubmissionFunctionTests : Logging {
             val submissionsFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
             val response = submissionsFunction.getOrgSubmissionsList(
                 httpRequestMessage,
-                organizationName,
+                organizationName
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
