@@ -92,7 +92,6 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
-
     private val filterTestYamlFilterOutNegAntigenTestType = """
         ---
           - name: phd
@@ -119,8 +118,10 @@ class TranslatorTests {
     fun `test filterOutNegativeAntigenTestUsingQualityFilter`() {
         val mySchema = Schema(
             name = "two", topic = "test", trackingElement = "id",
-            elements = listOf(Element("id"),  Element("order_test_date"),
-                Element("ordered_test_code"), Element("test_result"), Element("test_type"))
+            elements = listOf(
+                Element("id"), Element("order_test_date"),
+                Element("ordered_test_code"), Element("test_result"), Element("test_type")
+            )
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
         val settings = FileSettings().also {
@@ -131,13 +132,13 @@ class TranslatorTests {
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("0", "20221103202920", "94531-1", "260385009", "Antigen"),    // Negative Antigen
-                listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"),     // Positive Antigen
-                listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"),    // Not Detected Antigen
-                listOf("3", "20221103202923", "94531-1", "10828004", "Serology"),    // Positive but NOT Antigen
-                listOf("4", "20221103202924", "94531-2", "895231008", "Antigen"),    // Not detected in pooled specimen Antigen
-                listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"),    // Detected (Positive) Antigen
-                listOf("6", "20221103202926", "94531-1", "260385009", "Serology"),   // Negative but NOT Antigen
+                listOf("0", "20221103202920", "94531-1", "260385009", "Antigen"), // Negative Antigen
+                listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"), // Positive Antigen
+                listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"), // Not Detected Antigen
+                listOf("3", "20221103202923", "94531-1", "10828004", "Serology"), // Positive but NOT Antigen
+                listOf("4", "20221103202924", "94531-2", "895231008", "Antigen"), // Not detected in pooled specimen
+                listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"), // Detected (Positive) Antigen
+                listOf("6", "20221103202926", "94531-1", "260385009", "Serology"), // Negative but NOT Antigen
             ),
             TestSource,
             metadata = metadata,

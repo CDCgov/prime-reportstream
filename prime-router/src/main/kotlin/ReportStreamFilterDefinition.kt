@@ -167,9 +167,9 @@ class FilterOutNegativeAntigenTestType : ReportStreamFilterDefinition {
                 val testType = table.stringColumn("test_type")
                 val selection = table.stringColumn(columnName).matchesRegex(value)
                 val rowIndex = selection.toArray()
-                for (i in 0 .. rowIndex.size-1) {
+                for (i in 0..rowIndex.size - 1) {
                     if (testType.getString(rowIndex[i]) == "Antigen")
-                        colSelection = colSelection.andNot(Selection.withRange(rowIndex[i],rowIndex[i]+1))
+                        colSelection = colSelection.andNot(Selection.withRange(rowIndex[i], rowIndex[i] + 1))
                 }
             }
             colSelection
