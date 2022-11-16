@@ -38,16 +38,14 @@ class DefaultFilterTests {
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
-            Receiver
-            (
+            Receiver(
                 "full-elr-hl7",
                 "co-phd",
                 "full-elr",
                 CustomerStatus.ACTIVE,
                 "one"
             ),
-            Receiver
-            (
+            Receiver(
                 "full-elr-hl7-2",
                 "co-phd",
                 "full-elr",
@@ -173,6 +171,23 @@ class DefaultFilterTests {
     }
 
     @Test
+    fun `test evaluate reverse filter default - true`() {
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val bundle = FhirTranscoder.decode(fhirCodeP)
+
+        // act
+        val result = engine.evaluateFilterCondition(emptyList(), bundle, false, true)
+
+        // assert
+        assert(result)
+    }
+
+    @Test
     fun `test evaluate default - true`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -204,6 +219,23 @@ class DefaultFilterTests {
 
         // assert
         assert(procModeResult)
+    }
+
+    @Test
+    fun `test reverse processModeFilter default pass (bundle mode = 'P')`() {
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val bundle = FhirTranscoder.decode(fhirCodeP)
+
+        // act
+        val procModeResult = engine.evaluateFilterCondition(engine.processingModeFilterDefault, bundle, false, true)
+
+        // assert
+        assert(!procModeResult)
     }
 
     @Test
