@@ -17,7 +17,7 @@ paths:
         '200':
           description: success call
 
-  /api/checkreceiver/org/{orgName}/setting/{settingName}:
+  /api/checkreceiver/org/{orgName}/receiver/{receiverName}:
     post:
       description: Load Receiver Settings and verifies connecting to the external server works.
       security:
@@ -29,7 +29,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: settingName
+        - name: receiverName
           in: path
           description: Logical name of the Receiver Setting
           required: true
@@ -43,7 +43,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CheckReceiverResponse'
         '404':
-          description: The orgName or settingName  was not found
+          description: The orgName or receiverName  was not found
           content:
             text/plain:
               schema:

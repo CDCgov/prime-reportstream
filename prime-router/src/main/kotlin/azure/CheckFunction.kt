@@ -145,10 +145,10 @@ class CheckFunction : Logging {
             name = "checkreceiver",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "checkreceiver/org/{orgName}/setting/{settingName}"
+            route = "checkreceiver/org/{orgName}/receiver/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("orgName") orgName: String,
-        @BindingName("settingName") settingName: String
+        @BindingName("receiverName") receiverName: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
 
@@ -164,16 +164,16 @@ class CheckFunction : Logging {
 
         val result = try {
             val receiver =
-                BaseEngine.settingsProviderSingleton.findReceiver("$orgName.$settingName")
+                BaseEngine.settingsProviderSingleton.findReceiver("$orgName.$receiverName")
             if (receiver == null) {
                 JsonResponse(
                     CheckResultsEnum.fail,
-                    "Org:'$orgName' Setting:'$settingName' not found"
+                    "Org:'$orgName' Receiver Setting:'$receiverName' not found"
                 )
             } else if (receiver.transport == null) {
                 JsonResponse(
                     CheckResultsEnum.fail,
-                    "Org:'$orgName' Setting:'$settingName' " +
+                    "Org:'$orgName' Receiver Setting: '$receiverName' " +
                         "'transport' section of setting is missing or empty - SFTP only supported"
                 )
             } else {
