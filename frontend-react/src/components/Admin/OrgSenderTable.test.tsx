@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
 
 import { OrgReceiverTable } from "./OrgReceiverTable";
 
@@ -165,7 +165,9 @@ describe("OrgReceiverTable", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithRouter(<OrgReceiverTable orgname={"test"} key={"test"} />);
+        renderWithFullAppContext(
+            <OrgReceiverTable orgname={"test"} key={"test"} />
+        );
     });
 
     test("renders correctly", () => {
