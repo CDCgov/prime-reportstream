@@ -4,19 +4,17 @@ import assertk.assertThat
 import assertk.assertions.hasClass
 import assertk.assertions.isFailure
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
 class ReportWriterTests {
-    private val csvSerializer: CsvSerializer = BaseEngine.csvSerializerSingleton
-    private val hl7Serializer: Hl7Serializer = BaseEngine.hl7SerializerSingleton
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
     private val comparison = ByteArrayOutputStream()
@@ -44,7 +42,10 @@ class ReportWriterTests {
             bodyFormat = Report.Format.INTERNAL,
             metadata = metadata
         )
+        val csvSerializer = CsvSerializer(metadata)
+
         val bodyBytes = ReportWriter.getBodyBytes(report)
+
         csvSerializer.writeInternal(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)
     }
@@ -58,6 +59,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7,
             metadata = metadata
         )
+        val settings = FileSettings("./settings")
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+
         val bodyBytes = ReportWriter.getBodyBytes(report)
         hl7Serializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison, 1)
@@ -72,6 +76,9 @@ class ReportWriterTests {
             bodyFormat = Report.Format.HL7_BATCH,
             metadata = metadata
         )
+        val settings = FileSettings("./settings")
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+
         val bodyBytes = ReportWriter.getBodyBytes(report)
         hl7Serializer.writeBatch(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison, 3)
@@ -86,6 +93,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV,
             metadata = metadata
         )
+        val csvSerializer = CsvSerializer(metadata)
         val bodyBytes = ReportWriter.getBodyBytes(report)
         csvSerializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)
@@ -100,6 +108,7 @@ class ReportWriterTests {
             bodyFormat = Report.Format.CSV_SINGLE,
             metadata = metadata
         )
+        val csvSerializer = CsvSerializer(metadata)
         val bodyBytes = ReportWriter.getBodyBytes(report)
         csvSerializer.write(report, comparison)
         assertByteArrayMatch(bodyBytes, comparison)

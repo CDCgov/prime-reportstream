@@ -7,8 +7,8 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.ByteArrayOutputStream
 
 object ReportWriter {
-    private val csvSerializer: CsvSerializer = BaseEngine.csvSerializerSingleton
-    private val hl7Serializer: Hl7Serializer = BaseEngine.hl7SerializerSingleton
+    private val csvSerializer: CsvSerializer by lazy { BaseEngine.csvSerializerSingleton }
+    private val hl7Serializer: Hl7Serializer by lazy { BaseEngine.hl7SerializerSingleton }
 
     /**
      * Uses a serializer that matches the bodyFormat of the passed in [report] to generate a ByteArray to upload
