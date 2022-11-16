@@ -16,6 +16,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -35,6 +36,9 @@ class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
+    val metadata = UnitTestUtils.simpleMetadata // mockkClass(Metadata::class)
+    val settings = mockkClass(SettingsProvider::class)
+    val serializer = spyk(Hl7Serializer(metadata, settings))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
@@ -155,7 +159,7 @@ class ReportFunctionTests {
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).build()
+                .blobAccess(blobMock).queueAccess(queueMock).hl7Serializer(serializer).build()
         )
     }
 
@@ -521,12 +525,13 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction when basic hl7 message is passed`() {
         // setup steps
-        val metadata = UnitTestUtils.simpleMetadata
+
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
+
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -555,6 +560,7 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
@@ -571,7 +577,7 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction when basic hl7 message with 5 separators is passed`() {
         // setup steps
-        val metadata = UnitTestUtils.simpleMetadata
+
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -605,6 +611,7 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
