@@ -75,10 +75,8 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, settings)
-
         every { BaseEngine.csvSerializerSingleton } returns csvSerializer
         every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
 
@@ -107,6 +105,8 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport - empty`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -117,7 +117,10 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-        mockkObject(ReportWriter)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
         every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
@@ -143,6 +146,8 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport with Error`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
@@ -155,7 +160,10 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
-        mockkObject(ReportWriter)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
         every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))

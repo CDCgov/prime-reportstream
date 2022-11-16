@@ -11,7 +11,10 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -353,6 +356,8 @@ class SubmissionReceiverTests {
     /** COVID receiver tests **/
     @Test
     fun `test covid receiver processAsync`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         // setup
         val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -374,7 +379,10 @@ class SubmissionReceiverTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val bodyBytes = "".toByteArray()
-        mockkObject(ReportWriter)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
         every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
@@ -399,6 +407,8 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test covid receiver processAsync, incorrect format`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         // setup
         val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -422,7 +432,10 @@ class SubmissionReceiverTests {
         val bodyUrl = "http://anyblob.com"
 
         val bodyBytes = "".toByteArray()
-        mockkObject(ReportWriter)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
         every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
         every { blobMock.uploadReport(any(), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
