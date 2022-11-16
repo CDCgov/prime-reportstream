@@ -110,7 +110,7 @@ class UnsupportedEIMessage(
 class InvalidEquipmentMessage(
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
-    override val message = "Invalid field $fieldMapping; please refer to the " +
+    override val message = "No match found for $fieldMapping; please refer to the " +
         "CDC LIVD table LOINC Mapping spreadsheet for acceptable values."
 }
 

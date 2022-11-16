@@ -1,7 +1,7 @@
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
 elements:
-  - name: order-set-ID-obr
+  - name: order-set-id-obr
     value:
       - '%orderIndex  + 1'
     hl7Spec:
