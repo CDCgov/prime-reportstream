@@ -3,10 +3,6 @@ resource "azurerm_private_dns_zone" "zone" {
 
   name                = each.value.name
   resource_group_name = var.resource_group
-  tags = {
-    environment = var.environment
-    source      = "Terraform"
-  }
 }
 
 resource "time_sleep" "wait_dns_zone" {
