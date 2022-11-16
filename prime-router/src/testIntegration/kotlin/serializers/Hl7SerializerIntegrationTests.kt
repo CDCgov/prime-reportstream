@@ -3,12 +3,14 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
@@ -534,6 +536,85 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test checkLIVDValueExists`() {
+
+        // happy path success
+        val modelCOVIDSeqTest = serializer.checkLIVDValueExists("Model", "COVIDSeq Test")
+        assertThat(modelCOVIDSeqTest).isTrue()
+
+        // happy path fail
+        val modelFake = serializer.checkLIVDValueExists("Model", "Fake")
+        assertThat(modelFake).isFalse()
+
+        // unhappy path input 1
+        val fakeCOVIDSeqTest = serializer.checkLIVDValueExists("fake", "COVIDSeq Test")
+        assertThat(fakeCOVIDSeqTest).isFalse()
+
+        // unhappy path input 1 and 2
+        val fakeFake = serializer.checkLIVDValueExists("fake", "fake")
+        assertThat(fakeFake).isFalse()
+    }
+
+    /**
+     * confirmObservationOrder takes in a message then reviews LOINC codes in the OBX segments. The first LOINC
+     * should be present in the LIVD table. If that is not the case, then the OBX segments are reordered.
+     */
+    @Test
+    fun `test confirmObservationOrder`() {
+
+        // message where first OBX segment contains the test result
+        val sampleRegMessage = File("./src/testIntegration/resources/serializers/test_result_first_rep.hl7")
+            .readText()
+
+        arrangeTest(sampleRegMessage).run {
+            val oruR01SampleReg: ORU_R01? = this as? ORU_R01
+            // save OBX-3 for first OBX segment prior to the function run
+            val sampleObsID = oruR01SampleReg
+                ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+
+            // assert
+            serializer.organizeObservationOrder(this).run {
+                val happyORUR01 = this as? ORU_R01
+                // extract OBX-3 for first OBX segment after function run
+                val happyFullObsIdentifier = happyORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+                // since first OBX segment does contain the test result, the sample and final OBX-3 values should match
+                assertThat(happyFullObsIdentifier).isEqualTo(sampleObsID)
+            }
+        }
+        // message where first OBX segment does not contain the test result
+        val sampleComplexMessage = File("./src/testIntegration/resources/serializers/test_result_not_first_rep.hl7")
+            .readText()
+
+        arrangeTest(sampleComplexMessage).run {
+            val oruR01SampleComplex: ORU_R01? = this as? ORU_R01
+            // save OBX-3 for first OBX segment prior to the function run
+            val sampleComplexObsID = oruR01SampleComplex
+                ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+
+            // assert
+            serializer.organizeObservationOrder(this).run {
+                val happyComplexORUR01 = this as? ORU_R01
+                // extract OBX-3 for first OBX segment after function run
+                val happyComplexObsIdentifier = happyComplexORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+                // since first OBX segment does not contain the test result, the sample and final OBX-3 values
+                // should not match
+                assertThat(happyComplexObsIdentifier).isNotEqualTo(sampleComplexObsID)
+
+                // the OBX segments were rearranged. But the OBX set IDs should still be sequential
+                val happyComplexSetID = happyComplexORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.setIDOBX
+                assertThat(happyComplexSetID.toString()).isEqualTo("1")
+
+                // the OBX segment with the test result has an attached NTE. That should be moved along with the OBX
+                val happyComplexNTE = happyComplexORUR01?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.nte
+                assertThat(happyComplexNTE).isNotNull()
+            }
+        }
+    }
+
+    @Test
     fun `test getSchoolId`() {
         // Get a bunch of k12 rows
         val testCSV = File("./src/test/unit_test_files/pdi-covid-19-wa-k12.csv").inputStream()
@@ -883,5 +964,20 @@ NTE|1|L|This is a final comment|RE"""
         val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
 
         assertThat(nte22).isNull()
+    }
+
+    /**
+     * Given a string message, parse it and turn it into a message that can be interacted with
+     * @param rawMessage - the raw string message to parse
+     */
+    private fun arrangeTest(rawMessage: String): Message {
+        // arrange
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(rawMessage, "\r")
+        return parser.parse(cleanedMessage)
     }
 }

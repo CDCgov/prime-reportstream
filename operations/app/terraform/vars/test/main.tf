@@ -95,6 +95,8 @@ module "database" {
   application_key_vault_id = module.key_vault.application_key_vault_id
   dns_vnet                 = local.network.dns_vnet
   dns_zones                = module.network.dns_zones
+  flex_sku_name            = local.database.flex_sku_name
+  flex_instances           = local.database.flex_instances
 }
 
 module "storage" {
