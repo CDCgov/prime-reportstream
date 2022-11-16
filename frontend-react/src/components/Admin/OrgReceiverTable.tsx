@@ -45,7 +45,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
     const modalId = "checkSettingsModalId";
     const [clickedReceiver, setClickedReceiver] = useState("");
 
-    // the
+    // the "check" button in the list is clicked to display the modal
     const clickShowDialog = useCallback(
         (checkProps: CheckSettingParams) => {
             // clear sent back data
@@ -56,6 +56,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
         [modalRef, setClickedReceiver]
     );
 
+    // The "Start check" button is clicked in the modal to start the API call to do the check
     const clickDoCheckCmd = useCallback(async () => {
         try {
             const result = await doCheck({
