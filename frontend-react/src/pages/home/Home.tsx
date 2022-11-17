@@ -1,5 +1,4 @@
 import content from "../../content/content.json";
-import { usePageHitInsight } from "../../hooks/insights/UsePageHitInsight";
 
 import Hero from "./Hero";
 import Section from "./Sections/Section";
@@ -10,7 +9,6 @@ import Feature from "./Features/Feature";
    to be taken to content.json. There you may make changes within each object held in the section and freeSecure arrays. No
    content is hard-coded in this file. */
 export const Home = () => {
-    usePageHitInsight("Home");
     return (
         <>
             <Hero />
