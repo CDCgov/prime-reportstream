@@ -46,7 +46,7 @@ resource "azurerm_linux_function_app_slot" "candidate" {
     http2_enabled             = true
     always_on                 = true
     #use_32_bit_worker_process = false
-    linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
+    #linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
 
     cors {
       allowed_origins = [
