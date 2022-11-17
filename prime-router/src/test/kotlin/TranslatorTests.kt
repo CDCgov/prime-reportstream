@@ -132,11 +132,11 @@ class TranslatorTests {
         val table1 = Report(
             mySchema,
             listOf(
-                listOf("0", "20221103202920", "94531-1", "260385009", "Antigen"), // Negative Antigen
+                listOf("0", "20221103202920", "94531-1", "260385009", "antigen"), // Negative Antigen
                 listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"), // Positive Antigen
                 listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"), // Not Detected Antigen
                 listOf("3", "20221103202923", "94531-1", "10828004", "Serology"), // Positive but NOT Antigen
-                listOf("4", "20221103202924", "94531-2", "895231008", "Antigen"), // Not detected in pooled specimen
+                listOf("4", "20221103202924", "94531-2", "895231008", "antigen"), // Not detected in pooled specimen
                 listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"), // Detected (Positive) Antigen
                 listOf("6", "20221103202926", "94531-1", "260385009", "Serology"), // Negative but NOT Antigen
             ),
