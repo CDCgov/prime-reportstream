@@ -277,6 +277,7 @@ class FHIRRouter(
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]
      * @return Boolean indicating if the bundle passes the filter or not
+     *          Result will be negated if [reverseFilter] is true
      */
     internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
@@ -286,7 +287,7 @@ class FHIRRouter(
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
-        val result: Boolean = if (filter.isNullOrEmpty()) {
+        val result = if (filter.isNullOrEmpty()) {
             defaultResponse
         } else {
             filter.all {

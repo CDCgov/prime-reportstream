@@ -87,7 +87,8 @@ open class Receiver(
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
         qualityFilter: ReportStreamFilter = emptyList(),
         routingFilter: ReportStreamFilter = emptyList(),
-        processingModeFilter: ReportStreamFilter = emptyList()
+        processingModeFilter: ReportStreamFilter = emptyList(),
+        reverseTheQualityFilter: Boolean = false
     ) : this(
         name,
         organizationName,
@@ -100,7 +101,8 @@ open class Receiver(
         processingModeFilter = processingModeFilter,
         timing = timing,
         timeZone = timeZone,
-        dateTimeFormat = dateTimeFormat
+        dateTimeFormat = dateTimeFormat,
+        reverseTheQualityFilter = reverseTheQualityFilter
     )
 
     /** A copy constructor for the receiver */
