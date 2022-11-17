@@ -17,6 +17,8 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -42,7 +44,9 @@ class WorkflowEngineTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
     )
 
@@ -58,6 +62,9 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
+
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -67,9 +74,15 @@ class WorkflowEngineTests {
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
+        val bodyBytes = "".toByteArray()
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
 
-        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(report = eq(report1), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
@@ -84,13 +97,16 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackCreatedReport(any(), any(), any(), any())
-            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
+            blobMock.uploadReport(any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
 
     @Test
     fun `test dispatchReport - empty`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -100,9 +116,14 @@ class WorkflowEngineTests {
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
-
-        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any(), any(), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(report = eq(report1), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any()) }.returns(Unit)
 
@@ -117,13 +138,16 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any())
-            blobMock.generateBodyAndUploadReport(report = any(), any(), any(), any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
+            blobMock.uploadReport(any(), any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
 
     @Test
     fun `test dispatchReport with Error`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         mockkObject(BlobAccess.Companion)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
@@ -135,9 +159,14 @@ class WorkflowEngineTests {
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
-
-        every { blobMock.generateBodyAndUploadReport(report = eq(report1), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(report = eq(report1), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
@@ -154,7 +183,8 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
+            blobMock.uploadReport(any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())
 // todo           blobMock.deleteBlob(blobUrl = any())
@@ -201,8 +231,11 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
-            one, listOf(listOf("1", "2"), listOf("3", "4")),
-            source = TestSource, destination = oneOrganization.receivers[0], metadata = metadata
+            one,
+            listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource,
+            destination = oneOrganization.receivers[0],
+            metadata = metadata
         )
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
