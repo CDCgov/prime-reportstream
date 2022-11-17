@@ -81,7 +81,7 @@ class DeliveryFunctionTests : Logging {
         val reportId: String,
         val topic: String,
         val reportItemCount: Int,
-        val fileName: String,
+        val fileName: String
     )
 
     private val testData = listOf(
@@ -96,7 +96,7 @@ class DeliveryFunctionTests : Logging {
             receivingOrgSvc = "elr-secondary",
             bodyUrl = null,
             schemaName = "covid-19",
-            bodyFormat = "HL7_BATCH",
+            bodyFormat = "HL7_BATCH"
         ),
         DeliveryHistory(
             actionId = 284,
@@ -149,7 +149,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
+                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7"
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -159,8 +159,8 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
-                        ),
+                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv"
+                        )
                     )
                 ),
                 "simple success"
@@ -175,24 +175,24 @@ class DeliveryFunctionTests : Logging {
             ),
             DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "-1"),
+                mapOf("pageSize" to "-1"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize"
+                "bad pageSize"
             ),
             DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
-                mapOf("pagesize" to "not a num"),
+                mapOf("pageSize" to "not a num"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
-                "bad pagesize, garbage"
+                "bad pageSize, garbage"
             ),
             DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
                     "sort" to "ASC"
                 ),
@@ -204,7 +204,7 @@ class DeliveryFunctionTests : Logging {
             DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"),
                 mapOf(
-                    "pagesize" to "10",
+                    "pageSize" to "10",
                     "cursor" to "2021-11-30T16:36:54.307109Z",
                     "endCursor" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
@@ -231,7 +231,7 @@ class DeliveryFunctionTests : Logging {
             organizationName,
             "elr",
             CustomerStatus.TESTING,
-            "schema1",
+            "schema1"
         )
         settings.receiverStore[receiver.fullName] = receiver
 
@@ -244,7 +244,7 @@ class DeliveryFunctionTests : Logging {
             val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
             val response = deliveryFunction.getDeliveries(
                 httpRequestMessage,
-                "$organizationName.elr-secondary",
+                "$organizationName.elr-secondary"
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
@@ -272,21 +272,21 @@ class DeliveryFunctionTests : Logging {
                 any(),
                 any(),
                 any(),
-                any(),
+                any()
             )
         } returns testData
         every {
             mockDatabaseAccess.fetchAction<DeliveryHistory>(
                 any(),
                 any(),
-                any(),
+                any()
             )
         } returns testData.first()
 
         every {
             mockDatabaseAccess.fetchRelatedActions<DeliveryHistory>(
                 any(),
-                any(),
+                any()
             )
         } returns testData
 
@@ -295,7 +295,7 @@ class DeliveryFunctionTests : Logging {
 
     private fun setupDeliveryFunctionForTesting(
         oktaClaimsOrganizationName: String,
-        facade: DeliveryFacade,
+        facade: DeliveryFacade
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
@@ -322,7 +322,7 @@ class DeliveryFunctionTests : Logging {
             organizationName,
             "elr",
             CustomerStatus.TESTING,
-            "schema1",
+            "schema1"
         )
         settings.receiverStore[receiver.fullName] = receiver
 
@@ -331,7 +331,7 @@ class DeliveryFunctionTests : Logging {
             otherOrganizationName,
             "elr",
             CustomerStatus.TESTING,
-            "schema1",
+            "schema1"
         )
         settings.receiverStore[receiver2.fullName] = receiver2
 
@@ -354,7 +354,7 @@ class DeliveryFunctionTests : Logging {
     private fun setupHttpRequestMessageForTesting(): MockHttpRequestMessage {
         val httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.httpHeaders += mapOf(
-            "authorization" to "Bearer 111.222.333",
+            "authorization" to "Bearer 111.222.333"
         )
         return httpRequestMessage
     }
@@ -424,7 +424,7 @@ class DeliveryFunctionTests : Logging {
             "elr-secondary",
             null,
             "primedatainput/pdi-covid-19",
-            "CSV",
+            "CSV"
         )
         // Happy path with a good UUID
         val action = Action()
@@ -515,7 +515,7 @@ class DeliveryFunctionTests : Logging {
             mockDeliveryFacade.findDeliveryFacilities(
                 any(),
                 any(),
-                any(),
+                any()
             )
         } returns returnBody
 
