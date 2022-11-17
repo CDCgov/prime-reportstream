@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { AccessToken } from "@okta/okta-auth-js";
 
 import { useAdminSafeOrgName } from "../UseMemoizedConfig";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
@@ -7,50 +8,81 @@ import {
     RSDelivery,
     RSFacility,
 } from "../../../config/endpoints/deliveries";
-import { Filters } from "../../filters/UseFilterManager";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../filters/UseFilterManager";
+import { useSessionContext } from "../../../contexts/SessionContext";
+import { useCreateFetch } from "../../UseCreateFetch";
+import { MembershipSettings } from "../../UseOktaMemberships";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
 
+export enum DeliveriesDataAttr {
+    REPORT_ID = "reportId",
+    BATCH_READY = "batchReadyAt",
+    EXPIRES = "expires",
+    ITEM_COUNT = "reportItemCount",
+    FILE_TYPE = "fileType",
+}
+
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: DeliveriesDataAttr.BATCH_READY,
+        locally: true,
+    },
+    pageDefaults: {
+        size: 10,
+    },
+};
+
 /** Hook consumes the ReportsApi "list" endpoint and delivers the response
  *
- * @param org {string} the `parsedName` of user's active membership
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
- * @param filters {Filters} the filters set by a user in the UI
  * */
-const useOrgDeliveries = (
-    org?: string,
-    service?: string,
-    filters?: Filters
-) => {
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery[]>();
+const useOrgDeliveries = (service?: string) => {
+    const { oktaToken, activeMembership } = useSessionContext();
+    // Using this hook rather than the provided one through AuthFetchProvider because of a hard-to-isolate
+    // infinite refresh bug. The authorizedFetch function would trigger endless updates and thus re-fetch
+    // endlessly.
+    const generateFetcher = useCreateFetch(
+        oktaToken as AccessToken,
+        activeMembership as MembershipSettings
+    );
 
-    const adminSafeOrgName = useAdminSafeOrgName(org); // "PrimeAdmins" -> "ignore"
+    const adminSafeOrgName = useAdminSafeOrgName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
         [adminSafeOrgName, service]
-    ); // ex: xx-phd.elr
-    const memoizedDataFetch = useCallback(
-        () =>
-            authorizedFetch(getOrgDeliveries, {
+    );
+
+    const filterManager = useFilterManager(filterManagerDefaults);
+    const sortOrder = filterManager.sortSettings.order;
+    const rangeTo = filterManager.rangeSettings.to;
+    const rangeFrom = filterManager.rangeSettings.from;
+
+    const fetchResults = useCallback(
+        (currentCursor: string, numResults: number) => {
+            const fetcher = generateFetcher();
+            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
+            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
+
+            return fetcher(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
                 params: {
-                    sortDir: filters?.order,
-                    since: filters?.from,
-                    until: filters?.to,
+                    sortDir: sortOrder,
+                    since: endCursor,
+                    until: cursor,
+                    pageSize: numResults,
                 },
-            }),
-        [authorizedFetch, orgAndService, filters]
+            }) as unknown as Promise<RSDelivery[]>;
+        },
+        [orgAndService, sortOrder, generateFetcher, rangeFrom, rangeTo]
     );
-    const { data } = rsUseQuery(
-        // sets key with orgAndService so multiple queries can be cached when swapping services
-        [getOrgDeliveries.queryKey, { orgAndService, filters }],
-        memoizedDataFetch,
-        { enabled: !!service }
-    );
-    return { serviceReportsList: data };
+
+    return { fetchResults, filterManager };
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
