@@ -8,9 +8,8 @@ import App from "./App";
 import "./content/generated/global.out.css";
 import { ai } from "./TelemetryService";
 
-// Set up App Insights connection
-// SimpleReport does this both in index.tsx and as an effect in a HOC...
-// I assume only one is needed
+// Initialize the App Insights connection and React app plugin from Microsoft
+// The plugin is provided in the AppInsightsProvider in AppWrapper.tsx
 ai.initialize();
 
 ReactDOM.render(
