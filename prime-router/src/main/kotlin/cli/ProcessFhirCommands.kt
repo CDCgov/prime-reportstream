@@ -6,6 +6,7 @@ import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
+import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
@@ -192,6 +193,14 @@ class FhirPathCommand : CliktCommand(
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
+     * Constants for the FHIR Path context.
+     */
+    private val constants by option(
+        "-c", "--constants",
+        help = "a constant in the form of key=value to be used in FHIR Path. Option can be repeated."
+    ).associate()
+
+    /**
      * A parser to print out the contents of a resource.
      */
     private val fhirResourceParser = FhirContext.forR4().newJsonParser()
@@ -224,9 +233,15 @@ class FhirPathCommand : CliktCommand(
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val bundle = FhirTranscoder.decode(contents)
         focusResource = bundle
-        fhirPathContext = CustomContext(
-            bundle, bundle, mutableMapOf("rsext" to "'https://reportstream.cdc.gov/fhir/StructureDefinition/'")
-        )
+        val constantList = mutableMapOf("rsext" to "'https://reportstream.cdc.gov/fhir/StructureDefinition/'")
+        constants.entries.forEach {
+            constantList[it.key] = it.value
+        }
+        echo("Using constants:")
+        constantList.forEach { (name, value) ->
+            echo("\t$name=$value")
+        }
+        fhirPathContext = CustomContext(bundle, bundle, constantList)
         printHelp()
 
         // Loop until you press CTRL-C or ENTER at the prompt.
