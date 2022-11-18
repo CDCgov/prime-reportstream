@@ -356,6 +356,7 @@ class ActionHistory(
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         reportsReceived[reportFile.reportId] = reportFile
 
         // check that we're dealing with an external file
