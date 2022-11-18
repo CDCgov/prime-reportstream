@@ -33,14 +33,15 @@ runs:
         SERVER_COUNT=$(az postgres server list -g prime-data-hub-${{ inputs.env-name }} | jq '. | length')
 
         if [[ ${SERVER_COUNT} -gt 0 ]]; then
-          DB_COUNT=$(az postgres db list -g prime-data-hub-${{ inputs.env-name }} --server-name pdh${{ inputs.env-name }}-pgsql | jq '. | length')
+          DB_BYTES=$(az monitor metrics list --resource "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-${{ inputs.env-name }}/providers/Microsoft.DBforPostgresql/servers/pdh${{ inputs.env-name }}-pgsql" \
+          --aggregation Maximum --metric storage_used --interval PT15M --query 'value[0].timeseries[0].data[*].maximum' | jq '. | max')
           LAST_MODIFIED=$(az storage directory show --name ${{ inputs.backup-from }}_prime_data_hub --share-name dbbackups --account-name pdh${{ inputs.env-name }}terraform \
           --query 'properties.lastModified' --only-show-errors -o tsv)
           CURRENT_DATE=$(date +%s)
           LAST_MODIFIED=$(date +%s -d $LAST_MODIFIED)
           BACKUP_AGE=$(( ( $CURRENT_DATE - $LAST_MODIFIED ) / 60 ))
 
-          if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_COUNT -gt 3 ]]; then
+          if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_BYTES -gt 5368709120 ]]; then
             echo "IGNORE_DB=true" >> $GITHUB_ENV;
           else
             echo "IGNORE_DB=false" >> $GITHUB_ENV;
