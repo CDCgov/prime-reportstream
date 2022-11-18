@@ -92,7 +92,78 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
+    private val filterTestYamlFilterOutNegAntigenTestType = """
+        ---
+          - name: phd
+            description: Piled Higher and Deeper 
+            jurisdiction: STATE
+            filters:
+            - topic: test
+              qualityFilter: [ "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)" ]
+            stateCode: IG
+            receivers: 
+            - name: elr
+              organizationName: phd
+              topic: test
+              customerStatus: active
+              translation: 
+                type: CUSTOM
+                schemaName: two
+                format: CSV
+    """.trimIndent()
+
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
+
+    @Test
+    fun `test filterOutNegativeAntigenTestUsingQualityFilter`() {
+        val mySchema = Schema(
+            name = "two", topic = "test", trackingElement = "id",
+            elements = listOf(
+                Element("id"), Element("order_test_date"),
+                Element("ordered_test_code"), Element("test_result"), Element("test_type")
+            )
+        )
+        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(filterTestYamlFilterOutNegAntigenTestType.toByteArray()))
+        }
+        val translator = Translator(metadata, settings)
+        // Table has 4 rows and 3 columns.
+        val table1 = Report(
+            mySchema,
+            listOf(
+                listOf("0", "20221103202920", "94531-1", "260385009", "antigen"), // Negative Antigen
+                listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"), // Positive Antigen
+                listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"), // Not Detected Antigen
+                listOf("3", "20221103202923", "94531-1", "10828004", "Serology"), // Positive but NOT Antigen
+                listOf("4", "20221103202924", "94531-2", "895231008", "antigen"), // Not detected in pooled specimen
+                listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"), // Detected (Positive) Antigen
+                listOf("6", "20221103202926", "94531-1", "260385009", "Serology"), // Negative but NOT Antigen
+            ),
+            TestSource,
+            metadata = metadata,
+            itemCountBeforeQualFilter = 4,
+        )
+        val rcvr = settings.findReceiver("phd.elr")
+        assertThat(rcvr).isNotNull()
+        val org = settings.findOrganization("phd")
+        assertThat(org).isNotNull()
+
+        // Quality filter: Override the default; org filter exists.  No receiver filter.
+        translator.filterByOneFilterType(
+            table1, rcvr!!, org!!, ReportStreamFilterType.QUALITY_FILTER, mySchema.trackingElement, true
+        ).run {
+            assertThat(this.itemCount).isEqualTo(4)
+            assertThat(this.getRow(0)[0]).isEqualTo("1")
+            assertThat(this.getRow(1)[0]).isEqualTo("3")
+            assertThat(this.getRow(2)[0]).isEqualTo("5")
+            assertThat(this.getRow(3)[0]).isEqualTo("6")
+            assertThat(this.filteringResults.size).isEqualTo(3) // two rows eliminated, but one filter message.
+            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
+            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("2")
+            assertThat(this.filteringResults[2].filteredTrackingElement).isEqualTo("4")
+        }
+    }
 
     @Test
     fun `test filterByOneFilterType`() {
