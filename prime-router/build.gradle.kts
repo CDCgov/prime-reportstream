@@ -33,7 +33,7 @@ plugins {
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.microsoft.azure.azurefunctions") version "1.11.0"
+    id("com.microsoft.azure.azurefunctions") version "1.11.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
@@ -738,7 +738,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
@@ -785,7 +785,7 @@ dependencies {
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.3")
-    implementation("org.apache.poi:poi-ooxml:5.2.2")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
