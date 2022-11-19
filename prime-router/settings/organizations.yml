@@ -848,7 +848,7 @@
         type: "HL7"
       jurisdictionalFilter:
         - "orEquals(ordering_facility_state, CO, patient_state, CO)"
-      qualityFilter: [ ]
+      qualityFilter: [ "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)" ]
       routingFilter: [ ]
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
