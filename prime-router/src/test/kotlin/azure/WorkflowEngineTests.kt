@@ -8,6 +8,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -280,6 +281,44 @@ class WorkflowEngineTests {
             accessSpy.fetchAndLockTask(reportId = any(), any())
             accessSpy.fetchItemLineagesForReport(reportId = any(), any(), any())
             accessSpy.fetchReportFile(reportId = any(), any(), any())
+        }
+        confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
+    @Test
+    fun `test handleProcessEvent queue vs task table mismatch error`() {
+        // This only tests an error case in handleProcessEvent, not the 'happy path'.
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val report1 = Report(
+            one,
+            listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource,
+            destination = oneOrganization.receivers[0],
+            metadata = metadata
+        )
+        val bodyFormat = "CSV"
+        val bodyUrl = "http://anyblob.com"
+        // The event in the queue is a Process event.
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report1.id, Options.None, emptyMap(), emptyList())
+        // Mismatch:  The event in the TASK table is a NONE event.
+        val mismatchedNotProcessEvent = ReportEvent(Event.EventAction.NONE, report1.id, false)
+        val mismatchedNotProcessTask = DatabaseAccess.createTask(
+            report1, bodyFormat, bodyUrl, mismatchedNotProcessEvent
+        )
+        val actionHistoryMock = mockk<ActionHistory>()
+        mockkObject(ActionHistory.Companion)
+        val engine = makeEngine(metadata, settings)
+
+        every { accessSpy.fetchAndLockTask(reportId = eq(report1.id), any()) }.returns(mismatchedNotProcessTask)
+        // Run the test:
+        engine.handleProcessEvent(processEvent, actionHistoryMock)
+
+        // The code should just run these two methods, then log an error and return.
+        verify(exactly = 1) {
+            accessSpy.transact(block = any())
+            accessSpy.fetchAndLockTask(reportId = any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
