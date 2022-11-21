@@ -741,7 +741,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
