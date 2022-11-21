@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
 
-import { OrgReceiverTable } from "./OrgReceiverTable";
+import { OrgSenderTable } from "./OrgSenderTable";
 
 const mockData = [
     {
@@ -166,7 +166,7 @@ describe("OrgReceiverTable", () => {
     afterAll(() => settingsServer.close());
     beforeEach(() => {
         renderWithFullAppContext(
-            <OrgReceiverTable orgname={"test"} key={"test"} />
+            <OrgSenderTable orgname={"test"} key={"test"} />
         );
     });
 
