@@ -7,7 +7,10 @@ import {
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
 import { StaticAlert } from "../StaticAlert";
-import { ResponseError } from "../../config/endpoints/waters";
+import {
+    ResponseError,
+    ErrorCodeTranslation,
+} from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 
 type ExtendedSuccessMetadata = {
@@ -99,14 +102,14 @@ export const FileSuccessDisplay = ({
  * @param errorMessage - the error message to potentially reformat
  * @returns - the original or transformed error message
  */
-const truncateErrorMessage = (errorMessage: string | undefined): string => {
-    if (!errorMessage) return "";
-
-    if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
-        return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
-
-    return errorMessage;
-};
+// const truncateErrorMessage = (errorMessage: string | undefined): string => {
+//     if (!errorMessage) return "";
+//
+//     if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
+//         return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
+//
+//     return errorMessage;
+// };
 
 export enum RequestLevel {
     WARNING = "Warnings",
@@ -236,10 +239,16 @@ interface ErrorRowProps {
 }
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { message, field, trackingIds } = error;
+    const { message, field, errorCode, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{truncateErrorMessage(message)}</td>
+            <td>
+                {errorCode
+                    ? ErrorCodeTranslation[
+                          errorCode as keyof typeof ErrorCodeTranslation
+                      ]
+                    : message}
+            </td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (

@@ -28,6 +28,7 @@ const fakeError: ResponseError = {
     message: "error message",
     trackingIds: ["track me"],
     scope: "some scope",
+    errorCode: "",
     details: "this happened",
 };
 
@@ -37,6 +38,7 @@ const fakeWarning: ResponseError = {
     message: "warning message",
     trackingIds: ["track me"],
     scope: "some warning scope",
+    errorCode: "",
     details: "this happened - a warning",
 };
 

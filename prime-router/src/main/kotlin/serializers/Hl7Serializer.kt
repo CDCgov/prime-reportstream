@@ -74,6 +74,12 @@ class Hl7Serializer(
         val warnings: MutableList<ActionLogDetail>
     )
 
+    enum class ErrorType(val type: String) {
+        INVALID_HL7_MESSAGE_VALIDATION("INVALID_HL7_MESSAGE_VALIDATION"),
+        INVALID_HL7_MESSAGE_FORMAT("INVALID_HL7_MESSAGE_FORMAT"),
+        INVALID_HL7_PHONE_NUMBER("INVALID_HL7_PHONE_NUMBER")
+    }
+
     private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
     private val modelClassFactory: ModelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
@@ -279,11 +285,17 @@ class Hl7Serializer(
                     errors.add(
                         InvalidHL7Message(
                             "Invalid HL7 message format. Please " +
-                                "refer to the HL7 specification and resubmit."
+                                "refer to the HL7 specification and resubmit.",
+                            ErrorType.INVALID_HL7_MESSAGE_FORMAT.type
                         )
                     )
                 else ->
-                    errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
+                    errors.add(
+                        InvalidHL7Message(
+                            "Error parsing HL7 message: ${e.localizedMessage}",
+                            ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                        )
+                    )
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -384,7 +396,7 @@ class Hl7Serializer(
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
-            errors.add(InvalidHL7Message(msg))
+            errors.add(InvalidHL7Message(msg, ErrorType.INVALID_HL7_PHONE_NUMBER.type))
         }
 
         // convert sets to lists

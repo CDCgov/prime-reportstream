@@ -93,6 +93,7 @@ describe("FileErrorDisplay", () => {
                 field: "first field",
                 trackingIds: ["first_id"],
                 scope: "unclear",
+                errorCode: "Invalid-HL7-MessageType",
                 details: "none",
             },
             {
@@ -101,6 +102,7 @@ describe("FileErrorDisplay", () => {
                 field: "second field",
                 trackingIds: ["second_id"],
                 scope: "unclear",
+                errorCode: "Invalid-HL7-PhoneNumber",
                 details: "none",
             },
         ];
