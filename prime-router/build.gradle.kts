@@ -708,7 +708,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.0") {
+    implementation("com.azure:azure-storage-queue:12.15.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
