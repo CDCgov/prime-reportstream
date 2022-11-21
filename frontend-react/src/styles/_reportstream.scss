@@ -399,16 +399,40 @@ ul.rb li .timestamp {
 
 .rs-resend-modal {
     max-width: 80vw;
+    max-height: 50em;
     height: 90vh;
     overflow-y: auto;
 
     .usa-modal__main {
         max-width: revert;
+        padding: 2.25em 0.5em 1.25em 0.5em;
     }
-
+    .usa-modal__content {
+        padding: 2.5em;
+    }
+    .usa-modal__heading {
+        font-weight: bold;
+        font-size: larger;
+        color: color('base-darker')
+    }
+    .usa-modal__close {
+        margin: 0;
+        position: absolute;
+        top: 0;
+    }
     .rs-resend-textarea {
         height: 14em;
         overflow-y: scroll;
+    }
+    .rs-resend-textarea-2x {
+        height: 28em;
+        overflow-y: scroll;
+    }
+    .rs-resend-textarea-boarder {
+        border: color('base-dark') 1px solid;
+    }
+    .rs-resend-label {
+        font-weight: bolder;
     }
 }
 
@@ -416,7 +440,6 @@ ul.rb li .timestamp {
     font-size: large;
     cursor: default;
 }
-
 
 // combined from parts from /node_modules/@fortawesome/fontawesome-svg-core/styles.css
 .rs-fa-right-left-icon {
@@ -435,6 +458,7 @@ ul.rb li .timestamp {
   .usa-file-input {
     max-width: 100%;
   }
+
   label {
     max-width: 100%;
   }
