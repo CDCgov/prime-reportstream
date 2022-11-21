@@ -3,6 +3,7 @@
 # Make sure we are in this script's location; this gives us certainty of what is where
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
+
 REPO_ROOT="$(pwd)/.."
 dir=${REPO_ROOT}/.git/hooks/pre-commit
 
