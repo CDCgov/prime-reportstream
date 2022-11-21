@@ -485,6 +485,7 @@ class ActionHistory(
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
             reportFile.receivingOrgSvc = report.destination.name
