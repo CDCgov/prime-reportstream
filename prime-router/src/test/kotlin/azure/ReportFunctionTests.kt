@@ -16,6 +16,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -35,12 +36,17 @@ class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
+    val metadata = UnitTestUtils.simpleMetadata // mockkClass(Metadata::class)
+    val settings = mockkClass(SettingsProvider::class)
+    val serializer = spyk(Hl7Serializer(metadata, settings))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
 
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "elr",
@@ -50,7 +56,7 @@ class ReportFunctionTests {
                 "one",
                 timing = timing1
             )
-        ),
+        )
     )
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
@@ -155,7 +161,7 @@ class ReportFunctionTests {
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-                .blobAccess(blobMock).queueAccess(queueMock).build()
+                .blobAccess(blobMock).queueAccess(queueMock).hl7Serializer(serializer).build()
         )
     }
 
@@ -197,6 +203,7 @@ class ReportFunctionTests {
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(reportFunc, req)
     }
+
     /** Do all the setup required to be able to run any process request tests**/
     private fun setupForProcessRequestTests(actionHistory: ActionHistory):
         Triple<ReportFunction, MockHttpRequestMessage, Sender> {
@@ -218,7 +225,7 @@ class ReportFunctionTests {
         val req = MockHttpRequestMessage(csvString_2Records)
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
-            "content-length" to "4",
+            "content-length" to "4"
         )
         every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
             csvString_2Records,
@@ -243,11 +250,15 @@ class ReportFunctionTests {
 
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
         return Triple(reportFunc, req, sender)
     }
+
     /** basic /submitToWaters endpoint tests **/
 
     @Test
@@ -503,7 +514,10 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns true
@@ -521,12 +535,13 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction when basic hl7 message is passed`() {
         // setup steps
-        val metadata = UnitTestUtils.simpleMetadata
+
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
+
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -553,8 +568,12 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
@@ -571,7 +590,7 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction when basic hl7 message with 5 separators is passed`() {
         // setup steps
-        val metadata = UnitTestUtils.simpleMetadata
+
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -603,8 +622,12 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 

@@ -5,35 +5,43 @@ import { RSMessageDetail } from "../../config/endpoints/messageTracker";
 
 import { MessageDetails } from "./MessageDetails";
 
-const TEST_ID = "12-234567";
+const TEST_ID = 1;
 const MOCK_MESSAGE_WARNINGS = [
     {
-        class: "gov.cdc.prime.router.InvalidCodeMessage",
-        fieldMapping: "Specimen_type_code (specimen_type)",
-        scope: "item",
-        message:
-            "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
+        detail: {
+            class: "gov.cdc.prime.router.InvalidCodeMessage",
+            fieldMapping: "Specimen_type_code (specimen_type)",
+            scope: "item",
+            message:
+                "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
+        },
     },
     {
-        class: "gov.cdc.prime.router.InvalidEquipmentMessage",
-        fieldMapping: "Equipment_Model_ID (equipment_model_id)",
-        scope: "item",
-        message:
-            "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
+        detail: {
+            class: "gov.cdc.prime.router.InvalidEquipmentMessage",
+            fieldMapping: "Equipment_Model_ID (equipment_model_id)",
+            scope: "item",
+            message:
+                "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
+        },
     },
 ];
 const MOCK_MESSAGE_ERRORS = [
     {
-        class: "first field",
-        fieldMapping: "Missing type",
-        message: "Missing required HL7 message type",
-        scope: "error",
+        detail: {
+            class: "first field",
+            fieldMapping: "Missing type",
+            message: "Missing required HL7 message type",
+            scope: "error",
+        },
     },
     {
-        class: "second field",
-        fieldMapping: "Invalid content type",
-        message: "Expecting content type of 'application/hl7 -v2",
-        scope: "error",
+        detail: {
+            class: "second field",
+            fieldMapping: "Invalid content type",
+            message: "Expecting content type of 'application/hl7 -v2",
+            scope: "error",
+        },
     },
 ];
 const MOCK_RECEIVER_DATA = [
@@ -121,9 +129,21 @@ const MOCK_RECEIVER_DATA = [
         ],
     },
 ];
+const MOCK_EMPTY_MESSAGE_DETAIL = {
+    id: 0,
+    messageId: "",
+    sender: "",
+    submittedDate: "",
+    reportId: "",
+    fileName: "",
+    fileUrl: "",
+    warnings: [],
+    errors: [],
+    receiverData: [],
+};
 const MOCK_MESSAGE_DETAIL = {
-    id: 1,
-    messageId: TEST_ID,
+    id: TEST_ID,
+    messageId: "12-234567",
     sender: "somebody 1",
     submittedDate: "09/28/2022",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
@@ -140,14 +160,14 @@ jest.mock("react-router-dom", () => ({
         return jest.fn();
     },
     useParams: () => ({
-        messageId: TEST_ID,
+        id: TEST_ID,
     }),
 }));
 
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: {} as RSMessageDetail,
+            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as RSMessageDetail,
         });
         render(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);

@@ -39,7 +39,7 @@ export default class SubmissionsResource extends AuthResource {
 
     static listUrl(searchParams: SubmissionsResourceParams): string {
         return `
-        ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&endcursor=${searchParams.endCursor}&sort=${searchParams.sort}&showfailed=${searchParams.showFailed}`;
+        ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions?pageSize=${searchParams.pageSize}&cursor=${searchParams.cursor}&endcursor=${searchParams.endCursor}&sort=${searchParams.sort}&showfailed=${searchParams.showFailed}`;
     }
 
     isSuccessSubmitted(): boolean {
