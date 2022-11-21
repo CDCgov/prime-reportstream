@@ -11,7 +11,7 @@
 RC=1
 
 # Make sure we have some certainty of where we are
-REPO_ROOT="$(pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 git rev-parse --show-toplevel 1>/dev/null 2>&1
 
 if [[ $? != 0 ]]; then
