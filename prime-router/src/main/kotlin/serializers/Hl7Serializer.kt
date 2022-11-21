@@ -19,6 +19,7 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
+import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
@@ -75,6 +76,7 @@ class Hl7Serializer(
     )
 
     enum class ErrorType(val type: String) {
+        INVALID_HL7_MESSAGE_DATE_VALIDATION("INVALID_HL7_MESSAGE_DATE_VALIDATION"),
         INVALID_HL7_MESSAGE_VALIDATION("INVALID_HL7_MESSAGE_VALIDATION"),
         INVALID_HL7_MESSAGE_FORMAT("INVALID_HL7_MESSAGE_FORMAT"),
         INVALID_HL7_PHONE_NUMBER("INVALID_HL7_PHONE_NUMBER")
@@ -290,12 +292,21 @@ class Hl7Serializer(
                         )
                     )
                 else ->
-                    errors.add(
-                        InvalidHL7Message(
-                            "Error parsing HL7 message: ${e.localizedMessage}",
-                            ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                    if (e.location.toString() == "PID-29(0)") {
+                        errors.add(
+                            InvalidHL7Message(
+                                "Error parsing HL7 message: ${e.localizedMessage}",
+                                ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
+                            )
                         )
-                    )
+                    } else {
+                        errors.add(
+                            InvalidHL7Message(
+                                "Error parsing HL7 message: ${e.localizedMessage}",
+                                ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                            )
+                        )
+                    }
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -396,7 +407,12 @@ class Hl7Serializer(
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
-            errors.add(InvalidHL7Message(msg, ErrorType.INVALID_HL7_PHONE_NUMBER.type))
+
+            if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
+                errors.add(InvalidHL7Message(msg, ErrorType.INVALID_HL7_PHONE_NUMBER.type))
+            } else {
+                errors.add(InvalidHL7Message(msg))
+            }
         }
 
         // convert sets to lists

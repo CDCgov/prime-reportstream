@@ -39,7 +39,7 @@ export interface ResponseError {
     indices: number[] | undefined;
     message: string | undefined;
     scope: string | undefined;
-    errorCode: string | "";
+    errorCode: keyof typeof ErrorCodeTranslation;
     trackingIds: string[] | undefined;
     details: any | undefined;
     rowList?: string;
@@ -54,7 +54,9 @@ export enum WatersUrls {
 The error codes map to the error types specified in the serializer
  */
 export enum ErrorCodeTranslation {
-    INVALID_HL7_MESSAGE_VALIDATION = "Invalid entry for field. Field must be an HL7 timestamp in ISO or UTC format.",
+    INVALID_HL7_MESSAGE_VALIDATION = "Invalid entry for field.",
+    INVALID_HL7_MESSAGE_DATE_VALIDATION = "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
+    INVALID_HL7_MESSAGE_FORMAT = "",
     INVALID_HL7_PHONE_NUMBER = "Invalid phone number provided.",
 }
 

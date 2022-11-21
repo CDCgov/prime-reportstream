@@ -6,6 +6,7 @@ import {
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { ResponseError } from "../../config/endpoints/waters";
 
 import {
     RequestLevel,
@@ -86,26 +87,25 @@ describe("FileErrorDisplay", () => {
 
     test("renders table when data is given", async () => {
         // implicitly testing message truncation functionality here as well
-        const errors = [
-            {
-                message: "Exception: first error\ntruncated",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                errorCode: "Invalid-HL7-MessageType",
-                details: "none",
-            },
-            {
-                message: "Exception: second error\ntruncated",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                errorCode: "Invalid-HL7-PhoneNumber",
-                details: "none",
-            },
-        ];
+        const fakeError1: ResponseError = {
+            message: "Exception: first error\ntruncated",
+            indices: [1],
+            field: "first field",
+            trackingIds: ["first_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_MESSAGE_DATE_VALIDATION",
+            details: "none",
+        };
+        const fakeError2: ResponseError = {
+            message: "Exception: second error\ntruncated",
+            indices: [2],
+            field: "second field",
+            trackingIds: ["second_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_MESSAGE_VALIDATION",
+            details: "none",
+        };
+        const errors = [fakeError1, fakeError2];
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
@@ -124,7 +124,9 @@ describe("FileErrorDisplay", () => {
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
-        expect(firstCells[0]).toHaveTextContent("Exception: first error");
+        expect(firstCells[0]).toHaveTextContent(
+            "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format."
+        );
         expect(firstCells[1]).toHaveTextContent("first field");
         expect(firstCells[2]).toHaveTextContent("first_id");
     });

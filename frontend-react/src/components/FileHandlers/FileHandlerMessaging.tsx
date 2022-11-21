@@ -242,13 +242,7 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, field, errorCode, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>
-                {errorCode
-                    ? ErrorCodeTranslation[
-                          errorCode as keyof typeof ErrorCodeTranslation
-                      ]
-                    : message}
-            </td>
+            <td>{errorCode ? ErrorCodeTranslation[errorCode] : message}</td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
