@@ -50,10 +50,14 @@ const testContentMap: ContentMap = new Map()
     );
 // Props for a single array page
 const arrayPageProps: IACardGridProps = {
+    pageName: "title",
+    subtitle: "subtitle",
     directories: testDirectories, // <- ContentDirectory[]
 };
 // Props for a sectioned page
 const mapPageProps: IACardGridProps = {
+    pageName: "title",
+    subtitle: "subtitle",
     directories: testContentMap, // <- Map<string, ContentDirectory[]>
 };
 
