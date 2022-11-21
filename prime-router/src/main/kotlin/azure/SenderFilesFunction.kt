@@ -237,6 +237,7 @@ class SenderFilesFunction(
         return when (senderFormat) {
             Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
             Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
+            Sender.Format.FHIR -> reportBlob // FHIRUtilities.cut(reportBlob, itemIndices)
         }
     }
 
