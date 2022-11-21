@@ -708,10 +708,10 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.0") {
+    implementation("com.azure:azure-storage-queue:12.15.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.5.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -741,7 +741,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
