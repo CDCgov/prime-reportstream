@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -49,7 +50,7 @@ class FhirTranslatorTests {
             Receiver(
                 "full-elr-hl7",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
             )
@@ -63,14 +64,14 @@ class FhirTranslatorTests {
             Receiver(
                 "elr.secondary",
                 "co-phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "metadata/hl7_mapping/STLTs/CO/CO"
             ),
             Receiver(
                 "elr",
                 "co-phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "metadata/hl7_mapping/STLTs/CO/CO",
                 Report.Format.CSV,
@@ -98,7 +99,7 @@ class FhirTranslatorTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -142,7 +143,7 @@ class FhirTranslatorTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(colorado)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -185,7 +186,7 @@ class FhirTranslatorTests {
         val receiver = Receiver(
             "full-elr-hl7",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.TESTING,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
@@ -197,7 +198,7 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
@@ -224,7 +225,7 @@ class FhirTranslatorTests {
         val receiver = Receiver(
             "full-elr-hl7",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
@@ -235,7 +236,7 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
@@ -261,7 +262,7 @@ class FhirTranslatorTests {
         val receiver = Receiver(
             "full-elr-hl7",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName)
@@ -273,7 +274,7 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
@@ -300,7 +301,7 @@ class FhirTranslatorTests {
         val receiver = Receiver(
             "full-elr-hl7",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName)
@@ -312,7 +313,7 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         // dodo - make Testing sender fhir

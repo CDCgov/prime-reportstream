@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -48,7 +49,7 @@ class WorkflowEngineTests {
         "phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
@@ -66,7 +67,7 @@ class WorkflowEngineTests {
         mockkObject(ReportWriter)
         mockkObject(BaseEngine)
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -74,7 +75,7 @@ class WorkflowEngineTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
-        val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
+        val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, settings)
@@ -108,7 +109,7 @@ class WorkflowEngineTests {
     fun `test dispatchReport - empty`() {
         mockkObject(ReportWriter)
         mockkObject(BaseEngine)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -116,7 +117,7 @@ class WorkflowEngineTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
-        val receiver = Receiver("myRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
+        val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, settings)
@@ -151,7 +152,7 @@ class WorkflowEngineTests {
         mockkObject(BaseEngine)
         mockkObject(BlobAccess.Companion)
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -159,7 +160,7 @@ class WorkflowEngineTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
-        val receiver = Receiver("MyRcvr", "topic", "mytopic", CustomerStatus.INACTIVE, "mySchema")
+        val receiver = Receiver("MyRcvr", "topic", Topic.TEST, CustomerStatus.INACTIVE, "mySchema")
         val bodyBytes = "".toByteArray()
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, settings)
@@ -198,7 +199,7 @@ class WorkflowEngineTests {
     fun `test receiveReport`() {
         mockkObject(BlobAccess.Companion)
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -228,7 +229,7 @@ class WorkflowEngineTests {
 
     @Test
     fun `test handleReportEvent`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
@@ -288,7 +289,7 @@ class WorkflowEngineTests {
     @Test
     fun `test handleProcessEvent queue vs task table mismatch error`() {
         // This only tests an error case in handleProcessEvent, not the 'happy path'.
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(
