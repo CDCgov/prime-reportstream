@@ -1,10 +1,24 @@
 import { useResource } from "rest-hooks";
 import { Link, NavLink } from "react-router-dom";
-import { ButtonGroup, Table } from "@trussworks/react-uswds";
-import React from "react";
+import {
+    Button,
+    ButtonGroup,
+    Modal,
+    ModalFooter,
+    ModalHeading,
+    ModalRef,
+    Table,
+} from "@trussworks/react-uswds";
+import React, { useCallback, useRef, useState } from "react";
+import DOMPurify from "dompurify";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import Spinner from "../Spinner";
+import {
+    CheckSettingParams,
+    CheckSettingResult,
+    useCheckSettingsCmd,
+} from "../../network/api/CheckSettingCmd";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -12,11 +26,52 @@ interface OrgSettingsTableProps {
     orgname: string;
 }
 
+const DEFAULT_DATA: CheckSettingResult = {
+    result: "",
+    message: "",
+};
+
 export function OrgReceiverTable(props: OrgSettingsTableProps) {
+    const { orgname: orgName } = props;
     const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(
         OrgReceiverSettingsResource.list(),
-        { orgname: props.orgname }
+        props
     );
+
+    const { doCheck, isLoading } = useCheckSettingsCmd();
+    const [checkResultData, setCheckResultData] =
+        useState<CheckSettingResult>(DEFAULT_DATA);
+    const modalRef = useRef<ModalRef>(null);
+    const modalId = "checkSettingsModalId";
+    const [clickedReceiver, setClickedReceiver] = useState("");
+
+    // the "check" button in the list is clicked to display the modal
+    const clickShowDialog = useCallback(
+        (checkProps: CheckSettingParams) => {
+            // clear sent back data
+            setCheckResultData(DEFAULT_DATA);
+            modalRef?.current?.toggleModal(undefined, true);
+            setClickedReceiver(checkProps.receiverName);
+        },
+        [modalRef, setClickedReceiver]
+    );
+
+    // The "Start check" button is clicked in the modal to start the API call to do the check
+    const clickDoCheckCmd = useCallback(async () => {
+        try {
+            const result = await doCheck({
+                orgName,
+                receiverName: clickedReceiver,
+            });
+            setCheckResultData(result);
+        } catch (err: any) {
+            // simulate a failure response
+            setCheckResultData({
+                result: "fail",
+                message: err.toString(),
+            });
+        }
+    }, [orgName, clickedReceiver, doCheck]);
 
     return (
         <section
@@ -76,6 +131,20 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">
+                                        <Button
+                                            type="button"
+                                            size="small"
+                                            key={`receiver-row-checkcmd-${eachOrgSetting.name}-${index}`}
+                                            data-receiver={eachOrgSetting.name}
+                                            onClick={() =>
+                                                clickShowDialog({
+                                                    orgName: orgName,
+                                                    receiverName: `${eachOrgSetting.name}`,
+                                                })
+                                            }
+                                        >
+                                            Check
+                                        </Button>
                                         <NavLink
                                             className="usa-button"
                                             to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
@@ -97,6 +166,67 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     </tbody>
                 </Table>
             )}
+            <Modal
+                isLarge={true}
+                className="rs-admindash-modal rs-resend-modal"
+                ref={modalRef}
+                id={modalId}
+                aria-labelledby={`${modalId}-heading`}
+                aria-describedby={`${modalId}-description`}
+            >
+                <ModalHeading
+                    id={`${modalId}-heading`}
+                    data-testid={`${modalId}-heading`}
+                >
+                    This check will use the '{clickedReceiver}' settings to
+                    connect to the receiver's server. <br />
+                    No files will be sent. This feature ONLY supports SFTP
+                    receivers currently.
+                </ModalHeading>
+                <div className={"rs-admindash-modal-container"}>
+                    <div className={"rs-resend-label"}>
+                        Result:{" "}
+                        <span
+                            className={
+                                checkResultData.result === "success"
+                                    ? "success-all"
+                                    : "failure-all"
+                            }
+                        >
+                            {checkResultData.result}
+                        </span>
+                    </div>
+                    <div
+                        className="rs-editable-compare-base rs-resend-textarea-2x rs-resend-textarea-boarder"
+                        contentEditable={false}
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(checkResultData.message),
+                        }}
+                    />
+                </div>
+                <ModalFooter>
+                    <ButtonGroup>
+                        <Button
+                            type="button"
+                            size="small"
+                            outline
+                            onClick={() =>
+                                modalRef?.current?.toggleModal(undefined, false)
+                            }
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            size="small"
+                            disabled={isLoading}
+                            onClick={() => clickDoCheckCmd()}
+                        >
+                            Start check
+                        </Button>
+                    </ButtonGroup>
+                </ModalFooter>
+            </Modal>
         </section>
     );
 }

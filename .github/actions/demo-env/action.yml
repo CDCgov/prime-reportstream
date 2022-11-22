@@ -144,7 +144,7 @@ runs:
 
     - name: Run DB restores and wait
       if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
-      uses: convictional/trigger-workflow-and-wait@d7939b40c3bebe9dfe6cca096f8413f8c7e01560
+      uses: convictional/trigger-workflow-and-wait@f69fa9eedd3c62a599220f4d5745230e237904be
       with:
         owner: CDCgov
         repo: prime-reportstream
