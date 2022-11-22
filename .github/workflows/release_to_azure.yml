@@ -105,6 +105,7 @@ jobs:
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           github-token: ${{ secrets.DEMO_ENV }}
+          backup-age-limit: 7200
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"

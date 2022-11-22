@@ -22,6 +22,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -50,7 +51,7 @@ sealed class InputClientInfo {
  */
 class ProcessData(
     private val metadataInstance: Metadata? = null,
-    private val fileSettingsInstance: FileSettings? = null
+    private val fileSettingsInstance: FileSettings? = null,
 ) : CliktCommand(
     name = "data",
     help = """
@@ -233,7 +234,7 @@ class ProcessData(
         schema: Schema?,
         sender: Sender?,
         settings: SettingsProvider,
-        listOfFiles: String
+        listOfFiles: String,
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
@@ -261,7 +262,7 @@ class ProcessData(
         schema: Schema?,
         sender: Sender?,
         settings: SettingsProvider,
-        fileName: String
+        fileName: String,
     ): Report {
         val schemaName = schema?.name as String
         val file = File(fileName)
@@ -303,7 +304,7 @@ class ProcessData(
     private fun writeReportsToFile(
         reports: List<Pair<Report, Report.Format>>,
         metadata: Metadata,
-        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
+        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -554,7 +555,7 @@ class ProcessData(
                         val destination = Receiver(
                             "emptyReceiver",
                             "emptyOrganization",
-                            "covid-19",
+                            Topic.COVID_19,
                             CustomerStatus.INACTIVE,
                             hl7Configuration
                         )

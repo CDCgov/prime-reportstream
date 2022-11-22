@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -173,7 +174,11 @@ class ActionHistory(
             jsonGenerator.writeEndObject()
         }
         action.contentLength = request.headers["content-length"]?.let {
-            try { it.toInt() } catch (e: NumberFormatException) { null }
+            try {
+                it.toInt()
+            } catch (e: NumberFormatException) {
+                null
+            }
         }
         // capture the azure client IP but override with the first forwarded for if present
         action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
@@ -349,7 +354,7 @@ class ActionHistory(
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -362,8 +367,8 @@ class ActionHistory(
         // check that we're dealing with an external file
         val clientSource = report.sources.firstOrNull { it is ClientSource }
         if (clientSource != null) {
-            when (report.schema.topic.lowercase()) {
-                "covid-19" -> covidResultMetadataRecords.addAll(report.getDeidentifiedCovidResults())
+            when (report.schema.topic) {
+                Topic.COVID_19 -> covidResultMetadataRecords.addAll(report.getDeidentifiedCovidResults())
                 else -> elrMetaDataRecords.addAll(report.getDeidentifiedResultMetaData())
             }
         }
@@ -384,7 +389,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -415,7 +420,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
@@ -445,7 +450,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -480,7 +485,7 @@ class ActionHistory(
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -524,7 +529,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
-        reportFile.schemaTopic = receiver.topic
+        reportFile.schemaTopic = receiver.topic.json_val
         reportFile.externalName = filename
         action.externalName = filename
         reportFile.transportParams = params
@@ -687,7 +692,7 @@ class ActionHistory(
                     if (tasks.size != reportFiles.size) {
                         msg = "Different report_file count: Got ${tasks.size} TASKS," +
                             " but ${reportFiles.size} reportFiles.  " +
-                            "*** TASK ids: ${tasks.map{ it.reportId}.toSortedSet().joinToString(",")}  " +
+                            "*** TASK ids: ${tasks.map { it.reportId }.toSortedSet().joinToString(",")}  " +
                             "*** REPORT_FILE ids:${reportFiles.map { it.key }.toSortedSet().joinToString(",")}"
                     } else {
                         tasks.forEach {
