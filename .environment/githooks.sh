@@ -4,7 +4,7 @@
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-dir=${REPO_ROOT}/.git/hooks/pre-commit/
+dir=${REPO_ROOT}/.git/hooks/
 
 if [[ ! -e $dir ]]; then
     mkdir -p $dir
@@ -18,7 +18,7 @@ declare -a GITHOOKS_SRC
 declare -a GITHOOKS_DST
 
 GITHOOKS_SRC[0]="pre-commit.hook.sh"
-GITHOOKS_DST[0]="${REPO_ROOT}/.git/hooks/pre-commit"
+GITHOOKS_DST[0]="${REPO_ROOT}/.git/hooks/"
 
 # Count 'em
 _GHSRC_HOOK_COUNT=${#GITHOOKS_SRC[@]}
