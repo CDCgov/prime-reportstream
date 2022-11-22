@@ -328,4 +328,42 @@ class TokenFunctionTests {
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
     }
+
+    @Test
+    fun `Test crazy params in body`() {
+
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
+            "test",
+            "test",
+            "test",
+            10,
+            10,
+            "test"
+        )
+
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+
+        var httpRequestMessage = MockHttpRequestMessage("client_assertion=&scope=$validScope")
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("client_assertion=anything&scope=$validScope")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("client_assertion=any.darn.thing&scope=$validScope")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("=&=")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("gobbledygook==&&&&==")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+    }
 }
