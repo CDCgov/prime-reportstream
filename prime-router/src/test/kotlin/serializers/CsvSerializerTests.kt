@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -24,7 +25,7 @@ class CsvSerializerTests {
     fun `test read from csv`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -46,7 +47,7 @@ class CsvSerializerTests {
     fun `test read from csv with defaults`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b")),
@@ -69,7 +70,7 @@ class CsvSerializerTests {
     fun `test read from csv with dynamic defaults`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b")),
@@ -96,7 +97,7 @@ class CsvSerializerTests {
     fun `test read with different csvField name`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -117,7 +118,7 @@ class CsvSerializerTests {
     fun `test read with different csv header order`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -138,7 +139,7 @@ class CsvSerializerTests {
     fun `test read with missing csv_field`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b")),
@@ -161,7 +162,7 @@ class CsvSerializerTests {
     fun `test read using default`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b")),
@@ -187,7 +188,7 @@ class CsvSerializerTests {
     fun `test write as csv`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -209,7 +210,7 @@ class CsvSerializerTests {
     fun `test write as csv with formatting`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", type = Element.Type.DATE, csvFields = Element.csvFields("_A", format = "MM-dd-yyyy")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -232,7 +233,7 @@ class CsvSerializerTests {
     fun `test multiple datetime formatting`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("_A")),
                 Element("b", type = Element.Type.DATETIME, csvFields = Element.csvFields("_B"))
@@ -262,7 +263,7 @@ class CsvSerializerTests {
     fun `test check error for multiple datetime formatting`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element(
                     "a",
@@ -294,7 +295,7 @@ class CsvSerializerTests {
         // setup a malformed CSV
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -316,7 +317,7 @@ class CsvSerializerTests {
         // setup a malformed CSV
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -339,7 +340,7 @@ class CsvSerializerTests {
     fun `test not matching column`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -358,7 +359,7 @@ class CsvSerializerTests {
     fun `test empty`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -377,7 +378,7 @@ class CsvSerializerTests {
     fun `test cardinality`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element(
                     "a",
@@ -446,7 +447,7 @@ class CsvSerializerTests {
     fun `test cardinality and default`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", cardinality = Element.Cardinality.ONE, csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"), default = "B"),
@@ -480,7 +481,7 @@ class CsvSerializerTests {
     fun `test cardinality and BLANK`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element(
                     "a",
@@ -523,7 +524,7 @@ class CsvSerializerTests {
     fun `test using international characters`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -559,7 +560,7 @@ class CsvSerializerTests {
     fun `test incorrect CSV content`() {
         val schema = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
@@ -599,7 +600,7 @@ class CsvSerializerTests {
     fun `test schema changes do not affect reading`() {
         val schema = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("c", csvFields = Element.csvFields("c"))
