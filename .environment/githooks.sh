@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Make sure we are in this script's location; this gives us certainty of what is where
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
