@@ -7,8 +7,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
 import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.serializers.CsvSerializer
-import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -21,10 +19,7 @@ import java.security.MessageDigest
 
 const val defaultBlobContainerName = "reports"
 
-class BlobAccess(
-    private val csvSerializer: CsvSerializer? = null,
-    private val hl7Serializer: Hl7Serializer? = null
-) : Logging {
+class BlobAccess : Logging {
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
@@ -39,66 +34,29 @@ class BlobAccess(
              * @throws MalformedURLException if the blob URL is malformed
              */
             fun getBlobFilename(blobUrl: String): String {
-                return if (blobUrl.isNotBlank())
-                    FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path) else ""
+                return if (blobUrl.isNotBlank()) {
+                    FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
+                } else ""
             }
         }
     }
 
     /**
-     * Upload the [report] to the blob store using the [action] to determine a folder as needed.  A [subfolderName]
-     * is optional and is added as a prefix to the blob filename.
+     * Upload the [report] to the blob store using the [action] to determine a folder as needed.
+     * A [subfolderName] is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
      */
-    fun generateBodyAndUploadReport(
+    fun uploadReport(
         report: Report,
+        blobBytes: ByteArray,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE,
-        sendingApplicationReport: String? = null,
-        receivingApplicationReport: String? = null,
-        receivingFacilityReport: String? = null
+        action: Event.EventAction = Event.EventAction.NONE
     ): BlobInfo {
-        val (bodyFormat, blobBytes) = createBodyBytes(
-            report,
-            sendingApplicationReport,
-            receivingApplicationReport,
-            receivingFacilityReport
-        )
-        return uploadBody(bodyFormat, blobBytes, report.name, subfolderName, action)
-    }
-
-    /**
-     * Uses a serializer that matches the bodyFormat of the passed in [report] to generate a ByteArray to upload
-     * to the blobstore. [sendingApplicationReport], [receivingApplicationReport], and [receivingFacilityReport] are
-     * optional parameter that should be populated solely for empty HL7_BATCH files.
-     */
-    private fun createBodyBytes(
-        report: Report,
-        sendingApplicationReport: String? = null,
-        receivingApplicationReport: String? = null,
-        receivingFacilityReport: String? = null
-    ): Pair<Report.Format, ByteArray> {
-        val outputStream = ByteArrayOutputStream()
-        when (report.bodyFormat) {
-            Report.Format.INTERNAL -> csvSerializer?.writeInternal(report, outputStream)
-            // HL7 needs some additional configuration we set on the translation in organization
-            Report.Format.HL7 -> hl7Serializer?.write(report, outputStream)
-            Report.Format.HL7_BATCH -> hl7Serializer?.writeBatch(
-                report,
-                outputStream,
-                sendingApplicationReport,
-                receivingApplicationReport,
-                receivingFacilityReport
-            )
-            Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
-            else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
-        }
-        val contentBytes = outputStream.toByteArray()
-        return Pair(report.bodyFormat, contentBytes)
+        return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
 
     companion object : Logging {
-        private val defaultConnEnvVar = "AzureWebJobsStorage"
+        private const val defaultConnEnvVar = "AzureWebJobsStorage"
 
         /**
          * Metadata of a blob container.
@@ -111,8 +69,9 @@ class BlobAccess(
         private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
         /**
-         * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].  The [action] is used to determine
-         * the folder to store the blob in.  A [subfolderName] name is optional.
+         * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].
+         * The [action] is used to determine the folder to store the blob in.
+         * A [subfolderName] name is optional.
          * @return the information about the uploaded blob
          */
         fun uploadBody(
@@ -140,13 +99,13 @@ class BlobAccess(
         /**
          * Obtain a client for interacting with the blob store.
          */
-        fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
+        private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
             val blobConnection = System.getenv(blobConnEnvVar)
             return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
         }
 
         /**
-         * Upload a raw [blobBytes] as [blobName]
+         * Upload a raw blob [bytes] as [blobName]
          * @return the url for the uploaded blob
          */
         internal fun uploadBlob(
@@ -208,11 +167,11 @@ class BlobAccess(
         }
 
         /**
-         * Creates the blob container client for the given blob [name] and connection string (obtained from the
-         * environment variable [blobConnEnvVar], or reuses an existing one.
+         * Creates the blob container client for the given blob [name] and connection string
+         * (obtained from the environment variable [blobConnEnvVar]), or reuses an existing one.
          * @return the blob container client
          */
-        fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
+        private fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
             val blobConnection = System.getenv(blobConnEnvVar)
             val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
 
@@ -250,9 +209,9 @@ class BlobAccess(
         }
 
         /**
-         * Hash a ByteArray [input] with methond [type]
+         * Hash a ByteArray [input] with method [type]
          */
-        fun hashBytes(type: String, input: ByteArray): ByteArray {
+        private fun hashBytes(type: String, input: ByteArray): ByteArray {
             return MessageDigest
                 .getInstance(type)
                 .digest(input)

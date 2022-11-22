@@ -44,7 +44,9 @@ class ReportFunctionTests {
     val timing1 = mockkClass(Receiver.Timing::class)
 
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "elr",
@@ -54,7 +56,7 @@ class ReportFunctionTests {
                 "one",
                 timing = timing1
             )
-        ),
+        )
     )
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
@@ -201,6 +203,7 @@ class ReportFunctionTests {
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(reportFunc, req)
     }
+
     /** Do all the setup required to be able to run any process request tests**/
     private fun setupForProcessRequestTests(actionHistory: ActionHistory):
         Triple<ReportFunction, MockHttpRequestMessage, Sender> {
@@ -222,7 +225,7 @@ class ReportFunctionTests {
         val req = MockHttpRequestMessage(csvString_2Records)
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
-            "content-length" to "4",
+            "content-length" to "4"
         )
         every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
             csvString_2Records,
@@ -247,11 +250,15 @@ class ReportFunctionTests {
 
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
         return Triple(reportFunc, req, sender)
     }
+
     /** basic /submitToWaters endpoint tests **/
 
     @Test
@@ -507,7 +514,10 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns true
@@ -558,7 +568,10 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
@@ -609,7 +622,10 @@ class ReportFunctionTests {
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        val bodyBytes = "".toByteArray()
+        mockkObject(ReportWriter)
+        every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }.returns(blobInfo)
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { serializer.checkLIVDValueExists(any(), any()) } returns true
 
