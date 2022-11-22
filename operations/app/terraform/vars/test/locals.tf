@@ -35,6 +35,8 @@ locals {
     db_prevent_destroy  = false
     db_threat_detection = true
     db_replica          = true
+    flex_sku_name       = "GP_Standard_D4ds_v4"
+    flex_instances      = ["primary"]
   }
   app = {
     app_tier                 = "PremiumV2"
@@ -70,7 +72,7 @@ locals {
           {
             name     = "endpoint"
             new_bits = 2
-          },
+          }
         ]
       },
       "West-vnet" = {
@@ -103,7 +105,7 @@ locals {
         "address_space"           = "10.0.0.0/16"
         "dns_server"              = [""]
         "location"                = "East Us"
-        "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
+        "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet", "postgres"]
         "nsg_prefix"              = ""
         "network_security_groups" = ["public", "private", "container"]
         "subnet_cidrs" = [
@@ -130,6 +132,10 @@ locals {
           {
             name     = "endpoint"
             new_bits = 8
+          },
+          {
+            name     = "postgres"
+            new_bits = 2
           }
         ]
       }

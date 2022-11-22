@@ -61,3 +61,9 @@ variable "subnets" {
 variable "dns_zones" {
   description = "A set of all available dns zones"
 }
+variable "flex_instances" {
+  default = []
+}
+variable "flex_sku_name" {
+  default = "GP_Standard_D4ds_v4"
+}
