@@ -21,6 +21,7 @@ enum class ReportStreamFilterType(val field: String) {
     @Suppress("UNCHECKED_CAST")
     val filterProperty = ReportStreamFilters::class.memberProperties.first { it.name == this.field }
         as KProperty1<ReportStreamFilters, ReportStreamFilter?>
+
     @Suppress("UNCHECKED_CAST")
     val receiverFilterProperty = Receiver::class.memberProperties.first { it.name == this.field }
         as KProperty1<Receiver, ReportStreamFilter>
@@ -38,7 +39,7 @@ enum class ReportStreamFilterType(val field: String) {
  * We allow a different set of filters per [topic]
  */
 data class ReportStreamFilters(
-    val topic: String,
+    val topic: Topic,
     val jurisdictionalFilter: ReportStreamFilter?,
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
@@ -68,7 +69,7 @@ data class ReportStreamFilters(
             "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
         )
         private val defaultCovid19Filters = ReportStreamFilters(
-            topic = "covid-19",
+            topic = Topic.COVID_19,
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = defaultCovid19QualityFilter,
             routingFilter = listOf("allowAll()"),
@@ -76,7 +77,7 @@ data class ReportStreamFilters(
         )
 
         private val defaultMonkeypoxFilters = ReportStreamFilters(
-            topic = "monkeypox",
+            topic = Topic.MONKEYPOX,
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = listOf("allowAll()"),
             routingFilter = listOf("allowAll()"),
@@ -84,7 +85,7 @@ data class ReportStreamFilters(
         )
 
         private val defaultCsvFileTestFilters = ReportStreamFilters(
-            topic = "CsvFileTests-topic",
+            topic = Topic.CSV_TESTS,
             jurisdictionalFilter = listOf("allowAll()"),
             qualityFilter = listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
             routingFilter = listOf("allowAll()"),
@@ -92,7 +93,7 @@ data class ReportStreamFilters(
         )
 
         private val defaultTestFilters = ReportStreamFilters(
-            topic = "test",
+            topic = Topic.TEST,
             jurisdictionalFilter = null,
             qualityFilter = listOf("matches(a, no)"),
             routingFilter = listOf("matches(b, false)"),
@@ -102,7 +103,7 @@ data class ReportStreamFilters(
         /**
          * Map from topic-name to a list of filter-function-strings
          */
-        val defaultFiltersByTopic: Map<String, ReportStreamFilters> = mapOf(
+        val defaultFiltersByTopic: Map<Topic, ReportStreamFilters> = mapOf(
             defaultCovid19Filters.topic to defaultCovid19Filters,
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
             defaultCsvFileTestFilters.topic to defaultCsvFileTestFilters,

@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -346,7 +347,7 @@ class ReceiverAPI
 @JsonCreator constructor(
     name: String,
     organizationName: String,
-    topic: String,
+    topic: Topic,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     translation: TranslatorConfiguration,
     jurisdictionalFilter: ReportStreamFilter = emptyList(),

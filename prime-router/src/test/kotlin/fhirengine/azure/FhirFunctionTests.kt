@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -45,7 +46,7 @@ class FhirFunctionTests {
             Receiver(
                 "elr",
                 "phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1

@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
@@ -63,6 +64,7 @@ class DeliveryFunctionTests : Logging {
         val status: HttpStatus,
         val body: List<ExpectedDelivery>? = null
     )
+
     data class DeliveryUnitTestCase(
         val headers: Map<String, String>,
         val parameters: Map<String, String>,
@@ -229,7 +231,7 @@ class DeliveryFunctionTests : Logging {
         val receiver = Receiver(
             "elr-secondary",
             organizationName,
-            "elr",
+            Topic.FULL_ELR,
             CustomerStatus.TESTING,
             "schema1"
         )
@@ -298,7 +300,7 @@ class DeliveryFunctionTests : Logging {
         facade: DeliveryFacade
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
-        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
+        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
@@ -320,7 +322,7 @@ class DeliveryFunctionTests : Logging {
         val receiver = Receiver(
             "elr-secondary",
             organizationName,
-            "elr",
+            Topic.FULL_ELR,
             CustomerStatus.TESTING,
             "schema1"
         )
@@ -329,7 +331,7 @@ class DeliveryFunctionTests : Logging {
         val receiver2 = Receiver(
             "test-lab-2",
             otherOrganizationName,
-            "elr",
+            Topic.FULL_ELR,
             CustomerStatus.TESTING,
             "schema1"
         )
