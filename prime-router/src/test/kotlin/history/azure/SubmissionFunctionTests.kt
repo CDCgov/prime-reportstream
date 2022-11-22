@@ -13,6 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
@@ -283,7 +284,7 @@ class SubmissionFunctionTests : Logging {
         facade: SubmissionsFacade,
     ): SubmissionFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
-        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
+        val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
