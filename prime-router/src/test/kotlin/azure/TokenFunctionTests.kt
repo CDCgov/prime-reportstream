@@ -321,7 +321,7 @@ class TokenFunctionTests {
 
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
-        var httpRequestMessage = MockHttpRequestMessage("client_assertion=$token&scope=$validScope")
+        var httpRequestMessage = MockHttpRequestMessage("client_assertion=$token\n&scope=$validScope")
 
         // Invoke
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
@@ -331,19 +331,6 @@ class TokenFunctionTests {
 
     @Test
     fun `Test crazy params in body`() {
-
-        mockkConstructor(Server2ServerAuthentication::class)
-        every {
-            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
-        } returns AccessToken(
-            "test",
-            "test",
-            "test",
-            10,
-            10,
-            "test"
-        )
-
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage("client_assertion=&scope=$validScope")

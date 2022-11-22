@@ -43,13 +43,18 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         // Exampling incoming URL
-        // http://localhost:7071/api/token?
+        // http://localhost:7071/api/token
+        //
+        // Body/payload:
+        //
         // scope=strac.default.reports
         // &grant_type=client_credentials
         // &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
         // &client_assertion=verylong.signed.jwtstring
         //
-        // Note that best practice is to send the parameters in the body/payload, not in the URL.
+        // Note that best practice is to send the parameters in the body/payload, not in the URL,
+        // and to set the header "Content-Type: application/x-www-form-urlencoded"
+        // (This is how form data is typically sent)
 
         // Grab and parse out any parameters sent in the body/payload of the request.
         val bodyParamList = URLEncodedUtils.parse(request.body, Charsets.UTF_8)
