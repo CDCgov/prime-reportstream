@@ -12,7 +12,6 @@ elif [[ ! -d $dir ]]; then
     echo "$dir already exists" 1>&2
 fi
 
-
 # mapping of "source file" to "destination location"; since we cannot reliably use associative
 # arrays (declare -A) we're just keeping 2 regular arrays that we match up by index
 declare -a GITHOOKS_SRC
