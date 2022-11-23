@@ -8,9 +8,13 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -35,17 +39,19 @@ class SubmissionReceiverTests {
     val timing1 = mockkClass(Receiver.Timing::class)
 
     val oneOrganization = DeepOrganization(
-        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        "phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "elr",
                 "phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1
             )
-        ),
+        )
     )
 
     val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
@@ -225,7 +231,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, one duplicate`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -268,7 +274,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, both duplicate and already in db`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -310,7 +316,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, identical rows, not in db`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -350,8 +356,10 @@ class SubmissionReceiverTests {
     /** COVID receiver tests **/
     @Test
     fun `test covid receiver processAsync`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         // setup
-        val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -370,9 +378,14 @@ class SubmissionReceiverTests {
 
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
-
-        every { blobMock.generateBodyAndUploadReport(any(), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         // act
@@ -385,7 +398,8 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            blobMock.generateBodyAndUploadReport(report = any(), any(), any())
+            ReportWriter.getBodyBytes(any(), any(), any(), any())
+            blobMock.uploadReport(any(), any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any())
             engine.insertProcessTask(any(), any(), any(), any())
         }
@@ -393,8 +407,10 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test covid receiver processAsync, incorrect format`() {
+        mockkObject(ReportWriter)
+        mockkObject(BaseEngine)
         // setup
-        val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -415,8 +431,14 @@ class SubmissionReceiverTests {
         val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
 
-        every { blobMock.generateBodyAndUploadReport(any(), any(), any()) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        val bodyBytes = "".toByteArray()
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata, settings)
+        every { BaseEngine.csvSerializerSingleton } returns csvSerializer
+        every { BaseEngine.hl7SerializerSingleton } returns hl7Serializer
+        every { ReportWriter.getBodyBytes(any(), any(), any(), any()) }.returns(bodyBytes)
+        every { blobMock.uploadReport(any(), any(), any()) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, bodyBytes))
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
         // act
@@ -440,7 +462,7 @@ class SubmissionReceiverTests {
     @Test
     fun `test COVID receiver validateAndMoveToProcessing, async`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -503,7 +525,7 @@ class SubmissionReceiverTests {
     fun `test COVID receiver validateAndMoveToProcessing, sync, with dupe check`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -572,7 +594,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, async, with dupe check`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -641,7 +663,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, inactive sender`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -710,7 +732,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, invalid hl7`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -783,7 +805,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, invalid message type hl7`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -850,7 +872,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, error on parsing`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -893,7 +915,7 @@ class SubmissionReceiverTests {
                 hl7_record_bad_type,
                 emptyMap(),
                 emptyList(),
-                true,
+                true
             )
         }.isFailure()
 
@@ -909,7 +931,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, warning on parsing`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -952,7 +974,7 @@ class SubmissionReceiverTests {
                 hl7_record,
                 emptyMap(),
                 emptyList(),
-                false,
+                false
             )
         }.isSuccess()
 
@@ -967,7 +989,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, happy path`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -1008,7 +1030,7 @@ class SubmissionReceiverTests {
                 hl7_record_bad_type,
                 emptyMap(),
                 emptyList(),
-                false,
+                false
             )
         }.isSuccess()
 
@@ -1021,7 +1043,7 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test getSubmissionReceiver`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)

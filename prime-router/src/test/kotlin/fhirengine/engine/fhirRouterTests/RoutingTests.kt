@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -55,7 +56,7 @@ class RoutingTests {
             (
                 "full-elr-hl7",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
@@ -63,7 +64,7 @@ class RoutingTests {
             (
                 "full-elr-hl7-2",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
             )
@@ -85,7 +86,7 @@ class RoutingTests {
     """.trimIndent()
 
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
-    val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+    val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("filter_shorthand", shorthandTable)
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {

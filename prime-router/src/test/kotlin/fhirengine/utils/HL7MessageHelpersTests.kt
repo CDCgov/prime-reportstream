@@ -30,7 +30,7 @@ class HL7MessageHelpersTests {
     @Test
     fun `test batch file generation`() {
         var receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 receivingApplicationName = null, receivingApplicationOID = null,
                 receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
@@ -54,7 +54,7 @@ class HL7MessageHelpersTests {
 
         // With receiver information
         receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 receivingApplicationName = "appName", receivingApplicationOID = null,
                 receivingFacilityName = "facName", receivingFacilityOID = null, receivingOrganization = null,
@@ -90,6 +90,7 @@ class HL7MessageHelpersTests {
                 4 -> {
                     assertThat(s).startsWith("MSH")
                 }
+
                 5 -> assertThat(s).isEqualTo("BTS|${messages.size}")
                 6 -> assertThat(s).isEqualTo("FTS|1")
             }
@@ -97,7 +98,7 @@ class HL7MessageHelpersTests {
 
         // Now the sample HL7 is first, so we can grab data from it
         receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 receivingApplicationName = null, receivingApplicationOID = null,
                 receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
@@ -113,11 +114,13 @@ class HL7MessageHelpersTests {
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
+
                 1 -> {
                     val regex = """^BHS\|[^|]{4}\|hl7sendingApp\|\|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
+
                 2 -> assertThat(s).isEqualTo(sampleHl7)
                 3 -> assertThat(s).isEqualTo(messages[1])
             }
@@ -128,7 +131,7 @@ class HL7MessageHelpersTests {
     fun `test decoding generated batch HL7 file`() {
         // Make sure the HAPI HL7 v2 library can decode the batch file
         val receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 receivingApplicationName = "appName", receivingApplicationOID = null,
                 receivingFacilityName = "facName", receivingFacilityOID = null, receivingOrganization = null,
@@ -163,7 +166,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
         val receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 receivingApplicationName = null, receivingApplicationOID = null,
                 receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,

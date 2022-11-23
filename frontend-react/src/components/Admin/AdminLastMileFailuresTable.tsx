@@ -101,7 +101,7 @@ const RenderResendModal = (props: {
 }) => {
     return (
         <>
-            <p className={"border"}>
+            <p className={""}>
                 <b>You are about to trigger a retransmission.</b>
                 <br />
                 Copy the information below into a github issue to coordinate
@@ -127,17 +127,18 @@ const RenderResendModal = (props: {
                     <Button
                         type="button"
                         size="small"
-                        disabled={props.loading}
-                        onClick={() => props.startResend()}
+                        outline
+                        onClick={props.closeResendModal}
                     >
-                        Trigger Resend
+                        Cancel
                     </Button>
                     <Button
                         type="button"
                         size="small"
-                        onClick={props.closeResendModal}
+                        disabled={props.loading}
+                        onClick={() => props.startResend()}
                     >
-                        Cancel
+                        Trigger Resend
                     </Button>
                 </ButtonGroup>
             </ModalFooter>
