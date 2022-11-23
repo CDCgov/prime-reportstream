@@ -20,6 +20,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -32,9 +33,11 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RoutingTests {
@@ -67,6 +70,24 @@ class RoutingTests {
         )
     )
 
+    val csv = """
+            variable,fhirPath
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/
+            fhir/StructureDefinition/source-processing-id').value.coding.code
+            messageId,Bundle.entry.resource.ofType(MessageHeader).id
+            patient,Bundle.entry.resource.ofType(Patient)
+            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.
+            resolve().address.state
+            patientState,Bundle.entry.resource.ofType(Patient).address.state
+            specimen,Bundle.entry.resource.ofType(Specimen)
+            serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
+            observation,Bundle.entry.resource.ofType(Observation)
+    """.trimIndent()
+
+    val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+    val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+    val metadata = Metadata(schema = one).loadLookupTable("filter_shorthand", shorthandTable)
+
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
@@ -84,9 +105,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
-
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
@@ -105,8 +123,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
+
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -154,8 +171,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -203,8 +218,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -252,8 +265,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -301,8 +312,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -344,5 +353,91 @@ class RoutingTests {
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any())
         }
+    }
+
+    @Test
+    fun ` test constantResolver for routing constants - succeed`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
+                "and %{patientState} = 'CA')"
+        )
+
+        // act
+        val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
+
+        // assert
+        assert(qualDefaultResult)
+    }
+
+    @Test
+    fun ` test constants - succeed, no patient state`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/no_patient_state.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
+                "and %{patientState} = 'CA')"
+        )
+
+        // act
+        val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
+
+        // assert
+        assert(qualDefaultResult)
+    }
+
+    @Test
+    fun ` test constants - succeed, no performer state`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/no_performer_state.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
+                "and %{patientState} = 'CA')"
+        )
+
+        // act
+        val result = engine.evaluateFilterCondition(filter, bundle, false)
+
+        // assert
+        assert(result)
+    }
+
+    @Test
+    fun ` test constants - invalid constant`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf("%{myInvalidConstant}.exists()")
+
+        // act
+        var exceptionThrown = false
+        try {
+            engine.evaluateFilterCondition(filter, bundle, false)
+        } catch (ex: NotImplementedError) {
+            exceptionThrown = true
+        }
+
+        // assert
+        assertTrue(exceptionThrown)
     }
 }

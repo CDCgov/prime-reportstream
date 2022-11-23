@@ -25,6 +25,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.apache.commons.text.StringSubstitutor
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -49,20 +50,20 @@ class FHIRRouter(
      *   At least one of order test date, specimen collection date/time, test result date
      */
     val qualityFilterDefault: ReportStreamFilter = listOf(
-        "Bundle.entry.resource.ofType(MessageHeader).id.exists()",
-        "Bundle.entry.resource.ofType(Patient).name.family.exists()",
-        "Bundle.entry.resource.ofType(Patient).name.given.count() > 0",
-        "Bundle.entry.resource.ofType(Patient).birthDate.exists()",
-        "Bundle.entry.resource.ofType(Specimen).type.exists()",
-        "(Bundle.entry.resource.ofType(Patient).address.line.exists() or " +
-            "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or " +
-            "Bundle.entry.resource.ofType(Patient).telecom.exists())",
+        "%{messageId}.exists()",
+        "%{patient}.name.family.exists()",
+        "%{patient}.name.given.count() > 0",
+        "%{patient}.birthDate.exists()",
+        "%{specimen}.type.exists()",
+        "(%{patient}.address.line.exists() or " +
+            "%{patient}.address.postalCode.exists() or " +
+            "%{patient}.telecom.exists())",
         "(" +
-            "(Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or " +
-            "Bundle.entry.resource.ofType(Specimen).collection.collected.exists()" +
+            "(%{specimen}.collection.collectedPeriod.exists() or " +
+            "%{specimen}.collection.collected.exists()" +
             ") or " +
-            "Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or " +
-            "Bundle.entry.resource.ofType(Observation).effective.exists())"
+            "%{serviceRequest}.occurrence.exists() or " +
+            "%{observation}.effective.exists())"
     )
 
     /**
@@ -70,10 +71,40 @@ class FHIRRouter(
      *  Must have a processing mode id of 'P'
      */
     val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "Bundle.entry.resource.ofType(MessageHeader).meta" +
-            ".extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id')" +
-            ".value.coding.code = 'P'"
+        "%{processingId} = 'P'"
     )
+
+    // private val shorthandValues = metadata.findLookupTable("filter_shorthand")!!.dataRows.associate {
+    //
+    //     it[0] to it[1]
+    // }
+
+    /**
+     * Lookup table `filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
+     */
+    private val shorthandLookupTable = metadata.findLookupTable("filter_shorthand")!!
+
+    /**
+     * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
+     * used in configuration filter expressions with the specified Fhir Path expression before the expression
+     * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
+     * where needed. Format is %{myVariable} within the filters, and each variable used must be defined
+     * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
+     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to4
+     * underlying fhir library.
+     *
+     * The values that this uses are located in the filter_shorthand lookup table.
+     */
+    private val shorthandSubstitutor = StringSubstitutor {
+        val filter = shorthandLookupTable.FilterBuilder()
+        filter.isEqualTo("variable", it)
+        val path = filter.findSingleResult("fhirPath")
+
+        if (!path.isNullOrEmpty())
+            path
+        else
+            throw NotImplementedError("Could not locate a unique entry for '$it' in the shorthand values lookup table.")
+    }.setVariablePrefix("%{")
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -279,10 +310,16 @@ class FHIRRouter(
         // default response
         return if (filter.isNullOrEmpty())
             defaultResponse
-        else
+        else {
             filter.all {
-                FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, bundle),
+                    bundle,
+                    bundle,
+                    shorthandSubstitutor.replace(it)
+                )
             }
+        }
     }
 
     /**

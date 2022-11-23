@@ -329,7 +329,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         return if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
-            if (values.size != 1) {
+            if (values.isEmpty()) {
+                null
+            } else if (values.size != 1) {
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             } else {
                 logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
