@@ -73,12 +73,10 @@ class RoutingTests {
 
     val csv = """
             variable,fhirPath
-            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/
-            fhir/StructureDefinition/source-processing-id').value.coding.code
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
             messageId,Bundle.entry.resource.ofType(MessageHeader).id
             patient,Bundle.entry.resource.ofType(Patient)
-            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.
-            resolve().address.state
+            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
             patientState,Bundle.entry.resource.ofType(Patient).address.state
             specimen,Bundle.entry.resource.ofType(Specimen)
             serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)

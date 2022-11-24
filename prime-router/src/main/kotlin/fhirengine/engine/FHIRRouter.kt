@@ -74,11 +74,6 @@ class FHIRRouter(
         "%{processingId} = 'P'"
     )
 
-    // private val shorthandValues = metadata.findLookupTable("filter_shorthand")!!.dataRows.associate {
-    //
-    //     it[0] to it[1]
-    // }
-
     /**
      * Lookup table `filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
      */
