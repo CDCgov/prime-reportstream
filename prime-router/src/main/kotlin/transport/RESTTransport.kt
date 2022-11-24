@@ -269,7 +269,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val tokenInfo: TokenInfo = client.submitForm(
                 restUrl,
                 formParameters = Parameters.build {
-                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") //as specified by WA
+                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
                     append("assertion", credential.assertion)
                 }
 
@@ -369,18 +369,18 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 )
                 setBody(
                     when (restUrl.substringAfterLast('/')) {
-                        //OK
+                        // OK
                         "hl7" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
                         }
-                        //WA
+                        // WA
                         "elr" -> {
                             contentType(ContentType.Application.Json)
-                            //create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
+                            // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
                         else -> {
-                            //NY
+                            // NY
                             MultiPartFormDataContent(
                                 formData {
                                     append(
