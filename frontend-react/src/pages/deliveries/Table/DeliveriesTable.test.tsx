@@ -112,7 +112,7 @@ describe("DeliveriesTable", () => {
             );
             expect(heading).toBeInTheDocument();
             const message = await screen.findByText(
-                /No valid sender found for your organization/i
+                /No valid receiver found for your organization/i
             );
             expect(message).toBeInTheDocument();
         });
@@ -187,7 +187,7 @@ describe("DeliveriesTableWithNumberedPagination - with no data", () => {
         expect(heading).toBeInTheDocument();
 
         const message = await screen.findByText(
-            "No valid sender found for your organization"
+            "No valid receiver found for your organization"
         );
         expect(message).toBeInTheDocument();
     });
