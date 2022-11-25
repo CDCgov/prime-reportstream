@@ -1,18 +1,83 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
+# Dependabot general documentation:
+# https://docs.github.com/en/code-security/dependabot
 # Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
 
-  # Maintain dependencies for GitHub Actions
+  # Maintain dependencies for GitHub Actions Workflows
   - package-ecosystem: "github-actions"
+    # Workflow files stored in the
+    # default location of `.github/workflows`
     directory: "/"
     schedule:
-      interval: "weekly"
-  
+      interval: "daily"
+
+  # Maintain dependencies for GitHub Actions custom actions
+  # These entries need to be updated for every new action created
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-backend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-frontend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-vars"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-backup"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-query"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/db-restore"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/demo-env"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/deploy-backend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/deploy-frontend"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/mount-share"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/runner-ip"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/vpn-azure"
+    schedule:
+      interval: "daily"
+
   # FRONTEND
+  # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
     schedule:
@@ -21,6 +86,10 @@ updates:
   # OPERATIONS
   - package-ecosystem: "docker"
     directory: "/operations"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/.devcocntainer"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
@@ -46,6 +115,7 @@ updates:
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+  # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
     schedule:

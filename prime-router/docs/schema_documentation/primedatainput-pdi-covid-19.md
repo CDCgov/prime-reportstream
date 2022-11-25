@@ -2838,6 +2838,22 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---
+
 **Name**: testing_lab_specimen_id
 
 **ReportStream Internal Name**: testing_lab_specimen_id

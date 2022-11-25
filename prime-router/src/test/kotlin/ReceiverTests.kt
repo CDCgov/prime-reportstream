@@ -14,14 +14,18 @@ internal class ReceiverTests {
 
     @Test
     fun `test receiver full name`() {
-        val receiver = Receiver("elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig)
+        val receiver = Receiver("elr", "IGNORE", Topic.COVID_19, CustomerStatus.INACTIVE, translatorConfig)
         assertThat(receiver.fullName).isEqualTo("IGNORE.elr")
     }
 
     @Test
     fun `test receiver external name when present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            Topic.COVID_19,
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = "Ignore ELR"
         )
         assertThat(receiver.displayName).isEqualTo("Ignore ELR")
@@ -30,7 +34,11 @@ internal class ReceiverTests {
     @Test
     fun `test receiver external name when not present`() {
         val receiver = Receiver(
-            "elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig,
+            "elr",
+            "IGNORE",
+            Topic.COVID_19,
+            CustomerStatus.INACTIVE,
+            translatorConfig,
             externalName = null
         )
         assertThat(receiver.displayName).isEqualTo("elr")
@@ -168,5 +176,21 @@ internal class ReceiverTests {
             ZonedDateTime.of(2020, 10, 2, 2, 50, 1, 0, ZoneId.of(USTimeZone.PACIFIC.zoneId)).toOffsetDateTime()
         val actual5 = timing.batchInPrevious60Seconds(noWork1)
         assertThat(actual5).isFalse()
+    }
+
+    @Test
+    fun `test receiver schema fields`() {
+        val receiver = Receiver(
+            "elr",
+            "co-phd",
+            Topic.TEST,
+            CustomerStatus.INACTIVE,
+            "CO",
+            Report.Format.CSV,
+            null,
+            null,
+            null
+        )
+        assertThat(receiver.schemaName).isEqualTo("CO")
     }
 }

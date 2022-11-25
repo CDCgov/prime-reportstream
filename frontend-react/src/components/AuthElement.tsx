@@ -21,7 +21,7 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership, initialized, adminHardCheck } =
+    const { oktaToken, activeMembership, initialized, isAdminStrictCheck } =
         useSessionContext();
 
     const { checkFlag } = useFeatureFlags();
@@ -34,12 +34,12 @@ export const AuthElement = ({
     );
     // Dynamically authorize user from single or multiple allowed user types
     const authorizeMemberType = useMemo(() => {
-        if (adminHardCheck || memberType === MemberType.PRIME_ADMIN)
+        if (isAdminStrictCheck || memberType === MemberType.PRIME_ADMIN)
             return true; // Admin authentication always
         return requiredUserType instanceof Array
             ? requiredUserType.includes(memberType)
             : requiredUserType === memberType;
-    }, [adminHardCheck, memberType, requiredUserType]);
+    }, [isAdminStrictCheck, memberType, requiredUserType]);
     // All the checks before returning the route
 
     const needsLogin = useMemo(

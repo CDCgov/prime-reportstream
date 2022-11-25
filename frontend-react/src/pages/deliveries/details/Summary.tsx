@@ -1,8 +1,8 @@
 import ReportLink from "../Table/ReportLink";
-import { useOrgName } from "../../../hooks/UseOrgName";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
+import { useOrganizationSettings } from "../../../hooks/UseOrganizationSettings";
 
 interface Props {
     /* REQUIRED
@@ -13,7 +13,8 @@ interface Props {
 
 function Summary(props: Props) {
     const { report }: Props = props;
-    const orgName: string = useOrgName();
+    const { data: orgDetails } = useOrganizationSettings();
+    const { description } = orgDetails || {};
     const crumbProps: CrumbsProps = {
         crumbList: [
             { label: "Daily Data", path: "/daily-data" },
@@ -26,7 +27,7 @@ function Summary(props: Props) {
         <div className="grid-container grid-row tablet:margin-top-6">
             <div className="grid-col-fill">
                 <Crumbs {...crumbProps} />
-                <Title preTitle={orgName} title={report?.reportId || ""} />
+                <Title preTitle={description} title={report?.reportId || ""} />
             </div>
             <div className="grid-col-auto margin-bottom-5 margin-top-auto">
                 <ReportLink report={report} button />

@@ -6,7 +6,6 @@ import { CacheProvider } from "rest-hooks";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import SubmissionTable from "./SubmissionTable";
@@ -26,20 +25,13 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
         </CacheProvider>
     );
 
-let mockCheckFlag = jest.fn();
-
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: mockCheckFlag,
-        });
         mockSessionContext.mockReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                senderName: "testSender",
+                service: "testSender",
             },
             dispatch: () => {},
             initialized: true,

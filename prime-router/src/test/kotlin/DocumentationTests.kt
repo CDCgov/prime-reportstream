@@ -2,9 +2,15 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.docgenerators.DocumentationFactory
+import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
+import java.time.LocalDate
 import kotlin.test.Ignore
 import kotlin.test.Test
 
+/**
+ * A collection of tests for the documentation generation
+ */
 class DocumentationTests {
     private val documentation = """
         ##### This is a test documentation field
@@ -12,19 +18,65 @@ class DocumentationTests {
         > This is preformatted text
     """.trimIndent()
     private val elem = Element(
-        name = "a", type = Element.Type.TEXT,
+        name = "a",
+        type = Element.Type.TEXT,
         csvFields = Element.csvFields("Test TrackingElement")
     )
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
     private val schema = Schema(
         name = "Test Schema",
-        topic = "Test Topic",
+        topic = Topic.TEST,
         elements = listOf(elem),
         trackingElement = "a",
         description = "Test Description",
         extends = "test/extends",
         basedOn = "TestBaseOn"
     )
+
+    @Test
+    fun `test getting output file name`() {
+        // check a schema with no slash in the name
+        Schema(
+            name = "covid-19",
+            topic = Topic.TEST
+        ).also { schema ->
+            DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
+                assertThat(it).isEqualTo("covid-19.md")
+            }
+            DocumentationFactory.getOutputFileName(null, schema, true, "html").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("covid-19-$timestamp.html")
+            }
+        }
+
+        // check a schema with a slash in the name
+        Schema(
+            name = "direct/cue-covid-19",
+            topic = Topic.TEST
+        ).also { schema ->
+            DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
+                assertThat(it).isEqualTo("direct-cue-covid-19.md")
+            }
+            DocumentationFactory.getOutputFileName(null, schema, true, "csv").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("direct-cue-covid-19-$timestamp.csv")
+            }
+        }
+
+        // check an output file name
+        Schema(
+            name = "covid-19",
+            topic = Topic.TEST
+        ).also {
+            DocumentationFactory.getOutputFileName("test-file-name", schema, false, "txt").also {
+                assertThat(it).isEqualTo("test-file-name.txt")
+            }
+            DocumentationFactory.getOutputFileName("test-file-name", schema, true, "xlsx").also {
+                val timestamp = LocalDate.now().format(DocumentationFactory.formatter)
+                assertThat(it).isEqualTo("test-file-name-$timestamp.xlsx")
+            }
+        }
+    }
 
     @Test
     @Ignore
@@ -38,7 +90,7 @@ class DocumentationTests {
 ---
 """
 
-        val docString = DocumentationFactory.getElementDocumentation(elem)
+        val docString = MarkdownDocumentationFactory.getElementDocumentation(elem)
         assertThat(docString).isEqualTo(expected)
     }
 
@@ -46,7 +98,7 @@ class DocumentationTests {
     fun `test building documentation string from a schema`() {
         val expected = """
 ### Schema: Test Schema
-### Topic: Test Topic
+### Topic: test
 ### Tracking Element: Test TrackingElement (a)
 ### Base On: [TestBaseOn](./TestBaseOn.md)
 ### Extends: [test/extends](./test-extends.md)
@@ -67,7 +119,7 @@ class DocumentationTests {
 ---
 """
 
-        val actual = DocumentationFactory.getSchemaDocumentation(schema)
+        val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema).joinToString(separator = "")
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -90,9 +142,10 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithDocumentation)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertThat(actual).isEqualTo(expected)
     }
+
     @Test
     fun `test documentation for element with type CODE with Format $display`() {
         val elemWithTypeCode = Element(
@@ -115,7 +168,7 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -141,8 +194,9 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
-        assertThat(actual).isEqualTo(expected)
+        MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
+            assertThat(actual).isEqualTo(expected)
+        }
     }
 
     @Test
@@ -167,8 +221,9 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
-        assertThat(actual).isEqualTo(expected)
+        MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
+            assertThat(actual).isEqualTo(expected)
+        }
     }
 
     @Test
@@ -193,13 +248,12 @@ $documentation
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun `test documentation for element with type CODE and valueSet table with special char`() {
-
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
@@ -228,20 +282,20 @@ Code | Display | System
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithTypeCode)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun `test documentation for element with valueSet table generation`() {
-
         // Test case that contains element.system = HL7 and element.ValueSet.Values.system = LOINC
         val valueSetA = ValueSet(
             "a",
             ValueSet.SetSystem.HL7,
             values = listOf(
                 ValueSet.Value(
-                    ">", "Above absolute high-off instrument scale",
+                    ">",
+                    "Above absolute high-off instrument scale",
                     system = ValueSet.SetSystem.LOINC
                 )
             )
@@ -268,7 +322,7 @@ Code | Display | System
 
 ---
 """
-        val actual = DocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
+        val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }
 }
