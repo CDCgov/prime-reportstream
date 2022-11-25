@@ -10,12 +10,12 @@ See https://jdk.java.net/ for detailed instructions.
 
 ```bash
 brew update
-# Set to 15 if you so choose
 VERSION=11
 brew install openjdk@${VERSION?}
 ```
 
 If after running `./cleanslate.sh` you see the following error
+
 ```bash
 ./cleanslate.sh
 # ...
@@ -25,30 +25,38 @@ Please visit http://www.java.com for information on installing Java.
 ```
 
 You need to follow the rest of the brew install instructions:
+
 ```bash
-brew info openjdk
+VERSION=11
+brew info openjdk@${VERSION?}
 # Example output from running the above command, please run yourself
 # just in case brew updates the install instructions
 ==> Caveats
 For the system Java wrappers to find this JDK, symlink it with
-  sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+  sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
-openjdk is keg-only, which means it was not symlinked into /usr/local,
-because macOS provides similar software and installing this software in
-parallel can cause all kinds of trouble.
+openjdk@11 is keg-only, which means it was not symlinked into /opt/homebrew,
+because this is an alternate version of another formula.
 
-If you need to have openjdk first in your PATH, run:
-  echo 'export PATH="/usr/local/opt/openjdk/bin:$PATH"' >> ~/.zshrc
+If you need to have openjdk@11 first in your PATH, run:
+  echo 'export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"' >> ~/.zshrc
 
-For compilers to find openjdk you may need to set:
-  export CPPFLAGS="-I/usr/local/opt/openjdk/include"
+For compilers to find openjdk@11 you may need to set:
+  export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
 ```
 
 I had to follow all three commands to get `./cleanslate.sh` to run cleanly.
 
+After installing openjdk, run the following command to set the `JAVA_HOME` variable for Azure Functions to use:
+
+```bash
+echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshrc
+```
+
 ## Linux
 
 ### Debian-based
+
 ```bash
 sudo apt-get update
 # Set to 15 if you so choose

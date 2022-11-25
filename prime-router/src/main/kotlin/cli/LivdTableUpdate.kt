@@ -10,12 +10,6 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.LivdTableColumns
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.response
-import it.skrape.fetcher.skrape
-import it.skrape.selects.eachHref
-import it.skrape.selects.html5.a
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.poi.ss.usermodel.CellType
@@ -29,7 +23,6 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.net.URL
 
@@ -37,9 +30,7 @@ import java.net.URL
  * LivdTableUpdate is the command line interface for the livd-table-update command. It parses the command line
  * for option given as below.
  *
- * If the --download parameter is added this tool looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from
- * $cdcLOINCTestCodeMappingPageUrl.If the file is found, it downloads the file into the ./build directory. If not
- * found, it will prompt error accordingly. A LIVD file can also be supplied directly using the --input-file parameter.
+ * It reads in the LIVD file from the supplied directly using the --input-file parameter.
  * Next, it builds the output Lookup Table (<./build/LIVD-SARS-CoV-2.csv> file) with the table name. Finally, it updates
  * the LIVD-SARS-CoV-2 lookup tables in the database as the new version of the table. It updates new version of the
  * lookup table in the given --env [local, test, staging, or prod] with the default to "local" environment.
@@ -47,10 +38,10 @@ import java.net.URL
  * Note, this command will always create new version of the lookup table.
  *
  * Example:
- * The command below will download the latest LIVD mapping catalogue and create a new lookup tables as needed.
- * It took "LIVD mapping catalogue" from the CDC website.
+ * The command below reads the LIVE-SARS-CoV-2-2011-10-19.xlsx file from junk directory, extracts the LOINC Mapping
+ * Sheet, Converts to CSV, uploads to database, and activate the table.
  *
- *  ./prime livd-table-update
+ *  ./prime livd-table-update --input-file junk/LIVE-SARS-CoV-2-2011-10-19.xlsx -a
  *
  */
 
@@ -93,10 +84,6 @@ class LivdTableUpdate : CliktCommand(
         help = "The path to the LIVD supplemental file. Defaults to $defaultSupplFile"
     ).file(true).default(File(defaultSupplFile))
 
-    private val download by option(
-        "-d", "--download", help = "Download the current LIVD table from $loincMappingBaseUrl$loincMappingPageUrl"
-    ).flag()
-
     private val inputFile by option(
         "-i", "--input-file", help = "Input file to update LIVD table"
     ).file()
@@ -105,18 +92,7 @@ class LivdTableUpdate : CliktCommand(
         echo("Updating the LIVD table ...")
         FileUtils.forceMkdir(File(defaultOutputDir))
 
-        val livdFile: File = if (download) {
-            // Download the file from CDC website.
-            downloadFile(defaultOutputDir)
-        } else if (inputFile != null) {
-            // Intake file from user
-            inputFile as File
-        } else {
-            // A file must be provided by the user or downloaded from the CDC website
-            error("The --download flag must be set or an --input-file must be provided.")
-        }
-
-        val tempRawLivdOutFile = extractLivdTable(sheetName, livdFile, defaultOutputDir)
+        val tempRawLivdOutFile = extractLivdTable(sheetName, inputFile as File, defaultOutputDir)
         // Merge the supplemental LIVD table with the raw.
         val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
@@ -126,71 +102,6 @@ class LivdTableUpdate : CliktCommand(
             error("There was an error storing the LIVD lookup table.")
         else
             echo("The lookup table was updated successfully.")
-    }
-
-    /**
-     *  The downloadFile downloads the latest LOINC test data, so it can be ingested automatically.
-     *  It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from the URL below:
-     *      https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html
-     *  If the file is found, it downloads the file into the directory specified by the [outputDir] <path> option.
-     *      ANd, it returns the string "Directory/downloadedFile".  If unsuccessful download, it will return and
-     *      empty string ("").  If the option is not specified, it will download the file to ./build directory.
-     */
-    fun downloadFile(outputDir: String): File {
-        // Get the link to the LIVD-SARS-CoV-2-yyyy-MM-dd.xlsx file
-        val livdFile = searchForTableFile(loincMappingPageUrl, livdSARSCov2FilenamePrefix)
-        if (livdFile.isEmpty() || livdFile[0].equals("")) {
-            error("Unable to find LOINC code data file matching LIVD-SARS-CoV-2-yyyy-MM-dd to download!")
-        }
-        val livdFileUrl = URL("$loincMappingBaseUrl${livdFile[0]}")
-        val outputFile = File.createTempFile(
-            "${FilenameUtils.getBaseName(livdFile[0])}_",
-            "_downloaded.${FilenameUtils.getExtension(livdFile[0])}",
-            File(outputDir)
-        )
-
-        // Read the file from the website and store it in local directory
-        try {
-            livdFileUrl.openStream().use { input ->
-                try {
-                    FileOutputStream(outputFile).use { output ->
-                        input?.copyTo(output)
-                    }
-                } catch (e: Exception) {
-                    error("Unable to write the downloaded file - $e")
-                }
-            }
-        } catch (e: FileNotFoundException) {
-            error("Unable to find connection - $e")
-        }
-
-        if (outputFile.length() == 0L) echo("Downloaded LIVD table file is empty.")
-        return outputFile
-    }
-
-    /**
-     * Search - searching for the URI link to the LIVID-SARS-CoV-2-yyyy-MM-dd file
-     * @param - urlToSearch is the URL to the web page that we will search.
-     * @param - partialHref is the substring that we are searching for.
-     * @return - List of the URI that contain the substring
-     */
-    fun searchForTableFile(urlToSearch: URL, partialHref: String): List<String> {
-        val allLinks =
-            skrape(HttpFetcher) {
-                request {
-                    url = urlToSearch.toString()
-                }
-                response {
-                    htmlDocument {
-                        a {
-                            findAll {
-                                eachHref
-                            }
-                        }
-                    }
-                }
-            }
-        return allLinks.filter { it.contains(partialHref) }
     }
 
     /**

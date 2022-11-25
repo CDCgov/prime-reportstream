@@ -60,11 +60,12 @@ elements:
     resourceIndex: contactIndex
 
   - name: order-callback-phone-number
-    resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{hl7Order}-14'
+      hl7TelecomField: '%{hl7Order}-14(%{callbackIndex})'
     schema: datatype/xtn-telecom
+    resourceIndex: callbackIndex
 
   - name: order-effective-date
     value: [ '%service.occurrence' ]
@@ -82,7 +83,7 @@ elements:
     constants:
       hl7OrgField: '%{hl7Order}-21'
 
-  - name: ordering-facility-address
+  - name: ordering-facility-organization-address
     resource: '%service.requester.resolve().organization.resolve().address'
     schema: datatype/xad-extended-address
     constants:
@@ -94,7 +95,7 @@ elements:
     constants:
       hl7TelecomField: '%{hl7Order}-23'
 
-  - name: ordering-facility-address
+  - name: ordering-facility-practitioner-address
     resource: '%service.requester.resolve().practitioner.resolve().address'
     schema: datatype/xad-extended-address
     constants:

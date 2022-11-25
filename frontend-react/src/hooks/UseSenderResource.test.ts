@@ -1,100 +1,55 @@
 import { renderHook } from "@testing-library/react-hooks";
 
+import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
+import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+
 import { useSenderResource } from "./UseSenderResource";
-
-const fakeSender = {
-    allowDuplicates: false,
-    customerStatus: "active",
-    format: "CSV",
-    name: "senderName",
-    organizationName: "orgName",
-    processingType: "sync",
-    schemaName: "senderSchema",
-    topic: "covid-19",
-};
-
-const mockUseRequestConfig = jest.fn();
-const mockUseSessionContext = jest.fn();
-
-jest.mock("../contexts/SessionContext", () => ({
-    useSessionContext: () => mockUseSessionContext(),
-}));
-
-jest.mock("./network/UseRequestConfig", () => ({
-    default: () => mockUseRequestConfig(),
-    __esModule: true,
-}));
+import { MembershipSettings, MemberType } from "./UseOktaMemberships";
 
 describe("useSenderResource", () => {
-    test("returns null while loading", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-            loading: true,
-        });
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {
-                senderName: "senderName",
-            },
-            dispatch: () => {},
-        });
-
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
+    beforeAll(() => {
+        orgServer.listen();
     });
-    test("returns null if no sender available on membership", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-        });
-        mockUseSessionContext.mockReturnValue({
-            activeMembership: {},
-            dispatch: () => {},
-        });
-
-        const {
-            result: {
-                current: { sender },
+    afterEach(() => orgServer.resetHandlers());
+    afterAll(() => orgServer.close());
+    test("returns undefined if no sender available on membership", () => {
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
             },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
-    });
-    test("returns null if no sender returned from API", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: undefined,
-        });
-        mockUseSessionContext.mockReturnValue({
             activeMembership: {
-                senderName: "a different name",
-            },
+                memberType: MemberType.NON_STAND,
+                service: undefined,
+            } as MembershipSettings,
             dispatch: () => {},
+            initialized: true,
         });
-
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(null);
+        const { result } = renderHook(() => useSenderResource(), {
+            wrapper: QueryWrapper(),
+        });
+        expect(result.current.senderDetail).toEqual(undefined);
+        expect(result.current.senderIsLoading).toEqual(true);
     });
-    test("returns correct sender match", () => {
-        mockUseRequestConfig.mockReturnValue({
-            data: fakeSender,
-        });
-        mockUseSessionContext.mockReturnValue({
+    test("returns correct sender match", async () => {
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
             activeMembership: {
-                senderName: "senderName",
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                service: "testSender",
             },
             dispatch: () => {},
+            initialized: true,
         });
-
-        const {
-            result: {
-                current: { sender },
-            },
-        } = renderHook(() => useSenderResource());
-        expect(sender).toEqual(fakeSender);
+        const { result, waitForNextUpdate } = renderHook(
+            () => useSenderResource(),
+            { wrapper: QueryWrapper() }
+        );
+        await waitForNextUpdate();
+        expect(result.current.senderDetail).toEqual(dummySender);
+        expect(result.current.senderIsLoading).toEqual(false);
     });
 });
