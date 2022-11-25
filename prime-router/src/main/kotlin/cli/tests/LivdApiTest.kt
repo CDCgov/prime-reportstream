@@ -57,6 +57,34 @@ class LivdApiTest : CoolTest() {
                         }
                         return true
                     }
+                ),
+                LivdApiTestCase(
+                    "check filtering data",
+                    "${environment.url}$apiEndpointPath",
+                    listOf(
+                        Pair(
+                            "manufacturer",
+                            "Zymo Research Corporation"
+                        )
+                    ),
+                    jsonResponseChecker = fun(
+                        json: String,
+                        testBeingRun: CoolTest,
+                        testCase: LivdApiTestCase
+                    ): Boolean {
+                        val livdValues = jsonMapper.readValue(json, Array<LivdData>::class.java)
+                        if (
+                            livdValues.all { livdTest ->
+                                livdTest.manufacturer.equals("Zymo Research Corporation", true)
+                            }
+                        ) {
+                            return true
+                        }
+                        return testBeingRun.bad(
+                            "***${testBeingRun.name}: TEST '${testCase.name}' FAILED: " +
+                                "Filtering via the API did not succeed."
+                        )
+                    }
                 )
             )
         )
