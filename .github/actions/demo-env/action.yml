@@ -10,6 +10,14 @@ inputs:
     default: false
   github-token:
     required: false
+  backup-age-limit:
+    default: 2880
+    required: false
+    description: "Backup age limit in minutes before a restore is required"
+  backup-from:
+    default: test
+    required: false
+    description: "Env to backup database from"
 
 runs:
   using: "composite"
@@ -18,6 +26,30 @@ runs:
     - name: Get runner ip
       id: runner_ip
       uses: ./.github/actions/runner-ip
+
+    - name: Check if database restore can be ignored
+      working-directory: operations/app/terraform/vars/demo
+      run: |
+        SERVER_COUNT=$(az postgres server list -g prime-data-hub-${{ inputs.env-name }} | jq '. | length')
+
+        if [[ ${SERVER_COUNT} -gt 0 ]]; then
+          DB_BYTES=$(az monitor metrics list --resource "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-${{ inputs.env-name }}/providers/Microsoft.DBforPostgresql/servers/pdh${{ inputs.env-name }}-pgsql" \
+          --aggregation Maximum --metric storage_used --interval PT15M --query 'value[0].timeseries[0].data[*].maximum' | jq '. | max')
+          LAST_MODIFIED=$(az storage directory show --name ${{ inputs.backup-from }}_prime_data_hub --share-name dbbackups --account-name pdh${{ inputs.env-name }}terraform \
+          --query 'properties.lastModified' --only-show-errors -o tsv)
+          CURRENT_DATE=$(date +%s)
+          LAST_MODIFIED=$(date +%s -d $LAST_MODIFIED)
+          BACKUP_AGE=$(( ( $CURRENT_DATE - $LAST_MODIFIED ) / 60 ))
+
+          if [[ ${BACKUP_AGE} -lt ${{ inputs.backup-age-limit }} && $DB_BYTES -gt 5368709120 ]]; then
+            echo "IGNORE_DB=true" >> $GITHUB_ENV;
+          else
+            echo "IGNORE_DB=false" >> $GITHUB_ENV;
+          fi
+        else
+          echo "IGNORE_DB=false" >> $GITHUB_ENV;
+        fi
+      shell: bash
 
     - name: Terraform - init
       working-directory: operations/app/terraform/vars/demo
@@ -31,7 +63,7 @@ runs:
 
     - name: Terraform - destroy
       if: inputs.destroy == 'true'
-      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
       with:
         timeout_minutes: 30
         max_attempts: 3
@@ -80,11 +112,11 @@ runs:
 
     - name: Terraform - apply
       if: inputs.destroy == 'false'
-      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
       with:
         timeout_minutes: 45
-        max_attempts: 3
-        retry_wait_seconds: 180
+        max_attempts: 2
+        retry_wait_seconds: 60
         command: |
           for i in {1..3}; do \
           terraform -chdir=operations/app/terraform/vars/demo apply \
@@ -95,7 +127,7 @@ runs:
           sleep 60; \
           done
 
-          for i in {1..3}; do \
+          for i in {1..2}; do \
           terraform -chdir=operations/app/terraform/vars/demo apply \
           -var-file=${{ inputs.env-name }}/env.tfvars.json \
           -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
@@ -105,29 +137,31 @@ runs:
         shell: bash
 
     - name: Optimize db server size before restore
-      if: inputs.github-token && inputs.destroy == 'false'
+      if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
       shell: bash
       run: |
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
 
     - name: Run DB restores and wait
-      if: inputs.github-token && inputs.destroy == 'false'
-      uses: convictional/trigger-workflow-and-wait@d7939b40c3bebe9dfe6cca096f8413f8c7e01560
+      if: inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false'
+      uses: convictional/trigger-workflow-and-wait@f69fa9eedd3c62a599220f4d5745230e237904be
       with:
         owner: CDCgov
         repo: prime-reportstream
+        ref: master
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120
-        client_payload: '{ "backup_from":"test", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"2880", "restore_ignore_backup_age":"true" }'
+        client_payload: '{ "backup_from":"${{ inputs.backup-from }}", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"${{ inputs.backup-age-limit }}", "restore_ignore_backup_age":"true" }'
         propagate_failure: true
         trigger_workflow: true
         wait_workflow: true
 
     - name: Optimize db server size after restore
-      if: inputs.github-token && inputs.destroy == 'false'
+      if: always() && (inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false')
       shell: bash
       run: |
+        sleep 120;
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_4

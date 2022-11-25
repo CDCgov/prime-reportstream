@@ -7,6 +7,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
@@ -170,7 +171,11 @@ class TopicReceiver : SubmissionReceiver {
         }
 
         workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report,
+            rawBody,
+            sender,
+            actionHistory,
+            payloadName
         )
 
         actionHistory.trackLogs(actionLogs.logs)
@@ -220,11 +225,8 @@ class TopicReceiver : SubmissionReceiver {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.generateBodyAndUploadReport(
-            report,
-            senderName,
-            action = processEvent.eventAction
-        )
+        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
 
         // add task to task table
@@ -273,7 +275,7 @@ class ELRReceiver : SubmissionReceiver {
             doDuplicateDetection(
                 workflowEngine,
                 report,
-                actionLogs,
+                actionLogs
             )
         }
 
@@ -295,7 +297,11 @@ class ELRReceiver : SubmissionReceiver {
 
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report,
+            rawBody,
+            sender,
+            actionHistory,
+            payloadName
         )
 
         // track logs

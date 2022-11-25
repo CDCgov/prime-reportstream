@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
@@ -13,14 +12,15 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { NoServicesBanner } from "../alerts/NoServicesAlert";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 
 import {
-    FileErrorDisplay,
+    RequestLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
     FileWarningBanner,
-    FileWarningsDisplay,
-    NoSenderBanner,
+    RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -109,13 +109,14 @@ const FileHandler = ({
     }, [localError]);
 
     const { activeMembership } = useSessionContext();
-    const { organization, loading: organizationLoading } =
-        useOrganizationResource();
+    // TODO: Transition from isLoading to Suspense component
+    const { data: organization, isLoading: organizationLoading } =
+        useOrganizationSettings();
     // need to fetch sender from API to grab cvs vs hl7 format info
-    const { sender, loading: senderLoading } = useSenderResource();
+    const { senderDetail: sender, senderIsLoading } = useSenderResource();
 
     const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.senderName;
+    const senderName = activeMembership?.service;
     const client = `${parsedName}.${senderName}`;
     const validateOnly = useMemo(
         () => handlerType !== FileHandlerType.UPLOAD,
@@ -207,6 +208,12 @@ const FileHandler = ({
         return `The file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
+    const warningHeading = useMemo(() => {
+        return handlerType === FileHandlerType.VALIDATION
+            ? `${successMessage} with recommended edits`
+            : "";
+    }, [handlerType, successMessage]);
+
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
             ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
@@ -243,7 +250,7 @@ const FileHandler = ({
         (reportId || overallStatus === OverallStatus.VALID) &&
         !hasQualityFilterMessages;
 
-    if (senderLoading || organizationLoading) {
+    if (senderIsLoading || organizationLoading) {
         return <FileHandlerSpinner message="Loading..." />;
     }
 
@@ -252,11 +259,10 @@ const FileHandler = ({
             <div className="grid-container usa-section margin-bottom-10">
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoSenderBanner
-                    action={handlerType}
-                    organization={
-                        organization?.description || "your organization"
-                    }
+                <NoServicesBanner
+                    featureName={handlerType}
+                    organization={organization?.description}
+                    serviceType={"sender"}
                 />
             </div>
         );
@@ -266,7 +272,7 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
-            {isFileSuccess && (
+            {fileName && (
                 <>
                     <p
                         id="validatedFilename"
@@ -280,14 +286,7 @@ const FileHandler = ({
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
             )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading=""
-                    message={warningDescription}
-                />
-            )}
-            {isFileSuccess && (
+            {isFileSuccess && warnings.length === 0 && (
                 <FileSuccessDisplay
                     extendedMetadata={{
                         destinations,
@@ -299,13 +298,22 @@ const FileHandler = ({
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
-            {errors.length > 0 && (
-                <FileErrorDisplay
-                    fileName={fileName}
+            {warnings.length > 0 && (
+                <RequestedChangesDisplay
+                    title={RequestLevel.WARNING}
+                    data={warnings}
+                    message={warningDescription}
+                    heading={warningHeading}
                     handlerType={handlerType}
-                    errors={errors}
-                    heading={errorMessaging.heading}
+                />
+            )}
+            {errors.length > 0 && (
+                <RequestedChangesDisplay
+                    title={RequestLevel.ERROR}
+                    data={errors}
                     message={errorMessaging.message}
+                    heading={errorMessaging.heading}
+                    handlerType={handlerType}
                 />
             )}
             {hasQualityFilterMessages && (

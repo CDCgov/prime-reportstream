@@ -144,11 +144,15 @@ class TokenUrl : SettingCommand(
         }
         // note:  using the sender fullName as the kid here.
         val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey, sender.fullName)
-        val url = SenderUtils.generateSenderUrl(environment, senderToken, scope)
+        val url = environment.formUrl("api/token").toString()
         echo("Using this URL to get an access token from ReportStream:")
         echo(url)
 
-        val (httpStatus, response) = HttpUtilities.postHttp(url.toString(), "".toByteArray())
+        val body = SenderUtils.generateSenderUrlParameterString(senderToken, scope)
+        echo("\nUsing this payload body to get an access token from ReportStream:")
+        echo(body)
+
+        val (httpStatus, response) = HttpUtilities.postHttp(url, body.toByteArray())
         echo("\nResponse status: $httpStatus")
         echo("\n$response\n")
     }

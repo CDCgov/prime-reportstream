@@ -1042,6 +1042,126 @@ elements:
     default: N
     documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
+  - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: TestType
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: clia_complexity
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: CLIAComplexity
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: test_method
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Test Method
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: Screening
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Screening
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: serial_screening
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Serial Screening
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: direct_to_consumer
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Direct to Consumer (DTC)
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: nonprescription_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Non-prescription Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: home_collection
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Home Collection
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: prescription_home_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Prescription Home Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: over_the_counter_home_testing
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Over the Counter (OTC) Home Testing
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: collection_kit
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Collection Kit
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
+  - name: telehealth_proctor_supervised
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: Telehealth Proctor Supervised
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
+
   - name: test_correction_reason
     type: TEXT
     hl7Field: NTE-3

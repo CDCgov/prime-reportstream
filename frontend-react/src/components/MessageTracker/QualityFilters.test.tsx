@@ -6,88 +6,55 @@ describe("QualityFilters component", () => {
     test("renders expected content", async () => {
         const qualityFilters = [
             {
-                organization: "Alaska Public Health Department",
-                organization_id: "ak-phd",
-                service: "elr",
-                itemCount: 2,
-                itemCountBeforeQualityFiltering: 5,
-                filteredReportRows: [
-                    "Filtered out item Alaska1",
-                    "Filtered out item Alaska2",
-                    "Filtered out item Alaska4",
-                ],
-                filteredReportItems: [
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Alaska1",
-                        filterArgs: ["patient_dob"],
-                        message: "Filtered out item Alaska1",
-                    },
-                ],
-                sentReports: [],
-                sending_at: "",
+                trackingId: "Alaska1",
+                detail: {
+                    class: "gov.cdc.prime.router.ReportStreamFilterResult",
+                    receiverName: "ak-phd.elr",
+                    originalCount: 5,
+                    filterName: "isValidCLIA",
+                    filterArgs: ["testing_lab_clia", "reporting_facility_clia"],
+                    filteredTrackingElement: "Alaska1",
+                    filterType: "QUALITY_FILTER",
+                    scope: "translation",
+                    message:
+                        "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
+                },
             },
             {
-                organization: "Hawaii Public Health Department",
-                organization_id: "hi-phd",
-                service: "elr",
-                itemCount: 2,
-                itemCountBeforeQualityFiltering: 5,
-                filteredReportRows: [
-                    "Filtered out item Hawaii6",
-                    "Filtered out item Hawaii7",
-                    "Filtered out item Hawaii9",
-                ],
-                filteredReportItems: [
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Hawaii6",
-                        filterArgs: ["specimen_type"],
-                        message: "Filtered out item Hawaii6",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Hawaii7",
-                        filterArgs: ["specimen_type"],
-                        message: "Filtered out item Hawaii7",
-                    },
-                    {
-                        filterType: "QUALITY_FILTER",
-                        filterName: "hasValidDataFor",
-                        filteredTrackingElement: "Hawaii9",
-                        filterArgs: ["specimen_type"],
-                        message: "Filtered out item Hawaii9",
-                    },
-                ],
-                sentReports: [],
-                sending_at: "",
+                trackingId: "Alaska2",
+                detail: {
+                    class: "gov.cdc.prime.router.ReportStreamFilterResult",
+                    receiverName: "ak-phd.elr",
+                    originalCount: 5,
+                    filterName: "isValidCLIA",
+                    filterArgs: ["testing_lab_clia", "reporting_facility_clia"],
+                    filteredTrackingElement: "Alaska2",
+                    filterType: "QUALITY_FILTER",
+                    scope: "translation",
+                    message:
+                        "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
+                },
             },
         ];
         render(<QualityFilters qualityFilters={qualityFilters} />);
 
-        expect(screen.getByText(/Jurisdictions:/)).toBeInTheDocument();
+        expect(screen.getByText(/Quality Filters:/)).toBeInTheDocument();
 
-        const table = await screen.findAllByRole("table");
-        expect(table).toHaveLength(2);
+        const table = await screen.findByRole("table");
+        expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(6);
+        expect(rows).toHaveLength(2);
 
-        const headerCells = await within(rows[0]).findAllByRole("columnheader");
-        expect(headerCells).toHaveLength(3);
-        expect(headerCells[0]).toHaveTextContent(
-            "Alaska Public Health Department"
+        const firstRow = await within(rows[0]).findByRole("cell");
+        expect(firstRow).toBeInTheDocument();
+        expect(firstRow).toHaveTextContent(
+            "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1"
         );
-        expect(headerCells[1]).toHaveTextContent("Field");
-        expect(headerCells[2]).toHaveTextContent("Tracking element");
-
-        const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(3);
-        expect(firstCells[0]).toHaveTextContent("Filtered out item Alaska1");
-        expect(firstCells[1]).toHaveTextContent("hasValidDataFor");
-        expect(firstCells[2]).toHaveTextContent("Alaska1");
+        const secondRow = await within(rows[1]).findByRole("cell");
+        expect(secondRow).toBeInTheDocument();
+        expect(secondRow).toHaveTextContent(
+            "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2"
+        );
     });
 });
