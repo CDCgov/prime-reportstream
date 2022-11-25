@@ -135,6 +135,51 @@ class DoesNotMatch : ReportStreamFilterDefinition {
 }
 
 /**
+ * Implements the special filter to filter out the negative test result for "Antigen" Test type.
+ * It obtains negative test result from args[1], args[2], ... Which obtained from the covid-19.valuesets
+ * covid-19/test_result (SNOMED_CT).  Then, it goes through the report table to find the negative value in the
+ * test_result colunm and check the test_type column to see if it is "Antigen".  If it is, then it will remove
+ * the row from the table. If it is not, then, it leaves it alone.
+ *
+ * filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)
+ *
+ * Return: the selection to the modified table.
+ */
+class FilterOutNegativeAntigenTestType : ReportStreamFilterDefinition {
+    override val name = "filterOutNegativeAntigenTestType"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        if (args.size < 2) error(
+            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                " (columnName, value, value, ...)"
+        )
+        val columnName = args[0]
+        val values = args.subList(1, args.size)
+        val columnNames = table.columnNames()
+        val selection = if (columnNames.contains(columnName)) {
+            var colSelection = Selection.withRange(0, table.rowCount())
+            values.forEach { value ->
+                val testType = table.stringColumn("test_type")
+                val selection = table.stringColumn(columnName).matchesRegex(value)
+                val rowIndex = selection.toArray()
+                for (i in 0..rowIndex.size - 1) {
+                    if (testType.getString(rowIndex[i]).equals("Antigen", ignoreCase = true))
+                        colSelection = colSelection.andNot(Selection.withRange(rowIndex[i], rowIndex[i] + 1))
+                }
+            }
+            colSelection
+        } else {
+            Selection.withRange(0, table.rowCount())
+        }
+        return selection
+    }
+}
+/**
  * This may or may not be a unicorn.
  */
 class FilterByCounty : ReportStreamFilterDefinition {

@@ -24,10 +24,10 @@ import gov.cdc.prime.router.history.DeliveryHistory
  */
 class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
-    workflowEngine: WorkflowEngine = WorkflowEngine(),
+    workflowEngine: WorkflowEngine = WorkflowEngine()
 ) : ReportFileFunction(
     deliveryFacade,
-    workflowEngine,
+    workflowEngine
 ) {
     // Ignoring unknown properties because we don't require them. -DK
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -79,7 +79,7 @@ class DeliveryFunction(
             params.cursor,
             params.since,
             params.until,
-            params.pageSize,
+            params.pageSize
         )
 
         return mapper.writeValueAsString(deliveries)
@@ -113,7 +113,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/org/{organization}/deliveries"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organization") organization: String,
+        @BindingName("organization") organization: String
     ): HttpResponseMessage {
         return this.getListByOrg(request, organization)
     }
@@ -133,7 +133,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/delivery"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("id") id: String
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
     }
@@ -153,15 +153,15 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/facilities"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("id") id: String
     ): HttpResponseMessage {
         try {
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
 
-            return if (authResult != null)
+            return if (authResult != null) {
                 authResult
-            else {
+            } else {
                 val actionId = id.toLongOrNull()
 
                 val reportId = if (actionId == null) {
@@ -173,7 +173,7 @@ class DeliveryFunction(
                 val facilities = deliveryFacade.findDeliveryFacilities(
                     reportId!!,
                     HistoryApiParameters(request.queryParameters).sortDir,
-                    FacilityListApiParameters(request.queryParameters).sortColumn,
+                    FacilityListApiParameters(request.queryParameters).sortColumn
                 )
 
                 HttpUtilities.okResponse(
@@ -185,7 +185,7 @@ class DeliveryFunction(
                                 it.location,
                                 it.testingLabClia,
                                 it.positive,
-                                it.countRecords,
+                                it.countRecords
                             )
                         }
                     )
@@ -206,10 +206,10 @@ class DeliveryFunction(
      * @property sortColumn sort the table by specific column; default created_at.
      */
     data class FacilityListApiParameters(
-        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
+        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn
     ) {
         constructor(query: Map<String, String>) : this (
-            sortColumn = extractSortCol(query),
+            sortColumn = extractSortCol(query)
         )
 
         companion object {
@@ -220,10 +220,11 @@ class DeliveryFunction(
              */
             fun extractSortCol(query: Map<String, String>): DatabaseDeliveryAccess.FacilitySortColumn {
                 val col = query["sortcol"]
-                return if (col == null)
+                return if (col == null) {
                     DatabaseDeliveryAccess.FacilitySortColumn.NAME
-                else
+                } else {
                     DatabaseDeliveryAccess.FacilitySortColumn.valueOf(col)
+                }
             }
         }
     }
@@ -243,6 +244,6 @@ class DeliveryFunction(
         @JsonProperty("CLIA")
         val clia: String?,
         val positive: Long?,
-        val total: Long?,
+        val total: Long?
     )
 }

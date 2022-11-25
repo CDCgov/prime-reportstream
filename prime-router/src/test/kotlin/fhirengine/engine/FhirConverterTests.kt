@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -39,7 +40,7 @@ class FhirConverterTests {
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         "co-phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "co-phd", "topic", CustomerStatus.INACTIVE, "one"))
+        receivers = listOf(Receiver("elr", "co-phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
 
     val valid_hl7 = "" +
@@ -98,7 +99,7 @@ class FhirConverterTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()

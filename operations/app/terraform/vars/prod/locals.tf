@@ -39,7 +39,7 @@ locals {
   app = {
     app_tier                 = "PremiumV2"
     app_size                 = "P3v2"
-    function_runtime_version = "~3"
+    function_runtime_version = "~4"
   }
   network = {
     use_cdc_managed_vnet        = true

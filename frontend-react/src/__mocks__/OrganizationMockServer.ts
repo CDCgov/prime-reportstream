@@ -16,7 +16,7 @@ export const dummySender = {
     schemaName: "test/covid-19-test",
 };
 
-const fakeOrg = {
+export const fakeOrg = {
     countyName: "Testing County",
     description: "A county for testing",
     filters: [],
@@ -40,6 +40,9 @@ const handlers = [
     }),
     rest.get(firstSender, (req, res, ctx) => {
         return res(ctx.status(200));
+    }),
+    rest.get(`${base}/testOrg`, (req, res, ctx) => {
+        return res(ctx.json(fakeOrg), ctx.status(200));
     }),
     rest.get(`${base}/testOrg/receivers`, (req, res, context) => {
         return res(context.status(200));
