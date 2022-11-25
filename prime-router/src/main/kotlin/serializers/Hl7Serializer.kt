@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.Varies
 import ca.uhn.hl7v2.model.v251.datatype.CE
@@ -12,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.datatype.NM
 import ca.uhn.hl7v2.model.v251.datatype.SN
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_OBSERVATION
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
@@ -254,7 +256,7 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9."))
+                    errors.add(FieldPrecisionMessage("MSH-9", "Missing required HL7 message type field."))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -263,10 +265,9 @@ class Hl7Serializer(
                 arrayOf("ORU_R01") contentEquals altMsgType -> parser.parse(cleanedMessage)
                 else -> {
                     warnings.add(
-                        InvalidHL7Message
-                        (
-                            "Unsupported HL7 message type. Only ORU-R01 message type supported. " +
-                                "Please refer to the ReportStream Programmer's Guide and resubmit."
+                        FieldPrecisionMessage(
+                            "ORU_R01",
+                            "Unsupported HL7 message type."
                         )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
@@ -290,7 +291,9 @@ class Hl7Serializer(
         }
 
         try {
-            val terser = Terser(hapiMsg)
+            // check the observation group order and reorder if necessary to ensure test result is first
+            val organizedHapiMsg = organizeObservationOrder(hapiMsg)
+            val terser = Terser(organizedHapiMsg)
 
             val orc23 = terser.getSegment("/.ORC")
             logger.debug(orc23.name)
@@ -451,6 +454,12 @@ class Hl7Serializer(
         return hapiContext.pipeParser.encode(message)
     }
 
+    /**
+     * Create the ORU message from the internal report
+     * @param report with message
+     * @param row in report
+     * @param processingId
+     */
     fun buildMessage(
         report: Report,
         row: Int,
@@ -829,7 +838,7 @@ class Hl7Serializer(
     /**
      * The function goes through each segment in [replaceValueAwithBMap]
      * (SEGMENT: ["componentToReplace0": "newComponent0", "componentToReplace1": "newComponent1", ... ].
-     * It will replace the componentInMessageX with the newCompomentX if and only if the componentToReplaceX is
+     * It will replace the componentInMessageX with the newComponentX if and only if the componentToReplaceX is
      * equal to the componentInMassage or old component.  If the componentToReplaceX is "*", it will replace
      * regardless.
      * @param replaceValueAwithBMap - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
@@ -854,7 +863,7 @@ class Hl7Serializer(
                     return@segment
                 }
 
-                // Get field(s).  There could be more than one field seperated by '~'
+                // Get field(s).  There could be more than one field separated by '~'
                 val fields = pairs.values.first().trim().split(DEFAULT_REPETITION_SEPARATOR)
 
                 var fieldRep = 0
@@ -1200,7 +1209,7 @@ class Hl7Serializer(
         val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
         // if the value can't be parsed as a date, then we just pass through the value
         // we do this because there's a chance a date field could be set to `UNK` or
-        // some other value and we want to preserve data like that
+        // some other value, and we want to preserve data like that
         if (!DateUtilities.tryParse(truncatedValue)) {
             terser.set(pathSpec, truncatedValue)
             return
@@ -1323,7 +1332,7 @@ class Hl7Serializer(
     }
 
     /**
-     * Set the [value] into the [hl7Field] in the passed in [terser].
+     * Set the [value] into the [hl7Field] in the [terser].
      * If [hl7Field] points to a universal HD field, set [value] as the Universal ID field
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
@@ -1443,7 +1452,7 @@ class Hl7Serializer(
 
         if (element.nameContains("patient")) {
             // PID-13 is repeatable, which means we could have more than one phone #
-            // or email etc, so we need to increment until we get empty for PID-13-2
+            // or email etc., so we need to increment until we get empty for PID-13-2
             var rep = 0
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
@@ -1454,7 +1463,7 @@ class Hl7Serializer(
             if (rep > 0 && terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") == "NET") {
                 // get the email back out
                 val email = terser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-4")
-                // clear out the email value now so it's empty for the phone number repeat
+                // clear out the email value to ensure it's empty for the phone number repeat
                 terser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-4", "")
                 // overwrite the first repeat
                 setComponents("/PATIENT_RESULT/PATIENT/PID-13(0)", "PRN")
@@ -1516,7 +1525,7 @@ class Hl7Serializer(
         suppressQst: Boolean = false
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration
-        // if the value is UNK then we need to set data type to CODE and valueet = hl70136 (UNK)
+        // if the value is UNK then we need to set data type to CODE and valueset = hl70136 (UNK)
         val element = when {
             value == "UNK" && elementOrg.name == "pregnant" ->
                 elementOrg.copy(type = Element.Type.CODE, valueSet = "covid-19/pregnant_aoe")
@@ -1538,7 +1547,7 @@ class Hl7Serializer(
 
         when (element.type) {
             Element.Type.CODE -> if (value == "UNK" && elementOrg.name == "pregnant") {
-                // 261665006 is unknow code valueSet
+                // 261665006 is unknown code valueSet
                 setCodeComponent(terser, "261665006", formPathSpec("OBX-5", aoeRep), element.valueSet)
             } else {
                 setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
@@ -1955,7 +1964,7 @@ class Hl7Serializer(
             if (xtnValue is XTN) {
                 when (element.type) {
                     Element.Type.TELEPHONE -> {
-                        // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
+                        // If we have an area code or local number use the new fields, otherwise try the deprecated field
                         if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
                             // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
                             if (xtnValue.telecommunicationEquipmentType.isEmpty ||
@@ -2063,8 +2072,8 @@ class Hl7Serializer(
                                 warnings.add(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
-                                        "Timestamp for $hl7Field - ${element.name} should provide more " +
-                                            "precision. Reformat as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ."
+                                        "Timestamp for ${element.name} should be precise. Reformat " +
+                                            "to either the HL7 v2.4 TS or ISO 8601 standard format."
                                     )
                                 )
                             }
@@ -2078,7 +2087,7 @@ class Hl7Serializer(
                                 warnings.add(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
-                                        "Date for $hl7Field - ${element.name} should provide more " +
+                                        "Date for ${element.name} should provide more " +
                                             "precision. Reformat as YYYYMMDD."
                                     )
                                 )
@@ -2090,6 +2099,65 @@ class Hl7Serializer(
             }
         }
         return valueString
+    }
+
+    /**
+     * Organize the order of the Observation segments ensurign that the first iteration contains the test result
+     * @param message the HAPI message
+     * @return a hapi message with the observations ordered
+     */
+    fun organizeObservationOrder(
+        message: Message
+    ): Message {
+        val oruR01: ORU_R01 = (message as? ORU_R01) ?: return message
+
+        // get OBX-3 from first OBX segment
+        val loincRepOne = oruR01
+            .patienT_RESULT.ordeR_OBSERVATION.observation.obx.observationIdentifier.identifier?.toString() ?: ""
+
+        // if first OBX segment contains the test result then just return the message
+        if (!checkLIVDValueExists("Test Performed LOINC Code", loincRepOne)) {
+            var resultObservation: ORU_R01_OBSERVATION? = null
+            // loop through the observations and check each for the test result
+            oruR01.patienT_RESULT.ordeR_OBSERVATION.observationAll.forEachIndexed { index, observation ->
+                val loinc = observation.obx.observationIdentifier.identifier.toString()
+                // search the LOINC code against the LIVD table
+                if (checkLIVDValueExists("Test Performed LOINC Code", loinc)) {
+                    resultObservation = observation
+                    // remove the observation group including the OBX and any NTE segments
+                    oruR01.patienT_RESULT.ordeR_OBSERVATION.removeOBSERVATION(index)
+                    // insert the observation group as the first iteration
+                    oruR01.patienT_RESULT.ordeR_OBSERVATION.insertOBSERVATION(resultObservation, 0)
+                    return@forEachIndexed
+                }
+            }
+
+            // if an OBX is found with the test result then reset the OBX set IDs sequentially
+            if (resultObservation != null) {
+                oruR01.patienT_RESULT.ordeR_OBSERVATION.observationAll.forEachIndexed { index, observation ->
+                    observation.obx.setIDOBX.value = index.plus(1).toString()
+                }
+            }
+
+            return oruR01
+        } else {
+            return message
+        }
+    }
+
+    /**
+     * Positive checks that a value is present in a column in the LIVD table
+     * @param column is the search column
+     * @param value is the value to search for
+     * @return a bool indicating is 1 or more rows were identified after filtering on params
+     */
+    fun checkLIVDValueExists(column: String, value: String): Boolean {
+        return if (livdLookupTable.value.hasColumn(column)) {
+            val rowCount = livdLookupTable.value.FilterBuilder().equalsIgnoreCase(column, value).filter().rowCount
+            rowCount > 0
+        } else {
+            false
+        }
     }
 
     /**
@@ -2197,9 +2265,18 @@ class Hl7Serializer(
          */
         val ORDERING_PROVIDER_ID_FIELDS = listOf("ORC-12", "OBR-16")
 
-        // Do a lazy init because this table may never be used and it is large
+        // Do a lazy init because this table may never be used, and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        /**
+         * Lazy init of LIVD lookup table because this table may never be used
+         */
+        val livdLookupTable = lazy {
+            Metadata.getInstance().findLookupTable("LIVD-SARS-CoV-2") ?: error(
+                "Unable to find the LIVD-SARS-CoV-2 lookup table."
+            )
         }
 
         /**
@@ -2207,7 +2284,7 @@ class Hl7Serializer(
          * segment we will write out later on when we deserialize. This is very hackish
          * and should not be considered a good or permanent solution
          */
-        fun decodeNTESegments(message: ca.uhn.hl7v2.model.Message): String {
+        fun decodeNTESegments(message: Message): String {
             // cast the message to an ORU_R01, and if it's not that type of
             // message, just return an empty string
             val oruR01: ORU_R01 = (message as? ORU_R01) ?: return ""
@@ -2246,7 +2323,7 @@ class Hl7Serializer(
          */
         fun decodeObxIdentifierValue(observationValue: Varies): String {
             // the return value for `getObservationValue` is of type Varies, which means it could have
-            // any one of a bunch of datatypes: CE, CWE, NM, etc
+            // any one of a bunch of datatypes: CE, CWE, NM, etc.
             // is this a date?
             (observationValue.data as? DT).also { data ->
                 if (data != null) {
@@ -2306,7 +2383,7 @@ class Hl7Serializer(
          */
         fun decodeAOEQuestion(
             element: Element,
-            message: ca.uhn.hl7v2.model.Message,
+            message: Message,
             repetitionIndex: Int = 0
         ): String {
             // cast the message to an ORU_R01, and if it's not that type of
