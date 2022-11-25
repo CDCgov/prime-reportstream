@@ -42,7 +42,7 @@ class GetFilterTests {
             (
                 "full-elr-hl7",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
@@ -50,7 +50,7 @@ class GetFilterTests {
             (
                 "full-elr-hl7-2",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
             )
@@ -60,7 +60,7 @@ class GetFilterTests {
     private val receiverNoFilters = Receiver(
         "full-elr-hl7",
         "co-phd",
-        "full-elr",
+        Topic.FULL_ELR,
         CustomerStatus.ACTIVE,
         "one"
     )
@@ -68,7 +68,7 @@ class GetFilterTests {
     private val receiverWithFilters = Receiver(
         "full-elr-hl7",
         "co-phd",
-        "full-elr",
+        Topic.FULL_ELR,
         CustomerStatus.ACTIVE,
         "one",
         jurisdictionalFilter = listOf("testJuris"),
@@ -79,14 +79,14 @@ class GetFilterTests {
 
     private val orgFilters = listOf(
         ReportStreamFilters(
-            topic = Topic.FULL_ELR.json_val,
+            topic = Topic.FULL_ELR,
             jurisdictionalFilter = listOf("testOrgJuris"),
             qualityFilter = listOf("testOrgQuality"),
             routingFilter = listOf("testOrgRouting"),
             processingModeFilter = listOf("testOrgProcMode")
         ),
         ReportStreamFilters(
-            topic = Topic.COVID_19.json_val,
+            topic = Topic.COVID_19,
             jurisdictionalFilter = listOf("testCovidJuris"),
             qualityFilter = listOf("testCovidQuality"),
             routingFilter = listOf("testCovidRouting"),
@@ -119,7 +119,7 @@ class GetFilterTests {
     // JURIS FILTERS
     @Test
     fun `test getJurisFilter no filters`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -134,7 +134,7 @@ class GetFilterTests {
 
     @Test
     fun `test getJurisFilter org filter, no receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -149,7 +149,7 @@ class GetFilterTests {
 
     @Test
     fun `test getJurisFilter org filter + receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -165,7 +165,7 @@ class GetFilterTests {
 
     @Test
     fun `test getJurisFilter receiver filter, no org filter`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -181,12 +181,12 @@ class GetFilterTests {
 
     @Test
     fun `test getJurisFilter receiver multi line`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val receiver = Receiver(
             "full-elr-hl7",
             "co-phd",
-            "topic",
+            Topic.TEST,
             CustomerStatus.INACTIVE,
             "one",
             jurisdictionalFilter = listOf("testRec", "testRec2")
@@ -216,7 +216,7 @@ class GetFilterTests {
     // QUALITY FILTERS
     @Test
     fun `test getQualFilter no filters`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -231,7 +231,7 @@ class GetFilterTests {
 
     @Test
     fun `test getQualFilter org filter, no receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -246,7 +246,7 @@ class GetFilterTests {
 
     @Test
     fun `test getQualFilter org filter + receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -262,7 +262,7 @@ class GetFilterTests {
 
     @Test
     fun `test getQualFilter receiver filter, no org filter`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -279,7 +279,7 @@ class GetFilterTests {
     // ROUTING FILTERS
     @Test
     fun `test getRoutingFilter no filters`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -294,7 +294,7 @@ class GetFilterTests {
 
     @Test
     fun `test getRoutingFilter org filter, no receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -309,7 +309,7 @@ class GetFilterTests {
 
     @Test
     fun `test getRoutingFilter org filter + receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -325,7 +325,7 @@ class GetFilterTests {
 
     @Test
     fun `test getRoutingFilter receiver filter, no org filter`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -342,7 +342,7 @@ class GetFilterTests {
     // PROCESSING MODE FILTERS
     @Test
     fun `test getProcessingModeFilters no filters`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -357,7 +357,7 @@ class GetFilterTests {
 
     @Test
     fun `test getProcessingModeFilters org filter, no receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -372,7 +372,7 @@ class GetFilterTests {
 
     @Test
     fun `test getProcessingModeFilters org filter + receiver`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgWithFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -388,7 +388,7 @@ class GetFilterTests {
 
     @Test
     fun `test getProcessingModeFilters receiver filter, no org filter`() {
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(orgNoFilters)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)

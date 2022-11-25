@@ -31,7 +31,13 @@ export const IATemplate = ({
     const template = useMemo(() => {
         switch (templateKey) {
             case TemplateName.CARD_GRID:
-                return <IACardGridTemplate {...templateProps} />;
+                return (
+                    <IACardGridTemplate
+                        pageName={pageName}
+                        subtitle={subtitle}
+                        {...templateProps}
+                    />
+                );
             case TemplateName.SIDE_NAV:
                 return <IASideNavTemplate {...templateProps} />;
         }
@@ -39,12 +45,6 @@ export const IATemplate = ({
     return (
         <>
             <IAMeta pageName={pageName} />
-            <div className="rs-hero__index">
-                <div className="grid-container">
-                    <h1>{pageName}</h1>
-                    <h2>{subtitle}</h2>
-                </div>
-            </div>
             {/* In cases where your template index doesn't include a router,
              we provide the IARouter component, and use your template as the
              index of this section */}

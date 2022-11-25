@@ -20,11 +20,11 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
-    val rcvr = Receiver("name", "org", "topic", CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+    val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
     @Test
     fun `test merge`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val report1 = Report(
             one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource,
             metadata = metadata
@@ -43,7 +43,7 @@ class ReportTests {
 
     @Test
     fun `test filter`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
@@ -69,7 +69,7 @@ class ReportTests {
 
     @Test
     fun `test multiarg matches filter`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
@@ -128,7 +128,7 @@ class ReportTests {
 
     @Test
     fun `test isEmpty`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val emptyReport = Report(one, emptyList(), source = TestSource, metadata = metadata)
         assertThat(emptyReport.isEmpty()).isEqualTo(true)
         val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource, metadata = metadata)
@@ -137,7 +137,7 @@ class ReportTests {
 
     @Test
     fun `test create with list`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource, metadata = metadata)
         assertThat(report1.schema).isEqualTo(one)
         assertThat(report1.itemCount).isEqualTo(1)
@@ -146,8 +146,8 @@ class ReportTests {
 
     @Test
     fun `test applyMapping`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("b")))
         val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
@@ -168,10 +168,10 @@ class ReportTests {
     fun `test applyMapping with default`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", default = "~"), Element("b"))
         )
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("b")))
         val metadata = UnitTestUtils.simpleMetadata
         metadata.loadSchemas(one, two)
 
@@ -193,7 +193,7 @@ class ReportTests {
     fun `test patientZipentify`() {
         val one = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", pii = true), Element("b"), Element("patient_zip_code"))
         )
 
@@ -251,7 +251,7 @@ class ReportTests {
 
         val two = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a", pii = true), Element("b"))
         )
 
@@ -279,7 +279,7 @@ class ReportTests {
     fun `test patient age deidentification`() {
         val patientAgeSchema = Schema(
             name = "patientAgeSchema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("patient_age", pii = true),
                 Element("patient_dob", pii = true),
@@ -332,7 +332,7 @@ class ReportTests {
     fun `test patient dob deidentification`() {
         val patientAgeSchema = Schema(
             name = "patientAgeSchema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("patient_age", pii = true),
                 Element("patient_dob", pii = true),
@@ -364,7 +364,7 @@ class ReportTests {
          * Create table's header
          */
         val oneWithAge = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 Element("message_id"), Element("patient_age"),
                 Element("specimen_collection_date_time"), Element("patient_dob")
@@ -412,7 +412,7 @@ class ReportTests {
          * Test table without patient_age
          */
         val twoWithoutAge = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 Element("message_id"), Element("specimen_collection_date_time"),
                 Element("patient_dob")
@@ -446,7 +446,7 @@ class ReportTests {
          * Create table's header
          */
         val oneWithAge = Schema(
-            name = "one", topic = "test",
+            name = "one", topic = Topic.TEST,
             elements = listOf(
                 Element("message_id"), Element("patient_age"),
                 Element("specimen_collection_date_time"), Element("patient_dob")
@@ -485,7 +485,7 @@ class ReportTests {
     // Tests for Item lineage
     @Test
     fun `test merge item lineage`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
             schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
@@ -516,7 +516,7 @@ class ReportTests {
 
     @Test
     fun `test split item lineage`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
             schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
@@ -546,7 +546,7 @@ class ReportTests {
 
     @Test
     fun `test item lineage after jurisdictional filter`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         val metadata = Metadata(schema = schema)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
@@ -575,7 +575,7 @@ class ReportTests {
 
     @Test
     fun `test merge then split`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
             schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource,
@@ -610,7 +610,7 @@ class ReportTests {
 
     @Test
     fun `test lineage insanity`() {
-        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val schema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")), trackingElement = "a")
         // each sublist is a row.
         val report1 = Report(
             schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource,
@@ -656,7 +656,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("last_name"), Element("first_name")
             )
@@ -684,7 +684,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("last_name"), Element("first_name")
             )
@@ -716,7 +716,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("last_name"), Element("first_name"), Element("ssn")
             )
@@ -758,7 +758,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "test",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("last_name"), Element("first_name"),
             )
@@ -795,7 +795,7 @@ class ReportTests {
         // arrange
         val schema = Schema(
             name = "one",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("first_name"), // pii =  true
                 Element("test_time"), // type = DATETIME
