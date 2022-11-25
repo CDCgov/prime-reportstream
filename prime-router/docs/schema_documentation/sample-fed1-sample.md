@@ -1,6 +1,6 @@
 
 ### Schema: sample/fed1-sample
-### Topic: sample
+### Topic: test
 ### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: none

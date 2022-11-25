@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -70,7 +71,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackExternalInputReport`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf())
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             one, listOf(),
             sources = listOf(ClientSource("myOrg", "myClient")),
@@ -81,7 +82,7 @@ class ActionHistoryTests {
         val payloadName = "quux"
         actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
-        val reportFile = actionHistory1.reportsReceived[report1.id] !!
+        val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
         assertThat(reportFile.schemaTopic).isEqualTo("test")
         assertThat(reportFile.sendingOrg).isEqualTo("myOrg")
@@ -99,7 +100,7 @@ class ActionHistoryTests {
     @Test
     fun `test trackGeneratedEmptyReport`() {
         val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
-        val one = Schema(name = "one", topic = "test", elements = listOf())
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             one, listOf(),
             sources = listOf(ClientSource("myOrg", "myClient")),
@@ -111,7 +112,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("myService", "myOrg", "topic", CustomerStatus.INACTIVE, "schema")
+                    Receiver("myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema")
                 )
             )
         val orgReceiver = org.receivers[0]
@@ -119,7 +120,7 @@ class ActionHistoryTests {
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackGeneratedEmptyReport(event1, report1, orgReceiver, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
-        val reportFile = actionHistory1.reportsReceived[report1.id] !!
+        val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
         assertThat(reportFile.schemaTopic).isEqualTo("test")
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
@@ -133,7 +134,7 @@ class ActionHistoryTests {
     @Test
     fun `test trackCreatedReport`() {
         val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
-        val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
+        val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
             itemLineage = listOf(),
@@ -145,7 +146,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("myService", "myOrg", "topic", CustomerStatus.INACTIVE, "schema")
+                    Receiver("myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema")
                 )
             )
         val orgReceiver = org.receivers[0]
@@ -154,9 +155,9 @@ class ActionHistoryTests {
         actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
-        val reportFile = actionHistory1.reportsOut[report1.id] !!
+        val reportFile = actionHistory1.reportsOut[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("topic1")
+        assertThat(reportFile.schemaTopic).isEqualTo("test")
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
@@ -174,7 +175,7 @@ class ActionHistoryTests {
         val actionHistory1 = ActionHistory(TaskAction.send)
         actionHistory1.trackExistingInputReport(uuid)
         assertThat(actionHistory1.reportsIn[uuid]).isNotNull()
-        val reportFile = actionHistory1.reportsIn[uuid] !!
+        val reportFile = actionHistory1.reportsIn[uuid]!!
         assertThat(reportFile.schemaName).isNull()
         assertThat(reportFile.schemaTopic).isNull()
         assertThat(reportFile.receivingOrg).isNull()
@@ -195,7 +196,7 @@ class ActionHistoryTests {
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
                     Receiver(
-                        "myService", "myOrg", "topic1", CustomerStatus.INACTIVE, "schema1",
+                        "myService", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema1",
                         format = Report.Format.CSV
                     )
                 )
@@ -204,9 +205,9 @@ class ActionHistoryTests {
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
-        val reportFile = actionHistory1.reportsOut[uuid] !!
+        val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("topic1")
+        assertThat(reportFile.schemaTopic).isEqualTo("test")
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile.externalName).isEqualTo("filename1")
         assertThat(reportFile.transportParams).isEqualTo("params1")
@@ -244,12 +245,12 @@ class ActionHistoryTests {
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
                     Receiver(
-                        "receiverX", "myOrg", "topic", CustomerStatus.INACTIVE, "schema",
+                        "receiverX", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema",
                         format = Report.Format.HL7
                     )
                 )
             )
-        val schema = Schema("schema", "topic")
+        val schema = Schema("schema", Topic.TEST)
         val header = WorkflowEngine.Header(
             Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray(), true
         )
@@ -257,7 +258,7 @@ class ActionHistoryTests {
         val uuid2 = UUID.randomUUID()
         actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
-        val reportFile2 = actionHistory1.reportsOut[uuid2] !!
+        val reportFile2 = actionHistory1.reportsOut[uuid2]!!
         assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
         assertThat(reportFile2.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile2.externalName).isEqualTo("filename1")

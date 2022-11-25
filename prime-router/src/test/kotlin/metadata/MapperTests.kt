@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.NPIUtilities
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
@@ -37,7 +38,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
@@ -63,7 +64,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b"),
@@ -415,7 +416,7 @@ class MapperTests {
             )
         }
         val schema = Schema(
-            tableName, topic = "Testing NPI lookup mapper",
+            tableName, topic = Topic.TEST,
             elements = elements
         )
         val metadata = Metadata(schema = schema, table = table, tableName = tableName)
@@ -669,7 +670,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
             )
@@ -696,7 +697,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "covid-19",
+            "test", topic = Topic.COVID_19,
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
             )
@@ -880,7 +881,7 @@ class MapperTests {
             .read("./src/test/resources/metadata/tables/test_result.csv")
         val genderSchema = Schema(
             "test-gender",
-            topic = "covid-19",
+            topic = Topic.COVID_19,
             elements = listOf(
                 Element(
                     "patient_gender",
@@ -893,7 +894,7 @@ class MapperTests {
         )
         val testResultSchema = Schema(
             "test",
-            topic = "covid-19",
+            topic = Topic.COVID_19,
             elements = listOf(
                 Element(
                     "test_result_element",
