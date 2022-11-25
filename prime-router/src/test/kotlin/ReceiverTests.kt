@@ -14,7 +14,7 @@ internal class ReceiverTests {
 
     @Test
     fun `test receiver full name`() {
-        val receiver = Receiver("elr", "IGNORE", "covid-19", CustomerStatus.INACTIVE, translatorConfig)
+        val receiver = Receiver("elr", "IGNORE", Topic.COVID_19, CustomerStatus.INACTIVE, translatorConfig)
         assertThat(receiver.fullName).isEqualTo("IGNORE.elr")
     }
 
@@ -23,7 +23,7 @@ internal class ReceiverTests {
         val receiver = Receiver(
             "elr",
             "IGNORE",
-            "covid-19",
+            Topic.COVID_19,
             CustomerStatus.INACTIVE,
             translatorConfig,
             externalName = "Ignore ELR"
@@ -36,7 +36,7 @@ internal class ReceiverTests {
         val receiver = Receiver(
             "elr",
             "IGNORE",
-            "covid-19",
+            Topic.COVID_19,
             CustomerStatus.INACTIVE,
             translatorConfig,
             externalName = null
@@ -177,12 +177,13 @@ internal class ReceiverTests {
         val actual5 = timing.batchInPrevious60Seconds(noWork1)
         assertThat(actual5).isFalse()
     }
+
     @Test
     fun `test receiver schema fields`() {
         val receiver = Receiver(
             "elr",
             "co-phd",
-            "topic",
+            Topic.TEST,
             CustomerStatus.INACTIVE,
             "CO",
             Report.Format.CSV,

@@ -123,7 +123,7 @@ ${element.documentation}
         yield(
             """
 ### Schema: ${schema.name}
-### Topic: ${schema.topic}
+### Topic: ${schema.topic.json_val}
 ### Tracking Element: $schemaTrackingName
 ### Base On: $schemaBasedOn
 ### Extends: $schemaExtends

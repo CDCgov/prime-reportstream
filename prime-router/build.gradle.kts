@@ -29,7 +29,7 @@ import java.util.Properties
 import kotlin.collections.mutableMapOf
 
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.7.21"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -103,7 +103,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.1.3"
-val kotlinVersion = "1.7.20"
+val kotlinVersion = "1.7.21"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
 
@@ -708,10 +708,10 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.0") {
+    implementation("com.azure:azure-storage-queue:12.15.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.5.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -741,7 +741,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.6")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
@@ -805,7 +805,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("io.mockk:mockk:1.13.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
