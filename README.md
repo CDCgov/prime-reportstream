@@ -10,21 +10,24 @@ PRIME ReportStream a sibling project to [PRIME SimpleReport](https://simplerepor
 
 PRIME ReportStream is a member of the [Open CDC](https://open.cdc.gov/) community. 
 
-**Problem Scope**
+### Problem Scope
 
 Public health departments (PHDs) rely on accurate, timely data to fulfill day to day-operations to make long-term strategic decisions. Between the time when they receive report files from reporting entities like laboratories and point of care centers, to taking action on this data, there are many barriers and challenges. ReportStream aims to provide the infrastructure and tools to address these challenges.
 
 Our vision is to help public health systems make faster, more effective decisions. We want to both improve the speed of receiving data to action, as well as increase the quality and effectiveness of actions they can take.
 
-**Target users**
+### Target Users
 * Senders of data
   * Healthcare institutions that generate data (e.g. reports) that needs to be reported to public health departments
-  * Senders may include traditional (hospital, labs) and non-traditional (POC apps) organizations
+  * Senders may include traditional (hospital, labs), test manufacturers, and non-traditional (POC apps) organizations
 * PHDs
   * Epidemiologists who rely on health data to take regular actions
   * Senior stakeholders who make executive decisions using aggregate health data
   * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
-  * PHDs may include state, county, city, and tribal organizations
+  * PHDs may include state, county, city, and tribal organizations (STLTs)
+
+### Promotion of Standards
+While ReportStream aims to accept data in many different formats from our senders, we are committed to promoting standards in encoding and transmission of data. We therefore work to encode our messages in HL7 or FHIR, and employ LOINC and SNOMED codes where applicable.
 
 ## Public Domain Standard Notice
 This repository constitutes a work of the United States Government and is not

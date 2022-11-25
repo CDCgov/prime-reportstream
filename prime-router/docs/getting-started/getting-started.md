@@ -98,7 +98,7 @@ You can invoke `gradlew` from the `./prime-router` directory to build the baseli
 
 The most useful gradle tasks are:
 
-* `clean`: deletes the build artifacts
+* `clean`: deletes the build artifacts, including any Docker containers you have
 * `compile`: compiles the code
 * `test`: runs the unit tests
 * `testIntegration`: runs the integration tests
@@ -412,7 +412,7 @@ End-to-end tests check if the deployed system is configured correctly. The tests
     ```bash
     cd ./prime-router
     # Specify restart if they are already running and you want
-    # them to pick up new bianries
+    # them to pick up new binaries
     # i.e. ./devenv-infrastructure.sh restart
     ./devenv-infrastructure.sh
     ```
