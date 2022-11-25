@@ -549,8 +549,22 @@ class WorkflowEngine(
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
+            if (currentAction != Event.EventAction.PROCESS) {
+                // As of this writing we are not sure why this bug occurs.  However, this at least prevents it from
+                // causing trouble.
+                logger.error(
+                    "ProcessQueueFailure: The 'process' queue wants to " +
+                        "process report ${messageEvent.reportId}, " +
+                        "but the TASK table shows its next_action is $currentAction. " +
+                        "Its likely this report was processed earlier, but not removed from the 'process' queue."
+                )
+                // don't throw an exception, as that'll just make this erroneous process action run again.
+                // Also, no reason to update the TASK table:  its already marked as done.
+                return@transact
+            }
+
+            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
 
             val report = csvSerializer.readInternal(
                 task.schemaName,
