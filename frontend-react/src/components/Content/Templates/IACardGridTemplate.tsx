@@ -4,6 +4,8 @@ import { IACardList } from "./IACard";
 
 export type ContentMap = Map<string, ContentDirectory[]>; // Key should be section title
 export interface IACardGridProps {
+    pageName: string;
+    subtitle: string;
     directories: ContentDirectory[] | ContentMap;
 }
 
@@ -30,10 +32,20 @@ const MapSections = ({ cMap }: { cMap: ContentMap }) => {
     return <>{arraySections}</>;
 };
 
-export const IACardGridTemplate = ({ directories }: IACardGridProps) => {
+export const IACardGridTemplate = ({
+    pageName,
+    subtitle,
+    directories,
+}: IACardGridProps) => {
     const contentIsMapped = directories instanceof Map;
     return (
         <>
+            <div className="rs-hero__index">
+                <div className="grid-container">
+                    <h1>{pageName}</h1>
+                    <h2>{subtitle}</h2>
+                </div>
+            </div>
             <div className="grid-container usa-prose margin-top-6">
                 <div className="grid-row grid-gap">
                     {!contentIsMapped ? (

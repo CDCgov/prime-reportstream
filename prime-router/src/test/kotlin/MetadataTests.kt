@@ -51,8 +51,8 @@ class MetadataTests {
     @Test
     fun `test loading two schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
-            Schema(Element("a"), name = "one", topic = "test"),
-            Schema(Element("a"), Element("b"), name = "two", topic = "test")
+            Schema(Element("a"), name = "one", topic = Topic.TEST),
+            Schema(Element("a"), Element("b"), name = "two", topic = Topic.TEST)
         )
         assertThat(metadata.findSchema("one")).isNotNull()
     }
@@ -60,8 +60,8 @@ class MetadataTests {
     @Test
     fun `test loading basedOn schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
-            Schema(Element("a", default = "foo"), name = "one", topic = "test"),
-            Schema(Element("a"), Element("b"), name = "two", topic = "test", basedOn = "one")
+            Schema(Element("a", default = "foo"), name = "one", topic = Topic.TEST),
+            Schema(Element("a"), Element("b"), name = "two", topic = Topic.TEST, basedOn = "one")
         )
         val two = metadata.findSchema("two")
         assertThat(two)
@@ -73,8 +73,8 @@ class MetadataTests {
     @Test
     fun `test loading extends schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
-            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test"),
-            Schema(Element("a"), name = "two", topic = "test", extends = "one")
+            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = Topic.TEST),
+            Schema(Element("a"), name = "two", topic = Topic.TEST, extends = "one")
         )
         val two = metadata.findSchema("two")
         assertThat(two)
@@ -89,9 +89,9 @@ class MetadataTests {
     @Test
     fun `test loading multi-level schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
-            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test"),
-            Schema(Element("a"), Element("c"), name = "two", topic = "test", basedOn = "one"),
-            Schema(Element("a"), Element("d"), name = "three", topic = "test", extends = "two")
+            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = Topic.TEST),
+            Schema(Element("a"), Element("c"), name = "two", topic = Topic.TEST, basedOn = "one"),
+            Schema(Element("a"), Element("d"), name = "three", topic = Topic.TEST, extends = "two")
         )
         val three = metadata.findSchema("three")
         assertThat(three?.findElement("b")).isNull()
@@ -121,8 +121,8 @@ class MetadataTests {
     @Test
     fun `test find schemas`() {
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(
-            Schema(name = "One", topic = "test", elements = listOf(Element("a"))),
-            Schema(name = "Two", topic = "test", elements = listOf(Element("a"), Element("b")))
+            Schema(name = "One", topic = Topic.TEST, elements = listOf(Element("a"))),
+            Schema(name = "Two", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         )
         assertThat(metadata.findSchema("one")).isNotNull()
     }
@@ -136,11 +136,11 @@ class MetadataTests {
             values = listOf(ValueSet.Value("Y", "Yes"), ValueSet.Value("N", "No"))
         )
         val elementA = Element("a", Element.Type.CODE, valueSet = "a_values", valueSetRef = valueSetA)
-        val baseSchema = Schema(name = "base_schema", topic = "test", elements = listOf(elementA))
+        val baseSchema = Schema(name = "base_schema", topic = Topic.TEST, elements = listOf(elementA))
         val childSchema = Schema(
             name = "child_schema",
             extends = "base_schema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element(
                     "a",
@@ -155,7 +155,7 @@ class MetadataTests {
         val siblingSchema = Schema(
             name = "sibling_schema",
             extends = "base_schema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
             )
@@ -163,7 +163,7 @@ class MetadataTests {
         val twinSchema = Schema(
             name = "twin_schema",
             basedOn = "base_schema",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
             )
@@ -388,14 +388,14 @@ class MetadataTests {
 
     @Test
     fun `test schema validation`() {
-        var schema = Schema("name", "topic", listOf(Element("a", type = Element.Type.TEXT)))
+        var schema = Schema("name", Topic.TEST, listOf(Element("a", type = Element.Type.TEXT)))
         assertThat { Metadata(schema).validateSchemas() }.isSuccess()
 
-        schema = Schema("name", "topic", listOf(Element("a")))
+        schema = Schema("name", Topic.TEST, listOf(Element("a")))
         assertThat { Metadata(schema).validateSchemas() }.isFailure()
 
         schema = Schema(
-            "name", "topic",
+            "name", Topic.TEST,
             listOf(
                 Element("a", type = Element.Type.TEXT),
                 Element("name")

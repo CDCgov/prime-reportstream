@@ -11,7 +11,7 @@ const Validate = () => {
     return withCatch(
         <FileHandler
             headingText="ReportStream File Validator"
-            successMessage=""
+            successMessage="File validated"
             handlerType={FileHandlerType.VALIDATION}
             resetText="Validate another file"
             submitText="Validate"

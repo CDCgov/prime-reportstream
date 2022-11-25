@@ -103,7 +103,7 @@ enum class CustomFHIRFunctionNames {
     Split,
     GetId,
     GetIdType,
-    HasExtension
+    HasPhoneNumberExtension
 }
 
 /**
@@ -182,9 +182,9 @@ object CustomFHIRFunctions {
      * Determines if the [focus] passed in is a phone number with an extension.
      * @return a boolean indicating if the focus has an extension or not
      */
-    fun hasExtension(focus: MutableList<Base>): MutableList<Base> {
+    fun hasPhoneNumberExtension(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
-        return mutableListOf(BooleanType(PhoneUtilities.hasExtension(primVal)))
+        return mutableListOf(BooleanType(PhoneUtilities.hasPhoneNumberExtension(primVal)))
     }
 
     /**
@@ -364,7 +364,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
                 FunctionDetails("extract extension from FHIR phone number", 0, 0)
             }
-            CustomFHIRFunctionNames.HasExtension -> {
+            CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
                 FunctionDetails("see if extension exists in FHIR phone number", 0, 0)
             }
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
@@ -412,8 +412,8 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
                 CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
                     CustomFHIRFunctions.getPhoneNumberExtension(focus)
                 }
-                CustomFHIRFunctionNames.HasExtension -> {
-                    CustomFHIRFunctions.hasExtension(focus)
+                CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
+                    CustomFHIRFunctions.hasPhoneNumberExtension(focus)
                 }
                 CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                     CustomFHIRFunctions.getCodingSystemMapping(focus)

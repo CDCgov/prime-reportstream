@@ -3,19 +3,19 @@ elements:
     value: [ '%resource.name' ]
     hl7Spec: [ '%{hl7OrgField}-1' ]
 
-  - name: xon-organization-type
+  - name: xon-organization-name-type
     resource: '%resource.extension(%`rsext-organization-name-type`)'
     condition: '%resource.exists()'
     value: [ '%resource.value.coding[0].code' ]
     hl7Spec: [ '%{hl7OrgField}-2' ]
 
-  - name: xon-organization-type
+  - name: xon-organization-namespace-id
     resource: '%resource.extension(%`rsext-namespace-id`)'
     condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OrgField}-6-1' ]
 
-  - name: xon-organization-type
+  - name: xon-organization-universal-id
     value: [ '%resource.extension(%`rsext-universal-id`).value.getId()' ]
     hl7Spec: [ '%{hl7OrgField}-6-2' ]
 

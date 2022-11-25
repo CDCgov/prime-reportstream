@@ -124,12 +124,14 @@ export const endpointHasMethod = (
         throw Error(`Method ${method} cannot be used by ${endpointKey}`);
 };
 
-/* Handles generating the config from inputs with checks in the middle. If
+/**
+ * Handles generating the config from inputs with checks in the middle. If
  * any checks fail, this will return a SimpleError. You can check this by
  * calling `x instanceof SimpleError`.
  *
  * Both buildEndpointUrl and endpointHasMethod will throw if inputs lead to
- * errors, and that is communicated through SimpleError.message */
+ * errors, and that is communicated through SimpleError.message
+ * @deprecated Please use newer hooks instead */
 export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
     endpointKey: string,

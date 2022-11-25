@@ -1,7 +1,7 @@
 constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
-  - name: request-set-ID
+  - name: request-set-id
     value: [ '%orderIndex  + 1' ]
     hl7Spec: [ '%{fieldPath}-1' ]
 
@@ -63,7 +63,7 @@ elements:
     resourceIndex: contactIndex
 
   - name: callback-phone-number
-    resource: '%service.requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{fieldPath}-17(%{callbackIndex})'

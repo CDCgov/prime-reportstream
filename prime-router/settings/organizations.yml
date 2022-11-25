@@ -117,7 +117,7 @@
     - name: default
       organizationName: bzdlabs
       topic: covid-19
-      customerStatus: testing
+      customerStatus: active
       schemaName: upload-covid-19
       format: CSV
 
@@ -129,6 +129,17 @@
       organizationName: innolitics
       topic: covid-19
       customerStatus: testing
+      schemaName: csv-otc-covid-19
+      format: CSV
+
+- name: osang-otc
+  description: Osang Healthcare - OTC Testing
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: osang-otc
+      topic: covid-19
+      customerStatus: active
       schemaName: csv-otc-covid-19
       format: CSV
 
@@ -775,6 +786,15 @@
   description: Colorado Department of Public Health and Environment
   jurisdiction: STATE
   stateCode: CO
+  filters: # default filters applied for all receivers of this organization, if not overridden by receiver filter
+    - topic: "full-elr"
+      jurisdictionalFilter:
+        # this is equivalent to orEquals(ordering_facility_state, CO, patient_state, CO)
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'CO') or (Bundle.entry.resource.ofType(Patient).address.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'CO')"
+        # TODO If we had constants defined, this is how this would look
+#        - "%performerState = 'CO' or %patientState = 'CO'"
+      qualityFilter:
+        - "(Bundle.entry.resource.ofType(Provenance).exists() and Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01')"
   receivers:
     - name: "elr-hl7"
       organizationName: "co-phd"
@@ -828,7 +848,7 @@
         type: "HL7"
       jurisdictionalFilter:
         - "orEquals(ordering_facility_state, CO, patient_state, CO)"
-      qualityFilter: [ ]
+      qualityFilter: [ "filterOutNegativeAntigenTestType(test_result, 260385009, 260415000, 895231008)" ]
       routingFilter: [ ]
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
@@ -860,7 +880,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-      jurisdictionalFilter: [ ]
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       qualityFilter: [ ]
       routingFilter: [ ]
       processingModeFilter: [ ]
@@ -1838,6 +1859,7 @@
           naval-health-clinic-lemoore: "CDPH000087"
           warrior-dx-co: "CDPH000087"
           mycarelabs-ca: "CDPH000087"
+          bzdlabs: "CDPH000085"
         phoneNumberFormatting: "STANDARD"
         suppressNonNPI: false
         processingModeCode: null
@@ -2345,7 +2367,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth,osang-otc)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3562,7 +3584,7 @@
       transport:
         type: REST
         authTokenUrl: http://rest-webservice:3001/idtoken
-        reportUrl:  http://rest-webservice:3001/report
+        reportUrl:  http://rest-webservice:3001/hl7
         #authTokenUrl: https://labupload-uat.health.ok.gov/api/auth/token #test URL
         #reportUrl:  https://labupload-uat.health.ok.gov/api/document/hl7 #test URL
         #authTokenUrl: https://labupload.health.ok.gov/api/auth/token #PRODUCTION URL
@@ -3570,8 +3592,8 @@
         tlsKeystore: null
         headers:
           RecordId: 'header.reportFile.reportId'
-          senderLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-the-sending-user-belongs-to
-          sourceLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+          senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
 
 - name: or-phd
   description: Oregon Public Health Department
