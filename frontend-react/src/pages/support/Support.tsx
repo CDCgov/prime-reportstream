@@ -14,6 +14,8 @@ const templateProps: IATemplateProps<IACardGridProps> = {
     subtitle: SupportDirectoryTools.subtitle,
     templateKey: TemplateName.CARD_GRID,
     templateProps: {
+        pageName: SupportDirectoryTools.title,
+        subtitle: SupportDirectoryTools.subtitle,
         directories: supportDirectories,
     },
     includeRouter: true,

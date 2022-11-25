@@ -42,7 +42,7 @@ const RouterWrapper: FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
 };
 
-const SessionWrapper =
+export const SessionWrapper =
     (mockOkta: OktaHook) =>
     ({ children }: PropsWithChildren<{}>) => {
         return (
