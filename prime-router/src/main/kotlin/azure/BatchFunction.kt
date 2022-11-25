@@ -121,7 +121,7 @@ class BatchFunction(
                     }
 
                     // go through the universal pipeline reports to be batched
-                    if (receiver.topic == Topic.FULL_ELR.json_val) {
+                    if (receiver.topic == Topic.FULL_ELR) {
                         batchUniversalData(validHeaders, actionHistory, receiver, txn)
                     }
                     // covid/mpx pipeline
