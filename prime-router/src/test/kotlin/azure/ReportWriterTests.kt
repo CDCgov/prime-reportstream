@@ -13,6 +13,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -22,13 +23,13 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
 class ReportWriterTests {
-    val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+    val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
     val oneOrganization = DeepOrganization(
         "phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
     private val comparison = ByteArrayOutputStream()
 

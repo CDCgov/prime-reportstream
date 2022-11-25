@@ -226,7 +226,7 @@ class GenerateDocs : CliktCommand(
         }
         return Schema(
             fromSchema.baseName,
-            "covid-19",
+            fromSchema.topic,
             hl7Elements,
             description = "HL7 data elements resulting from ${fromSchema.baseName}"
         )

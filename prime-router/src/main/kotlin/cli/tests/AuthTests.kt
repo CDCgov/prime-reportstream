@@ -528,10 +528,9 @@ class Server2ServerAuthTests : CoolTest() {
         val baseUrl = environment.url.toString() + HttpUtilities.tokenApi
         val privateKey = SenderUtils.readPrivateKeyPem(privateKeyStr)
         val senderSignedJWT = SenderUtils.generateSenderToken(sender, baseUrl, privateKey, kid)
-        val senderTokenUrl =
-            SenderUtils.generateSenderUrl(settingsEnv, senderSignedJWT, scope)
-
-        return HttpUtilities.postHttp(senderTokenUrl.toString(), "".toByteArray())
+        val senderTokenUrl = settingsEnv.formUrl("api/token").toString()
+        val body = SenderUtils.generateSenderUrlParameterString(senderSignedJWT, scope)
+        return HttpUtilities.postHttp(senderTokenUrl, body.toByteArray())
     }
 
     /**
