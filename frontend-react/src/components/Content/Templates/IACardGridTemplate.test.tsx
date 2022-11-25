@@ -50,10 +50,14 @@ const testContentMap: ContentMap = new Map()
     );
 // Props for a single array page
 const arrayPageProps: IACardGridProps = {
+    pageName: "title",
+    subtitle: "subtitle",
     directories: testDirectories, // <- ContentDirectory[]
 };
 // Props for a sectioned page
 const mapPageProps: IACardGridProps = {
+    pageName: "Title",
+    subtitle: "Subtitle",
     directories: testContentMap, // <- Map<string, ContentDirectory[]>
 };
 
@@ -71,6 +75,8 @@ describe("IACardGridTemplate", () => {
     });
     test("renders sectioned card grid", () => {
         renderWithRouter(<TestSectionedCardGrid />);
+        expect(screen.getByText("Title")).toBeInTheDocument();
+        expect(screen.getByText("Subtitle")).toBeInTheDocument();
         expect(screen.getByText("Section 1")).toBeInTheDocument();
         expect(screen.getByText("Section 2")).toBeInTheDocument();
         // Asserts card for ElementDirectory "ONE" is there

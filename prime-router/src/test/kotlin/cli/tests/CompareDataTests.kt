@@ -7,6 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Topic
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 
@@ -17,7 +18,7 @@ class CompareDataTests {
     fun compareCsvRows() {
         val schema = Schema(
             name = "dummy",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b")),

@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.TimerTrigger
@@ -13,6 +14,9 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.SftpTransport
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
@@ -116,6 +120,78 @@ class CheckFunction : Logging {
             httpStatus = HttpStatus.BAD_REQUEST
         }
         return HttpUtilities.httpResponse(request, responseBody.joinToString("\n") + "\n", httpStatus)
+    }
+
+    /** @param code: "success" or "fail" enum for result of check's json response.
+     * want to limit to just one of the other */
+    enum class CheckResultsEnum(val code: String) { success("success"), fail("fail") }
+
+    /**
+     * Checks sftp settings works for a receiver.
+     *
+     * Differs from CheckFunction's `check()`:
+     *  - Uses OKTA oauth.
+     *  - ONLY supports POST
+     *  - ONLY does a single setting
+     *  - Does not support sending random data to a receiver
+     *  - Org and Setting names are split into two parameters
+     *  - Move CGI parameter into path
+     *  - Reply is 200 for check success and check failure cases.
+     *  - Reply is always in json since this is a REST api.
+     */
+    @FunctionName("checkreceiver")
+    fun checkreceiver(
+        @HttpTrigger(
+            name = "checkreceiver",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "checkreceiver/org/{orgName}/receiver/{receiverName}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("orgName") orgName: String,
+        @BindingName("receiverName") receiverName: String
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+
+        logger.info("User ${claims.userName} authorized for endpoint ${request.uri}")
+
+        /** Data structure to build json response */
+        data class JsonResponse(val result: CheckResultsEnum, val message: String)
+
+        val result = try {
+            val receiver =
+                BaseEngine.settingsProviderSingleton.findReceiver("$orgName.$receiverName")
+            if (receiver == null) {
+                JsonResponse(
+                    CheckResultsEnum.fail,
+                    "Org:'$orgName' Receiver Setting:'$receiverName' not found"
+                )
+            } else if (receiver.transport == null) {
+                JsonResponse(
+                    CheckResultsEnum.fail,
+                    "Org:'$orgName' Receiver Setting: '$receiverName' " +
+                        "'transport' section of setting is missing or empty - SFTP only supported"
+                )
+            } else {
+                // Could have an option to create a blank file like this:
+                // val sftpFile = SftpFile("prime-test-${UUID.randomUUID()}.txt", "")
+                val responseBody = mutableListOf<String>()
+                val checkResult = testTransport(receiver, null, responseBody)
+                JsonResponse(
+                    if (checkResult) CheckResultsEnum.success else CheckResultsEnum.fail,
+                    responseBody.joinToString("\n") + "\n"
+                )
+            }
+        } catch (e: Exception) {
+            logger.error("API exception", e)
+            JsonResponse(CheckResultsEnum.fail, e.toString())
+        }
+        val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(result)
+        return HttpUtilities.okResponse(request, jsonb)
     }
 
     /**
@@ -226,6 +302,7 @@ class CheckFunction : Logging {
             return false
         }
         try {
+            responseBody.add("**** Receiver Status: ${receiver.customerStatus}")
             return when (receiver.transport) {
                 is SFTPTransportType -> {
                     testSftp(receiver.transport, receiver, sftpFile, responseBody)

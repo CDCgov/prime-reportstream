@@ -174,10 +174,9 @@ const Table = ({
                             rowToEdit={rowToEdit}
                             setRowToEdit={setRowToEdit}
                         />
-                    ) : (
-                        <span>No data to show</span>
-                    )}
+                    ) : undefined}
                 </table>
+                {!memoizedRows ? <span>No data to show</span> : undefined}
                 {paginationProps && <Pagination {...paginationProps} />}
             </div>
         </div>

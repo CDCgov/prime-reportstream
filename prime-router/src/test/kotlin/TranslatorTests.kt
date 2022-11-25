@@ -112,12 +112,12 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
-    private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
+    private val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")))
 
     @Test
     fun `test filterOutNegativeAntigenTestUsingQualityFilter`() {
         val mySchema = Schema(
-            name = "two", topic = "test", trackingElement = "id",
+            name = "two", topic = Topic.TEST, trackingElement = "id",
             elements = listOf(
                 Element("id"), Element("order_test_date"),
                 Element("ordered_test_code"), Element("test_result"), Element("test_type")
@@ -168,7 +168,7 @@ class TranslatorTests {
     @Test
     fun `test filterByOneFilterType`() {
         val mySchema = Schema(
-            name = "two", topic = "test", trackingElement = "id",
+            name = "two", topic = Topic.TEST, trackingElement = "id",
             elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
@@ -233,7 +233,7 @@ class TranslatorTests {
     @Test
     fun `test filterByOneFilterType Defaults`() {
         val mySchema = Schema(
-            name = "two", topic = "test", trackingElement = "id",
+            name = "two", topic = Topic.TEST, trackingElement = "id",
             elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
@@ -298,7 +298,7 @@ class TranslatorTests {
     @Test
     fun `test filterByAllFilterTypes`() {
         val mySchema = Schema(
-            name = "two", topic = "test", trackingElement = "id",
+            name = "two", topic = Topic.TEST, trackingElement = "id",
             elements = listOf(Element("id"), Element("a"), Element("b"))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
@@ -351,7 +351,7 @@ class TranslatorTests {
     @Test
     fun `test filter with missing tracking element value`() {
         val mySchema = Schema(
-            name = "one", topic = "test", trackingElement = "id",
+            name = "one", topic = Topic.TEST, trackingElement = "id",
             elements = listOf(Element("id"), Element("a"))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
@@ -394,7 +394,7 @@ class TranslatorTests {
 
     @Test
     fun `test buildMapping`() {
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, two)
         val translator = Translator(metadata, FileSettings())
         translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap()).run {
@@ -416,7 +416,7 @@ class TranslatorTests {
     @Test
     fun `test buildMapping with default`() {
         val twoWithDefault = Schema(
-            name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x"))
+            name = "two", topic = Topic.TEST, elements = listOf(Element("a"), Element("b", default = "x"))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, twoWithDefault)
         val translator = Translator(metadata, FileSettings())
@@ -430,7 +430,7 @@ class TranslatorTests {
     fun `test buildMapping with missing`() {
         val three = Schema(
             name = "three",
-            topic = "test",
+            topic = Topic.TEST,
             elements = listOf(Element("a"), Element("c", cardinality = Element.Cardinality.ONE))
         )
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(one, three)
@@ -445,7 +445,7 @@ class TranslatorTests {
 
     @Test
     fun `test filterAndTranslateByReceiver`() {
-        val theSchema = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val theSchema = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = UnitTestUtils.simpleMetadata.loadSchemas(theSchema)
         val settings = FileSettings().also {
             it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))

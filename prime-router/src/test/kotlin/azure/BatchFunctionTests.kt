@@ -46,7 +46,7 @@ class BatchFunctionTests {
             Receiver(
                 "elr",
                 "phd",
-                "covid",
+                Topic.COVID_19,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1
@@ -72,7 +72,7 @@ class BatchFunctionTests {
         every { timing1.isValid() } returns true
         every { timing1.maxReportCount } returns 500
         every { timing1.numberPerDay } returns 1440
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -111,7 +111,7 @@ class BatchFunctionTests {
 
         // Test sending HL7 (no HL7 batch) files
         var receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 useBatchHeaders = false,
                 receivingApplicationName = null, receivingApplicationOID = null,
@@ -146,7 +146,7 @@ class BatchFunctionTests {
 
         // Single HL7s, but timing is set to merge
         receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 useBatchHeaders = false,
                 receivingApplicationName = null, receivingApplicationOID = null,
@@ -174,7 +174,7 @@ class BatchFunctionTests {
 
         // Test batching HL7 batch file
         receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 useBatchHeaders = true,
                 receivingApplicationName = null, receivingApplicationOID = null,
@@ -207,7 +207,7 @@ class BatchFunctionTests {
         // batch sending when there is no data to send, but receiver wants empty batch
         headers = emptyList()
         receiver = Receiver(
-            "name", "org", Topic.FULL_ELR.json_val,
+            "name", "org", Topic.FULL_ELR,
             translation = Hl7Configuration(
                 useBatchHeaders = true,
                 receivingApplicationName = null, receivingApplicationOID = null,
