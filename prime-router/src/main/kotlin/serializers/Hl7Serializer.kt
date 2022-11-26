@@ -838,11 +838,9 @@ class Hl7Serializer(
     /**
      * The function goes through each segment in [replaceValueAwithBMap]
      * (SEGMENT: ["componentToReplace0": "newComponent0", "componentToReplace1": "newComponent1", ... ].
-     * It will replace the componentInMessageX with the newComponentX as following:
-     *  If and only if the componentToReplaceX is equal to the componentInMassage or old component.
-     *  If the componentToReplaceX is "*", it will replace regardless.
-     *  If conponentToReplaceX contains prefix '*', it will retreive value from that component as value to replace.
-     *      (e.g., ORC-2-1: [ "": "*MSH-10" ].  In this case, it will use value in MSH-10 to fill the blank of ORC-2-1
+     * Next, it goes through fields and check if it is OBX of not, if it is, it replaces value of all OBXs
+     * If it is not OBX segment, it will replace only that segment.
+     *
      * @param replaceValueAwithBMap - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
      * @param terser - message that contains HL7 to be working on.
      * @param observationRepeats - number of OBX segment.
@@ -893,6 +891,24 @@ class Hl7Serializer(
         }
     }
 
+    /**
+     * The function checks to see if the existing field's value is the same as value wantting to replace.
+     * or it is equal to '*" (wildcard).
+     * It will replace the componentInMessageX with the newComponentX as following:
+     *  If and only if the componentToReplaceX is equal to the componentInMassage or old component.
+     *  If the componentToReplaceX is "*", it will replace regardless.
+     *  If conponentToReplaceX contains prefix '*', it will retreive value from that component as value to replace.
+     *      (e.g., ORC-2-1: [ "": "*MSH-10" ].  In this case, it will use value in MSH-10 to fill the blank of ORC-2-1
+     *
+     * @param componentInMessage - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
+     * @param pairs - exiting value to be replaced and new value to use to replace.
+     * @param components - components of field
+     * @param fields - fields of segment
+     * @param terser - message that contains HL7 to be working on.
+     * @param pathSpec -  HL7 pathSpec that point to the hl7 with the message.
+     *
+     * To understand the logic, you can follow in the Unit Test Hl7Serializer::
+     */
     private fun replaceValueAwithB(
         componentInMessage: String?,
         pairs: Map<String, String>,
@@ -924,6 +940,9 @@ class Hl7Serializer(
                         suComponentRep++
                     }
                 } else {
+                    // Here we check to see if the segment is absolute or indirect replacement.
+                    // If the segment ID contains prefix of an '*', then get value from that segment to use as
+                    // value replacement.
                     val value = if (component.isNotEmpty() && component.first().equals('*')) {
                         val refField = component.drop(1)
                         terser.get(formPathSpec(refField))
