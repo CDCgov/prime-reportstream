@@ -103,7 +103,7 @@ class TokenFunctionTests {
 
         var httpRequestMessage = MockHttpRequestMessage()
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing client_assertion parameter")
@@ -116,7 +116,7 @@ class TokenFunctionTests {
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo("Missing scope parameter")
@@ -133,7 +133,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it)
             // Invoke
-            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             assertThat(response.getBody()).isEqualTo("Incorrect scope format: $it")
@@ -147,7 +147,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", "verylong.signed.jwtstring")
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(response.getBody()).isEqualTo(null)
@@ -175,7 +175,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
         var tokenFunction = TokenFunction(UnitTestUtils.simpleMetadata)
-        var response = tokenFunction.report(httpRequestMessage)
+        var response = tokenFunction.token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -200,7 +200,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -215,7 +215,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -249,7 +249,7 @@ class TokenFunctionTests {
             httpRequestMessage.parameters.put("client_assertion", token)
             httpRequestMessage.parameters.put("scope", it[0])
             // Invoke
-            var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+            var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
@@ -266,7 +266,7 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
@@ -279,7 +279,7 @@ class TokenFunctionTests {
     }
 
     @Test
-    fun `Test success`() {
+    fun `Test success using parameters in URL`() {
 
         mockkConstructor(Server2ServerAuthentication::class)
         every {
@@ -299,8 +299,58 @@ class TokenFunctionTests {
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
         // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).report(httpRequestMessage)
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `Test success using parameters in body`() {
+
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
+            "test",
+            "test",
+            "test",
+            10,
+            10,
+            "test"
+        )
+
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+
+        var httpRequestMessage = MockHttpRequestMessage("client_assertion=$token\n&scope=$validScope")
+
+        // Invoke
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        // Verify
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `Test crazy params in body`() {
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+
+        var httpRequestMessage = MockHttpRequestMessage("client_assertion=&scope=$validScope")
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("client_assertion=anything&scope=$validScope")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("client_assertion=any.darn.thing&scope=$validScope")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("=&=")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        httpRequestMessage = MockHttpRequestMessage("gobbledygook==&&&&==")
+        response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 }
