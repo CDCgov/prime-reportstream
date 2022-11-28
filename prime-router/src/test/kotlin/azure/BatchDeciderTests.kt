@@ -6,6 +6,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -32,7 +33,7 @@ class BatchDeciderTests {
             Receiver(
                 "elr",
                 "phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1
