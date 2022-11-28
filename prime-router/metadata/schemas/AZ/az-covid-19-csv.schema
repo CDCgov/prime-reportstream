@@ -191,5 +191,3 @@ elements:
     default: ""
     csvFields:
     - name: Notes
-
-  - name: test_type

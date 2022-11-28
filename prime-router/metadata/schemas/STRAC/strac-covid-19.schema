@@ -240,5 +240,3 @@ elements:
   # the ordering provider needs to be filled in as well
   - name: ordering_provider_city
     mapper: use(ordering_facility_city)
-
-  - name: test_type

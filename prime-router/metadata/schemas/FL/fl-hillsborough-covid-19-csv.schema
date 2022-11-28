@@ -304,6 +304,4 @@ elements:
   - name: reporting_facility_clia
     mapper: use(testing_lab_clia)
 
-  - name: test_type
-
 

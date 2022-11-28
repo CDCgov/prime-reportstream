@@ -239,5 +239,4 @@ elements:
     - name: residence_type
       csvFields: [{name: residence_type}]
 
-    - name: test_type
 
