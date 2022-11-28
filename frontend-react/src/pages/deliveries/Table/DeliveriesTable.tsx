@@ -150,7 +150,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             columnHeader: "File",
             feature: {
                 action: handleFetchAndDownload,
-                param: DeliveriesDataAttr.FILE_TYPE,
+                param: DeliveriesDataAttr.REPORT_ID,
             },
         },
     ];
@@ -245,7 +245,7 @@ export const DeliveriesTable = () => {
                 <NoServicesBanner
                     featureName="Active Services"
                     organization=""
-                    serviceType={"sender"}
+                    serviceType={"receiver"}
                 />
             </div>
         );

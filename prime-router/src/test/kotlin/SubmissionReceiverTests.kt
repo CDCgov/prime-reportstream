@@ -46,7 +46,7 @@ class SubmissionReceiverTests {
             Receiver(
                 "elr",
                 "phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1
@@ -231,7 +231,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, one duplicate`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -274,7 +274,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, both duplicate and already in db`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -316,7 +316,7 @@ class SubmissionReceiverTests {
     fun `test doDuplicateDetection, 2 records, identical rows, not in db`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -359,7 +359,7 @@ class SubmissionReceiverTests {
         mockkObject(ReportWriter)
         mockkObject(BaseEngine)
         // setup
-        val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -410,7 +410,7 @@ class SubmissionReceiverTests {
         mockkObject(ReportWriter)
         mockkObject(BaseEngine)
         // setup
-        val one = Schema(name = "None", topic = "full-elr", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -462,7 +462,7 @@ class SubmissionReceiverTests {
     @Test
     fun `test COVID receiver validateAndMoveToProcessing, async`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -525,7 +525,7 @@ class SubmissionReceiverTests {
     fun `test COVID receiver validateAndMoveToProcessing, sync, with dupe check`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -594,7 +594,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, async, with dupe check`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -663,7 +663,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, inactive sender`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -732,7 +732,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, invalid hl7`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -805,7 +805,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, invalid message type hl7`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -872,7 +872,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, error on parsing`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -931,7 +931,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, warning on parsing`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -989,7 +989,7 @@ class SubmissionReceiverTests {
     fun `test validation receiver validateAndRoute, happy path`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
@@ -1043,7 +1043,7 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test getSubmissionReceiver`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
