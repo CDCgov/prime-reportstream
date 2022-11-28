@@ -94,7 +94,7 @@ class FileSettingsTests {
                 countyName = null,
                 senders = listOf(),
                 receivers = listOf(
-                    Receiver("elr", "single", "covid-19", CustomerStatus.INACTIVE, "schema")
+                    Receiver("elr", "single", Topic.COVID_19, CustomerStatus.INACTIVE, "schema")
                 )
             )
         )
@@ -144,7 +144,7 @@ class FileSettingsTests {
         val org1 = DeepOrganization(
             "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
             receivers = listOf(
-                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1"),
+                Receiver("service1", "test", Topic.COVID_19, CustomerStatus.INACTIVE, "schema1"),
             )
         )
         val settings = FileSettings().also {
@@ -162,8 +162,8 @@ class FileSettingsTests {
         val org1 = DeepOrganization(
             "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
             receivers = listOf(
-                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1"),
-                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1")
+                Receiver("service1", "test", Topic.COVID_19, CustomerStatus.INACTIVE, "schema1"),
+                Receiver("service1", "test", Topic.COVID_19, CustomerStatus.INACTIVE, "schema1")
             )
         )
         assertThat {
