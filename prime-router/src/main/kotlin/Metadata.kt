@@ -262,19 +262,19 @@ class Metadata : Logging {
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             val ref = findValueSet(it)
-                ?: error("Schema Error: '$valueSet' is missing in element '{$element.name}'")
+                ?: error("Schema Error: '$valueSet' is missing in element '${element.name}'")
             ref.mergeAltValues(element.altValues)
         }
         val table = element.table ?: baseElement?.table
         val tableRef = table?.let {
             findLookupTable(it)
-                ?: error("Schema Error: '$table' is missing in element '{$element.name}'")
+                ?: error("Schema Error: '$table' is missing in element '${element.name}'")
         }
         val mapper = element.mapper ?: baseElement?.mapper
         val refAndArgs: Pair<Mapper, List<String>>? = mapper?.let {
             val (name, args) = Mappers.parseMapperField(it)
             val ref: Mapper = findMapper(name)
-                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+                ?: error("Schema Error: Could not find mapper '$name' in element '${element.name}'")
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element

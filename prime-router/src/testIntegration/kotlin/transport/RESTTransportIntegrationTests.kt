@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -151,6 +152,20 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             UserApiKeyCredential(
                 "test-user",
                 "test-key"
+            )
+        )
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test connecting to mock service getAssertionToken happy path`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserAssertionCredential(
+                "test-assertion"
             )
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
