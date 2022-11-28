@@ -6,7 +6,7 @@ import Table, {
 } from "../../../components/Table/Table";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
+import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import {
     useOrgDeliveries,
@@ -33,24 +33,8 @@ interface ReceiverFeeds {
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
 export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { activeMembership } = useSessionContext();
-    const {
-        data: receivers,
-        loading,
-        trigger: getReceiversList,
-    } = useReceiversList(activeMembership?.parsedName);
+    const { data: receivers, isLoading } = useOrganizationReceivers();
     const [active, setActive] = useState<RSReceiver | undefined>();
-    useEffect(() => {
-        // IF activeMembership?.parsedName is not undefined
-        if (
-            activeMembership?.parsedName !== undefined &&
-            receivers === undefined
-        ) {
-            // Trigger useReceiversList()
-            getReceiversList();
-        }
-        // Ignoring getReceiverList() as dep
-    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
 
     useEffect(() => {
         if (receivers?.length) {
@@ -59,8 +43,8 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     }, [receivers]);
 
     return {
-        loadingServices: loading,
-        services: receivers,
+        loadingServices: isLoading,
+        services: receivers || [],
         activeService: active,
         setActiveService: setActive,
     };

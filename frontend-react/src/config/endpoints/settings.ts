@@ -49,6 +49,8 @@ export interface RSSender extends RSService {
     version?: number;
 }
 
+export interface RSReceiver extends RSService {}
+
 /*
 Services Endpoints
 * senders -> fetches a list of organization's senders
