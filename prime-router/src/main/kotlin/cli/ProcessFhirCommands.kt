@@ -17,6 +17,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -329,6 +330,9 @@ class FhirPathCommand : CliktCommand(
                 FhirPathUtils.pathEngine.evaluate(fhirPathContext, focusResource, bundle, bundle, pathExpression)
             } catch (e: IndexOutOfBoundsException) {
                 // This happens when a value for an extension is speced, but the extension does not exist.
+                emptyList()
+            } catch (e: SchemaException) {
+                echo("Error evaluating path: ${e.message}")
                 emptyList()
             }
 
