@@ -1878,3 +1878,19 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Cardinality**: [0..1]
 
 ---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---

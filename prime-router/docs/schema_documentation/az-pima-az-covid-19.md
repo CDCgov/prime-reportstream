@@ -1268,6 +1268,22 @@ The ID number of the lab order from the placer
 
 ---
 
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---
+
 **Name**: testing_lab_name
 
 **ReportStream Internal Name**: testing_lab_name

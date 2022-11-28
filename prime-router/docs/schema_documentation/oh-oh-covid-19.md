@@ -2914,6 +2914,22 @@ The units the test result is measured in.
 
 ---
 
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---
+
 **Name**: testing_lab_accession_number
 
 **ReportStream Internal Name**: testing_lab_accession_number

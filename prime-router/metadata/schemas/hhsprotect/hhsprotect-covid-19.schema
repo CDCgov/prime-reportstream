@@ -263,3 +263,5 @@ elements:
 
   - name: processing_mode_code
     csvFields: [{name: processingModeCode}]
+
+  - name: test_type

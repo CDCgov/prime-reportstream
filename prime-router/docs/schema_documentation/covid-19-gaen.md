@@ -124,3 +124,19 @@ unique id to track the usage of the message
 The patient's phone number with area code
 
 ---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---

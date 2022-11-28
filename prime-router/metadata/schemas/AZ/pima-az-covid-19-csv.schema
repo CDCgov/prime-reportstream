@@ -241,3 +241,5 @@ elements:
 
   - name: placer_order_id
 
+  - name: test_type
+

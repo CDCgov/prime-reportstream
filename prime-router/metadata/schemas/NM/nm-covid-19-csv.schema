@@ -373,6 +373,8 @@ elements:
 
   - name: equipment_model_name
 
+  - name: test_type
+
 
 
 

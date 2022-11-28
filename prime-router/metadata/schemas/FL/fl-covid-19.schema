@@ -272,6 +272,8 @@ elements:
 
   - name: symptomatic_for_disease
 
+  - name: test_type
+
 
 
 

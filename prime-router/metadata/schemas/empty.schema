@@ -37,3 +37,5 @@ elements:
   - name: processing_mode_code
     cardinality: ONE
     mapper: useSenderSetting(processingModeCode)
+
+  - name: test_type

@@ -2481,3 +2481,19 @@ the test result is in some intermediate status, is a correction, or is the final
 eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value.
 
 ---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---

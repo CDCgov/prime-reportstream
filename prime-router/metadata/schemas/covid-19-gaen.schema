@@ -26,3 +26,5 @@ elements:
     csvFields:
       - name: patient_phone_number
         format: "$e164"
+
+  - name: test_type

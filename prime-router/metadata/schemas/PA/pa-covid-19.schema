@@ -87,3 +87,5 @@ elements:
   - name: ordering_facility_name
     csvFields:
     - name: PerformingFacilityName
+
+  - name: test_type

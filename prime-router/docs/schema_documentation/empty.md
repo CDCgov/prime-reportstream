@@ -123,3 +123,19 @@ P, D, or T for Production, Debugging, or Training
 **Cardinality**: [1..1]
 
 ---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---

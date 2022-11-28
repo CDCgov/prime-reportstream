@@ -270,3 +270,5 @@ elements:
     type: TEXT
     hl7Field: OBX-23-11
     default: ""
+
+  - name: test_type

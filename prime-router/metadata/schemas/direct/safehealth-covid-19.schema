@@ -13,3 +13,5 @@ elements:
 
   - name: processing_mode_code
     default: P
+
+  - name: test_type
