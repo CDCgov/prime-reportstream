@@ -25,7 +25,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import org.apache.commons.text.StringSubstitutor
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -37,12 +36,11 @@ import org.hl7.fhir.r4.model.Bundle
  */
 class FHIRRouter(
     metadata: Metadata = Metadata.getInstance(),
-    settings: SettingsProvider = this.settingsProviderSingleton,
-    db: DatabaseAccess = this.databaseAccessSingleton,
+    settings: SettingsProvider = settingsProviderSingleton,
+    db: DatabaseAccess = databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess,
 ) : FHIREngine(metadata, settings, db, blob, queue) {
-
     /**
      * Default Rules:
      *   Must have message ID, patient last name, patient first name, DOB, specimen type
@@ -50,20 +48,20 @@ class FHIRRouter(
      *   At least one of order test date, specimen collection date/time, test result date
      */
     val qualityFilterDefault: ReportStreamFilter = listOf(
-        "%{messageId}.exists()",
-        "%{patient}.name.family.exists()",
-        "%{patient}.name.given.count() > 0",
-        "%{patient}.birthDate.exists()",
-        "%{specimen}.type.exists()",
-        "(%{patient}.address.line.exists() or " +
-            "%{patient}.address.postalCode.exists() or " +
-            "%{patient}.telecom.exists())",
+        "%messageId.exists()",
+        "%patient.name.family.exists()",
+        "%patient.name.given.count() > 0",
+        "%patient.birthDate.exists()",
+        "%specimen.type.exists()",
+        "(%patient.address.line.exists() or " +
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-            "(%{specimen}.collection.collectedPeriod.exists() or " +
-            "%{specimen}.collection.collected.exists()" +
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
             ") or " +
-            "%{serviceRequest}.occurrence.exists() or " +
-            "%{observation}.effective.exists())"
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())"
     )
 
     /**
@@ -73,38 +71,6 @@ class FHIRRouter(
     val processingModeFilterDefault: ReportStreamFilter = listOf(
         "%{processingId} = 'P'"
     )
-
-    // private val shorthandValues = metadata.findLookupTable("filter_shorthand")!!.dataRows.associate {
-    //
-    //     it[0] to it[1]
-    // }
-
-    /**
-     * Lookup table `filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
-     */
-    private val shorthandLookupTable = metadata.findLookupTable("filter_shorthand")!!
-
-    /**
-     * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
-     * used in configuration filter expressions with the specified Fhir Path expression before the expression
-     * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
-     * where needed. Format is %{myVariable} within the filters, and each variable used must be defined
-     * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
-     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to4
-     * underlying fhir library.
-     *
-     * The values that this uses are located in the filter_shorthand lookup table.
-     */
-    private val shorthandSubstitutor = StringSubstitutor {
-        val filter = shorthandLookupTable.FilterBuilder()
-        filter.isEqualTo("variable", it)
-        val path = filter.findSingleResult("fhirPath")
-
-        if (!path.isNullOrEmpty())
-            path
-        else
-            throw NotImplementedError("Could not locate a unique entry for '$it' in the shorthand values lookup table.")
-    }.setVariablePrefix("%{")
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -313,10 +279,10 @@ class FHIRRouter(
         else {
             filter.all {
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle),
+                    CustomContext(bundle, bundle, filterSubstitutionMap),
                     bundle,
                     bundle,
-                    shorthandSubstitutor.replace(it)
+                    replaceFilterVars(it) // shorthandSubstitutor.replace(it)
                 )
             }
         }
@@ -369,5 +335,79 @@ class FHIRRouter(
             orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
+    }
+
+    /**
+     * The list of FHIR Path variables to use for filters.
+     */
+    private val filterSubstitutionList: List<List<String>> = getFilterVarTable()
+
+    /**
+     * The list of FHIR Path variables to use for filters as a map.
+     */
+    private val filterSubstitutionMap: MutableMap<String, String>
+        get() {
+            return filterSubstitutionList.associate { it[0] to it[1] }.toMutableMap()
+        }
+
+    internal fun getFilterVarTable(): List<List<String>> {
+        val orderedList = mutableListOf<List<String>>()
+        val lookupTable = metadata.findLookupTable(filterVarTableName)
+        if (lookupTable != null && lookupTable.rowCount > 0) {
+            if (!lookupTable.hasColumn(filterVarTableNameCol) || !lookupTable.hasColumn(filterVarTablePathCol))
+                throw IllegalStateException(
+                    "Table $filterVarTableName is missing columns $filterVarTableNameCol and/or $filterVarTablePathCol"
+                )
+            // Extract all the rows
+            lookupTable.table.forEach { row ->
+                // Check for invalid names
+                val name = row.getString(filterVarTableNameCol)
+                if (filterVarNameFormatRegex.matches(name)) {
+                    orderedList.add(listOf(name, row.getString(filterVarTablePathCol)))
+                } else {
+                    logger.error(
+                        "Filter FHIR Path variable '$name' contains invalid characters. " +
+                            "Must match regex ${filterVarNameFormatRegex.pattern}"
+                    )
+                    // Do we completely fail here?
+                }
+            }
+            // Now put them in order of variable length, so short names variables do not overwrite longer ones
+            // that may contain the same name (e.g. patientAddress and patient, so we do not replace patient first).
+            orderedList.sortByDescending { it[0].length }
+            orderedList.toList()
+        } else {
+            logger.warn("Lookup table $filterVarTableName does not exist or is empty")
+        }
+
+        return orderedList
+    }
+
+    internal fun replaceFilterVars(path: String): String {
+        var processedPath = path
+
+        // We need to do recursive substitution, so keep substituting until the path no longer changes
+        // while (lastPathProcessed != processedPath) {
+        do {
+            val previousPath = processedPath
+            filterSubstitutionList.forEach { filterVar ->
+                // Replace using the various FHIR Path variable syntax
+                // Reference http://hl7.org/fhirpath/N1/#environment-variables
+                listOf(
+                    "$variableDelimiter'${filterVar[0]}'",
+                    "$variableDelimiter`${filterVar[0]}`",
+                    "$variableDelimiter${filterVar[0]}"
+                ).forEach { processedPath = processedPath.replace("$variableDelimiter'$it'", filterVar[1]) }
+            }
+        } while (previousPath != processedPath)
+        return processedPath
+    }
+
+    companion object {
+        private const val filterVarTableName = "filter_shorthand"
+        private const val filterVarTableNameCol = "variable"
+        private const val filterVarTablePathCol = "fhirPath"
+        private val filterVarNameFormatRegex = """^[A-Za-z][\w\-]+$""".toRegex()
+        private const val variableDelimiter = "%"
     }
 }

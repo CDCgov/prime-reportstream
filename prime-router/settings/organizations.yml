@@ -789,8 +789,7 @@
   filters: # default filters applied for all receivers of this organization, if not overridden by receiver filter
     - topic: "full-elr"
       jurisdictionalFilter:
-        # this is equivalent to orEquals(ordering_facility_state, CO, patient_state, CO)
-        - "%{performerState} = 'CO' or %{patientState} = 'CO'"
+        - "%performerState = 'CO' or %patientState = 'CO'"
   receivers:
     - name: "elr-hl7"
       organizationName: "co-phd"

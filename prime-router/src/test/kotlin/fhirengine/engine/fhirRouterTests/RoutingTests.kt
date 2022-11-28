@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import assertk.assertThat
+import assertk.assertions.isFalse
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -38,7 +40,6 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RoutingTests {
@@ -52,16 +53,14 @@ class RoutingTests {
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
-            Receiver
-            (
+            Receiver(
                 "full-elr-hl7",
                 "co-phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
-            Receiver
-            (
+            Receiver(
                 "full-elr-hl7-2",
                 "co-phd",
                 Topic.FULL_ELR,
@@ -73,12 +72,10 @@ class RoutingTests {
 
     val csv = """
             variable,fhirPath
-            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/
-            fhir/StructureDefinition/source-processing-id').value.coding.code
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
             messageId,Bundle.entry.resource.ofType(MessageHeader).id
             patient,Bundle.entry.resource.ofType(Patient)
-            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.
-            resolve().address.state
+            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
             patientState,Bundle.entry.resource.ofType(Patient).address.state
             specimen,Bundle.entry.resource.ofType(Specimen)
             serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
@@ -366,8 +363,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -387,8 +384,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -408,8 +405,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -428,17 +425,10 @@ class RoutingTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val filter = listOf("%{myInvalidConstant}.exists()")
 
-        // act
-        var exceptionThrown = false
-        try {
-            engine.evaluateFilterCondition(filter, bundle, false)
-        } catch (ex: NotImplementedError) {
-            exceptionThrown = true
-        }
-
-        // assert
-        assertTrue(exceptionThrown)
+        assertThat(engine.evaluateFilterCondition(listOf("%myInvalidConstant.exists()"), bundle, false))
+            .isFalse()
+        assertThat(engine.evaluateFilterCondition(listOf("%myInvalidConstant"), bundle, false))
+            .isFalse()
     }
 }
