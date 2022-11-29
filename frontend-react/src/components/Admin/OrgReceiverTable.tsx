@@ -59,6 +59,10 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
     // The "Start check" button is clicked in the modal to start the API call to do the check
     const clickDoCheckCmd = useCallback(async () => {
         try {
+            setCheckResultData({
+                result: "",
+                message: "Starting... (this can take a while)",
+            });
             const result = await doCheck({
                 orgName,
                 receiverName: clickedReceiver,
