@@ -2075,7 +2075,6 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        reportingFacilityName: Chester County Health Department
         receivingApplicationName: PA-ELR
         receivingFacilityName: PADOH
         suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
