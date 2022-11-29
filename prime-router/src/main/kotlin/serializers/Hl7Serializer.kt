@@ -294,14 +294,16 @@ class Hl7Serializer(
                 else ->
                     if (e.location.toString() == "PID-29(0)") {
                         errors.add(
-                            InvalidHL7Message(
+                            FieldPrecisionMessage(
+                                e.location.toString(),
                                 "Error parsing HL7 message: ${e.localizedMessage}",
                                 ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
                             )
                         )
                     } else {
                         errors.add(
-                            InvalidHL7Message(
+                            FieldPrecisionMessage(
+                                e.location.toString(),
                                 "Error parsing HL7 message: ${e.localizedMessage}",
                                 ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
                             )
@@ -409,7 +411,13 @@ class Hl7Serializer(
             logger.error(msg)
 
             if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
-                errors.add(InvalidHL7Message(msg, ErrorType.INVALID_HL7_PHONE_NUMBER.type))
+                errors.add(
+                    FieldPrecisionMessage(
+                        "ORC-23(0)",
+                        msg,
+                        ErrorType.INVALID_HL7_PHONE_NUMBER.type
+                    )
+                )
             } else {
                 errors.add(InvalidHL7Message(msg))
             }

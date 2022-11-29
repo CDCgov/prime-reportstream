@@ -105,7 +105,16 @@ describe("FileErrorDisplay", () => {
             errorCode: "INVALID_HL7_MESSAGE_VALIDATION",
             details: "none",
         };
-        const errors = [fakeError1, fakeError2];
+        const fakeError3: ResponseError = {
+            message: "Exception: third error\ntruncated",
+            indices: [3],
+            field: "third field",
+            trackingIds: ["third_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_PHONE_NUMBER",
+            details: "none",
+        };
+        const errors = [fakeError1, fakeError2, fakeError3];
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
@@ -120,7 +129,7 @@ describe("FileErrorDisplay", () => {
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 errors + header
+        expect(rows).toHaveLength(4); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
@@ -129,6 +138,14 @@ describe("FileErrorDisplay", () => {
         );
         expect(firstCells[1]).toHaveTextContent("first field");
         expect(firstCells[2]).toHaveTextContent("first_id");
+
+        const secondCells = await within(rows[2]).findAllByRole("cell");
+        expect(secondCells[0]).toHaveTextContent("Invalid entry for field.");
+
+        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        expect(thirdCells[0]).toHaveTextContent(
+            "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
+        );
     });
 });
 

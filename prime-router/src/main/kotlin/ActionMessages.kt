@@ -126,7 +126,8 @@ class InvalidEquipmentMessage(
  */
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
-    override val message: String
+    override val message: String,
+    override val errorCode: String = ""
 ) : ItemActionLogDetail(fieldMapping)
 
 /**

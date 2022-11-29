@@ -57,7 +57,7 @@ export enum ErrorCodeTranslation {
     INVALID_HL7_MESSAGE_VALIDATION = "Invalid entry for field.",
     INVALID_HL7_MESSAGE_DATE_VALIDATION = "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
     INVALID_HL7_MESSAGE_FORMAT = "",
-    INVALID_HL7_PHONE_NUMBER = "Invalid phone number provided.",
+    INVALID_HL7_PHONE_NUMBER = "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555).",
 }
 
 /*
