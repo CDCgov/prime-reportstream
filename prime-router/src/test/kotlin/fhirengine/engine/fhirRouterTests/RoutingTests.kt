@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import assertk.assertThat
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -59,7 +62,7 @@ class RoutingTests {
             Receiver(
                 "full-elr-hl7-2",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
             )
@@ -74,7 +77,7 @@ class RoutingTests {
             Receiver(
                 "full-elr-hl7",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one",
                 reverseTheQualityFilter = true
@@ -104,7 +107,7 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(twoOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
         var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -121,7 +124,7 @@ class RoutingTests {
         val receivers = engine.applyFilters(bundle)
 
         // assert
-        assert(receivers.isNotEmpty())
+        assertThat(receivers).isNotEmpty()
     }
 
     @Test
@@ -129,7 +132,7 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -145,7 +148,7 @@ class RoutingTests {
         val receivers = engine.applyFilters(bundle)
 
         // assert
-        assert(receivers.isNotEmpty())
+        assertThat(receivers).isNotEmpty()
     }
 
     @Test
@@ -162,7 +165,7 @@ class RoutingTests {
         val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
 
         // assert
-        assert(qualDefaultResult)
+        assertThat(qualDefaultResult).isTrue()
     }
 
     @Test
