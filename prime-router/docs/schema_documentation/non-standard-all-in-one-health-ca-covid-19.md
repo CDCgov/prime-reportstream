@@ -1557,3 +1557,19 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 The LOINC code of the test performed. This is a standardized coded value describing the test
 
 ---
+
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---

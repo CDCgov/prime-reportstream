@@ -66,3 +66,5 @@ elements:
   - name: equipment_model_name
     type: TEXT
     default: BinaxNOW COVID-19 Ag Card
+
+  - name: test_type

@@ -29,3 +29,5 @@ elements:
     default:
     defaultOverridesValue: false
 
+  - name: test_type
+

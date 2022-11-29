@@ -192,3 +192,5 @@ elements:
     csvFields:
     - name: Notes
 
+  - name: test_type
+

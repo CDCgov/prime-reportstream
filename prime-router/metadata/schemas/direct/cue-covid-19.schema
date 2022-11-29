@@ -22,6 +22,8 @@ elements:
     type: TEXT
     csvFields: [{ name: performingFacility}]
 
+  - name: test_type
+
 #custom field to store value indicating a Eurofins test ("OpET - CEI")  
   - name: patient_street2_CEI 
     csvFields: [{ name: patientHomeAddress2, format: $alt}]
