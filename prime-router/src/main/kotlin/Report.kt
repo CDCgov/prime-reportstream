@@ -62,6 +62,7 @@ enum class Options {
     CheckConnections,
     SkipSend,
     SendImmediately,
+
     @OptionDeprecated
     SkipInvalidItems;
 
@@ -81,6 +82,7 @@ enum class Options {
          */
 
         val activeValues = mutableListOf<Options>()
+
         init {
             Options.values().forEach {
                 if (!it.isDeprecated) activeValues.add(it)
@@ -103,6 +105,7 @@ enum class Options {
 }
 
 annotation class OptionDeprecated()
+
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
@@ -128,6 +131,7 @@ data class ReportStreamFilterResult(
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
     override val errorCode = ""
+
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
         const val DEFAULT_TRACKING_VALUE = "MissingID"
@@ -240,14 +244,15 @@ class Report : Logging {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFilename(
-        id,
-        schema.baseName,
-        bodyFormat,
-        createdDateTime,
-        translationConfig = destination?.translation,
-        metadata = this.metadata
-    )
+    val name: String
+        get() = formFilename(
+            id,
+            schema.baseName,
+            bodyFormat,
+            createdDateTime,
+            translationConfig = destination?.translation,
+            metadata = this.metadata
+        )
 
     /**
      * A format for the body or use the destination format
@@ -376,7 +381,7 @@ class Report : Logging {
     ) {
         this.id = UUID.randomUUID()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
-        this.schema = Schema("None", Topic.FULL_ELR.json_val)
+        this.schema = Schema("None", Topic.FULL_ELR)
         this.sources = sources
         this.bodyFormat = bodyFormat
         this.destination = destination
@@ -647,6 +652,7 @@ class Report : Logging {
             if (row.columnNames().contains(columnName))
                 row.setString(columnName, value)
         }
+
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -813,7 +819,7 @@ class Report : Logging {
                     it.patientCountry = row.getStringOrNull("patient_country")
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                        metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
@@ -956,7 +962,7 @@ class Report : Logging {
                     it.patientCountry = row.getStringOrNull("patient_country")
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
-                        metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
+                        metadata.findValueSet("hl70189")?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }

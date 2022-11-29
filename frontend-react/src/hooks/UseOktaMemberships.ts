@@ -10,7 +10,7 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService } from "../config/endpoints/services";
+import { RSService } from "../config/endpoints/settings";
 
 export enum MemberType {
     SENDER = "sender",

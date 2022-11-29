@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
@@ -14,6 +13,7 @@ import useFileHandler, {
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 
 import {
     RequestLevel,
@@ -109,8 +109,9 @@ const FileHandler = ({
     }, [localError]);
 
     const { activeMembership } = useSessionContext();
-    const { organization, loading: organizationLoading } =
-        useOrganizationResource();
+    // TODO: Transition from isLoading to Suspense component
+    const { data: organization, isLoading: organizationLoading } =
+        useOrganizationSettings();
     // need to fetch sender from API to grab cvs vs hl7 format info
     const { senderDetail: sender, senderIsLoading } = useSenderResource();
 

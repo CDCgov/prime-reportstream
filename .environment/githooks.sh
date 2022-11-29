@@ -4,7 +4,7 @@
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
 REPO_ROOT="$(pwd)/.."
-dir=${REPO_ROOT}/.git/hooks/pre-commit
+dir=${REPO_ROOT}/.git/hooks
 
 if [[ ! -e $dir ]]; then
     mkdir -p $dir
