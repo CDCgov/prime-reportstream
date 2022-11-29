@@ -6,6 +6,16 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## November 29, 2022
+
+### Change to the api/token endpoint
+
+This release makes a change to how parameters should be POSTed to the api/token endpoint, when requesting bearer tokens.
+
+Previously, parameters were sent in the URL.   Now, parameters should be sent in the body of the POST.  Note that the older way of POSTing is still currently accepted, however this should be considered deprecated and will not be accepted in a future release.
+
+Details are documented in the [Programmer's Guide](./ReportStream-Programmers-Guide-v2.3-updated.docx) and in the [openapi documentation for the token endpoint](./api/token.yml)
+
 ## September 6, 2022
 
 ### Additional Lookuptable API Endpoint

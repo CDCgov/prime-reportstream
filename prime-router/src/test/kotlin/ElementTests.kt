@@ -856,7 +856,8 @@ internal class ElementTests {
         ).run {
             assertThat(this.truncateIfNeeded("abcde")).isEqualTo("abcde")
         }
-        Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
+        Element(
+            // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
             name = "cuatro",
             type = Element.Type.TEXT,
         ).run {
@@ -929,7 +930,7 @@ internal class ElementTests {
             Element("i", Element.Type.TEXT, default = "someDefault", defaultOverridesValue = true), // 8
             Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
-        val schema = Schema("one", "covid-19", elements)
+        val schema = Schema("one", Topic.COVID_19, elements)
         val currentDate = LocalDate.now().format(DateUtilities.dateFormatter)
         val mappedValues = mutableMapOf(
             elements[0].name to "TEST",
@@ -1089,7 +1090,7 @@ internal class ElementTests {
         val elementD = Element("d", mapperRef = NullMapper(), default = "default")
         val elementE = Element("e", mapperRef = TrimBlanksMapper(), mapperArgs = listOf("a"))
         val schema = Schema(
-            "name", "topic",
+            "name", Topic.TEST,
             elements = listOf(elementA, elementB, elementC, elementD, elementE)
         )
 
@@ -1153,6 +1154,7 @@ internal class ElementTests {
                 }
             }
         }
+
         val elementA = Element("a", mapperRef = SomeCoolMapper())
         val elementB = Element(
             "a", mapperRef = SomeCoolMapper(), mapperArgs = listOf("1warning"),
@@ -1188,7 +1190,7 @@ internal class ElementTests {
         )
         val elementJ = Element("a", mapperRef = SomeCoolMapper(), cardinality = Element.Cardinality.ONE)
         val schema = Schema(
-            "name", "topic",
+            "name", Topic.TEST,
             elements = listOf(
                 elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI,
                 elementJ
