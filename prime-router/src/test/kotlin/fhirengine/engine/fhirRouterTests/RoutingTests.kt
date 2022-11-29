@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -51,7 +52,7 @@ class RoutingTests {
             Receiver(
                 "full-elr-hl7",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
@@ -81,7 +82,7 @@ class RoutingTests {
             Receiver(
                 "full-elr-hl7-2",
                 "co-phd",
-                "full-elr",
+                Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
             )
@@ -152,7 +153,7 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
@@ -173,7 +174,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -222,7 +223,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -271,7 +272,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -320,7 +321,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
@@ -369,7 +370,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = "full-elr", elements = emptyList())
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()

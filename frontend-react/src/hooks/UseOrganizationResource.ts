@@ -6,6 +6,9 @@ import OrganizationsAPI from "../network/api/OrganizationsApi";
 
 import useRequestConfig from "./network/UseRequestConfig";
 
+/**
+ * @deprecated Please use useOrganizationSettings instead
+ */
 export const useOrganizationResource = () => {
     /* Access the session. */
     const { activeMembership, oktaToken } = useSessionContext();

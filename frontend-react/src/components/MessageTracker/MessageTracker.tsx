@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Label, Button, TextInput } from "@trussworks/react-uswds";
+import {
+    Form,
+    FormGroup,
+    Label,
+    Button,
+    TextInput,
+} from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
@@ -73,7 +79,8 @@ export function MessageTracker() {
     const [hasSearched, setHasSearched] = useState(false);
     const { search, isLoading } = useMessageSearch();
 
-    const searchMessageId = async () => {
+    const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         const senderResponse: MessageListResource[] = await search(
             searchFilter
         );
@@ -92,41 +99,56 @@ export function MessageTracker() {
         <section className="grid-container margin-bottom-5 tablet:margin-top-6">
             <h1>Message ID Search</h1>
 
-            <Label className="font-sans-xs usa-label" htmlFor="input_filter">
-                Message ID
-            </Label>
-            <div className="grid-gap-lg display-flex">
-                <TextInput
-                    id="search-field"
-                    name="search"
-                    type="text"
-                    className={"usa-input"}
-                    autoFocus
-                    inputSize={"medium"}
-                    aria-disabled={isLoading}
-                    value={searchFilter}
-                    onChange={(evt) =>
-                        setSearchFilter((evt.target as HTMLInputElement).value)
-                    }
-                />
-                <Button
-                    onClick={() => searchMessageId()}
-                    type="button"
-                    name="submit-button"
-                    className="usa-button height-5 margin-top-1 radius-left-0"
-                >
-                    Search
-                </Button>
-                <Button
-                    onClick={() => clearSearch()}
-                    type="button"
-                    name="clear-button"
-                    className="font-sans-xs margin-top-1"
-                    unstyled
-                >
-                    Clear
-                </Button>
-            </div>
+            <Form onSubmit={(e) => searchMessageId(e)} className="maxw-full">
+                <div className="grid-row display-flex">
+                    <div className="display-flex">
+                        <FormGroup>
+                            <Label
+                                className="font-sans-xs usa-label"
+                                htmlFor="search-field"
+                            >
+                                Message ID
+                            </Label>
+                            <TextInput
+                                id="search-field"
+                                name="search"
+                                type="text"
+                                className={
+                                    "usa-input rs-max-width-100-important mobile:width-card-lg mobile-lg:width-mobile tablet:width-tablet"
+                                }
+                                autoFocus
+                                inputSize={"medium"}
+                                aria-disabled={isLoading}
+                                value={searchFilter}
+                                onChange={(evt) =>
+                                    setSearchFilter(
+                                        (evt.target as HTMLInputElement).value
+                                    )
+                                }
+                                required={true}
+                            />
+                        </FormGroup>
+                        <Button
+                            type="submit"
+                            name="submit-button"
+                            className="usa-button height-5 radius-left-0 rs-margin-top-auto-important margin-right-3"
+                        >
+                            Search
+                        </Button>
+                    </div>
+                    <FormGroup className="display-flex">
+                        <Button
+                            onClick={() => clearSearch()}
+                            type="button"
+                            name="clear-button"
+                            className="font-sans-xs"
+                            unstyled
+                        >
+                            Clear
+                        </Button>
+                    </FormGroup>
+                </div>
+            </Form>
 
             <MessageTrackerTableContent
                 isLoading={isLoading}
