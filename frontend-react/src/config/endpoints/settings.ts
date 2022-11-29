@@ -11,8 +11,8 @@ export enum ServicesUrls {
 export interface RSService {
     name: string;
     organizationName: string;
-    topic: string;
-    customerStatus: string;
+    topic?: string;
+    customerStatus?: string;
 }
 
 export interface RSOrganizationSettings {

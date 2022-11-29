@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
@@ -6,8 +6,6 @@ import Table, {
 } from "../../../components/Table/Table";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useOrganizationReceivers } from "../../../hooks/UseOrganizationReceivers";
-import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import {
     useOrgDeliveries,
     DeliveriesDataAttr,
@@ -18,37 +16,13 @@ import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import { RSReceiver } from "../../../config/endpoints/settings";
+import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
-
-interface ReceiverFeeds {
-    loadingServices: boolean;
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
- * between them */
-export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { data: receivers, isLoading } = useOrganizationReceivers();
-    const [active, setActive] = useState<RSReceiver | undefined>();
-
-    useEffect(() => {
-        if (receivers?.length) {
-            setActive(receivers[0]);
-        }
-    }, [receivers]);
-
-    return {
-        loadingServices: isLoading,
-        services: receivers || [],
-        activeService: active,
-        setActiveService: setActive,
-    };
-};
 
 const ServiceDisplay = ({
     services,
@@ -219,7 +193,7 @@ const DeliveriesTableWithNumberedPagination = ({
 
 export const DeliveriesTable = () => {
     const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
+        useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
 

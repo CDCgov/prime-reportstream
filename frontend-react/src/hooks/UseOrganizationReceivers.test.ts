@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
-import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
+import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
@@ -28,15 +28,15 @@ describe("useOrganizationSettings", () => {
         expect(result.current.data).toEqual(undefined);
         expect(result.current.isLoading).toEqual(true);
     });
-    test("returns correct organization settings", async () => {
+    test("returns correct organization receivers", async () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
             activeMembership: {
-                memberType: MemberType.SENDER,
+                memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                service: "testSender",
+                service: "testReceiver",
             },
             dispatch: () => {},
             initialized: true,
@@ -46,7 +46,7 @@ describe("useOrganizationSettings", () => {
             { wrapper: QueryWrapper() }
         );
         await waitForNextUpdate();
-        expect(result.current.data).toEqual(fakeOrg);
+        expect(result.current.data).toEqual(dummyReceivers);
         expect(result.current.isLoading).toEqual(false);
     });
 });
