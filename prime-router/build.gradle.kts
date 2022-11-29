@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
@@ -321,6 +322,10 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+configure<KtlintExtension> {
+    // See ktlint versions at https://github.com/pinterest/ktlint/releases
+    version.set("0.43.2")
+}
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
@@ -401,8 +406,13 @@ tasks.register("reloadCredentials") {
     group = rootProject.description ?: ""
     description = "Load the SFTP credentials used for local testing to the vault"
     project.extra["cliArgs"] = listOf(
-        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
-        "foo", "--pass", "pass"
+        "create-credential",
+        "--type=UserPass",
+        "--persist=DEFAULT-SFTP",
+        "--user",
+        "foo",
+        "--pass",
+        "pass"
     )
     finalizedBy("primeCLI")
 }
@@ -581,7 +591,7 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
-                                    .withIncludeTypes("JSONB"),
+                                    .withIncludeTypes("JSONB")
                             )
                         )
                     }
