@@ -14,3 +14,11 @@ elements:
     default: T
 
   - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: TestType
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:

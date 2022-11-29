@@ -235,3 +235,11 @@ elements:
     csvFields: [ { name: reporting_facility_clia } ]
 
   - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: TestType
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:

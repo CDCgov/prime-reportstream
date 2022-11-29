@@ -23,6 +23,14 @@ elements:
     csvFields: [{ name: performingFacility}]
 
   - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: TestType
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
 
 #custom field to store value indicating a Eurofins test ("OpET - CEI")  
   - name: patient_street2_CEI 
