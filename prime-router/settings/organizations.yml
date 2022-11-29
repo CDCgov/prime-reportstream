@@ -2067,6 +2067,47 @@
   jurisdiction: STATE
   stateCode: PA
   receivers:
+    - name: elr
+      organizationName: pa-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        reportingFacilityName: Chester County Health Department
+        receivingApplicationName: PA-ELR
+        receivingFacilityName: PADOH
+        suppressHl7Fields: PID-13-1,ORC-23-1,OBR-16
+        stripInvalidCharsRegex: \u0019
+        replaceValue:
+          ORC-21-2: L
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for PA standards
+            values:
+              - code: H
+                display: Hispanic or Latino
+              - code: NH
+                replaces: N
+                display: Non Hispanic or Latino
+              - code: U
+                display: Unknown
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+        namespaces:
+          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
     - name: elr-chester-hl7
       organizationName: pa-phd
       topic: covid-19
