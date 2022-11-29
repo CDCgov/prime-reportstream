@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
@@ -39,7 +40,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
     id("com.avast.gradle.docker-compose") version "0.16.9"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
 
@@ -321,6 +322,10 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+configure<KtlintExtension> {
+    // See ktlint versions at https://github.com/pinterest/ktlint/releases
+    version.set("0.43.2")
+}
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
@@ -401,8 +406,13 @@ tasks.register("reloadCredentials") {
     group = rootProject.description ?: ""
     description = "Load the SFTP credentials used for local testing to the vault"
     project.extra["cliArgs"] = listOf(
-        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
-        "foo", "--pass", "pass"
+        "create-credential",
+        "--type=UserPass",
+        "--persist=DEFAULT-SFTP",
+        "--user",
+        "foo",
+        "--pass",
+        "pass"
     )
     finalizedBy("primeCLI")
 }
@@ -581,7 +591,7 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
-                                    .withIncludeTypes("JSONB"),
+                                    .withIncludeTypes("JSONB")
                             )
                         )
                     }
@@ -738,7 +748,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.1")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -746,7 +756,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20220320")
+    implementation("org.json:json:20220924")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
