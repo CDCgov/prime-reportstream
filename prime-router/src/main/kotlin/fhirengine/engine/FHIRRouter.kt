@@ -208,7 +208,7 @@ class FHIRRouter(
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic == Topic.FULL_ELR.json_val
+                it.topic == Topic.FULL_ELR
         }
 
         // get the quality filter default result for the bundle, but only if it is needed
@@ -292,7 +292,7 @@ class FHIRRouter(
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR.json_val }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
@@ -304,7 +304,7 @@ class FHIRRouter(
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.qualityFilter
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
     }
@@ -316,7 +316,7 @@ class FHIRRouter(
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.routingFilter
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
@@ -329,7 +329,7 @@ class FHIRRouter(
     internal fun getProcessingModeFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?):
         ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR.json_val }?.processingModeFilter
+            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
     }

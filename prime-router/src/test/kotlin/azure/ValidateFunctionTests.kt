@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
@@ -40,7 +41,7 @@ class ValidateFunctionTests {
             Receiver(
                 "elr",
                 "phd",
-                "topic",
+                Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "one",
                 timing = timing1

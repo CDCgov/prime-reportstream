@@ -13,12 +13,10 @@ import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import config from "../../config";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 
 import { SignInOrUser } from "./SignInOrUser";
-import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
+import { AdminDropdown } from "./DropdownNav";
 
 const { IS_PREVIEW, CLIENT_ENV } = config;
 
@@ -61,7 +59,6 @@ const SupportIA = () => (
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { activeMembership, isAdminStrictCheck } = useSessionContext();
-    const { checkFlag } = useFeatureFlags();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
@@ -118,38 +115,6 @@ export const ReportStreamHeader = () => {
           Build a drop-down for file handler links
         */
         if (isAdminStrictCheck) {
-            // Validate NavLink
-            const features = [
-                {
-                    access: true, // Open for all admins
-                    slug: "validate",
-                    title: "Validate",
-                },
-                {
-                    access: checkFlag(FeatureFlagName.USER_UPLOAD),
-                    slug: "user-upload",
-                    title: "User Upload",
-                },
-            ];
-            if (features.some(({ access }) => access)) {
-                const fileHandlerDirectories = features.reduce(
-                    (acc, { access, title, slug }) => {
-                        if (access) {
-                            acc.push({ title, slug });
-                        }
-                        return acc;
-                    },
-                    [] as NonStaticOption[]
-                );
-                itemsMenu.push(
-                    <DropdownNav
-                        label="Upload & Validate"
-                        root="/file-handler"
-                        directories={fileHandlerDirectories}
-                    />
-                );
-            }
-
             itemsMenu.push(<AdminDropdown />);
         }
     }

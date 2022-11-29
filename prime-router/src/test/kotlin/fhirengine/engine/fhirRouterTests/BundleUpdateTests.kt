@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
@@ -32,20 +33,20 @@ class BundleUpdateTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
-    val metadata = Metadata(schema = Schema(name = "None", topic = "full-elr", elements = emptyList()))
+    val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     val bodyUrl = "http://anyblob.com"
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             "one"
         ),
         Receiver(
             "full-elr-hl7-2",
             "co-phd",
-            "full-elr",
+            Topic.FULL_ELR,
             CustomerStatus.INACTIVE,
             "one"
         )

@@ -121,9 +121,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_
 
 locals {
   admin_publish_command = <<EOF
-      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} \
-      --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} \
-      --build-remote false --timeout 600
+      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} --build-remote false --timeout 600
     EOF
 }
 

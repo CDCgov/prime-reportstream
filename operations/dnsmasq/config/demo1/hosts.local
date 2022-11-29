@@ -11,7 +11,8 @@
 # Databases #
 #############
 
-10.0.5.9 pdhdemo1-pgsql.postgres.database.azure.com pdhdemo1-pgsql.privatelink.postgres.database.azure.com
+10.0.5.14 pdhdemo1-pgsql.postgres.database.azure.com pdhdemo1-pgsql.privatelink.postgres.database.azure.com
+10.1.5.4 pdhdemo1-pgsql-replica.postgres.database.azure.com pdhdemo1-pgsql-replica.privatelink.postgres.database.azure.com
 
 
 ####################
