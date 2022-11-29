@@ -160,3 +160,6 @@ done
     * `terraform -chdir=operations/app/terraform/vars/demo state rm module.init`
  2. Push branch directly to demo environment without a PR:
     *  `git push origin mybranch:demo1 -f`
+ 3. If the demo environment has been fully deleted and you cannot re-create resources like key vaults due to "name already used" restrictions, remove `random_id.init` from the state file and re-apply to generate new unique names:
+    * `terraform -chdir=$path state rm random_id.init`
+    * `terraform -chdir=$path apply -target=random_id.init -var-file=$env/env.tfvars.json`
