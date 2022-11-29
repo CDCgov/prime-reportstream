@@ -96,21 +96,6 @@ export const FileSuccessDisplay = ({
     );
 };
 
-/***
- * This function attempts to truncate an error message if it contains
- * a full stack trace
- * @param errorMessage - the error message to potentially reformat
- * @returns - the original or transformed error message
- */
-// const truncateErrorMessage = (errorMessage: string | undefined): string => {
-//     if (!errorMessage) return "";
-//
-//     if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
-//         return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
-//
-//     return errorMessage;
-// };
-
 export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
