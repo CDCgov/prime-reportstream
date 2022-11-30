@@ -117,6 +117,7 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
     HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
     NONE("", "");
+
     companion object {
         /**
          * Get a coding system mapper by its [fhirURL]

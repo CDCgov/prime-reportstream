@@ -663,6 +663,7 @@ class SubmissionHistoryTests {
             1, TaskAction.receive, OffsetDateTime.now(),
             HttpStatus.OK.value(), reports
         )
+        assertThat(testProcess.destinations.count()).isEqualTo(3)
         testProcess.enrichWithDescendants(
             listOf(
                 DetailedSubmissionHistory(
@@ -672,6 +673,32 @@ class SubmissionHistoryTests {
             )
         )
         testProcess.enrichWithSummary()
+
+        testProcess.run {
+            assertThat(destinations.count()).isEqualTo(4)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
+
+        // Translate is the Universal alternative to process, so we test it too
+        val testTranslate = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports
+        )
+        assertThat(testTranslate.destinations.count()).isEqualTo(3)
+        testTranslate.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.translate, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), partiallyDelivered
+                ),
+            )
+        )
+        testTranslate.enrichWithSummary()
+
+        testTranslate.run {
+            assertThat(destinations.count()).isEqualTo(4)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
 
         val testSent = DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(),
