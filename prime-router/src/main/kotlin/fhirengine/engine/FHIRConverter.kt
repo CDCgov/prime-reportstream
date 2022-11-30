@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import org.hl7.fhir.r4.model.Bundle
 
 /**
  * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -32,7 +33,7 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
@@ -42,29 +43,21 @@ class FHIRConverter(
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
+        actionHistory: ActionHistory
     ) {
-        logger.trace("Processing HL7 data for FHIR conversion.")
         try {
-            // create the hl7 reader
-            val hl7Reader = HL7Reader(actionLogger)
-
-            // get the hl7 from the blob store
-            val hl7messages = hl7Reader.getMessages(message.downloadContent())
-
-            if (actionLogger.hasErrors()) {
-                throw java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
-            }
-
-            // use fhir transcoder to turn hl7 into FHIR
-            val fhirBundles = hl7messages.map {
-                HL7toFhirTranslator.getInstance().translate(it)
+            val format = Report.getFormatFromBlobURL(message.blobURL)
+            logger.trace("Processing $format data for FHIR conversion.")
+            val fhirBundles = when (Report.getFormatFromBlobURL(message.blobURL)) {
+                Report.Format.HL7, Report.Format.HL7_BATCH -> getBundlesFromHL7(message, actionLogger)
+                Report.Format.FHIR -> getBundlesFromFHIR(message)
+                Report.Format.CSV, Report.Format.CSV_SINGLE -> getBundlesFromCSV(message)
+                Report.Format.INTERNAL -> throw IllegalStateException("Unexpected format ${Report.Format.INTERNAL}")
             }
 
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
 
             actionHistory.trackExistingInputReport(message.reportId)
-
             // operate on each fhir bundle
             for (bundle in fhirBundles) {
                 // make a 'report'
@@ -148,6 +141,39 @@ class FHIRConverter(
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
         }
+    }
+
+    private fun getBundlesFromHL7(
+        message: RawSubmission,
+        actionLogger: ActionLogger
+    ): List<Bundle> {
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+
+        // get the hl7 from the blob store
+        val hl7messages = hl7Reader.getMessages(message.downloadContent())
+
+        if (actionLogger.hasErrors()) {
+            throw java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
+        }
+
+        // use fhir transcoder to turn hl7 into FHIR
+        return hl7messages.map {
+            HL7toFhirTranslator.getInstance().translate(it)
+        }
+    }
+
+    private fun getBundlesFromFHIR(
+        message: RawSubmission
+    ): List<Bundle> {
+        return listOf(FhirTranscoder.decode(message.downloadContent()))
+    }
+
+    private fun getBundlesFromCSV(
+        message: RawSubmission
+    ): List<Bundle> {
+        logger.debug("CSV message ${message.blobURL}")
+        return listOf()
     }
 
     /**

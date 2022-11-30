@@ -12,7 +12,6 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
-import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -261,12 +260,8 @@ class ELRReceiver : SubmissionReceiver {
         // check that our input is valid HL7. Additional validation will happen at a later step
 
         var report: Report
-        var queueName: String
-        var action: Event.EventAction
 
         if (sender.format == Sender.Format.HL7) {
-            queueName = elrConvertQueueName
-            action = Event.EventAction.CONVERT
             var messages = HL7Reader(actionLogs).getMessages(content)
             // create a Report for this incoming HL7 message to use for tracking in the database
 
@@ -295,8 +290,6 @@ class ELRReceiver : SubmissionReceiver {
                 throw actionLogs.exception
             }
         } else if (sender.format == Sender.Format.FHIR) {
-            queueName = elrRoutingQueueName
-            action = Event.EventAction.ROUTE
             report = Report(
                 Format.FHIR,
                 sources,
@@ -314,7 +307,7 @@ class ELRReceiver : SubmissionReceiver {
         val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
             report.nextAction = TaskAction.none
             Event.EventAction.NONE
-        } else action
+        } else Event.EventAction.CONVERT
 
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
@@ -336,7 +329,7 @@ class ELRReceiver : SubmissionReceiver {
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
             // move to processing (send to <elrProcessQueueName> queue)
             workflowEngine.queue.sendMessage(
-                queueName,
+                elrConvertQueueName,
                 RawSubmission(
                     report.id,
                     blobInfo.blobUrl,

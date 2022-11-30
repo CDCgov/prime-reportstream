@@ -38,6 +38,17 @@ class BlobAccess : Logging {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
                 } else ""
             }
+
+            /**
+             * Get the blob filename from a [blobUrl]
+             * @return the blob filename
+             * @throws MalformedURLException if the blob URL is malformed
+             */
+            fun getBlobFileExtension(blobUrl: String): String {
+                return if (blobUrl.isNotBlank()) {
+                    FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
+                } else ""
+            }
         }
     }
 
