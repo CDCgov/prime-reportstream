@@ -109,7 +109,7 @@ class RoutingTests {
 
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
@@ -126,12 +126,10 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(twoOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
         var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        val metadata = Metadata(schema = one)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
@@ -151,8 +149,6 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -443,7 +439,7 @@ class RoutingTests {
         val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
 
         // assert
-        assert(qualDefaultResult)
+        assertTrue(qualDefaultResult)
     }
 
     @Test
@@ -464,7 +460,7 @@ class RoutingTests {
         val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
 
         // assert
-        assert(qualDefaultResult)
+        assertTrue(qualDefaultResult)
     }
 
     @Test
@@ -485,7 +481,7 @@ class RoutingTests {
         val result = engine.evaluateFilterCondition(filter, bundle, false)
 
         // assert
-        assert(result)
+        assertTrue(result)
     }
 
     @Test

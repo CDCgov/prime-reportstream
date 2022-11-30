@@ -25,6 +25,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LookupTable
 import org.apache.commons.text.StringSubstitutor
 import org.hl7.fhir.r4.model.Bundle
 
@@ -75,9 +76,9 @@ class FHIRRouter(
     )
 
     /**
-     * Lookup table `filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
+     * Lookup table `fhirpath_filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
      */
-    private val shorthandLookupTable = metadata.findLookupTable("filter_shorthand")!!
+    private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
 
     /**
      * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
@@ -88,18 +89,42 @@ class FHIRRouter(
      * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to4
      * underlying fhir library.
      *
-     * The values that this uses are located in the filter_shorthand lookup table.
+     * The values that this uses are located in the fhirpath_filter_shorthand lookup table.
      */
-    private val shorthandSubstitutor = StringSubstitutor {
-        val filter = shorthandLookupTable.FilterBuilder()
-        filter.isEqualTo("variable", it)
-        val path = filter.findSingleResult("fhirPath")
+    private val shorthandSubstitutor by lazy {
+        StringSubstitutor {
+            val filter = shorthandLookupTable.FilterBuilder()
+            filter.isEqualTo("variable", it)
+            val path = filter.findSingleResult("fhirPath")
 
-        if (!path.isNullOrEmpty())
-            path
-        else
-            throw NotImplementedError("Could not locate a unique entry for '$it' in the shorthand values lookup table.")
-    }.setVariablePrefix("%{")
+            if (!path.isNullOrEmpty())
+                path
+            else
+                throw NotImplementedError(
+                    "Could not locate a unique entry for '$it' in the shorthand values lookup table."
+                )
+        }.setVariablePrefix("%{")
+    }
+
+    /**
+     * Load the fhirpath_filter_shorthand lookup table if it can be found and has the expected columns, otherwise
+     * log warnings and return an empty lookup table with the correct columns. This is valid since having a populated
+     * lookup table is *required* to run the universal pipeline routing
+     */
+    private fun loadFhirPathShorthandLookupTable(): LookupTable {
+        val lookup = metadata.findLookupTable("fhirpath_filter_shorthand")
+        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
+        return if (lookup != null && lookup.hasColumn("variable") && lookup.hasColumn("fhirPath")) {
+            lookup
+        } else {
+            if (lookup == null) {
+                logger.warn("Unable to find fhirpath_filter_shorthand lookup table")
+            } else {
+                logger.warn("fhirpath_filter_shorthand does not contain expected columns 'variable' and 'fhirPath'")
+            }
+            LookupTable("fhirpath_filter_shorthand", listOf(listOf("variable", "fhirpath")))
+        }
+    }
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.

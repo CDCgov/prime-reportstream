@@ -177,7 +177,7 @@ class FhirFunctionTests {
         // setup
         commonSetup()
         val metadata = spyk(UnitTestUtils.simpleMetadata)
-        every { metadata.findLookupTable("filter_shorthand") } returns LookupTable()
+        every { metadata.findLookupTable("fhirpath_filter_shorthand") } returns LookupTable()
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = spyk(
             FHIRRouter(

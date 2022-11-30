@@ -75,7 +75,7 @@ class DefaultFilterTests {
 
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
 
     private val fhirCodeP = """
     {
@@ -193,8 +193,6 @@ class DefaultFilterTests {
     fun `test evaluateFilterCondition reverse filter`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
