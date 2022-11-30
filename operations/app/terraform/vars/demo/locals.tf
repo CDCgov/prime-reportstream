@@ -36,7 +36,7 @@ locals {
     db_auto_grow        = true
     db_prevent_destroy  = false
     db_threat_detection = false
-    db_replica          = false
+    db_replica          = true
   }
   app = {
     app_tier                 = "PremiumV2"
