@@ -30,6 +30,18 @@ export const fakeOrg = {
     stateCode: "TC",
 };
 
+export const fakePrimeOrg = {
+    countyName: "",
+    description: "",
+    filters: [],
+    jurisdiction: "",
+    version: 1,
+    createdBy: "OrganizationMockServer",
+    createdAt: "now",
+    name: "Prime Admins",
+    stateCode: "",
+};
+
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
  *
  * @param count {number} How many unique receivers you want. */
@@ -56,6 +68,9 @@ const handlers = [
     }),
     rest.get(firstSender, (req, res, ctx) => {
         return res(ctx.status(200));
+    }),
+    rest.get(`${base}/PrimeAdmins`, (req, res, ctx) => {
+        return res(ctx.json(fakePrimeOrg), ctx.status(200));
     }),
     rest.get(`${base}/testOrg`, (req, res, ctx) => {
         return res(ctx.json(fakeOrg), ctx.status(200));
