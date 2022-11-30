@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
@@ -8,6 +10,8 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -92,14 +96,6 @@ class FHIRRouter(
             // pull fhir document and parse FHIR document
             val bundle = FhirTranscoder.decode(message.downloadContent())
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle)
-
-            // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.isNotEmpty()) {
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
-            }
-
             // create report object
             val sources = emptyList<Source>()
             val report = Report(
@@ -108,6 +104,14 @@ class FHIRRouter(
                 1,
                 metadata = this.metadata
             )
+
+            // get the receivers that this bundle should go to
+            val listOfReceivers = applyFilters(bundle, report)
+
+            // add the receivers, if any, to the fhir bundle
+            if (listOfReceivers.isNotEmpty()) {
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
+            }
 
             // create item lineage
             report.itemLineages = listOf(
@@ -200,11 +204,14 @@ class FHIRRouter(
 
     /**
      * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message\
+     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * @param bundle
+     * @param report
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(bundle: Bundle): List<Receiver> {
+    private fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
         val listOfReceivers = mutableListOf<Receiver>()
+
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
@@ -215,16 +222,18 @@ class FHIRRouter(
         val qualFilterDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
                 qualityFilterDefault, bundle,
-                false
+                false, report
             )
         }
         // get the processing mode (processing id) default result for the bundle, but only if it is needed
         val processingModeDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
                 processingModeFilterDefault, bundle,
-                false
+                false, report
             )
         }
+
+        // var trackingElement = report.schema.trackingElement // might be null
 
         fullElrReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
@@ -237,23 +246,31 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle,
+                false, report, receiver.fullName)
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
             passes = passes &&
-                evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle, qualFilterDefaultResult)
+                evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle,
+                    qualFilterDefaultResult, report, receiver.fullName,
+                    ReportStreamFilterType.QUALITY_FILTER
+                )
             // ROUTING FILTER
             //  default: allowAll
             passes = passes &&
-                evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle, true)
+                evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle,
+                    true, report, receiver.fullName,
+                    ReportStreamFilterType.ROUTING_FILTER
+                )
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes &&
                 evaluateFilterCondition(
                     getProcessingModeFilter(receiver, orgFilters), bundle,
-                    processingModeDefaultResult
+                    processingModeDefaultResult, report, receiver.fullName,
+                    ReportStreamFilterType.PROCESSING_MODE_FILTER
                 )
 
             // if all filters pass, add this receiver to the list of valid receivers
@@ -273,16 +290,31 @@ class FHIRRouter(
     internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
         bundle: Bundle,
-        defaultResponse: Boolean
+        defaultResponse: Boolean,
+        report: Report,
+        receiverName: String = "",
+        filterType: ReportStreamFilterType? = null
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
         return if (filter.isNullOrEmpty())
             defaultResponse
-        else
-            filter.all {
-                FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
-            }
+        else filter.all {
+            val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
+            // log results of filtering things OUT
+            if (!result && filterType != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER)
+                report.filteringResults.add(
+                    ReportStreamFilterResult(
+                        receiverName,
+                        report.itemCount,
+                        it,
+                        emptyList(), // UP filter name and arguments are different, so we need tweaking
+                        "", // not sure what to put here in this context
+                        filterType
+                    )
+                )
+            return result
+        }
     }
 
     /**
