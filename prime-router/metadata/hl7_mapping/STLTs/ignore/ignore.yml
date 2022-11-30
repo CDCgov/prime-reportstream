@@ -1,0 +1,14 @@
+hl7Type: ORU_R01
+hl7Version: 2.5.1
+extends: ../../ORU_R01/ORU_R01-base
+elements:
+  #########################
+  # Very basic config used for testing #
+  #########################
+  - name: sending-application-namespace-id
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+
+  - name: sending-application-universal-id
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+  - name: receiving-application-namespace-id
+    value: [ '''ignore-full-ELR''' ]
