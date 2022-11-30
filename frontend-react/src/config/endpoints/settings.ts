@@ -1,6 +1,7 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
 
 export enum ServicesUrls {
+    SETTINGS = "/settings/organizations/:orgName",
     SENDERS = "/settings/organizations/:orgName/senders",
     SENDER_DETAIL = "/settings/organizations/:orgName/senders/:sender",
     RECEIVERS = "/settings/organizations/:orgName/receivers",
@@ -10,8 +11,20 @@ export enum ServicesUrls {
 export interface RSService {
     name: string;
     organizationName: string;
-    topic: string;
-    customerStatus: string;
+    topic?: string;
+    customerStatus?: string;
+}
+
+export interface RSOrganizationSettings {
+    createdAt: string;
+    createdBy: string;
+    description: string;
+    filters: string[];
+    jurisdiction: string;
+    name: string;
+    version: number;
+    stateCode?: string;
+    countyName?: string;
 }
 
 interface SenderKeys {
@@ -36,12 +49,19 @@ export interface RSSender extends RSService {
     version?: number;
 }
 
+export interface RSReceiver extends RSService {}
+
 /*
 Services Endpoints
 * senders -> fetches a list of organization's senders
 * receivers -> fetches a list of organization's receivers
 */
 export const servicesEndpoints: RSApiEndpoints = {
+    settings: new RSEndpoint({
+        path: ServicesUrls.SETTINGS,
+        method: HTTPMethods.GET,
+        queryKey: "servicesSettings",
+    }),
     senders: new RSEndpoint({
         path: ServicesUrls.SENDERS,
         method: HTTPMethods.GET,

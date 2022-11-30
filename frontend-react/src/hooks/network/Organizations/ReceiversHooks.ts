@@ -16,7 +16,8 @@ import {
 /** Retrieves a list of Receivers for an org from the API
  * > **This call requires the use of `trigger()`**
  *
- * @param org {string?} The user's active membership `parsedName` */
+ * @param org {string?} The user's active membership `parsedName`
+ * @deprecated Please use useOrganizationReceivers */
 export const useReceiversList = (org?: string) => {
     const memoizedSafeOrg = useAdminSafeOrgName(org);
     const configParams = useMemoizedConfigParams<ReceiverListParams>(

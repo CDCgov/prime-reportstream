@@ -25,7 +25,7 @@ class DocumentationTests {
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
     private val schema = Schema(
         name = "Test Schema",
-        topic = "Test Topic",
+        topic = Topic.TEST,
         elements = listOf(elem),
         trackingElement = "a",
         description = "Test Description",
@@ -38,7 +38,7 @@ class DocumentationTests {
         // check a schema with no slash in the name
         Schema(
             name = "covid-19",
-            topic = "Test Topic"
+            topic = Topic.TEST
         ).also { schema ->
             DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
                 assertThat(it).isEqualTo("covid-19.md")
@@ -52,7 +52,7 @@ class DocumentationTests {
         // check a schema with a slash in the name
         Schema(
             name = "direct/cue-covid-19",
-            topic = "Test Topic"
+            topic = Topic.TEST
         ).also { schema ->
             DocumentationFactory.getOutputFileName(null, schema, false, "md").also {
                 assertThat(it).isEqualTo("direct-cue-covid-19.md")
@@ -66,7 +66,7 @@ class DocumentationTests {
         // check an output file name
         Schema(
             name = "covid-19",
-            topic = "Test Topic"
+            topic = Topic.TEST
         ).also {
             DocumentationFactory.getOutputFileName("test-file-name", schema, false, "txt").also {
                 assertThat(it).isEqualTo("test-file-name.txt")
@@ -98,7 +98,7 @@ class DocumentationTests {
     fun `test building documentation string from a schema`() {
         val expected = """
 ### Schema: Test Schema
-### Topic: Test Topic
+### Topic: test
 ### Tracking Element: Test TrackingElement (a)
 ### Base On: [TestBaseOn](./TestBaseOn.md)
 ### Extends: [test/extends](./test-extends.md)

@@ -36,7 +36,7 @@ import java.time.ZoneId
 open class Receiver(
     val name: String,
     val organizationName: String,
-    val topic: String,
+    val topic: Topic,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: ReportStreamFilter = emptyList(),
@@ -70,7 +70,7 @@ open class Receiver(
     constructor(
         name: String,
         organizationName: String,
-        topic: String,
+        topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         format: Report.Format = Report.Format.CSV,
@@ -85,6 +85,10 @@ open class Receiver(
             null
         ),
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
+        qualityFilter: ReportStreamFilter = emptyList(),
+        routingFilter: ReportStreamFilter = emptyList(),
+        processingModeFilter: ReportStreamFilter = emptyList(),
+        reverseTheQualityFilter: Boolean = false
     ) : this(
         name,
         organizationName,
@@ -92,9 +96,13 @@ open class Receiver(
         customerStatus,
         translation,
         jurisdictionalFilter = jurisdictionalFilter,
+        qualityFilter = qualityFilter,
+        routingFilter = routingFilter,
+        processingModeFilter = processingModeFilter,
         timing = timing,
         timeZone = timeZone,
-        dateTimeFormat = dateTimeFormat
+        dateTimeFormat = dateTimeFormat,
+        reverseTheQualityFilter = reverseTheQualityFilter
     )
 
     /** A copy constructor for the receiver */
@@ -220,11 +228,11 @@ open class Receiver(
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
         // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic == Topic.FULL_ELR.json_val) return null
+        if (topic == Topic.FULL_ELR) return null
 
         if (translation is CustomConfiguration) {
             when (this.topic) {
-                Topic.FULL_ELR.json_val -> {
+                Topic.FULL_ELR -> {
                     try {
                         FhirToHl7Converter(translation.schemaName)
                     } catch (e: SchemaException) {

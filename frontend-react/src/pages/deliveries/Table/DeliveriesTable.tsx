@@ -1,79 +1,28 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
-import Table, { TableConfig } from "../../../components/Table/Table";
-import useFilterManager, {
-    extractFiltersFromManager,
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
+import Table, {
+    ColumnConfig,
+    TableConfig,
+} from "../../../components/Table/Table";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
-import { RSReceiver } from "../../../network/api/Organizations/Receivers";
-import { useOrgDeliveries } from "../../../hooks/network/History/DeliveryHooks";
+import {
+    useOrgDeliveries,
+    DeliveriesDataAttr,
+} from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
 import TableFilters from "../../../components/Table/TableFilters";
+import { PaginationProps } from "../../../components/Table/Pagination";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
+import usePagination from "../../../hooks/UsePagination";
+import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import { RSReceiver } from "../../../config/endpoints/settings";
+import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
 
-enum DeliveriesDataAttr {
-    REPORT_ID = "reportId",
-    BATCH_READY = "batchReadyAt",
-    EXPIRES = "expires",
-    ITEM_COUNT = "reportItemCount",
-    FILE_TYPE = "fileType",
-}
-/** @todo: page size default set to 10 once paginated */
-const filterManagerDefaults: FilterManagerDefaults = {
-    sortDefaults: {
-        column: DeliveriesDataAttr.BATCH_READY,
-        locally: true,
-    },
-    pageDefaults: {
-        size: 100,
-    },
-};
-
-interface ReceiverFeeds {
-    loadingServices: boolean;
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
- * between them */
-export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { activeMembership } = useSessionContext();
-    const {
-        data: receivers,
-        loading,
-        trigger: getReceiversList,
-    } = useReceiversList(activeMembership?.parsedName);
-    const [active, setActive] = useState<RSReceiver | undefined>();
-    useEffect(() => {
-        // IF activeMembership?.parsedName is not undefined
-        if (
-            activeMembership?.parsedName !== undefined &&
-            receivers === undefined
-        ) {
-            // Trigger useReceiversList()
-            getReceiversList();
-        }
-        // Ignoring getReceiverList() as dep
-    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
-
-    useEffect(() => {
-        if (receivers?.length) {
-            setActive(receivers[0]);
-        }
-    }, [receivers]);
-
-    return {
-        loadingServices: loading,
-        services: receivers,
-        activeService: active,
-        setActiveService: setActive,
-    };
-};
+const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
 const ServiceDisplay = ({
     services,
@@ -105,31 +54,20 @@ const ServiceDisplay = ({
     );
 };
 
-/*
-    This is the main exported component from this file. It provides container styling,
-    table headers, and applies the <TableData> component to the table that is created in this
-    component.
-*/
-function DeliveriesTable() {
+interface DeliveriesTableContentProps {
+    filterManager: FilterManager;
+    paginationProps?: PaginationProps;
+    isLoading: boolean;
+    serviceReportsList: RSDelivery[] | undefined;
+}
+
+const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
+    filterManager,
+    paginationProps,
+    isLoading,
+    serviceReportsList,
+}) => {
     const { oktaToken, activeMembership } = useSessionContext();
-    const filterManager = useFilterManager(filterManagerDefaults);
-    const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
-    const filters = useMemo(
-        () => extractFiltersFromManager(filterManager),
-        [filterManager]
-    );
-    // TODO: Doesn't update parameters because of the config memo dependency array
-    const { serviceReportsList } = useOrgDeliveries(
-        activeMembership?.parsedName,
-        activeService?.name,
-        filters
-    );
-
-    const handleSetActive = (name: string) => {
-        setActiveService(services.find((item) => item.name === name));
-    };
-
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -137,51 +75,105 @@ function DeliveriesTable() {
             activeMembership?.parsedName || ""
         );
     };
+    const transformDate = (s: string) => {
+        return new Date(s).toLocaleString();
+    };
+    const columns: Array<ColumnConfig> = [
+        {
+            dataAttr: DeliveriesDataAttr.REPORT_ID,
+            columnHeader: "Report ID",
+            feature: {
+                link: true,
+                linkBasePath: "/report-details/",
+            },
+        },
+        {
+            dataAttr: DeliveriesDataAttr.BATCH_READY,
+            columnHeader: "Available",
+            sortable: true,
+            transform: transformDate,
+        },
+        {
+            dataAttr: DeliveriesDataAttr.EXPIRES,
+            columnHeader: "Expires",
+            sortable: true,
+            transform: transformDate,
+        },
+        {
+            dataAttr: DeliveriesDataAttr.ITEM_COUNT,
+            columnHeader: "Items",
+        },
+        {
+            dataAttr: DeliveriesDataAttr.FILE_TYPE,
+            columnHeader: "File",
+            feature: {
+                action: handleFetchAndDownload,
+                param: DeliveriesDataAttr.REPORT_ID,
+            },
+        },
+    ];
 
     const resultsTableConfig: TableConfig = {
-        columns: [
-            {
-                dataAttr: DeliveriesDataAttr.REPORT_ID,
-                columnHeader: "Report ID",
-                feature: {
-                    link: true,
-                    linkBasePath: "/report-details/",
-                },
-            },
-            {
-                dataAttr: DeliveriesDataAttr.BATCH_READY,
-                columnHeader: "Available",
-                sortable: true,
-                localSort: true,
-                transform: (s: string) => {
-                    return new Date(s).toLocaleString();
-                },
-            },
-            {
-                dataAttr: DeliveriesDataAttr.EXPIRES,
-                columnHeader: "Expires",
-                sortable: true,
-                localSort: true,
-                transform: (s: string) => {
-                    return new Date(s).toLocaleString();
-                },
-            },
-            {
-                dataAttr: DeliveriesDataAttr.ITEM_COUNT,
-                columnHeader: "Items",
-            },
-            {
-                dataAttr: DeliveriesDataAttr.FILE_TYPE,
-                columnHeader: "File",
-                feature: {
-                    action: handleFetchAndDownload,
-                    param: DeliveriesDataAttr.FILE_TYPE,
-                },
-            },
-        ],
+        columns: columns,
         rows: serviceReportsList || [],
     };
-    if (loadingServices) return <Spinner />;
+
+    if (isLoading) return <Spinner />;
+
+    return (
+        <>
+            <TableFilters filterManager={filterManager} />
+            <Table
+                config={resultsTableConfig}
+                filterManager={filterManager}
+                paginationProps={paginationProps}
+            />
+        </>
+    );
+};
+
+const DeliveriesTableWithNumberedPagination = ({
+    services,
+    activeService,
+    setActiveService,
+}: {
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}) => {
+    const handleSetActive = (name: string) => {
+        setActiveService(services.find((item) => item.name === name));
+    };
+
+    const { fetchResults, filterManager } = useOrgDeliveries(
+        activeService?.name
+    );
+    const pageSize = filterManager.pageSettings.size;
+    const sortOrder = filterManager.sortSettings.order;
+    const rangeTo = filterManager.rangeSettings.to;
+    const rangeFrom = filterManager.rangeSettings.from;
+
+    // The start cursor is the high value when results are in descending order
+    // and the low value when the results are in ascending order.
+    const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
+    const isCursorInclusive = sortOrder === "ASC";
+
+    const {
+        currentPageResults: serviceReportsList,
+        paginationProps,
+        isLoading,
+    } = usePagination<RSDelivery>({
+        startCursor,
+        isCursorInclusive,
+        pageSize,
+        fetchResults,
+        extractCursor,
+    });
+
+    if (paginationProps) {
+        paginationProps.label = "Deliveries pagination";
+    }
+
     return (
         <>
             <ServiceDisplay
@@ -189,10 +181,44 @@ function DeliveriesTable() {
                 activeService={activeService}
                 handleSetActive={handleSetActive}
             />
-            <TableFilters filterManager={filterManager} />
-            <Table config={resultsTableConfig} filterManager={filterManager} />
+            <DeliveriesTableContent
+                filterManager={filterManager}
+                paginationProps={paginationProps}
+                isLoading={isLoading}
+                serviceReportsList={serviceReportsList}
+            />
         </>
     );
-}
+};
+
+export const DeliveriesTable = () => {
+    const { loadingServices, services, activeService, setActiveService } =
+        useOrganizationReceiversFeed();
+
+    if (loadingServices) return <Spinner />;
+
+    if (!loadingServices && !activeService)
+        return (
+            <div className="grid-container usa-section margin-bottom-10">
+                <NoServicesBanner
+                    featureName="Active Services"
+                    organization=""
+                    serviceType={"receiver"}
+                />
+            </div>
+        );
+
+    return (
+        <>
+            {activeService && (
+                <DeliveriesTableWithNumberedPagination
+                    services={services}
+                    activeService={activeService}
+                    setActiveService={setActiveService}
+                />
+            )}
+        </>
+    );
+};
 
 export default DeliveriesTable;

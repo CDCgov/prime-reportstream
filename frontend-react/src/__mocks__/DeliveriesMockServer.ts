@@ -29,7 +29,7 @@ export const makeDeliveryFixture = (
     topic: overrides?.topic || "",
     reportItemCount: overrides?.reportItemCount || 0,
     fileName: overrides?.fileName || "",
-    fileType: overrides?.fileType || "",
+    fileType: overrides?.fileType || "CSV",
 });
 export const makeDeliveryFixtureArray = (count: number) => {
     const fixtures: RSDelivery[] = [];

@@ -13,7 +13,7 @@ import {
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
-import { RSSender } from "../../config/endpoints/services";
+import { RSSender } from "../../config/endpoints/settings";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
@@ -45,11 +45,11 @@ jest.mock("../../hooks/UseFileHandler", () => ({
     __esModule: true,
 }));
 
-jest.mock("../../hooks/UseOrganizationResource", () => ({
-    useOrganizationResource: () => {
+jest.mock("../../hooks/UseOrganizationSettings", () => ({
+    useOrganizationSettings: () => {
         return {
-            organization: { description: "wow, cool organization" },
-            loading: false,
+            data: { description: "wow, cool organization" },
+            isLoading: false,
         };
     },
 }));

@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.serializers
 
+import com.github.doyaaaaaken.kotlincsv.dsl.context.ExcessFieldsRowBehaviour
+import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
@@ -65,7 +67,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             quoteChar = '"'
             delimiter = ','
             skipEmptyLine = false
-            skipMissMatchedRow = false
+            insufficientFieldsRowBehaviour = InsufficientFieldsRowBehaviour.ERROR
+            excessFieldsRowBehaviour = ExcessFieldsRowBehaviour.ERROR
         }.open(input) {
             try {
                 readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
