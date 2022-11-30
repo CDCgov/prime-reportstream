@@ -12,6 +12,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -256,35 +257,55 @@ class ELRReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         val actionLogs = ActionLogger()
-
-        // check that our input is valid HL7. Additional validation will happen at a later step
-        var messages = HL7Reader(actionLogs).getMessages(content)
-
-        // create a Report for this incoming HL7 message to use for tracking in the database
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
-        val report = Report(
-            Format.HL7,
-            sources,
-            messages.size,
-            metadata = metadata,
-            nextAction = TaskAction.convert
-        )
+        // check that our input is valid HL7. Additional validation will happen at a later step
 
-        // dupe detection if needed, and if we have not already produced an error
-        if (!allowDuplicates && !actionLogs.hasErrors()) {
-            doDuplicateDetection(
-                workflowEngine,
-                report,
-                actionLogs
+        var report: Report
+        var queueName: String
+        var action: Event.EventAction
+
+        if (sender.format == Sender.Format.HL7) {
+            queueName = elrConvertQueueName
+            action = Event.EventAction.CONVERT
+            var messages = HL7Reader(actionLogs).getMessages(content)
+            // create a Report for this incoming HL7 message to use for tracking in the database
+
+            report = Report(
+                Format.HL7,
+                sources,
+                messages.size,
+                metadata = metadata,
+                nextAction = TaskAction.convert
             )
-        }
 
-        // check for valid message type
-        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+            // dupe detection if needed, and if we have not already produced an error
+            if (!allowDuplicates && !actionLogs.hasErrors()) {
+                doDuplicateDetection(
+                    workflowEngine,
+                    report,
+                    actionLogs
+                )
+            }
 
-        // if there are any errors, kick this out.
-        if (actionLogs.hasErrors()) {
-            throw actionLogs.exception
+            // check for valid message type
+            messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+
+            // if there are any errors, kick this out.
+            if (actionLogs.hasErrors()) {
+                throw actionLogs.exception
+            }
+        } else if (sender.format == Sender.Format.FHIR) {
+            queueName = elrRoutingQueueName
+            action = Event.EventAction.ROUTE
+            report = Report(
+                Format.FHIR,
+                sources,
+                0,
+                metadata = metadata,
+                nextAction = TaskAction.convert
+            )
+        } else {
+            throw IllegalStateException("Unexpected sender format ${sender.format}")
         }
 
         // If the sender is disabled, there should be no next event
@@ -293,7 +314,7 @@ class ELRReceiver : SubmissionReceiver {
         val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
             report.nextAction = TaskAction.none
             Event.EventAction.NONE
-        } else Event.EventAction.CONVERT
+        } else action
 
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
@@ -315,7 +336,7 @@ class ELRReceiver : SubmissionReceiver {
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
             // move to processing (send to <elrProcessQueueName> queue)
             workflowEngine.queue.sendMessage(
-                elrConvertQueueName,
+                queueName,
                 RawSubmission(
                     report.id,
                     blobInfo.blobUrl,

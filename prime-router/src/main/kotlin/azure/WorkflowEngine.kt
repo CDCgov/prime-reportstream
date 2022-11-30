@@ -891,26 +891,7 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.FHIR -> {
-                try {
-                    this.hl7Serializer.readExternal( // TODO: do we need a fhir serializer
-                        schemaName = sender.schemaName,
-                        input = ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = sender.organizationName, client = sender.name),
-                        sender = sender
-                    )
-                } catch (e: Exception) {
-                    throw ActionError(
-                        ActionLog(
-                            InvalidReportMessage(
-                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                    "team at reportstream@cdc.gov."
-                            )
-                        ),
-                        e.message
-                    )
-                }
-            }
+            else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
 }
