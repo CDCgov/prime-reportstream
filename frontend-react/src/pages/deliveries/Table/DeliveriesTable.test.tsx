@@ -1,23 +1,27 @@
-import { renderHook } from "@testing-library/react-hooks";
-import { act, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
-import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderWithRouter } from "../../../utils/CustomRenderUtils";
+import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { orgServer } from "../../../__mocks__/OrganizationMockServer";
+import {
+    orgServer,
+    receiversGenerator,
+} from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
+import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 
-import DeliveriesTable, { useReceiverFeeds } from "./DeliveriesTable";
+import DeliveriesTable from "./DeliveriesTable";
 
 const mockUsePagination = {
     currentPageResults: makeDeliveryFixtureArray(10),
     paginationProps: { currentPageNum: 1, slots: [1, 2, 3, 4] },
     isLoading: false,
 };
+
+const mockReceivers = receiversGenerator(5);
+const mockActiveReceiver = mockReceivers[0];
 
 jest.mock("../../../hooks/UsePagination", () => ({
     ...jest.requireActual("../../../hooks/UsePagination"),
@@ -38,7 +42,7 @@ beforeEach(() => {
         activeMembership: {
             memberType: MemberType.RECEIVER,
             parsedName: "testOrg",
-            service: "testSender",
+            service: "testReceiver",
         },
         dispatch: () => {},
         initialized: true,
@@ -49,50 +53,28 @@ describe("DeliveriesTable", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    describe("useReceiverFeed with data", () => {
-        beforeEach(() => {
-            mockReceiverHook.mockReturnValue({
-                data: receiversGenerator(2),
-                error: "",
-                loading: false,
-                trigger: () => {},
-            });
-
-            // Mock the response from the Deliveries hook
-            const mockUseOrgDeliveriesCallback = {
-                fetchResults: () =>
-                    Promise.resolve(makeDeliveryFixtureArray(101)),
-                filterManager: mockFilterManager,
-            };
-            mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
-
-            // Render the component
-            renderWithRouter(<DeliveriesTable />);
-        });
-
-        test("setActiveService sets an active receiver", async () => {
-            const { result } = renderHook(() => useReceiverFeeds());
-            expect(result.current.activeService).toEqual({
-                name: "elr-0",
-                organizationName: "testOrg",
-            });
-            act(() =>
-                result.current.setActiveService(result.current.services[1])
-            );
-            expect(result.current.activeService).toEqual({
-                name: "elr-1",
-                organizationName: "testOrg",
-            });
-        });
-    });
-
     describe("useReceiverFeed without data", () => {
         beforeEach(() => {
-            mockReceiverHook.mockReturnValue({
-                data: [],
-                error: "",
-                loading: false,
-                trigger: () => {},
+            // Mock our receivers feed data
+            mockUseOrganizationReceiversFeed.mockReturnValue({
+                activeService: undefined,
+                loadingServices: false,
+                services: [],
+                setActiveService: () => {},
+            });
+
+            // Mock our SessionProvider's data
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+                dispatch: () => {},
+                initialized: true,
             });
 
             // Mock the response from the Deliveries hook
@@ -103,7 +85,7 @@ describe("DeliveriesTable", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderWithRouter(<DeliveriesTable />);
+            renderWithFullAppContext(<DeliveriesTable />);
         });
 
         test("if no activeService display NoServicesBanner", async () => {
@@ -121,12 +103,12 @@ describe("DeliveriesTable", () => {
 
 describe("DeliveriesTableWithNumberedPagination - with data", () => {
     beforeEach(async () => {
-        // Mock the response from the Receivers hook
-        mockReceiverHook.mockReturnValue({
-            data: receiversGenerator(3),
-            loading: false,
-            error: "",
-            trigger: () => {},
+        // Mock our receivers feed data
+        mockUseOrganizationReceiversFeed.mockReturnValue({
+            activeService: mockActiveReceiver,
+            loadingServices: false,
+            services: mockReceivers,
+            setActiveService: () => {},
         });
 
         // Mock the response from the Deliveries hook
@@ -137,7 +119,7 @@ describe("DeliveriesTableWithNumberedPagination - with data", () => {
         mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
         // Render the component
-        renderWithRouter(<DeliveriesTable />);
+        renderWithFullAppContext(<DeliveriesTable />);
     });
 
     test("renders with no error", async () => {
@@ -163,12 +145,26 @@ describe("DeliveriesTableWithNumberedPagination - with data", () => {
 
 describe("DeliveriesTableWithNumberedPagination - with no data", () => {
     beforeEach(() => {
-        // Mock the response from the Receivers hook
-        mockReceiverHook.mockReturnValue({
-            data: receiversGenerator(0),
-            loading: false,
-            error: "",
-            trigger: () => {},
+        // Mock our receivers feed data
+        mockUseOrganizationReceiversFeed.mockReturnValue({
+            activeService: undefined,
+            loadingServices: false,
+            services: [],
+            setActiveService: () => {},
+        });
+
+        // Mock our SessionProvider's data
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "testOrgNoReceivers",
+                service: "testReceiver",
+            },
+            dispatch: () => {},
+            initialized: true,
         });
 
         // Mock the response from the Deliveries hook
@@ -179,7 +175,7 @@ describe("DeliveriesTableWithNumberedPagination - with no data", () => {
         mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
         // Render the component
-        renderWithRouter(<DeliveriesTable />);
+        renderWithFullAppContext(<DeliveriesTable />);
     });
 
     test("renders the NoServicesBanner message", async () => {

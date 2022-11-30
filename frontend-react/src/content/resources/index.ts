@@ -10,8 +10,6 @@ import {
     GettingStartedPhd,
     ELRChecklistIa,
     ProgrammersGuide,
-    CsvSchemaDocumentation,
-    CsvUploadGuideIa,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
@@ -20,8 +18,6 @@ import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
 
 enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
-    SCHEMA_DOCUMENTATION = "CSV schema documentation guide",
-    UPLOAD_GUIDE = "CSV upload guide",
     DOWNLOAD_GUIDE = "CSV download guide",
     REFERRAL_GUIDE = "ReportStream referral guide",
     PROGRAMMERS_GUIDE = "API Programmer's guide",
@@ -37,8 +33,6 @@ const slugs: SlugParams[] = [
         key: ResourcesDirectories.ACCOUNT_REGISTRATION,
         slug: "account-registration-guide",
     },
-    { key: ResourcesDirectories.SCHEMA_DOCUMENTATION, slug: "csv-schema" },
-    { key: ResourcesDirectories.UPLOAD_GUIDE, slug: "csv-upload-guide" },
     { key: ResourcesDirectories.DOWNLOAD_GUIDE, slug: "data-download-guide" },
     { key: ResourcesDirectories.REFERRAL_GUIDE, slug: "referral-guide" },
     { key: ResourcesDirectories.PROGRAMMERS_GUIDE, slug: "programmers-guide" },
@@ -128,40 +122,6 @@ export const resourcesDirectories = [
                 ProgrammersGuide,
                 ResourcesDirectoryTools.makeCrumb(
                     ResourcesDirectories.PROGRAMMERS_GUIDE
-                )
-            )
-        ),
-    new ElementDirectory()
-        .setTitle(ResourcesDirectories.SCHEMA_DOCUMENTATION)
-        .setSlug(
-            ResourcesDirectoryTools.getSlug(
-                ResourcesDirectories.SCHEMA_DOCUMENTATION
-            )
-        )
-        .setDescription(
-            "General formatting guidelines and data elements guidance  for CSV upload submissions."
-        )
-        .addElement(
-            contentContainer(
-                CsvSchemaDocumentation,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.SCHEMA_DOCUMENTATION
-                )
-            )
-        ),
-    new ElementDirectory()
-        .setTitle(ResourcesDirectories.UPLOAD_GUIDE)
-        .setSlug(
-            ResourcesDirectoryTools.getSlug(ResourcesDirectories.UPLOAD_GUIDE)
-        )
-        .setDescription(
-            "Instructions for testing facilities and organizations reporting data via comma separated values (CSV)."
-        )
-        .addElement(
-            contentContainer(
-                CsvUploadGuideIa,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.UPLOAD_GUIDE
                 )
             )
         ),
