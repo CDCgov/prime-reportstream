@@ -3406,6 +3406,8 @@
           MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
           MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
           MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+          ORC-2-1: [ "": "*MSH-10" ]
+          OBR-2-1: [ "": "*MSH-10" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3995,6 +3997,49 @@
         apiUrl: "" # for no sending
         # apiUrl: "https://adminapi.encv-test.org/api/issue" # for test
         # apiUrl: "https://adminapi.encv.org/api/issue" # for prod
+    - name: rest
+      description: WA rest transport to OneHealthPort HIE
+      organizationName: wa-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: washington
+        reportingFacilityName: 7uycso49
+        reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+        reportingFacilityIdType: ISO
+        receivingApplicationName: WADOHPHRED
+        receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
+        receivingFacilityName: dn1fro00
+        receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
+        suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"]
+          MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
+          MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
+        phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
+        useOrderingFacilityName: ORGANIZATION_NAME
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: REST
+        authTokenUrl: http://rest-webservice:3001/token
+        reportUrl:  http://rest-webservice:3001/elr
+        #authTokenUrl: https://uat-v2-onehealthport-api.axwaycloud.com/ohp/oauth/jwt/token
+        #reportUrl:  https://uat-v2-onehealthport-api.axwaycloud.com/doh/phchub/PHC-Hub/elr
+        tlsKeystore: null
+        headers:
+          x-doc-type: 'ELR' # OneHealthPort HIE document type
+          x-org-facility-id: '7uycso49' #  OneHealthPort HIE organization identifier provided by the HIE onboarding team.
+          x-ref-id: 'header.reportFile.reportId' # reference identifier to manage message through its life cycle
+
 
 - name: wv-phd
   description: West Virginia Public Health Department

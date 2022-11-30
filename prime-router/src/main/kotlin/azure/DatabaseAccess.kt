@@ -436,7 +436,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .from(COVID_RESULT_METADATA)
             .where(
-                COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
+                COVID_RESULT_METADATA.MESSAGE_ID.eq(messageId)
             )
             .limit(100)
             .fetch()
@@ -524,7 +524,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val sql = """select * FROM 
                 report_file where report_id in (
                 select * from report_descendants(?)
-                where report_id != ?
                 limit(100)
                 )
               """

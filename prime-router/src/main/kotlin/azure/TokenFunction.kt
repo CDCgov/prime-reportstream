@@ -16,7 +16,14 @@ import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
+import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.logging.log4j.kotlin.Logging
+
+/**
+ * names of URL parameters required by TokenFunction
+ */
+const val client_assertion = "client_assertion"
+const val scope = "scope"
 
 /**
  * Token functions.
@@ -28,7 +35,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
      */
     @FunctionName("token")
     @StorageAccount("AzureWebJobsStorage")
-    fun report(
+    fun token(
         @HttpTrigger(
             name = "token",
             methods = [HttpMethod.POST],
@@ -36,14 +43,31 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         // Exampling incoming URL
-        // http://localhost:7071/api/token?
+        // http://localhost:7071/api/token
+        //
+        // Body/payload:
+        //
         // scope=strac.default.reports
         // &grant_type=client_credentials
         // &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
         // &client_assertion=verylong.signed.jwtstring
-        val clientAssertion = request.queryParameters["client_assertion"]
+        //
+        // Note that best practice is to send the parameters in the body/payload, not in the URL,
+        // and to set the header "Content-Type: application/x-www-form-urlencoded"
+        // (This is how form data is typically sent)
+
+        // Grab and parse out any parameters sent in the body/payload of the request.
+        val bodyParamList = URLEncodedUtils.parse(request.body, Charsets.UTF_8)
+        // URLEncodedUtils.parse is nifty, but oddly returns a list, not a map.  Turn it into a Map:
+        val bodyParams = bodyParamList.associate {
+            Pair(it.name, it.value)
+        }
+
+        // Note that we allow the required parameters to come from the request body, or from URL parameters.
+        // TODO Work with our senders to deprecate parameters sent in the URL.
+        val clientAssertion = bodyParams[client_assertion] ?: request.queryParameters[client_assertion]
             ?: return HttpUtilities.bad(request, "Missing client_assertion parameter", HttpStatus.UNAUTHORIZED)
-        val scope = request.queryParameters["scope"]
+        val scope = bodyParams[scope] ?: request.queryParameters[scope]
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
         if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)

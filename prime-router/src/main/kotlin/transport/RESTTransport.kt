@@ -14,6 +14,7 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
@@ -50,6 +51,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.schmizz.sshj.common.Base64
+import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
 import javax.net.ssl.KeyManagerFactory
@@ -125,6 +127,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             )
                             // if successful, add token as "Authorization:" header
                             httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
+                        }
+                        is UserAssertionCredential -> {
+                            tokenInfo = getAuthTokenWithAssertion(
+                                restTransportInfo.authTokenUrl,
+                                credential,
+                                context,
+                                tokenClient
+                            )
+                            // if successful, add token as "Authorization:" header
+                            bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
                         }
                         else -> error("UserApiKey or UserPass credential required for ${receiver.fullName}")
                     }
@@ -239,6 +251,37 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
+     * Get the OAuth token by submitting Assertion credential
+     * as OAuth 2.0 Client Credentials Grant Type, used by WA
+     *
+     * @param restUrl The URL to post to get the OAuth token
+     * @param credential The Assertion credential
+     * @param context Really just here to get logging injected
+     * @param httpClient the HTTP client to make the call
+     */
+    suspend fun getAuthTokenWithAssertion(
+        restUrl: String,
+        credential: UserAssertionCredential,
+        context: ExecutionContext,
+        httpClient: HttpClient
+    ): TokenInfo {
+        httpClient.use { client ->
+            val tokenInfo: TokenInfo = client.submitForm(
+                restUrl,
+                formParameters = Parameters.build {
+                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
+                    append("assertion", credential.assertion)
+                }
+
+            ) {
+                expectSuccess = true // throw an exception if not successful
+            }.body()
+            context.logger.info("Got Token with UserAssertion")
+            return tokenInfo
+        }
+    }
+
+    /**
      * Get the OAuth token by submitting UserApiKey credentials
      * as OAuth 2.0 Client Credentials Grant Type, used by NY
      *
@@ -325,23 +368,32 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     headers
                 )
                 setBody(
-                    // for OK
-                    if (restUrl.endsWith("hl7")) {
-                        TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
-                    } else {
-                        // for NY
-                        MultiPartFormDataContent(
-                            formData {
-                                append(
-                                    "payload", message,
-                                    Headers.build {
-                                        append(HttpHeaders.ContentType, "text/plain")
-                                        append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
-                                    }
-                                )
-                            },
-                            boundary
-                        )
+                    when (restUrl.substringAfterLast('/')) {
+                        // OK
+                        "hl7" -> {
+                            TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
+                        }
+                        // WA
+                        "elr" -> {
+                            contentType(ContentType.Application.Json)
+                            // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
+                            JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
+                        }
+                        else -> {
+                            // NY
+                            MultiPartFormDataContent(
+                                formData {
+                                    append(
+                                        "payload", message,
+                                        Headers.build {
+                                            append(HttpHeaders.ContentType, "text/plain")
+                                            append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
+                                        }
+                                    )
+                                },
+                                boundary
+                            )
+                        }
                     }
                 )
                 accept(ContentType.Application.Json)

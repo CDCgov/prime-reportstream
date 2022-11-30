@@ -277,7 +277,7 @@ Examples:
         if (failures.isNotEmpty()) {
             echo(
                 CoolTest
-                    .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
+                    .badMsgFormat("*** Tests FAILED:  ${failures.joinToString(",") { it.name }} ***")
             )
             exitProcess(SystemExitCodes.FAILURE.exitCode)
         } else {
@@ -321,6 +321,7 @@ Examples:
             DbConnectionsLoad(),
             LongLoad(),
             ABot(),
+            LivdApiTest()
         )
     }
 }
@@ -698,7 +699,6 @@ abstract class CoolTest {
      * @return true if there are no errors in the response, false otherwise
      */
     fun examinePostResponse(jsonResponse: String, shouldHaveDestination: Boolean): Boolean {
-
         var passed = true
         try {
             val tree = jacksonObjectMapper().readTree(jsonResponse)
