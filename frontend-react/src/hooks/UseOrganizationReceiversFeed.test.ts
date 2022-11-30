@@ -11,7 +11,7 @@ import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "./UseOktaMemberships";
 import { useOrganizationReceiversFeed } from "./UseOrganizationReceiversFeed";
 
-describe("useOrganizationSettings", () => {
+describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => {
         orgServer.listen();
     });
