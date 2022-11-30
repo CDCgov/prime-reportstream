@@ -294,7 +294,7 @@ class Hl7Serializer(
                         )
                     )
                 else ->
-                    if (e.location.toString() == "PID-29(0)") {
+                    if (e.location?.toString() == "PID-29(0)") {
                         errors.add(
                             FieldPrecisionMessage(
                                 e.location.toString(),
@@ -304,11 +304,18 @@ class Hl7Serializer(
                         )
                     } else {
                         errors.add(
-                            FieldPrecisionMessage(
-                                e.location.toString(),
-                                "Error parsing HL7 message: ${e.localizedMessage}",
-                                ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
-                            )
+                            if (e.location != null) {
+                                FieldPrecisionMessage(
+                                    e.location.toString(),
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            } else {
+                                InvalidHL7Message(
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            }
                         )
                     }
             }
@@ -913,7 +920,12 @@ class Hl7Serializer(
                             val pathOBXSpec = formPathSpec(segment.key, i)
                             val valueInOBXMessage = terser.get(pathOBXSpec)
                             replaceValueAwithB(
-                                valueInOBXMessage, pairs, components, fields, terser, pathOBXSpec,
+                                valueInOBXMessage,
+                                pairs,
+                                components,
+                                fields,
+                                terser,
+                                pathOBXSpec,
                                 fieldRep
                             )
                         }
