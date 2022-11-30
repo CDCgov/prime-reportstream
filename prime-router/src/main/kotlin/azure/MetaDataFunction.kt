@@ -38,8 +38,47 @@ data class LivdData(
     val scale: String,
     val method: String,
     val publicationVersionId: String,
-    val loincVersionId: String,
-)
+    val loincVersionId: String
+) {
+    companion object {
+        /**
+         * Takes the map from below and constructs a new instance of the LivdData object. Hides some complexity
+         */
+        fun build(dataRow: Map<String, String>): LivdData {
+            // the specimen and result descriptions are lists inside the CSV document. not great, but we'll convert
+            // them into lists for the purposes of representing the data correctly in the JSON
+            val specimenDescriptions = dataRow["vendor specimen description"]?.split("\n") ?: listOf("")
+            val resultDescriptions = dataRow["vendor result description"]?.split("\n") ?: listOf("")
+            // create the object
+            return LivdData(
+                dataRow["manufacturer"] ?: "",
+                dataRow["model"] ?: "",
+                dataRow["vendor analyte name"] ?: "",
+                specimenDescriptions,
+                resultDescriptions,
+                dataRow["test performed loinc code"] ?: "",
+                dataRow["test performed loinc long name"] ?: "",
+                dataRow["test ordered loinc code"] ?: "",
+                dataRow["test ordered loinc long name"] ?: "",
+                dataRow["vendor comment"] ?: "",
+                dataRow["vendor analyte code"] ?: "",
+                dataRow["vendor reference id"] ?: "",
+                dataRow["testkit name id"] ?: "",
+                dataRow["testkit name id type"] ?: "",
+                dataRow["equipment uid"] ?: "",
+                dataRow["equipment uid type"] ?: "",
+                dataRow["component"] ?: "",
+                dataRow["property"] ?: "",
+                dataRow["time"] ?: "",
+                dataRow["system"] ?: "",
+                dataRow["scale"] ?: "",
+                dataRow["method"] ?: "",
+                dataRow["publication version id"] ?: "",
+                dataRow["loinc version id"] ?: ""
+            )
+        }
+    }
+}
 
 /**
  * some common metadata querying functions
@@ -60,7 +99,7 @@ class MetaDataFunction : Logging {
             route = "metadata/livd"
         ) request: HttpRequestMessage<String?>,
         @Suppress("UNUSED_PARAMETER")
-        context: ExecutionContext,
+        context: ExecutionContext
     ): HttpResponseMessage {
         val filters = request.queryParameters
         val rows = getLivdTable(filters) ?: return HttpUtilities.internalErrorResponse(request)
@@ -81,16 +120,12 @@ class MetaDataFunction : Logging {
         logger.info("Pulling rows")
         val tableFilter = livdTable.FilterBuilder()
         filters.forEach { (t, u) -> tableFilter.equalsIgnoreCase(t, u) }
-        return tableFilter.filter().dataRows.map {
-            val specimenDescriptions = it[3].split("\n")
-            val resultDescriptions = it[4].split("\n")
-            LivdData(
-                it[0], it[1], it[2], specimenDescriptions, resultDescriptions,
-                it[5], it[6], it[7], it[8], it[9], it[10], it[11], it[12], it[13], it[14],
-                it[15], it[16], it[17], it[18], it[19], it[20], it[21], it[22], it[23]
-            )
+        // given the filtered table, this reads the list of maps and creates a new object out of the mapped
+        // column values
+        return tableFilter.filter().dataRowsMap.map {
+            LivdData.build(it)
         }.sortedBy {
             "${it.manufacturer}${it.model}".uppercase()
-        }
+        }.toList()
     }
 }

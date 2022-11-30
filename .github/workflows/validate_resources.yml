@@ -12,7 +12,7 @@ on:
       - master
       - test
   schedule:
-    - cron: "0 * * * *"
+    - cron: "36 3 * * *"
 
 jobs:
   pre_job:
@@ -48,6 +48,7 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -57,6 +58,7 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
       - name: Restart DNS if failure
         uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
         with:
@@ -70,6 +72,7 @@ jobs:
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
             az container start --name pdh${{ needs.pre_job.outputs.env_name }}-dns
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+
       - name: Restart legacy SFTP if wrong ip
         if: needs.pre_job.outputs.env_name != 'prod'
         uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
@@ -88,3 +91,29 @@ jobs:
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
             az container start --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver
             -g prime-data-hub-${{ needs.pre_job.outputs.env_name }};
+
+  optimize_demo_dbs:
+    name: Optimize demo databases
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env_name: [ demo1, demo2, demo3 ]
+    steps:
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Reduce database replica sizes
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        with:
+          timeout_minutes: 180
+          max_attempts: 3
+          retry_wait_seconds: 1800
+          command: |
+            REPLICA_COUNT=$(az postgres server list -g prime-data-hub-${{ matrix.env_name }} --query '[*].name' | \
+            jq '[.[] | select(contains("pgsql-replica"))] | length')
+            if [[ ${REPLICA_COUNT} -gt 0 ]]; then
+              az postgres server update -g prime-data-hub-${{ matrix.env_name }} -n pdh${{ matrix.env_name }}-pgsql-replica --sku-name GP_Gen5_4
+            fi
+          shell: bash
