@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
+import assertk.assertThat
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -49,16 +52,37 @@ class RoutingTests {
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
-            Receiver
-            (
+            Receiver(
                 "full-elr-hl7",
                 "co-phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
-            Receiver
-            (
+            Receiver(
+                "full-elr-hl7-2",
+                "co-phd",
+                Topic.FULL_ELR,
+                CustomerStatus.INACTIVE,
+                "one"
+            )
+        )
+    )
+
+    val twoOrganization = DeepOrganization(
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "full-elr-hl7",
+                "co-phd",
+                Topic.FULL_ELR,
+                CustomerStatus.ACTIVE,
+                "one",
+                reverseTheQualityFilter = true
+            ),
+            Receiver(
                 "full-elr-hl7-2",
                 "co-phd",
                 Topic.FULL_ELR,
@@ -79,11 +103,58 @@ class RoutingTests {
     }
 
     @Test
+    fun `test applyFilters receiver setting - (reverseTheQualityFilter = true) `() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val metadata = Metadata(schema = one)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        // act
+        val receivers = engine.applyFilters(bundle)
+
+        // assert
+        assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
+    fun `test applyFilters receiver setting - (reverseTheQualityFilter = false) `() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle)
+
+        // assert
+        assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
     fun `0 test qualFilter default - succeed, basic covid FHIR`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-
-        // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
@@ -94,7 +165,7 @@ class RoutingTests {
         val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
 
         // assert
-        assert(qualDefaultResult)
+        assertThat(qualDefaultResult).isTrue()
     }
 
     @Test
