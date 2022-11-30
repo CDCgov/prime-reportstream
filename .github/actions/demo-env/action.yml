@@ -141,6 +141,9 @@ runs:
       shell: bash
       run: |
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
+        -n pdh${{ inputs.env-name }}-pgsql-replica --sku-name GP_Gen5_32
+        sleep 120;
+        az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_32
 
     - name: Run DB restores and wait
@@ -158,10 +161,11 @@ runs:
         trigger_workflow: true
         wait_workflow: true
 
+    # Reduce primary db size. Replica reduced nightly due to runtime
     - name: Optimize db server size after restore
       if: always() && (inputs.github-token && inputs.destroy == 'false' && env.IGNORE_DB == 'false')
       shell: bash
       run: |
-        sleep 120;
+        sleep 300;
         az postgres server update -g prime-data-hub-${{ inputs.env-name }} \
         -n pdh${{ inputs.env-name }}-pgsql --sku-name GP_Gen5_4
