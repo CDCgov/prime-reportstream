@@ -117,7 +117,9 @@ class TranslationTests {
         val expectedFormat: Report.Format,
         val expectedSchema: String?,
         val shouldPass: Boolean = true,
+        /** are there any fields we should ignore when doing the comparison */
         val ignoreFields: List<String>? = null,
+        /** should we hardcode the sender for comparison? */
         val sender: String? = null
     )
 
@@ -211,6 +213,8 @@ class TranslationTests {
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
             val expectedFile = "$testDataDir/${config.expectedFile}"
+            // these next two calls look for an embedded resource in the class and pull them out
+            // by their name, rather than look for them explicitly on disk
             val inputStream = this::class.java.getResourceAsStream(inputFile)
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
@@ -335,6 +339,9 @@ class TranslationTests {
             result: CompareData.Result,
             senderName: String? = null
         ): Report? {
+            // if we have a sender name we want to work off of, we will look it up by organization name here.
+            // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
+            // value for the sender, and your test will fail. This is not a bug.
             val sender = if (senderName != null) {
                 settings.senders.firstOrNull { it.organizationName.lowercase() == senderName.lowercase() }
             } else {

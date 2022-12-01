@@ -348,6 +348,7 @@ warnings: ${warnings.joinToString()}
 
     /**
      * Compares two input streams, an [actual] and [expected], of the same [schema] and [format].
+     * @param fieldsToIgnore is a list of fields that should be ignored when doing a comparison of field values.
      * @return the result for the comparison, with result.passed true if the comparison was successful
      */
     fun compare(

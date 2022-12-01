@@ -302,6 +302,7 @@ tasks.processResources {
 }
 
 tasks.jar {
+    // getting an error about writing the same value out to the jar, so forcing it be a warning for now
     duplicatesStrategy = defaultDuplicateStrategy
     manifest {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
