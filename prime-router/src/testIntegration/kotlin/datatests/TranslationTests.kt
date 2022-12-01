@@ -389,7 +389,8 @@ class TranslationTests {
                                 TestSource,
                                 null,
                                 format
-                            ), actionLogger
+                            ),
+                            actionLogger
                         ).report
                     }
                 }
