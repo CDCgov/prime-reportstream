@@ -1,10 +1,10 @@
 
-### Schema: direct/anavasidx-covid-19
+### Schema: direct/direct-covid-19-stlt
 ### Topic: covid-19
 ### Tracking Element: specimenId (specimen_id)
 ### Base On: [covid-19](./covid-19.md)
-### Extends: [direct/direct-covid-19](./direct-direct-covid-19.md)
-#### Description: AnavasiDx
+### Extends: none
+#### Description: Direct Submission to ReportStream COVID-19 flat file to STLT
 
 ---
 
@@ -1690,7 +1690,7 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **Format**: use value found in the Code column
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -1743,8 +1743,6 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: AnavasiDx
 
 **Cardinality**: [1..1]
 
@@ -2473,21 +2471,5 @@ X|Results cannot be obtained for this observation|HL7
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
 
-
----
-
-**Name**: test_type
-
-**ReportStream Internal Name**: test_type
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2
-
-**Table Column**: TestType
 
 ---

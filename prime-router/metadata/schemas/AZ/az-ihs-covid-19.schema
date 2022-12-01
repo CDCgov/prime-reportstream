@@ -66,3 +66,13 @@ elements:
   - name: equipment_model_name
     type: TEXT
     default: BinaxNOW COVID-19 Ag Card
+
+  - name: test_type
+    type: TABLE
+    table: LIVD-SARS-CoV-2
+    tableColumn: TestType
+    reference:
+    referenceUrl:
+    mapper: livdLookup()
+    default:
+    documentation:
