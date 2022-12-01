@@ -44,5 +44,3 @@ elements:
       cardinality: ONE
       type: TEXT
       csvFields: [{name: Test_performed_number}]
-
-    - name: test_type

@@ -120,5 +120,3 @@ elements:
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: Specimen_Type, format: $display}]
       default: "53342003"
-
-    - name: test_type

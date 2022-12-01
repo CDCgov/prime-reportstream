@@ -14,12 +14,3 @@ elements:
   - name: processing_mode_code
     default: P
 
-  - name: test_type
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: TestType
-    reference:
-    referenceUrl:
-    mapper: livdLookup()
-    default:
-    documentation:
