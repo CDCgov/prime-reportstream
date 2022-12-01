@@ -979,7 +979,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
       translation:
         type: CUSTOM
-        schemaName: direct/direct-covid-19
+        schemaName: direct/direct-covid-19-stlt
         format: CSV
       timing:
         operation: MERGE
@@ -999,7 +999,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
       translation:
         type: CUSTOM
-        schemaName: direct/direct-covid-19
+        schemaName: direct/direct-covid-19-stlt
         format: CSV
       timing:
         operation: MERGE
