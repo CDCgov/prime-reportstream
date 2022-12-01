@@ -10,7 +10,7 @@ import {
     GettingStartedPhd,
     ELRChecklistIa,
     ProgrammersGuide,
-    CsvSchemaDocumentation,
+    DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
@@ -18,7 +18,7 @@ import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
 
 enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
-    SCHEMA_DOCUMENTATION = "CSV schema documentation guide",
+    DOWNLOAD_GUIDE = "CSV download guide",
     REFERRAL_GUIDE = "ReportStream referral guide",
     PROGRAMMERS_GUIDE = "API Programmer's guide",
     ELR_CHECKLIST = "ELR onboarding checklist",
@@ -33,7 +33,7 @@ const slugs: SlugParams[] = [
         key: ResourcesDirectories.ACCOUNT_REGISTRATION,
         slug: "account-registration-guide",
     },
-    { key: ResourcesDirectories.SCHEMA_DOCUMENTATION, slug: "csv-schema" },
+    { key: ResourcesDirectories.DOWNLOAD_GUIDE, slug: "data-download-guide" },
     { key: ResourcesDirectories.REFERRAL_GUIDE, slug: "referral-guide" },
     { key: ResourcesDirectories.PROGRAMMERS_GUIDE, slug: "programmers-guide" },
     { key: ResourcesDirectories.ELR_CHECKLIST, slug: "elr-checklist" },
@@ -126,20 +126,18 @@ export const resourcesDirectories = [
             )
         ),
     new ElementDirectory()
-        .setTitle(ResourcesDirectories.SCHEMA_DOCUMENTATION)
+        .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(
-            ResourcesDirectoryTools.getSlug(
-                ResourcesDirectories.SCHEMA_DOCUMENTATION
-            )
+            ResourcesDirectoryTools.getSlug(ResourcesDirectories.DOWNLOAD_GUIDE)
         )
         .setDescription(
-            "General formatting guidelines and data elements guidance  for CSV upload submissions."
+            "Instructions for downloading data as comma separated values (CSV) for your public health department."
         )
         .addElement(
             contentContainer(
-                CsvSchemaDocumentation,
+                DataDownloadGuideIa,
                 ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.SCHEMA_DOCUMENTATION
+                    ResourcesDirectories.DOWNLOAD_GUIDE
                 )
             )
         ),
