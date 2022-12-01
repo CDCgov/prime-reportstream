@@ -496,7 +496,8 @@ Some useful tools for Kotlin/Java development include:
 * [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
 * [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/)
 * [KTLint](https://ktlint.github.io/): the Kotlin linter that we use to format our KT code
-    * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
+    * After installing IntelliJ and cloning the repo, run the following command to install the ktlint rules: `cd ./prime-router && ./gradlew ktlintApplyToIdea`
+    * DO NOT install the IntelliJ KTLint plugin or any other KTLint tool as the rule versions may conflict.
 * [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
 * [Java Profiling in ReportStream](./java-profiling.md)
 * [Tips for faster development](./faster-development.md)

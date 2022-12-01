@@ -230,7 +230,9 @@ class MessagesFunctions(
     }
 
     internal fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
-        val reportDescendants = dbAccess.fetchReportDescendantsFromReportId(reportId).filter { it.receivingOrg != null }
+        val reportDescendants = dbAccess
+            .fetchReportDescendantsFromReportId(reportId)
+            .filter { it.receivingOrg != null && it.reportId != reportId }
         val childReportIds = reportDescendants.map { it.reportId }
         val reportFiles = dbAccess.fetchReportFileByIds(childReportIds)
 

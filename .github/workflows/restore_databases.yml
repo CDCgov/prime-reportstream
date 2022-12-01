@@ -96,20 +96,25 @@ jobs:
 
       # Restores will fail if sink server is not pre-expanded
       - name: Increase sink server size if necessary
-        shell: bash
-        run: |
-          source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
-            --query 'storageProfile.storageMb' -o tsv)
-          sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }} --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
-            --query 'storageProfile.storageMb' -o tsv)
-          if [[ ${source_size} -gt ${sink_size} ]]; then 
-            if [[ $(az postgres server list -g ${{ env.SINK_RESOURCE_GROUP }} --query '[].name | join(`, `, @) | contains(@, `replica`)') == true ]]; then 
-              az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} \
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: |
+            source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
+              --query 'storageProfile.storageMb' -o tsv)
+            sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }} --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
+              --query 'storageProfile.storageMb' -o tsv)
+            if [[ ${source_size} -gt ${sink_size} ]]; then
+              if [[ $(az postgres server list -g ${{ env.SINK_RESOURCE_GROUP }} --query '[].name | join(`, `, @) | contains(@, `replica`)') == true ]]; then
+                az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} \
+                --storage-size $source_size
+              fi
+              az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} \
               --storage-size $source_size
             fi
-            az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} \
-            --storage-size $source_size
-          fi
+          shell: bash
 
   backup_source:
     name: "Backup source: ${{ needs.pre_job.outputs.env_name }} - ${{ matrix.db }}"
