@@ -113,7 +113,7 @@ class FhirConverterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process), recordPrivateCalls = true)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
@@ -134,7 +134,7 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            engine["getBundlesFromHL7"](any<RawSubmission>(),any<ActionLogger>())
+            engine["getBundlesFromHL7"](any<RawSubmission>(), any<ActionLogger>())
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
@@ -149,13 +149,14 @@ class FhirConverterTests {
         val metadata = Metadata(schema = one)
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process), recordPrivateCalls = true)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
 
-        val method = engine.javaClass.getDeclaredMethod("getBundlesFromHL7", RawSubmission::class.java,ActionLogger::class.java)
+        val method =
+            engine.javaClass.getDeclaredMethod("getBundlesFromHL7", RawSubmission::class.java, ActionLogger::class.java)
         method.isAccessible = true
         val parameters = arrayOfNulls<Any>(2)
         parameters[0] = message
@@ -168,7 +169,6 @@ class FhirConverterTests {
         } else {
             fail("Unexpected result type ${result.javaClass.name}")
         }
-
     }
 
     @Test
@@ -177,8 +177,9 @@ class FhirConverterTests {
         val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val metadata = Metadata(schema = one)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process), recordPrivateCalls = true)
+        val message =
+            spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
 
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
