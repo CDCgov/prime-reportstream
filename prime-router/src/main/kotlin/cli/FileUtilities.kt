@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.cli
 
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.File
@@ -18,7 +18,7 @@ object FileUtilities {
     fun createFakeCovidFile(
         metadata: Metadata,
         settings: SettingsProvider,
-        sender: CovidSender,
+        sender: TopicSender,
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,
@@ -39,7 +39,7 @@ object FileUtilities {
 
     fun createFakeCovidReport(
         metadata: Metadata,
-        sender: CovidSender,
+        sender: TopicSender,
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,

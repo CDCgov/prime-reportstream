@@ -2472,6 +2472,12 @@
       customerStatus: inactive
       schemaName: hl7/test-covid-19
       format: HL7
+    - name: ignore-monkeypox
+      organizationName: ignore
+      topic: monkeypox
+      customerStatus: inactive
+      schemaName: monkeypox
+      format: HL7
   receivers:
     - name: CSV
       externalName: The CSV receiver for Ignore
@@ -2506,6 +2512,26 @@
       translation:
         type: CUSTOM
         schemaName: fl/fl-covid-19
+        format: HL7
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: HL7_MONKEYPOX
+      externalName: Ignore Monkeypox
+      organizationName: ignore
+      topic: monkeypox
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_MONKEYPOX)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: monkeypox
         format: HL7
       transport:
         type: SFTP
