@@ -40,7 +40,7 @@ class BlobAccess : Logging {
             }
 
             /**
-             * Get the blob filename from a [blobUrl]
+             * Get a file extension from a [blobUrl]
              * @return the blob filename
              * @throws MalformedURLException if the blob URL is malformed
              */

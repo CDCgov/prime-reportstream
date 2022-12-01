@@ -39,7 +39,9 @@ class FhirConverterTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+        "co-phd",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
         receivers = listOf(Receiver("elr", "co-phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
 
@@ -105,7 +107,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(metadata, settings, TaskAction.process)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"

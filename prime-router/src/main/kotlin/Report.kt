@@ -178,7 +178,7 @@ class Report : Logging {
                     HL7.ext -> HL7
                     FHIR.ext -> FHIR
                     CSV.ext -> CSV
-                    else -> throw IllegalStateException("Unexpected extension $ext.")
+                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
                 }
             }
         }
@@ -1606,7 +1606,8 @@ class Report : Logging {
         }
 
         fun getFormatFromBlobURL(blobURL: String): Format {
-            return Format.valueOfFromExt(BlobAccess.BlobInfo.getBlobFileExtension(blobURL))
+            val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
+            return Format.valueOfFromExt(extension)
         }
     }
 }
