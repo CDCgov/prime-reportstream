@@ -48,7 +48,7 @@ class FHIRConverter(
         try {
             val format = Report.getFormatFromBlobURL(message.blobURL)
             logger.trace("Processing $format data for FHIR conversion.")
-            val fhirBundles = when (Report.getFormatFromBlobURL(message.blobURL)) {
+            val fhirBundles = when (format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> getBundlesFromHL7(message, actionLogger)
                 Report.Format.FHIR -> getBundlesFromFHIR(message)
                 Report.Format.CSV, Report.Format.CSV_SINGLE -> getBundlesFromCSV(message)

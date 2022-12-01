@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.fail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -23,11 +27,13 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.io.File
 import java.util.UUID
 import kotlin.test.Test
 
@@ -98,6 +104,7 @@ class FhirConverterTests {
     @Test
     fun `test processHl7 happy path`() {
         mockkObject(BlobAccess)
+        mockkObject(Report)
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -106,7 +113,7 @@ class FhirConverterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = makeFhirEngine(metadata, settings, TaskAction.process)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
@@ -114,6 +121,7 @@ class FhirConverterTests {
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -126,10 +134,64 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
+            engine["getBundlesFromHL7"](any<RawSubmission>(),any<ActionLogger>())
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
+        }
+    }
+
+    @Test
+    fun `test getBundlesFromHL7`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(valid_hl7)
+
+        val method = engine.javaClass.getDeclaredMethod("getBundlesFromHL7", RawSubmission::class.java,ActionLogger::class.java)
+        method.isAccessible = true
+        val parameters = arrayOfNulls<Any>(2)
+        parameters[0] = message
+        parameters[1] = actionLogger
+        val result = method.invoke(engine, *parameters)
+        if (result is List<*>) {
+            val a: List<Bundle> = result.filterIsInstance<Bundle>()
+            assertThat(a).isNotNull()
+            assertThat(a.size).isEqualTo(1)
+        } else {
+            fail("Unexpected result type ${result.javaClass.name}")
+        }
+
+    }
+
+    @Test
+    fun `test getBundlesFromFHIR`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process),recordPrivateCalls=true)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
+
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+
+        val method = engine.javaClass.getDeclaredMethod("getBundlesFromFHIR", RawSubmission::class.java)
+        method.isAccessible = true
+        val parameters = arrayOfNulls<Any>(1)
+        parameters[0] = message
+        val result = method.invoke(engine, *parameters)
+        if (result is List<*>) {
+            val a: List<Bundle> = result.filterIsInstance<Bundle>()
+            assertThat(a).isNotNull()
+            assertThat(a.size).isEqualTo(1)
         }
     }
 }
