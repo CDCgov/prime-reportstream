@@ -89,6 +89,11 @@ interface ActionLogDetail {
      * The log message.
      */
     val message: String
+
+    /**
+     * The error code used to translate the error in the UI.
+     */
+    val errorCode: String
 }
 
 /**
