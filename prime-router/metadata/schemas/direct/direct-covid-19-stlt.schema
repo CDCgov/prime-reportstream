@@ -1,6 +1,6 @@
 ---
-name: direct-covid-19
-description: Direct Submission to ReportStream COVID-19 flat file
+name: direct-covid-19-stlt
+description: Direct Submission to ReportStream COVID-19 flat file to STLT
 topic: covid-19
 trackingElement: specimen_id
 basedOn: covid-19
@@ -381,4 +381,3 @@ elements:
   - name: test_authorized_for_otc
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
-  - name: test_type
