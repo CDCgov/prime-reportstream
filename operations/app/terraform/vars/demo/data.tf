@@ -28,6 +28,24 @@ data "azurerm_key_vault_secret" "postgres_pass" {
   ]
 }
 
+data "azurerm_key_vault_secret" "postgres_readonly_user" {
+  name         = "functionapp-postgres-readonly-user"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+  depends_on = [
+    module.init
+  ]
+}
+
+data "azurerm_key_vault_secret" "postgres_readonly_pass" {
+  name         = "functionapp-postgres-readonly-pass"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+  depends_on = [
+    module.init
+  ]
+}
+
 data "azurerm_key_vault" "tf-secrets" {
   name                = local.key_vault.application_kv_name
   resource_group_name = local.init.resource_group_name
