@@ -21,6 +21,7 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
+import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
@@ -75,6 +76,13 @@ class Hl7Serializer(
         val errors: MutableList<ActionLogDetail>,
         val warnings: MutableList<ActionLogDetail>
     )
+
+    enum class ErrorType(val type: String) {
+        INVALID_HL7_MESSAGE_DATE_VALIDATION("INVALID_HL7_MESSAGE_DATE_VALIDATION"),
+        INVALID_HL7_MESSAGE_VALIDATION("INVALID_HL7_MESSAGE_VALIDATION"),
+        INVALID_HL7_MESSAGE_FORMAT("INVALID_HL7_MESSAGE_FORMAT"),
+        INVALID_HL7_PHONE_NUMBER("INVALID_HL7_PHONE_NUMBER")
+    }
 
     private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
@@ -281,11 +289,35 @@ class Hl7Serializer(
                     errors.add(
                         InvalidHL7Message(
                             "Invalid HL7 message format. Please " +
-                                "refer to the HL7 specification and resubmit."
+                                "refer to the HL7 specification and resubmit.",
+                            ErrorType.INVALID_HL7_MESSAGE_FORMAT.type
                         )
                     )
                 else ->
-                    errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
+                    if (e.location?.toString() == "PID-29(0)") {
+                        errors.add(
+                            FieldPrecisionMessage(
+                                e.location.toString(),
+                                "Error parsing HL7 message: ${e.localizedMessage}",
+                                ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
+                            )
+                        )
+                    } else {
+                        errors.add(
+                            if (e.location != null) {
+                                FieldPrecisionMessage(
+                                    e.location.toString(),
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            } else {
+                                InvalidHL7Message(
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            }
+                        )
+                    }
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -388,7 +420,18 @@ class Hl7Serializer(
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
-            errors.add(InvalidHL7Message(msg))
+
+            if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
+                errors.add(
+                    FieldPrecisionMessage(
+                        "ORC-23(0)",
+                        msg,
+                        ErrorType.INVALID_HL7_PHONE_NUMBER.type
+                    )
+                )
+            } else {
+                errors.add(InvalidHL7Message(msg))
+            }
         }
 
         // convert sets to lists
@@ -877,7 +920,12 @@ class Hl7Serializer(
                             val pathOBXSpec = formPathSpec(segment.key, i)
                             val valueInOBXMessage = terser.get(pathOBXSpec)
                             replaceValueAwithB(
-                                valueInOBXMessage, pairs, components, fields, terser, pathOBXSpec,
+                                valueInOBXMessage,
+                                pairs,
+                                components,
+                                fields,
+                                terser,
+                                pathOBXSpec,
                                 fieldRep
                             )
                         }

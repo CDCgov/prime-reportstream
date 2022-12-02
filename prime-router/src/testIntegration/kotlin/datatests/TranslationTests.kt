@@ -5,20 +5,23 @@ import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.ReadResult
 import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -90,7 +93,17 @@ class TranslationTests {
         /**
          * The expected result of the test
          */
-        RESULT("Result")
+        RESULT("Result"),
+
+        /**
+         * A comma-delimited list of fields to ignore
+         */
+        IGNORE_FIELDS("Ignore Fields"),
+
+        /**
+         * The default sender for the report
+         */
+        SENDER("Sender"),
     }
 
     /**
@@ -103,7 +116,11 @@ class TranslationTests {
         val expectedFile: String,
         val expectedFormat: Report.Format,
         val expectedSchema: String?,
-        val shouldPass: Boolean = true
+        val shouldPass: Boolean = true,
+        /** are there any fields we should ignore when doing the comparison */
+        val ignoreFields: List<String>? = null,
+        /** should we hardcode the sender for comparison? */
+        val sender: String? = null
     )
 
     /**
@@ -137,6 +154,10 @@ class TranslationTests {
                     val inputFormat = getFormat(it[ConfigColumns.INPUT_FILE.colName]!!)
                     val inputSchema = it[ConfigColumns.INPUT_SCHEMA.colName]
                     val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
+                    val sender = it[ConfigColumns.SENDER.colName].trimToNull()
+                    val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
+                        colNames?.split(",") ?: emptyList()
+                    }
 
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
                         it[ConfigColumns.RESULT.colName].equals("PASS", true)
@@ -148,7 +169,9 @@ class TranslationTests {
                         it[ConfigColumns.EXPECTED_FILE.colName]!!,
                         expectedFormat,
                         expectedSchema,
-                        shouldPass
+                        shouldPass,
+                        ignoreFields,
+                        sender
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -190,10 +213,11 @@ class TranslationTests {
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
             val expectedFile = "$testDataDir/${config.expectedFile}"
+            // these next two calls look for an embedded resource in the class and pull them out
+            // by their name, rather than look for them explicitly on disk
             val inputStream = this::class.java.getResourceAsStream(inputFile)
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
-
                 if (result.passed) {
                     when {
                         // Compare the output of an HL7 to FHIR conversion
@@ -220,7 +244,7 @@ class TranslationTests {
                             )
                         }
 
-                        // All other conversions related to the COVID pipeline
+                        // All other conversions related to the Topic pipeline
                         else -> {
                             check(!config.inputSchema.isNullOrBlank())
                             check(!config.expectedSchema.isNullOrBlank())
@@ -228,15 +252,24 @@ class TranslationTests {
                                 ?: fail("Schema ${config.inputSchema} was not found.")
                             val expectedSchema = metadata.findSchema(config.expectedSchema)
                                 ?: fail("Schema ${config.expectedSchema} was not found.")
-                            val inputReport = readReport(inputStream, inputSchema, config.inputFormat, result)
+                            val inputReport = readReport(
+                                inputStream,
+                                inputSchema,
+                                config.inputFormat,
+                                result,
+                                config.sender
+                            )
                             val actualStream = if (inputReport != null) {
                                 val translatedReport = translateReport(inputReport, inputSchema, expectedSchema)
                                 outputReport(translatedReport, config.expectedFormat)
                             } else fail("Error reading input report.")
                             result.merge(
                                 CompareData().compare(
-                                    expectedStream, actualStream, config.expectedFormat,
-                                    expectedSchema
+                                    expectedStream,
+                                    actualStream,
+                                    config.expectedFormat,
+                                    expectedSchema,
+                                    fieldsToIgnore = config.ignoreFields
                                 )
                             )
                         }
@@ -303,9 +336,17 @@ class TranslationTests {
             input: InputStream,
             schema: Schema,
             format: Report.Format,
-            result: CompareData.Result
+            result: CompareData.Result,
+            senderName: String? = null
         ): Report? {
-            val sender = settings.senders.filter { it is CovidSender && it.schemaName == schema.name }.randomOrNull()
+            // if we have a sender name we want to work off of, we will look it up by organization name here.
+            // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
+            // value for the sender, and your test will fail. This is not a bug.
+            val sender = if (senderName != null) {
+                settings.senders.firstOrNull { it.organizationName.lowercase() == senderName.lowercase() }
+            } else {
+                settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
+            }
             return try {
                 when (format) {
                     // Get a random sender name that uses the provided schema, or null if no sender is found.
@@ -328,7 +369,7 @@ class TranslationTests {
                             listOf(TestSource)
                         )
                     }
-                    else -> {
+                    Report.Format.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
                             input,
@@ -339,6 +380,25 @@ class TranslationTests {
                         readResult.actionLogs.warnings.forEach { result.warnings.add(it.detail.message) }
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
+                    }
+                    else -> {
+                        result.passed = false
+                        val actionLogger = ActionLogger()
+                        actionLogger.error(
+                            InvalidReportMessage(
+                                "Format for report not handled in this test. Received $format"
+                            )
+                        )
+                        ReadResult(
+                            Report(
+                                schema,
+                                listOf(listOf("")),
+                                TestSource,
+                                null,
+                                format
+                            ),
+                            actionLogger
+                        ).report
                     }
                 }
             } catch (e: ActionError) {
