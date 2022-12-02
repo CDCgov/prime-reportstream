@@ -88,7 +88,7 @@ class FHIRRouter(
      *
      * The values used are located in the fhirpath_filter_shorthand lookup table.
      */
-    private val regexVariable = """%[A-Za-z][\w\-'`_]*""".toRegex()
+    private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
     internal fun replaceShorthand(input: String): String {
         var output = input
         regexVariable.findAll(input)
