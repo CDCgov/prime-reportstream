@@ -25,8 +25,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.metadata.LookupTable
-import org.apache.commons.text.StringSubstitutor
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -43,7 +41,6 @@ class FHIRRouter(
     blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
-
     /**
      * Default Rules:
      *   Must have message ID, patient last name, patient first name, DOB, specimen type
@@ -51,20 +48,20 @@ class FHIRRouter(
      *   At least one of order test date, specimen collection date/time, test result date
      */
     val qualityFilterDefault: ReportStreamFilter = listOf(
-        "%{messageId}.exists()",
-        "%{patient}.name.family.exists()",
-        "%{patient}.name.given.count() > 0",
-        "%{patient}.birthDate.exists()",
-        "%{specimen}.type.exists()",
-        "(%{patient}.address.line.exists() or " +
-            "%{patient}.address.postalCode.exists() or " +
-            "%{patient}.telecom.exists())",
+        "%messageId.exists()",
+        "%patient.name.family.exists()",
+        "%patient.name.given.count() > 0",
+        "%patient.birthDate.exists()",
+        "%specimen.type.exists()",
+        "(%patient.address.line.exists() or " +
+            "%patient.address.postalCode.exists() or " +
+            "%patient.telecom.exists())",
         "(" +
-            "(%{specimen}.collection.collectedPeriod.exists() or " +
-            "%{specimen}.collection.collected.exists()" +
+            "(%specimen.collection.collectedPeriod.exists() or " +
+            "%specimen.collection.collected.exists()" +
             ") or " +
-            "%{serviceRequest}.occurrence.exists() or " +
-            "%{observation}.effective.exists())"
+            "%serviceRequest.occurrence.exists() or " +
+            "%observation.effective.exists())"
     )
 
     /**
@@ -72,7 +69,7 @@ class FHIRRouter(
      *  Must have a processing mode id of 'P'
      */
     val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%{processingId} = 'P'"
+        "%processingId = 'P'"
     )
 
     /**
@@ -84,45 +81,51 @@ class FHIRRouter(
      * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
      * used in configuration filter expressions with the specified Fhir Path expression before the expression
      * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
-     * where needed. Format is %{myVariable} within the filters, and each variable used must be defined
+     * where needed. Format is %myVariable within the filters, and each variable used must be defined
      * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
-     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to4
+     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to the
      * underlying fhir library.
      *
-     * The values that this uses are located in the fhirpath_filter_shorthand lookup table.
+     * The values used are located in the fhirpath_filter_shorthand lookup table.
      */
-    private val shorthandSubstitutor by lazy {
-        StringSubstitutor {
-            val filter = shorthandLookupTable.FilterBuilder()
-            filter.isEqualTo("variable", it)
-            val path = filter.findSingleResult("fhirPath")
-
-            if (!path.isNullOrEmpty())
-                path
-            else
-                throw NotImplementedError(
-                    "Could not locate a unique entry for '$it' in the shorthand values lookup table."
-                )
-        }.setVariablePrefix("%{")
+    private val regexVariable = """%[A-Za-z][\w\-'`_]*""".toRegex()
+    internal fun replaceShorthand(input: String): String {
+        var output = input
+        regexVariable.findAll(input)
+            .map { it.value }
+            .sortedByDescending { it.length }
+            .forEach {
+                val replacement = shorthandLookupTable[it.trimStart('%')]
+                if (!replacement.isNullOrEmpty()) {
+                    output = output.replace(it, replacement)
+                } else {
+                    throw NotImplementedError(
+                        "Could not locate a unique entry for '$it' in the shorthand values lookup table."
+                    )
+                }
+            }
+        return output
     }
 
     /**
-     * Load the fhirpath_filter_shorthand lookup table if it can be found and has the expected columns, otherwise
-     * log warnings and return an empty lookup table with the correct columns. This is valid since having a populated
-     * lookup table is *required* to run the universal pipeline routing
+     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
+     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
+     * a populated lookup table is not required to run the universal pipeline routing
      */
-    private fun loadFhirPathShorthandLookupTable(): LookupTable {
+    private fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
         val lookup = metadata.findLookupTable("fhirpath_filter_shorthand")
         // log a warning and return an empty table if either lookup table is missing or has incorrect columns
         return if (lookup != null && lookup.hasColumn("variable") && lookup.hasColumn("fhirPath")) {
-            lookup
+            lookup.table.associate {
+                it.getString("variable") to it.getString("fhirPath")
+            }.toMutableMap()
         } else {
             if (lookup == null) {
                 logger.warn("Unable to find fhirpath_filter_shorthand lookup table")
             } else {
                 logger.warn("fhirpath_filter_shorthand does not contain expected columns 'variable' and 'fhirPath'")
             }
-            LookupTable("fhirpath_filter_shorthand", listOf(listOf("variable", "fhirpath")))
+            emptyMap<String, String>().toMutableMap()
         }
     }
 
@@ -343,10 +346,10 @@ class FHIRRouter(
         } else {
             filter.all {
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle),
+                    CustomContext(bundle, bundle, shorthandLookupTable),
                     bundle,
                     bundle,
-                    shorthandSubstitutor.replace(it)
+                    replaceShorthand(it)
                 )
             }
         }

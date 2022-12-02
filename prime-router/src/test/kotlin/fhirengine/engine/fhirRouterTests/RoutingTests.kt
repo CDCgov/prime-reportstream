@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -105,6 +106,9 @@ class RoutingTests {
             specimen,Bundle.entry.resource.ofType(Specimen)
             serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
             observation,Bundle.entry.resource.ofType(Observation)
+            test-dash,Bundle.test.dash
+            test_underscore,Bundle.test.underscore
+            test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
@@ -119,6 +123,137 @@ class RoutingTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with two variable string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient or %messageId")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(MessageHeader).id"
+        )
+    }
+
+    @Test
+    fun `test replaceShorthand with non-found string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        var threwError = false
+        try {
+            engine.replaceShorthand("%invalidVariable")
+        } catch (ex: NotImplementedError) {
+            threwError = true
+        }
+
+        // assert
+        assertTrue { threwError }
+    }
+
+    @Test
+    fun `test replaceShorthand with dashed string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test-dash")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.dash")
+    }
+
+    @Test
+    fun `test replaceShorthand with underscored string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test_underscore")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.underscore")
+    }
+
+    @Test
+    fun `test replaceShorthand with apostrophe string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test'apostrophe")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.apostrophe")
+    }
+
+    @Test
+    fun `test replaceShorthand with multi parts string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient.name.first")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient).name.first")
+    }
+
+    @Test
+    fun `test replaceShorthand with multi part while in middle`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("myVariable.%patient.name.first")
+
+        // assert
+        assertThat(result).isEqualTo("myVariable.Bundle.entry.resource.ofType(Patient).name.first")
+    }
+
+    @Test
+    fun `test replaceShorthand with similar strings, order 1`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient or %patientState")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(Patient).address.state"
+        )
+    }
+
+    @Test
+    fun `test replaceShorthand with similar strings, order 2`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patientState or %patient")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient).address.state or Bundle.entry.resource.ofType(Patient)"
+        )
     }
 
     @Test
@@ -431,8 +566,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -452,8 +587,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -473,8 +608,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val filter = listOf(
-            "(%{performerState}.exists() and %{performerState} = 'CA') or (%{patientState}.exists() " +
-                "and %{patientState} = 'CA')"
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
         )
 
         // act
@@ -493,7 +628,7 @@ class RoutingTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val filter = listOf("%{myInvalidConstant}.exists()")
+        val filter = listOf("%myInvalidConstant.exists()")
 
         // act
         var exceptionThrown = false
