@@ -629,6 +629,7 @@ class Report : Logging {
                             replacementValue
                         )
                 }
+
                 else -> table.column(it.name).copy()
             }
         }
@@ -714,10 +715,12 @@ class Report : Logging {
                         }
                         StringColumn.create(it.name, shuffledValues)
                     }
+
                     SynthesizeStrategy.FAKE -> {
                         // generate random faked data for the column passed in
                         buildFakedColumn(it.name, it, targetState, targetCounty, metadata)
                     }
+
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
                 }
@@ -1093,14 +1096,17 @@ class Report : Logging {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
+
             in mapping.useMapper -> {
                 null
             }
+
             in mapping.useDefault -> {
                 val defaultValue = mapping.useDefault[toElement.name]
                 val defaultValues = Array(table.rowCount()) { defaultValue }
                 StringColumn.create(toElement.name, defaultValues.asList())
             }
+
             else -> {
                 buildEmptyColumn(toElement.name)
             }
@@ -1605,6 +1611,13 @@ class Report : Logging {
             return this.getStringOrDefault(columnName, null).trimToNull()
         }
 
+        /**
+         * Gets a file format of a blob based on a blobURL
+         *
+         * [blobURL] URL of the blob in question
+         *
+         * @return a Report.Format representing the appropriate format
+         */
         fun getFormatFromBlobURL(blobURL: String): Format {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
             return Format.valueOfFromExt(extension)

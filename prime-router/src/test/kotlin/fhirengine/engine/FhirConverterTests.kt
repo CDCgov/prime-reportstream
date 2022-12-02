@@ -1,8 +1,9 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
+import assertk.assertions.isEmpty
+import assertk.assertions.isNotEmpty
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -52,7 +53,6 @@ class FhirConverterTests {
     val settings = FileSettings().loadOrganizations(oneOrganization)
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one)
-    val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
 
     val valid_hl7 = "" +
         "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH FL " +
@@ -113,7 +113,7 @@ class FhirConverterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        // val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
@@ -151,7 +151,7 @@ class FhirConverterTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        // val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
 
@@ -185,20 +185,36 @@ class FhirConverterTests {
     @Test
     fun `test getBundlesFromHL7`() {
         val actionLogger = mockk<ActionLogger>()
-        // val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
 
         val result = engine.getBundlesFromHL7(message, actionLogger)
-        assertThat(result).isNotNull()
-        assertThat(result.size).isEqualTo(1)
+        assertThat(result).isNotEmpty()
+    }
+
+    @Test
+    fun `test getBundlesFromHL7 invalid HL7`() {
+        val actionLogger = spyk(ActionLogger())
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
+
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+
+        val result = engine.getBundlesFromHL7(message, actionLogger)
+        assertThat(result).isEmpty()
+        // assert
+        verify(atLeast = 1) {
+            actionLogger.error(any<ActionLogDetail>())
+        }
     }
 
     @Test
     fun `test getBundlesFromFHIR`() {
-        // val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
 
@@ -206,7 +222,6 @@ class FhirConverterTests {
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
 
         val result = engine.getBundlesFromFHIR(message)
-        assertThat(result).isNotNull()
-        assertThat(result.size).isEqualTo(1)
+        assertThat(result).isNotEmpty()
     }
 }
