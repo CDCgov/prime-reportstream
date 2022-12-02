@@ -37,7 +37,11 @@ class FHIRConverter(
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
-     * [message] is the incoming HL7 message to be turned into FHIR and saved
+     * Accepts a [message] in either HL7 or FHIR format
+     * HL7 messages will be converted into FHIR
+     * FHIR messages will be decoded and saved
+     *
+     * [message] is the incoming message to be turned into FHIR and saved
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
     override fun doWork(
@@ -51,8 +55,7 @@ class FHIRConverter(
             val fhirBundles = when (format) {
                 Report.Format.HL7, Report.Format.HL7_BATCH -> getBundlesFromHL7(message, actionLogger)
                 Report.Format.FHIR -> getBundlesFromFHIR(message)
-                Report.Format.CSV, Report.Format.CSV_SINGLE -> getBundlesFromCSV(message)
-                Report.Format.INTERNAL -> throw IllegalStateException("Unexpected format ${Report.Format.INTERNAL}")
+                else -> throw NotImplementedError("Invalid format $format ")
             }
 
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
@@ -96,8 +99,8 @@ class FHIRConverter(
                 )
 
                 // upload to blobstore
-                var bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                var blobInfo = BlobAccess.uploadBody(
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
                     Report.Format.FHIR,
                     bodyBytes,
                     report.name,
@@ -143,7 +146,15 @@ class FHIRConverter(
         }
     }
 
-    private fun getBundlesFromHL7(
+    /**
+     * Converts an HL7 message into FHIR bundles
+     *
+     * [message] incoming HL7 message to be converted into FHIR
+     * [actionLogger] keeps track of any validation errors when reading messages
+     *
+     * @return one or more FHIR bundles
+     */
+    internal fun getBundlesFromHL7(
         message: RawSubmission,
         actionLogger: ActionLogger
     ): List<Bundle> {
@@ -163,17 +174,17 @@ class FHIRConverter(
         }
     }
 
-    private fun getBundlesFromFHIR(
+    /**
+     * Decodes a FHIR message and returns it as list of bundles
+     *
+     * [message] incoming HL7 message to be converted into FHIR
+     *
+     * @return one or more FHIR bundles
+     */
+    internal fun getBundlesFromFHIR(
         message: RawSubmission
     ): List<Bundle> {
         return listOf(FhirTranscoder.decode(message.downloadContent()))
-    }
-
-    private fun getBundlesFromCSV(
-        message: RawSubmission
-    ): List<Bundle> {
-        logger.debug("CSV message ${message.blobURL}")
-        return listOf()
     }
 
     /**
