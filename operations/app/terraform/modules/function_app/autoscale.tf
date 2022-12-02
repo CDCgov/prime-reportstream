@@ -93,6 +93,46 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         cooldown  = "PT5M"
       }
     }
+
+    # rule {
+    #   metric_trigger {
+    #     metric_name        = "ApproximateMessageCount"
+    #     metric_resource_id = join("/",["${var.resource_prefix}storageaccount","services/queue/queues","process"])
+    #     time_grain         = "PT1M"
+    #     statistic          = "Average"
+    #     time_window        = "PT5M"
+    #     time_aggregation   = "Average"
+    #     operator           = "GreaterThan"
+    #     threshold          = 5
+    #   }
+
+    #   scale_action {
+    #     direction = "Increase"
+    #     type      = "ChangeCount"
+    #     value     = "1"
+    #     cooldown  = "PT5M"
+    #   }
+    # }
+
+    rule {
+      metric_trigger {
+        metric_name        = "ApproximateMessageCount"
+        metric_resource_id = join("/",["${"${var.resource_prefix}storageaccount"}","services/queue/queues","process"])
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThanOrEqual"
+        threshold          = 5
+      }
+
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT5M"
+      }
+    }
   }
 
   notification {
