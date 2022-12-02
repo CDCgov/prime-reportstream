@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.engine
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.fail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -27,7 +26,6 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
-import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
