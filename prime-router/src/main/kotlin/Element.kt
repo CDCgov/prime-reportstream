@@ -136,7 +136,7 @@ data class Element(
 
     data class CsvField(
         val name: String,
-        val format: String?,
+        val format: String?
     )
 
     data class HDFields(
@@ -235,7 +235,7 @@ data class Element(
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
-            delimiter = this.delimiter ?: baseElement.delimiter,
+            delimiter = this.delimiter ?: baseElement.delimiter
         )
     }
 
@@ -259,20 +259,24 @@ data class Element(
         // Table lookups require a table
         if ((mapperRef?.name == LookupMapper().name || mapperRef?.name == LIVDLookupMapper().name) &&
             (tableRef == null || tableColumn.isNullOrBlank())
-        )
+        ) {
             addError("requires a table and table column.")
+        }
 
         // Elements of type table need a table ref
-        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null)
+        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null) {
             addError("requires a table.")
+        }
 
         // Elements with mapper parameters require a mapper
-        if ((mapperOverridesValue == true || !mapperArgs.isNullOrEmpty()) && mapperRef == null)
+        if ((mapperOverridesValue == true || !mapperArgs.isNullOrEmpty()) && mapperRef == null) {
             addError("has mapper related parameters, but no mapper.")
+        }
 
         // Elements that can be blank should not have a default
-        if (canBeBlank && default != null)
+        if (canBeBlank && default != null) {
             addError("has a default specified, but can be blank")
+        }
 
         return errorList
     }
@@ -300,7 +304,7 @@ data class Element(
      */
     fun toFormatted(
         normalizedValue: String,
-        format: String? = null,
+        format: String? = null
     ): String {
         // trim the normalized value down to null and if it is null return empty string
         val cleanedNormalizedValue = normalizedValue.trimToNull() ?: return ""
@@ -361,10 +365,11 @@ data class Element(
                     }
                     systemToken -> {
                         // Very confusing, but this special case is in the HHS Guidance Confluence page
-                        if (valueSetRef?.name == "hl70136" && cleanedNormalizedValue == "UNK")
+                        if (valueSetRef?.name == "hl70136" && cleanedNormalizedValue == "UNK") {
                             "NULLFL"
-                        else
+                        } else {
                             valueSetRef?.systemCode ?: error("valueSetRef for $valueSet is null!")
+                        }
                     }
                     else -> cleanedNormalizedValue
                 }
@@ -452,10 +457,11 @@ data class Element(
             Type.CITY,
             Type.PERSON_NAME,
             Type.EMAIL -> {
-                if (str.length <= maxLength)
+                if (str.length <= maxLength) {
                     str
-                else
+                } else {
                     str.substring(0, maxLength)
+                }
             }
             else -> str
         }
@@ -487,22 +493,26 @@ data class Element(
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
-                    if (toAltCode(cleanedValue) != null) null else
+                    if (toAltCode(cleanedValue) != null) null else {
                         InvalidCodeMessage(cleanedValue, fieldMapping, format)
+                    }
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
-                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else
+                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
+                            }
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
-                            if (values.find { it.code == cleanedValue } != null) null else
+                            if (values.find { it.code == cleanedValue } != null) null else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
+                            }
                         }
                         else ->
-                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else
+                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
+                            }
                     }
                 }
             }
@@ -511,10 +521,11 @@ data class Element(
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
-                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedValue))
+                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedValue)) {
                     InvalidPostalMessage(cleanedValue, fieldMapping, format)
-                else
+                } else {
                     null
+                }
             }
             Type.HD -> {
                 when (format) {
@@ -615,15 +626,17 @@ data class Element(
             }
             Type.TELEPHONE -> {
                 val number = phoneNumberUtil.parse(cleanedFormattedValue, "US")
-                if (!number.hasNationalNumber() || number.nationalNumber > 999999999999L)
+                if (!number.hasNationalNumber() || number.nationalNumber > 999999999999L) {
                     error("Invalid phone number '$cleanedFormattedValue' for $fieldMapping")
+                }
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
-                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedFormattedValue))
+                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedFormattedValue)) {
                     error("Input Error: invalid postal code '$cleanedFormattedValue' for $fieldMapping")
+                }
                 cleanedFormattedValue.replace(" ", "")
             }
             Type.HD -> {
@@ -785,7 +798,7 @@ data class Element(
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
         itemIndex: Int,
-        sender: Sender? = null,
+        sender: Sender? = null
     ): ElementResult {
         check(itemIndex > 0) { "Item index was $itemIndex, but must be larger than 0" }
         val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
@@ -965,6 +978,7 @@ data class Element(
         private val maybeAPhoneNumber = Regex(
             """(\+\d{1,4}(\s|-)?)?\(?(\d{1,3})\)?(\s|-)?(\d{3,4})(\s|-)?(\d{3,4})(\s|-)?((x|ext\.|ext|#)(\s|-)?\d+)?"""
         )
+
         // possible regions a phone number could be from. This is a wider list than we will we probably
         // pull from, at least initially, because there are many more places in North America that use
         // the +1 country code for international phone numbers, and therefore, our system could break if
@@ -997,7 +1011,7 @@ data class Element(
             "VC", // Saint Vincent and the Grenadines
             "VG", // British Virgin Islands
             "VI", // Virgin Islands
-            "UM", // US Minor Outlying Islands
+            "UM" // US Minor Outlying Islands
         )
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
@@ -1049,8 +1063,9 @@ data class Element(
                 // attempt to parse the number. if it is parseable then we can return null and move
                 // on with our work, otherwise, return an InvalidPhoneMessage
                 val phoneNumber = tryParsePhoneNumber(cleanedValue)
-                if (phoneNumber != null)
+                if (phoneNumber != null) {
                     return null
+                }
             }
             // all attempts have failed. bad number
             return InvalidPhoneMessage(cleanedValue, fieldMapping)

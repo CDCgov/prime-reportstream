@@ -27,7 +27,6 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -50,6 +49,7 @@ description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
+val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
 
 // Local database information, first one wins:
@@ -302,6 +302,8 @@ tasks.processResources {
 }
 
 tasks.jar {
+    // getting an error about writing the same value out to the jar, so forcing it be a warning for now
+    duplicatesStrategy = defaultDuplicateStrategy
     manifest {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
         run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
