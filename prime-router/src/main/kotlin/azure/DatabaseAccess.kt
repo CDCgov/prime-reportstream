@@ -535,7 +535,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * for the Message Tracker feature: Fetch ActionLogs by a report id and a filter type
+     * used by the Message Tracker feature: Fetch ActionLogs by a report id and a filter type
      * @param reportId an exact report id
      * @param trackingId an exact tracking/message id
      * @param filterType a filter type, i.e. "QUALITY_FILTER"
