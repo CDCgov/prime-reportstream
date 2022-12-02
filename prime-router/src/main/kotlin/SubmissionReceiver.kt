@@ -293,7 +293,7 @@ class ELRReceiver : SubmissionReceiver {
             report = Report(
                 Format.FHIR,
                 sources,
-                0,
+                1,
                 metadata = metadata,
                 nextAction = TaskAction.convert
             )

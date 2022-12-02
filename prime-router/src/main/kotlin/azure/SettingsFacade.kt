@@ -89,7 +89,7 @@ class SettingsFacade(
     fun <T : SettingAPI> findSettingAsJson(
         name: String,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): String? {
         val result = findSetting(name, clazz, organizationName) ?: return null
         return mapper.writeValueAsString(result)
@@ -106,11 +106,10 @@ class SettingsFacade(
     ): T? {
         val setting = db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            if (organizationName != null) {
+            if (organizationName != null)
                 db.fetchSetting(settingType, name, organizationName, txn)
-            } else {
+            else
                 db.fetchSetting(settingType, name, parentId = null, txn)
-            }
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
         // Add the metadata
@@ -140,9 +139,7 @@ class SettingsFacade(
         val (result, settings, errorMessage) = db.transactReturning { txn ->
             val organization = db.fetchSetting(SettingType.ORGANIZATION, organizationName, null, txn)
                 ?: return@transactReturning Triple(
-                    AccessResult.NOT_FOUND,
-                    emptyList(),
-                    errorJson("Organization not found")
+                    AccessResult.NOT_FOUND, emptyList(), errorJson("Organization not found")
                 )
             val settingType = settingTypeFromClass(clazz.name)
             val settings = db.fetchSettings(settingType, organization.settingId, txn)
@@ -177,10 +174,7 @@ class SettingsFacade(
     fun findOrganizationAndReceiver(fullName: String, txn: DataAccessTransaction?): Pair<Organization, Receiver>? {
         val (organizationName, receiverName) = Receiver.parseFullName(fullName)
         val (organizationSetting, receiverSetting) = db.fetchOrganizationAndSetting(
-            SettingType.RECEIVER,
-            receiverName,
-            organizationName,
-            txn
+            SettingType.RECEIVER, receiverName, organizationName, txn
         ) ?: return null
         val receiver = mapper.readValue(receiverSetting.values.data(), ReceiverAPI::class.java)
         val organization = mapper.readValue(organizationSetting.values.data(), OrganizationAPI::class.java)
@@ -203,9 +197,8 @@ class SettingsFacade(
             }
             // Check the payload
             val (valid, error, normalizedJson) = validateAndNormalize(json, clazz, name, organizationName)
-            if (!valid) {
+            if (!valid)
                 return@transactReturning Pair(AccessResult.BAD_REQUEST, errorJson(error ?: "validation error"))
-            }
             if (normalizedJson == null) error("Internal Error: validation error")
 
             // Find the current setting to see if this is a create or an update operation
@@ -236,9 +229,8 @@ class SettingsFacade(
                     db.deactivateSetting(current.settingId, txn)
                     val newId = db.insertSetting(setting, txn)
                     // If inserting an org, update all children settings to point to the new org
-                    if (settingType == SettingType.ORGANIZATION) {
+                    if (settingType == SettingType.ORGANIZATION)
                         db.updateOrganizationId(current.settingId, newId, txn)
-                    }
                     AccessResult.SUCCESS
                 }
             }
@@ -262,20 +254,18 @@ class SettingsFacade(
         json: String,
         clazz: Class<T>,
         name: String,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): Triple<Boolean, String?, JSONB?> {
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
             null
         } ?: return Triple(false, "Could not parse JSON payload", null)
-        if (input.name != name) {
+        if (input.name != name)
             return Triple(false, "Payload and path name do not match", null)
-        }
-        if (input.organizationName != organizationName) {
+        if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
-        }
-        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
+        input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
@@ -288,11 +278,10 @@ class SettingsFacade(
     ): Pair<AccessResult, String> {
         return db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            val current = if (organizationName != null) {
+            val current = if (organizationName != null)
                 db.fetchSetting(settingType, name, organizationName, txn)
-            } else {
+            else
                 db.fetchSetting(settingType, name, parentId = null, txn)
-            }
             if (current == null) return@transactReturning Pair(AccessResult.NOT_FOUND, errorJson("Item not found"))
 
             db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
@@ -344,15 +333,13 @@ class OrganizationAPI
     filters: List<ReportStreamFilters>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
-    override var createdAt: OffsetDateTime? = null
+    override var createdAt: OffsetDateTime? = null,
 ) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
 
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return this.consistencyErrorMessage()
-    }
+    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -375,7 +362,7 @@ class ReceiverAPI
     transport: TransportType? = null,
     override var version: Int? = null,
     override var createdBy: String? = null,
-    override var createdAt: OffsetDateTime? = null
+    override var createdAt: OffsetDateTime? = null,
 ) : Receiver(
     name,
     organizationName,
