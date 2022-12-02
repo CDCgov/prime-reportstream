@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
@@ -8,6 +9,8 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
@@ -22,7 +25,9 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Provenance
+import org.hl7.fhir.r4.model.StringType
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -59,12 +64,35 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
+            val endpoints = provenance.target.map { (it.resource as Endpoint) }
 
-            receivers.forEach { recName ->
+            // val log = ActionLog()
+
+            endpoints.forEach { it ->
+                val recName = it.identifier[0].value
                 val receiver = settings.findReceiver(recName)
+
+                val itemCount = it.extension.firstOrNull { it.url == "https://reportstream.cdc.gov/prime-router/extensions#itemCount"}?.value as IntegerType
+                val logs = it.extension.firstOrNull { it.url == "https://reportstream.cdc.gov/prime-router/extensions#logs"}?.value as StringType
+
+                // need to parse this properly
+                if (logs.value.isNotEmpty())
+                    actionHistory.trackLogs(
+                        ActionLog(
+                            ReportStreamFilterResult(
+                                recName,
+                                itemCount.value,
+                                logs.value,
+                                emptyList(),
+                                bundle.identifier.value ?: "",
+                                ReportStreamFilterType.QUALITY_FILTER
+                            )
+                        )
+                    )
+
                 // We only process receivers that are active and for this pipeline.
-                if (receiver != null && receiver.topic == Topic.FULL_ELR) {
+                // Receivers with an itemCount of 0 make it until here so their logs are created
+                if (receiver != null && receiver.topic == Topic.FULL_ELR && itemCount.value != 0) {
                     val hl7Message = getHL7MessageFromBundle(bundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()
 

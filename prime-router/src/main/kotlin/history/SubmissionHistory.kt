@@ -289,7 +289,7 @@ class DetailedSubmissionHistory(
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
         // Enforce an order on the enrichment:  process/translate, send, download
         descendants.filter {
-            it.actionName == TaskAction.process || it.actionName == TaskAction.translate
+            it.actionName == TaskAction.process || it.actionName == TaskAction.route || it.actionName == TaskAction.translate
         }.forEach { descendant ->
             enrichWithProcessAction(descendant)
         }
@@ -310,7 +310,7 @@ class DetailedSubmissionHistory(
      * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.translate) {
+        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.route || descendant.actionName == TaskAction.translate) {
             "Must be a process action"
         }
 

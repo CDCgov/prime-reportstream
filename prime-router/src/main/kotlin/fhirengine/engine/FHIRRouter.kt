@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
@@ -80,6 +78,19 @@ class FHIRRouter(
     )
 
     /**
+     * TODO
+     *
+     * @property receiver
+     * @property itemCount
+     * @property filterResults
+     */
+    data class RoutedReceiver(
+        val receiver: Receiver,
+        var itemCount: Int = 0,
+        val filterResults: MutableList<ReportStreamFilterResult> = mutableListOf()
+    )
+
+    /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
@@ -110,6 +121,7 @@ class FHIRRouter(
 
             // add the receivers, if any, to the fhir bundle
             if (listOfReceivers.isNotEmpty()) {
+
                 FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
             }
 
@@ -209,31 +221,14 @@ class FHIRRouter(
      * @param report
      * @return list of receivers that should receive this bundle
      */
-    private fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
-        val listOfReceivers = mutableListOf<Receiver>()
+    private fun applyFilters(bundle: Bundle, report: Report): List<RoutedReceiver> {
+        val listOfReceivers = mutableListOf<RoutedReceiver>()
 
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
                 it.topic == Topic.FULL_ELR
         }
-
-        // get the quality filter default result for the bundle, but only if it is needed
-        val qualFilterDefaultResult: Boolean by lazy {
-            evaluateFilterCondition(
-                qualityFilterDefault, bundle,
-                false, report
-            )
-        }
-        // get the processing mode (processing id) default result for the bundle, but only if it is needed
-        val processingModeDefaultResult: Boolean by lazy {
-            evaluateFilterCondition(
-                processingModeFilterDefault, bundle,
-                false, report
-            )
-        }
-
-        // var trackingElement = report.schema.trackingElement // might be null
 
         fullElrReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
@@ -246,36 +241,60 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle,
-                false, report, receiver.fullName)
+            val passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false,
+                report, null, ReportStreamFilterType.JURISDICTIONAL_FILTER)
+
+            // after jurisdiction filter, we want to log all receiver filtering
+            val routedReceiver = RoutedReceiver(receiver)
+
+            // get the quality filter default result for the bundle, but only if it is needed
+            val qualFilterDefaultResult: Boolean by lazy {
+                evaluateFilterCondition(
+                    qualityFilterDefault, bundle, false, report,
+                    routedReceiver, ReportStreamFilterType.QUALITY_FILTER
+                )
+            }
+            // get the processing mode (processing id) default result for the bundle, but only if it is needed
+            val processingModeDefaultResult: Boolean by lazy {
+                evaluateFilterCondition(
+                    processingModeFilterDefault, bundle, false, report,
+                    routedReceiver, ReportStreamFilterType.PROCESSING_MODE_FILTER
+                )
+            }
+
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
-            passes = passes &&
+            var sendable = passes &&
                 evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle,
-                    qualFilterDefaultResult, report, receiver.fullName,
+                    qualFilterDefaultResult, report, routedReceiver,
                     ReportStreamFilterType.QUALITY_FILTER
                 )
+
             // ROUTING FILTER
             //  default: allowAll
-            passes = passes &&
+            sendable = sendable &&
                 evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle,
-                    true, report, receiver.fullName,
+                    true, report, routedReceiver,
                     ReportStreamFilterType.ROUTING_FILTER
                 )
             // PROCESSING MODE FILTER
             //  default: allowAll
-            passes = passes &&
+            sendable = sendable &&
                 evaluateFilterCondition(
                     getProcessingModeFilter(receiver, orgFilters), bundle,
-                    processingModeDefaultResult, report, receiver.fullName,
+                    processingModeDefaultResult, report, routedReceiver,
                     ReportStreamFilterType.PROCESSING_MODE_FILTER
                 )
 
-            // if all filters pass, add this receiver to the list of valid receivers
+            // if the juris filter passes, add this receiver to the list of valid receivers
             if (passes) {
-                listOfReceivers.add(receiver)
+                listOfReceivers.add(routedReceiver)
+
+                // update the itemCount if the items WILL be sent to this receiver
+                // @todo the report itself also needs to have the itemCount calculated
+                if (sendable) routedReceiver.itemCount = report.itemCount
             }
         }
 
@@ -292,8 +311,8 @@ class FHIRRouter(
         bundle: Bundle,
         defaultResponse: Boolean,
         report: Report,
-        receiverName: String = "",
-        filterType: ReportStreamFilterType? = null
+        routedReceiver: RoutedReceiver?,
+        filterType: ReportStreamFilterType
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
@@ -302,17 +321,29 @@ class FHIRRouter(
         else filter.all {
             val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
             // log results of filtering things OUT
-            if (!result && filterType != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER)
+            if (!result && routedReceiver != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                 report.filteringResults.add(
                     ReportStreamFilterResult(
-                        receiverName,
+                        routedReceiver.receiver.fullName,
                         report.itemCount,
                         it,
-                        emptyList(), // UP filter name and arguments are different, so we need tweaking
-                        "", // not sure what to put here in this context
+                        emptyList(),
+                        bundle.identifier.value ?: "",
                         filterType
                     )
                 )
+
+                routedReceiver.filterResults.add(
+                    ReportStreamFilterResult(
+                        routedReceiver.receiver.fullName,
+                        report.itemCount,
+                        it,
+                        emptyList(),
+                        bundle.identifier.value ?: "",
+                        filterType
+                    )
+                )
+            }
             return result
         }
     }
