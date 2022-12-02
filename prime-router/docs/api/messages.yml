@@ -1,6 +1,6 @@
 openapi: "3.0.3"
 info:
-  title: ReportStream Reports API
+  title: ReportStream Messages API
   version: "1.0"
   contact:
     name: USDS at Centers for Disease Control and Prevention
