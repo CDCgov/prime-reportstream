@@ -421,6 +421,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(CovidResultMetadata::class.java)
     }
 
+    /**
+     * Fetch CovidResultMetadatas by a message/tracking id.
+     * @param messageId an exact message/tracking id
+     * @param txn an optional database transaction
+     * @return a list of CovidResultMetadatas.
+     */
     fun fetchCovidResultMetadatasByMessageId(
         messageId: String,
         txn: DataAccessTransaction? = null
@@ -443,6 +449,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(CovidResultMetadata::class.java)
     }
 
+    /**
+     * Fetch ActionLogs by a report id, tracking id, and type.
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param type the type of action log to find (i.e. ActionLogType.warning)
+     * @param txn an optional database transaction
+     * @return a list of DetailedActionLogs.
+     */
     fun fetchActionLogsByReportIdAndTrackingIdAndType(
         reportId: ReportId,
         trackingId: String,
@@ -498,24 +512,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return itemLineages
     }
 
-    fun fetchItemLineagesByParentReportIdAndTrackingId(
-        parentReportId: ReportId,
-        trackingId: String,
-        txn: DataAccessTransaction? = null
-    ): List<ItemLineage> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(ITEM_LINEAGE)
-            .where(ITEM_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
-            .and(ITEM_LINEAGE.TRACKING_ID.eq(trackingId))
-            .orderBy(
-                ITEM_LINEAGE.CHILD_INDEX
-            )
-            .limit(100)
-            .fetch()
-            .into(ItemLineage::class.java)
-            .toList()
-    }
-
+    /**
+     * Fetch descendants of a report by a "parent" report id
+     * @param parentReportId an exact report id
+     * @param txn an optional database transaction
+     * @return a list of ReportFiles.
+     */
     fun fetchReportDescendantsFromReportId(
         parentReportId: ReportId,
         txn: DataAccessTransaction? = null
@@ -532,6 +534,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .toList()
     }
 
+    /**
+     * used by the Message Tracker feature: Fetch ActionLogs by a report id and a filter type
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param filterType a filter type, i.e. "QUALITY_FILTER"
+     * @param txn an optional database transaction
+     * @return a list of MessageActionLog.
+     */
     fun fetchActionLogsByReportIdAndFilterType(
         reportId: ReportId,
         trackingId: String,
