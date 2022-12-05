@@ -39,7 +39,7 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
@@ -214,14 +214,16 @@ class FHIRRouter(
         // get the quality filter default result for the bundle, but only if it is needed
         val qualFilterDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
-                qualityFilterDefault, bundle,
+                qualityFilterDefault,
+                bundle,
                 false
             )
         }
         // get the processing mode (processing id) default result for the bundle, but only if it is needed
         val processingModeDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
-                processingModeFilterDefault, bundle,
+                processingModeFilterDefault,
+                bundle,
                 false
             )
         }
@@ -243,7 +245,12 @@ class FHIRRouter(
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
             passes = passes &&
-                evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle, qualFilterDefaultResult)
+                evaluateFilterCondition(
+                    getQualityFilters(receiver, orgFilters),
+                    bundle,
+                    qualFilterDefaultResult,
+                    receiver.reverseTheQualityFilter
+                )
             // ROUTING FILTER
             //  default: allowAll
             passes = passes &&
@@ -252,7 +259,8 @@ class FHIRRouter(
             //  default: allowAll
             passes = passes &&
                 evaluateFilterCondition(
-                    getProcessingModeFilter(receiver, orgFilters), bundle,
+                    getProcessingModeFilter(receiver, orgFilters),
+                    bundle,
                     processingModeDefaultResult
                 )
 
@@ -269,20 +277,24 @@ class FHIRRouter(
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]
      * @return Boolean indicating if the bundle passes the filter or not
+     *          Result will be negated if [reverseFilter] is true
      */
     internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
         bundle: Bundle,
-        defaultResponse: Boolean
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
-        return if (filter.isNullOrEmpty())
+        val result = if (filter.isNullOrEmpty()) {
             defaultResponse
-        else
+        } else {
             filter.all {
                 FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
             }
+        }
+        return if (reverseFilter) !result else result
     }
 
     /**

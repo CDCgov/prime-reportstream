@@ -348,6 +348,7 @@ warnings: ${warnings.joinToString()}
 
     /**
      * Compares two input streams, an [actual] and [expected], of the same [schema] and [format].
+     * @param fieldsToIgnore is a list of fields that should be ignored when doing a comparison of field values.
      * @return the result for the comparison, with result.passed true if the comparison was successful
      */
     fun compare(
@@ -355,12 +356,13 @@ warnings: ${warnings.joinToString()}
         actual: InputStream,
         format: Report.Format?,
         schema: Schema?,
-        result: Result = Result()
+        result: Result = Result(),
+        fieldsToIgnore: List<String>? = null
     ): Result {
         check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
         val compareResult = when (format) {
             Report.Format.CSV, Report.Format.CSV_SINGLE, Report.Format.INTERNAL ->
-                CompareCsvData().compare(expected, actual, schema!!)
+                CompareCsvData().compare(expected, actual, schema!!, fieldsToIgnore)
             Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
             Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
             else -> CompareFile().compare(expected, actual)
@@ -600,7 +602,7 @@ class CompareCsvData {
      * Errors are generated when:
      *  1. The number of reports is different (number of rows)
      *  2. A column in the expected values does not exist in the actual values
-     *  3. A expected value does not match the actual value
+     *  3. An expected value does not match the actual value
      *  4. Cannot find the actual row in the expected records
      *
      * Warnings are generated when:
@@ -613,6 +615,7 @@ class CompareCsvData {
         expected: InputStream,
         actual: InputStream,
         schema: Schema,
+        fieldsToIgnore: List<String>? = null,
         result: CompareData.Result = CompareData.Result()
     ): CompareData.Result {
         val expectedRows = csvReader().readAll(expected)
@@ -658,7 +661,17 @@ class CompareCsvData {
                             )
                 }
                 if (matchingExpectedRow.size == 1) {
-                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, rowIndex, result)) {
+                    if (
+                        !compareCsvRow(
+                            actualRow,
+                            matchingExpectedRow[0],
+                            expectedRows[0],
+                            schema,
+                            rowIndex,
+                            fieldsToIgnore,
+                            result
+                        )
+                    ) {
                         result.errors.add("Comparison for row #$rowIndex FAILED")
                     }
                 } else {
@@ -686,7 +699,7 @@ class CompareCsvData {
      * Errors are generated when:
      *  1. The number of columns in the actual data is less than in the expected data
      *  2. A column in the expected values does not exist in the actual values
-     *  3. A expected value does not match the actual value
+     *  3. An expected value does not match the actual value
      *
      * Warnings are generated when:
      *  1. The number of columns in the actual data is more than in the expected data
@@ -700,6 +713,7 @@ class CompareCsvData {
         expectedHeaders: List<String>,
         schema: Schema,
         actualRowNum: Int,
+        fieldsToIgnore: List<String>?,
         result: CompareData.Result
     ): Boolean {
         var passed = true
@@ -726,6 +740,12 @@ class CompareCsvData {
             for (j in actualRow.indices) {
                 val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
+
+                // check to see if we should skip a specific field. some fields may contain some dynamic data
+                // that we don't want to check, like a date field for example, so we can pass that through
+                // as an option to skip
+                if (fieldsToIgnore?.contains(colName) == true)
+                    continue
 
                 val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
                 val expectedValue = if (expectedColIndex >= 0)
