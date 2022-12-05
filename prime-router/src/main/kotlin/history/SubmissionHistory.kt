@@ -12,6 +12,7 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
@@ -314,7 +315,41 @@ class DetailedSubmissionHistory(
             "Must be a process action"
         }
 
-        destinations += descendant.destinations
+        // logs and destinations are handled very differently for UP
+        // both fields are populated at different times,
+        // so we need to do special logic to handle them
+        if (this.topic == "full-elr") {
+            // this code requires that the descendant being checked is just the routing step
+            // this if statement covers the logs in that scenario
+            if (destinations.isEmpty() && descendant.destinations.isEmpty() && descendant.logs.isNotEmpty()) {
+                val filterLogs = descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
+                val filteredReportRows = filterLogs.map { log -> log.detail.message }
+                val filteredReportItems = filterLogs.map { log ->
+                    ReportStreamFilterResultForResponse(log.detail as ReportStreamFilterResult)
+                }
+
+                filterLogs.forEach { log ->
+                    val casted = (log.detail as? ReportStreamFilterResult)
+                    if (casted != null) {
+                        val splits = casted.receiverName.split(Sender.fullNameSeparator)
+                        destinations.add(
+                            Destination(
+                                splits[0],
+                                splits[1],
+                                filteredReportRows,
+                                filteredReportItems,
+                                null,
+                                0,
+                                casted.originalCount,
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            destinations += descendant.destinations
+        }
+
         errors += descendant.errors
         warnings += descendant.warnings
     }
