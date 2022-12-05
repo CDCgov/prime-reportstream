@@ -175,10 +175,10 @@ class Report : Logging {
             }
 
             fun valueOfFromExt(ext: String): Format {
-                return when (ext) {
-                    HL7.ext -> HL7
-                    FHIR.ext -> FHIR
-                    CSV.ext -> CSV
+                return when (ext.lowercase()) {
+                    HL7.ext.lowercase() -> HL7
+                    FHIR.ext.lowercase() -> FHIR
+                    CSV.ext.lowercase() -> CSV
                     else -> throw IllegalArgumentException("Unexpected extension $ext.")
                 }
             }

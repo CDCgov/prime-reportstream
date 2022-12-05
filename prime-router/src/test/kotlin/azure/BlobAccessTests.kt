@@ -35,27 +35,7 @@ class BlobAccessTests {
         var extension = BlobAccess.BlobInfo
             .getBlobFileExtension("http://127.0.0.1:10000/devstoreaccount1/reports/ready/pima-az-phd.elr/filename.csv")
         assertThat(extension).isEqualTo("csv")
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://127.0.0.1:10000/devstoreaccount1/reports/ready/pima-az-phd.elr/filename.fhir")
-        assertThat(extension).isEqualTo("fhir")
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://127.0.0.1:10000/devstoreaccount1/reports/ready/pima-az-phd.elr/filename.hl7")
-        assertThat(extension).isEqualTo("hl7")
-        // Should be able to return unsupported format extensions too
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://127.0.0.1:10000/devstoreaccount1/reports/ready/pima-az-phd.elr/filename.txt")
-        assertThat(extension).isEqualTo("txt")
 
-        // This is how the URLs are returned from the Blob store
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://azurite:10000/devstoreaccount1/reports/ready%2Ftx-doh.elr%2Ffilename.csv")
-        assertThat(extension).isEqualTo("csv")
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://azurite:10000/devstoreaccount1/reports/ready%2Ftx-doh.elr%2Ffilename.fhir")
-        assertThat(extension).isEqualTo("fhir")
-        extension = BlobAccess.BlobInfo
-            .getBlobFileExtension("http://azurite:10000/devstoreaccount1/reports/ready%2Ftx-doh.elr%2Ffilename.hl7")
-        assertThat(extension).isEqualTo("hl7")
         extension = BlobAccess.BlobInfo
             .getBlobFileExtension("http://azurite:10000/devstoreaccount1/reports/ready%2Ftx-doh.elr%2Ffilename.txt")
         assertThat(extension).isEqualTo("txt")

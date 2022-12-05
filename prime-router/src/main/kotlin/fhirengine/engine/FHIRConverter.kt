@@ -52,8 +52,8 @@ class FHIRConverter(
         val format = Report.getFormatFromBlobURL(message.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
-            Report.Format.HL7, Report.Format.HL7_BATCH -> getBundlesFromHL7(message, actionLogger)
-            Report.Format.FHIR -> getBundlesFromFHIR(message)
+            Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(message, actionLogger)
+            Report.Format.FHIR -> getContentFromFHIR(message)
             else -> throw NotImplementedError("Invalid format $format ")
         }
 
@@ -144,11 +144,11 @@ class FHIRConverter(
 
     /**
      * Converts an incoming HL7 [message] into FHIR bundles and keeps track of any validation
-     * errors when reading the [message] into [actionLogger]
+     * errors when reading the message into [actionLogger]
      *
      * @return one or more FHIR bundles
      */
-    internal fun getBundlesFromHL7(
+    internal fun getContentFromHL7(
         message: RawSubmission,
         actionLogger: ActionLogger
     ): List<Bundle> {
@@ -158,10 +158,10 @@ class FHIRConverter(
         val hl7messages = hl7Reader.getMessages(message.downloadContent())
 
         val bundles = if (actionLogger.hasErrors()) {
-            val e = java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
-            logger.error(e)
-            actionLogger.error(InvalidReportMessage(e.message ?: ""))
-            listOf()
+            val errMessage = actionLogger.errors.joinToString("\n") { it.detail.message }
+            logger.error(errMessage)
+            actionLogger.error(InvalidReportMessage(errMessage))
+            emptyList()
         } else {
             // use fhir transcoder to turn hl7 into FHIR
             hl7messages.map {
@@ -177,7 +177,7 @@ class FHIRConverter(
      *
      * @return a list containing a FHIR bundle
      */
-    internal fun getBundlesFromFHIR(
+    internal fun getContentFromFHIR(
         message: RawSubmission
     ): List<Bundle> {
         return listOf(FhirTranscoder.decode(message.downloadContent()))

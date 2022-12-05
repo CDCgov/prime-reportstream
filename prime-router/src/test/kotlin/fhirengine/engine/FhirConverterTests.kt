@@ -134,7 +134,7 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            engine.getBundlesFromHL7(any(), any())
+            engine.getContentFromHL7(any(), any())
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
@@ -174,7 +174,7 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            engine.getBundlesFromFHIR(any())
+            engine.getContentFromFHIR(any())
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
@@ -183,7 +183,7 @@ class FhirConverterTests {
     }
 
     @Test
-    fun `test getBundlesFromHL7`() {
+    fun `test getContentFromHL7`() {
         val actionLogger = mockk<ActionLogger>()
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
@@ -191,12 +191,11 @@ class FhirConverterTests {
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
 
-        val result = engine.getBundlesFromHL7(message, actionLogger)
-        assertThat(result).isNotEmpty()
+        assertThat(engine.getContentFromHL7(message, actionLogger)).isNotEmpty()
     }
 
     @Test
-    fun `test getBundlesFromHL7 invalid HL7`() {
+    fun `test getContentFromHL7 invalid HL7`() {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
@@ -204,16 +203,15 @@ class FhirConverterTests {
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
 
-        val result = engine.getBundlesFromHL7(message, actionLogger)
-        assertThat(result).isEmpty()
-        // assert
+        assertThat(engine.getContentFromHL7(message, actionLogger)).isEmpty()
+
         verify(atLeast = 1) {
             actionLogger.error(any<ActionLogDetail>())
         }
     }
 
     @Test
-    fun `test getBundlesFromFHIR`() {
+    fun `test getContentFromFHIR`() {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
@@ -221,7 +219,7 @@ class FhirConverterTests {
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
 
-        val result = engine.getBundlesFromFHIR(message)
+        val result = engine.getContentFromFHIR(message)
         assertThat(result).isNotEmpty()
     }
 }
