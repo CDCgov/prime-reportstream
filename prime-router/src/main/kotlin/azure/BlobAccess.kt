@@ -11,7 +11,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.net.MalformedURLException
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -31,7 +30,6 @@ class BlobAccess : Logging {
             /**
              * Get the blob filename from a [blobUrl]
              * @return the blob filename
-             * @throws MalformedURLException if the blob URL is malformed
              */
             fun getBlobFilename(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
@@ -41,8 +39,7 @@ class BlobAccess : Logging {
 
             /**
              * Get a file extension from a [blobUrl]
-             * @return the blob filename
-             * @throws MalformedURLException if the blob URL is malformed
+             * @return the blob's file extension
              */
             fun getBlobFileExtension(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {

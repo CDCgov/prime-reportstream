@@ -1613,9 +1613,7 @@ class Report : Logging {
         }
 
         /**
-         * Gets a file format of a blob based on a blobURL
-         *
-         * [blobURL] URL of the blob in question
+         * Gets a file format of a blob located at a [blobURL]
          *
          * @return a Report.Format representing the appropriate format
          */

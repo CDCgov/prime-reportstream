@@ -143,10 +143,8 @@ class FHIRConverter(
     }
 
     /**
-     * Converts an HL7 message into FHIR bundles
-     *
-     * [message] incoming HL7 message to be converted into FHIR
-     * [actionLogger] keeps track of any validation errors when reading messages
+     * Converts an incoming HL7 [message] into FHIR bundles and keeps track of any validation
+     * errors when reading the [message] into [actionLogger]
      *
      * @return one or more FHIR bundles
      */
@@ -175,9 +173,7 @@ class FHIRConverter(
     }
 
     /**
-     * Decodes a FHIR message and returns it as list of bundles
-     *
-     * [message] incoming FHIR message to be decoded into FHIR bundle
+     * Decodes a FHIR [message] and returns it as list of bundles
      *
      * @return a list containing a FHIR bundle
      */
