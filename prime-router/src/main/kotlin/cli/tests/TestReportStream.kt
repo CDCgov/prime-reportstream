@@ -15,6 +15,7 @@ import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -754,32 +755,38 @@ abstract class CoolTest {
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
-            settings.findSender("$orgName.$simpleReportSenderName") as? CovidSender
+            settings.findSender("$orgName.$simpleReportSenderName") as? TopicSender
                 ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
         }
 
         const val stracSenderName = "ignore-strac"
         val stracSender by lazy {
-            settings.findSender("$orgName.$stracSenderName") as? CovidSender
+            settings.findSender("$orgName.$stracSenderName") as? TopicSender
                 ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
         }
 
         const val watersSenderName = "ignore-waters"
         val watersSender by lazy {
-            settings.findSender("$orgName.$watersSenderName") as? CovidSender
+            settings.findSender("$orgName.$watersSenderName") as? TopicSender
                 ?: error("Unable to find sender $watersSenderName for organization ${org.name}")
         }
 
         const val emptySenderName = "ignore-empty"
         val emptySender by lazy {
-            settings.findSender("$orgName.$emptySenderName") as? CovidSender
+            settings.findSender("$orgName.$emptySenderName") as? TopicSender
                 ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
         }
 
         const val hl7SenderName = "ignore-hl7"
         val hl7Sender by lazy {
-            settings.findSender("$orgName.$hl7SenderName") as? CovidSender
+            settings.findSender("$orgName.$hl7SenderName") as? TopicSender
                 ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
+        }
+
+        const val hl7MonkeypoxSenderName = "ignore-monkeypox"
+        val hl7MonkeypoxSender by lazy {
+            settings.findSender("$orgName.$hl7MonkeypoxSenderName") as? TopicSender
+                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org.name}")
         }
 
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]

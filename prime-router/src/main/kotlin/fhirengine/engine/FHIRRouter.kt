@@ -41,7 +41,7 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
@@ -227,22 +227,36 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false,
-                report, null, ReportStreamFilterType.JURISDICTIONAL_FILTER)
+            var passes = evaluateFilterCondition(
+                getJurisFilters(receiver, orgFilters),
+                bundle,
+                false,
+                report,
+                ReportStreamFilterType.JURISDICTIONAL_FILTER,
+                receiver.fullName,
+            )
 
             // after jurisdiction filter, we want to log all receiver filtering
             // get the quality filter default result for the bundle, but only if it is needed
             val qualFilterDefaultResult: Boolean by lazy {
                 evaluateFilterCondition(
-                    qualityFilterDefault, bundle, false, report,
-                    receiver, ReportStreamFilterType.QUALITY_FILTER
+                    qualityFilterDefault,
+                    bundle,
+                    false,
+                    report,
+                    ReportStreamFilterType.QUALITY_FILTER,
+                    receiver.fullName,
                 )
             }
             // get the processing mode (processing id) default result for the bundle, but only if it is needed
             val processingModeDefaultResult: Boolean by lazy {
                 evaluateFilterCondition(
-                    processingModeFilterDefault, bundle, false, report,
-                    receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER
+                    processingModeFilterDefault,
+                    bundle,
+                    false,
+                    report,
+                    ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                    receiver.fullName,
                 )
             }
 
@@ -251,25 +265,37 @@ class FHIRRouter(
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
            passes = passes &&
-                evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle,
-                    qualFilterDefaultResult, report, receiver,
-                    ReportStreamFilterType.QUALITY_FILTER
+                evaluateFilterCondition(
+                    getQualityFilters(receiver, orgFilters), bundle,
+                    qualFilterDefaultResult,
+                    report,
+                    ReportStreamFilterType.QUALITY_FILTER,
+                    receiver.fullName,
+                    receiver.reverseTheQualityFilter
                 )
 
             // ROUTING FILTER
             //  default: allowAll
             passes = passes &&
-                evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle,
-                    true, report, receiver,
-                    ReportStreamFilterType.ROUTING_FILTER
+                evaluateFilterCondition(
+                    getRoutingFilter(receiver, orgFilters),
+                    bundle,
+                    true,
+                    report,
+                    ReportStreamFilterType.ROUTING_FILTER,
+                    receiver.fullName,
                 )
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes &&
                 evaluateFilterCondition(
-                    getProcessingModeFilter(receiver, orgFilters), bundle,
-                    processingModeDefaultResult, report, receiver,
-                    ReportStreamFilterType.PROCESSING_MODE_FILTER
+                    getProcessingModeFilter(receiver, orgFilters),
+                    bundle,
+                    processingModeDefaultResult,
+                    report,
+                    ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                    receiver.fullName,
+                    processingModeDefaultResult
                 )
 
             // if the juris filter passes, add this receiver to the list of valid receivers
@@ -285,26 +311,28 @@ class FHIRRouter(
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]
      * @return Boolean indicating if the bundle passes the filter or not
+     *          Result will be negated if [reverseFilter] is true
      */
     internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
         report: Report,
-        receiver: Receiver?,
-        filterType: ReportStreamFilterType
+        filterType: ReportStreamFilterType,
+        receiverName: String?,
+        reverseFilter: Boolean = false
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
-        return if (filter.isNullOrEmpty())
+        val result = if (filter.isNullOrEmpty()) {
             defaultResponse
-        else filter.all {
+        } else filter.all {
             val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
             // log results of filtering things OUT
-            if (!result && receiver != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
+            if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                 report.filteringResults.add(
                     ReportStreamFilterResult(
-                        receiver.fullName,
+                        receiverName,
                         report.itemCount,
                         it,
                         emptyList(),
@@ -315,6 +343,7 @@ class FHIRRouter(
             }
             return result
         }
+        return if (reverseFilter) !result else result
     }
 
     /**
