@@ -19,6 +19,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -175,7 +176,8 @@ class FhirFunctionTests {
         mockkObject(Message.Companion)
         // setup
         commonSetup()
-        val metadata = UnitTestUtils.simpleMetadata
+        val metadata = spyk(UnitTestUtils.simpleMetadata)
+        every { metadata.findLookupTable("fhirpath_filter_shorthand") } returns LookupTable()
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val fhirEngine = spyk(
             FHIRRouter(

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { useAdminSafeOrgName } from "../UseMemoizedConfig";
+import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import {
     deliveriesEndpoints,
@@ -50,7 +50,9 @@ const useOrgDeliveries = (service?: string) => {
         activeMembership as MembershipSettings
     );
 
-    const adminSafeOrgName = useAdminSafeOrgName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
+    const adminSafeOrgName = useAdminSafeOrganizationName(
+        activeMembership?.parsedName
+    ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
         [adminSafeOrgName, service]
