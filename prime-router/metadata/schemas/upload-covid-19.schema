@@ -532,3 +532,5 @@ elements:
       documentation: Translate multiple inbound values into Residence Type SNOMED codes.
       csvFields: [{ name: residence_type, format: $display}]
       default: ""
+
+    - name: test_type
