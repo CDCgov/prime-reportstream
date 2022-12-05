@@ -34,6 +34,7 @@ resource "null_resource" "postgres_readonly_role" {
   }
 
   depends_on = [
-    azurerm_postgresql_server.postgres_server
+    azurerm_postgresql_server.postgres_server,
+    data.http.icanhazip
   ]
 }
