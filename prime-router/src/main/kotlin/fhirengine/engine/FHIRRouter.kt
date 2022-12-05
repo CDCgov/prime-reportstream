@@ -298,7 +298,7 @@ class FHIRRouter(
                     processingModeDefaultResult
                 )
 
-            // if the juris filter passes, add this receiver to the list of valid receivers
+            // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
                 listOfReceivers.add(receiver)
             }
