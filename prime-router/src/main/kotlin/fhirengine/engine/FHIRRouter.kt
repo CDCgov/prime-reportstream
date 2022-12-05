@@ -42,9 +42,20 @@ class FHIRRouter(
     queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
-    val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-    val fhirPathFilterShorthandTableKeyColumnName = "variable"
-    val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
+    /**
+     * The name of the lookup table to load the shorthand replacement key/value pairs from
+     */
+    private val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
+
+    /**
+     * The name of the column in the shorthand replacement lookup table that will be used as the key.
+     */
+    private val fhirPathFilterShorthandTableKeyColumnName = "variable"
+
+    /**
+     * The name of the column in the shorthand replacement lookup table that will be used as the value.
+     */
+    private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
 
     /**
      * Default Rules:
