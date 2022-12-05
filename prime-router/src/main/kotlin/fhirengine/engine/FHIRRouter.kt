@@ -78,19 +78,6 @@ class FHIRRouter(
     )
 
     /**
-     * TODO
-     *
-     * @property receiver
-     * @property itemCount
-     * @property filterResults
-     */
-    data class RoutedReceiver(
-        val receiver: Receiver,
-        var itemCount: Int = 0,
-        val filterResults: MutableList<ReportStreamFilterResult> = mutableListOf()
-    )
-
-    /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      */
@@ -121,7 +108,6 @@ class FHIRRouter(
 
             // add the receivers, if any, to the fhir bundle
             if (listOfReceivers.isNotEmpty()) {
-
                 FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
             }
 
@@ -221,8 +207,8 @@ class FHIRRouter(
      * @param report
      * @return list of receivers that should receive this bundle
      */
-    private fun applyFilters(bundle: Bundle, report: Report): List<RoutedReceiver> {
-        val listOfReceivers = mutableListOf<RoutedReceiver>()
+    private fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
+        val listOfReceivers = mutableListOf<Receiver>()
 
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
@@ -241,24 +227,22 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            val passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false,
+            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false,
                 report, null, ReportStreamFilterType.JURISDICTIONAL_FILTER)
 
             // after jurisdiction filter, we want to log all receiver filtering
-            val routedReceiver = RoutedReceiver(receiver)
-
             // get the quality filter default result for the bundle, but only if it is needed
             val qualFilterDefaultResult: Boolean by lazy {
                 evaluateFilterCondition(
                     qualityFilterDefault, bundle, false, report,
-                    routedReceiver, ReportStreamFilterType.QUALITY_FILTER
+                    receiver, ReportStreamFilterType.QUALITY_FILTER
                 )
             }
             // get the processing mode (processing id) default result for the bundle, but only if it is needed
             val processingModeDefaultResult: Boolean by lazy {
                 evaluateFilterCondition(
                     processingModeFilterDefault, bundle, false, report,
-                    routedReceiver, ReportStreamFilterType.PROCESSING_MODE_FILTER
+                    receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER
                 )
             }
 
@@ -266,35 +250,31 @@ class FHIRRouter(
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
-            var sendable = passes &&
+           passes = passes &&
                 evaluateFilterCondition(getQualityFilters(receiver, orgFilters), bundle,
-                    qualFilterDefaultResult, report, routedReceiver,
+                    qualFilterDefaultResult, report, receiver,
                     ReportStreamFilterType.QUALITY_FILTER
                 )
 
             // ROUTING FILTER
             //  default: allowAll
-            sendable = sendable &&
+            passes = passes &&
                 evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle,
-                    true, report, routedReceiver,
+                    true, report, receiver,
                     ReportStreamFilterType.ROUTING_FILTER
                 )
             // PROCESSING MODE FILTER
             //  default: allowAll
-            sendable = sendable &&
+            passes = passes &&
                 evaluateFilterCondition(
                     getProcessingModeFilter(receiver, orgFilters), bundle,
-                    processingModeDefaultResult, report, routedReceiver,
+                    processingModeDefaultResult, report, receiver,
                     ReportStreamFilterType.PROCESSING_MODE_FILTER
                 )
 
             // if the juris filter passes, add this receiver to the list of valid receivers
             if (passes) {
-                listOfReceivers.add(routedReceiver)
-
-                // update the itemCount if the items WILL be sent to this receiver
-                // @todo the report itself also needs to have the itemCount calculated
-                if (sendable) routedReceiver.itemCount = report.itemCount
+                listOfReceivers.add(receiver)
             }
         }
 
@@ -311,7 +291,7 @@ class FHIRRouter(
         bundle: Bundle,
         defaultResponse: Boolean,
         report: Report,
-        routedReceiver: RoutedReceiver?,
+        receiver: Receiver?,
         filterType: ReportStreamFilterType
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
@@ -321,21 +301,10 @@ class FHIRRouter(
         else filter.all {
             val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
             // log results of filtering things OUT
-            if (!result && routedReceiver != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
+            if (!result && receiver != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                 report.filteringResults.add(
                     ReportStreamFilterResult(
-                        routedReceiver.receiver.fullName,
-                        report.itemCount,
-                        it,
-                        emptyList(),
-                        bundle.identifier.value ?: "",
-                        filterType
-                    )
-                )
-
-                routedReceiver.filterResults.add(
-                    ReportStreamFilterResult(
-                        routedReceiver.receiver.fullName,
+                        receiver.fullName,
                         report.itemCount,
                         it,
                         emptyList(),

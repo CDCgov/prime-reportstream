@@ -66,8 +66,6 @@ class FHIRTranslator(
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
             val endpoints = provenance.target.map { (it.resource as Endpoint) }
 
-            // val log = ActionLog()
-
             endpoints.forEach { it ->
                 val recName = it.identifier[0].value
                 val receiver = settings.findReceiver(recName)
@@ -148,7 +146,7 @@ class FHIRTranslator(
     }
 
     /**
-     * Turn a fhir [bundle] into an hl7 message formatter for the [receiver] specified.
+     * Turn a fhir [bundle] into a hl7 message formatter for the [receiver] specified.
      * @return HL7 Message in the format required by the receiver
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
