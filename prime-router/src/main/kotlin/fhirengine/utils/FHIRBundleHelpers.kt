@@ -27,16 +27,16 @@ object FHIRBundleHelpers {
         val targetList = mutableListOf<Reference>()
 
         // check all active customers for receiver data
-        receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach {
+        receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
             val endpoint = Endpoint()
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
-            endpoint.name = it.displayName
-            when (it.customerStatus) {
+            endpoint.name = receiver.displayName
+            when (receiver.customerStatus) {
                 CustomerStatus.TESTING -> endpoint.status = Endpoint.EndpointStatus.TEST
                 else -> endpoint.status = Endpoint.EndpointStatus.ACTIVE
             }
             val rsIdentifier = Identifier()
-            rsIdentifier.value = it.fullName
+            rsIdentifier.value = receiver.fullName
             rsIdentifier.system = "https://reportstream.cdc.gov/prime-router"
             endpoint.identifier.add(rsIdentifier)
             val entry = fhirBundle.addEntry()
