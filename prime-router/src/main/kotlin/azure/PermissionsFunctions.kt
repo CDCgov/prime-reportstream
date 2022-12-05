@@ -80,7 +80,7 @@ class PermissionsFunctions(
             name = "updatePermission",
             methods = [HttpMethod.DELETE, HttpMethod.PUT],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "permissions/{id}"
+            route = "permission/{id}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: Int
     ): HttpResponseMessage {
