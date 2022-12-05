@@ -110,7 +110,7 @@ runs:
       run: terraform validate
       shell: bash
 
-    - name: Terraform - apply
+    - name: Terraform - init apply
       if: inputs.destroy == 'false'
       uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
       with:
@@ -126,7 +126,16 @@ runs:
           -auto-approve; \
           sleep 60; \
           done
+        shell: bash
 
+    - name: Terraform - apply
+      if: inputs.destroy == 'false'
+      uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+      with:
+        timeout_minutes: 45
+        max_attempts: 2
+        retry_wait_seconds: 60
+        command: |
           for i in {1..2}; do \
           terraform -chdir=operations/app/terraform/vars/demo apply \
           -var-file=${{ inputs.env-name }}/env.tfvars.json \
