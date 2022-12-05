@@ -41,6 +41,11 @@ class FHIRRouter(
     blob: BlobAccess = BlobAccess(),
     queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
+
+    val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
+    val fhirPathFilterShorthandTableKeyColumnName = "variable"
+    val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
+
     /**
      * Default Rules:
      *   Must have message ID, patient last name, patient first name, DOB, specimen type
@@ -78,6 +83,11 @@ class FHIRRouter(
     private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
 
     /**
+     * The regex used to locate shorthand variables in fhirpath filters
+     */
+    private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
+
+    /**
      * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
      * used in configuration filter expressions with the specified Fhir Path expression before the expression
      * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
@@ -87,21 +97,23 @@ class FHIRRouter(
      * underlying fhir library.
      *
      * The values used are located in the fhirpath_filter_shorthand lookup table.
+     *
+     * @returns A string that has all shorthand elements replaces with their mapped string from the lookup table.
      */
-    private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
     internal fun replaceShorthand(input: String): String {
         var output = input
         regexVariable.findAll(input)
             .map { it.value }
             .sortedByDescending { it.length }
             .forEach {
-                val replacement = shorthandLookupTable[it.trimStart('%')]
+                // remove %, ', and ` from start and end of string to be replaced
+                val replacement = shorthandLookupTable[
+                    it
+                        .trimStart('%', '\'', '`')
+                        .trimEnd('\'', '`')
+                ]
                 if (!replacement.isNullOrEmpty()) {
                     output = output.replace(it, replacement)
-                } else {
-                    throw NotImplementedError(
-                        "Could not locate a unique entry for '$it' in the shorthand values lookup table."
-                    )
                 }
             }
         return output
@@ -111,19 +123,30 @@ class FHIRRouter(
      * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
      * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
      * a populated lookup table is not required to run the universal pipeline routing
+     *
+     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
+     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
+     * warning indicating why will be logged.
      */
     private fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable("fhirpath_filter_shorthand")
+        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
         // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null && lookup.hasColumn("variable") && lookup.hasColumn("fhirPath")) {
+        return if (lookup != null &&
+            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
+            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
+        ) {
             lookup.table.associate {
-                it.getString("variable") to it.getString("fhirPath")
+                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
+                    it.getString(fhirPathFilterShorthandTableValueColumnName)
             }.toMutableMap()
         } else {
             if (lookup == null) {
-                logger.warn("Unable to find fhirpath_filter_shorthand lookup table")
+                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
             } else {
-                logger.warn("fhirpath_filter_shorthand does not contain expected columns 'variable' and 'fhirPath'")
+                logger.warn(
+                    "$fhirPathFilterShorthandTableName does not contain " +
+                        "expected columns 'variable' and 'fhirPath'"
+                )
             }
             emptyMap<String, String>().toMutableMap()
         }

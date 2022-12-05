@@ -42,7 +42,6 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RoutingTests {
@@ -126,12 +125,48 @@ class RoutingTests {
     }
 
     @Test
+    fun `test replaceShorthand with simple string including fhir resource`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%resource.%patient")
+
+        // assert
+        assertThat(result).isEqualTo("%resource.Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
     fun `test replaceShorthand with simple string`() {
         val settings = FileSettings().loadOrganizations(twoOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
         val result = engine.replaceShorthand("%patient")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string in quotes`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%'patient'")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string in backticks`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%`patient`")
 
         // assert
         assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
@@ -149,23 +184,6 @@ class RoutingTests {
         assertThat(result).isEqualTo(
             "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(MessageHeader).id"
         )
-    }
-
-    @Test
-    fun `test replaceShorthand with non-found string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        var threwError = false
-        try {
-            engine.replaceShorthand("%invalidVariable")
-        } catch (ex: NotImplementedError) {
-            threwError = true
-        }
-
-        // assert
-        assertTrue { threwError }
     }
 
     @Test
@@ -570,11 +588,8 @@ class RoutingTests {
                 "and %patientState = 'CA')"
         )
 
-        // act
-        val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
-
-        // assert
-        assertTrue(qualDefaultResult)
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
     }
 
     @Test
@@ -591,11 +606,8 @@ class RoutingTests {
                 "and %patientState = 'CA')"
         )
 
-        // act
-        val qualDefaultResult = engine.evaluateFilterCondition(filter, bundle, false)
-
-        // assert
-        assertTrue(qualDefaultResult)
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
     }
 
     @Test
@@ -612,33 +624,7 @@ class RoutingTests {
                 "and %patientState = 'CA')"
         )
 
-        // act
-        val result = engine.evaluateFilterCondition(filter, bundle, false)
-
-        // assert
-        assertTrue(result)
-    }
-
-    @Test
-    fun ` test constants - invalid constant`() {
-        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
-        val bundle = FhirTranscoder.decode(fhirData)
-
-        // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val filter = listOf("%myInvalidConstant.exists()")
-
-        // act
-        var exceptionThrown = false
-        try {
-            engine.evaluateFilterCondition(filter, bundle, false)
-        } catch (ex: NotImplementedError) {
-            exceptionThrown = true
-        }
-
-        // assert
-        assertTrue(exceptionThrown)
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
     }
 }
