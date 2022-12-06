@@ -12,8 +12,10 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -26,6 +28,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -113,6 +116,8 @@ class RoutingTests {
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+    val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.ACTIVE, "mySchema")
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
@@ -291,7 +296,7 @@ class RoutingTests {
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
         // act
-        val receivers = engine.applyFilters(bundle)
+        val receivers = engine.applyFilters(bundle, report)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -313,7 +318,7 @@ class RoutingTests {
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
 
         // act
-        val receivers = engine.applyFilters(bundle)
+        val receivers = engine.applyFilters(bundle, report)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -327,7 +332,14 @@ class RoutingTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -587,9 +599,16 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
     }
 
     @Test
@@ -605,9 +624,16 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
     }
 
     @Test
@@ -623,8 +649,15 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
     }
 }

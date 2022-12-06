@@ -9,8 +9,11 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -20,6 +23,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -60,7 +64,6 @@ class DefaultFilterTests {
             )
         )
     )
-
     val csv = """
             variable,fhirPath
             processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
@@ -76,6 +79,8 @@ class DefaultFilterTests {
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+    val receiver = Receiver("myRcvr", "topic", Topic.TEST, CustomerStatus.ACTIVE, "mySchema")
 
     private val fhirCodeP = """
     {
@@ -181,9 +186,15 @@ class DefaultFilterTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
-
         // act
-        val result = engine.evaluateFilterCondition(emptyList(), bundle, false)
+        val result = engine.evaluateFilterCondition(
+            emptyList(),
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(result).isFalse()
@@ -198,12 +209,28 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val useDefaultResult = engine.evaluateFilterCondition(emptyList(), bundle, false, true)
+        val useDefaultResult = engine.evaluateFilterCondition(
+            emptyList(),
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName,
+            true
+        )
         // assert
         assertThat(useDefaultResult).isTrue()
 
         // act
-        val useBundleResult = engine.evaluateFilterCondition(engine.processingModeFilterDefault, bundle, false, false)
+        val useBundleResult = engine.evaluateFilterCondition(
+            engine.processingModeFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName,
+            true
+        )
         // assert
         assertThat(useBundleResult).isTrue()
     }
@@ -217,7 +244,14 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val result = engine.evaluateFilterCondition(emptyList(), bundle, true)
+        val result = engine.evaluateFilterCondition(
+            emptyList(),
+            bundle,
+            true,
+            report,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(result).isTrue()
@@ -232,7 +266,14 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val procModeResult = engine.evaluateFilterCondition(engine.processingModeFilterDefault, bundle, false)
+        val procModeResult = engine.evaluateFilterCondition(
+            engine.processingModeFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(procModeResult).isTrue()
@@ -247,7 +288,14 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeT)
 
         // act
-        val procModeResult = engine.evaluateFilterCondition(engine.processingModeFilterDefault, bundle, false)
+        val procModeResult = engine.evaluateFilterCondition(
+            engine.processingModeFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(procModeResult).isFalse()
@@ -264,7 +312,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -281,7 +336,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -298,7 +360,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -315,7 +384,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -332,7 +408,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -349,7 +432,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -366,7 +456,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -383,7 +480,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -400,7 +504,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -417,7 +528,14 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false,
+            report,
+            ReportStreamFilterType.QUALITY_FILTER,
+            receiver.fullName
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
