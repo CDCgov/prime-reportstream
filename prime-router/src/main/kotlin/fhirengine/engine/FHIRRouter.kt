@@ -295,7 +295,7 @@ class FHIRRouter(
      * @param report
      * @return list of receivers that should receive this bundle
      */
-    private fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
+    internal fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
         val listOfReceivers = mutableListOf<Receiver>()
 
         // find all receivers that have the full ELR topic and determine which applies
@@ -415,14 +415,15 @@ class FHIRRouter(
         val result = if (filter.isNullOrEmpty()) {
             defaultResponse
         } else filter.all {
-            val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, it)
+            val longhand = replaceShorthand(it)
+            val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, longhand)
             // log results of filtering things OUT
             if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                 report.filteringResults.add(
                     ReportStreamFilterResult(
                         receiverName,
                         report.itemCount,
-                        replaceShorthand(it),
+                        longhand,
                         emptyList(),
                         bundle.identifier.value ?: "",
                         filterType
