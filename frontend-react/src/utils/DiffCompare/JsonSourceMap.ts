@@ -216,7 +216,7 @@ export const jsonSourceMap = (
          */
         const err =
             "Map and Set elements not supported. Normalize json first using `JSON.parse(JSON.stringify([...data]))`";
-        console.error(err);
+        console.warn(err);
         throw new SyntaxError(`${err} Line: ${cur.line}  Pos: ${cur.pos}`);
     }
 
