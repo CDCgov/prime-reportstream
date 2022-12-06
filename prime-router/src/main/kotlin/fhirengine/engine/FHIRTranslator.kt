@@ -59,14 +59,11 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            val endpoints = provenance.target.map { (it.resource as Endpoint) }
+            val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
 
-            endpoints.forEach { it ->
-                val recName = it.identifier[0].value
+            receivers.forEach { recName ->
                 val receiver = settings.findReceiver(recName)
-
                 // We only process receivers that are active and for this pipeline.
-                // Receivers with an itemCount of 0 make it until here so their logs are created
                 if (receiver != null && receiver.topic == Topic.FULL_ELR) {
                     val hl7Message = getHL7MessageFromBundle(bundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()

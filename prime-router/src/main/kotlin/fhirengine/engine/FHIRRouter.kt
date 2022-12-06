@@ -354,7 +354,8 @@ class FHIRRouter(
             //           must have at least one of order test date, specimen collection date/time, test result date
            passes = passes &&
                 evaluateFilterCondition(
-                    getQualityFilters(receiver, orgFilters), bundle,
+                    getQualityFilters(receiver, orgFilters),
+                    bundle,
                     qualFilterDefaultResult,
                     report,
                     ReportStreamFilterType.QUALITY_FILTER,
@@ -414,23 +415,25 @@ class FHIRRouter(
         // default response
         val result = if (filter.isNullOrEmpty()) {
             defaultResponse
-        } else filter.all {
-            val longhand = replaceShorthand(it)
-            val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, longhand)
-            // log results of filtering things OUT
-            if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
-                report.filteringResults.add(
-                    ReportStreamFilterResult(
-                        receiverName,
-                        report.itemCount,
-                        longhand,
-                        emptyList(),
-                        bundle.identifier.value ?: "",
-                        filterType
+        } else {
+            filter.all {
+                val longhand = replaceShorthand(it)
+                val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, longhand)
+                // log results of filtering things OUT
+                if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
+                    report.filteringResults.add(
+                        ReportStreamFilterResult(
+                            receiverName,
+                            report.itemCount,
+                            longhand,
+                            emptyList(),
+                            bundle.identifier.value ?: "",
+                            filterType
+                        )
                     )
-                )
+                }
+                return result
             }
-            return result
         }
         return if (reverseFilter) !result else result
     }
