@@ -36,3 +36,4 @@ CREATE TABLE permission_organization (
     -- Value
      organization_name VARCHAR(63)
 );
+CREATE INDEX organization_name_idx on permission_organization(organization_name);

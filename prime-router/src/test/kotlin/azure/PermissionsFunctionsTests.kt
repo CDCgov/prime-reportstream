@@ -72,9 +72,9 @@ class PermissionsFunctionsTests {
         val req = MockHttpRequestMessage()
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { permissionsFunctions.getPermissions(any(), any()) } returns resp
+        every { permissionsFunctions.getPermissions(any()) } returns resp
 
-        val res = permissionsFunctions.getPermissions(req, orgName)
+        val res = permissionsFunctions.getPermissions(req)
         assert(res.status.equals(HttpStatus.OK))
     }
 
@@ -84,18 +84,75 @@ class PermissionsFunctionsTests {
         val internalServerErrorReq = MockHttpRequestMessage()
         val permissionsFunctions = spyk(buildPermissionsFunction())
 
+        every { permissionsFunctions.getAll(any()) }.throws(
+            Exception("something went wrong somewhere")
+        )
+
+        var internalErrorRes = permissionsFunctions.getPermissions(internalServerErrorReq)
+
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+
+        every { permissionsFunctions.getAll(any()) }.throws(Exception())
+
+        internalErrorRes = permissionsFunctions.getPermissions(internalServerErrorReq)
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+    }
+
+    @Test
+    fun `test getPermissionsForOrganization function`() {
+        val permissionsFunctions = spyk(PermissionsFunctions())
+
+        val req = MockHttpRequestMessage()
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+
+        every { permissionsFunctions.getPermissionsForOrganization(any(), any()) } returns resp
+
+        val res = permissionsFunctions.getPermissionsForOrganization(req, orgName)
+        assert(res.status.equals(HttpStatus.OK))
+    }
+
+    @Test
+    fun `test getPermissionsForOrganization function internal server error`() {
+        // throw exception
+        val internalServerErrorReq = MockHttpRequestMessage()
+        val permissionsFunctions = spyk(buildPermissionsFunction())
+
         every { permissionsFunctions.getPermissionsByOrgName(any(), orgName) }.throws(
             Exception("something went wrong somewhere")
         )
 
-        var internalErrorRes = permissionsFunctions.getPermissions(internalServerErrorReq, orgName)
+        var internalErrorRes = permissionsFunctions.getPermissionsForOrganization(internalServerErrorReq, orgName)
 
         assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
 
         every { permissionsFunctions.getPermissionsByOrgName(any(), orgName) }.throws(Exception())
 
-        internalErrorRes = permissionsFunctions.getPermissions(internalServerErrorReq, orgName)
+        internalErrorRes = permissionsFunctions.getPermissionsForOrganization(internalServerErrorReq, orgName)
         assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+    }
+
+    @Test
+    fun `test getAll function`() {
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
+
+        // Happy path
+        val mockRequest = MockHttpRequestMessage()
+        every { mockDbAccess.fetchAllPermissions(any()) } returns buildPermissions()
+        val response = permissionsFunctions.getAll(mockRequest)
+        assert(response.status.equals(HttpStatus.OK))
+
+        // Exception in the database
+        val mockRequestException = MockHttpRequestMessage()
+        every {
+            mockDbAccess.fetchAllPermissions(
+                any()
+            )
+        }.throws(Exception("exception thrown"))
+        val exceptionResponse = permissionsFunctions.getAll(
+            mockRequestException
+        )
+        assert(exceptionResponse.status.equals(HttpStatus.BAD_REQUEST))
     }
 
     @Test
@@ -265,6 +322,142 @@ class PermissionsFunctionsTests {
     }
 
     @Test
+    fun `test assignPermissionToOrganization function`() {
+        val permissionsFunctions = spyk(PermissionsFunctions())
+
+        // Happy path
+        val req = MockHttpRequestMessage(body, HttpMethod.POST)
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+
+        every { permissionsFunctions.assignPermissionToOrganization(any(), any(), any()) } returns resp
+
+        val res = permissionsFunctions.assignPermissionToOrganization(req, orgName, permissionId)
+        assert(res.status.equals(HttpStatus.OK))
+
+        clearAllMocks()
+
+        // unauthorized - no claims
+        val unAuthReq = MockHttpRequestMessage()
+        unAuthReq.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes = permissionsFunctions.assignPermissionToOrganization(unAuthReq, orgName, permissionId)
+        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+
+        // unauthorized - not an admin
+        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+        val unAuthReq2 = MockHttpRequestMessage()
+        unAuthReq2.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes2 = permissionsFunctions.assignPermissionToOrganization(unAuthReq, orgName, permissionId)
+        assert(unAuthRes2.status.equals(HttpStatus.UNAUTHORIZED))
+    }
+
+    @Test
+    fun `test assignPermissionToOrganization function internal server error`() {
+        // throw exception
+        val internalServerErrorReq = MockHttpRequestMessage(body, HttpMethod.POST)
+        val permissionsFunctions = spyk(buildPermissionsFunction())
+
+        every { permissionsFunctions.addPermissionOrganization(any(), orgName, permissionId) }.throws(
+            Exception("something went wrong somewhere")
+        )
+
+        var internalErrorRes = permissionsFunctions.assignPermissionToOrganization(
+            internalServerErrorReq,
+            orgName,
+            permissionId
+        )
+
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+
+        every { permissionsFunctions.addPermissionOrganization(any(), orgName, permissionId) }.throws(Exception())
+
+        internalErrorRes = permissionsFunctions.assignPermissionToOrganization(
+            internalServerErrorReq,
+            orgName,
+            permissionId
+        )
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+    }
+
+    @Test
+    fun `test deletePermissionFromOrganization function`() {
+        val permissionsFunctions = spyk(PermissionsFunctions())
+
+        // Happy path
+        val req = MockHttpRequestMessage(body, HttpMethod.DELETE)
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+
+        every { permissionsFunctions.deletePermissionFromOrganization(any(), any(), any()) } returns resp
+
+        val res = permissionsFunctions.deletePermissionFromOrganization(req, orgName, permissionId)
+        assert(res.status.equals(HttpStatus.OK))
+
+        clearAllMocks()
+
+        // unauthorized - no claims
+        val unAuthReq = MockHttpRequestMessage()
+        unAuthReq.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes = permissionsFunctions.deletePermissionFromOrganization(unAuthReq, orgName, permissionId)
+        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+
+        // unauthorized - not an admin
+        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+        val unAuthReq2 = MockHttpRequestMessage()
+        unAuthReq2.httpHeaders += mapOf(
+            "authorization" to "x.y.z"
+        )
+
+        val unAuthRes2 = permissionsFunctions.deletePermissionFromOrganization(unAuthReq, orgName, permissionId)
+        assert(unAuthRes2.status.equals(HttpStatus.UNAUTHORIZED))
+    }
+
+    @Test
+    fun `test deletePermissionFromOrganization function internal server error`() {
+        // throw exception
+        val internalServerErrorReq = MockHttpRequestMessage(body, HttpMethod.DELETE)
+        val permissionsFunctions = spyk(buildPermissionsFunction())
+
+        every { permissionsFunctions.deletePermissionOrganization(any(), orgName, permissionId) }.throws(
+            Exception("something went wrong somewhere")
+        )
+
+        var internalErrorRes = permissionsFunctions.deletePermissionFromOrganization(
+            internalServerErrorReq,
+            orgName,
+            permissionId
+        )
+
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+
+        every { permissionsFunctions.deletePermissionOrganization(any(), orgName, permissionId) }.throws(Exception())
+
+        internalErrorRes = permissionsFunctions.deletePermissionFromOrganization(
+            internalServerErrorReq,
+            orgName,
+            permissionId
+        )
+        assert(internalErrorRes.status.equals(HttpStatus.INTERNAL_SERVER_ERROR))
+    }
+
+    @Test
     fun `test updateOne function`() {
         val mockDbAccess = mockk<DatabaseAccess>()
         val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
@@ -293,6 +486,32 @@ class PermissionsFunctionsTests {
         val messageObject = responseBody.get("message")
         assert(messageObject.equals("No id found."))
         assert(response.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test addPermissionOrganization function`() {
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
+
+        // Happy path
+        val mockRequest = MockHttpRequestMessage(body, HttpMethod.POST)
+        every { mockDbAccess.insertPermissionOrganization(any(), any(), any()) } returns 1
+        val response = permissionsFunctions.addPermissionOrganization(mockRequest, orgName, permissionId)
+
+        assert(response.status.equals(HttpStatus.OK))
+    }
+
+    @Test
+    fun `test deletePermissionOrganization function`() {
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
+
+        // Happy path
+        val mockRequestWithId = MockHttpRequestMessage()
+        every { mockDbAccess.deletePermissionOrganization(any(), any(), any()) } returns Unit
+        val response = permissionsFunctions.deletePermissionOrganization(mockRequestWithId, orgName, permissionId)
+
+        assert(response.status.equals(HttpStatus.OK))
     }
 
     @Test

@@ -36,6 +36,36 @@ class PermissionsFunctions(
             name = "getPermissions",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "permissions"
+        ) request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // admin permissions only
+            if (!claims.isPrimeAdmin) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            getAll(request)
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    @FunctionName("getPermissionsForOrganization")
+    @StorageAccount("AzureWebJobsStorage")
+    fun getPermissionsForOrganization(
+        @HttpTrigger(
+            name = "getPermissionsForOrganization",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
             route = "organization/{orgName}/permissions"
         ) request: HttpRequestMessage<String?>,
         @BindingName("orgName") orgName: String
@@ -50,27 +80,6 @@ class PermissionsFunctions(
             }
             HttpUtilities.internalErrorResponse(request)
         }
-    }
-
-    internal fun getPermissionsByOrgName(
-        request: HttpRequestMessage<String?>,
-        orgName: String
-    ): HttpResponseMessage {
-        // return organization permissions or an error
-        var response: Any = ""
-        var errorMessage: String? = ""
-
-        val httpStatus: HttpStatus =
-            try {
-                response = dbAccess.fetchPermissionsByOrgName(orgName)
-                HttpStatus.OK
-            } catch (e: Exception) {
-                errorMessage = e.message
-                logger.error { errorMessage }
-                HttpStatus.BAD_REQUEST
-            }
-
-        return responseBuilder(httpStatus, errorMessage, response, request)
     }
 
     @FunctionName("updatePermission")
@@ -141,6 +150,111 @@ class PermissionsFunctions(
         }
     }
 
+    @FunctionName("assignPermissionToOrganization")
+    @StorageAccount("AzureWebJobsStorage")
+    fun assignPermissionToOrganization(
+        @HttpTrigger(
+            name = "assignPermissionToOrganization",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "organization/{orgName}/permission/{id}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("orgName") orgName: String,
+        @BindingName("id") permissionId: Int
+    ): HttpResponseMessage {
+        return try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // admin permissions only
+            if (!claims.isPrimeAdmin) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            addPermissionOrganization(request, orgName, permissionId)
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    @FunctionName("deletePermissionFromOrganization")
+    @StorageAccount("AzureWebJobsStorage")
+    fun deletePermissionFromOrganization(
+        @HttpTrigger(
+            name = "deletePermissionFromOrganization",
+            methods = [HttpMethod.DELETE],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "organization/{orgName}/permission/{id}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("orgName") orgName: String,
+        @BindingName("id") permissionId: Int
+    ): HttpResponseMessage {
+        return try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // admin permissions only
+            if (!claims.isPrimeAdmin) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            deletePermissionOrganization(request, orgName, permissionId)
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    internal fun getAll(
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        // return all permissions or an error
+        var response: Any = ""
+        var errorMessage: String? = ""
+
+        val httpStatus: HttpStatus =
+            try {
+                response = dbAccess.fetchAllPermissions()
+                HttpStatus.OK
+            } catch (e: Exception) {
+                errorMessage = e.message
+                logger.error { errorMessage }
+                HttpStatus.BAD_REQUEST
+            }
+
+        return responseBuilder(httpStatus, errorMessage, response, request)
+    }
+
+    internal fun getPermissionsByOrgName(
+        request: HttpRequestMessage<String?>,
+        orgName: String
+    ): HttpResponseMessage {
+        // return organization permissions or an error
+        var response: Any = ""
+        var errorMessage: String? = ""
+
+        val httpStatus: HttpStatus =
+            try {
+                response = dbAccess.fetchPermissionsByOrgName(orgName)
+                HttpStatus.OK
+            } catch (e: Exception) {
+                errorMessage = e.message
+                logger.error { errorMessage }
+                HttpStatus.BAD_REQUEST
+            }
+
+        return responseBuilder(httpStatus, errorMessage, response, request)
+    }
+
     internal fun updateOne(
         request: HttpRequestMessage<String?>,
         id: Int
@@ -174,7 +288,7 @@ class PermissionsFunctions(
         request: HttpRequestMessage<String?>,
         userName: String
     ): HttpResponseMessage {
-        // return a message or an error
+        // return an id or an error
         var response: Any = ""
         var errorMessage: String? = ""
 
@@ -189,6 +303,48 @@ class PermissionsFunctions(
                 logger.error { errorMessage }
                 HttpStatus.BAD_REQUEST
             }
+        return responseBuilder(httpStatus, errorMessage, response, request)
+    }
+
+    internal fun addPermissionOrganization(
+        request: HttpRequestMessage<String?>,
+        orgName: String,
+        permissionId: Int
+    ): HttpResponseMessage {
+        var response: Any = ""
+        var errorMessage: String? = ""
+
+        val httpStatus: HttpStatus =
+            try {
+                response = dbAccess.insertPermissionOrganization(orgName, permissionId)
+                HttpStatus.OK
+            } catch (e: Exception) {
+                errorMessage = e.message
+                logger.error { errorMessage }
+                HttpStatus.BAD_REQUEST
+            }
+
+        return responseBuilder(httpStatus, errorMessage, response, request)
+    }
+
+    internal fun deletePermissionOrganization(
+        request: HttpRequestMessage<String?>,
+        orgName: String,
+        permissionId: Int
+    ): HttpResponseMessage {
+        var response: Any = ""
+        var errorMessage: String? = ""
+
+        val httpStatus: HttpStatus =
+            try {
+                response = dbAccess.deletePermissionOrganization(orgName, permissionId)
+                HttpStatus.OK
+            } catch (e: Exception) {
+                errorMessage = e.message
+                logger.error { errorMessage }
+                HttpStatus.BAD_REQUEST
+            }
+
         return responseBuilder(httpStatus, errorMessage, response, request)
     }
 

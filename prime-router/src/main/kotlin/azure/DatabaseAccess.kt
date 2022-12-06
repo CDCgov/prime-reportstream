@@ -1356,6 +1356,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
+     * Returns all permissions
+     * @param txn an optional database transaction
+     */
+    fun fetchAllPermissions(
+        txn: DataAccessTransaction? = null
+    ): List<Permission> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(PERMISSION)
+            .limit(100)
+            .fetchInto(Permission::class.java)
+    }
+
+    /**
      * Returns all permissions associated with an organization by name
      * @param organizationName an exact organization name
      * @param txn an optional database transaction
@@ -1438,6 +1451,48 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchOne()
             ?.value1()
             ?: error("Fetch error")
+    }
+
+    /**
+     * Associates a permission to an organization
+     * @param organizationName the organization name
+     * @param permissionId id of the Permission
+     * @param txn an optional database transaction
+     */
+    fun insertPermissionOrganization(
+        organizationName: String,
+        permissionId: Int,
+        txn: DataAccessTransaction? = null
+    ): Int {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.insertInto(PERMISSION_ORGANIZATION)
+            .set(
+                PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID,
+                DSL.defaultValue(PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID)
+            )
+            .set(PERMISSION_ORGANIZATION.PERMISSION_ID, permissionId)
+            .set(PERMISSION_ORGANIZATION.ORGANIZATION_NAME, organizationName)
+            .returningResult(PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID)
+            .fetchOne()
+            ?.value1()
+            ?: error("Fetch error")
+    }
+
+    /**
+     * Deletes a permission
+     * @param id an exact permission id
+     * @param txn an optional database transaction
+     */
+    fun deletePermissionOrganization(
+        organizationName: String,
+        permissionId: Int,
+        txn: DataAccessTransaction? = null
+    ) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        ctx.deleteFrom(PERMISSION_ORGANIZATION)
+            .where(PERMISSION_ORGANIZATION.PERMISSION_ID.eq(permissionId))
+            .and(PERMISSION_ORGANIZATION.ORGANIZATION_NAME.eq(organizationName))
+            .execute()
     }
 
     /**
