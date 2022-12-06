@@ -51,21 +51,22 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
 
     const updateRange = () => {
-        filterManager.updateRange({
-            type: RangeSettingsActionType.RESET,
-            payload: {
-                from: new Date(rangeFrom).toISOString(),
-                to: new Date(inclusiveDateString(rangeTo)).toISOString(),
-            },
-        });
-        cursorManager &&
-            cursorManager.update({
-                type: CursorActionType.RESET,
-                payload:
-                    filterManager.sortSettings.order === "DESC"
-                        ? new Date(inclusiveDateString(rangeTo)).toISOString()
-                        : new Date(rangeFrom).toISOString(),
+        try {
+            const from = new Date(rangeFrom).toISOString();
+            const to = new Date(inclusiveDateString(rangeTo)).toISOString();
+            filterManager.updateRange({
+                type: RangeSettingsActionType.RESET,
+                payload: { from, to },
             });
+            cursorManager &&
+                cursorManager.update({
+                    type: CursorActionType.RESET,
+                    payload:
+                        filterManager.sortSettings.order === "DESC" ? to : from,
+                });
+        } catch (e) {
+            console.warn(e);
+        }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
