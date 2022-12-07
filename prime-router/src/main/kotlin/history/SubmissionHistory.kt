@@ -288,12 +288,21 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
+
         // Enforce an order on the enrichment:  process/translate, send, download
-        descendants.filter {
-            it.actionName == TaskAction.process || it.actionName == TaskAction.route || it.actionName == TaskAction.translate
-        }.forEach { descendant ->
-            enrichWithProcessAction(descendant)
+        if (topic == "full-elr") {
+            // logs and destinations are handled very differently for UP
+            // both routing and translate are populated at different times,
+            // so we need to do special logic to handle them
+            enrichWithRoutingAndTranslationActions(descendants)
+        } else {
+            descendants.filter {
+                it.actionName == TaskAction.process
+            }.forEach { descendant ->
+                enrichWithProcessAction(descendant)
+            }
         }
+
         // note: we do not use any data from the batch action at this time.
         descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
             enrichWithSendAction(descendant)
@@ -304,52 +313,72 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process or translate action.
+     * Enrich a parent detailed history with details from the route and translate actions.
      * Add destinations, errors, and warnings, to the history details.
-     * Process is exclusive to the COVID pipeline, we use translate instead for Universal
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the COVID pipeline counterpart
+     *
+     * @param descendants[] route and translate actions that will be used to enrich
+     */
+    private fun enrichWithRoutingAndTranslationActions(descendants: List<DetailedSubmissionHistory>) {
+        require(topic == "full-elr") {
+            "Must be route or translate actions for a full-elr submission"
+        }
+
+        val filterLogs = mutableListOf<DetailedActionLog>()
+
+        descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
+            filterLogs += descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
+            errors += descendant.errors
+            warnings += descendant.warnings
+        }
+
+        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant  ->
+            descendant.destinations.forEach { dest ->
+                destinations += dest
+            }
+        }
+
+        // if all the items were filtered out, no translate actions are generated (thus no destinations)
+        // to return the expected output, we create dummy destinations that are only used in enrichment
+        // these dummies are created using the receivers defined in the logs
+        if (destinations.isEmpty() && filterLogs.isNotEmpty()) {
+            val filteredReportRows = filterLogs.map { log -> log.detail.message }
+            val filteredReportItems = filterLogs.map { log ->
+                ReportStreamFilterResultForResponse(log.detail as ReportStreamFilterResult)
+            }
+            filterLogs.forEach { log ->
+                val casted = log.detail as ReportStreamFilterResult
+
+                val splits = casted.receiverName.split(Sender.fullNameSeparator)
+                destinations.add(
+                    Destination(
+                        splits[0],
+                        splits[1],
+                        filteredReportRows,
+                        filteredReportItems,
+                        null,
+                        0,
+                        casted.originalCount,
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the process action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Process is exclusive to the COVID pipeline
+     * See enrichWithRoutingAndTranslationActions for the Universal pipeline counterpart
      *
      * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.route || descendant.actionName == TaskAction.translate) {
+        require(descendant.actionName == TaskAction.process) {
             "Must be a process action"
         }
-
-        // logs and destinations are handled very differently for UP
-        // both fields are populated at different times,
-        // so we need to do special logic to handle them
-        if (this.topic == "full-elr") {
-            // this code requires that the descendant being checked is just the routing step
-            // this if statement covers the logs in that scenario
-            if (destinations.isEmpty() && descendant.destinations.isEmpty() && descendant.logs.isNotEmpty()) {
-                val filterLogs = descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
-                val filteredReportRows = filterLogs.map { log -> log.detail.message }
-                val filteredReportItems = filterLogs.map { log ->
-                    ReportStreamFilterResultForResponse(log.detail as ReportStreamFilterResult)
-                }
-
-                filterLogs.forEach { log ->
-                    val casted = (log.detail as? ReportStreamFilterResult)
-                    if (casted != null) {
-                        val splits = casted.receiverName.split(Sender.fullNameSeparator)
-                        destinations.add(
-                            Destination(
-                                splits[0],
-                                splits[1],
-                                filteredReportRows,
-                                filteredReportItems,
-                                null,
-                                0,
-                                casted.originalCount,
-                            )
-                        )
-                    }
-                }
-            }
-        } else {
-            destinations += descendant.destinations
-        }
-
+        destinations += descendant.destinations
         errors += descendant.errors
         warnings += descendant.warnings
     }
