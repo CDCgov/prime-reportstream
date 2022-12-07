@@ -17,7 +17,6 @@ elements:
     - name: processing_mode_code
       default: P
 
-
     - name: equipment_model_name
       cardinality: ONE 
       type: CODE

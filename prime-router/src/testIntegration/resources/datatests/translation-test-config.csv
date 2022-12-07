@@ -1,18 +1,19 @@
-Input File,Input schema,Expected File,Output schema,Output format,Result
-CSV_to_HL7/sample-batch-pdi-20210608-0001.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-batch-pdi-20210608-0001.hl7,fl/fl-covid-19,HL7_BATCH,PASS
-CSV_to_HL7/sample-single-pdi-20210608-0002.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-single-pdi-20210608-0002.hl7,fl/fl-covid-19,HL7,PASS
-HL7_to_INTERNAL/CE-20200415-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CE-20200415-0001.internal.csv,covid-19,INTERNAL,PASS
-HL7_to_INTERNAL/EHT-20210316-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/EHT-20210316-0001.internal.csv,covid-19,INTERNAL,PASS
-HL7_to_INTERNAL/FLFHospital-SARSCOV2-20200317-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/FLFHospital-SARSCOV2-20200317-0001.internal.csv,covid-19,INTERNAL,FAIL
-HL7_to_INTERNAL/CA-20211001-sully.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CA-20211018-sully.internal.csv,covid-19,INTERNAL,PASS
-HL7_to_INTERNAL/LP-covid-19-20220124002222.hl7,hl7/lifepoint-covid-19,HL7_to_INTERNAL/LP-covid-19-20220124002222.internal.csv,covid-19,INTERNAL,PASS
-HL7_to_FHIR/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR/sample_co_1_20220518-0001.fhir,,FHIR,PASS
-HL7_to_FHIR/sample_co_1_20220518-0006.hl7,,HL7_to_FHIR/sample_co_1_20220518-0006.fhir,,FHIR,PASS
-HL7_to_FHIR/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR/sample_co_1_20220518-0014.fhir,,FHIR,PASS
-HL7_to_FHIR/sample_co_2_20220803-0001.hl7,,HL7_to_FHIR/sample_co_2_20220803-0001.fhir,,FHIR,PASS
-HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS
-HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS
-HL7_to_FHIR_to_HL7/sample_co_1_20220518-0004.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0004-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS
-HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS
-HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS
-HL7_to_FHIR_to_HL7/test_playground_20220930-0001.hl7,,HL7_to_FHIR_to_HL7/test_playground_20220930-0001-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS
+Input File,Input schema,Expected File,Output schema,Output format,Result,Ignore Fields,Sender
+CSV_to_HL7/sample-batch-pdi-20210608-0001.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-batch-pdi-20210608-0001.hl7,fl/fl-covid-19,HL7_BATCH,PASS,"",""
+CSV_to_HL7/sample-single-pdi-20210608-0002.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-single-pdi-20210608-0002.hl7,fl/fl-covid-19,HL7,PASS,"",""
+HL7_to_INTERNAL/CE-20200415-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CE-20200415-0001.internal.csv,covid-19,INTERNAL,PASS,"",""
+HL7_to_INTERNAL/EHT-20210316-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/EHT-20210316-0001.internal.csv,covid-19,INTERNAL,PASS,"",""
+HL7_to_INTERNAL/FLFHospital-SARSCOV2-20200317-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/FLFHospital-SARSCOV2-20200317-0001.internal.csv,covid-19,INTERNAL,FAIL,"",""
+HL7_to_INTERNAL/CA-20211001-sully.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CA-20211018-sully.internal.csv,covid-19,INTERNAL,PASS,"",""
+HL7_to_INTERNAL/LP-covid-19-20220124002222.hl7,hl7/lifepoint-covid-19,HL7_to_INTERNAL/LP-covid-19-20220124002222.internal.csv,covid-19,INTERNAL,PASS,"",""
+HL7_to_INTERNAL/SONIC-monkeypox-20221110.hl7,monkeypox,HL7_to_INTERNAL/SONIC-monkeypox-20221110.internal.csv,monkeypox,INTERNAL,PASS,"current_date","aegis"
+HL7_to_FHIR/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR/sample_co_1_20220518-0001.fhir,,FHIR,PASS,"",""
+HL7_to_FHIR/sample_co_1_20220518-0006.hl7,,HL7_to_FHIR/sample_co_1_20220518-0006.fhir,,FHIR,PASS,"",""
+HL7_to_FHIR/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR/sample_co_1_20220518-0014.fhir,,FHIR,PASS,"",""
+HL7_to_FHIR/sample_co_2_20220803-0001.hl7,,HL7_to_FHIR/sample_co_2_20220803-0001.fhir,,FHIR,PASS,"",""
+HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"",""
+HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0001-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS,"",""
+HL7_to_FHIR_to_HL7/sample_co_1_20220518-0004.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0004-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"",""
+HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"",""
+HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS,"",""
+HL7_to_FHIR_to_HL7/test_playground_20220930-0001.hl7,,HL7_to_FHIR_to_HL7/test_playground_20220930-0001-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS,"",""

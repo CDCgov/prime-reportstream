@@ -155,7 +155,7 @@ function calculateFileSelectedState(
         };
     } catch (err: any) {
         // todo: have central error reporting mechanism.
-        console.error(err);
+        console.warn(err);
         return {
             ...state,
             localError: `An unexpected error happened: '${err.toString()}'`,

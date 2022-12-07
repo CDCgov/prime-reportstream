@@ -2019,6 +2019,22 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 ---
 
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---
+
 **Name**: testing_lab_city
 
 **ReportStream Internal Name**: testing_lab_city

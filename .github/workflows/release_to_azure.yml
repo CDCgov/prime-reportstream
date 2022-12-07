@@ -77,7 +77,7 @@ jobs:
       needs.pre_job.outputs.env_name == 'demo2' ||
       needs.pre_job.outputs.env_name == 'demo3'
     environment: ${{ needs.pre_job.outputs.env_name }}
-    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: demo
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
