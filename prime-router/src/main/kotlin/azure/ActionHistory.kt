@@ -361,6 +361,7 @@ class ActionHistory(
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         reportsReceived[reportFile.reportId] = reportFile
 
         // check that we're dealing with an external file
@@ -489,6 +490,7 @@ class ActionHistory(
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
             reportFile.receivingOrgSvc = report.destination.name
