@@ -80,6 +80,17 @@ data class UserApiKeyCredential(
 ) : Credential(), RestCredential
 
 /**
+ * An Assertion credential
+ */
+data class UserAssertionCredential(
+
+    /**
+     * [assertion] is the api key
+     */
+    val assertion: String
+) : Credential(), RestCredential
+
+/**
  * The credential base class for all other credentials to inherit from
  */
 @JsonTypeInfo(
@@ -93,6 +104,7 @@ data class UserApiKeyCredential(
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
     JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey"),
+    JsonSubTypes.Type(value = UserAssertionCredential::class, name = "UserAssertion"),
 )
 sealed class Credential {
     /** Converts the [Credential] class to JSON */

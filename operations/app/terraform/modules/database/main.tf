@@ -104,6 +104,11 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   tags = {
     environment = var.environment
   }
+
+  timeouts {
+    create = "3h"
+    delete = "2h"
+  }
 }
 
 module "postgres_private_endpoint_replica" {
