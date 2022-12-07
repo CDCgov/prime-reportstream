@@ -574,7 +574,7 @@ tasks.flywayMigrate {
     pluginConfiguration = mutableMapOf(
         "postgresqlTransactionalLock" to "false"
     )
-    //environment(mapOf("FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK" to "false"))
+    // environment(mapOf("FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK" to "false"))
 }
 
 // Database code generation configuration
