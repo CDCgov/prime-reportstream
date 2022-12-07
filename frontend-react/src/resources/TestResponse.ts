@@ -59,6 +59,7 @@ export class TestResponse {
         errors: [
             {
                 scope: "",
+                errorCode: "",
                 type: "",
                 message: "",
                 index: 0,
@@ -68,6 +69,7 @@ export class TestResponse {
         warnings: [
             {
                 scope: "",
+                errorCode: "",
                 type: "",
                 message: "",
             },
