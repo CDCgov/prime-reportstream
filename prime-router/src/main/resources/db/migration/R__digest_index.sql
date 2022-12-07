@@ -8,12 +8,7 @@
  *
  */
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_report_lineage_parent_report_id
-  ON report_lineage
-  USING btree(parent_report_id)
-;
-
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_report_lineage_child_report_id
-  ON report_lineage
-  USING btree(child_report_id)
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_report_file_blob_digest
+    on report_file
+        using btree(blob_digest)
 ;

@@ -122,6 +122,7 @@ compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileKotlin.kotlinOptions.useK2 = false
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     group = rootProject.description ?: ""
@@ -562,6 +563,18 @@ flyway {
     url = dbUrl
     user = dbUser
     password = dbPassword
+    cleanDisabled = false
+    mixed = true
+    pluginConfiguration = mutableMapOf(
+        "postgresqlTransactionalLock" to "false"
+    )
+}
+
+tasks.flywayMigrate {
+    pluginConfiguration = mutableMapOf(
+        "postgresqlTransactionalLock" to "false"
+    )
+    //environment(mapOf("FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK" to "false"))
 }
 
 // Database code generation configuration
