@@ -372,7 +372,7 @@ class FHIRRouter(
                     true,
                     report,
                     ReportStreamFilterType.ROUTING_FILTER,
-                    receiver.fullName,
+                    receiver.fullName
                 )
             // PROCESSING MODE FILTER
             //  default: allowAll
@@ -383,8 +383,7 @@ class FHIRRouter(
                     processingModeDefaultResult,
                     report,
                     ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                    receiver.fullName,
-                    processingModeDefaultResult
+                    receiver.fullName
                 )
 
             // if all filters pass, add this receiver to the list of valid receivers
@@ -418,7 +417,12 @@ class FHIRRouter(
         } else {
             filter.all {
                 val longhand = replaceShorthand(it)
-                val result = FhirPathUtils.evaluateCondition(CustomContext(bundle, bundle), bundle, bundle, longhand)
+                val result = FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, bundle, shorthandLookupTable),
+                    bundle,
+                    bundle,
+                    longhand
+                )
                 // log results of filtering things OUT
                 if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                     report.filteringResults.add(
