@@ -28,7 +28,8 @@ const val MESSAGE_ID_PARAMETER = "messageId"
  * Search and retrieve messages
  */
 class MessagesFunctions(
-    private val dbAccess: DatabaseAccess = DatabaseAccess()
+    // example of using replica database connection at the class level
+    private val dbAccess: DatabaseAccess = DatabaseAccess(DatabaseAccess.replicaDataSource)
 ) : Logging {
     /**
      * entry point for the /messages/search endpoint,
@@ -88,7 +89,11 @@ class MessagesFunctions(
                     errorMessage = InvalidParamMessage("Missing the messageId request param").message
                     HttpStatus.BAD_REQUEST
                 } else {
-                    val results = dbAccess.fetchCovidResultMetadatasByMessageId(messageId)
+                    // example of using replica database connection at the method level
+                    val db = DatabaseAccess(DatabaseAccess.replicaDataSource)
+                    val results = db
+                        .fetchCovidResultMetadatasByMessageId(messageId)
+
                     response = results
                         .map {
                             Message(

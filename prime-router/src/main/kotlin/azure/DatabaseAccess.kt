@@ -59,6 +59,9 @@ import java.util.UUID
 import javax.sql.DataSource
 
 const val databaseVariable = "POSTGRES_URL"
+const val replicaDatabaseVariable = "POSTGRES_REPLICA_URL"
+// TODO: Add POSTGRES_REPLICA_USER env var
+// TODO: Add POSTGRES_REPLICA_PASSWORD env var
 const val userVariable = "POSTGRES_USER"
 const val passwordVariable = "POSTGRES_PASSWORD"
 
@@ -1353,7 +1356,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /** Common companion object */
-    companion object {
+    companion object : Logging {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
         var isFlywayMigrationOK = true
 
@@ -1367,36 +1370,20 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          */
         private val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
+            val config = createHikariConfig()
+            val dataSource = HikariDataSource(config)
 
-            val password = System.getenv(passwordVariable)
-            val user = System.getenv(userVariable)
-            val databaseUrl = System.getenv(databaseVariable)
-            val config = HikariConfig()
-            config.jdbcUrl = databaseUrl
-            config.username = user
-            config.password = password
-            config.addDataSourceProperty(
-                "dataSourceClassName",
-                "org.postgresql.ds.PGSimpleDataSource"
-            )
-            config.addDataSourceProperty("cachePrepStmts", "true")
-            config.addDataSourceProperty("prepStmtCacheSize", "250")
-            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-            config.addDataSourceProperty(
-                "connectionTimeout",
-                "60000"
-            ) // Default is 30000 (30 seconds)
+            val flyway = Flyway.configure().dataSource(dataSource).load()
+            if (isFlywayMigrationOK) {
+                flyway.migrate()
+            }
 
-            // See this info why these are a good value
-            //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
-            config.minimumIdle = 2
-            config.maximumPoolSize = 25
-            // This strongly recommended to be set "be several seconds shorter than any database or
-            // infrastructure
-            // imposed connection time limit". Not sure what value is but have observed that
-            // connection are closed
-            // after about 10 minutes
-            config.maxLifetime = 180000
+            dataSource
+        }
+
+        private val hikariReplicaDataSource: HikariDataSource by lazy {
+            DriverManager.registerDriver(Driver())
+            val config = createHikariConfig(true)
             val dataSource = HikariDataSource(config)
 
             val flyway = Flyway.configure().dataSource(dataSource).load()
@@ -1409,6 +1396,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
         val commonDataSource: DataSource
             get() = hikariDataSource
+
+        val replicaDataSource: DataSource
+            get() = hikariReplicaDataSource
 
         fun createTaskRecord(
             report: Report,
@@ -1642,6 +1632,53 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     }
                 )
                 .execute()
+        }
+
+        private fun createHikariConfig(useReplica: Boolean = false): HikariConfig {
+            val password = System.getenv(passwordVariable)
+            val user = System.getenv(userVariable)
+            val primaryDatabaseUrl = System.getenv(databaseVariable)
+            val replicaDatabaseUrl = System.getenv(replicaDatabaseVariable)
+            val databaseUrl = if (useReplica && !replicaDatabaseUrl.isNullOrBlank()) {
+                replicaDatabaseUrl
+            } else if (useReplica && replicaDatabaseUrl.isNullOrBlank()) {
+                logger
+                    .warn(
+                        "Attempting to use the replica database connection but the connection string does not exist. " +
+                            "Falling back to the primary database connection"
+                    )
+                primaryDatabaseUrl
+            } else {
+                primaryDatabaseUrl
+            }
+            val config = HikariConfig()
+            config.jdbcUrl = databaseUrl
+            config.username = user
+            config.password = password
+            config.addDataSourceProperty(
+                "dataSourceClassName",
+                "org.postgresql.ds.PGSimpleDataSource"
+            )
+            config.addDataSourceProperty("cachePrepStmts", "true")
+            config.addDataSourceProperty("prepStmtCacheSize", "250")
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+            config.addDataSourceProperty(
+                "connectionTimeout",
+                "60000"
+            ) // Default is 30000 (30 seconds)
+
+            // See this info why these are a good value
+            //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
+            config.minimumIdle = 2
+            config.maximumPoolSize = 25
+            // This strongly recommended to be set "be several seconds shorter than any database or
+            // infrastructure
+            // imposed connection time limit". Not sure what value is but have observed that
+            // connection are closed
+            // after about 10 minutes
+            config.maxLifetime = 180000
+
+            return config
         }
     }
 }
