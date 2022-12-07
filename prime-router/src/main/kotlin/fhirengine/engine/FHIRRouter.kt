@@ -437,7 +437,7 @@ class FHIRRouter(
                         )
                     )
                 }
-                return evalResult
+                evalResult
             }
         }
         return if (reverseFilter) !result else result
