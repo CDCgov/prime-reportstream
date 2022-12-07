@@ -1,0 +1,195 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Messages API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/messages:
+    get:
+      description: fetch a list of messages based on a message id
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: messageId
+          in: query
+          description: the exact message/tracking id of a message processed by ReportStream
+      responses:
+        '200':
+          description: a list of message objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: missing messageId parameter or a bad request
+        '401':
+          description: unauthorized
+  /api/message/{id}:
+    get:
+      description: return details about a particular test result message including the sender, receivers information with quality filter information
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: id
+          in: path
+          description: a valid test result record id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: the detailed report history object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          description: the primary key for this message object
+          type: integer
+        messageId:
+          description: the full message id
+          type: string
+        sender:
+          description: the name of the sender account
+          type: string
+        submittedDate:
+          description: when the original report that contains the message was submitted to ReportStream
+          type: string
+        reportId:
+          description: the uuid of the submitted report that a message belongs to
+          type: string
+        fileName:
+          description: the name of the file of the submitted report that a message belongs to
+          type: string
+        fileUrl:
+          description: the blobstore url of the file the message belongs to
+          type: string
+        errors:
+          description: a list of errors in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailedActionLog'
+        warnings:
+          description: a list of warnings in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailedActionLog'
+        receiverData:
+          description: a list of the message's receivers
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageReceiver'
+    MessageReceiver:
+      type: object
+      properties:
+        reportId:
+          description: the uuid of the receiver report that a message belongs to
+          type: string
+        receivingOrg:
+          description: the name of the org receiving the message
+          type: string
+        receivingOrgSvc:
+          description: the name of the receiver's service receiving the message
+          type: string
+        transportResult:
+          description: the transport result between ReportStream and the receiving service
+          type: string
+        fileName:
+          description: the name of the file the message belongs to
+          type: string
+        fileUrl:
+          description: the blobstore url of the receiver file the message belongs to
+          type: string
+        createdAt:
+          description: the time of which the file/report was sent or created
+          type: string
+          format: date-time
+        qualityFilters:
+          description: the quality filters of the report that the message may have been filtered out from
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageActionLog'
+    MessageActionLog:
+      type: object
+      properties:
+        trackingId:
+          description: id for identifying the test this log is related to
+          type: string
+        detail:
+          description: additional information for this log
+          type: object
+          properties:
+            scope:
+              type: string
+              description: Does the error apply to one item
+              enum:
+                - Parameter
+                - Report
+                - Item
+                - Translation
+            message:
+              description: user-friendly explanation of the filtering action
+              type: string
+    DetailedActionLog:
+      type: object
+      properties:
+        scope:
+          description: how wide-ranging is this log?
+          type: string
+          enum:
+            - parameter
+            - report
+            - item
+            - translation
+        reportId:
+          description: unique identifier for the report that owns this log
+          type: string
+        index:
+          description: position in the report of the item that caused this log
+          type: array
+          items:
+            type: integer
+        trackingId:
+          description: id for identifying the test this log is related to
+          type: string
+          items:
+            type: string
+        type:
+          description: what kind of log is this? (e.g. filter, warning...)
+          type: string
+          enum:
+            - info
+            - warning
+            - error
+            - filter
+        detail:
+          description: additional information for this log
+          type: object
+          properties:
+            scope:
+              type: string
+              description: Does the error apply to one item
+              enum:
+                - Parameter
+                - Report
+                - Item
+                - Translation
+            message:
+              description: user-friendly explanation of the filtering action
+              type: string
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

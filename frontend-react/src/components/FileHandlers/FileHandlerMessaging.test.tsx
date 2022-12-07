@@ -6,6 +6,7 @@ import {
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { ResponseError } from "../../config/endpoints/waters";
 
 import {
     RequestLevel,
@@ -86,24 +87,34 @@ describe("FileErrorDisplay", () => {
 
     test("renders table when data is given", async () => {
         // implicitly testing message truncation functionality here as well
-        const errors = [
-            {
-                message: "Exception: first error\ntruncated",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "Exception: second error\ntruncated",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
+        const fakeError1: ResponseError = {
+            message: "Exception: first error\ntruncated",
+            indices: [1],
+            field: "first field",
+            trackingIds: ["first_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_MESSAGE_DATE_VALIDATION",
+            details: "none",
+        };
+        const fakeError2: ResponseError = {
+            message: "Exception: second error\ntruncated",
+            indices: [2],
+            field: "second field",
+            trackingIds: ["second_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_MESSAGE_VALIDATION",
+            details: "none",
+        };
+        const fakeError3: ResponseError = {
+            message: "Exception: third error\ntruncated",
+            indices: [3],
+            field: "third field",
+            trackingIds: ["third_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_PHONE_NUMBER",
+            details: "none",
+        };
+        const errors = [fakeError1, fakeError2, fakeError3];
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
@@ -118,13 +129,23 @@ describe("FileErrorDisplay", () => {
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 errors + header
+        expect(rows).toHaveLength(4); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
-        expect(firstCells[0]).toHaveTextContent("Exception: first error");
+        expect(firstCells[0]).toHaveTextContent(
+            "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format."
+        );
         expect(firstCells[1]).toHaveTextContent("first field");
         expect(firstCells[2]).toHaveTextContent("first_id");
+
+        const secondCells = await within(rows[2]).findAllByRole("cell");
+        expect(secondCells[0]).toHaveTextContent("Invalid entry for field.");
+
+        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        expect(thirdCells[0]).toHaveTextContent(
+            "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
+        );
     });
 });
 

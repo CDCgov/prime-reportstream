@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
-        uses: ncipollo/release-action@d9356040b0dc694f6d006b6cabee4d3c024f9e72
+        uses: ncipollo/release-action@18eadf9c9b0f226f47f164f5373c6a44f0aae169
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
@@ -117,7 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release notes
-        uses: ncipollo/release-action@d9356040b0dc694f6d006b6cabee4d3c024f9e72
+        uses: ncipollo/release-action@18eadf9c9b0f226f47f164f5373c6a44f0aae169
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
