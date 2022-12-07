@@ -229,7 +229,7 @@ class DefaultFilterTests {
             report,
             ReportStreamFilterType.JURISDICTIONAL_FILTER,
             receiver.fullName,
-            true
+            false
         )
         // assert
         assertThat(useBundleResult).isTrue()
