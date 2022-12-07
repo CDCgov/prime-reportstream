@@ -942,7 +942,12 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     fun `testOrganizationYmlReplaceValueAwithBUsingTerserSettingField`() {
         val oneOrganization = DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
+            receivers = listOf(
+                Receiver(
+                    "elr", "phd", Topic.TEST,
+                    CustomerStatus.INACTIVE, "one"
+                )
+            )
         )
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -956,6 +961,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         // SEG: ORC, FIELD: 12, ELEMENT: 2
         val pathORCf12e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
         val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+        val pathOBR = "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
         // SEG: OBX, FIELD: 3, ELEMENT: 1
         val pathOBXf3e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
         val pathOBXf3e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
@@ -971,6 +977,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-10", "0987654321") // Message ID
         terser.set("MSH-11-1", "P")
         terser.set(pathOBXf3e1, "94534-5")
         terser.set(pathOBXf3e2, "SARS Old String")
@@ -997,15 +1004,21 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
         // Unit test for replace "" (Blank) and Not replace if something is there (ORC-4-1)
+        // terser.set("$pathORC-2-2", "SA.OTCSelfReport")
+        terser.set("$pathORC-2-3", "1234567890")
+        terser.set("$pathORC-2-4", "CLIA")
         terser.set("$pathORC-3-1", "")
         terser.set("$pathORC-4-1", "NOT REPLACE")
+        val replaceBlankWithValueRef = arrayListOf(mapOf("" to "*MSH-10"))
         val orcValuePairReplaceBlank = arrayListOf(mapOf("" to "REPLACED BLANK"))
         val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "ORC-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
             "ORC-3" to orcValuePairReplaceBlank,
             "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
+            "OBR-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "MSH-3" to msh3ValuePair,
             "MSH-11-1" to mshf11e1Values,
             // Note for the value=""/blank/null/empty is same as the value is not in HL7 file.
@@ -1024,10 +1037,15 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
 
-            assertThat(terser.get("$pathORC-2-1")).isEqualTo(null)
+            // Check ORC-2-1 (was blank) replaced with content of MSH-10 which is 0987654321
+            assertThat(terser.get("$pathORC-2-1")).isEqualTo("0987654321")
             assertThat(terser.get("$pathORC-2-2")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-3-1")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-4-1")).isEqualTo("NOT REPLACE")
+
+            // Check OBR-2-1 (was blank) replaced with content of MSH-10 which is 0987654321
+            assertThat(terser.get("$pathOBR-2-1")).isEqualTo("0987654321")
+
             assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
             assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
