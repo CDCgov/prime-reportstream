@@ -174,6 +174,9 @@ class Report : Logging {
                 }
             }
 
+            /**
+             * Returns a Format based on the [ext] provided, ignoring case.
+             */
             fun valueOfFromExt(ext: String): Format {
                 return when (ext.lowercase()) {
                     HL7.ext.lowercase() -> HL7
