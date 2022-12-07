@@ -104,7 +104,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.1.3"
-val kotlinVersion = "1.7.21"
+val kotlinVersion = "1.7.22"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
 
@@ -835,4 +835,5 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    implementation(kotlin("script-runtime"))
 }
