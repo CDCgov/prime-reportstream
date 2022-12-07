@@ -21,6 +21,7 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
+import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
@@ -75,6 +76,13 @@ class Hl7Serializer(
         val errors: MutableList<ActionLogDetail>,
         val warnings: MutableList<ActionLogDetail>
     )
+
+    enum class ErrorType(val type: String) {
+        INVALID_HL7_MESSAGE_DATE_VALIDATION("INVALID_HL7_MESSAGE_DATE_VALIDATION"),
+        INVALID_HL7_MESSAGE_VALIDATION("INVALID_HL7_MESSAGE_VALIDATION"),
+        INVALID_HL7_MESSAGE_FORMAT("INVALID_HL7_MESSAGE_FORMAT"),
+        INVALID_HL7_PHONE_NUMBER("INVALID_HL7_PHONE_NUMBER")
+    }
 
     private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
@@ -281,11 +289,35 @@ class Hl7Serializer(
                     errors.add(
                         InvalidHL7Message(
                             "Invalid HL7 message format. Please " +
-                                "refer to the HL7 specification and resubmit."
+                                "refer to the HL7 specification and resubmit.",
+                            ErrorType.INVALID_HL7_MESSAGE_FORMAT.type
                         )
                     )
                 else ->
-                    errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
+                    if (e.location?.toString() == "PID-29(0)") {
+                        errors.add(
+                            FieldPrecisionMessage(
+                                e.location.toString(),
+                                "Error parsing HL7 message: ${e.localizedMessage}",
+                                ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
+                            )
+                        )
+                    } else {
+                        errors.add(
+                            if (e.location != null) {
+                                FieldPrecisionMessage(
+                                    e.location.toString(),
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            } else {
+                                InvalidHL7Message(
+                                    "Error parsing HL7 message: ${e.localizedMessage}",
+                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
+                                )
+                            }
+                        )
+                    }
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -388,7 +420,18 @@ class Hl7Serializer(
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
-            errors.add(InvalidHL7Message(msg))
+
+            if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
+                errors.add(
+                    FieldPrecisionMessage(
+                        "ORC-23(0)",
+                        msg,
+                        ErrorType.INVALID_HL7_PHONE_NUMBER.type
+                    )
+                )
+            } else {
+                errors.add(InvalidHL7Message(msg))
+            }
         }
 
         // convert sets to lists
@@ -838,9 +881,9 @@ class Hl7Serializer(
     /**
      * The function goes through each segment in [replaceValueAwithBMap]
      * (SEGMENT: ["componentToReplace0": "newComponent0", "componentToReplace1": "newComponent1", ... ].
-     * It will replace the componentInMessageX with the newComponentX if and only if the componentToReplaceX is
-     * equal to the componentInMassage or old component.  If the componentToReplaceX is "*", it will replace
-     * regardless.
+     * Next, it goes through fields and check if it is OBX of not, if it is, it replaces value of all OBXs
+     * If it is not OBX segment, it will replace only that segment.
+     *
      * @param replaceValueAwithBMap - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
      * @param terser - message that contains HL7 to be working on.
      * @param observationRepeats - number of OBX segment.
@@ -876,74 +919,92 @@ class Hl7Serializer(
                         for (i in 0..observationRepeats.minus(1)) {
                             val pathOBXSpec = formPathSpec(segment.key, i)
                             val valueInOBXMessage = terser.get(pathOBXSpec)
-                            if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                                var obxComponentRep = 1
-                                components.forEach { obxComponent ->
-                                    val obxSubComponents = obxComponent.split(DEFAULT_SUBCOMPONENT_SEPARATOR)
-                                    if (obxSubComponents.size > 1) {
-                                        // If there is subComponent separate by &, we need to handle them.
-                                        var obxSubComponentRep = 1
-                                        obxSubComponents.forEach { obxSubComponent ->
-                                            if (fields.size > 1) {
-                                                terser.set(
-                                                    "$pathSpec($fieldRep)-$obxComponentRep-$obxSubComponentRep",
-                                                    obxSubComponent
-                                                )
-                                            } else {
-                                                terser.set(
-                                                    "$pathSpec-$obxComponentRep-$obxSubComponentRep",
-                                                    obxSubComponent
-                                                )
-                                            }
-                                            obxSubComponentRep++
-                                        }
-                                    } else {
-                                        if (fields.size > 1) {
-                                            terser.set("$pathOBXSpec($fieldRep)-$obxComponentRep", obxComponent)
-                                        } else {
-                                            terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
-                                        }
-                                    }
-                                    obxComponentRep++
-                                }
-                            }
+                            replaceValueAwithB(
+                                valueInOBXMessage,
+                                pairs,
+                                components,
+                                fields,
+                                terser,
+                                pathOBXSpec,
+                                fieldRep
+                            )
                         }
                     } else {
                         // Replace value if exact key from setting equal to key in message OR always replace
-                        if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                            var componentRep = 1
-                            components.forEach { component ->
-                                val subComponents = component.split(DEFAULT_SUBCOMPONENT_SEPARATOR)
-                                if (subComponents.size > 1) {
-                                    // If there is subComponent separate by &, we need to handle them.
-                                    var suComponentRep = 1
-                                    subComponents.forEach { subComponent ->
-                                        if (fields.size > 1) {
-                                            terser.set(
-                                                "$pathSpec($fieldRep)-$componentRep-$suComponentRep",
-                                                subComponent
-                                            )
-                                        } else {
-                                            terser.set(
-                                                "$pathSpec-$componentRep-$suComponentRep",
-                                                subComponent
-                                            )
-                                        }
-                                        suComponentRep++
-                                    }
-                                } else {
-                                    if (fields.size > 1) {
-                                        terser.set("$pathSpec($fieldRep)-$componentRep", component)
-                                    } else {
-                                        terser.set("$pathSpec-$componentRep", component)
-                                    }
-                                }
-                                componentRep++
-                            }
-                        }
+                        replaceValueAwithB(componentInMessage, pairs, components, fields, terser, pathSpec, fieldRep)
                     }
                     fieldRep++
                 }
+            }
+        }
+    }
+
+    /**
+     * The function checks to see if the existing field's value is the same as value wantting to replace.
+     * or it is equal to '*" (wildcard).
+     * It will replace the componentInMessageX with the newComponentX as following:
+     *  If and only if the componentToReplaceX is equal to the componentInMassage or old component.
+     *  If the componentToReplaceX is "*", it will replace regardless.
+     *  If conponentToReplaceX contains prefix '*', it will retreive value from that component as value to replace.
+     *      (e.g., ORC-2-1: [ "": "*MSH-10" ].  In this case, it will use value in MSH-10 to fill the blank of ORC-2-1
+     *
+     * @param componentInMessage - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
+     * @param pairs - exiting value to be replaced and new value to use to replace.
+     * @param components - components of field
+     * @param fields - fields of segment
+     * @param terser - message that contains HL7 to be working on.
+     * @param pathSpec -  HL7 pathSpec that point to the hl7 with the message.
+     *
+     * To understand the logic, you can follow in the Unit Test Hl7Serializer::
+     */
+    private fun replaceValueAwithB(
+        componentInMessage: String?,
+        pairs: Map<String, String>,
+        components: List<String>,
+        fields: List<String>,
+        terser: Terser,
+        pathSpec: String,
+        fieldRep: Int
+    ) {
+        if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+            var componentRep = 1
+            components.forEach { component ->
+                val subComponents = component.split(DEFAULT_SUBCOMPONENT_SEPARATOR)
+                if (subComponents.size > 1) {
+                    // If there is subComponent separate by &, we need to handle them.
+                    var suComponentRep = 1
+                    subComponents.forEach { subComponent ->
+                        if (fields.size > 1) {
+                            terser.set(
+                                "$pathSpec($fieldRep)-$componentRep-$suComponentRep",
+                                subComponent
+                            )
+                        } else {
+                            terser.set(
+                                "$pathSpec-$componentRep-$suComponentRep",
+                                subComponent
+                            )
+                        }
+                        suComponentRep++
+                    }
+                } else {
+                    // Here we check to see if the segment is absolute or indirect replacement.
+                    // If the segment ID contains prefix of an '*', then get value from that segment to use as
+                    // value replacement.
+                    val value = if (component.isNotEmpty() && component.first().equals('*')) {
+                        val refField = component.drop(1)
+                        terser.get(formPathSpec(refField))
+                    } else {
+                        component
+                    }
+
+                    if (fields.size > 1) {
+                        terser.set("$pathSpec($fieldRep)-$componentRep", value)
+                    } else {
+                        terser.set("$pathSpec-$componentRep", value)
+                    }
+                }
+                componentRep++
             }
         }
     }

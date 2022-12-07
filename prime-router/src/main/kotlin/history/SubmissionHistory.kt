@@ -287,8 +287,10 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
-        // Enforce an order on the enrichment:  process, send, download
-        descendants.filter { it.actionName == TaskAction.process }.forEach { descendant ->
+        // Enforce an order on the enrichment:  process/translate, send, download
+        descendants.filter {
+            it.actionName == TaskAction.process || it.actionName == TaskAction.translate
+        }.forEach { descendant ->
             enrichWithProcessAction(descendant)
         }
         // note: we do not use any data from the batch action at this time.
@@ -301,13 +303,16 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process action.
+     * Enrich a parent detailed history with details from the process or translate action.
      * Add destinations, errors, and warnings, to the history details.
+     * Process is exclusive to the COVID pipeline, we use translate instead for Universal
      *
      * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process) { "Must be a process action" }
+        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.translate) {
+            "Must be a process action"
+        }
 
         destinations += descendant.destinations
         errors += descendant.errors

@@ -463,3 +463,5 @@ elements:
       default: ""
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
       nullifyValue: true
+
+    - name: test_type
