@@ -23,9 +23,11 @@ services:
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
-      - POSTGRES_PASSWORD=changeIT!
+      # - POSTGRES_REPLICA_USER=prime-replica
+      # - POSTGRES_REPLICA_PASSWORD=changeIT!replica
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
       - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+      # - POSTGRES_REPLICA_URL=jdbc:postgresql://postgresql:5432/prime_data_hub-replica
       - PRIME_ENVIRONMENT=local
       - OKTA_baseUrl=hhs-prime.oktapreview.com
       - OKTA_clientId=0oa2fs6vp3W5MTzjh1d7
