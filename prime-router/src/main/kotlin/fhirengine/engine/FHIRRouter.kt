@@ -334,6 +334,7 @@ class FHIRRouter(
                     report,
                     ReportStreamFilterType.QUALITY_FILTER,
                     receiver.fullName,
+                    receiver.reverseTheQualityFilter
                 )
             }
             // get the processing mode (processing id) default result for the bundle, but only if it is needed
@@ -417,14 +418,14 @@ class FHIRRouter(
         } else {
             filter.all {
                 val longhand = replaceShorthand(it)
-                val result = FhirPathUtils.evaluateCondition(
+                val evalResult = FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, bundle, shorthandLookupTable),
                     bundle,
                     bundle,
                     longhand
                 )
                 // log results of filtering things OUT
-                if (!result && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
+                if (!evalResult && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
                     report.filteringResults.add(
                         ReportStreamFilterResult(
                             receiverName,
@@ -436,7 +437,7 @@ class FHIRRouter(
                         )
                     )
                 }
-                return result
+                return evalResult
             }
         }
         return if (reverseFilter) !result else result
