@@ -1,16 +1,23 @@
 package gov.cdc.prime.router
 
 /**
- * Action details for item logs for specific [fieldMapping].
+ * Action details for item logs for specific [fieldMapping] and [errorCode].
  */
-abstract class ItemActionLogDetail(val fieldMapping: String = "") : ActionLogDetail {
+abstract class ItemActionLogDetail(
+    val fieldMapping: String = ""
+) : ActionLogDetail {
     override val scope = ActionLogScope.item
+    override val errorCode: String = ""
 }
 
 /**
- * Generic detail log that uses a given [message] and [scope].
+ * Generic detail log that uses a given [message], [scope] and [errorCode].
  */
-abstract class GenericActionLogDetail(override val message: String, override val scope: ActionLogScope) :
+abstract class GenericActionLogDetail(
+    override val message: String,
+    override val scope: ActionLogScope,
+    override val errorCode: String = ""
+) :
     ActionLogDetail
 
 /**
@@ -119,13 +126,17 @@ class InvalidEquipmentMessage(
  */
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
-    override val message: String
+    override val message: String,
+    override val errorCode: String = ""
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
  * A [message] for invalid HL7 message.  Note field mapping is not available from the HAPI errors.
+ * An optional [errorCode] for the error. Used to display a friendly error.
  */
-class InvalidHL7Message(override val message: String) : ItemActionLogDetail("")
+class InvalidHL7Message(override val message: String, override val errorCode: String = "") : ItemActionLogDetail(
+    ""
+)
 
 /**
  * A [message] for invalid request parameter.
@@ -148,6 +159,7 @@ class InvalidTranslationMessage(override val message: String) :
  */
 class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
     override val scope = ActionLogScope.report
+    override val errorCode = ""
     override val message: String get() {
         var msg = "All items in this submission are duplicates."
         if (!payloadName.isNullOrEmpty()) {
@@ -162,6 +174,7 @@ class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
  */
 class DuplicateItemMessage() : ActionLogDetail {
     override val scope = ActionLogScope.item
+    override val errorCode = ""
     override val message = "Item is a duplicate."
 }
 
@@ -170,12 +183,13 @@ class DuplicateItemMessage() : ActionLogDetail {
  */
 class FhirActionLogDetail(
     override val message: String
-) : GenericActionLogDetail(message, ActionLogScope.report)
+) : GenericActionLogDetail(message, ActionLogScope.report, "")
 
 /**
  * A return message for invalid processing type
  */
 class UnsupportedProcessingTypeMessage() : ActionLogDetail {
     override val scope = ActionLogScope.report
+    override val errorCode = ""
     override val message = "Full ELR senders must be configured for async processing."
 }

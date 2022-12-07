@@ -130,6 +130,7 @@ data class ReportStreamFilterResult(
     val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
+    override val errorCode = ""
 
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.

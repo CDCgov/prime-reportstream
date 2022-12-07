@@ -181,7 +181,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 if (responseCode >= 400 && responseCode < 500) {
                     good("Test for $name ${pair.first} passed: received $responseCode response code.")
                 } else {
-                    failures.add("${pair.first}")
+                    failures.add(pair.first)
                     bad("***Test for $name ${pair.first} FAILED***: Expected a failure HttpStatus***")
                     continue
                 }
@@ -191,7 +191,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                     good("Test for $name ${pair.first} passed: id is null.")
                 } else {
                     bad("***Test for $name ${pair.first} FAILED***: Expected null Id, got ${tree["id"]}")
-                    failures.add("${pair.first}")
+                    failures.add(pair.first)
                 }
                 val errorCount = tree["errorCount"].intValue()
                 if (errorCount > 0) {
@@ -201,7 +201,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                         "***Test for $name ${pair.first} FAILED***: " +
                             "Expected a non-zero ErrorCount, got $errorCount error(s)"
                     )
-                    failures.add("${pair.first}")
+                    failures.add(pair.first)
                 }
                 val warningCount = tree["warningCount"].intValue()
                 if (warningCount == 0) {
@@ -211,7 +211,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                         "***Test for $name ${pair.first} FAILED***: " +
                             "Expected zero warning, got $warningCount warning(s)"
                     )
-                    failures.add("${pair.first}")
+                    failures.add(pair.first)
                 }
             } catch (e: NullPointerException) {
                 return bad("***Test for $name ${pair.first} FAILED***: Unable to properly parse response json")
@@ -227,7 +227,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
         if (failures.size == 0) {
             return true
         } else {
-            return bad("Tests for $name FAILED***: " + failures)
+            return bad("Tests for $name FAILED***: $failures")
         }
     }
 }

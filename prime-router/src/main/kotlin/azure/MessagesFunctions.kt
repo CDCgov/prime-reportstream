@@ -204,7 +204,7 @@ class MessagesFunctions(
         return responseBuilder(httpStatus, errorMessage, response, request)
     }
 
-    internal fun responseBuilder(
+    private fun responseBuilder(
         httpStatus: HttpStatus,
         errorMessage: String?,
         response: Any,
@@ -229,8 +229,10 @@ class MessagesFunctions(
             .build()
     }
 
-    internal fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
-        val reportDescendants = dbAccess.fetchReportDescendantsFromReportId(reportId).filter { it.receivingOrg != null }
+    private fun getReceiverData(reportId: ReportId, trackingId: String): List<MessageReceiver> {
+        val reportDescendants = dbAccess
+            .fetchReportDescendantsFromReportId(reportId)
+            .filter { it.receivingOrg != null && it.reportId != reportId }
         val childReportIds = reportDescendants.map { it.reportId }
         val reportFiles = dbAccess.fetchReportFileByIds(childReportIds)
 

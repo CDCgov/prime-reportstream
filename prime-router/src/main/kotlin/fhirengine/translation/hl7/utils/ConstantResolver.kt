@@ -117,6 +117,7 @@ enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
     HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
     NONE("", "");
+
     companion object {
         /**
          * Get a coding system mapper by its [fhirURL]
@@ -329,7 +330,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         return if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
-            if (values.size != 1) {
+            if (values.isEmpty()) {
+                null
+            } else if (values.size != 1) {
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             } else {
                 logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")

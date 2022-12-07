@@ -1713,6 +1713,22 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
+**Name**: test_type
+
+**ReportStream Internal Name**: test_type
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: TestType
+
+---
+
 **Name**: testing_lab_id
 
 **ReportStream Internal Name**: testing_lab_id
