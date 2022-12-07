@@ -97,10 +97,13 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     # rule {
     #   metric_trigger {
     #     metric_name        = "ApproximateMessageCount"
-    #     metric_resource_id = join("/",["${var.resource_prefix}storageaccount","services/queue/queues","process"])
+    #     metric_resource_id {
+    #       id     = each.value                       
+    #       for_each = toset(var.storage_queue_id)
+    #     }
     #     time_grain         = "PT1M"
     #     statistic          = "Average"
-    #     time_window        = "PT5M"
+    #     time_window        = "PT10M"
     #     time_aggregation   = "Average"
     #     operator           = "GreaterThan"
     #     threshold          = 5
@@ -114,25 +117,25 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     #   }
     # }
 
-    rule {
-      metric_trigger {
-        metric_name        = "ApproximateMessageCount"
-        metric_resource_id = join("/",["${"${var.resource_prefix}storageaccount"}","services/queue/queues","process"])
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT5M"
-        time_aggregation   = "Average"
-        operator           = "LessThanOrEqual"
-        threshold          = 5
-      }
+    # rule {
+    #   metric_trigger {
+    #     metric_name        = "ApproximateMessageCount"
+    #     metric_resource_id = var.storage_queue_id
+    #     time_grain         = "PT1M"
+    #     statistic          = "Average"
+    #     time_window        = "PT10M"
+    #     time_aggregation   = "Average"
+    #     operator           = "LessThan"
+    #     threshold          = 5
+    #   }
 
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT5M"
-      }
-    }
+    #   scale_action {
+    #     direction = "Decrease"
+    #     type      = "ChangeCount"
+    #     value     = "1"
+    #     cooldown  = "PT5M"
+    #   }
+    # }
   }
 
   notification {

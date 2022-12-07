@@ -35,8 +35,7 @@ resource "azurerm_storage_account" "storage_account" {
     environment = var.environment
   }
 }
-
-resource "azurerm_storage_queue" "queue" {
+resource "azurerm_storage_queue" "storage_queue" {
   name     = each.value                       
   for_each = toset(var.storage_queue_name)   
   storage_account_name = azurerm_storage_account.storage_account.name
