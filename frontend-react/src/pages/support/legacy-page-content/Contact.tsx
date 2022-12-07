@@ -49,14 +49,11 @@ export const Contact = () => {
                 <p>
                     Read our guides for sending data via{" "}
                     <a className="usa-link" href="/resources/elr-checklist">
-                        ELR,
+                        ELR
                     </a>{" "}
+                    or{" "}
                     <a className="usa-link" href="/resources/programmers-guide">
                         API
-                    </a>
-                    , or{" "}
-                    <a className="usa-link" href="/resources/csv-upload-guide">
-                        CSV upload
                     </a>
                     .
                 </p>
