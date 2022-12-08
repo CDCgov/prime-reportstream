@@ -303,7 +303,22 @@ class FHIRRouter(
             it.customerStatus != CustomerStatus.INACTIVE &&
                 it.topic == Topic.FULL_ELR
         }
-
+        // get the quality filter default result for the bundle, but only if it is needed
+        val qualFilterDefaultResult: Boolean by lazy {
+            evaluateFilterCondition(
+                qualityFilterDefault,
+                bundle,
+                false
+            )
+        }
+        // get the processing mode (processing id) default result for the bundle, but only if it is needed
+        val processingModeDefaultResult: Boolean by lazy {
+            evaluateFilterCondition(
+                processingModeFilterDefault,
+                bundle,
+                false
+            )
+        }
         fullElrReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
@@ -322,15 +337,6 @@ class FHIRRouter(
                 //  default: must have message id, patient last name, patient first name, dob, specimen type
                 //           must have at least one of patient street, zip code, phone number, email
                 //           must have at least one of order test date, specimen collection date/time, test result date
-                // get the quality filter default result for the bundle, but only if it is needed
-                val qualFilterDefaultResult: Boolean by lazy {
-                    evaluateFilterCondition(
-                        qualityFilterDefault,
-                        bundle,
-                        false,
-                        receiver.reverseTheQualityFilter
-                    )
-                }
                 val filters = getQualityFilters(receiver, orgFilters)
                 passes = evaluateFilterCondition(
                     filters,
@@ -359,10 +365,6 @@ class FHIRRouter(
             // PROCESSING MODE FILTER
             if (passes) {
                 //  default: allowAll
-                // get the processing mode (processing id) default result for the bundle, but only if it is needed
-                val processingModeDefaultResult: Boolean by lazy {
-                    evaluateFilterCondition(processingModeFilterDefault, bundle, false)
-                }
 
                 val filters = getProcessingModeFilter(receiver, orgFilters)
                 passes = evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
