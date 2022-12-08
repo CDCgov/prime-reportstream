@@ -260,9 +260,10 @@
     - name: default
       organizationName: abbott
       topic: covid-19
-      customerStatus: active
+      customerStatus: testing
       schemaName: direct/abbott-covid-19
       format: CSV
+      processingType: "sync"
 
 - name: lifepoint
   description: LifePoint (Ellume data)
@@ -1322,33 +1323,27 @@
   jurisdiction: COUNTY
   stateCode: OH
   countyName: Clark
+  filters:
+    - topic: "covid-19"
+      jurisdictionFilter:
+        - matches(ordering_facility_state, OH)
+        - matches(ordering_facility_county, Clark)
   receivers:
     - name: elr-download
       organizationName: oh-ccchd-doh
       topic: covid-19
       customerStatus: testing
-      jurisdictionalFilter:
-        - matches(ordering_facility_state, OH)
-        - matches(ordering_facility_county, Clark)
       translation:
-        type: HL7
-        useBatchHeaders: true
-        suppressQstForAoe: true
-        receivingApplicationName: OHDOH
-        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
-        receivingFacilityName: OHDOH
-        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
-        reportingFacilityName: CDC PRIME
-        reportingFacilityId: 36DSMP9999
+        schemaName: "oh/oh-clark-covid-19-csv"
+        type: CUSTOM
         nameFormat: ohio
-        suppressHl7Fields: OBX-23-11
-        # turn off UNK and ASKU for this field
-        useBlankInsteadOfUnknown: patient_race
+        format: "CSV"
       timing:
         operation: MERGE
         numberPerDay: 1 # Per day
         initialTime: 00:05
         timeZone: EASTERN
+        maxReportCount: 100
 
 - name: nm-doh
   description: New Mexico Department of Health
@@ -2357,13 +2352,17 @@
 - name: "hhsprotect"
   description: "HHSProtect"
   jurisdiction: "FEDERAL"
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "matches(sender_id, SafeHealth,ImageMover,Cue,InBios,Strac,.*CueHlth.*,reddyfmc-la,primary,cuc-al,guc-la,abbott,lifepoint,hca,pmg,ihealthlabs,mns,all-in-one-health-ca,corebiolabs-oh,covidclinic-org,elitemedlabs-co,warrior-dx-co,stemexpress-ca,newport-childrens-hospital-ca,sdilabs-ca,naval-health-clinic-lemoore,prescryptive,pcl-ca,jrslab-ca,mycarelabs-ca,biovisiondx-il,youthclinic-co,kwokmandx-ca,toprankdx-ca,hollywoodsmiles-ca,hcintegrations,signetic,xtrava,intrivo,neurolab,limsabc-nova,clxhealth,providence,color-labs,genabio,osang-otc)"
+      qualityFilter:
+        - "allowAll()"
   receivers:
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth,providence,.*bzdlabs.*,innolitics,vaulthealth,osang-otc)" ]
-      qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
         schemaName: "hhsprotect/hhsprotect-covid-19"
@@ -3278,8 +3277,6 @@
       organizationName: ia-phd
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, IA, patient_state, IA)
       translation:
         useTestProcessingMode: false
         useBatchHeaders: true
