@@ -5,5 +5,3 @@ output "function_app_id" {
 output "admin_function_app" {
   value = azurerm_function_app.admin
 }
-
-
