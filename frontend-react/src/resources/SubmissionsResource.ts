@@ -6,10 +6,12 @@ const { RS_API_URL } = config;
 
 type SubmissionsResourceParams = {
     organization: string;
-    pageSize: number;
+    sortdir: string;
+    sortcol: string;
     cursor: string;
-    endCursor: string;
-    sort: string;
+    since: string;
+    until: string;
+    pageSize: number;
     showFailed: boolean;
 };
 
@@ -39,7 +41,7 @@ export default class SubmissionsResource extends AuthResource {
 
     static listUrl(searchParams: SubmissionsResourceParams): string {
         return `
-        ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions?pageSize=${searchParams.pageSize}&cursor=${searchParams.cursor}&endcursor=${searchParams.endCursor}&sort=${searchParams.sort}&showfailed=${searchParams.showFailed}`;
+        ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions?pageSize=${searchParams.pageSize}&cursor=${searchParams.cursor}&since=${searchParams.since}&until=${searchParams.until}&sortcol=${searchParams.sortcol}&sortdir=${searchParams.sortdir}&showfailed=${searchParams.showFailed}`;
     }
 
     isSuccessSubmitted(): boolean {
