@@ -297,12 +297,12 @@ class FHIRRouter(
      */
     internal fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
         val listOfReceivers = mutableListOf<Receiver>()
-
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
                 it.topic == Topic.FULL_ELR
         }
+
         // get the quality filter default result for the bundle, but only if it is needed
         val qualFilterDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
@@ -311,6 +311,7 @@ class FHIRRouter(
                 false
             )
         }
+
         // get the processing mode (processing id) default result for the bundle, but only if it is needed
         val processingModeDefaultResult: Boolean by lazy {
             evaluateFilterCondition(
@@ -319,6 +320,7 @@ class FHIRRouter(
                 false
             )
         }
+
         fullElrReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
