@@ -291,8 +291,7 @@ class FHIRRouter(
     /**
      * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
      * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
-     * @param bundle
-     * @param report
+     * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
     internal fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
