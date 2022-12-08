@@ -16,6 +16,7 @@ import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import SuccessPage from "./SuccessPage";
 
@@ -90,6 +91,7 @@ function TermsOfServiceForm() {
         const response = await fetch(`${RS_API_URL}/api/email-registered`, {
             method: "POST",
             headers: {
+                ...getAppInsightsHeaders(),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
