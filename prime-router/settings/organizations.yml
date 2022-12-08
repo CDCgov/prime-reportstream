@@ -132,6 +132,18 @@
       schemaName: csv-otc-covid-19
       format: CSV
 
+- name: simplehealthkit
+  description: simplehealthkit
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simplehealthkit
+      format: CSV
+      topic: covid-19
+      customerStatus: testing
+      schemaName: upload-covid-19
+      processingType: async
+
 - name: osang-otc
   description: Osang Healthcare - OTC Testing
   jurisdiction: FEDERAL
