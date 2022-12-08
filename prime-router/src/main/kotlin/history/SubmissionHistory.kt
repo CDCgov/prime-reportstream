@@ -328,12 +328,14 @@ class DetailedSubmissionHistory(
 
         val filterLogs = mutableListOf<DetailedActionLog>()
 
+        // Grab the filter logs generated during the "route" action, as well as errors and warnings
         descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
             filterLogs += descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
             errors += descendant.errors
             warnings += descendant.warnings
         }
 
+        // Grab destinations from the "translate" action, if the submission made it that far
         descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant  ->
             descendant.destinations.forEach { dest ->
                 destinations += dest
