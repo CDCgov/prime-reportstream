@@ -21,12 +21,12 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -39,7 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.10"
     id("com.avast.gradle.docker-compose") version "0.16.9"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
 
@@ -49,6 +49,7 @@ description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
+val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
 
 // Local database information, first one wins:
@@ -103,7 +104,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.1.3"
-val kotlinVersion = "1.7.21"
+val kotlinVersion = "1.7.22"
 val jacksonVersion = "2.13.4"
 jacoco.toolVersion = "0.8.7"
 
@@ -301,6 +302,8 @@ tasks.processResources {
 }
 
 tasks.jar {
+    // getting an error about writing the same value out to the jar, so forcing it be a warning for now
+    duplicatesStrategy = defaultDuplicateStrategy
     manifest {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
         run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
@@ -321,6 +324,10 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
+configure<KtlintExtension> {
+    // See ktlint versions at https://github.com/pinterest/ktlint/releases
+    version.set("0.43.2")
+}
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
@@ -401,8 +408,13 @@ tasks.register("reloadCredentials") {
     group = rootProject.description ?: ""
     description = "Load the SFTP credentials used for local testing to the vault"
     project.extra["cliArgs"] = listOf(
-        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
-        "foo", "--pass", "pass"
+        "create-credential",
+        "--type=UserPass",
+        "--persist=DEFAULT-SFTP",
+        "--user",
+        "foo",
+        "--pass",
+        "pass"
     )
     finalizedBy("primeCLI")
 }
@@ -581,7 +593,7 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
-                                    .withIncludeTypes("JSONB"),
+                                    .withIncludeTypes("JSONB")
                             )
                         )
                     }
@@ -696,7 +708,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.5.0")
+    jooqGenerator("org.postgresql:postgresql:42.5.1")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -738,7 +750,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.1")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -746,7 +758,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20220320")
+    implementation("org.json:json:20220924")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
@@ -757,7 +769,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.4.1")
+    implementation("org.postgresql:postgresql:42.5.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.19.0")
@@ -806,7 +818,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")

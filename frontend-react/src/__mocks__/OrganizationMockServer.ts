@@ -1,6 +1,8 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
+import { RSReceiver } from "../config/endpoints/settings";
+
 const base = "https://test.prime.cdc.gov/api/settings/organizations";
 const getSender = (org: string, sender: string) =>
     `${base}/${org}/senders/${sender}`;
@@ -28,6 +30,20 @@ export const fakeOrg = {
     stateCode: "TC",
 };
 
+/** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
+ *
+ * @param count {number} How many unique receivers you want. */
+export const receiversGenerator = (count: number) => {
+    const receivers: RSReceiver[] = [];
+    for (let i = 0; i < count; i++) {
+        receivers.push({ name: `elr-${i}`, organizationName: "testOrg" });
+    }
+    return receivers;
+};
+
+export const dummyReceivers = receiversGenerator(5);
+export const dummyActiveReceiver = dummyReceivers[0];
+
 const handlers = [
     rest.get(base, (_req, res, ctx) => {
         return res(
@@ -44,8 +60,11 @@ const handlers = [
     rest.get(`${base}/testOrg`, (req, res, ctx) => {
         return res(ctx.json(fakeOrg), ctx.status(200));
     }),
-    rest.get(`${base}/testOrg/receivers`, (req, res, context) => {
-        return res(context.status(200));
+    rest.get(`${base}/testOrg/receivers`, (req, res, ctx) => {
+        return res(ctx.json(dummyReceivers), ctx.status(200));
+    }),
+    rest.get(`${base}/testOrgNoReceivers/receivers`, (req, res, ctx) => {
+        return res(ctx.json([]), ctx.status(200));
     }),
 ];
 
