@@ -10,7 +10,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
@@ -190,10 +189,7 @@ class DefaultFilterTests {
         val result = engine.evaluateFilterCondition(
             emptyList(),
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -213,9 +209,6 @@ class DefaultFilterTests {
             emptyList(),
             bundle,
             false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName,
             true
         )
         // assert
@@ -226,9 +219,6 @@ class DefaultFilterTests {
             engine.processingModeFilterDefault,
             bundle,
             false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName,
             false
         )
         // assert
@@ -247,10 +237,7 @@ class DefaultFilterTests {
         val result = engine.evaluateFilterCondition(
             emptyList(),
             bundle,
-            true,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            true
         )
 
         // assert
@@ -269,10 +256,7 @@ class DefaultFilterTests {
         val procModeResult = engine.evaluateFilterCondition(
             engine.processingModeFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -291,10 +275,7 @@ class DefaultFilterTests {
         val procModeResult = engine.evaluateFilterCondition(
             engine.processingModeFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.PROCESSING_MODE_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -315,10 +296,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -339,10 +317,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -363,10 +338,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -387,10 +359,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -411,10 +380,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -435,10 +401,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -459,10 +422,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -483,10 +443,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -507,10 +464,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -531,10 +485,7 @@ class DefaultFilterTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.QUALITY_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert

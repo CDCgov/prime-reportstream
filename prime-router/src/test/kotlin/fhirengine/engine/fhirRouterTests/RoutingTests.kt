@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -335,10 +336,7 @@ class RoutingTests {
         val qualDefaultResult = engine.evaluateFilterCondition(
             engine.qualityFilterDefault,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            false
         )
 
         // assert
@@ -602,10 +600,7 @@ class RoutingTests {
         val result = engine.evaluateFilterCondition(
             filter,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            false
         )
         // act & assert
         assertThat(result).isTrue()
@@ -627,10 +622,7 @@ class RoutingTests {
         val result = engine.evaluateFilterCondition(
             filter,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            false
         )
         // act & assert
         assertThat(result).isTrue()
@@ -652,12 +644,24 @@ class RoutingTests {
         val result = engine.evaluateFilterCondition(
             filter,
             bundle,
-            false,
-            report,
-            ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            receiver.fullName
+            false
         )
         // act & assert
         assertThat(result).isTrue()
+    }
+
+    @Test
+    fun `test logFilterResults`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        assertThat(report.filteringResults.count()).isEqualTo(0)
+        engine.logFilterResults(qualFilter, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
+        assertThat(report.filteringResults.count()).isGreaterThan(0)
     }
 }
