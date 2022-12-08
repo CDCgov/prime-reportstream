@@ -1,0 +1,163 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Permissions API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/permissions:
+    get:
+      description: fetch a list of permissions
+      security:
+        - OAuth2: [ system_admin ]
+      responses:
+        '200':
+          description: a list of permission objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+  /api/organization/{orgName}/permissions:
+    get:
+      description: fetch a list of permissions for an organization
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: orgName
+          in: path
+          description: a valid organization name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: a list of permission objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+  /api/permission/{id}:
+    put:
+      description: updates a permission
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: id
+          in: path
+          description: a valid permissions id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+    delete:
+      description: deletes a permission
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: id
+          in: path
+          description: a valid permissions id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+  /api/permission:
+    post:
+      description: creates a permission
+      security:
+        - OAuth2: [ system_admin ]
+      responses:
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+  /api/organization/{orgName}/permission/{id}:
+    post:
+      description: associates a permission to an organization
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: orgName
+          in: path
+          description: a valid organization name
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: a valid permissions id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+    delete:
+      description: deletes a permission from an organization
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: orgName
+          in: path
+          description: a valid organization name
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: a valid permissions id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+components:
+  schemas:
+    Permission:
+      type: object
+      properties:
+        permissionId:
+          description: the primary key for this permission object
+          type: integer
+        name:
+          description: the name of the permission
+          type: string
+        description:
+          description: the description of the permission
+          type: string
+        enabled:
+          description: if the permission is enabled
+          type: boolean
+        createdBy:
+          description: the user who created the permission
+          type: string
+        createdAt:
+          description: the date/time the permission was created
+          type: string
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
