@@ -1,0 +1,12 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0148-simplehealthkit-onboarding.yml
+---
+- name: simplehealthkit
+  description: simplehealthkit
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simplehealthkit
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
