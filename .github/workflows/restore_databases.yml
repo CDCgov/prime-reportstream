@@ -238,11 +238,16 @@ jobs:
       # Allow runner db access
       - name: Add db access
         id: add-db-access
-        shell: bash
-        run: |
-          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
-          az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
-            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        with:
+          timeout_minutes: 120
+          max_attempts: 12
+          retry_wait_seconds: 300
+          command: |
+            az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
+            az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
+              --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+          shell: bash
 
       # Mount Azure file share to retrieve backup file
       - name: Mount file share
