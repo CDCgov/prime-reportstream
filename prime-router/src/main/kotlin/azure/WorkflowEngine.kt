@@ -891,6 +891,7 @@ class WorkflowEngine(
                     )
                 }
             }
+            else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
 }

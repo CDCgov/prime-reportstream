@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -24,6 +25,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -36,6 +38,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -92,6 +95,25 @@ class RoutingTests {
         )
     )
 
+    val csv = """
+            variable,fhirPath
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
+            messageId,Bundle.entry.resource.ofType(MessageHeader).id
+            patient,Bundle.entry.resource.ofType(Patient)
+            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
+            patientState,Bundle.entry.resource.ofType(Patient).address.state
+            specimen,Bundle.entry.resource.ofType(Specimen)
+            serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
+            observation,Bundle.entry.resource.ofType(Observation)
+            test-dash,Bundle.test.dash
+            test_underscore,Bundle.test.underscore
+            test'apostrophe,Bundle.test.apostrophe
+    """.trimIndent()
+
+    val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+    val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
@@ -103,16 +125,164 @@ class RoutingTests {
     }
 
     @Test
+    fun `test replaceShorthand with simple string including fhir resource`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%resource.%patient")
+
+        // assert
+        assertThat(result).isEqualTo("%resource.Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string in quotes`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%'patient'")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with simple string in backticks`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%`patient`")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
+    }
+
+    @Test
+    fun `test replaceShorthand with two variable string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient or %messageId")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(MessageHeader).id"
+        )
+    }
+
+    @Test
+    fun `test replaceShorthand with dashed string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test-dash")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.dash")
+    }
+
+    @Test
+    fun `test replaceShorthand with underscored string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test_underscore")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.underscore")
+    }
+
+    @Test
+    fun `test replaceShorthand with apostrophe string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%test'apostrophe")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.test.apostrophe")
+    }
+
+    @Test
+    fun `test replaceShorthand with multi parts string`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient.name.first")
+
+        // assert
+        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient).name.first")
+    }
+
+    @Test
+    fun `test replaceShorthand with multi part while in middle`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("myVariable.%patient.name.first")
+
+        // assert
+        assertThat(result).isEqualTo("myVariable.Bundle.entry.resource.ofType(Patient).name.first")
+    }
+
+    @Test
+    fun `test replaceShorthand with similar strings, order 1`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patient or %patientState")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(Patient).address.state"
+        )
+    }
+
+    @Test
+    fun `test replaceShorthand with similar strings, order 2`() {
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        // act
+        val result = engine.replaceShorthand("%patientState or %patient")
+
+        // assert
+        assertThat(result).isEqualTo(
+            "Bundle.entry.resource.ofType(Patient).address.state or Bundle.entry.resource.ofType(Patient)"
+        )
+    }
+
+    @Test
     fun `test applyFilters receiver setting - (reverseTheQualityFilter = true) `() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(twoOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
         var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        val metadata = Metadata(schema = one)
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
@@ -132,8 +302,6 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -156,9 +324,6 @@ class RoutingTests {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
-
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
@@ -177,8 +342,7 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
+
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -226,8 +390,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -275,8 +437,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -324,8 +484,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -373,8 +531,6 @@ class RoutingTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -416,5 +572,59 @@ class RoutingTests {
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any())
         }
+    }
+
+    @Test
+    fun ` test constantResolver for routing constants - succeed`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
+        )
+
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+    }
+
+    @Test
+    fun ` test constants - succeed, no patient state`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/no_patient_state.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
+        )
+
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+    }
+
+    @Test
+    fun ` test constants - succeed, no performer state`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/no_performer_state.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val filter = listOf(
+            "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
+                "and %patientState = 'CA')"
+        )
+
+        // act & assert
+        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
     }
 }
