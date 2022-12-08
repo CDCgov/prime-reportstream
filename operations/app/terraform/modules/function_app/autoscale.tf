@@ -113,7 +113,6 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
         cooldown  = "PT5M"
       }
     }
-
     rule {
       metric_trigger {
         metric_name        = "ApproximateMessageCount"
