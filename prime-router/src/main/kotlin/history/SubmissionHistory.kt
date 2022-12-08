@@ -13,6 +13,7 @@ import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
@@ -290,7 +291,7 @@ class DetailedSubmissionHistory(
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
 
         // Enforce an order on the enrichment:  process/translate, send, download
-        if (topic == "full-elr") {
+        if (topic == Topic.FULL_ELR.toString()) {
             // logs and destinations are handled very differently for UP
             // both routing and translate are populated at different times,
             // so we need to do special logic to handle them
