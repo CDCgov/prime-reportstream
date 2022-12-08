@@ -37,9 +37,15 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_queue" "storage_queue" {
+<<<<<<< HEAD
   name                  = each.value
   for_each              = toset(var.storage_queue_name)
   storage_account_name  = azurerm_storage_account.storage_account.name
+=======
+  name                 = each.value
+  for_each             = toset(var.storage_queue_name)
+  storage_account_name = azurerm_storage_account.storage_account.name
+>>>>>>> 8eeda5d10d7f3e74a3bb890d7b44487862ee0bf5
 }
 
 module "storageaccount_blob_private_endpoint" {
