@@ -291,7 +291,7 @@ class DetailedSubmissionHistory(
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
 
         // Enforce an order on the enrichment:  process/translate, send, download
-        if (topic == Topic.FULL_ELR.toString()) {
+        if (topic == Topic.FULL_ELR.json_val) {
             // logs and destinations are handled very differently for UP
             // both routing and translate are populated at different times,
             // so we need to do special logic to handle them
