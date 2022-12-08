@@ -97,7 +97,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "ApproximateMessageCount"
-        metric_resource_id = join("/",["${var.storage_account}","services/queue/queues","process"])
+        metric_resource_id = join("/", ["${var.storage_account}", "services/queue/queues", "process"])
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT10M"
@@ -117,7 +117,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     rule {
       metric_trigger {
         metric_name        = "ApproximateMessageCount"
-        metric_resource_id = join("/",["${var.storage_account}","services/queue/queues","process"])
+        metric_resource_id = join("/", ["${var.storage_account}", "services/queue/queues", "process"])
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT10M"
