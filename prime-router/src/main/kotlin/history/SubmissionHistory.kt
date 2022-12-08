@@ -322,7 +322,7 @@ class DetailedSubmissionHistory(
      * @param descendants[] route and translate actions that will be used to enrich
      */
     private fun enrichWithRoutingAndTranslationActions(descendants: List<DetailedSubmissionHistory>) {
-        require(topic == "full-elr") {
+        require(topic == Topic.FULL_ELR.json_val) {
             "Route and Translate enrichment is only available for the Universal Pipeline"
         }
 
