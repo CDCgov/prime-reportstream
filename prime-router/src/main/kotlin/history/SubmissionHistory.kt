@@ -322,7 +322,7 @@ class DetailedSubmissionHistory(
      */
     private fun enrichWithRoutingAndTranslationActions(descendants: List<DetailedSubmissionHistory>) {
         require(topic == "full-elr") {
-            "Must be route or translate actions for a full-elr submission"
+            "Route and Translate enrichment is only available for the Universal Pipeline"
         }
 
         val filterLogs = mutableListOf<DetailedActionLog>()
