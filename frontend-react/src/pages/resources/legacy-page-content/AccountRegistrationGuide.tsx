@@ -2,13 +2,16 @@ import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Account registration guide | Resources" />
-            <h1 id="anchor-top">Account registration guide</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.ACCOUNT_REGISTRATION} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.ACCOUNT_REGISTRATION}</h1>
             <h2>
                 The ReportStream team will help you set up a new user account.
                 Follow the steps below to reach out and get the process started.

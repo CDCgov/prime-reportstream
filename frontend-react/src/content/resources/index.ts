@@ -16,15 +16,15 @@ import {
 } from "../../pages/resources/index-legacy";
 import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
 
-enum ResourcesDirectories {
+export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
-    DOWNLOAD_GUIDE = "CSV download guide",
+    DOWNLOAD_GUIDE = "Manual data download guide",
     REFERRAL_GUIDE = "ReportStream referral guide",
     PROGRAMMERS_GUIDE = "API Programmer's guide",
     ELR_CHECKLIST = "ELR onboarding checklist",
     SYSTEM = "System and settings",
     SECURITY = "Security practices",
-    GETTING_STARTED_PHD = "Getting started: Public health departments",
+    GETTING_STARTED_PHD = "Guide to receiving ReportStream data",
 }
 /** Data that drives breadcrumb creation and slug appending
  * @todo: Refactor to make easier for content/design to create */
@@ -63,7 +63,7 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Step-by-step instructions for setting up a new user account."
+            "Access the ReportStream application to view and manually download data relevant to your jurisdiction."
         )
         .addElement(
             contentContainer(
@@ -81,7 +81,7 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Step-by-step process for connecting your jurisdiction to ReportStream."
+            "Set up an ELR connection to automatically receive jurisdiction relevant disease data."
         )
         .addElement(
             contentContainer(
@@ -115,7 +115,7 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Checklist of requirements for  setting up an ELR connection at your public health department."
+            "Set up an ELR connection to automatically report all disease data to public health departments."
         )
         .addElement(
             contentContainer(
@@ -130,9 +130,7 @@ export const resourcesDirectories = [
         .setSlug(
             ResourcesDirectoryTools.getSlug(ResourcesDirectories.DOWNLOAD_GUIDE)
         )
-        .setDescription(
-            "Instructions for downloading data as comma separated values (CSV) for your public health department."
-        )
+        .setDescription("Download data using the ReportStream application.")
         .addElement(
             contentContainer(
                 DataDownloadGuideIa,

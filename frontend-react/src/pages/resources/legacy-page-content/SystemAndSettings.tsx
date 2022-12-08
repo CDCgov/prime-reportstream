@@ -1,10 +1,13 @@
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 export const SystemAndSettingsIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="System and Settings | Resources" />
-            <h1 id="anchor-top">System and Settings</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.SYSTEM} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.SYSTEM}</h1>
 
             <h2>
                 Information about the ReportStream platform, including data

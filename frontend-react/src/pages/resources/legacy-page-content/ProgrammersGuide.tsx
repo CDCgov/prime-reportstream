@@ -1,11 +1,14 @@
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import site from "../../../content/site.json";
+import { ResourcesDirectories } from "../../../content/resources";
 
 export const ProgrammersGuide = () => {
     return (
         <>
-            <BasicHelmet pageTitle="API Programmer's Guide | Resources" />
-            <h1 id="anchor-top">API Programmer's guide</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.PROGRAMMERS_GUIDE} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.PROGRAMMERS_GUIDE}</h1>
             <h2>
                 Full documentation for interacting with the ReportStream API
             </h2>

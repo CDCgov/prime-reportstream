@@ -3,13 +3,16 @@ import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStartedPhd = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Getting started: Public health departments | Resources" />
-            <h1 id="anchor-top">Getting started: public health departments</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
             <h2>
                 A step-by-step process for connecting your jurisdiction to
                 ReportStream

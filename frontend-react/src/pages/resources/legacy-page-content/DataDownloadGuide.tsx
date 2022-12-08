@@ -1,12 +1,15 @@
 import { NavLink } from "react-router-dom";
 
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 export const DataDownloadGuideIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="CSV download guide | Resources" />
-            <h1 id="anchor-top">CSV download guide</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.DOWNLOAD_GUIDE} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.DOWNLOAD_GUIDE}</h1>
             <h2>
                 Instructions for public health departments to download data as
                 comma separated values (CSV).
