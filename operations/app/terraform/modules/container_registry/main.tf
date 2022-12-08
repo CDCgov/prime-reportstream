@@ -1,4 +1,5 @@
 resource "azurerm_container_registry" "container_registry" {
+  #checkov:skip=CKV_AZURE_166:Quarantine feature untested
   name                = "${var.resource_prefix}containerregistry"
   resource_group_name = var.resource_group
   location            = var.location
@@ -12,6 +13,15 @@ resource "azurerm_container_registry" "container_registry" {
 
   identity {
     type = "SystemAssigned"
+  }
+
+  retention_policy {
+    days    = 365
+    enabled = true
+  }
+
+  georeplications {
+    location = "westus"
   }
 
   # network_rule_set {
