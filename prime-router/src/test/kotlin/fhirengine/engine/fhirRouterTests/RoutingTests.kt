@@ -656,12 +656,14 @@ class RoutingTests {
         val bundle = FhirTranscoder.decode(fhirData)
         val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
         val settings = FileSettings().loadOrganizations(oneOrganization)
+
         var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         assertThat(report.filteringResults.count()).isEqualTo(0)
         engine.logFilterResults(qualFilter, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
-        assertThat(report.filteringResults.count()).isGreaterThan(0)
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
     }
 }
