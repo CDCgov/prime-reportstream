@@ -2575,7 +2575,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: "metadata/hl7_mapping/STLTs/ignore/ignore"
+        schemaName: none
         format: HL7
       transport:
         type: SFTP
