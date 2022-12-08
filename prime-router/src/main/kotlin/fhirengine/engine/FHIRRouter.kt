@@ -417,12 +417,11 @@ class FHIRRouter(
             defaultResponse
         } else {
             filter.all {
-                val longhand = replaceShorthand(it)
                 val evalResult = FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, bundle, shorthandLookupTable),
                     bundle,
                     bundle,
-                    longhand
+                    replaceShorthand(it)
                 )
                 // log results of filtering things OUT
                 if (!evalResult && receiverName != null && filterType != ReportStreamFilterType.JURISDICTIONAL_FILTER) {
@@ -430,7 +429,7 @@ class FHIRRouter(
                         ReportStreamFilterResult(
                             receiverName,
                             report.itemCount,
-                            longhand,
+                            it,
                             emptyList(),
                             bundle.identifier.value ?: "",
                             filterType
