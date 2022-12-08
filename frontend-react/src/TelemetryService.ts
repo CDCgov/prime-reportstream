@@ -43,3 +43,13 @@ const createTelemetryService = () => {
 };
 
 export const ai = createTelemetryService();
+
+export function getAppInsights(): {
+    appInsights: ApplicationInsights | null;
+    reactPlugin: ReactPlugin | null;
+} {
+    return {
+        appInsights,
+        reactPlugin,
+    };
+}

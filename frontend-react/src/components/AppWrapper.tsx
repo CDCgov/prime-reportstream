@@ -8,10 +8,10 @@ import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
-import { ai } from "../TelemetryService";
+import { getAppInsights } from "../TelemetryService";
 
 const AppInsightsProvider = (props: PropsWithChildren<{}>) => (
-    <AppInsightsContext.Provider value={ai.reactPlugin!!}>
+    <AppInsightsContext.Provider value={getAppInsights().reactPlugin!!}>
         {props.children}
     </AppInsightsContext.Provider>
 );
