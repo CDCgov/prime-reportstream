@@ -2422,7 +2422,7 @@
       jurisdictionalFilter:
         - "%performerState = 'IG' or %patientState = 'IG'"
       qualityFilter:
-        - "%provenance.exists() and %codeSystem = 'R01'"
+        - "%hl7MessageType = 'R01'"
   senders:
     - name: default
       organizationName: ignore
