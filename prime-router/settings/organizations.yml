@@ -1254,13 +1254,15 @@
   description: Louisiana Department of Health
   jurisdiction: STATE
   stateCode: LA
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, LA, patient_state, LA)"
   receivers:
     - name: elr
       organizationName: la-doh
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - "orEquals(ordering_facility_state, LA, patient_state, LA)"
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1269,6 +1271,13 @@
         receivingFacilityName: LADOH
         nameFormat: aphl
         useTestProcessingMode: false
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "LADOH"
+          MSH-5:
+            - '*': "LA-ELR"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
