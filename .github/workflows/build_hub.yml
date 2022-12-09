@@ -197,7 +197,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
         with:
           languages: ${{ matrix.language }}
 
@@ -217,7 +217,7 @@ jobs:
         run: ./gradlew package -x fatjar -x test
 
       - name: Perform Java CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest

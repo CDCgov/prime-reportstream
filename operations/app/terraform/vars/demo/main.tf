@@ -171,6 +171,7 @@ module "function_app" {
   dns_ip                            = local.network.dns_ip
   is_temp_env                       = local.is_temp_env
   function_runtime_version          = local.app.function_runtime_version
+  storage_account                   = module.storage.storage_account_id
 }
 
 module "front_door" {
