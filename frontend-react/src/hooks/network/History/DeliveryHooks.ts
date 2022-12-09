@@ -67,7 +67,7 @@ const useOrgDeliveries = (service?: string) => {
         (currentCursor: string, numResults: number) => {
             const fetcher = generateFetcher();
             // The `cursor` parameter is always the "high" value of the range
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeFrom;
+            const cursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
 
             return fetcher(getOrgDeliveries, {
                 segments: {
