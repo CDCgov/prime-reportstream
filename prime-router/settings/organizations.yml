@@ -2430,6 +2430,11 @@
       topic: full-elr
       customerStatus: active
       format: HL7
+    - name: ignore-fhir      # Use this to test fhir
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19

@@ -1,5 +1,5 @@
 ---
-name: API Sender Onboarding – Post-Go-Live Ad Hoc Issues
+name: API Sender Onboarding – Optional - Post-Go-Live Ad Hoc Issues
 about: This Issue is used for "post-go-live issues" for the individual sender's API
   Sender Onboarding epic.
 title: "[name of company] Onboarding – Post-Go-Live [specific issue]"
@@ -19,7 +19,7 @@ assignees: ''
 ### To Do 
 - [ ] RS engineer: update this ticket with comments with every interaction with sender, receiver, and/or ops team 
 - [ ] RS team member who originates this ticket: add dependencies, if needed 
-- [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
+- [ ] RS team member who originates this ticket: make sure the following are included when creating this Issue. 
      - [ ] Pipelines: Onboarding & Operations (New) 
      - [ ] Labels: "Onboarding-ops" and "Sender"
      - [ ] Epics: [select the epic for this API onboarding sender]

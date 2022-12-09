@@ -124,6 +124,7 @@ abstract class Sender(
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
         HL7("application/hl7-v2"),
+        FHIR("application/fhir+json")
     }
 
     /**
@@ -148,11 +149,12 @@ abstract class Sender(
      * Don't remove this - it is used via reflection, not by a direct usage.
      */
     @get:JsonIgnore
-    val processingModeCode: String get() = when (customerStatus) {
-        CustomerStatus.ACTIVE -> "P"
-        CustomerStatus.INACTIVE -> "T"
-        CustomerStatus.TESTING -> "T"
-    }
+    val processingModeCode: String
+        get() = when (customerStatus) {
+            CustomerStatus.ACTIVE -> "P"
+            CustomerStatus.INACTIVE -> "T"
+            CustomerStatus.TESTING -> "T"
+        }
 
     fun findKeySetByScope(scope: String): JwkSet? {
         if (keys == null) return null
@@ -230,7 +232,8 @@ abstract class Sender(
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
 class FullELRSender : Sender {
-    @JsonCreator constructor(
+    @JsonCreator
+    constructor(
         name: String,
         organizationName: String,
         format: Format,

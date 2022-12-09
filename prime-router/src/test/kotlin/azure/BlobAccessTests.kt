@@ -25,5 +25,31 @@ class BlobAccessTests {
         } catch (e: MalformedURLException) {
             assertThat(e).isNotNull()
         }
+
+        filename = BlobAccess.BlobInfo.getBlobFilename("")
+        assertThat(filename).isEqualTo("")
+    }
+
+    @Test
+    fun `blob info extension`() {
+        var extension = BlobAccess.BlobInfo
+            .getBlobFileExtension("http://127.0.0.1:10000/devstoreaccount1/reports/ready/pima-az-phd.elr/filename.csv")
+        assertThat(extension).isEqualTo("csv")
+
+        extension = BlobAccess.BlobInfo
+            .getBlobFileExtension("http://azurite:10000/devstoreaccount1/reports/ready%2Ftx-doh.elr%2Ffilename.txt")
+        assertThat(extension).isEqualTo("txt")
+
+        extension = BlobAccess.BlobInfo.getBlobFileExtension("http://nofileextension.com")
+        assertThat(extension).isEqualTo("")
+        extension = BlobAccess.BlobInfo.getBlobFileExtension("")
+        assertThat(extension).isEqualTo("")
+
+        try {
+            BlobAccess.BlobInfo.getBlobFileExtension("ggg://somethingweird")
+            fail("Expected malformed URL Exception")
+        } catch (e: MalformedURLException) {
+            assertThat(e).isNotNull()
+        }
     }
 }
