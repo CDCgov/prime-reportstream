@@ -334,46 +334,34 @@ class FHIRRouter(
             var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
 
             // QUALITY FILTER
-            if (passes) {
-                //  default: must have message id, patient last name, patient first name, dob, specimen type
-                //           must have at least one of patient street, zip code, phone number, email
-                //           must have at least one of order test date, specimen collection date/time, test result date
-                val filters = getQualityFilters(receiver, orgFilters)
-                passes = evaluateFilterCondition(
-                    filters,
-                    bundle,
-                    qualFilterDefaultResult,
-                    receiver.reverseTheQualityFilter
-                )
-                // log results of filtering things OUT
-                if (!passes) {
-                    logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
-                }
+            //  default: must have message id, patient last name, patient first name, dob, specimen type
+            //           must have at least one of patient street, zip code, phone number, email
+            //           must have at least one of order test date, specimen collection date/time, test result date
+            var filters = getQualityFilters(receiver, orgFilters)
+            passes = passes && evaluateFilterCondition(
+                filters,
+                bundle,
+                qualFilterDefaultResult,
+                receiver.reverseTheQualityFilter
+            )
+            if (!passes) {
+                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
             }
 
             // ROUTING FILTER
-            if (passes) {
-                //  default: allowAll
-                val filters = getRoutingFilter(receiver, orgFilters)
-                passes = evaluateFilterCondition(filters, bundle, true)
-
-                // log results of filtering things OUT
-                if (!passes) {
-                    logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.ROUTING_FILTER)
-                }
+            //  default: allowAll
+            filters = getRoutingFilter(receiver, orgFilters)
+            passes = passes && evaluateFilterCondition(filters, bundle, true)
+            if (!passes) {
+                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.ROUTING_FILTER)
             }
 
             // PROCESSING MODE FILTER
-            if (passes) {
-                //  default: allowAll
-
-                val filters = getProcessingModeFilter(receiver, orgFilters)
-                passes = evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
-
-                // log results of filtering things OUT
-                if (!passes) {
-                    logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER)
-                }
+            //  default: allowAll
+            filters = getProcessingModeFilter(receiver, orgFilters)
+            passes = passes && evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
+            if (!passes) {
+                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER)
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
