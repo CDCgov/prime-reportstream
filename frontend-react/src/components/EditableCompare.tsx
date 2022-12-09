@@ -147,7 +147,9 @@ export const EditableCompare = forwardRef(
         // on change, we highlight the errors
         const onChangeHandler = useCallback(
             (newText: string) => {
-                setTextAreaContent(newText);
+                setTextAreaContent(
+                    JSON.stringify(JSON.parse(newText), null, 2)
+                );
                 refreshDiffCallback(props.original, newText);
             },
             [setTextAreaContent, refreshDiffCallback, props]
