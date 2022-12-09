@@ -46,7 +46,7 @@ export function getStoredOktaToken(): string | undefined {
         const tokenJson = JSON.parse(tokenJsonString);
         return tokenJson?.accessToken?.accessToken;
     } catch (e) {
-        console.error("Error retrieving access token", e);
+        console.warn("Error retrieving access token", e);
         return "";
     }
 }

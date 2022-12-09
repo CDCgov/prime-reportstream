@@ -33,7 +33,7 @@ export const insertHighlight = (
     // we want to insert a <mark></mark> around text.
     const threeParts = splitOn(text, offset, offset + length);
     if (threeParts.length !== 3) {
-        console.error("split failed");
+        console.warn("split failed");
         return text;
     }
 
