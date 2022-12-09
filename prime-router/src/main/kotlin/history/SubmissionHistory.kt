@@ -352,11 +352,11 @@ class DetailedSubmissionHistory(
             }
             filterLogs.forEach { log ->
                 val filterResult = log.detail as ReportStreamFilterResult
-                val splits = filterResult.receiverName.split(Sender.fullNameSeparator)
+                val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
                 destinations.add(
                     Destination(
-                        splits[0],
-                        splits[1],
+                        receiverNameSegments[0],
+                        receiverNameSegments[1],
                         filteredReportRows,
                         filteredReportItems,
                         null,
