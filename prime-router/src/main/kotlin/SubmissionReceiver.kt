@@ -67,7 +67,7 @@ abstract class SubmissionReceiver(
             val generatedHashes = mutableListOf<String>()
             val duplicateIndexes = mutableListOf<Int>()
             for (rowNum in 0 until report.itemCount) {
-                var itemHash = report.getItemHashForRow(rowNum)
+                val itemHash = report.getItemHashForRow(rowNum)
                 // check for duplicate item
                 val isDuplicate = generatedHashes.contains(itemHash) ||
                     workflowEngine.isDuplicateItem(itemHash)
