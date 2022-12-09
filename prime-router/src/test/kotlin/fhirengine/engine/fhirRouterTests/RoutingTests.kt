@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger

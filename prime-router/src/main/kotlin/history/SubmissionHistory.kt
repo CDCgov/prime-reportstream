@@ -336,7 +336,7 @@ class DetailedSubmissionHistory(
         }
 
         // Grab destinations from the "translate" action, if the submission made it that far
-        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant  ->
+        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
             descendant.destinations.forEach { dest ->
                 destinations += dest
             }
