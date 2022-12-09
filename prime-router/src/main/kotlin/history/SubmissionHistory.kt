@@ -317,7 +317,7 @@ class DetailedSubmissionHistory(
      * Enrich a parent detailed history with details from the route and translate actions.
      * Add destinations, errors, and warnings, to the history details.
      * Note: Route/Translate is exclusive to the Universal pipeline
-     * See enrichWithProcessAction for the COVID pipeline counterpart
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
      *
      * @param descendants[] route and translate actions that will be used to enrich
      */
