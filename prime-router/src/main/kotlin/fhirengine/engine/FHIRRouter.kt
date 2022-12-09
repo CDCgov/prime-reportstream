@@ -415,13 +415,8 @@ class FHIRRouter(
     }
 
     /**
-     * Log the results of filtering items out of reports during the "route" step
-     *
-     * @param filters - Filters run on the items
-     * @param bundle - Bundle we are extracting data from
-     * @param report - The report that was reviewed
-     * @param receiver - The intended receiver of the filtered item
-     * @param filterType - Step in the process where this filter was triggered
+     * Log the results of running [filters] on items out of a [report] during the "route" step
+     * for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
      */
     internal fun logFilterResults(
         filters: ReportStreamFilter,
