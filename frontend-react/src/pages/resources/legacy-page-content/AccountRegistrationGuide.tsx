@@ -13,13 +13,12 @@ export const AccountRegistrationGuideIa = () => {
             />
             <h1 id="anchor-top">{ResourcesDirectories.ACCOUNT_REGISTRATION}</h1>
             <h2>
-                The ReportStream team will help you set up a new user account.
-                Follow the steps below to reach out and get the process started.
+                Follow these steps to set up a new user account with
+                ReportStream
             </h2>
-            <p className="text-base text-italic">Last updated: January 2022</p>
+            <p className="text-base text-italic">Last updated: December 2022</p>
 
             <section>
-                <h3>Register for a ReportStream account</h3>
                 <div className="usa-alert usa-alert--info margin-y-6 measure-6">
                     <div className="usa-alert__body">
                         <h3 className="usa-alert__heading font-body-md margin-top-05">
@@ -67,11 +66,14 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
                     </div>
                 </div>
+                <a href="#anchor-mfa">
+                    <h2>Register for a ReportStream account</h2>
+                </a>
                 <ol className="usa-process-list rs-process-list__documentation">
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
+                        <h3 className="usa-process-list__heading">
                             Contact ReportStream
-                        </h4>
+                        </h3>
                         <p className="margin-top-05">
                             Send an email to{" "}
                             <a
@@ -124,9 +126,9 @@ export const AccountRegistrationGuideIa = () => {
                         </blockquote>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
+                        <h3 className="usa-process-list__heading">
                             Accept the terms of service
-                        </h4>
+                        </h3>
                         <ul className="margin-top-2">
                             <li>
                                 A ReportStream representative will process your
@@ -153,9 +155,9 @@ export const AccountRegistrationGuideIa = () => {
                         </ul>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Receive account activation email
-                        </h4>
+                        <h3 className="usa-process-list__heading">
+                            Set your account password
+                        </h3>
                         <ul className="margin-top-2">
                             <li>
                                 An email will arrive in your inbox from
@@ -167,14 +169,15 @@ export const AccountRegistrationGuideIa = () => {
                                 </em>{" "}
                             </li>
                             <li>
-                                Open the email and click "Activate your account"
+                                Open the email and click "Activate your
+                                account."
                             </li>
                         </ul>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
+                        <h3 className="usa-process-list__heading">
                             Activate your account
-                        </h4>
+                        </h3>
                         <p>
                             After opening the link in the activation email,
                             follow the prompts to set up your account.
@@ -226,22 +229,15 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
 
                         <li>
-                            <strong>iv. Click "Continue" </strong>
+                            <strong>
+                                iv. A prompt will appear confirming your account
+                                set-up is complete.{" "}
+                            </strong>
                         </li>
-                    </li>
-                    <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
-                            Close window
-                        </h4>
                         <ul>
                             <li>
-                                A prompt will appear confirming your account set
-                                up is complete.{" "}
-                                <em>
-                                    It can take up to 1 business day before your
-                                    account receives access to upload CSV files
-                                </em>
-                                .{" "}
+                                It can take up to 1 business day before your
+                                account receives access to upload CSV files.
                             </li>
                             <li>
                                 Ignore the "Continue to SimpleReport" button
@@ -250,9 +246,9 @@ export const AccountRegistrationGuideIa = () => {
                         </ul>
                     </li>
                     <li className="usa-process-list__item">
-                        <h4 className="usa-process-list__heading">
+                        <h3 className="usa-process-list__heading">
                             Log in to ReportStream
-                        </h4>
+                        </h3>
 
                         <ul>
                             <li>
@@ -260,10 +256,10 @@ export const AccountRegistrationGuideIa = () => {
                                 <a href="/login" className="usa-link">
                                     https://reportstream.cdc.gov/login
                                 </a>{" "}
+                                to log in with your username and password.
                             </li>
-                            <li>Enter your username and password </li>
                             <li>
-                                Contact{" "}
+                                Need help? Contact us at{" "}
                                 <a
                                     href={
                                         "mailto:" +
@@ -273,22 +269,21 @@ export const AccountRegistrationGuideIa = () => {
                                     className="usa-link"
                                 >
                                     reportstream@cdc.gov
-                                </a>{" "}
-                                if you run into any login issues{" "}
+                                </a>
                             </li>
                         </ul>
                     </li>
                 </ol>
             </section>
             <section>
-                <h3 id="anchor-mfa">Multi-factor authentication options</h3>
+                <h2 id="anchor-mfa">Set up multi-factor authentication</h2>
                 <p>
                     If you choose SMS or Google Authenticator/Okta Verify as
                     your multi-factor authentication, follow the instructions
                     below to get set up.
                 </p>
 
-                <h4 id="sms-authentication">SMS authentication</h4>
+                <h3 id="sms-authentication">SMS authentication</h3>
                 <ol className="usa-process-list rs-process-list__documentation">
                     <li className="usa-process-list__item">
                         Enter your phone number, then click{" "}
