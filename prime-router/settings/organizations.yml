@@ -1334,7 +1334,7 @@
   countyName: Clark
   filters:
     - topic: "covid-19"
-      jurisdictionFilter:
+      jurisdictionalFilter:
         - matches(ordering_facility_state, OH)
         - matches(ordering_facility_county, Clark)
   receivers:
@@ -4061,16 +4061,11 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: REST
-        authTokenUrl: http://rest-webservice:3001/token
-        reportUrl:  http://rest-webservice:3001/elr
-        #authTokenUrl: https://uat-v2-onehealthport-api.axwaycloud.com/ohp/oauth/jwt/token
-        #reportUrl:  https://uat-v2-onehealthport-api.axwaycloud.com/doh/phchub/PHC-Hub/elr
-        tlsKeystore: null
-        headers:
-          x-doc-type: 'ELR' # OneHealthPort HIE document type
-          x-org-facility-id: '7uycso49' #  OneHealthPort HIE organization identifier provided by the HIE onboarding team.
-          x-ref-id: 'header.reportFile.reportId' # reference identifier to manage message through its life cycle
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 
 - name: wv-phd
