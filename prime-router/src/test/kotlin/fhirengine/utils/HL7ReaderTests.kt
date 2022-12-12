@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
@@ -129,5 +130,34 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
         timestamp = HL7Reader.getMessageTimestamp(getTestMessage(timestampStr))
         assertThat(timestamp).isNotNull()
         assertThat(timestamp).isEqualTo(SimpleDateFormat("yyyyMMddHHmmssZ").parse(timestampStr))
+    }
+
+    @Test
+    fun `test decoding of bad HL7 message - MSH Version ID missing`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+
+        val goodData1 = """
+MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P||||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        """.trimIndent()
+        hl7Reader.getMessages(goodData1)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        assertThat(actionLogger.logs[0].detail.message).contains("Required field missing")
+        actionLogger.logs.clear()
+    }
+
+    @Test
+    fun `test decoding of bad HL7 message - OBX Wrong data type`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+
+        val goodData1 = """
+MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+        """.trimIndent()
+        hl7Reader.getMessages(goodData1)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        assertThat(actionLogger.logs[0].detail.message).contains("Data type error")
+        actionLogger.logs.clear()
     }
 }
