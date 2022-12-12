@@ -89,6 +89,17 @@ export const GettingStartedPhd = () => {
                     ReportStream. Data is accessible via our web application or
                     the ELR connection.
                 </p>
+                <p>
+                    Interested in downloading data directly from the
+                    ReportStream website? Visit the ReportStream Data{" "}
+                    <a
+                        href="/resources/data-download-guide"
+                        className="usa-link"
+                    >
+                        Download Guide
+                    </a>{" "}
+                    for more info.
+                </p>
             </section>
             <section>
                 <h3>Get started with ReportStream</h3>
