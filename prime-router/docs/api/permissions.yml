@@ -9,23 +9,23 @@ info:
 paths:
   /api/permissions:
     get:
-      description: fetch a list of permissions
+      description: Fetch a list of permissions
       security:
         - OAuth2: [ system_admin ]
       responses:
         '200':
-          description: a list of permission objects
+          description: OK, a list of permission objects
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Permission'
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
   /api/organization/{orgName}/permissions:
     get:
-      description: fetch a list of permissions for an organization
+      description: Fetch a list of permissions for an organization
       security:
         - OAuth2: [ user ]
       parameters:
@@ -37,18 +37,18 @@ paths:
             type: string
       responses:
         '200':
-          description: a list of permission objects
+          description: OK, a list of permission objects
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Permission'
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
   /api/permission/{id}:
     put:
-      description: updates a permission
+      description: Update a permission
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -58,13 +58,20 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permission'
       responses:
+        '200':
+          description: OK
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
     delete:
-      description: deletes a permission
+      description: Delete a permission
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -75,23 +82,32 @@ paths:
           schema:
             type: integer
       responses:
+        '200':
+          description: OK
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
   /api/permission:
     post:
-      description: creates a permission
+      description: Create a permission
       security:
         - OAuth2: [ system_admin ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permission'
       responses:
+        '200':
+          description: OK, the permission was created and id returned
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
   /api/organization/{orgName}/permission/{id}:
     post:
-      description: associates a permission to an organization
+      description: Associate a permission to an organization
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -103,17 +119,24 @@ paths:
             type: string
         - name: id
           in: path
-          description: a valid permissions id
+          description: a valid permission id
           required: true
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permission'
       responses:
+        '200':
+          description: OK, the permission_organization was created and id returned
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
     delete:
-      description: deletes a permission from an organization
+      description: Delete a permission from an organization
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -130,18 +153,21 @@ paths:
           schema:
             type: integer
       responses:
+        '200':
+          description: OK
         '400':
-          description: bad request
+          description: Bad Request
         '401':
-          description: unauthorized
+          description: Unauthorized
 components:
   schemas:
     Permission:
+      description: A permission such as a feature
       type: object
+      required:
+        - name
+        - createdBy
       properties:
-        permissionId:
-          description: the primary key for this permission object
-          type: integer
         name:
           description: the name of the permission
           type: string
@@ -149,7 +175,7 @@ components:
           description: the description of the permission
           type: string
         enabled:
-          description: if the permission is enabled
+          description: if the permission is enabled. Set to true by default.
           type: boolean
         createdBy:
           description: the user who created the permission
