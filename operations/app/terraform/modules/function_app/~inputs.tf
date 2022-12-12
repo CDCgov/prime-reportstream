@@ -48,6 +48,7 @@ variable "use_cdc_managed_vnet" {
 
 variable "pagerduty_url" {}
 variable "app_service_plan" {}
+variable "storage_account" {}
 variable "primary_access_key" {
   sensitive = true
 }
