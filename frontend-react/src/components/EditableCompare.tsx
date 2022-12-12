@@ -127,6 +127,19 @@ export const EditableCompare = forwardRef(
                       )
                     : textDifferMarkup(originalText, modifiedText);
 
+                // reformat the modified text in case it is not in correct JSON format
+                // then stick it back into the edited box. This ensures the highlight works correctly.
+                try {
+                    const reformatModifiedText = JSON.stringify(
+                        JSON.parse(modifiedText),
+                        null,
+                        2
+                    );
+                    setTextAreaContent(reformatModifiedText);
+                } catch (e) {
+                    console.warn(e);
+                }
+
                 // now stick it back into the edit boxes.
                 if (result.left.markupText !== leftHandSideHighlightHtml) {
                     setLeftHandSideHighlightHtml(result.left.markupText);
@@ -147,9 +160,7 @@ export const EditableCompare = forwardRef(
         // on change, we highlight the errors
         const onChangeHandler = useCallback(
             (newText: string) => {
-                setTextAreaContent(
-                    JSON.stringify(JSON.parse(newText), null, 2)
-                );
+                setTextAreaContent(newText);
                 refreshDiffCallback(props.original, newText);
             },
             [setTextAreaContent, refreshDiffCallback, props]
@@ -177,6 +188,7 @@ export const EditableCompare = forwardRef(
                         <ScrollSyncPane>
                             <div
                                 ref={staticDiffRef}
+                                data-testid={"left-compare-text"}
                                 className="rs-editable-compare-base rs-editable-compare-static"
                                 contentEditable={false}
                                 dangerouslySetInnerHTML={{
@@ -188,6 +200,7 @@ export const EditableCompare = forwardRef(
                         <ScrollSyncPane>
                             <div
                                 ref={editDiffBackgroundRef}
+                                data-testid={"left-mark-text"}
                                 className="rs-editable-compare-base rs-editable-compare-background"
                                 dangerouslySetInnerHTML={{
                                     __html: DOMPurify.sanitize(
@@ -202,6 +215,7 @@ export const EditableCompare = forwardRef(
                             <textarea
                                 className="rs-editable-compare-base rs-editable-compare-edit"
                                 ref={editDiffRef}
+                                data-testid={"right-compare-text"}
                                 value={textAreaContent}
                                 onChange={(e) => {
                                     onChangeHandler(e?.target?.value || "");
@@ -215,6 +229,7 @@ export const EditableCompare = forwardRef(
                         <ScrollSyncPane>
                             <div
                                 ref={editDiffBackgroundRef}
+                                data-testid={"right-mark-text"}
                                 className="rs-editable-compare-base rs-editable-compare-background"
                                 dangerouslySetInnerHTML={{
                                     // the extra `<br/>` is required for some odd reason.
