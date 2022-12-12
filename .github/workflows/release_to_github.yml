@@ -91,7 +91,7 @@ jobs:
         if: |
           ${{ needs.wf_vars.outputs.env_name == 'staging' }} ||
           ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@e3510b26d17114d63269aa02d3ebb592936d0981
+        uses: dev-drprasad/delete-older-releases@653dc03d96473ac9e585c68c8bf5aaccb0dadb61
         with:
           keep_latest: 0
           delete_tags: true
@@ -126,7 +126,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Delete older releases
         if: ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@e3510b26d17114d63269aa02d3ebb592936d0981
+        uses: dev-drprasad/delete-older-releases@653dc03d96473ac9e585c68c8bf5aaccb0dadb61
         with:
           keep_latest: 24
           delete_tags: false
