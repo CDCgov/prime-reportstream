@@ -91,7 +91,7 @@ jobs:
         if: |
           ${{ needs.wf_vars.outputs.env_name == 'staging' }} ||
           ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@e3510b26d17114d63269aa02d3ebb592936d0981
+        uses: dev-drprasad/delete-older-releases@653dc03d96473ac9e585c68c8bf5aaccb0dadb61
         with:
           keep_latest: 0
           delete_tags: true
@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
-        uses: ncipollo/release-action@18eadf9c9b0f226f47f164f5373c6a44f0aae169
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
@@ -108,7 +108,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@3a70419f3cc01ac7458a4fa44f09726475edfc6a
+        uses: mikepenz/release-changelog-builder-action@d0814e580b0dffbc99d2b25e54cd42d2eb533a97
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks
@@ -117,7 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release notes
-        uses: ncipollo/release-action@18eadf9c9b0f226f47f164f5373c6a44f0aae169
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
@@ -126,7 +126,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Delete older releases
         if: ${{ needs.wf_vars.outputs.env_name == 'prod' }}
-        uses: dev-drprasad/delete-older-releases@e3510b26d17114d63269aa02d3ebb592936d0981
+        uses: dev-drprasad/delete-older-releases@653dc03d96473ac9e585c68c8bf5aaccb0dadb61
         with:
           keep_latest: 24
           delete_tags: false
