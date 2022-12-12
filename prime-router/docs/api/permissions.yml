@@ -166,7 +166,9 @@ components:
       type: object
       required:
         - name
+        - enabled
         - createdBy
+        - createdAt
       properties:
         name:
           description: the name of the permission
