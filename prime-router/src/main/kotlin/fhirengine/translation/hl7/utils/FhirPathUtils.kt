@@ -103,12 +103,10 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression for condition. " +
-                    "Setting value of condition to false.",
-                e
-            )
-            false
+            val msg = "Unknown error while evaluating FHIR expression $expression for condition. " +
+                "Setting value of condition to false."
+            logger.error(msg, e)
+            throw SchemaException(e.message ?: msg)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal
