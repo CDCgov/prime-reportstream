@@ -1421,6 +1421,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         ctx.update(PERMISSION)
+            .set(PERMISSION.NAME, permission.name)
+            .set(PERMISSION.DESCRIPTION, permission.description)
             .set(PERMISSION.ENABLED, permission.enabled)
             .where(PERMISSION.PERMISSION_ID.eq(id))
             .execute()

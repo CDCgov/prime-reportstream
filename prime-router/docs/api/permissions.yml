@@ -18,7 +18,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Permission'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
         '400':
           description: Bad Request
         '401':
@@ -35,13 +37,16 @@ paths:
           required: true
           schema:
             type: string
+          example: az-phd
       responses:
         '200':
           description: OK, a list of permission objects
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Permission'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
         '400':
           description: Bad Request
         '401':
@@ -58,11 +63,12 @@ paths:
           required: true
           schema:
             type: integer
+          example: 1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Permission'
+              $ref: '#/components/schemas/PermissionUpdate'
       responses:
         '200':
           description: OK
@@ -81,6 +87,7 @@ paths:
           required: true
           schema:
             type: integer
+          example: 1
       responses:
         '200':
           description: OK
@@ -117,12 +124,14 @@ paths:
           required: true
           schema:
             type: string
+          example: az-phd
         - name: id
           in: path
           description: a valid permission id
           required: true
           schema:
             type: integer
+          example: 1
       requestBody:
         content:
           application/json:
@@ -146,12 +155,14 @@ paths:
           required: true
           schema:
             type: string
+          example: az-phd
         - name: id
           in: path
           description: a valid permissions id
           required: true
           schema:
             type: integer
+          example: 1
       responses:
         '200':
           description: OK
@@ -173,18 +184,39 @@ components:
         name:
           description: the name of the permission
           type: string
+          example: message-tracker
         description:
           description: the description of the permission
           type: string
+          example: This is the description of the message-tracker
         enabled:
-          description: if the permission is enabled. Set to true by default.
+          description: if the permission is enabled.
           type: boolean
+          default: true
         createdBy:
           description: the user who created the permission
           type: string
+          example: user@test.com
         createdAt:
           description: the date/time the permission was created
           type: string
+          example: 2022-12-06 23:12:53.781450 +00:00
+    PermissionUpdate:
+      description: The permission object to update
+      type: object
+      properties:
+        name:
+          description: the name of the permission
+          type: string
+          example: messageTracker
+        description:
+          description: the description of the permission
+          type: string
+          example: This is the updated description.
+        enabled:
+          description: if the permission is enabled.
+          type: boolean
+          example: true
 
   securitySchemes:
     OAuth2:
