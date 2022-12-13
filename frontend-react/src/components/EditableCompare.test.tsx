@@ -18,7 +18,7 @@ describe("EditableCompare", () => {
         2
     );
 
-    test("diff with incorrect JSON format", () => {
+    test("onload - diff with incorrect JSON format", () => {
         const rightJson = JSON.stringify(
             {
                 createdAt: "2022-09-22",
@@ -72,7 +72,7 @@ describe("EditableCompare", () => {
 }<br>`);
     });
 
-    test("highlight enables/disables accordingly", () => {
+    test("onChange - highlight enables/disables accordingly", () => {
         const rightJson = JSON.stringify(
             {
                 countyName: "",
@@ -124,13 +124,35 @@ describe("EditableCompare", () => {
   "createdBy": "local@test.com",
   "description": "Abbott"
 }`);
+    });
+
+    test("onChange - dont refresh if originalText or modifiedText are empty", () => {
+        const emptyString = "";
+        const rightJson = JSON.stringify(
+            {
+                countyName: "",
+            },
+            null,
+            2
+        );
+        render(
+            <EditableCompare
+                ref={diffEditorRef}
+                original={emptyString}
+                modified={rightJson}
+                jsonDiffMode={true}
+            />
+        );
+
+        const rightCompare = screen.getByTestId("right-compare-text");
+
+        fireEvent.change(rightCompare, { target: { value: emptyString } });
         expect(rightCompare.innerHTML).toEqual(`{
-  "createdBy": "local@test.com",
-  "description": "Abbott"
+  "countyName": ""
 }`);
     });
 
-    test("show left highlight if modifiedText has been replaced", () => {
+    test("onBlur - show left highlight if modifiedText has been replaced", () => {
         const rightJson = JSON.stringify(
             {
                 createdBy: "local@test.com",
@@ -179,5 +201,52 @@ describe("EditableCompare", () => {
   <mark>"description": "Abbott"</mark>
 }`);
         expect(rightMarkText.innerHTML).toEqual(`{}<br>`);
+    });
+
+    test("onBlur - show error if modifiedText is not valid JSON", () => {
+        const rightJson = JSON.stringify(
+            {
+                createdBy: "local@test.com",
+                description: "Abbott",
+            },
+            null,
+            2
+        );
+        render(
+            <EditableCompare
+                ref={diffEditorRef}
+                original={leftJson}
+                modified={rightJson}
+                jsonDiffMode={true}
+            />
+        );
+
+        const leftCompare = screen.getByTestId("left-compare-text");
+        const leftMarkText = screen.getByTestId("left-mark-text");
+
+        expect(leftCompare.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}`);
+
+        const rightCompare = screen.getByTestId("right-compare-text");
+        const rightMarkText = screen.getByTestId("right-mark-text");
+        expect(rightCompare.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}`);
+
+        fireEvent.change(rightCompare, {
+            target: {
+                value: `This is not JSON`,
+            },
+        });
+        fireEvent.blur(rightCompare);
+
+        expect(leftMarkText.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}`);
+        expect(rightMarkText.innerHTML).toEqual(`<s>This</s> is not JSON<br>`);
     });
 });
