@@ -8,6 +8,7 @@ import {
 import {
     AccountRegistrationGuideIa,
     GettingStartedPhd,
+    GettingStartedSubmittingData,
     ELRChecklistIa,
     ProgrammersGuide,
     DataDownloadGuideIa,
@@ -25,6 +26,7 @@ export enum ResourcesDirectories {
     SYSTEM = "System and settings",
     SECURITY = "Security practices",
     GETTING_STARTED_PHD = "Guide to receiving ReportStream data",
+    GETTING_STARTED_SUBMITTING_DATA = "Guide to submitting data to ReportStream",
 }
 /** Data that drives breadcrumb creation and slug appending
  * @todo: Refactor to make easier for content/design to create */
@@ -42,6 +44,10 @@ const slugs: SlugParams[] = [
     {
         key: ResourcesDirectories.GETTING_STARTED_PHD,
         slug: "getting-started-public-health-departments",
+    },
+    {
+        key: ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA,
+        slug: "getting-started-submitting-data",
     },
 ];
 
@@ -88,6 +94,24 @@ export const resourcesDirectories = [
                 GettingStartedPhd,
                 ResourcesDirectoryTools.makeCrumb(
                     ResourcesDirectories.GETTING_STARTED_PHD
+                )
+            )
+        ),
+    new ElementDirectory()
+        .setTitle(ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA)
+        .setSlug(
+            ResourcesDirectoryTools.getSlug(
+                ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
+            )
+        )
+        .setDescription(
+            "Set up a connection to SUBMIT jurisdiction relevant disease data."
+        )
+        .addElement(
+            contentContainer(
+                GettingStartedSubmittingData,
+                ResourcesDirectoryTools.makeCrumb(
+                    ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
                 )
             )
         ),
