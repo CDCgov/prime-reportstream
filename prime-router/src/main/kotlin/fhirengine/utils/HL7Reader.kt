@@ -55,27 +55,20 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     private fun logHL7ParseFailure(exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
         logger.error("Failed to parse message", exception)
         // Get the exception root cause and log it accordingly
-        when (val rootCause = ExceptionUtils.getRootCause(exception)) {
-            is ValidationException -> {
-                actionLogger.error(InvalidReportMessage("Validation Failed ${rootCause.message}"))
-            }
+        val errorMessage: String = when (val rootCause = ExceptionUtils.getRootCause(exception)) {
+            is ValidationException -> "Validation Failed: ${rootCause.message}"
 
             is HL7Exception -> {
                 when (rootCause.errorCode) {
-                    ErrorCode.REQUIRED_FIELD_MISSING.code -> actionLogger.error(
-                        InvalidReportMessage("Required field missing: ${rootCause.message}")
-                    )
-                    ErrorCode.DATA_TYPE_ERROR.code -> actionLogger.error(
-                        InvalidReportMessage("Data type error: ${rootCause.message}")
-                    )
-                    else -> actionLogger.error(InvalidReportMessage("Failed to parse message"))
+                    ErrorCode.REQUIRED_FIELD_MISSING.code -> "Required field missing: ${rootCause.message}"
+                    ErrorCode.DATA_TYPE_ERROR.code -> "Data type error: ${rootCause.message}"
+                    else -> "Failed to parse message"
                 }
             }
 
-            else -> {
-                actionLogger.error(InvalidReportMessage("Failed to parse message"))
-            }
+            else -> "Failed to parse message"
         }
+        actionLogger.error(InvalidReportMessage(errorMessage))
     }
 
     companion object {
