@@ -1,6 +1,7 @@
 name: "Prepare Deployment Branch"
 
 on:
+  workflow_dispatch:
   schedule:
     # At 23:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
     # GitHub actions run in UTC (and EDT is UTC-4)
