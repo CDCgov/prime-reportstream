@@ -871,7 +871,7 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.HL7 -> {
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,

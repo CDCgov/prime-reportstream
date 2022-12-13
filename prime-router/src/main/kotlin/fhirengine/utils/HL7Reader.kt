@@ -44,6 +44,10 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         return messages
     }
 
+    fun isBatch(rawMessage: String, numMessages: Int): Boolean {
+        return rawMessage.startsWith("FHS") || numMessages > 1
+    }
+
     /**
      * Takes an [exception] thrown by the HL7 HAPI library, gets the root cause and logs the error into [actionLogger].
      * Sample error messages returned by the HAPI library are:
