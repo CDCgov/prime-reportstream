@@ -22,6 +22,7 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import {
     DropdownComponent,
@@ -104,6 +105,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

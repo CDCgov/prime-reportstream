@@ -7,3 +7,5 @@ patientState,Bundle.entry.resource.ofType(Patient).address.state
 specimen,Bundle.entry.resource.ofType(Specimen)
 serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
 observation,Bundle.entry.resource.ofType(Observation)
+provenance,Bundle.entry.resource.ofType(Provenance)
+hl7MessageType,Bundle.entry.resource.ofType(Provenance).activity.coding.code

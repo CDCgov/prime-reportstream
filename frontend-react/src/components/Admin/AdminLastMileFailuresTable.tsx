@@ -23,6 +23,7 @@ import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 const { RS_API_URL } = config;
 
@@ -356,6 +357,7 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${getStoredOktaToken()}`,
                 },
                 mode: "cors",
