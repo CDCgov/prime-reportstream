@@ -249,7 +249,7 @@ class GAENTransport : ITransport, Logging {
             }
             if (postResult != PostResult.SUCCESS) {
                 val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                    " ${response.statusCode} ${response.responseMessage}"
+                    " ${response.statusCode} ${response.responseMessage}, \n${String(response.data)}"
                 params.context.logger.warning(warning)
                 params.actionHistory.trackActionResult(warning)
             }
