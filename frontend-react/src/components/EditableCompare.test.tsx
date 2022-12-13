@@ -129,4 +129,55 @@ describe("EditableCompare", () => {
   "description": "Abbott"
 }`);
     });
+
+    test("show left highlight if modifiedText has been replaced", () => {
+        const rightJson = JSON.stringify(
+            {
+                createdBy: "local@test.com",
+                description: "Abbott",
+            },
+            null,
+            2
+        );
+        render(
+            <EditableCompare
+                ref={diffEditorRef}
+                original={leftJson}
+                modified={rightJson}
+                jsonDiffMode={true}
+            />
+        );
+
+        const leftCompare = screen.getByTestId("left-compare-text");
+        const leftMarkText = screen.getByTestId("left-mark-text");
+
+        expect(leftCompare.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}`);
+
+        const rightCompare = screen.getByTestId("right-compare-text");
+        const rightMarkText = screen.getByTestId("right-mark-text");
+        expect(rightCompare.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}`);
+        expect(rightMarkText.innerHTML).toEqual(`{
+  "createdBy": "local@test.com",
+  "description": "Abbott"
+}<br>`);
+
+        fireEvent.change(rightCompare, {
+            target: {
+                value: `{}`,
+            },
+        });
+        fireEvent.blur(rightCompare);
+
+        expect(leftMarkText.innerHTML).toEqual(`{
+  <mark>"createdBy": "local@test.com"</mark>,
+  <mark>"description": "Abbott"</mark>
+}`);
+        expect(rightMarkText.innerHTML).toEqual(`{}<br>`);
+    });
 });
