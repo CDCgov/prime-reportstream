@@ -105,7 +105,7 @@ defaultTasks("package")
 
 val ktorVersion = "2.1.3"
 val kotlinVersion = "1.7.22"
-val jacksonVersion = "2.13.4"
+val jacksonVersion = "2.14.1"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -735,13 +735,12 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
-    // $jacksonVersion does not quite work for vulnerability remediation point releases.  The point release below can be delete on the next major/minor version update
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2")
     // Pin snakeyaml since it is getting included regardless of exclude attempts
@@ -822,4 +821,5 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    implementation(kotlin("script-runtime"))
 }

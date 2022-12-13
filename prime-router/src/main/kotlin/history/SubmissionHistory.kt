@@ -12,6 +12,8 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
@@ -287,12 +289,21 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
+
         // Enforce an order on the enrichment:  process/translate, send, download
-        descendants.filter {
-            it.actionName == TaskAction.process || it.actionName == TaskAction.translate
-        }.forEach { descendant ->
-            enrichWithProcessAction(descendant)
+        if (topic == Topic.FULL_ELR.json_val) {
+            // logs and destinations are handled very differently for UP
+            // both routing and translate are populated at different times,
+            // so we need to do special logic to handle them
+            enrichWithRoutingAndTranslationActions(descendants)
+        } else {
+            descendants.filter {
+                it.actionName == TaskAction.process
+            }.forEach { descendant ->
+                enrichWithProcessAction(descendant)
+            }
         }
+
         // note: we do not use any data from the batch action at this time.
         descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
             enrichWithSendAction(descendant)
@@ -303,17 +314,72 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process or translate action.
+     * Enrich a parent detailed history with details from the route and translate actions.
      * Add destinations, errors, and warnings, to the history details.
-     * Process is exclusive to the COVID pipeline, we use translate instead for Universal
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     *
+     * @param descendants[] route and translate actions that will be used to enrich
+     */
+    private fun enrichWithRoutingAndTranslationActions(descendants: List<DetailedSubmissionHistory>) {
+        require(topic == Topic.FULL_ELR.json_val) {
+            "Route and Translate enrichment is only available for the Universal Pipeline"
+        }
+
+        val filterLogs = mutableListOf<DetailedActionLog>()
+
+        // Grab the filter logs generated during the "route" action, as well as errors and warnings
+        descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
+            filterLogs += descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
+            errors += descendant.errors
+            warnings += descendant.warnings
+        }
+
+        // Grab destinations from the "translate" action, if the submission made it that far
+        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+            descendant.destinations.forEach { dest ->
+                destinations += dest
+            }
+        }
+
+        // if all the items were filtered out, no translate actions are generated (thus no destinations)
+        // to return the expected output, we create dummy destinations that are only used in enrichment
+        // these dummies are created using the receivers defined in the logs
+        if (destinations.isEmpty() && filterLogs.isNotEmpty()) {
+            val filteredReportRows = filterLogs.map { log -> log.detail.message }
+            val filteredReportItems = filterLogs.map { log ->
+                ReportStreamFilterResultForResponse(log.detail as ReportStreamFilterResult)
+            }
+            filterLogs.forEach { log ->
+                val filterResult = log.detail as ReportStreamFilterResult
+                val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
+                destinations.add(
+                    Destination(
+                        receiverNameSegments[0],
+                        receiverNameSegments[1],
+                        filteredReportRows,
+                        filteredReportItems,
+                        null,
+                        0,
+                        filterResult.originalCount,
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the process action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Process is exclusive to the COVID pipeline
+     * See enrichWithRoutingAndTranslationActions for the Universal pipeline counterpart
      *
      * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.translate) {
+        require(descendant.actionName == TaskAction.process) {
             "Must be a process action"
         }
-
         destinations += descendant.destinations
         errors += descendant.errors
         warnings += descendant.warnings
