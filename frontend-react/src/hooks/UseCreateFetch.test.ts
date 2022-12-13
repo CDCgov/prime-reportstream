@@ -13,6 +13,12 @@ let generatorSpy: jest.SpyInstance;
 jest.mock("axios");
 const mockedAxios = jest.mocked(axios);
 
+jest.mock("../TelemetryService", () => ({
+    getAppInsightsHeaders: () => ({
+        "x-ms-session-id": "DUMMY",
+    }),
+}));
+
 const fakeOktaToken = mockToken();
 const fakeMembership = {
     parsedName: "any",
@@ -92,6 +98,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "authentication-type": "okta",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });
@@ -119,6 +126,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "x-fake-header": "me",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });
@@ -143,6 +151,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "authentication-type": "okta",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });
