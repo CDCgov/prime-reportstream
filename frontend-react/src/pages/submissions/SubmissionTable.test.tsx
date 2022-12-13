@@ -43,10 +43,9 @@ describe("SubmissionTable", () => {
                     {
                         organization: "testOrg",
                         cursor: "3000-01-01T00:00:00.000Z",
-                        since: "2000-01-01T00:00:00.000Z",
-                        until: "3000-01-01T00:00:00.000Z",
+                        endCursor: "2000-01-01T00:00:00.000Z",
                         pageSize: 61,
-                        sortdir: "DESC",
+                        sort: "DESC",
                         showFailed: false,
                     },
                 ],
