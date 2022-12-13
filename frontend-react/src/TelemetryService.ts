@@ -43,3 +43,13 @@ const createTelemetryService = () => {
 };
 
 export const ai = createTelemetryService();
+
+export function getAppInsightsHeaders(): { [key: string]: string } {
+    return {
+        "x-ms-session-id": getAppInsightsSessionId(),
+    };
+}
+
+function getAppInsightsSessionId(): string {
+    return appInsights?.context.getSessionId() || "";
+}
