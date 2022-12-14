@@ -771,7 +771,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: az/pima-az-covid-19
+        schemaName: az/az-covid-19
         format: CSV
       transport:
         type: SFTP
@@ -1193,6 +1193,55 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: REST_TEST
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, REST_TEST)" ]
+      translation:
+        type: HL7
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: REST
+        authTokenUrl: http://rest-webservice:3001/token
+        reportUrl:  http://rest-webservice:3001/report
+        headers:
+          UPHN-INFOMAP: '{}'
+    - name: SOAP_TEST
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, REST_TEST)" ]
+      translation:
+        type: HL7
+      transport:
+        type: SOAP
+        endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
+        soapAction: "" #"http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
+        credentialName: null
+#        namespaces:
+#          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+    - name: GAEN_TEST
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, REST_TEST)" ]
+      timing: null
+      translation:
+       type: GAEN
+      transport:
+       type: GAEN
+       uuidFormat: WA_NOTIFY
+       uuidIV: 1
+       apiUrl: ""
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY
