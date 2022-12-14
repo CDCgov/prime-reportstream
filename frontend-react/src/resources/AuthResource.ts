@@ -1,6 +1,7 @@
 import { Resource } from "@rest-hooks/rest";
 
 import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
+import { getAppInsightsHeaders } from "../TelemetryService";
 
 export default class AuthResource extends Resource {
     // Turn schema-mismatch errors (that break the app) into just console warnings.
@@ -19,6 +20,7 @@ export default class AuthResource extends Resource {
             ...init,
             headers: {
                 ...init.headers,
+                ...getAppInsightsHeaders(),
                 Authorization: `Bearer ${accessToken}`,
                 Organization: organization || "",
                 "authentication-type": "okta",
