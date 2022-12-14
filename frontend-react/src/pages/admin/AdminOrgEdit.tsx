@@ -39,6 +39,7 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import config from "../../config";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 const { RS_API_URL } = config;
 
@@ -68,6 +69,7 @@ export function AdminOrgEdit() {
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
