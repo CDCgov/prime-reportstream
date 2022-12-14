@@ -11,20 +11,25 @@ errors that are NOT helpful to the end user. This can best be noticed in ReportS
 where a user can upload a file containing message(s) and the front-end will show all validation errors that
 occurred so that, presumably, the end-user can discover exactly what changes are required for their file to
 be "valid." Presently, these error messages are sometimes just long stack traces, passed by the back-end directly to
-the front-end without any cleaning. These types of errors are not helpful to the end-user because they are hard to 
-read and often times don't give the user enough information to fix the issue.
+the front-end without any cleaning or helpful metadata. These types of errors are not helpful to the end-user 
+because they are hard to read and often times don't give the user enough information to fix the issue.
 
 ## Solution
-ReportStream should catch exceptions thrown by third-party libraries and wrap them in a specific error code
+ReportStream should catch exceptions thrown by third-party libraries and wrap them in a specific error code, 
+combined with helpful metadata,
 that the front-end can map to a nice, helpful message for the end-user. For example, ReportStream can have 
-an error code for when an exception gets thrown when processing a date field, say `INVALID_HL7_MESSAGE_DATE_VALIDATION`.
-The front-end would then know to show the user a helpful message regarding what date formats are acceptable, instead of
-showing a stack-trace.
+an error code for when an exception gets thrown when processing a date field, say `INVALID_HL7_GENERAL_PARSE`, and part of
+the JSON that houses the error code would also have `Type=DATE` and `Field=PID-29`.
+With this information, front-end would then know to show the user a helpful message regarding what date formats are 
+acceptable, instead of showing a stack-trace.
 
 In addition to third-party library exceptions, ReportStream can also run into issues when trying to load parsed
-values into Objects. ReportStream should handle this case gracefully as well. This will be elaborated on down below and
+values into Objects (Element). ReportStream should handle this case gracefully as well. This will be elaborated on down below and
 the process of loading a parsed value into an Object will be referred to as "normalization," to match the language 
-used in the code.
+used in the code. One important thing to note here right away is that when ReportStream tries to load the parsed value as an element,
+it has additional information that it doesn't in the external library case, and that is "what exactly is wrong?", 
+along with the actual parsed value. This allows for the possibility of a more detailed error code, like `INVALID_HL7_DATE_SCHEMA_TYPE`
+instead of `INVALID_HL7_GENERAL_PARSE`.
 
 # Design
 
@@ -34,8 +39,29 @@ Please note, the following design will be specific to HL7 but should be expandab
 
 ReportStream defines various error/warning messages in `ActionMessages` which eventually get sent to the front-end
 as JSON. These messages can be expanded to contain a new field, called `errorCode`, along with any other extra metadata
-that would be helpful for the front-end. The front-end can then use the errorCode and other metadata in the messages to
-calculate and display user-friendly messages.
+that would be helpful for the front-end, such as the specific field in question, its type, or its parsed value.
+The front-end can then use the errorCode and other metadata in the messages to calculate and display user-friendly messages.
+
+The following is the definition of the new action message that should be added. Its usage will be discussed in the
+sections below.
+
+```kotlin
+class FieldProcessingMessage(
+    // Name of the HL7 field
+    fieldMapping: String = "",
+    // the ReportStream Element type associated with fieldMapping 
+    // for the particular schema associated
+    fieldType: String = "",
+    // the raw value that was parsed out by an external library (HAPI)
+    fieldValue: String = "",
+    // Back-end error message. front-end can choose to display 
+    // this or a more friendly message using the other fields
+    override val message: String,
+    // error code
+    override val errorCode: String = ""
+    
+) : ItemActionLogDetail(fieldMapping)
+```
 
 ## Types of Errors
 
@@ -52,46 +78,38 @@ There are TWO main types of errors that can occur during serialization:
 ### Message Format Errors
 
 These are straightforward and no further discussion is required. These errors are always caught manually 
-by HL7Serializer.kt and the sub-points outlined above can be directly mapped to specific error codes.
+by HL7Serializer.kt and the sub-points outlined above can be directly mapped to specific error codes. See error codes
+table below for more details.
 
 ### Field Type Errors
 
 Field Type Errors can occur either from the HAPI library or when prime-router tries to normalize a field in a
-HAPI-parsed message. In the latter case, HAPI was okay with it, but it is not "normalizable" to whatever data type 
-ReportStream has associated with that field.
+HAPI-parsed message. In the latter case, HAPI was okay with it, but it is not "normalizable" to whatever 
+data type (Element) a particular schema has associated with that field.
 
 #### HAPI Parser Error
 
-Since HL7Exceptions, the type of exception thrown by HAPI, contain the field type, via location property, 
-we can create a `FieldProcessingMessage` error and set `fieldMapping` to `e.location`, `message` to `e.localizedMessage`, 
-and `errorCode` to a response code that is specific for the particular error of the HL7 field. Finally,
-we can set `FieldType` to the Element associated with the field name in the schema that is being processed. 
+Since HL7Exceptions, the type of exception thrown by HAPI, contain the field name, via location property, 
+we can create a `FieldProcessingMessage`, defined above, and set `fieldMapping` to `e.location`,
+`message` to `e.localizedMessage`, and `errorCode` to a response code that is specific for the particular error 
+of the HL7 field. Finally, we can set `FieldType` to the Element associated with the field name in the schema 
+that is being processed. 
+
+Unfortunately, in this case, `fieldValue` will need to be left empty since HAPI was not able to parse it out.
 
 For `errorCode` it is important to note that we will most likely not be able to determine exactly why the processing failed
 without processing `e.localizedMessage` and mapping that value to a response code. I propose we default to a generic
 response code like `INVALID_HL7_FIELD_PARSE`.
 
-Current Catch Logic (Works only for PID-29):
-```
-  if (e.location?.toString() == "PID-29(0)") {
-      errors.add(
-          FieldPrecisionMessage(
-              e.location.toString(),
-              "Error parsing HL7 message: ${e.localizedMessage}",
-              ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
-          )
-      )
-  }
-```
-
-Proposed Catch Logic (works for all fields):
-```
+Example proposed catch logic (works for all fields):
+```kotlin
 errors.add(
     FieldProcessingMessage(
-        e.location.toString(),
-        "Error parsing HL7 field: ${e.localizedMessage}",
-        ErrorType.INVALID_HL7_FIELD_PARSE.type,
-        elementType // calculated by searching schema.elements for e.location and returning schema.elements[x].type
+        fieldMapping = e.location.toString(),
+        fieldType = schema.elements.find { it.hl7Field == e.location.toString() },
+        fieldValue = "",
+        message = "Error parsing HL7 field: ${e.localizedMessage}",
+        errorCode = INVALID_HL7_FIELD_PARSE.type
     )
 )
 ```
@@ -102,8 +120,8 @@ When extracting a value from an HL7 field, in order to put it in the schema map,
 exceptions. For example, a phone number may be formatted incorrectly and the third-party phone number processing
 library ReportStream uses, google, cannot load the value.
 
-`Element.toNormalized` is one of the main methods that throws the exception if ReportStream cannot "normalize" a certain value based 
-on its supposed type. Currently, there is special logic for normalizing the following types:
+`Element.toNormalized` is one of the main methods that throws the exception if ReportStream cannot "normalize" a 
+certain value based on its supposed type. Currently, there is special logic for normalizing the following types:
 
 - DATE
 - DATETIME
@@ -114,7 +132,7 @@ on its supposed type. Currently, there is special logic for normalizing the foll
 - EI
 
 The full types Enum is as follows:
-```
+```kotlin
 enum class Type {
     TEXT,
     TEXT_OR_BLANK, // Blank values are valid (not null)
@@ -146,29 +164,34 @@ enum class Type {
 Instead of throwing a simple `IllegalStateException` like it does now, ReportStream should create a new 
 exception: `ElementNormalizeException`:
 
-```
+```kotlin
 data class ElementNormalizeException(
   override val message: String,
   val field: String,
-  val type: string,
+  val type: String,
+  val value: String,
   val errorCode: ErrorType
 ) : Exception(message)
 ```
 
 Where `errorCode` can be specific to the kind of error, since at this stage we would know more information as to why
-processing failed, unlike at the HAPI stage. An example of an error code we could add here is `INVALID_HL7_POSTAL_CODE_UNSUPPORTED`
-since part of the normalization code specifically checks whether the postal code value matches a specific regex.
+processing failed, unlike at the HAPI stage. An example of an error code we could add here is
+`INVALID_HL7_POSTAL_CODE_UNSUPPORTED` since part of the normalization code specifically checks whether the postal code
+value matches a specific regex. We can also now provide the `fieldValue` since by this stage HAPI was able to parse
+out the value.
 
-This exception can be thrown from inside `Element.toNormalized`, or anywhere else, and caught in the catch in `convertMessageToMap`. 
-The catch would then be simplified to just wrap the exception in the `FieldProcessingMessage` mentioned above:
+This exception can be thrown from inside `Element.toNormalized`, or anywhere else, and caught in the catch in
+`convertMessageToMap`. The catch would then be simplified to just wrap the exception in the `FieldProcessingMessage`
+mentioned above:
 
-```
+```kotlin
 errors.add(
   FieldPrecisionMessage(
-    e.field,
-    e.message,
-    e.errorCode.type,
-    type
+      fieldMapping = field,
+      fieldType = type,
+      fieldValue = value,
+      message = message,
+      errorCode = errorCode
   )
 )
 ```
