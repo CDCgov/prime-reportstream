@@ -91,19 +91,13 @@ function SubmissionTableWithNumberedPagination() {
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
-            // The `cursor` and `endCursor` parameters are always the high and
-            // low values of the range, respectively. When the results are in
-            // descending order we move the high value and keep the low value
-            // constant; in ascending order we keep the high value constant and
-            // move the low value.
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
             return controllerFetch(SubmissionsResource.list(), {
                 organization: activeMembership?.parsedName,
-                cursor,
-                endCursor,
+                cursor: currentCursor,
+                since: rangeFrom,
+                until: rangeTo,
                 pageSize: numResults,
-                sort: sortOrder,
+                sortdir: sortOrder,
                 showFailed: false,
             }) as unknown as Promise<SubmissionsResource[]>;
         },
