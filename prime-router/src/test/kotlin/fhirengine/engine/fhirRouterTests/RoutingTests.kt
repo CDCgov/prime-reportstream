@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
@@ -322,6 +323,40 @@ class RoutingTests {
 
         // assert
         assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
+    fun `test applyFilters filter logging`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() < 0") // expecting failure
+        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every {
+            engine.logFilterResults(
+                any(),
+                any(),
+                any(),
+                any(),
+                ReportStreamFilterType.QUALITY_FILTER
+            )
+        } returns Unit
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert
+        assertThat(receivers).isEmpty()
+        verify(exactly = 1) {
+            engine.logFilterResults(any(), any(), any(), any(), ReportStreamFilterType.QUALITY_FILTER)
+        }
     }
 
     @Test
