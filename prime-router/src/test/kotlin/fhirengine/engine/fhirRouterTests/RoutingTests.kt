@@ -339,15 +339,7 @@ class RoutingTests {
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every {
-            engine.logFilterResults(
-                any(),
-                any(),
-                any(),
-                any(),
-                ReportStreamFilterType.QUALITY_FILTER
-            )
-        } returns Unit
+        every { engine.logFilterResults(any(), any(), any(), any(), any()) } returns Unit
 
         // act
         val receivers = engine.applyFilters(bundle, report)
@@ -355,7 +347,7 @@ class RoutingTests {
         // assert
         assertThat(receivers).isEmpty()
         verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), ReportStreamFilterType.QUALITY_FILTER)
+            engine.logFilterResults(any(), any(), any(), any(), any())
         }
     }
 
