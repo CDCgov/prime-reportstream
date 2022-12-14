@@ -63,7 +63,7 @@ export const EditableCompare = forwardRef(
         const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
             useState("");
 
-        // the API call into this forwardRef well say if json is valid (to enable save button)
+        // the API call into this forwardRef will say if json is valid (to enable save button)
         const [isValidSyntax, setIsValidSyntax] = useState(true);
 
         useImperativeHandle(
@@ -78,7 +78,7 @@ export const EditableCompare = forwardRef(
                 // when showing/hiding json, force am update of the content
                 refreshEditedText(updatedjson) {
                     setTextAreaContent(updatedjson);
-                    onChangeHandler(updatedjson);
+                    setHighlightCallback(props.original, props.modified);
                 },
                 isValidSyntax() {
                     return isValidSyntax;
@@ -95,28 +95,9 @@ export const EditableCompare = forwardRef(
             }
         };
 
-        const refreshDiffCallback = useCallback(
+        const setHighlightCallback = useCallback(
             (originalText: string, modifiedText: string) => {
                 if (originalText.length === 0 || modifiedText.length === 0) {
-                    return;
-                }
-
-                turnOffSpellCheckSwigglies();
-
-                // jsonDiffMode requires json be valid. If it's not then don't run it.
-                const { valid, offset } = checkJson(modifiedText);
-                if (!valid) {
-                    // clear the diff on the left since the right is invalid
-                    setLeftHandSideHighlightHtml(originalText);
-
-                    // show where the error is:
-                    const start = Math.max(offset - 4, 0); // don't let go negative
-                    const end = Math.min(offset + 4, modifiedText.length); // don't let go past len
-
-                    const threeParts = splitOn(modifiedText, start, end);
-                    // we're using HTML5's <s> tag to show error, style sets background to red.
-                    const errorHtml = `${threeParts[0]}<s>${threeParts[1]}</s>${threeParts[2]}`;
-                    setRightHandSideHighlightHtml(errorHtml);
                     return;
                 }
 
@@ -126,19 +107,6 @@ export const EditableCompare = forwardRef(
                           JSON.parse(modifiedText)
                       )
                     : textDifferMarkup(originalText, modifiedText);
-
-                // reformat the modified text in case it is not in correct JSON format
-                // then stick it back into the edited box. This ensures the highlight works correctly.
-                try {
-                    const reformatModifiedText = JSON.stringify(
-                        JSON.parse(modifiedText),
-                        null,
-                        2
-                    );
-                    setTextAreaContent(reformatModifiedText);
-                } catch (e) {
-                    console.warn(e);
-                }
 
                 // now stick it back into the edit boxes.
                 if (result.left.markupText !== leftHandSideHighlightHtml) {
@@ -157,29 +125,71 @@ export const EditableCompare = forwardRef(
             ]
         );
 
-        // on change, we highlight the errors
+        const refreshDiffCallback = useCallback(
+            (originalText: string, modifiedText: string) => {
+                if (originalText.length === 0 || modifiedText.length === 0) {
+                    return;
+                }
+
+                // jsonDiffMode requires json be valid. If it's not then don't run it.
+                const { valid, offset, errorMsg } = checkJson(modifiedText);
+                setIsValidSyntax(valid);
+                if (!valid) {
+                    // clear the diff on the left since the right is invalid
+                    setLeftHandSideHighlightHtml(originalText);
+
+                    // show where the error is:
+                    const start = Math.max(offset - 4, 0); // don't let go negative
+                    const end = Math.min(offset + 4, modifiedText.length); // don't let go past len
+
+                    const threeParts = splitOn(modifiedText, start, end);
+                    // we're using HTML5's <s> tag to show error, style sets background to red.
+                    const errorHtml = `${threeParts[0]}<s>${threeParts[1]}</s>${threeParts[2]}`;
+                    setRightHandSideHighlightHtml(errorHtml);
+                    showError(`JSon data generated an error "${errorMsg}"`);
+                    // return;
+                } else {
+                    // reformat the modified text in case it is not in correct JSON format
+                    // then stick it back into the edited box. This ensures the highlight works correctly.
+                    try {
+                        const reformatModifiedText = JSON.stringify(
+                            JSON.parse(modifiedText),
+                            null,
+                            2
+                        );
+                        setTextAreaContent(reformatModifiedText);
+                    } catch (e) {
+                        console.warn(e);
+                    }
+
+                    setHighlightCallback(originalText, modifiedText);
+                }
+            },
+            [setHighlightCallback]
+        );
+
         const onChangeHandler = useCallback(
             (newText: string) => {
                 setTextAreaContent(newText);
-                refreshDiffCallback(props.original, newText);
+                turnOffSpellCheckSwigglies();
             },
-            [setTextAreaContent, refreshDiffCallback, props]
+            [setTextAreaContent]
         );
 
-        const onBlurHandler = useCallback((newText: string) => {
-            const { valid, errorMsg } = checkJson(newText);
-            setIsValidSyntax(valid);
-            if (!valid) {
-                showError(`JSon data generated an error "${errorMsg}"`);
-            }
-        }, []);
+        // on change, we highlight the errors
+        const onBlurHandler = useCallback(
+            (newText: string) => {
+                refreshDiffCallback(props.original, newText);
+            },
+            [refreshDiffCallback, props]
+        );
 
         useEffect(() => {
             if (props.modified?.length > 0 && textAreaContent.length === 0) {
                 // initialization only
                 onChangeHandler(props.modified);
             }
-        }, [textAreaContent, props, onChangeHandler]);
+        }, [textAreaContent, onChangeHandler, props]);
 
         return (
             <ScrollSync>

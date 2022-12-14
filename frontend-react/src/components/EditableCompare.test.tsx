@@ -29,6 +29,7 @@ describe("EditableCompare", () => {
             null,
             2
         );
+
         render(
             <EditableCompare
                 ref={diffEditorRef}
@@ -45,13 +46,9 @@ describe("EditableCompare", () => {
   "createdBy": "local@test.com",
   "description": "Abbott"
 }`);
-        expect(leftMarkText.innerHTML).toEqual(`{
-  "createdBy": "local@test.com",
-  "description": "Abbott"
-}`);
+        expect(leftMarkText).toBeEmptyDOMElement();
 
         const rightCompare = screen.getByTestId("right-compare-text");
-        const rightMarkText = screen.getByTestId("right-mark-text");
         expect(rightCompare.innerHTML).toEqual(`{
   "createdAt": "2022-09-22",
   "createdBy": "local@test.com",
@@ -61,18 +58,9 @@ describe("EditableCompare", () => {
     2
   ]
 }`);
-        expect(rightMarkText.innerHTML).toEqual(`{
-  <mark>"createdAt": "2022-09-22"</mark>,
-  "createdBy": "local@test.com",
-  "description": "Abbott",
-  <mark>"filter": [
-    <mark>1</mark>,
-    <mark>2</mark>
-  ]</mark>
-}<br>`);
     });
 
-    test("onChange - highlight enables/disables accordingly", () => {
+    test("onBlur - highlight enables/disables accordingly", () => {
         const rightJson = JSON.stringify(
             {
                 countyName: "",
@@ -87,7 +75,7 @@ describe("EditableCompare", () => {
             <EditableCompare
                 ref={diffEditorRef}
                 original={leftJson}
-                modified={rightJson}
+                modified={leftJson}
                 jsonDiffMode={true}
             />
         );
@@ -99,13 +87,17 @@ describe("EditableCompare", () => {
   "createdBy": "local@test.com",
   "description": "Abbott"
 }`);
-        expect(leftMarkText.innerHTML).toEqual(`{
+        expect(leftMarkText).toBeEmptyDOMElement();
+
+        const rightCompare = screen.getByTestId("right-compare-text");
+        const rightMarkText = screen.getByTestId("right-mark-text");
+        expect(rightCompare.innerHTML).toEqual(`{
   "createdBy": "local@test.com",
   "description": "Abbott"
 }`);
 
-        const rightCompare = screen.getByTestId("right-compare-text");
-        const rightMarkText = screen.getByTestId("right-mark-text");
+        fireEvent.change(rightCompare, { target: { value: rightJson } });
+        fireEvent.blur(rightCompare);
         expect(rightCompare.innerHTML).toEqual(`{
   "countyName": "",
   "createdBy": "local@test.com",
@@ -118,15 +110,9 @@ describe("EditableCompare", () => {
   "description": "Abbott",
   <mark>"stateCode": ""</mark>
 }<br>`);
-
-        fireEvent.change(rightCompare, { target: { value: leftJson } });
-        expect(rightCompare.innerHTML).toEqual(`{
-  "createdBy": "local@test.com",
-  "description": "Abbott"
-}`);
     });
 
-    test("onChange - dont refresh if originalText or modifiedText are empty", () => {
+    test("onBlur - dont refresh if originalText or modifiedText are empty", () => {
         const emptyString = "";
         const rightJson = JSON.stringify(
             {
@@ -146,7 +132,7 @@ describe("EditableCompare", () => {
 
         const rightCompare = screen.getByTestId("right-compare-text");
 
-        fireEvent.change(rightCompare, { target: { value: emptyString } });
+        fireEvent.blur(rightCompare);
         expect(rightCompare.innerHTML).toEqual(`{
   "countyName": ""
 }`);
@@ -184,10 +170,7 @@ describe("EditableCompare", () => {
   "createdBy": "local@test.com",
   "description": "Abbott"
 }`);
-        expect(rightMarkText.innerHTML).toEqual(`{
-  "createdBy": "local@test.com",
-  "description": "Abbott"
-}<br>`);
+        expect(rightMarkText.innerHTML).toEqual(`<br>`);
 
         fireEvent.change(rightCompare, {
             target: {
