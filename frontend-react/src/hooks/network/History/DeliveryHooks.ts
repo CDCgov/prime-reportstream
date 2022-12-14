@@ -66,16 +66,13 @@ const useOrgDeliveries = (service?: string) => {
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
             const fetcher = generateFetcher();
-            // The `cursor` parameter is always the "high" value of the range
-            const cursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
-
             return fetcher(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
                 params: {
                     sortdir: sortOrder,
-                    cursor: cursor,
+                    cursor: currentCursor,
                     since: rangeFrom,
                     until: rangeTo,
                     pageSize: numResults,
