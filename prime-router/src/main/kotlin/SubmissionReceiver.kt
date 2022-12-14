@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
+import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -12,6 +13,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -256,31 +258,58 @@ class ELRReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         val actionLogs = ActionLogger()
-
-        // check that our input is valid HL7. Additional validation will happen at a later step
-        var messages = HL7Reader(actionLogs).getMessages(content)
-
-        // create a Report for this incoming HL7 message to use for tracking in the database
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
-        val report = Report(
-            Format.HL7,
-            sources,
-            messages.size,
-            metadata = metadata,
-            nextAction = TaskAction.convert
-        )
+        // check that our input is valid HL7. Additional validation will happen at a later step
 
-        // dupe detection if needed, and if we have not already produced an error
-        if (!allowDuplicates && !actionLogs.hasErrors()) {
-            doDuplicateDetection(
-                workflowEngine,
-                report,
-                actionLogs
-            )
+        var report: Report
+
+        when (sender.format) {
+            Sender.Format.HL7 -> {
+                var messages = HL7Reader(actionLogs).getMessages(content)
+                // create a Report for this incoming HL7 message to use for tracking in the database
+
+                report = Report(
+                    Format.HL7,
+                    sources,
+                    messages.size,
+                    metadata = metadata,
+                    nextAction = TaskAction.convert
+                )
+
+                // dupe detection if needed, and if we have not already produced an error
+                if (!allowDuplicates && !actionLogs.hasErrors()) {
+                    doDuplicateDetection(
+                        workflowEngine,
+                        report,
+                        actionLogs
+                    )
+                }
+
+                // check for valid message type
+                messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+            }
+            Sender.Format.FHIR -> {
+                try {
+                    val bundle = FhirTranscoder.decode(content)
+                    if (bundle.isEmpty) {
+                        actionLogs.error(InvalidReportMessage("Unable to find FHIR Bundle in provided data."))
+                    }
+                } catch (e: Exception) {
+                    logger.error(e)
+                    actionLogs.error(InvalidReportMessage("Unable to parse FHIR data."))
+                }
+                report = Report(
+                    Format.FHIR,
+                    sources,
+                    1,
+                    metadata = metadata,
+                    nextAction = TaskAction.convert
+                )
+            }
+            else -> {
+                throw IllegalStateException("Unexpected sender format ${sender.format}")
+            }
         }
-
-        // check for valid message type
-        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {

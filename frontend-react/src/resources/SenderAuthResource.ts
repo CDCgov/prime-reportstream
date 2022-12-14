@@ -1,4 +1,5 @@
 import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
+import { getAppInsightsHeaders } from "../TelemetryService";
 
 import AuthResource from "./AuthResource";
 
@@ -15,6 +16,7 @@ export default class SenderAuthResource extends AuthResource {
             ...init,
             headers: {
                 ...init.headers,
+                ...getAppInsightsHeaders(),
                 Authorization: `Bearer ${accessToken}`,
                 Organization: organization || "",
                 "authentication-type": "okta",
