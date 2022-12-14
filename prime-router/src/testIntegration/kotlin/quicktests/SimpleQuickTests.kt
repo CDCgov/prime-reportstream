@@ -122,48 +122,48 @@ class SimpleQuickTests {
 
         // First route the test file and compare the output.
         var reports = QuickTestUtils.routeReport("primedatainput/pdi-covid-19", simpleReportFile)
-        var actualPimaFile: String? = null
+//        var actualPimaFile: String? = null
         var actualAzFile: String? = null
         reports.forEach {
             if (it.contains(azFileRegex)) actualAzFile = it
-            if (it.contains(pimaFileRegex)) actualPimaFile = it
+//            if (it.contains(pimaFileRegex)) actualPimaFile = it
         }
         assertThat(actualAzFile).isNotNull().isNotEmpty()
-        assertThat(actualPimaFile).isNotNull().isNotEmpty()
+//        assertThat(actualPimaFile).isNotNull().isNotEmpty()
 
         assertTrue(FileUtils.contentEquals(File(actualAzFile!!), File(expectedAzFile)), "SimpleReport->AZ")
-        assertTrue(FileUtils.contentEquals(File(actualPimaFile!!), File(expectedPimaFile)), "SimpleReport->PIMA")
+//        assertTrue(FileUtils.contentEquals(File(actualPimaFile!!), File(expectedPimaFile)), "SimpleReport->PIMA")
 
         // Now read the data back in to their own schema and export again.
         val actualAzFile2 = QuickTestUtils.translateReport("az/az-covid-19", actualAzFile!!)
         assertTrue(FileUtils.contentEquals(File(actualAzFile2), File(actualAzFile!!)), "AZ->AZ")
 
-        val actualPimaFile2 = QuickTestUtils.translateReport("az/pima-az-covid-19", actualPimaFile!!)
-        assertTrue(FileUtils.contentEquals(File(actualPimaFile2), File(actualPimaFile!!)), "PIMA->PIMA")
+//        val actualPimaFile2 = QuickTestUtils.translateReport("az/pima-az-covid-19", actualPimaFile!!)
+//        assertTrue(FileUtils.contentEquals(File(actualPimaFile2), File(actualPimaFile!!)), "PIMA->PIMA")
 
         // And now generate some fake simplereport data
         val generatedFakeDataFile = QuickTestUtils.generateFakeData(
             "primedatainput/pdi-covid-19", 50, Report.Format.CSV,
-            "AZ", "Pima"
+            "IG", "CSV"
         )
         assertThat(pdFileRegex.containsMatchIn(generatedFakeDataFile)).isTrue()
 
         // Now send that fake data thru the router.
         reports = QuickTestUtils.routeReport("primedatainput/pdi-covid-19", generatedFakeDataFile)
-        var actualPimaFile3: String? = null
+//        var actualPimaFile3: String? = null
         var actualAzFile3: String? = null
         reports.forEach {
             if (it.contains(azFileRegex)) actualAzFile3 = it
-            if (it.contains(pimaFileRegex)) actualPimaFile3 = it
+//            if (it.contains(pimaFileRegex)) actualPimaFile3 = it
         }
         assertThat(actualAzFile3).isNotNull().isNotEmpty()
-        assertThat(actualPimaFile3).isNotNull().isNotEmpty()
+//        assertThat(actualPimaFile3).isNotNull().isNotEmpty()
 
         // Now send _those_ results back in to their own schema and export again!
         val actualAzFile4 = QuickTestUtils.translateReport("az/az-covid-19", actualAzFile3!!)
         assertTrue(FileUtils.contentEquals(File(actualAzFile4), File(actualAzFile3!!)), "AZ->AZ")
 
-        val actualPimaFile4 = QuickTestUtils.translateReport("az/pima-az-covid-19", actualPimaFile3!!)
-        assertTrue(FileUtils.contentEquals(File(actualPimaFile4), File(actualPimaFile3!!)), "PIMA->PIMA")
+//        val actualPimaFile4 = QuickTestUtils.translateReport("az/pima-az-covid-19", actualPimaFile3!!)
+//        assertTrue(FileUtils.contentEquals(File(actualPimaFile4), File(actualPimaFile3!!)), "PIMA->PIMA")
     }
 }
