@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
@@ -103,10 +104,14 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            val msg = "Unknown error while evaluating FHIR expression $expression for condition. " +
-                "Setting value of condition to false."
+            val msg =  when (e) {
+                is FHIRLexerException -> "Syntax error on filter expression"
+                is SchemaException -> e.message ?: "Condition error on filter expression"
+                else -> "Unknown error while evaluating FHIR expression $expression for condition. " +
+                    "Setting value of condition to false."
+            }
             logger.error(msg, e)
-            throw SchemaException(e.message ?: msg)
+            throw SchemaException(msg)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal
