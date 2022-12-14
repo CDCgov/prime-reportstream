@@ -8,9 +8,11 @@ export const GettingStartedSubmittingData = () => {
     return (
         <>
             <BasicHelmet
-                pageTitle={`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}
+                pageTitle={`${ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA} | Resources`}
             />
-            <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
+            <h1 id="anchor-top">
+                {ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA}
+            </h1>
             <h2>
                 A step-by-step process for connecting your lab or facility to
                 ReportStream
