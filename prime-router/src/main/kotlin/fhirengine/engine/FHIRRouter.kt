@@ -332,13 +332,16 @@ class FHIRRouter(
             // JURIS FILTER
             //  default: allowNone
             var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            if (!passes) {
+                return@forEach
+            }
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
             var filters = getQualityFilters(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(
+            passes = evaluateFilterCondition(
                 filters,
                 bundle,
                 qualFilterDefaultResult,
@@ -346,28 +349,29 @@ class FHIRRouter(
             )
             if (!passes) {
                 logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
+                return@forEach
             }
 
             // ROUTING FILTER
             //  default: allowAll
             filters = getRoutingFilter(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(filters, bundle, true)
+            passes = evaluateFilterCondition(filters, bundle, true)
             if (!passes) {
                 logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.ROUTING_FILTER)
+                return@forEach
             }
 
             // PROCESSING MODE FILTER
             //  default: allowAll
             filters = getProcessingModeFilter(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
+            passes = evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
             if (!passes) {
                 logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER)
+                return@forEach
             }
 
             // if all filters pass, add this receiver to the list of valid receivers
-            if (passes) {
-                listOfReceivers.add(receiver)
-            }
+            listOfReceivers.add(receiver)
         }
 
         return listOfReceivers
