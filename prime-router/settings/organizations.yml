@@ -2494,6 +2494,26 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: UNIVERSAL_PIPELINE
+      externalName: Ignore FHIR Universal Pipeline
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "%performerState = 'CO' or %patientState = 'CO'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19-stlt
+        format: CSV
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: HL7
       externalName: Ignore HL7
       organizationName: ignore
