@@ -6,7 +6,7 @@ name_1:
 # For all other ID types
 name_2:
   type: URL
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS_STRING 'ISO' && $systemStr NOT_EQUALS_STRING 'UUID' && $systemStr NOT_EQUALS_STRING 'DNS' && $systemStr NOT_EQUALS_STRING 'URI' && $systemStr NOT_EQUALS_STRING 'CLIA'
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   valueOf: $value
   expressionType: HL7Spec
   vars:
