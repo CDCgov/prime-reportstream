@@ -56,7 +56,7 @@
         "rimraf": "^3.0.2",
         "use-deep-compare-effect": "^1.8.1",
         "uswds": "^2.13.0",
-        "web-vitals": "^2.1.2"
+        "web-vitals": "^3.1.0"
     },
     "scripts": {
         "clean": "rimraf ./build &&  rimraf ./src/content/generated",
