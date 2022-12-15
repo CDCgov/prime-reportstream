@@ -332,17 +332,13 @@ class FHIRRouter(
             // JURIS FILTER
             //  default: allowNone
             var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
-            if (!passes) {
-                return@forEach
-            }
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
-            var filters = getQualityFilters(receiver, orgFilters)
-            passes = evaluateFilterAndLogResult(
-                filters,
+            passes = passes && evaluateFilterAndLogResult(
+                getQualityFilters(receiver, orgFilters),
                 bundle,
                 report,
                 receiver,
@@ -350,42 +346,33 @@ class FHIRRouter(
                 qualFilterDefaultResult,
                 receiver.reverseTheQualityFilter
             )
-            if (!passes) {
-                return@forEach
-            }
 
             // ROUTING FILTER
             //  default: allowAll
-            filters = getRoutingFilter(receiver, orgFilters)
-            passes = evaluateFilterAndLogResult(
-                filters,
+            passes = passes && evaluateFilterAndLogResult(
+                getRoutingFilter(receiver, orgFilters),
                 bundle,
                 report,
                 receiver,
                 ReportStreamFilterType.ROUTING_FILTER,
                 true
             )
-            if (!passes) {
-                return@forEach
-            }
 
             // PROCESSING MODE FILTER
             //  default: allowAll
-            filters = getProcessingModeFilter(receiver, orgFilters)
-            passes = evaluateFilterAndLogResult(
-                filters,
+            passes = passes && evaluateFilterAndLogResult(
+                getProcessingModeFilter(receiver, orgFilters),
                 bundle,
                 report,
                 receiver,
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
                 processingModeDefaultResult
             )
-            if (!passes) {
-                return@forEach
-            }
 
             // if all filters pass, add this receiver to the list of valid receivers
-            listOfReceivers.add(receiver)
+            if (passes) {
+                listOfReceivers.add(receiver)
+            }
         }
 
         return listOfReceivers
