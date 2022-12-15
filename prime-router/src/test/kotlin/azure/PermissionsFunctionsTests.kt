@@ -27,6 +27,11 @@ class PermissionsFunctionsTests {
             "enabled":"true",
             "createdBy":"test.user"
         }"""
+    private val bodyWithEmptyName = """{
+            "name": "",
+            "description":"Validates a file",
+            "enabled":"true"
+        }"""
 
     private fun buildPermissionsFunction(
         mockDbAccess: DatabaseAccess? = null
@@ -489,6 +494,20 @@ class PermissionsFunctionsTests {
     }
 
     @Test
+    fun `test updateOne function name is empty string`() {
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
+
+        // Permission id not valid or null
+        val mockRequestWithEmptyName = MockHttpRequestMessage(bodyWithEmptyName)
+        every { mockDbAccess.fetchPermissionById(any(), any()) } returns buildPermission(permissionId)
+        every { mockDbAccess.updatePermissionById(any(), any(), any()) } returns Unit
+        val response = permissionsFunctions.updateOne(mockRequestWithEmptyName, permissionId)
+
+        assert(response.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
     fun `test addPermissionOrganization function`() {
         val mockDbAccess = mockk<DatabaseAccess>()
         val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
@@ -535,6 +554,20 @@ class PermissionsFunctionsTests {
 
         // request not valid
         val request = """{"description":"Validates a file"}"""
+        val mockRequest = MockHttpRequestMessage(request, HttpMethod.POST)
+        every { mockDbAccess.insertPermission(any(), any()) } returns 1
+
+        val errorRes = permissionsFunctions.addOne(mockRequest, userName)
+        assert(errorRes.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test addOne function name is empty string`() {
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val permissionsFunctions = spyk(buildPermissionsFunction(mockDbAccess))
+
+        // Happy path
+        val request = """{"name":"","description":"Validates a file"}"""
         val mockRequest = MockHttpRequestMessage(request, HttpMethod.POST)
         every { mockDbAccess.insertPermission(any(), any()) } returns 1
 

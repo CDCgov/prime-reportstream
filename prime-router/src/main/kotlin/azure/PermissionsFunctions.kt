@@ -272,6 +272,9 @@ class PermissionsFunctions(
                     HttpStatus.BAD_REQUEST
                 } else {
                     val body = mapper.readValue(request.body!!.toString(), Permission::class.java)
+                    if (body.name.isEmpty()) {
+                        error("Name cannot be an empty string.")
+                    }
 
                     response = dbAccess.updatePermissionById(id, body)
                     HttpStatus.OK
@@ -295,6 +298,9 @@ class PermissionsFunctions(
         val httpStatus: HttpStatus =
             try {
                 val body = mapper.readValue(request.body!!.toString(), Permission::class.java)
+                if (body.name.isEmpty()) {
+                    error("Name cannot be an empty string.")
+                }
 
                 response = dbAccess.insertPermission(userName, body)
                 HttpStatus.OK
