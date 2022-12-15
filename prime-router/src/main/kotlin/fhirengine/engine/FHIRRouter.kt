@@ -341,32 +341,46 @@ class FHIRRouter(
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
             var filters = getQualityFilters(receiver, orgFilters)
-            passes = evaluateFilterCondition(
+            passes = evaluateFilterAndLogResult(
                 filters,
                 bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.QUALITY_FILTER,
                 qualFilterDefaultResult,
                 receiver.reverseTheQualityFilter
             )
             if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
                 return@forEach
             }
 
             // ROUTING FILTER
             //  default: allowAll
             filters = getRoutingFilter(receiver, orgFilters)
-            passes = evaluateFilterCondition(filters, bundle, true)
+            passes = evaluateFilterAndLogResult(
+                filters,
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.ROUTING_FILTER,
+                true
+            )
             if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.ROUTING_FILTER)
                 return@forEach
             }
 
             // PROCESSING MODE FILTER
             //  default: allowAll
             filters = getProcessingModeFilter(receiver, orgFilters)
-            passes = evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
+            passes = evaluateFilterAndLogResult(
+                filters,
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                processingModeDefaultResult
+            )
             if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER)
                 return@forEach
             }
 
@@ -375,6 +389,35 @@ class FHIRRouter(
         }
 
         return listOfReceivers
+    }
+
+/**
+     * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
+     * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
+     * that specific [filterType]
+     * @return Boolean indicating if the bundle passes the filter or not
+     *        Result will be negated if [reverseFilter] is true
+     **/
+    private fun evaluateFilterAndLogResult(
+        filters: ReportStreamFilter,
+        bundle: Bundle,
+        report: Report,
+        receiver: Receiver,
+        filterType: ReportStreamFilterType,
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false
+    ): Boolean {
+        val passes = evaluateFilterCondition(
+            filters,
+            bundle,
+            defaultResponse,
+            reverseFilter
+        )
+        if (!passes) {
+            logFilterResults(filters, bundle, report, receiver, filterType)
+        }
+
+        return passes
     }
 
     /**

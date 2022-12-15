@@ -354,9 +354,6 @@ class RoutingTests {
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
         assertThat(receivers).isEmpty()
-        verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), any())
-        }
     }
 
     @Test
