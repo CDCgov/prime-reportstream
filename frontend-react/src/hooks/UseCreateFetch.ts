@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
 import { RSNetworkError } from "../utils/RSNetworkError";
+import { getAppInsightsHeaders } from "../TelemetryService";
 
 import { MembershipSettings } from "./UseOktaMemberships";
 
@@ -26,6 +27,7 @@ function createTypeWrapperForAuthorizedFetch(
     activeMembership: MembershipSettings
 ) {
     const authHeaders = {
+        ...getAppInsightsHeaders(),
         "authentication-type": "okta",
         authorization: `Bearer ${oktaToken?.accessToken || ""}`,
         organization: `${activeMembership?.parsedName || ""}`,

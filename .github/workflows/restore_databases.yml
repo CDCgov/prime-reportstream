@@ -60,7 +60,7 @@ jobs:
       sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
 
       - name: Set env variables
         shell: bash
@@ -137,7 +137,7 @@ jobs:
        backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
@@ -225,7 +225,7 @@ jobs:
       sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
@@ -238,11 +238,16 @@ jobs:
       # Allow runner db access
       - name: Add db access
         id: add-db-access
-        shell: bash
-        run: |
-          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
-          az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
-            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        with:
+          timeout_minutes: 120
+          max_attempts: 12
+          retry_wait_seconds: 300
+          command: |
+            az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
+            az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
+              --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+          shell: bash
 
       # Mount Azure file share to retrieve backup file
       - name: Mount file share

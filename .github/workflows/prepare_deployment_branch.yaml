@@ -1,6 +1,7 @@
 name: "Prepare Deployment Branch"
 
 on:
+  workflow_dispatch:
   schedule:
     # At 23:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
     # GitHub actions run in UTC (and EDT is UTC-4)
@@ -13,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
 
       - name: Set Environment Variables
         # 86400: seconds in a 24h time-window
@@ -35,7 +36,7 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@2c8df8a7aacba86aac079e5a6acd74305af07d9c
+        uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
