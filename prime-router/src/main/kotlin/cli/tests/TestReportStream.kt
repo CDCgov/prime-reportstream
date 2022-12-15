@@ -865,7 +865,7 @@ abstract class CoolTest {
         fun initListOfGoodReceiversAndCountiesForTopicPipeline() {
             allGoodReceivers = mutableListOf(
                 csvReceiver, hl7Receiver,
-                hl7BatchReceiver, hl7NullReceiver, universalPipelineReceiver
+                hl7BatchReceiver, hl7NullReceiver
             )
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
