@@ -699,6 +699,30 @@ class RoutingTests {
     }
 
     @Test
+    fun `test evaluateFilterAndLogResult`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val type = ReportStreamFilterType.QUALITY_FILTER
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        every { engine.evaluateFilterCondition(any(), any(), true, any()) } returns true
+        every { engine.evaluateFilterCondition(any(), any(), false, any()) } returns false
+
+        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
+        verify(exactly = 0) {
+            engine.logFilterResults(any(), any(), any(), any(), any())
+        }
+        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, false)
+        verify(exactly = 1) {
+            engine.logFilterResults(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
     fun `test applyFilters logs results for routing filters`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)

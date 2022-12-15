@@ -378,14 +378,14 @@ class FHIRRouter(
         return listOfReceivers
     }
 
-/**
+    /**
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
      * that specific [filterType]
      * @return Boolean indicating if the bundle passes the filter or not
      *        Result will be negated if [reverseFilter] is true
      **/
-    private fun evaluateFilterAndLogResult(
+    internal fun evaluateFilterAndLogResult(
         filters: ReportStreamFilter,
         bundle: Bundle,
         report: Report,
