@@ -27,6 +27,7 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import {
     ConfirmSaveSettingModal,
@@ -111,6 +112,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
