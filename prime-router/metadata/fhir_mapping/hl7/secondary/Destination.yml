@@ -1,13 +1,27 @@
 name:
+  condition: $msh25 NOT_NULL
   type: STRING
   valueOf: MSH.5
   expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
 
 endpoint:
   type: URL
   required: true
   valueOf: MSH.25 | MSH.6
   expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+
+target:
+  condition: $msh5 NOT_NULL
+  valueOf: resource/Device
+  generateList: true
+  expressionType: reference
+  specs: MSH.5
+  vars:
+    msh5: MSH.5
 
 # For OIDs
 extension_1:

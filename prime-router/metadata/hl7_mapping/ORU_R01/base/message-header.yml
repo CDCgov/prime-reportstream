@@ -36,7 +36,7 @@ elements:
     hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
-    resource: '%resource.sender.resolve().identifier.where(type.exists()).first()'
+    resource: '%resource.sender.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
     condition: '%resource.exists()'
     value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-4-2 ]
@@ -48,15 +48,21 @@ elements:
     hl7Spec: [ MSH-4-3 ]
 
   - name: receiving-application-namespace-id
-    value: [ '%resource.destination.name' ]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.exists().not()).first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getId()' ]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists() and %resource.type.coding.code.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getIdType()' ]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists() and %resource.type.coding.code.exists()'
+    value: [ '%resource.type.coding.code' ]
     hl7Spec: [ MSH-5-3 ]
 
   - name: receiving-facility-namespace-id
