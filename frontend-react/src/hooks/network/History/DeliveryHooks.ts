@@ -66,17 +66,15 @@ const useOrgDeliveries = (service?: string) => {
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
             const fetcher = generateFetcher();
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
-
             return fetcher(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
                 params: {
-                    sortDir: sortOrder,
-                    since: endCursor,
-                    until: cursor,
+                    sortdir: sortOrder,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
                     pageSize: numResults,
                 },
             }) as unknown as Promise<RSDelivery[]>;
