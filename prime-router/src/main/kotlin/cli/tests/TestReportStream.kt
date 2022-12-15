@@ -862,11 +862,16 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $orgName.default")
             ) as CovidSender
 
-        fun initListOfGoodReceiversAndCounties() {
+        fun initListOfGoodReceiversAndCountiesForTopicPipeline() {
             allGoodReceivers = mutableListOf(
                 csvReceiver, hl7Receiver,
                 hl7BatchReceiver, hl7NullReceiver, universalPipelineReceiver
             )
+            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        }
+
+        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
+            allGoodReceivers = mutableListOf(universalPipelineReceiver)
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 

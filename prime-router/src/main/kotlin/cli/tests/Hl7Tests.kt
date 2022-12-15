@@ -19,7 +19,7 @@ class Hl7Ingest : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         var passed = true
         val sender = hl7Sender
         val receivers = allGoodReceivers
