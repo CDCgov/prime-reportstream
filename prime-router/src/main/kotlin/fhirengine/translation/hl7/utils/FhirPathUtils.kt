@@ -86,7 +86,7 @@ object FhirPathUtils : Logging {
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
-     * @throws SchemaException if the FHIR path does not evaluate to a boolean type
+     * @throws SchemaException if the FHIR path does not evaluate to a boolean type or fails to evaluate
      */
     fun evaluateCondition(
         appContext: CustomContext?,
@@ -105,9 +105,9 @@ object FhirPathUtils : Logging {
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             val msg =  when (e) {
-                is FHIRLexerException -> "Syntax error on filter expression"
-                is SchemaException -> e.message ?: "Condition error on filter expression"
-                else -> "Unknown error while evaluating FHIR expression $expression for condition. " +
+                is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is SchemaException -> e.message ?: "Condition error in FHIR Path expression $expression"
+                else -> "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                     "Setting value of condition to false."
             }
             logger.error(msg, e)
