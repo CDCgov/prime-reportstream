@@ -56,7 +56,7 @@ export interface ConfirmSaveSettingModalRef extends ModalRef {
     disableSave: () => void;
 }
 
-interface CompareSettingsModalProps {
+export interface CompareSettingsModalProps {
     uniquid: string;
     onConfirm: () => void;
     oldjson: string;
@@ -75,6 +75,10 @@ export const ConfirmSaveSettingModal = forwardRef(
         const scopedConfirm = () => {
             onConfirm();
         };
+
+        function onChange(_text: string, isValid: boolean) {
+            setSaveDisabled(!isValid);
+        }
 
         useImperativeHandle(
             ref,
@@ -136,6 +140,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                             original={oldjson}
                             modified={newjson}
                             jsonDiffMode={true}
+                            onChange={onChange}
                         />
                     </div>
                     <ModalFooter>
@@ -157,6 +162,17 @@ export const ConfirmSaveSettingModal = forwardRef(
                             >
                                 Save
                             </ModalConfirmSaveButton>
+                            <Button
+                                aria-label="Check the settings JSON syntax"
+                                key={`${uniquid}-validate-button`}
+                                data-uniquid={uniquid}
+                                onClick={() =>
+                                    diffEditorRef?.current?.refreshEditedText()
+                                }
+                                type="button"
+                            >
+                                Check syntax
+                            </Button>
                         </ButtonGroup>
                     </ModalFooter>
                 </Modal>
