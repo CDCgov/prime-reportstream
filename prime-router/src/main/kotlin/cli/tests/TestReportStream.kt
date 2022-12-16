@@ -802,7 +802,7 @@ abstract class CoolTest {
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
-        const val historyTestOrgName = "historytest"
+        const val historyTestOrgName = "ignore"
         val historyTestSender = (
             settings.findSender("$historyTestOrgName.default")
                 ?: error("Unable to find sender $historyTestOrgName.default")
