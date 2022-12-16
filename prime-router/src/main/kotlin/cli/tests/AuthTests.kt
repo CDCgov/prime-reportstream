@@ -729,7 +729,7 @@ class Server2ServerAuthTests : CoolTest() {
         val kid = "submission-testing-kid"
 
         if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
-        val org1 = "simple_report"
+        val org1 = "waters"
         var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
         // Test various functionality using the general <orgname>.*.user role.
         val scope1 = "$org1.*.user"
