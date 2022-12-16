@@ -65,7 +65,7 @@ class FieldProcessingMessage(
     fieldName: String = "",
     // the ReportStream Element type associated with fieldMapping 
     // for the particular schema associated
-    fieldType: Element.Type = Element.Type.UNKOWN,
+    fieldType: Element.Type = Element.Type.UNKNOWN,
     // the raw value that was parsed out by an external library (HAPI)
     fieldValue: String = "",
     // Back-end error message. front-end can choose to display 
@@ -74,7 +74,7 @@ class FieldProcessingMessage(
     // error code. Currently, ErrorType is defined in Hl7Serializer. 
     // To support other formats, like FHIR, we can either create a new message type with a different enum here or
     // factor out ErrorType to a separate class where ALL error codes can go, regardless of type.
-    errorCode: ErrorType = ErrorType.UNKNWON
+    errorCode: ErrorType = ErrorType.UNKNOWN
 ) : ItemActionLogDetail(fieldMapping)
 ```
 
