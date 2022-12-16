@@ -6,9 +6,13 @@ import {
     TextInput,
     Dropdown,
 } from "@trussworks/react-uswds";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
-import { checkJson } from "../../utils/misc";
+import {
+    checkJson,
+    excludeSpecialChars,
+    isProhibitedName,
+} from "../../utils/misc";
 import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
@@ -24,6 +28,8 @@ export const TextInputComponent = (params: {
     toolTip?: JSX.Element;
 }): JSX.Element => {
     const key = params.fieldname;
+    const [nameValue, setNameValue] = useState(params.defaultvalue || "");
+
     return (
         <Grid row>
             <Grid col={3}>
@@ -35,11 +41,21 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue || ""}
+                    value={nameValue}
                     data-testid={key}
                     maxLength={255}
                     className="rs-input"
-                    onChange={(e) => params.savefunc(e?.target?.value || "")}
+                    onChange={(e) => {
+                        let text = excludeSpecialChars(e?.target?.value);
+                        const { prohibited, errorMsg } = isProhibitedName(text);
+
+                        setNameValue(text);
+                        if (prohibited) {
+                            showError(errorMsg);
+                        } else {
+                            params.savefunc(text);
+                        }
+                    }}
                     disabled={params.disabled}
                 />
             </Grid>

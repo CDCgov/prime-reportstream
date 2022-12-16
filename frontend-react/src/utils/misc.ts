@@ -46,6 +46,31 @@ export const checkJson = (
     }
 };
 
+export function excludeSpecialChars(origText: string): string {
+    return origText.replace(/[^a-z\d\s]/gi, "");
+}
+
+export const isProhibitedName = (
+    stringValue: string
+): { prohibited: boolean; errorMsg: string } => {
+    const prohibitedNames = [
+        "sender",
+        "receiver",
+        "org",
+        "list",
+        "all", //api/check issue
+        "revs", //org/{organizationName}/senders/revs issue
+    ];
+    if (prohibitedNames.indexOf(stringValue) > -1) {
+        return {
+            prohibited: true,
+            errorMsg: `'${stringValue} is a prohibited name.`,
+        };
+    } else {
+        return { prohibited: false, errorMsg: "" };
+    }
+};
+
 /**
  * returns the error detail usually found in the "error" field of the JSON returned
  * otherwise, just return the general exception detail
