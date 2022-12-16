@@ -23,11 +23,16 @@ export const GettingStartedSubmittingData = () => {
                 Setting up an ELR connection to ReportStream will allow you to
                 automatically report disease data to the appropriate
                 jurisdiction(s) through an API. If you want to submit data
-                manually, then you'll need to create an account with
-                SimpleReport (linked) instead. Follow the steps outlined below
-                to get started with an ELR connection.
+                manually, then you'll need to{" "}
+                <a href="/resources/account-registration-guide">
+                    create an account with SimpleReport
+                </a>{" "}
+                instead.
             </p>
-            <p>There are three basic steps to the ELR connection process.</p>
+            <p>
+                Follow the steps outlined below to get started with an ELR
+                connection.
+            </p>
             <section>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
