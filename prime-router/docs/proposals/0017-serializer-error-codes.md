@@ -5,10 +5,15 @@ December 2022
 This document came out of GitHub issue [#7453](https://github.com/CDCgov/prime-reportstream/issues/7453), which 
 originally contained, and may still contain, some information found in this document.
 
+The issue noted above was originally spawned from a 
+[front-end error investigation](https://app.mural.co/t/primedatainput6410/m/primedatainput6410/1666190212832/25f971[…]d289837352dc406cb379ce362068c?sender=u027533c51148881a30036919).
+It is highly recommended the reader review this document to fully understand the core problem, although this document 
+will provide a summary in the following sections.
+
 ## Problem
 When ReportStream processes a particular message, the library/libraries we use to parse the message can throw
 errors that are NOT helpful to the end user. This can best be noticed in ReportStream's "Admin -> Validate" functionality
-where a user can upload a file containing message(s) and the front-end will show all validation errors that
+where a user can upload a file containing message(s) and the front-end will show all validation errors/warnings that
 occurred so that, presumably, the end-user can discover exactly what changes are required for their file to
 be "valid." Presently, these error messages are sometimes just long stack traces, passed by the back-end directly to
 the front-end without any cleaning or helpful metadata. These types of errors are not helpful to the end-user 
@@ -26,8 +31,8 @@ acceptable, instead of showing a stack-trace.
 In addition to third-party library exceptions, ReportStream can also run into issues when trying to load parsed
 values into Objects (Element). ReportStream should handle this case gracefully as well. This will be elaborated on down below and
 the process of loading a parsed value into an Object will be referred to as "normalization," to match the language 
-used in the code. One important thing to note here right away is that when ReportStream tries to load the parsed value as an element,
-it has additional information that it doesn't in the external library case, and that is "what exactly is wrong?", 
+used in the code. One important thing to note here right away is that when ReportStream tries to load the parsed value as an Element,
+it has additional information that it doesn't in the external library case, and that information is "what exactly is wrong?", 
 along with the actual parsed value. This allows for the possibility of a more detailed error code, like `INVALID_HL7_DATE_SCHEMA_TYPE`
 instead of `INVALID_HL7_GENERAL_PARSE`.
 
@@ -43,23 +48,33 @@ that would be helpful for the front-end, such as the specific field in question,
 The front-end can then use the errorCode and other metadata in the messages to calculate and display user-friendly messages.
 
 The following is the definition of the new action message that should be added. Its usage will be discussed in the
-sections below.
+sections below. Please note, `FieldProcessingMessage` may not look exactly like what is shown below. For example, some of
+its fields may be factored out and placed in a parent class, like `ItemActionLogDetail`. The other ActionMessages in
+`ActionMessages.kt` will most likely end up inheriting from `FieldProcessingMessage`. Currently, the main purpose of the
+would-be children of `FieldProcessingMessage` is to override the message parameter with a pre-built message specific
+to a particular normalization error. See `MissingFieldMessage` for an example.
 
 ```kotlin
+// This is a pseudocode class posted here just to show what kind of fields it would have. 
+// During implementation, this class most likely will have some fields factored out and 
+// integrated into ItemActionLogDetail. Other ActionMessages will probably get refactored as well
 class FieldProcessingMessage(
-    // Name of the HL7 field
-    fieldMapping: String = "",
+    // Name of the HL7 field (example: PID-29)
+    fieldId: String = "",
+    // Long name of the fieldName (example: patient time of death)
+    fieldName: String = "",
     // the ReportStream Element type associated with fieldMapping 
     // for the particular schema associated
-    fieldType: String = "",
+    fieldType: Element.Type = Element.Type.UNKOWN,
     // the raw value that was parsed out by an external library (HAPI)
     fieldValue: String = "",
     // Back-end error message. front-end can choose to display 
     // this or a more friendly message using the other fields
-    override val message: String,
-    // error code
-    override val errorCode: String = ""
-    
+    message: String = "",
+    // error code. Currently, ErrorType is defined in Hl7Serializer. 
+    // To support other formats, like FHIR, we can either create a new message type with a different enum here or
+    // factor out ErrorType to a separate class where ALL error codes can go, regardless of type.
+    errorCode: ErrorType = ErrorType.UNKNWON
 ) : ItemActionLogDetail(fieldMapping)
 ```
 
@@ -78,8 +93,8 @@ There are TWO main types of errors that can occur during serialization:
 ### Message Format Errors
 
 These are straightforward and no further discussion is required. These errors are always caught manually 
-by HL7Serializer.kt and the sub-points outlined above can be directly mapped to specific error codes. See error codes
-table below for more details.
+by HL7Serializer.kt and the sub-points outlined above can be directly mapped to specific error codes. 
+See the errors tagged _GENERAL MSG_ in the error codes table below for more details.
 
 ### Field Type Errors
 
@@ -90,10 +105,10 @@ data type (Element) a particular schema has associated with that field.
 #### HAPI Parser Error
 
 Since HL7Exceptions, the type of exception thrown by HAPI, contain the field name, via location property, 
-we can create a `FieldProcessingMessage`, defined above, and set `fieldMapping` to `e.location`,
+we can create a `FieldProcessingMessage`, defined above, and set `fieldId` to `e.location`,
 `message` to `e.localizedMessage`, and `errorCode` to a response code that is specific for the particular error 
 of the HL7 field. Finally, we can set `FieldType` to the Element associated with the field name in the schema 
-that is being processed. 
+that is being processed. `FieldName` can also be calculated in a similar manner as `FieldType`.
 
 Unfortunately, in this case, `fieldValue` will need to be left empty since HAPI was not able to parse it out.
 
@@ -105,16 +120,17 @@ Example proposed catch logic (works for all fields):
 ```kotlin
 errors.add(
     FieldProcessingMessage(
-        fieldMapping = e.location.toString(),
-        fieldType = schema.elements.find { it.hl7Field == e.location.toString() },
+        fieldId = e.location.toString(),
+        fieldName = schema.elements.find { it.hl7Field == e.location.toString() }.name, // pseudocode
+        fieldType = schema.elements.find { it.hl7Field == e.location.toString() }.fieldType, // pseudocode
         fieldValue = "",
         message = "Error parsing HL7 field: ${e.localizedMessage}",
-        errorCode = INVALID_HL7_FIELD_PARSE.type
+        errorCode = INVALID_HL7_FIELD_PARSE
     )
 )
 ```
 
-#### PrimeRouter Normalization Error (429 - 448)
+#### PrimeRouter Normalization Error
 
 When extracting a value from an HL7 field, in order to put it in the schema map, ReportStream can run into various 
 exceptions. For example, a phone number may be formatted incorrectly and the third-party phone number processing
@@ -131,7 +147,7 @@ certain value based on its supposed type. Currently, there is special logic for 
 - HD
 - EI
 
-The full types Enum is as follows:
+The full `Types` Enum is as follows:
 ```kotlin
 enum class Type {
     TEXT,
@@ -168,7 +184,8 @@ exception: `ElementNormalizeException`:
 data class ElementNormalizeException(
   override val message: String,
   val field: String,
-  val type: String,
+  val fieldName: String,
+  val type: Element.Type,
   val value: String,
   val errorCode: ErrorType
 ) : Exception(message)
@@ -187,7 +204,8 @@ mentioned above:
 ```kotlin
 errors.add(
   FieldPrecisionMessage(
-      fieldMapping = field,
+      fieldId = fieldId,
+      fieldName = fieldName,
       fieldType = type,
       fieldValue = value,
       message = message,
@@ -203,31 +221,7 @@ The following set of error codes should cover all the types of errors ReportStre
 note that the exact type of the Field is actually defined/specified by the schema being mapped to, and it cannot
 be internally inferred from the official HL7 field type.
 
-Initial Response Code Ideas (See the second table for where I landed):
-
-| ResportStream Element Type | Error Code                               | Error Description                                            |
-|----------------------------|------------------------------------------|--------------------------------------------------------------|
-| DATE or DATETIME           | INVALID_HL7_DATE_PARSE                   | HAPI or DateUtilities lib can't parse value                  |
-| DATE or DATETIME           | INVALID_HL7_DATE_PRECISION               | date is not HL7 v2.4 TS or ISO 8601 standard format          |
-| DATE or DATETIME           | INVALID_HL7_DATE_SCHEMA_TYPE             | the Schema specifies the date is not either DATE or DATETIME |
-| TELEPHONE                  | INVALID_HL7_PHONE_NUMBER_PARSE           | HAPI or Google Telecom lib can't parse phone number          |
-| EMAIL                      | INVALID_HL7_EMAIL_PARSE                  | HAPI can't parse email                                       |
-| CODE                       | INVALID_HL7_CODE_TOKEN_PARSE             | code is not a display value in valueSet for given field      |
-| CODE                       | INVALID_HL7_CODE_ALT_TOKEN_PARSE         | code is not a display value in altValues set for given field |
-| CODE                       | INVALID_HL7_CODE_ALT_DISPLAY_TOKEN_PARSE | code is not a display value for given field                  |
-| POSTAL_CODE                | INVALID_HL7_POSTAL_CODE_UNSUPPORTED      | postal code not in DHL list of supported format              |
-| POSTAL_CODE                | INVALID_HL7_POSTAL_CODE_PARSE            | HAPI lib can't parse value                                   |
-| EI (Entity Identifier)     | INVALID_HL7_EI_FORMAT                    | EI format is not eiCompleteFormat or eiNameToken             |
-| EI (Entity Identifier)     | INVALID_HL7_EI_PARSE                     | HAPI lib can't parse value                                   |
-| HD (Hierarchic Designator) | INVALID_HL7_HD_FORMAT                    | HD format is not hdCompleteFormat or hdNameToken             |
-| HD (Hierarchic Designator) | INVALID_HL7_HD_PARSE                     | HAPI lib can't parse value                                   |
-| GENERAL                    | INVALID_HL7_MSG_TYPE_MISSING             | Missing required HL7 message type field                      |
-| GENERAL                    | INVALID_HL7_MSG_TYPE_UNSUPPORTED         | Unsupported HL7 message type                                 |
-| GENERAL                    | INVALID_HL7_MSG_FORMAT_INVALID           | Invalid HL7 message format                                   |
-
-Version 2 (My preferred table)
-
-| ResportStream Element Type | Error Code                               | Error Description                                            |
+| ReportStream Element Type  | Error Code                               | Error Description                                            |
 |----------------------------|------------------------------------------|--------------------------------------------------------------|
 | DATE or DATETIME           | INVALID_HL7_DATE_PRECISION               | date is not HL7 v2.4 TS or ISO 8601 standard format          |
 | DATE or DATETIME           | INVALID_HL7_DATE_SCHEMA_TYPE             | the Schema specifies the date is not either DATE or DATETIME |
@@ -241,3 +235,4 @@ Version 2 (My preferred table)
 | GENERAL MSG                | INVALID_HL7_MSG_TYPE_MISSING             | Missing required HL7 message type field                      |
 | GENERAL MSG                | INVALID_HL7_MSG_TYPE_UNSUPPORTED         | Unsupported HL7 message type                                 |
 | GENERAL MSG                | INVALID_HL7_MSG_FORMAT_INVALID           | Invalid HL7 message format                                   |
+| MISC                       | UNKNOWN                                  | Error cannot be determined                                   |
