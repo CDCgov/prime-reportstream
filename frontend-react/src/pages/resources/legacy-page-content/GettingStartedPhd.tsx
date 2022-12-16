@@ -13,21 +13,26 @@ export const GettingStartedPhd = () => {
             />
             <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
             <h2>
-                A step-by-step process for connecting your lab or facility to
+                A step-by-step process for connecting your jurisdiction to
                 ReportStream
             </h2>
             <hr />
             <h3>Overview</h3>
             <p>
-                Setting up an ELR connection to ReportStream will allow you to
-                automatically report disease data to the appropriate
-                jurisdiction(s) through an API. If you want to submit data
-                manually, then you'll need to create an account with
-                SimpleReport (linked) instead. Follow the steps outlined below
-                to get started with an ELR connection.
+                An Electronic Lab Reporting (ELR) connection allows public
+                health authorities to automatically receive digital lab reports
+                from ReportStream via a secure server.
             </p>
-            <p>There are three basic steps to the ELR connection process.</p>
+            <p>
+                Follow the steps outlined below to get started with an ELR
+                connection.
+            </p>
             <section>
+                <h3>Setting up your ELR connection</h3>
+                <p>
+                    Connecting to ReportStream is similar to setting up an ELR
+                    feed with a lab or hospital. There are just three steps:
+                </p>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
                         <h4 className="usa-process-list__heading">
@@ -43,11 +48,9 @@ export const GettingStartedPhd = () => {
                                 className="usa-link"
                             >
                                 this form
-                            </a>
+                            </a>{" "}
                             . We'll be in touch within a week to schedule a
-                            kick-off meeting and start the integration process,
-                            which officially begins once you create and email us
-                            a sample file with dummy test data (no PII).
+                            kick-off meeting and start the integration process.
                         </p>
                     </li>
                     <li className="usa-process-list__item">
@@ -55,13 +58,9 @@ export const GettingStartedPhd = () => {
                             Connect and test:
                         </h4>
                         <p>
-                            Once we've approved your data model (using your
-                            sample file) we'll onboard you to ReportStream's
-                            staging environment. You'll then be able to post
-                            test submissions (again, no PII) as well as test
-                            your code using ReportStream's staging API. We'll
-                            review your test data and help you correct any
-                            errors.
+                            As part of kick-off, you'll share your SFTP server
+                            credentials. We'll then send test files and ensure
+                            the test data arrives correctly in your database.
                         </p>
                     </li>
                     <li className="usa-process-list__item">
@@ -69,16 +68,16 @@ export const GettingStartedPhd = () => {
                             Launch and roll out:
                         </h4>
                         <p>
-                            Once all errors in data and/or code are addressed,
-                            we'll enable you in full production mode. Moving
-                            forward, you'll be submitting real data to the
-                            correct public health jurisdictions.
+                            We'll start sending you real data from testing
+                            facilities. As new data is sent in to ReportStream,
+                            we'll continually batch and send you only the data
+                            relevant to your jurisdiction.
                         </p>
                     </li>
                 </ol>
                 <hr />
                 <h3 id="connecting-to-testing-facilities">
-                    Reporting to public health entities
+                    Connecting to testing facilities
                 </h3>
                 <p>
                     New testing facilities join ReportStream on a regular basis
@@ -86,8 +85,8 @@ export const GettingStartedPhd = () => {
                     health data aggregators and apps. After they join, their
                     data will be sent automatically to the correct public health
                     department(s) in their jurisdiction who are part of
-                    ReportStream. Data is accessible via our web application or
-                    the ELR connection.
+                    ReportStream. Data is accessible via the ReportStream
+                    website or the ELR connection.
                 </p>
                 <p>
                     Interested in downloading data directly from the
