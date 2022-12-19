@@ -290,7 +290,7 @@ jobs:
             UPDATE
               setting    
             SET               
-              values = values || '{"transport": {"host": "10.0.1.100", "port": "22", "type": "SFTP", "filePath": "./staging", "credentialName": null}}'::jsonb
+              values = values || '{"transport": {"host": "172.17.6.20", "port": "22", "type": "SFTP", "filePath": "./staging", "credentialName": null}}'::jsonb
             WHERE                                     
               type = 'RECEIVER'
               AND values -> 'transport' ->> 'type' = 'SFTP';
