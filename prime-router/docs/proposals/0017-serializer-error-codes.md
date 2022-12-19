@@ -59,6 +59,30 @@ to a particular normalization error. See `MissingFieldMessage` for an example.
 // During implementation, this class most likely will have some fields factored out and 
 // integrated into ItemActionLogDetail. Other ActionMessages will probably get refactored as well
 class FieldProcessingMessage(
+    // Name of the HL7 field (example: PID-29) or FHIR path, or csv column name, etc
+    field: String = "",
+    // the ReportStream Element type associated with field 
+    // for the particular schema associated
+    elementType: Element.Type = Element.Type.UNKNOWN,
+    // Back-end error message. front-end can choose to display 
+    // this or a more friendly message using the other fields
+    message: String = "",
+    // error code. Currently, ErrorType is defined in Hl7Serializer. 
+    // To support other formats, like FHIR, we can either create a new message type with a different enum here or
+    // factor out ErrorType to a separate class where ALL error codes can go, regardless of type.
+    errorCode: ErrorType = ErrorType.UNKNOWN
+) : ItemActionLogDetail(fieldMapping)
+```
+
+Original Version proposed by this document can be found below. And potential for exposing PII was removed as well 
+as generalized the name and intent of various fields to better work with other formats, such as FHIR and CSV.
+Keeping this here to show the other metadata that was considered at one point.
+
+```kotlin
+// This is a pseudocode class posted here just to show what kind of fields it would have. 
+// During implementation, this class most likely will have some fields factored out and 
+// integrated into ItemActionLogDetail. Other ActionMessages will probably get refactored as well
+class FieldProcessingMessage(
     // Name of the HL7 field (example: PID-29)
     fieldId: String = "",
     // Long name of the fieldName (example: patient time of death)
@@ -105,12 +129,9 @@ data type (Element) a particular schema has associated with that field.
 #### HAPI Parser Error
 
 Since HL7Exceptions, the type of exception thrown by HAPI, contain the field name, via location property, 
-we can create a `FieldProcessingMessage`, defined above, and set `fieldId` to `e.location`,
+we can create a `FieldProcessingMessage`, defined above, and set `field` to `e.location`,
 `message` to `e.localizedMessage`, and `errorCode` to a response code that is specific for the particular error 
-of the HL7 field. Finally, we can set `FieldType` to the Element associated with the field name in the schema 
-that is being processed. `FieldName` can also be calculated in a similar manner as `FieldType`.
-
-Unfortunately, in this case, `fieldValue` will need to be left empty since HAPI was not able to parse it out.
+of the HL7 field.
 
 For `errorCode` it is important to note that we will most likely not be able to determine exactly why the processing failed
 without processing `e.localizedMessage` and mapping that value to a response code. I propose we default to a generic
@@ -120,10 +141,8 @@ Example proposed catch logic (works for all fields):
 ```kotlin
 errors.add(
     FieldProcessingMessage(
-        fieldId = e.location.toString(),
-        fieldName = schema.elements.find { it.hl7Field == e.location.toString() }.name, // pseudocode
-        fieldType = schema.elements.find { it.hl7Field == e.location.toString() }.fieldType, // pseudocode
-        fieldValue = "",
+        field = e.location.toString(),
+        elementType = schema.elements.find { it.hl7Field == e.location.toString() }.fieldType, // pseudocode
         message = "Error parsing HL7 field: ${e.localizedMessage}",
         errorCode = INVALID_HL7_FIELD_PARSE
     )
@@ -184,7 +203,6 @@ exception: `ElementNormalizeException`:
 data class ElementNormalizeException(
   override val message: String,
   val field: String,
-  val fieldName: String,
   val type: Element.Type,
   val value: String,
   val errorCode: ErrorType
@@ -195,7 +213,7 @@ Where `errorCode` can be specific to the kind of error, since at this stage we w
 processing failed, unlike at the HAPI stage. An example of an error code we could add here is
 `INVALID_HL7_POSTAL_CODE_UNSUPPORTED` since part of the normalization code specifically checks whether the postal code
 value matches a specific regex. We can also now provide the `fieldValue` since by this stage HAPI was able to parse
-out the value.
+out the value, but still can't pass it to the `FieldPrecisionMessage` due to risk of exposing PII.
 
 This exception can be thrown from inside `Element.toNormalized`, or anywhere else, and caught in the catch in
 `convertMessageToMap`. The catch would then be simplified to just wrap the exception in the `FieldProcessingMessage`
@@ -204,10 +222,8 @@ mentioned above:
 ```kotlin
 errors.add(
   FieldPrecisionMessage(
-      fieldId = fieldId,
-      fieldName = fieldName,
-      fieldType = type,
-      fieldValue = value,
+      field = fieldId,
+      elementType = type,
       message = message,
       errorCode = errorCode
   )
