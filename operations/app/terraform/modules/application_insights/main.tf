@@ -40,13 +40,13 @@ resource "azurerm_monitor_action_group" "action_group" {
 }
 
 resource "azurerm_monitor_action_group" "action_group_mbhealthcheck" {
-  count               = local.alerting_enabled
+  #count               = local.alerting_enabled
   name                = "${var.resource_prefix}-actiongroup-mbhealthcheck"
   resource_group_name = var.resource_group
   short_name          = "mb-check"
 
   webhook_receiver {
-    name                    = "PagerDuty"
+    name                    = "PagerDuty-mbhealthcheck"
     service_uri             = var.pagerduty_url
     use_common_alert_schema = true
   }
@@ -54,7 +54,6 @@ resource "azurerm_monitor_action_group" "action_group_mbhealthcheck" {
     environment = var.environment
   }
 }
-
 resource "azurerm_monitor_action_group" "action_group_businesshours" {
   count               = local.alerting_enabled
   name                = "${var.resource_prefix}-actiongroup-businesshours"
