@@ -50,7 +50,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 columnHeader: "Incoming Report Id",
                 feature: {
                     link: true,
-                    linkBasePath: "/report-details?reportId=",
+                    linkBasePath: "/submissions/",
                 },
             },
         ],
