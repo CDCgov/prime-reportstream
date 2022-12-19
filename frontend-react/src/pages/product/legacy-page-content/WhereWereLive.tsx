@@ -26,25 +26,15 @@ export const WhereWereLive = () => {
                 src={usamapsvg}
                 alt="Map of states using ReportStream"
             />
-            <p className="text-gray-50 font-body-3xs">
+            <p className="font-body-2xs text-gray-50">
                 <a
                     href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg"
-                    className="usa-link--external"
                     rel="noreferrer noopener"
-                    target="_blank"
-                >
-                    This file
-                </a>{" "}
-                is made available under the{" "}
-                <a
-                    href="https://creativecommons.org/publicdomain/zero/1.0/deed.en"
                     className="usa-link--external"
-                    rel="noreferrer noopener"
-                    target="_blank"
                 >
-                    Creative Commons CC0 1.0 Universal Public Domain Dedication
+                    Heitordp
                 </a>
-                .
+                , CC0, via Wikimedia Commons
             </p>
             <p className="margin-top-10">
                 ReportStream has established connections to send and report
