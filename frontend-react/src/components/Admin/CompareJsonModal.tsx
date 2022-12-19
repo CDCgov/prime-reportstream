@@ -76,9 +76,15 @@ export const ConfirmSaveSettingModal = forwardRef(
             onConfirm();
         };
 
-        function onChange(_text: string, isValid: boolean) {
-            setSaveDisabled(!isValid);
-        }
+        // Disable the 'Save' button whenever the user updates the textarea
+        // It'll only be enabled when they click the 'Check syntax' button,
+        // and it passes validation
+        const onChange = () => setSaveDisabled(true);
+        const onCheckSyntaxClick = () => {
+            if (diffEditorRef?.current?.refreshEditedText()) {
+                setSaveDisabled(false);
+            }
+        };
 
         useImperativeHandle(
             ref,
@@ -166,9 +172,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                                 aria-label="Check the settings JSON syntax"
                                 key={`${uniquid}-validate-button`}
                                 data-uniquid={uniquid}
-                                onClick={() =>
-                                    diffEditorRef?.current?.refreshEditedText()
-                                }
+                                onClick={onCheckSyntaxClick}
                                 type="button"
                             >
                                 Check syntax

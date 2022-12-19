@@ -49,8 +49,8 @@ describe("ConfirmSaveSettingModal", () => {
                 renderComponent();
             });
 
-            test("enables the save button", () => {
-                expect(saveButtonNode).toBeEnabled();
+            test("disables the save button", () => {
+                expect(saveButtonNode).toBeDisabled();
             });
         });
 
@@ -77,8 +77,8 @@ describe("ConfirmSaveSettingModal", () => {
                 });
             });
 
-            test("enables the save button", () => {
-                expect(saveButtonNode).toBeEnabled();
+            test("disables the save button", () => {
+                expect(saveButtonNode).toBeDisabled();
             });
         });
 
@@ -97,29 +97,63 @@ describe("ConfirmSaveSettingModal", () => {
         });
     });
 
-    describe("on blur", () => {
+    describe("on clicking the 'Check syntax' button", () => {
         describe("when the updated JSON is valid", () => {
-            beforeEach(() => {
-                renderComponent();
+            describe("when there are no changes", () => {
+                beforeEach(() => {
+                    renderComponent();
 
-                fireEvent.change(textareaNode, {
-                    target: { value: VALID_JSON_UPDATED },
+                    fireEvent.click(checkSyntaxButtonNode);
+
+                    errorDiffNode = screen.queryByTestId(
+                        "EditableCompare__errorDiff"
+                    );
                 });
-                fireEvent.blur(textareaNode);
 
-                errorDiffNode = screen.queryByTestId(
-                    "EditableCompare__errorDiff"
-                );
+                test("does not render an error diff", () => {
+                    expect(errorDiffNode).toBeNull();
+                });
+
+                test("does not render an error toast", () => {
+                    expect(
+                        screen.queryByText(/JSON data generated/)
+                    ).not.toBeInTheDocument();
+                });
+
+                test("pretty-prints the JSON in the textarea", () => {
+                    expect(textareaNode.innerHTML).toEqual('{\n  "a": 1\n}');
+                });
             });
 
-            test("does not render an error diff", () => {
-                expect(errorDiffNode).toBeNull();
-            });
+            describe("when there are changes", () => {
+                beforeEach(() => {
+                    renderComponent();
 
-            test("does not render an error toast", () => {
-                expect(
-                    screen.queryByText(/JSON data generated/)
-                ).not.toBeInTheDocument();
+                    fireEvent.change(textareaNode, {
+                        target: { value: VALID_JSON_UPDATED },
+                    });
+                    fireEvent.click(checkSyntaxButtonNode);
+
+                    errorDiffNode = screen.queryByTestId(
+                        "EditableCompare__errorDiff"
+                    );
+                });
+
+                test("does not render an error diff", () => {
+                    expect(errorDiffNode).toBeNull();
+                });
+
+                test("does not render an error toast", () => {
+                    expect(
+                        screen.queryByText(/JSON data generated/)
+                    ).not.toBeInTheDocument();
+                });
+
+                test("pretty-prints the JSON in the textarea", () => {
+                    expect(textareaNode.innerHTML).toEqual(
+                        '{\n  "a": 1,\n  "b": 2\n}'
+                    );
+                });
             });
         });
 
@@ -136,7 +170,7 @@ describe("ConfirmSaveSettingModal", () => {
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
                 });
-                fireEvent.blur(textareaNode);
+                fireEvent.click(checkSyntaxButtonNode);
 
                 errorDiffNode = screen.getByTestId(
                     "EditableCompare__errorDiff"
@@ -172,65 +206,6 @@ describe("ConfirmSaveSettingModal", () => {
                     );
                     expect(errorDiffNode).toBeNull();
                 });
-            });
-
-            test("when the user starts typing again", () => {});
-        });
-    });
-
-    describe("on clicking the 'Check syntax' button", () => {
-        describe("when the updated JSON is valid", () => {
-            describe("when there are no changes", () => {
-                beforeEach(() => {
-                    renderComponent();
-
-                    fireEvent.click(checkSyntaxButtonNode);
-                });
-
-                test("pretty-prints the JSON in the textarea", () => {
-                    expect(textareaNode.innerHTML).toEqual('{\n  "a": 1\n}');
-                });
-            });
-
-            describe("when there are changes", () => {
-                beforeEach(() => {
-                    renderComponent();
-
-                    fireEvent.change(textareaNode, {
-                        target: {
-                            value: VALID_JSON_UPDATED,
-                        },
-                    });
-                    fireEvent.click(checkSyntaxButtonNode);
-                });
-
-                test("pretty-prints the JSON in the textarea", () => {
-                    expect(textareaNode.innerHTML).toEqual(
-                        '{\n  "a": 1,\n  "b": 2\n}'
-                    );
-                });
-            });
-        });
-
-        describe("when the updated JSON is invalid", () => {
-            beforeEach(() => {
-                renderComponent();
-
-                fireEvent.change(textareaNode, {
-                    target: {
-                        value: INVALID_JSON,
-                    },
-                });
-                fireEvent.click(checkSyntaxButtonNode);
-
-                errorDiffNode = screen.getByTestId(
-                    "EditableCompare__errorDiff"
-                );
-            });
-
-            test("renders an error diff highlighting the error", () => {
-                expect(errorDiffNode).toBeVisible();
-                expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
         });
     });

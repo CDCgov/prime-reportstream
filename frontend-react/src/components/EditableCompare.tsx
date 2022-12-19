@@ -21,7 +21,7 @@ import { showError } from "./AlertNotifications";
 export type EditableCompareRef = {
     getEditedText: () => string;
     getOriginalText: () => string;
-    refreshEditedText: (updatedjson?: string) => void;
+    refreshEditedText: (updatedjson?: string) => boolean; // returns true if valid JSON
     isValidSyntax: () => boolean;
 };
 
@@ -120,17 +120,23 @@ export const EditableCompare = forwardRef(
         const refreshEditedText = useCallback(
             (updatedJson: string | undefined) => {
                 let formattedText = updatedJson || textAreaContent;
+                const { valid, errorMsg } = checkJson(formattedText);
 
-                if (checkJson(formattedText).valid) {
+                if (valid) {
                     formattedText = JSON.stringify(
                         JSON.parse(formattedText),
                         null,
                         2
                     );
                     setTextAreaContent(formattedText);
+                } else {
+                    showError(`JSON data generated an error "${errorMsg}"`);
                 }
 
+                setIsValidSyntax(valid);
                 refreshDiffCallback(original, formattedText);
+
+                return valid;
             },
             [original, textAreaContent, refreshDiffCallback]
         );
@@ -138,10 +144,11 @@ export const EditableCompare = forwardRef(
         const onChangeHandler = useCallback(
             (newText: string) => {
                 setTextAreaContent(newText);
+                // Disable highlighting while the user's typing
                 setRightHandSideHighlightHtml("");
                 onChange(newText, checkJson(newText).valid);
             },
-            [setTextAreaContent, onChange]
+            [setTextAreaContent, setRightHandSideHighlightHtml, onChange]
         );
 
         useImperativeHandle(
@@ -159,18 +166,6 @@ export const EditableCompare = forwardRef(
                 },
             }),
             [textAreaContent, original, isValidSyntax, refreshEditedText]
-        );
-
-        const onBlurHandler = useCallback(
-            (newText: string) => {
-                const { valid, errorMsg } = checkJson(newText);
-                setIsValidSyntax(valid);
-                refreshEditedText(newText);
-                if (!valid) {
-                    showError(`JSON data generated an error "${errorMsg}"`);
-                }
-            },
-            [refreshEditedText]
         );
 
         useEffect(() => {
@@ -215,9 +210,6 @@ export const EditableCompare = forwardRef(
                                 value={textAreaContent}
                                 onChange={(e) => {
                                     onChangeHandler(e?.target?.value || "");
-                                }}
-                                onBlur={(e) => {
-                                    onBlurHandler(e?.target?.value || "");
                                 }}
                                 spellCheck="false"
                                 data-testid="EditableCompare__textarea"
