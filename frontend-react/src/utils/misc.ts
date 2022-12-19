@@ -46,25 +46,32 @@ export const checkJson = (
     }
 };
 
-export function excludeSpecialChars(origText: string): string {
-    return origText.replace(/[^a-z\d\s]/gi, "");
+export function includesSpecialChars(text: string): boolean {
+    return /[^a-z\d\s]/gi.test(text);
 }
 
-export const isProhibitedName = (
-    stringValue: string
+export const isProhibitedOrgName = (
+    orgName: string
 ): { prohibited: boolean; errorMsg: string } => {
     const prohibitedNames = [
         "sender",
         "receiver",
         "org",
+        "organization",
         "list",
         "all", //api/check issue
         "revs", //org/{organizationName}/senders/revs issue
     ];
-    if (prohibitedNames.indexOf(stringValue) > -1) {
+
+    if (prohibitedNames.indexOf(orgName) > -1) {
         return {
             prohibited: true,
-            errorMsg: `'${stringValue} is a prohibited name.`,
+            errorMsg: `'${orgName}' is a prohibited name.`,
+        };
+    } else if (includesSpecialChars(orgName)) {
+        return {
+            prohibited: true,
+            errorMsg: `'${orgName}' cannot contain special character(s).`,
         };
     } else {
         return { prohibited: false, errorMsg: "" };
