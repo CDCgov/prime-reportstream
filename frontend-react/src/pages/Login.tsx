@@ -14,7 +14,10 @@ export const Login = () => {
     const { dispatch } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        oktaAuth.handleLoginRedirect(tokens);
+        oktaAuth.handleLoginRedirect(tokens).finally(() => {
+            const bc = new BroadcastChannel("session");
+            bc.postMessage("login");
+        });
     };
 
     const onError = (err: any) => {

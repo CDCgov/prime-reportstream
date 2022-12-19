@@ -64,6 +64,12 @@ const App = () => {
         navigate(toRelativeUrl(originalUri, window.location.origin));
     };
 
+    // watch the session broadcast channel to handle login/logout on other tabs
+    const bc = new BroadcastChannel("session");
+    bc.onmessage = function () {
+        OKTA_AUTH.authStateManager.updateAuthState();
+    };
+
     useIdleTimer({
         timeout: 1000 * 60 * 15,
         onIdle: handleIdle,
