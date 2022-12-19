@@ -24,11 +24,13 @@ export const AccountRegistrationGuideIa = () => {
                         <h3 className="usa-alert__heading font-body-md margin-top-05">
                             Why create a ReportStream account?
                         </h3>
+                        <br />
                         <p className="usa-alert__text">
                             Entities that receive ReportStream data have the
                             option to download reports manually by logging into
                             the ReportStream application.
                         </p>
+                        <br />
                         <p className="usa-alert__text">
                             Register for an account to:
                             <ul>
@@ -55,7 +57,7 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
                     </div>
                 </div>
-                <h2>Register for a ReportStream account</h2>
+
                 <p className="text-bold">Jump to:</p>
                 <ul>
                     <li>
@@ -63,7 +65,13 @@ export const AccountRegistrationGuideIa = () => {
                             Set up multi-factor authentication
                         </a>
                     </li>
+                    <li>
+                        <a href="#anchor-acct-mngt" className="usa-link">
+                            Account management
+                        </a>
+                    </li>
                 </ul>
+                <h1>Register for a ReportStream account</h1>
                 <ol className="usa-process-list rs-process-list__documentation">
                     <li className="usa-process-list__item">
                         <h3 className="usa-process-list__heading">
@@ -173,7 +181,7 @@ export const AccountRegistrationGuideIa = () => {
                         <h3 className="usa-process-list__heading">
                             Set your account password
                         </h3>
-                        <p>
+                        <p className="margin-top-2">
                             After opening the link in the activation email,
                             follow the prompts to set up your account.
                         </p>
@@ -240,15 +248,15 @@ export const AccountRegistrationGuideIa = () => {
                             Log in to ReportStream
                         </h3>
 
-                        <ul>
-                            <li>
+                        <div className="margin-top-2">
+                            <p>
                                 Go to{" "}
                                 <a href="/login" className="usa-link">
                                     https://reportstream.cdc.gov/login
                                 </a>{" "}
                                 to log in with your username and password.
-                            </li>
-                            <li>
+                            </p>
+                            <p>
                                 Need help? Contact us at{" "}
                                 <a
                                     href={
@@ -260,13 +268,13 @@ export const AccountRegistrationGuideIa = () => {
                                 >
                                     reportstream@cdc.gov
                                 </a>
-                            </li>
-                        </ul>
+                            </p>
+                        </div>
                     </li>
                 </ol>
             </section>
             <section>
-                <h2 id="anchor-mfa">Set up multi-factor authentication</h2>
+                <h1 id="anchor-mfa">Set up multi-factor authentication</h1>
                 <p>
                     If you choose SMS or Google Authenticator/Okta Verify as
                     your multi-factor authentication, follow the instructions
@@ -342,7 +350,7 @@ export const AccountRegistrationGuideIa = () => {
                 </ol>
             </section>
             <section>
-                <h2 id="anchor-acct-mngt">Account management</h2>
+                <h1 id="anchor-acct-mngt">Account management</h1>
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members,{" "}
