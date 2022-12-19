@@ -23,7 +23,8 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 <a href="/how-it-works/where-were-live">
                     <img
                         src={usamapsvg}
-                        title="Map of states using ReportStream (Heitordp, CC0, via Wikimedia Commons)"
+                        title="USA with Territories (Heitordp, CC0, via Wikimedia Commons)"
+                        alt="Map of states using ReportStream"
                     />
                 </a>
             </div>
