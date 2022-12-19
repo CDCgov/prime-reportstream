@@ -339,7 +339,11 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            var passes = try {
+                evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            } catch (e: SchemaException) {
+                false
+            }
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
@@ -402,17 +406,20 @@ class FHIRRouter(
         defaultResponse: Boolean,
         reverseFilter: Boolean = false
     ): Boolean {
-        val passes = evaluateFilterCondition(
-            filters,
-            bundle,
-            defaultResponse,
-            reverseFilter
-        )
-        if (!passes) {
-            logFilterResults(filters, bundle, report, receiver, filterType)
+        return try {
+            val passes = evaluateFilterCondition(
+                filters,
+                bundle,
+                defaultResponse,
+                reverseFilter
+            )
+            if (!passes) {
+                logFilterResults(filters, bundle, report, receiver, filterType)
+            }
+            passes
+        } catch (e: SchemaException) {
+            false
         }
-
-        return passes
     }
 
     /**
@@ -442,7 +449,7 @@ class FHIRRouter(
             }
         } catch (e: SchemaException) {
             actionLogger?.error(InvalidFilterExpressionMessage(e.message ?: ""))
-            return false
+            throw e
         }
         return if (reverseFilter) !result else result
     }
