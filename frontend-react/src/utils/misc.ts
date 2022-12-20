@@ -63,7 +63,7 @@ export const isProhibitedOrgName = (
         "revs", //org/{organizationName}/senders/revs issue
     ];
 
-    if (prohibitedNames.indexOf(orgName) > -1) {
+    if (prohibitedNames.indexOf(orgName.toLowerCase()) > -1) {
         return {
             prohibited: true,
             errorMsg: `'${orgName}' is a prohibited name.`,

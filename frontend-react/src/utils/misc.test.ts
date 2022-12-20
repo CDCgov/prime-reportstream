@@ -10,6 +10,8 @@ import {
     capitalizeFirst,
     groupBy,
     checkJson,
+    isProhibitedOrgName,
+    includesSpecialChars,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -126,6 +128,93 @@ describe("groupBy ", () => {
             3: ["one", "two"],
             4: ["four", "five"],
             5: ["three"],
+        });
+    });
+});
+
+describe("includesSpecialChars", () => {
+    describe("returns true if the string contains a non-ascii char", () => {
+        const stringsWithSpecialChars = [
+            "test/",
+            "te.st",
+            "te$t",
+            "tes#",
+            "@est",
+            "te,st",
+            "te)",
+            "a\\ttest",
+            "|test ",
+        ];
+
+        stringsWithSpecialChars.forEach((name) => {
+            test(`string ${name} contains a non-ascii char `, () => {
+                expect(includesSpecialChars(name)).toBeTruthy();
+            });
+        });
+    });
+
+    describe("returns false if the string does not contain a non-ascii char", () => {
+        const stringsWithSpecialChars = ["orgname", "org name"];
+
+        stringsWithSpecialChars.forEach((name) => {
+            test(`string ${name} does not contain a non-ascii char `, () => {
+                expect(includesSpecialChars(name)).toBeFalsy();
+            });
+        });
+    });
+});
+
+describe("isProhibitedOrgName", () => {
+    describe("returns false if the orgName is not prohibited", () => {
+        test("valid org name", () => {
+            expect(isProhibitedOrgName("test")).toStrictEqual({
+                prohibited: false,
+                errorMsg: "",
+            });
+        });
+    });
+
+    describe("returns true if the orgName is prohibited", () => {
+        const prohibitedNames = [
+            "sender",
+            "receiver",
+            "org",
+            "ORG",
+            "organization",
+            "list",
+            "List",
+            "all",
+            "revs",
+        ];
+
+        prohibitedNames.forEach((name) => {
+            test(`name containing the prohibited word ${name}`, () => {
+                expect(isProhibitedOrgName(name)).toEqual({
+                    errorMsg: `'${name}' is a prohibited name.`,
+                    prohibited: true,
+                });
+            });
+        });
+    });
+
+    describe("returns true if the orgName contains a non-ascii character", () => {
+        const specialChar = [
+            "test/",
+            "te.st",
+            "te$t",
+            "tes#",
+            "@est",
+            "te,st",
+            "te)",
+        ];
+
+        specialChar.forEach((name) => {
+            test(`name containing the prohibited word ${name}`, () => {
+                expect(isProhibitedOrgName(name)).toEqual({
+                    errorMsg: `'${name}' cannot contain special character(s).`,
+                    prohibited: true,
+                });
+            });
         });
     });
 });
