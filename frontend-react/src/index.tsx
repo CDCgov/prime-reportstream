@@ -6,12 +6,11 @@ import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 // compiled css so the resources process for the static site by the compiler
 import "./content/generated/global.out.css";
-import { ai, withInsights } from "./TelemetryService";
+import { ai } from "./TelemetryService";
 
 // Initialize the App Insights connection and React app plugin from Microsoft
 // The plugin is provided in the AppInsightsProvider in AppWrapper.tsx
 ai.initialize();
-withInsights(console);
 
 ReactDOM.render(
     <CacheProvider>
