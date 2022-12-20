@@ -1,5 +1,10 @@
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import {
+    ApplicationInsights,
+    SeverityLevel,
+} from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
+
+import { getSessionMembershipState } from "./utils/SessionStorageTools";
 
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
@@ -30,6 +35,14 @@ const createTelemetryService = () => {
         });
         // Initialize for use in ReportStream
         appInsights.loadAppInsights();
+
+        // Add active membership information to all tracking events
+        appInsights.addTelemetryInitializer((envelope) => {
+            const { activeMembership } = getSessionMembershipState() || {};
+            if (activeMembership) {
+                (envelope.data as any).activeMembership = activeMembership;
+            }
+        });
     };
 
     return {
@@ -44,6 +57,10 @@ const createTelemetryService = () => {
 
 export const ai = createTelemetryService();
 
+export function getAppInsights() {
+    return appInsights;
+}
+
 export function getAppInsightsHeaders(): { [key: string]: string } {
     return {
         "x-ms-session-id": getAppInsightsSessionId(),
@@ -52,4 +69,69 @@ export function getAppInsightsHeaders(): { [key: string]: string } {
 
 function getAppInsightsSessionId(): string {
     return appInsights?.context.getSessionId() || "";
+}
+
+const logSeverityMap = {
+    log: SeverityLevel.Information,
+    warn: SeverityLevel.Warning,
+    error: SeverityLevel.Error,
+    info: SeverityLevel.Information,
+} as const;
+
+export function withInsights(console: Console) {
+    const originalConsole = { ...console };
+
+    Object.entries(logSeverityMap).forEach((el) => {
+        const [method, severityLevel] = el as [
+            keyof typeof logSeverityMap,
+            SeverityLevel
+        ];
+
+        console[method] = (...data: any[]) => {
+            originalConsole[method](...data);
+
+            if (method === "error" || method === "warn") {
+                const exception =
+                    data[0] instanceof Error ? data[0] : undefined;
+                const id = (() => {
+                    if (exception) {
+                        return exception.message;
+                    }
+                    if (typeof data[0] === "string") {
+                        return data[0];
+                    }
+                    return JSON.stringify(data[0]);
+                })();
+
+                appInsights?.trackException({
+                    exception,
+                    id,
+                    severityLevel,
+                    properties: {
+                        additionalInformation:
+                            data.length === 1
+                                ? undefined
+                                : JSON.stringify(data.slice(1)),
+                    },
+                });
+
+                return;
+            }
+
+            const message =
+                typeof data[0] === "string" ? data[0] : JSON.stringify(data[0]);
+
+            appInsights?.trackEvent({
+                name: `${method.toUpperCase()} - ${message}`,
+                properties: {
+                    severityLevel,
+                    message,
+                    additionalInformation:
+                        data.length === 1
+                            ? undefined
+                            : JSON.stringify(data.slice(1)),
+                },
+            });
+        };
+    });
 }
