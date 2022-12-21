@@ -1,3 +1,10 @@
+security:
+  valueOf: datatype/Coding
+  expressionType: resource
+  vars:
+    code: MSH.8
+    display: MSH.8
+
 extension_1:
   generateList: true
   valueOf: extension/Extension

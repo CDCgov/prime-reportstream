@@ -83,7 +83,7 @@ elements:
     hl7Spec: [ MSH-7 ]
 
   - name: security
-    value: [ 'Bundle.meta.security.code' ]
+    value: [ '%resource.meta.security.code' ]
     hl7Spec: [ MSH-8-1 ]
 
   - name: message-control-id
