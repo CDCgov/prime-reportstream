@@ -8,14 +8,16 @@ import {
 import {
     AccountRegistrationGuideIa,
     GettingStartedPhd,
-    GettingStartedSubmittingData,
     ELRChecklistIa,
     ProgrammersGuide,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
-import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
+import {
+    ReferralGuideMd,
+    GettingStartedSubmittingDataMd,
+} from "../../pages/resources/markdown-adapters";
 
 export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
@@ -109,7 +111,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                GettingStartedSubmittingData,
+                GettingStartedSubmittingDataMd,
                 ResourcesDirectoryTools.makeCrumb(
                     ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
                 )
