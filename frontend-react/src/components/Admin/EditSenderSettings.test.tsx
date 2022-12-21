@@ -111,7 +111,7 @@ describe("EditSenderSettings", () => {
             jest.resetAllMocks();
         });
 
-        test("should display an error if name value is prohibited", async () => {
+        test("should display an error if name value is prohibited", () => {
             fireEvent.change(nameField, {
                 target: { value: "Organization" },
             });
@@ -121,7 +121,7 @@ describe("EditSenderSettings", () => {
             expect(consoleTraceSpy).toHaveBeenCalled();
         });
 
-        test("should display an error if name value contains a non-ascii char", () => {
+        test("should display an error if name value contains a non-alphanumeric char", () => {
             fireEvent.change(nameField, {
                 target: { value: "a\\nlinefeed" },
             });

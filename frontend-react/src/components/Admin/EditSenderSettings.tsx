@@ -14,7 +14,7 @@ import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
-    isProhibitedOrgName,
+    isProhibitedName,
     VersionWarningType,
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
@@ -118,7 +118,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
 
     const ShowCompareConfirm = async () => {
         try {
-            const { prohibited, errorMsg } = isProhibitedOrgName(
+            const { prohibited, errorMsg } = isProhibitedName(
                 orgSenderSettings.name
             );
 

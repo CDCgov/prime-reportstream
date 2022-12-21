@@ -10,7 +10,7 @@ import {
     capitalizeFirst,
     groupBy,
     checkJson,
-    isProhibitedOrgName,
+    isProhibitedName,
     includesSpecialChars,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
@@ -164,10 +164,10 @@ describe("includesSpecialChars", () => {
     });
 });
 
-describe("isProhibitedOrgName", () => {
+describe("isProhibitedName", () => {
     describe("returns false if the orgName is not prohibited", () => {
         test("valid org name", () => {
-            expect(isProhibitedOrgName("test")).toStrictEqual({
+            expect(isProhibitedName("test")).toStrictEqual({
                 prohibited: false,
                 errorMsg: "",
             });
@@ -189,7 +189,7 @@ describe("isProhibitedOrgName", () => {
 
         prohibitedNames.forEach((name) => {
             test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedOrgName(name)).toEqual({
+                expect(isProhibitedName(name)).toEqual({
                     errorMsg: `'${name}' is a prohibited name.`,
                     prohibited: true,
                 });
@@ -210,7 +210,7 @@ describe("isProhibitedOrgName", () => {
 
         specialChar.forEach((name) => {
             test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedOrgName(name)).toEqual({
+                expect(isProhibitedName(name)).toEqual({
                     errorMsg: `'${name}' cannot contain special character(s).`,
                     prohibited: true,
                 });
