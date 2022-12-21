@@ -314,7 +314,7 @@ class Report : Logging {
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null
     ) {
-        this.id = id ?: generateRandomReportId()
+        this.id = generateRandomReportId(id)
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
@@ -430,11 +430,10 @@ class Report : Logging {
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
-    private fun generateRandomReportId(): UUID {
+    private fun generateRandomReportId(uuid: UUID? = UUID.randomUUID()): UUID {
         val database = WorkflowEngine().db
-        var uuid = UUID.randomUUID()
-        while (database.reportIdExists(uuid)) {
-            uuid = UUID.randomUUID()
+        while (database.reportIdExists(uuid!!)) {
+            return generateRandomReportId(UUID.randomUUID())
         }
         return uuid
     }
