@@ -314,7 +314,7 @@ class Report : Logging {
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null
     ) {
-        this.id = id ?: UUID.randomUUID()
+        this.id = id ?: generateRandomReportId()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
@@ -338,7 +338,7 @@ class Report : Logging {
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null
     ) {
-        this.id = UUID.randomUUID()
+        this.id = generateRandomReportId()
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
@@ -361,7 +361,7 @@ class Report : Logging {
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null
     ) {
-        this.id = UUID.randomUUID()
+        this.id = generateRandomReportId()
         this.schema = schema
         this.sources = listOf(source)
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
@@ -391,7 +391,7 @@ class Report : Logging {
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process
     ) {
-        this.id = UUID.randomUUID()
+        this.id = generateRandomReportId()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", Topic.FULL_ELR)
         this.sources = sources
@@ -417,7 +417,7 @@ class Report : Logging {
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null
     ) {
-        this.id = UUID.randomUUID()
+        this.id = generateRandomReportId()
         this.schema = schema
         this.table = table
         this.itemCount = this.table.rowCount()
@@ -428,6 +428,15 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+    }
+
+    private fun generateRandomReportId(): UUID {
+        val database = WorkflowEngine().db
+        var uuid = UUID.randomUUID()
+        while (database.reportIdExists(uuid)) {
+            uuid = UUID.randomUUID()
+        }
+        return uuid
     }
 
     @Suppress("Destructure")

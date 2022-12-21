@@ -180,6 +180,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
     }
 
+    fun reportIdExists(proposedUuid: UUID): Boolean {
+        return create.fetchExists(REPORT_FILE, REPORT_FILE.REPORT_ID.eq(proposedUuid))
+    }
+
     /**
      * Get the number of outstanding actions to batch for a specific receiver
      */
