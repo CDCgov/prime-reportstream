@@ -7,11 +7,23 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkClass
+import io.mockk.spyk
+import org.jooq.tools.jdbc.MockConnection
+import org.jooq.tools.jdbc.MockDataProvider
+import org.jooq.tools.jdbc.MockResult
 import java.io.ByteArrayInputStream
+import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -19,8 +31,37 @@ import kotlin.test.fail
 
 class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
+    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    val connection = MockConnection(dataProvider)
+    val accessSpy = spyk(DatabaseAccess(connection))
+    val blobMock = mockkClass(BlobAccess::class)
+    val queueMock = mockkClass(QueueAccess::class)
+
+    val oneOrganization = DeepOrganization(
+        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "elr",
+                "phd",
+                Topic.TEST,
+                CustomerStatus.INACTIVE,
+                "one",
+                timing = null
+            )
+        ),
+    )
 
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+
+    private fun makeEngine(settings: SettingsProvider): WorkflowEngine {
+        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings)
+            .databaseAccess(accessSpy).blobAccess(blobMock).queueAccess(queueMock).build()
+    }
+
+    @BeforeTest
+    fun reset() {
+        clearAllMocks()
+    }
 
     @Test
     fun `test merge`() {
@@ -692,6 +733,13 @@ class ReportTests {
                 Element("first_name")
             )
         )
+
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(settings)
+        every { engine.db.reportIdExists(any()) }.answers {
+            false
+        }
+
         val report = Report(
             schema = schema,
             values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
