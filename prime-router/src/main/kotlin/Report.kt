@@ -432,10 +432,11 @@ class Report : Logging {
 
     private fun generateRandomReportId(uuid: UUID? = UUID.randomUUID()): UUID {
         val database = WorkflowEngine().db
-        while (database.reportIdExists(uuid!!)) {
+        val proposedUuid = uuid ?: UUID.randomUUID()
+        while (database.reportIdExists(proposedUuid)) {
             return generateRandomReportId(UUID.randomUUID())
         }
-        return uuid
+        return proposedUuid
     }
 
     @Suppress("Destructure")
