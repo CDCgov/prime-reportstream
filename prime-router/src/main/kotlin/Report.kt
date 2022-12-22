@@ -226,6 +226,11 @@ class Report : Logging {
     val itemCount: Int
 
     /**
+     * The workflow engine used for database access
+     */
+    var workflowEngine: WorkflowEngine = WorkflowEngine()
+
+    /**
      * The number of items that passed the jurisdictionalFilter for this report, prior to
      * other filtering.  This is purely informational.   It is >= the actual number of items
      * in the report.  This is only useful for reports created by the routing step.
@@ -312,7 +317,8 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
+        workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         this.id = generateRandomReportId(id)
         this.schema = schema
@@ -325,6 +331,7 @@ class Report : Logging {
         this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.workflowEngine = workflowEngine
     }
 
     // Test source
@@ -336,7 +343,8 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
+        workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -349,6 +357,7 @@ class Report : Logging {
         this.itemCount = this.table.rowCount()
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.workflowEngine = workflowEngine
     }
 
     constructor(
@@ -359,7 +368,8 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
+        workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -372,6 +382,7 @@ class Report : Logging {
         this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.workflowEngine = workflowEngine
     }
 
     /**
@@ -389,7 +400,8 @@ class Report : Logging {
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
         destination: Receiver? = null,
-        nextAction: TaskAction = TaskAction.process
+        nextAction: TaskAction = TaskAction.process,
+        workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         this.id = generateRandomReportId()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -405,6 +417,7 @@ class Report : Logging {
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = nextAction
+        this.workflowEngine = workflowEngine
     }
 
     private constructor(
@@ -415,7 +428,8 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
-        itemCountBeforeQualFilter: Int? = null
+        itemCountBeforeQualFilter: Int? = null,
+        workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -428,12 +442,15 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.workflowEngine = workflowEngine
     }
 
+    /**
+     * Checks if a report id already exists in the db and proposes a new one umtil it finds one that does not match
+     */
     private fun generateRandomReportId(uuid: UUID? = UUID.randomUUID()): UUID {
-        val database = WorkflowEngine().db
         val proposedUuid = uuid ?: UUID.randomUUID()
-        while (database.reportIdExists(proposedUuid)) {
+        while (workflowEngine.db.reportIdExists(proposedUuid)) {
             return generateRandomReportId(UUID.randomUUID())
         }
         return proposedUuid

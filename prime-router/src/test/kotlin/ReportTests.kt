@@ -744,7 +744,8 @@ class ReportTests {
             schema = schema,
             values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
             source = TestSource,
-            metadata = metadata
+            metadata = metadata,
+            workflowEngine = engine
         )
         // act
         val synthesizedReport = report.synthesizeData(metadata = metadata)

@@ -180,6 +180,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
     }
 
+    /**
+     * Checks if the report id already exists in the db
+     */
     fun reportIdExists(proposedUuid: UUID): Boolean {
         return create.fetchExists(REPORT_FILE, REPORT_FILE.REPORT_ID.eq(proposedUuid))
     }
