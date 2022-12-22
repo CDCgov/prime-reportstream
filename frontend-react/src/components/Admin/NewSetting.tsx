@@ -7,7 +7,7 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import Spinner from "../Spinner";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import { getErrorDetailFromResponse, isProhibitedName } from "../../utils/misc";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { ErrorPage } from "../../pages/error/ErrorPage";
@@ -34,6 +34,14 @@ export function NewSetting() {
         const { fetch: fetchController } = useController();
         const saveData = async () => {
             try {
+                const { prohibited, errorMsg } =
+                    isProhibitedName(orgSettingName);
+
+                if (prohibited) {
+                    showError(errorMsg);
+                    return false;
+                }
+
                 const data = orgSetting;
                 const SETTINGTYPE = {
                     sender: {
