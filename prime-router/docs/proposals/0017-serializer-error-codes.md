@@ -20,21 +20,26 @@ the front-end without any cleaning or helpful metadata. These types of errors ar
 because they are hard to read and often times don't give the user enough information to fix the issue.
 
 ## Solution
-ReportStream should catch exceptions thrown by third-party libraries and wrap them in a specific error code, 
-combined with helpful metadata,
+ReportStream should catch exceptions thrown by third-party libraries and wrap them in a specific error code
 that the front-end can map to a nice, helpful message for the end-user. For example, ReportStream can have 
-an error code for when an exception gets thrown when processing a date field, say `INVALID_HL7_GENERAL_PARSE`, and part of
-the JSON that houses the error code would also have `Type=DATE` and `Field=PID-29`.
+an error code for when an exception gets thrown when processing a date field, say `INVALID_HL7_PARSE_DATE`, and part of
+the JSON that houses the error code would also have `Field=PID-29`.
 With this information, front-end would then know to show the user a helpful message regarding what date formats are 
 acceptable, instead of showing a stack-trace.
 
 In addition to third-party library exceptions, ReportStream can also run into issues when trying to load parsed
 values into Objects (Element). ReportStream should handle this case gracefully as well. This will be elaborated on down below and
 the process of loading a parsed value into an Object will be referred to as "normalization," to match the language 
-used in the code. One important thing to note here right away is that when ReportStream tries to load the parsed value as an Element,
-it has additional information that it doesn't in the external library case, and that information is "what exactly is wrong?", 
-along with the actual parsed value. This allows for the possibility of a more detailed error code, like `INVALID_HL7_DATE_SCHEMA_TYPE`
-instead of `INVALID_HL7_GENERAL_PARSE`.
+used in the code.
+
+### Disclaimer
+
+The benefit of this approach is that it is common and reusable. Since all that is at the heart of this proposal 
+is the use of an "error code", different formats (FHIR, CSV, HL7, et. al) can all make use of this feature. However, 
+Since the formats are different from each other, which error codes they support and the way they calculate those 
+error codes MAY VERY. **This document discusses these specifics as they relate to HL7 in the old (covid) pipeline only**. 
+When other pipelines or formats need to support error codes, work will need to be done to figure out how detailed the 
+error codes can be and how they can be calculated.
 
 # Design
 
@@ -44,7 +49,7 @@ Please note, the following design will be specific to HL7 but should be expandab
 
 ReportStream defines various error/warning messages in `ActionMessages` which eventually get sent to the front-end
 as JSON. These messages can be expanded to contain a new field, called `errorCode`, along with any other extra metadata
-that would be helpful for the front-end, such as the specific field in question, its type, or its parsed value.
+that would be helpful for the front-end, such as the specific field in question.
 The front-end can then use the errorCode and other metadata in the messages to calculate and display user-friendly messages.
 
 The following is the definition of the new action message that should be added. Its usage will be discussed in the
@@ -61,44 +66,11 @@ to a particular normalization error. See `MissingFieldMessage` for an example.
 class FieldProcessingMessage(
     // Name of the HL7 field (example: PID-29) or FHIR path, or csv column name, etc
     field: String = "",
-    // the ReportStream Element type associated with field 
-    // for the particular schema associated
-    elementType: Element.Type = Element.Type.UNKNOWN,
     // Back-end error message. front-end can choose to display 
     // this or a more friendly message using the other fields
     message: String = "",
-    // error code. Currently, ErrorType is defined in Hl7Serializer. 
-    // To support other formats, like FHIR, we can either create a new message type with a different enum here or
-    // factor out ErrorType to a separate class where ALL error codes can go, regardless of type.
-    errorCode: ErrorType = ErrorType.UNKNOWN
-) : ItemActionLogDetail(fieldMapping)
-```
-
-Original Version proposed by this document can be found below. And potential for exposing PII was removed as well 
-as generalized the name and intent of various fields to better work with other formats, such as FHIR and CSV.
-Keeping this here to show the other metadata that was considered at one point.
-
-```kotlin
-// This is a pseudocode class posted here just to show what kind of fields it would have. 
-// During implementation, this class most likely will have some fields factored out and 
-// integrated into ItemActionLogDetail. Other ActionMessages will probably get refactored as well
-class FieldProcessingMessage(
-    // Name of the HL7 field (example: PID-29)
-    fieldId: String = "",
-    // Long name of the fieldName (example: patient time of death)
-    fieldName: String = "",
-    // the ReportStream Element type associated with fieldMapping 
-    // for the particular schema associated
-    fieldType: Element.Type = Element.Type.UNKNOWN,
-    // the raw value that was parsed out by an external library (HAPI)
-    fieldValue: String = "",
-    // Back-end error message. front-end can choose to display 
-    // this or a more friendly message using the other fields
-    message: String = "",
-    // error code. Currently, ErrorType is defined in Hl7Serializer. 
-    // To support other formats, like FHIR, we can either create a new message type with a different enum here or
-    // factor out ErrorType to a separate class where ALL error codes can go, regardless of type.
-    errorCode: ErrorType = ErrorType.UNKNOWN
+    // error code
+    errorCode: ErrorCode = ErrorCode.UNKNOWN
 ) : ItemActionLogDetail(fieldMapping)
 ```
 
@@ -133,21 +105,15 @@ we can create a `FieldProcessingMessage`, defined above, and set `field` to `e.l
 `message` to `e.localizedMessage`, and `errorCode` to a response code that is specific for the particular error 
 of the HL7 field.
 
-For `errorCode` it is important to note that we will most likely not be able to determine exactly why the processing failed
-without processing `e.localizedMessage` and mapping that value to a response code. I propose we default to a generic
-response code like `INVALID_HL7_FIELD_PARSE`.
+Calculating the `errorCode` for HAPI exceptions is conceptually trivial. To get a detailed-enough error code that the 
+front-end can map to, `e.location` can be cross-referenced against the schema that is being processed. Each schema
+contains a collection of Elements that have a `field` parameter that can be compared against `e.location`. Once a 
+matching element is found, then `Element.type` can be accessed to return the type of the field in question as
+defined by the schema. Finally, with `Element.type` a data-specific ErrorCode can be calculated, like so: 
+`INVALID_HL7_PARSE_$matchingElement.type`.
 
-Example proposed catch logic (works for all fields):
-```kotlin
-errors.add(
-    FieldProcessingMessage(
-        field = e.location.toString(),
-        elementType = schema.elements.find { it.hl7Field == e.location.toString() }.fieldType, // pseudocode
-        message = "Error parsing HL7 field: ${e.localizedMessage}",
-        errorCode = INVALID_HL7_FIELD_PARSE
-    )
-)
-```
+Note, this approach only works for HL7 in the old pipeline. A new approach will need to be invented for Universal Pipeline
+and other potential pipelines or formats.
 
 #### PrimeRouter Normalization Error
 
@@ -203,7 +169,6 @@ exception: `ElementNormalizeException`:
 data class ElementNormalizeException(
   override val message: String,
   val field: String,
-  val type: Element.Type,
   val value: String,
   val errorCode: ErrorType
 ) : Exception(message)
@@ -223,7 +188,6 @@ mentioned above:
 errors.add(
   FieldPrecisionMessage(
       field = fieldId,
-      elementType = type,
       message = message,
       errorCode = errorCode
   )
@@ -233,9 +197,7 @@ errors.add(
 ### Error Codes
 
 The following set of error codes should cover all the types of errors ReportStream currently checks for
-(grouped by data type). More can be added on-demand as ReportStream adds more validation. Also, please
-note that the exact type of the Field is actually defined/specified by the schema being mapped to, and it cannot
-be internally inferred from the official HL7 field type.
+(grouped by data type). More can be added on-demand as ReportStream adds more validation.
 
 | ReportStream Element Type  | Error Code                               | Error Description                                            |
 |----------------------------|------------------------------------------|--------------------------------------------------------------|
@@ -247,8 +209,32 @@ be internally inferred from the official HL7 field type.
 | POSTAL_CODE                | INVALID_HL7_POSTAL_CODE_UNSUPPORTED      | postal code not in DHL list of supported format              |
 | EI (Entity Identifier)     | INVALID_HL7_EI_FORMAT                    | EI format is not eiCompleteFormat or eiNameToken             |
 | HD (Hierarchic Designator) | INVALID_HL7_HD_FORMAT                    | HD format is not hdCompleteFormat or hdNameToken             |
-| GENERAL FIELD              | INVALID_HL7_GENERAL_PARSE                | field was unable to be parsed by HAPI or ReportStream        |
 | GENERAL MSG                | INVALID_HL7_MSG_TYPE_MISSING             | Missing required HL7 message type field                      |
 | GENERAL MSG                | INVALID_HL7_MSG_TYPE_UNSUPPORTED         | Unsupported HL7 message type                                 |
 | GENERAL MSG                | INVALID_HL7_MSG_FORMAT_INVALID           | Invalid HL7 message format                                   |
 | MISC                       | UNKNOWN                                  | Error cannot be determined                                   |
+| FIELD PARSE                | INVALID_HL7_PARSE_GENERAL                | Parse err for an unknown field type                          |
+| FIELD PARSE                | INVALID_HL7_PARSE_TEXT                   | Parse err for TEXT field type                                |
+| FIELD PARSE                | INVALID_HL7_PARSE_TEXT_OR_BLANK          | Parse err for TEXT_OR_BLANK field type                       |
+| FIELD PARSE                | INVALID_HL7_PARSE_NUMBER                 | Parse err for PARSE_NUMBER field type                        |
+| FIELD PARSE                | INVALID_HL7_PARSE_DATE                   | Parse err for PARSE_DATE field type                          |
+| FIELD PARSE                | INVALID_HL7_PARSE_DATETIME               | Parse err for PARSE_DATETIME field type                      |
+| FIELD PARSE                | INVALID_HL7_PARSE_DURATION               | Parse err for DURATION field type                            |
+| FIELD PARSE                | INVALID_HL7_PARSE_CODE                   | Parse err for CODE field type                                |
+| FIELD PARSE                | INVALID_HL7_PARSE_TABLE                  | Parse err for TABLE field type                               |
+| FIELD PARSE                | INVALID_HL7_PARSE_TABLE_OR_BLANK         | Parse err for TABLE_OR_BLANK field type                      |
+| FIELD PARSE                | INVALID_HL7_PARSE_EI                     | Parse err for EI field type                                  |
+| FIELD PARSE                | INVALID_HL7_PARSE_HD                     | Parse err for HD field type                                  |
+| FIELD PARSE                | INVALID_HL7_PARSE_ID                     | Parse err for ID field type                                  |
+| FIELD PARSE                | INVALID_HL7_PARSE_ID_CLIA                | Parse err for ID_CLIA field type                             |
+| FIELD PARSE                | INVALID_HL7_PARSE_ID_DLN                 | Parse err for ID_DLN field type                              |
+| FIELD PARSE                | INVALID_HL7_PARSE_ID_SSN                 | Parse err for ID_SSN field type                              |
+| FIELD PARSE                | INVALID_HL7_PARSE_ID_NPI                 | Parse err for ID_NPI field type                              |
+| FIELD PARSE                | INVALID_HL7_PARSE_STREET                 | Parse err for STREET field type                              |
+| FIELD PARSE                | INVALID_HL7_PARSE_STREET_OR_BLANK        | Parse err for STREET_OR_BLANK field type                     |
+| FIELD PARSE                | INVALID_HL7_PARSE_CITY                   | Parse err for CITY field type                                |
+| FIELD PARSE                | INVALID_HL7_PARSE_POSTAL_CODE            | Parse err for POSTAL_CODE field type                         |
+| FIELD PARSE                | INVALID_HL7_PARSE_PERSON_NAME            | Parse err for PERSON_NAME field type                         |
+| FIELD PARSE                | INVALID_HL7_PARSE_TELEPHONE              | Parse err for TELEPHONE field type                           |
+| FIELD PARSE                | INVALID_HL7_PARSE_EMAIL                  | Parse err for EMAIL field type                               |
+| FIELD PARSE                | INVALID_HL7_PARSE_BLANK                  | Parse err for BLANK field type                               |
