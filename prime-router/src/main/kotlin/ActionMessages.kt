@@ -1,5 +1,38 @@
 package gov.cdc.prime.router
 
+enum class ErrorCode {
+    INVALID_HL7_MESSAGE_VALIDATION,
+    INVALID_HL7_MESSAGE_FORMAT,
+    INVALID_HL7_PHONE_NUMBER,
+    INVALID_HL7_PARSE_GENERAL,
+    INVALID_HL7_PARSE_TEXT,
+    INVALID_HL7_PARSE_TEXT_OR_BLANK,
+    INVALID_HL7_PARSE_NUMBER,
+    INVALID_HL7_PARSE_DATE,
+    INVALID_HL7_PARSE_DATETIME,
+    INVALID_HL7_PARSE_DURATION,
+    INVALID_HL7_PARSE_CODE,
+    INVALID_HL7_PARSE_TABLE,
+    INVALID_HL7_PARSE_TABLE_OR_BLANK,
+    INVALID_HL7_PARSE_EI,
+    INVALID_HL7_PARSE_HD,
+    INVALID_HL7_PARSE_ID,
+    INVALID_HL7_PARSE_ID_CLIA,
+    INVALID_HL7_PARSE_ID_DLN,
+    INVALID_HL7_PARSE_ID_SSN,
+    INVALID_HL7_PARSE_ID_NPI,
+    INVALID_HL7_PARSE_STREET,
+    INVALID_HL7_PARSE_STREET_OR_BLANK,
+    INVALID_HL7_PARSE_CITY,
+    INVALID_HL7_PARSE_POSTAL_CODE,
+    INVALID_HL7_PARSE_PERSON_NAME,
+    INVALID_HL7_PARSE_TELEPHONE,
+    INVALID_HL7_PARSE_EMAIL,
+    INVALID_HL7_PARSE_BLANK,
+    INVALID_HL7_PARSE_UNKNOWN,
+    UNKNOWN
+}
+
 /**
  * Action details for item logs for specific [fieldMapping] and [errorCode].
  */
@@ -7,7 +40,7 @@ abstract class ItemActionLogDetail(
     val fieldMapping: String = ""
 ) : ActionLogDetail {
     override val scope = ActionLogScope.item
-    override val errorCode: String = ""
+    override val errorCode = ErrorCode.UNKNOWN
 }
 
 /**
@@ -16,7 +49,7 @@ abstract class ItemActionLogDetail(
 abstract class GenericActionLogDetail(
     override val message: String,
     override val scope: ActionLogScope,
-    override val errorCode: String = ""
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
 ) :
     ActionLogDetail
 
@@ -127,16 +160,26 @@ class InvalidEquipmentMessage(
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
     override val message: String,
-    override val errorCode: String = ""
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+) : ItemActionLogDetail(fieldMapping)
+
+/**
+ * A [message] and [errorCode] to denote a field processing issue for a given [fieldMapping].
+ */
+class FieldProcessingMessage(
+    fieldMapping: String = "", // Default to empty for backwards compatibility
+    override val message: String,
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
  * A [message] for invalid HL7 message.  Note field mapping is not available from the HAPI errors.
  * An optional [errorCode] for the error. Used to display a friendly error.
  */
-class InvalidHL7Message(override val message: String, override val errorCode: String = "") : ItemActionLogDetail(
-    ""
-)
+class InvalidHL7Message(
+    override val message: String,
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+) : ItemActionLogDetail("")
 
 /**
  * A [message] for invalid request parameter.
@@ -159,7 +202,7 @@ class InvalidTranslationMessage(override val message: String) :
  */
 class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
     override val scope = ActionLogScope.report
-    override val errorCode = ""
+    override val errorCode = ErrorCode.UNKNOWN
     override val message: String get() {
         var msg = "All items in this submission are duplicates."
         if (!payloadName.isNullOrEmpty()) {
@@ -174,7 +217,7 @@ class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
  */
 class DuplicateItemMessage() : ActionLogDetail {
     override val scope = ActionLogScope.item
-    override val errorCode = ""
+    override val errorCode = ErrorCode.UNKNOWN
     override val message = "Item is a duplicate."
 }
 
@@ -183,13 +226,13 @@ class DuplicateItemMessage() : ActionLogDetail {
  */
 class FhirActionLogDetail(
     override val message: String
-) : GenericActionLogDetail(message, ActionLogScope.report, "")
+) : GenericActionLogDetail(message, ActionLogScope.report, ErrorCode.UNKNOWN)
 
 /**
  * A return message for invalid processing type
  */
 class UnsupportedProcessingTypeMessage() : ActionLogDetail {
     override val scope = ActionLogScope.report
-    override val errorCode = ""
+    override val errorCode = ErrorCode.UNKNOWN
     override val message = "Full ELR senders must be configured for async processing."
 }

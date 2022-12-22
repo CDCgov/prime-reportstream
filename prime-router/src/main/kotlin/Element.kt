@@ -132,6 +132,7 @@ data class Element(
         TELEPHONE,
         EMAIL,
         BLANK,
+        UNKNOWN
     }
 
     data class CsvField(

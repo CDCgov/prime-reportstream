@@ -93,7 +93,7 @@ interface ActionLogDetail {
     /**
      * The error code used to translate the error in the UI.
      */
-    val errorCode: String
+    val errorCode: ErrorCode
 }
 
 /**
