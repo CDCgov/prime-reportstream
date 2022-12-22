@@ -84,13 +84,18 @@ endpoint_7:
   vars:
     msh25: MSH.25
 
-receiver:
+receiver_1:
+  condition: $orgIdValue NOT_NULL && $orgIdSystem EQUALS ISO
   valueOf: resource/Organization
   expressionType: reference
+  specs: MSH.6
   vars:
     orgName: String, MSH.6.1
-    orgIdValue: String, MSH.6.2
+    orgIdValue: $urlPrefix + MSH.6.2
     orgIdSystem: String, MSH.6.3
+    idStr: String, MSH.6.2
+  constants:
+    urlPrefix: "urn:oid:"
 
 target:
   condition: $msh5 NOT_NULL
