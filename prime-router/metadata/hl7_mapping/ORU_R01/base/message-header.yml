@@ -92,9 +92,16 @@ elements:
     hl7Spec: [ MSH-10 ]
 
   - name: processing-id
-    resource: '%resource.meta.extension(%`rsext-source-processing-id`).value'
-    value: [ '%resource.coding.code' ]
+    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103")'
+    condition: '%resource.exists()'
+    value: [ '%resource.code' ]
     hl7Spec: [ MSH-11-1 ]
+
+  - name: processing-mode
+    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0207")'
+    condition: '%resource.exists()'
+    value: [ '%resource.code' ]
+    hl7Spec: [ MSH-11-2 ]
 
   - name: country-code
     value: [ '%resource.sender.resolve().address.country' ]
