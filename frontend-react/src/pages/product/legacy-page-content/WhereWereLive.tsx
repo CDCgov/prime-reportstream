@@ -26,8 +26,21 @@ export const WhereWereLive = () => {
                 src={usamapsvg}
                 alt="Map of states using ReportStream"
             />
-            ReportStream has established connections to send and report public
-            health data for each of the states and territories listed here.
+            <p className="font-body-2xs text-gray-50">
+                <a
+                    href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg"
+                    rel="noreferrer noopener"
+                    className="usa-link--external"
+                >
+                    Heitordp
+                </a>
+                , CC0, via Wikimedia Commons
+            </p>
+            <p className="margin-top-10">
+                ReportStream has established connections to send and report
+                public health data for each of the states and territories listed
+                here.
+            </p>
             <ul className={"rs-livestate-two-column"}>
                 {live.data
                     .sort((a, b) => a.state.localeCompare(b.state))

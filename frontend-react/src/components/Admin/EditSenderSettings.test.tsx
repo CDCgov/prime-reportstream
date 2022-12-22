@@ -10,6 +10,8 @@ import { EditSenderSettings } from "./EditSenderSettings";
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS
 ).data;
+let editJsonAndSaveButton: HTMLElement;
+let nameField: HTMLElement;
 
 jest.mock("rest-hooks", () => ({
     useResource: () => {
@@ -67,6 +69,8 @@ describe("EditSenderSettings", () => {
     afterAll(() => settingsServer.close());
     beforeEach(() => {
         render(<EditSenderSettings />);
+        nameField = screen.getByTestId("name");
+        editJsonAndSaveButton = screen.getByTestId("submit");
     });
 
     test("should be able to edit keys field", () => {
@@ -89,8 +93,52 @@ describe("EditSenderSettings", () => {
         });
 
         expect(processingTypeField).toHaveValue(testProcessingType);
-        fireEvent.click(screen.getByTestId("submit"));
+        fireEvent.click(editJsonAndSaveButton);
         fireEvent.click(screen.getByTestId("editCompareCancelButton"));
         fireEvent.click(screen.getByTestId("senderSettingDeleteButton"));
+    });
+
+    describe("should validate name", () => {
+        const consoleTraceSpy = jest.fn();
+
+        beforeEach(() => {
+            jest.spyOn(console, "trace").mockImplementationOnce(
+                consoleTraceSpy
+            );
+        });
+
+        afterEach(() => {
+            jest.resetAllMocks();
+        });
+
+        test("should display an error if name value is prohibited", () => {
+            fireEvent.change(nameField, {
+                target: { value: "Organization" },
+            });
+            expect(nameField).toHaveValue("Organization");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).toHaveBeenCalled();
+        });
+
+        test("should display an error if name value contains a non-alphanumeric char", () => {
+            fireEvent.change(nameField, {
+                target: { value: "a\\nlinefeed" },
+            });
+            expect(nameField).toHaveValue("a\\nlinefeed");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).toHaveBeenCalled();
+        });
+
+        test("should not display error if name value is valid", () => {
+            fireEvent.change(nameField, {
+                target: { value: "test" },
+            });
+            expect(nameField).toHaveValue("test");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).not.toHaveBeenCalled();
+        });
     });
 });

@@ -4,12 +4,15 @@ import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 export const ELRChecklistIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="ELR onboarding checklist | Resources" />
-            <h1 id="anchor-top">ELR onboarding checklist</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.ELR_CHECKLIST} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.ELR_CHECKLIST}</h1>
             <h2>
                 If you're a public health department and want to connect
                 ReportStream through Electronic Lab Reporting (ELR), you'll need
