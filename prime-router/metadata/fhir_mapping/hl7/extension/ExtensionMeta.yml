@@ -1,4 +1,5 @@
 security:
+  condition: $code NOT_NULL
   valueOf: datatype/Coding
   expressionType: resource
   vars:
