@@ -7,72 +7,78 @@ name:
     msh25: MSH.25
 
 endpoint_1:
-  condition: $msh25 NULL && $systemStr EQUALS ISO
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS ISO
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
     urlPrefix: "urn:oid:"
 
 endpoint_2:
-  condition: $msh25 NULL && $systemStr EQUALS UUID
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS UUID
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
     urlPrefix: "urn:uuid:"
 
 endpoint_3:
-  condition: $msh25 NULL && $systemStr EQUALS DNS
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS DNS
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
     urlPrefix: "urn:dns:"
 
 endpoint_4:
-  condition: $msh25 NULL && $systemStr EQUALS URI
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS URI
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
     urlPrefix: "urn:uri:"
 
 endpoint_5:
-  condition: $msh25 NULL && $systemStr EQUALS CLIA
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS CLIA
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
   constants:
     urlPrefix: "urn:clia:"
 
 endpoint_6:
-  condition: $msh25 NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
+    idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
 
@@ -85,7 +91,7 @@ endpoint_7:
     msh25: MSH.25
 
 receiver_1:
-  condition: $orgIdValue NOT_NULL && $orgIdSystem EQUALS ISO
+  condition: $idStr NOT_NULL && $orgIdSystem EQUALS ISO
   valueOf: resource/Organization
   expressionType: reference
   specs: MSH.6
@@ -96,6 +102,28 @@ receiver_1:
     idStr: String, MSH.6.2
   constants:
     urlPrefix: "urn:oid:"
+
+receiver_2:
+  condition: $idStr NOT_NULL && $orgIdSystem EQUALS UUID
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    orgName: String, MSH.6.1
+    orgIdValue: $urlPrefix + MSH.6.2
+    orgIdSystem: String, MSH.6.3
+    idStr: String, MSH.6.2
+  constants:
+    urlPrefix: "urn:uuid:"
+
+receiver_3:
+  condition: $idStr NULL && $orgName NOT_NULL
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    orgName: String, MSH.6.1
+    idStr: String, MSH.6.2
 
 target:
   condition: $msh5 NOT_NULL

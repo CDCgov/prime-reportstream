@@ -116,8 +116,14 @@ class CustomFHIRFunctionsTests {
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodClia)
 
+        // Generic ID
+        val goodId = "dummy"
+        val idInString = StringType().also { it.value = "urn:id:$goodId" }
+        id = CustomFHIRFunctions.getId(mutableListOf(idInString))
+        assertThat(id.size).isEqualTo(1)
+        assertThat(id[0].primitiveValue()).isEqualTo(goodId)
+
         // None of the above. Format per HL7 v2 to FHIR mapping
-        val goodId = "someId"
         val idString = StringType().also { it.value = "name-type:$goodId" }
         id = CustomFHIRFunctions.getId(mutableListOf(idString))
         assertThat(id.size).isEqualTo(1)
@@ -197,6 +203,11 @@ class CustomFHIRFunctionsTests {
         id = CustomFHIRFunctions.getIdType(mutableListOf(uriInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(uriType)
+
+        // Generic ID
+        val idInString = StringType().also { it.value = "urn:id:dummy" }
+        id = CustomFHIRFunctions.getIdType(mutableListOf(idInString))
+        assertThat(id).isEmpty()
 
         // None of the above. Format per HL7 v2 to FHIR mapping
         val idString = StringType().also { it.value = "name-ISO:$goodOid" }

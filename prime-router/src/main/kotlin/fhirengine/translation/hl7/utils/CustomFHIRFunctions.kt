@@ -248,7 +248,7 @@ object CustomFHIRFunctions {
     /**
      * Regex to extract type and ID from a URN. Note the Clia NID is not part of the mapping docs.
      */
-    private val urnRegex = """^urn:(oid|uuid|dns|uri|clia):(.*)$""".toRegex()
+    private val urnRegex = """^urn:(oid|uuid|dns|uri|clia|id):(.*)$""".toRegex()
 
     /**
      * Regex to extract type and ID from an unknown ID type
@@ -296,6 +296,7 @@ object CustomFHIRFunctions {
                 val matches = urnRegex.matchEntire(focus[0].primitiveValue())
                 when (val type = matches?.groupValues?.get(1)?.uppercase()) {
                     "OID" -> oidType
+                    "ID" -> null
                     else -> type
                 }
             }
