@@ -1,7 +1,9 @@
-package gov.cdc.prime.router
-
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreType
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class TsExport
 
 @JsonIgnoreType
 class TsExportJsonIgnoreTypeTest (

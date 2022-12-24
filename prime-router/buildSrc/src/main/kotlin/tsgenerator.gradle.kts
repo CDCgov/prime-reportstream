@@ -1,12 +1,18 @@
-plugins {
-    `java-library`
-}
+import me.ntrrgc.tsGenerator.VoidType
 
-dependencies {
-    implementation(gradleApi())
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("jvm"))
-    implementation("com.github.ntrrgc", "ts-generator", "1.1.1")
-    implementation("com.google.guava", "guava", "27.0.1-jre")
-    implementation("org.jetbrains.kotlin","kotlin-reflect", "1.3.50")
+val typescriptGenerator = extensions.create<TypeScriptGeneratorExtension>("typescriptGenerator")
+typescriptGenerator.voidType.convention(VoidType.UNDEFINED)
+typescriptGenerator.intTypeName.convention("number")
+typescriptGenerator.typeMappings.convention(mapOf("java.lang.Void" to "undefined"))
+
+tasks.register<TypeScriptGeneratorTask>("generateTypescriptDefinitions") {
+    description = "Generates Typescript definitions from Kotlin classes."
+    annotation.set(typescriptGenerator.annotation)
+    manualClasses.set(typescriptGenerator.manualClasses)
+    outputPath.set(typescriptGenerator.outputPath)
+    classPath.set(typescriptGenerator.classPath)
+    typeMappings.set(typescriptGenerator.typeMappings)
+    imports.set(typescriptGenerator.imports)
+    intTypeName.set(typescriptGenerator.intTypeName)
+    voidType.set(typescriptGenerator.voidType)
 }

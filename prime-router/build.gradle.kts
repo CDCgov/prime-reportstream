@@ -27,7 +27,6 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-
 plugins {
     kotlin("jvm") version "1.7.21"
     id("org.flywaydb.flyway") version "8.5.13"
@@ -41,6 +40,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
+    tsgenerator
 }
 
 group = "gov.cdc.prime"
@@ -822,4 +822,15 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
     implementation(kotlin("script-runtime"))
+}
+
+typescriptGenerator.apply {
+    outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
+    classPath.set(layout.files(project.sourceSets.main.get().runtimeClasspath))
+    annotation.set(TsExportAnnotation("gov.cdc.prime.router.TsExport", "gov.cdc.prime.router"))
+    manualClasses.set(
+        listOf(
+            "gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures"
+        )
+    )
 }
