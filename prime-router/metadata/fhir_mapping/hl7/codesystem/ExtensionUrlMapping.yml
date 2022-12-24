@@ -18,13 +18,10 @@
   url: "http://ibm.com/fhir/cdm/StructureDefinition/process-client-id"
 # source-data-model-version
 - id: "source-data-model-version"
-  url:  "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version"
+  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version"
 # source-event-timestamp
 - id: "source-event-timestamp"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-timestamp"
-# source-record-id
-- id: "source-record-id"
-  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id"
 # source-event-trigger
 - id: "source-event-trigger"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger"
@@ -34,9 +31,6 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
-# processing ID
-- id: "source-processing-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
