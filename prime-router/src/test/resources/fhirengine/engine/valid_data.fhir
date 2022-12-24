@@ -184,6 +184,9 @@
           "code" : "P"
         } ]
       },
+      "target": [ {
+         "reference": "Endpoint/1666038441953190000.245100f2-cee6-4c1b-9f7c-9635ab87fe74"
+      } ],
       "occurredDateTime" : "2022-08-03T04:07:05-06:00",
       "recorded" : "2022-08-03T04:07:05-06:00",
       "activity" : {
@@ -2768,6 +2771,21 @@
         "valueString" : "F.ER"
       } ],
       "mode" : "instance"
+    }
+  },
+  {
+    "fullUrl": "Endpoint/1666038441953190000.245100f2-cee6-4c1b-9f7c-9635ab87fe74",
+    "resource": {
+        "resourceType": "Endpoint",
+        "id": "1666038441953190000.245100f2-cee6-4c1b-9f7c-9635ab87fe74",
+        "identifier": [
+            {
+                "system": "https://reportstream.cdc.gov/prime-router",
+                "value": "co-phd.full-elr-hl7"
+            }
+        ],
+        "status": "active",
+        "name": "full-elr-hl7"
     }
   } ]
 }
