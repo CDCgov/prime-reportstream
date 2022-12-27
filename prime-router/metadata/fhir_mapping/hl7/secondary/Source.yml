@@ -1,7 +1,34 @@
-name:
+name_1:
   type: STRING
   valueOf: MSH.3
   expressionType: HL7Spec
+
+# For all other ID types
+name_2:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    systemStr: String, MSH.3.3
+    value: MSH.3.1 + $dash + MSH.3.3 + $colon + MSH.3.2
+  constants:
+    dash: "-"
+    colon: ":"
+
+name_3:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr NULL
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    systemStr: String, MSH.3.3
+    value: MSH.3.1 + $dash + $colon + MSH.3.2
+  constants:
+    dash: "-"
+    colon: ":"
 
 # For OIDs
 endpoint_1:
@@ -16,18 +43,57 @@ endpoint_1:
   constants:
     oidUrlPrefix: "urn:oid:"
 
-# For all other ID types
+# For UUIDs
 endpoint_2:
   type: URL
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+  condition: $idStr NOT_NULL && $systemStr EQUALS UUID
   valueOf: $value
   expressionType: HL7Spec
   vars:
     idStr: String, MSH.3.2
-    value: $idUrlPrefix + MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
     systemStr: String, MSH.3.3
   constants:
-    idUrlPrefix: "urn:id:"
+    oidUrlPrefix: "urn:uuid:"
+
+# For DNS
+endpoint_3:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS DNS
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    oidUrlPrefix: "urn:dns:"
+
+# For CLIA
+endpoint_4:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    oidUrlPrefix: "urn:clia:"
+
+# For URIs
+endpoint_5:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS URI
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    oidUrlPrefix: "urn:uri:"
 
 version:
   type: STRING
@@ -80,4 +146,3 @@ extension_4:
       valueOf: resource/Organization
       expressionType: reference
       specs: SFT.1
-

@@ -1,9 +1,9 @@
 # Used when a coding is not available but separate values are
-type_1: 
-   condition: $code NOT_NULL && $coding NULL
-   valueOf: datatype/CodeableConcept_var
-   generateList: true
-   expressionType: resource
+type_1:
+  condition: $code NOT_NULL && $coding NULL
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
     # CodeableConcept_var uses these scope vars: 
     # $code (for CodeableConcept.Coding.code)
     # $system (for CodeableConcept.Coding.system)
@@ -13,37 +13,37 @@ type_1:
 
 # Used when a coding is available
 type_2:
-    condition: $coding NOT_NULL && $code NULL 
-    valueOf: datatype/CodeableConcept
-    generateList: true
-    expressionType: resource
-    
+  condition: $coding NOT_NULL && $code NULL
+  valueOf: datatype/CodeableConcept
+  generateList: true
+  expressionType: resource
+
 value:
-   type: STRING
-   valueOf: $valueIn
+  type: STRING
+  valueOf: $valueIn
 
 system_1:
-   type: STRING
-   valueOf: $systemId
+  type: STRING
+  valueOf: $systemId
 
 system_2:
-   condition: $systemCX NOT_NULL 
-   valueOf: $join
-   vars:
-      join: $systemCX, GeneralUtils.noWhiteSpace(join)
+  condition: $systemCX NOT_NULL
+  valueOf: $join
+  vars:
+    join: $systemCX, GeneralUtils.noWhiteSpace(join)
 
 use:
-   condition: $use NOT_NULL 
-   type: STRING
-   valueOf: $use
+  condition: $use NOT_NULL
+  type: STRING
+  valueOf: $use
 
 period:
-    condition: $start NOT_NULL || $end NOT_NULL 
-    valueOf: datatype/Period
-    expressionType: resource
-    vars: 
-       start: $start
-       end: $end
+  condition: $start NOT_NULL || $end NOT_NULL
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: $start
+    end: $end
 
 # For OIDs
 extension_1:

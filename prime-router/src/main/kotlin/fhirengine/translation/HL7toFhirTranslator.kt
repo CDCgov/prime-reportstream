@@ -9,7 +9,6 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Coding
 
 /**
  * Translate an HL7 message to FHIR.
@@ -103,8 +102,5 @@ class HL7toFhirTranslator internal constructor(
         // The HL7 message ID
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
-
-        if (!mshSegment.security.isEmpty) bundle.meta.security =
-            listOf(Coding("", mshSegment.security.value, mshSegment.security.value))
     }
 }
