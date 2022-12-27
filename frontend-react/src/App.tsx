@@ -12,7 +12,7 @@ import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout } from "./utils/UserUtils";
+import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -64,11 +64,7 @@ const App = () => {
         navigate(toRelativeUrl(originalUri, window.location.origin));
     };
 
-    // watch the session broadcast channel to handle login/logout on other tabs
-    const bc = new BroadcastChannel("session");
-    bc.onmessage = function () {
-        OKTA_AUTH.authStateManager.updateAuthState();
-    };
+    initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
     useIdleTimer({
         timeout: 1000 * 60 * 15,
