@@ -45,6 +45,15 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     }
 
     /**
+     * Takes a [rawMessage] and the number of messages [numMessages] in the rawMessage and determines if it is a batch
+     * or singular HL7 message. It will qualify as a batch message if it follows the HL7 standards and have the Hl7
+     * batch headers which start with "FHS" or if they left off the batch headers and just sent multiple messages
+     */
+    fun isBatch(rawMessage: String, numMessages: Int): Boolean {
+        return rawMessage.startsWith("FHS") || numMessages > 1
+    }
+
+    /**
      * Takes an [exception] thrown by the HL7 HAPI library, gets the root cause and logs the error into [actionLogger].
      * Sample error messages returned by the HAPI library are:
      *  Error Code = DATA_TYPE_ERROR-102: 'test' in record 3 is invalid for version 2.5.1
