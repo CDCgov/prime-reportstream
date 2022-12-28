@@ -125,7 +125,7 @@ abstract class Sender(
         CSV("text/csv"),
         HL7("application/hl7-v2"),
         FHIR("application/fhir+json"),
-        HL7_BATCH("application/hl7-v2"), // todo: figure out what to put as value
+        HL7_BATCH("application/hl7-v2"),
     }
 
     /**

@@ -817,19 +817,19 @@ class SubmissionReceiverTests {
 
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, inactive sender`() {
-        callELRReceiverValidateAndMoveToProcessing(Report.Format.HL7, hl7_record)
+        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7, hl7_record)
     }
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, HL7_BATCH format with header`() {
-        callELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_record_batch_headers)
+        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_record_batch_headers)
     }
 
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, HL7_BATCH format no header, multiple records`() {
-        callELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_multiple_records_no_headers)
+        testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_multiple_records_no_headers)
     }
 
-    private fun callELRReceiverValidateAndMoveToProcessing(format: Report.Format, content: String) {
+    private fun testELRReceiverValidateAndMoveToProcessing(format: Report.Format, content: String) {
         // setup
         mockkObject(SubmissionReceiver.Companion)
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
