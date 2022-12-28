@@ -12,7 +12,7 @@ See Github release notes anytime at [https://github.com/CDCgov/prime-reportstrea
 
 #### Improvements 
 
-* ReportStream offers many methods to connect to public health authorities to send them data. Among them, REST/HTTP transport is fastest, most secure, and able to provide feedback. Expanding our capabilities in delivery methods enhances ReportStream’s ability to respond to future pandemics and gives us more flexibility for future data types in public health. If your jurisdiction is interested in REST/HTTP transport, [connect with our team]([url](https://reportstream.cdc.gov/support/contact)). 
+* ReportStream offers many methods to connect to public health authorities to send them data. Among them, REST/HTTP transport is fastest, most secure, and able to provide feedback. Expanding our capabilities in delivery methods enhances ReportStream’s ability to respond to future pandemics and gives us more flexibility for future data types in public health. If your jurisdiction is interested in REST/HTTP transport, [connect with our team.](https://reportstream.cdc.gov/support/contact)
 
 * To make it easier for authenticated ReportStream users to load and view their data on the Daily Data page, we have added pagination to each page. This will display in the lower left-hand side of the page as “number of records” and as “previous” or “next” on the lower right-hand side.
 
