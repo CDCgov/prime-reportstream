@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 // Known issue with the `PropsWithChildren generic in React 18,
 // so I wrote this in a way that we can just remove `<any>` and be
@@ -13,9 +13,9 @@ type USLinkProps = Omit<USNavLinkProps, "activeClassName">;
 
 /** A single link for rendering standard links */
 export const USLink = ({ children, href, className }: USLinkProps) => (
-    <a href={href} className={`usa-link ${className}`}>
+    <Link to={href} className={`usa-link ${className}`}>
         {children}
-    </a>
+    </Link>
 );
 
 /** A single link for rendering external links */
@@ -39,18 +39,15 @@ export const USNavLink = ({
     className,
     activeClassName,
 }: USNavLinkProps) => {
-    const navLinkStyles = ["usa-nav__link"];
-    // Extracted functionality for active vs standard classNames
-    const getStyles = (isActive: boolean) => {
-        if (isActive) {
-            navLinkStyles.push(activeClassName || "");
-        } else {
-            navLinkStyles.push(className || "");
-        }
-        return navLinkStyles.join(" ");
-    };
     return (
-        <NavLink to={href} className={({ isActive }) => getStyles(isActive)}>
+        <NavLink
+            to={href}
+            className={({ isActive }) =>
+                isActive
+                    ? `"usa-nav__link ${activeClassName}`
+                    : `"usa-nav__link ${className}`
+            }
+        >
             {children}
         </NavLink>
     );
