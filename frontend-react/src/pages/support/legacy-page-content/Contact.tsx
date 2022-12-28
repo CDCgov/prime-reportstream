@@ -3,6 +3,7 @@ import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const Contact = () => {
     return (
@@ -18,14 +19,13 @@ export const Contact = () => {
                 <p>
                     If you want to learn more about ReportStream or how to get
                     started, email us at{" "}
-                    <a
+                    <USExtLink
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
                         }
-                        className="usa-link"
                     >
                         {site.orgs.RS.email}
-                    </a>
+                    </USExtLink>
                     .
                 </p>
                 <p>
@@ -48,33 +48,26 @@ export const Contact = () => {
                 </h3>
                 <p>
                     Read our guides for sending data via{" "}
-                    <a className="usa-link" href="/resources/elr-checklist">
-                        ELR
-                    </a>{" "}
-                    or{" "}
-                    <a className="usa-link" href="/resources/programmers-guide">
-                        API
-                    </a>
-                    .
+                    <USLink href="/resources/elr-checklist">ELR</USLink> or{" "}
+                    <USLink href="/resources/programmers-guide">API</USLink>.
                 </p>
                 <p>
                     If you are having issues with an existing connection, use
                     our{" "}
-                    <a className="usa-link" href="/support/service-request">
+                    <USLink href="/support/service-request">
                         service request form
-                    </a>{" "}
+                    </USLink>{" "}
                     to open a ticket with our support team.
                 </p>
                 <p>
                     For all other issues, contact us at{" "}
-                    <a
+                    <USExtLink
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
                         }
-                        className="usa-link"
                     >
                         {site.orgs.RS.email}
-                    </a>
+                    </USExtLink>
                     .
                 </p>
             </section>
@@ -82,21 +75,20 @@ export const Contact = () => {
                 <h3 className="margin-top-4">Need something else?</h3>
                 <p>
                     For quick answers to common questions, read our{" "}
-                    <a className="usa-link" href="/support/faq">
+                    <USLink href="/support/faq">
                         frequently asked questions
-                    </a>
+                    </USLink>
                     .
                 </p>
                 <p>
                     Email us at{" "}
-                    <a
+                    <USExtLink
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
                         }
-                        className="usa-link"
                     >
                         {site.orgs.RS.email}
-                    </a>
+                    </USExtLink>
                     .
                 </p>
             </section>
