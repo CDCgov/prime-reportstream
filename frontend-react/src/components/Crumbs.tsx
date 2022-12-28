@@ -1,9 +1,7 @@
-import {
-    BreadcrumbBar,
-    Breadcrumb,
-    BreadcrumbLink,
-} from "@trussworks/react-uswds";
+import { BreadcrumbBar, Breadcrumb } from "@trussworks/react-uswds";
 import { ReactChild } from "react";
+
+import { USCrumbLink } from "./USLink";
 
 interface CrumbConfig {
     label: string;
@@ -26,9 +24,9 @@ const Crumbs = ({ crumbList, noPadding }: CrumbsProps) => {
                             current={!crumbConfig?.path}
                         >
                             {crumbConfig?.path ? (
-                                <BreadcrumbLink href={crumbConfig?.path || ""}>
+                                <USCrumbLink href={crumbConfig?.path || ""}>
                                     {crumbConfig.label}
-                                </BreadcrumbLink>
+                                </USCrumbLink>
                             ) : (
                                 crumbConfig.label
                             )}
