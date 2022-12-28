@@ -63,49 +63,45 @@ export function getAppInsights() {
 
 export function getAppInsightsHeaders(): { [key: string]: string } {
     return {
-        "x-ms-session-id": getAppInsightsSessionId(),
+        "x-ms-session-id": appInsights?.context.getSessionId() || "",
     };
 }
 
-function getAppInsightsSessionId(): string {
-    return appInsights?.context.getSessionId() || "";
+export enum ConsoleMethod {
+    INFO = "info",
+    LOG = "log",
+    WARN = "warn",
+    ERROR = "error",
 }
 
-const logSeverityMap = {
-    log: SeverityLevel.Information,
-    warn: SeverityLevel.Warning,
-    error: SeverityLevel.Error,
-    info: SeverityLevel.Information,
-} as const;
+export const LOG_SEVERITY_MAP = {
+    [ConsoleMethod.INFO]: SeverityLevel.Information,
+    [ConsoleMethod.LOG]: SeverityLevel.Information,
+    [ConsoleMethod.WARN]: SeverityLevel.Warning,
+    [ConsoleMethod.ERROR]: SeverityLevel.Error,
+};
+
+export const REPORTABLE_SEVERITY_LEVELS = [ConsoleMethod.ERROR];
 
 export function withInsights(console: Console) {
     const originalConsole = { ...console };
 
-    Object.entries(logSeverityMap).forEach((el) => {
+    Object.entries(LOG_SEVERITY_MAP).forEach((el) => {
         const [method, severityLevel] = el as [
-            keyof typeof logSeverityMap,
+            keyof typeof LOG_SEVERITY_MAP,
             SeverityLevel
         ];
 
         console[method] = (...data: any[]) => {
             originalConsole[method](...data);
 
-            if (method === "error" || method === "warn") {
+            if (REPORTABLE_SEVERITY_LEVELS.includes(method)) {
                 const exception =
-                    data[0] instanceof Error ? data[0] : undefined;
-                const id = (() => {
-                    if (exception) {
-                        return exception.message;
-                    }
-                    if (typeof data[0] === "string") {
-                        return data[0];
-                    }
-                    return JSON.stringify(data[0]);
-                })();
+                    data[0] instanceof Error ? data[0] : new Error(data[0]);
 
                 appInsights?.trackException({
                     exception,
-                    id,
+                    id: exception.message,
                     severityLevel,
                     properties: {
                         additionalInformation:
