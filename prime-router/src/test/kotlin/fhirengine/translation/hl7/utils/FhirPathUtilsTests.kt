@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import assertk.all
 import assertk.assertThat
+import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -11,8 +13,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
+import assertk.assertions.messageContains
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -59,11 +63,10 @@ class FhirPathUtilsTests {
 
         // Bad extension names throw an out of bound exception (a bug in the library)
         path = "Bundle.entry[0].resource.extension('blah')"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isSuccess()
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isFailure()
 
         // Empty string
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, "")).isFalse()
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, "") }.isFailure()
     }
 
     @Test
@@ -186,5 +189,29 @@ class FhirPathUtilsTests {
         assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01-02"))).isEqualTo("20110102")
         assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01"))).isEqualTo("201101")
         assertThat(FhirPathUtils.convertDateToHL7(DateType("2011"))).isEqualTo("2011")
+    }
+
+    @Test
+    fun `test evaluateCondition exceptions`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        // first verify that good syntax is accepted
+        var expression = "Bundle.id.exists()"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, expression)).isTrue()
+
+        // verify it throws exception for bad syntax
+        expression = "Bundle.#*($&id.exists()"
+        assertThat{ FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+            hasClass(SchemaException::class.java)
+            messageContains("Syntax error")
+        }
+
+        // verify it throws exception for non-boolean expression
+        expression = "Bundle.id"
+        assertThat{ FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+            hasClass(SchemaException::class.java)
+            messageContains("Condition")
+        }
     }
 }

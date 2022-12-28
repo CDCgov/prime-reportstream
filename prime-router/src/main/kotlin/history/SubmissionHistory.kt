@@ -255,7 +255,7 @@ class DetailedSubmissionHistory(
         val filteredList = when (filterBy) {
             null -> logs
             else -> logs.filter { it.type == filterBy }
-        }.sortedBy { it.detail.message }
+        }.filter { it.scope != ActionLogScope.internal }.sortedBy { it.detail.message }
         // Now order the list so that logs contain first non-item messages, then item messages, and item messages
         // are sorted by index.
         val orderedList = (
