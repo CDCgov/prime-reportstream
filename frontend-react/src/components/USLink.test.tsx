@@ -54,4 +54,7 @@ describe("USNavLink", () => {
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-nav__link");
     });
+    // Not sure that we have a way, nor a need, to test the activeClassName
+    // value. It's assumed that react-router-dom is testing that as a part of
+    // their package.
 });
