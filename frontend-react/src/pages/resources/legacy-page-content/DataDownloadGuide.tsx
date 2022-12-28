@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const DataDownloadGuideIa = () => {
     return (
@@ -57,9 +58,9 @@ export const DataDownloadGuideIa = () => {
                         <p className="margin-top-05">
                             To gain access to the ReportStream application,
                             follow the steps outlined in the{" "}
-                            <a href="/resources/account-registration-guide">
+                            <USLink href="/resources/account-registration-guide">
                                 Account Registration Guide
-                            </a>
+                            </USLink>
                             .
                         </p>
                     </li>
@@ -70,9 +71,11 @@ export const DataDownloadGuideIa = () => {
 
                         <p>
                             Visit{" "}
-                            <a href={DOMPurify.sanitize(site.orgs.RS.url)}>
+                            <USExtLink
+                                href={DOMPurify.sanitize(site.orgs.RS.url)}
+                            >
                                 reportstream.cdc.gov
-                            </a>{" "}
+                            </USExtLink>{" "}
                             using a modern desktop web browser (ex: Chrome,
                             Firefox, Safari, Edge) and log in.
                         </p>
@@ -115,17 +118,13 @@ export const DataDownloadGuideIa = () => {
                     Do you have questions, problems, or bugs to report? Contact
                     us for help.
                 </p>
-                <a
-                    href="/support/contact"
-                    className="usa-button usa-button--outline"
-                >
-                    Contact us
-                </a>
-
+                <button className="usa-button usa-button--outline">
+                    <USLink href="/support/contact">Contact us</USLink>
+                </button>
                 <p className="margin-top-8">
-                    <a href="#anchor-top" className="usa-link">
+                    <USLink href="#anchor-top" className="usa-link">
                         Back to top
-                    </a>
+                    </USLink>
                 </p>
             </section>
         </>
