@@ -27,6 +27,7 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+
 plugins {
     kotlin("jvm") version "1.7.21"
     id("org.flywaydb.flyway") version "8.5.13"
