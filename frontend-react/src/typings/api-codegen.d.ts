@@ -55,6 +55,75 @@ interface OrganizationAPI extends Organization, SettingAPI {
     version: number | undefined;
 }
 
+type CustomerStatus = "INACTIVE" | "TESTING" | "ACTIVE";
+
+type DateTimeFormat = "OFFSET" | "LOCAL" | "HIGH_PRECISION_OFFSET" | "DATE_ONLY";
+
+type USTimeZone = "PACIFIC" | "MOUNTAIN" | "ARIZONA" | "CENTRAL" | "EASTERN" | "SAMOA" | "HAWAII" | "EAST_INDIANA" | "INDIANA_STARKE" | "MICHIGAN" | "CHAMORRO" | "UTC";
+
+type BatchOperation = "NONE" | "MERGE";
+
+type EmptyOperation = "NONE" | "SEND";
+
+interface WhenEmpty {
+    action: EmptyOperation;
+    onlyOncePerDay: boolean;
+}
+
+interface Timing {
+    initialTime: string;
+    maxReportCount: number;
+    numberPerDay: number;
+    operation: BatchOperation;
+    timeZone: USTimeZone;
+    whenEmpty: WhenEmpty;
+}
+
+type Format = "INTERNAL" | "CSV" | "CSV_SINGLE" | "HL7" | "HL7_BATCH" | "FHIR";
+
+interface TranslatorProperties {
+    defaults: { [key: string]: string };
+    format: Format;
+    nameFormat: string;
+    receivingOrganization: string | undefined;
+    schemaName: string;
+}
+
+interface TranslatorConfiguration extends TranslatorProperties {
+    type: string;
+}
+
+interface TransportType {
+    type: string;
+}
+
+interface Receiver {
+    customerStatus: CustomerStatus;
+    dateTimeFormat: DateTimeFormat | undefined;
+    deidentifiedValue: string;
+    deidentify: boolean;
+    description: string;
+    externalName: string | undefined;
+    jurisdictionalFilter: string[];
+    name: string;
+    organizationName: string;
+    processingModeFilter: string[];
+    qualityFilter: string[];
+    reverseTheQualityFilter: boolean;
+    routingFilter: string[];
+    timeZone: USTimeZone | undefined;
+    timing: Timing | undefined;
+    topic: Topic;
+    translation: TranslatorConfiguration;
+    transport: TransportType | undefined;
+}
+
+interface ReceiverAPI extends Receiver, SettingAPI {
+    createdAt: OffsetDateTime | undefined;
+    createdBy: string | undefined;
+    version: number | undefined;
+}
+
 interface UUID {
 }
 

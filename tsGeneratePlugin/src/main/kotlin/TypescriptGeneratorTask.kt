@@ -1,3 +1,5 @@
+package gov.cdc.prime.tsGeneratePlugin
+
 import io.github.classgraph.ClassGraph
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import me.ntrrgc.tsGenerator.VoidType
@@ -9,7 +11,7 @@ import java.nio.file.Path
 import org.gradle.api.provider.*
 
 @Suppress("UnstableApiUsage")
-abstract class TypeScriptGeneratorTask : DefaultTask() {
+abstract class TypescriptGeneratorTask : DefaultTask() {
     @get:Input
     abstract val annotation: Property<TsExportAnnotation>
 
@@ -17,7 +19,7 @@ abstract class TypeScriptGeneratorTask : DefaultTask() {
     abstract val manualClasses: ListProperty<String>
 
     @get:CompileClasspath
-    abstract val classPath: Property<FileCollection?>
+    abstract val classPath: Property<FileCollection>
 
     @get:Input
     abstract val typeMappings: MapProperty<String, String>
@@ -32,7 +34,22 @@ abstract class TypeScriptGeneratorTask : DefaultTask() {
     abstract val voidType: Property<VoidType>
 
     @get:OutputFile
-    abstract val outputPath: Property<Path?>
+    abstract val outputPath: Property<Path>
+
+    init {
+        description = "Generates Typescript definitions from Kotlin classes."
+    }
+
+    fun useExtension(ext: TypescriptGeneratorExtension) {
+        annotation.set(ext.annotation)
+        manualClasses.set(ext.manualClasses)
+        outputPath.set(ext.outputPath)
+        classPath.set(ext.classPath)
+        typeMappings.set(ext.typeMappings)
+        imports.set(ext.imports)
+        intTypeName.set(ext.intTypeName)
+        voidType.set(ext.voidType)
+    }
 
     @TaskAction
     fun generateTypescriptDefinitions() {
@@ -57,7 +74,7 @@ abstract class TypeScriptGeneratorTask : DefaultTask() {
             (annotation.isPresent && klass.hasAnnotation(annotation.get().fullyQualifiedName)) ||
                 (manualClasses.isPresent && manualClasses.get().any { it == klass.name })
         }.map{ it.loadClass().kotlin }
-        println("Found ${klasses.size} exportable class(es)")
+        logger.info("Found ${klasses.size} exportable class(es)")
 
         val mappings =
             typeMappings.get().entries.associate { (className, typescriptName) ->
@@ -73,7 +90,7 @@ abstract class TypeScriptGeneratorTask : DefaultTask() {
             mappings = mappings,
             intTypeName = intTypeName.get(),
             voidType = voidType.get(),
-            classTransformers = listOf(TypescriptJsonClassTransformer())
+            classTransformers = listOf(TypescriptClassTransformer())
         )
 
         val result =
@@ -85,7 +102,7 @@ abstract class TypeScriptGeneratorTask : DefaultTask() {
                     generator.definitionsText
 
         outputPath.get().toFile().writeText(result)
-        println(outputPath.get())
+        logger.info(outputPath.get().toString())
     }
 }
 

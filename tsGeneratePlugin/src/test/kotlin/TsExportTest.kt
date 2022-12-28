@@ -1,3 +1,5 @@
+package gov.cdc.prime.tsGeneratePlugin
+
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreType
 
@@ -5,18 +7,31 @@ import com.fasterxml.jackson.annotation.JsonIgnoreType
 @Retention(AnnotationRetention.RUNTIME)
 annotation class TsExport
 
+/**
+ * Typescript export will not include properties with this type
+ */
 @JsonIgnoreType
 class TsExportJsonIgnoreTypeTest (
     val bar: String
 )
 
+/**
+ * Nullable type interface
+ */
 interface TsExportInterface {
     val foo: String?
 }
 
 /**
- * Typescript export should only have "test" and "foo" properties
- * (unable to handle JsonIgnore override currently)
+ * Test class load by annotation
+ */
+@TsExport
+class TsExportAnnotationTest(val foo: String)
+
+/**
+ * Test class load by manual fqn.
+ * Typescript export will only have "test" and "foo" properties.
+ * "foo" will be overriden to be undefined only.
  */
 class TsExportManualTest (
     @JsonIgnore val ignoreField: String,
@@ -27,6 +42,3 @@ class TsExportManualTest (
     @get:JsonIgnore
     override val foo: String? = null
 }
-
-@TsExport
-class TsExportAnnotationTest(val foo: String)

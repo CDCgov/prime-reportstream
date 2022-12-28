@@ -344,6 +344,7 @@ class OrganizationAPI
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
 
+@TsExport
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ReceiverAPI
 @JsonCreator constructor(

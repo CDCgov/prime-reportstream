@@ -40,7 +40,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
-    tsgenerator
+    id("gov.cdc.prime.tsGeneratePlugin")
 }
 
 group = "gov.cdc.prime"
@@ -669,6 +669,10 @@ task<RunSQL>("clearDB") {
     }
 }
 
+tasks.named("assemble") {
+    dependsOn(tasks.named("generateTypescriptDefinitions"))
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -827,7 +831,12 @@ dependencies {
 typescriptGenerator.apply {
     outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
     classPath.set(layout.files(project.sourceSets.main.get().runtimeClasspath))
-    annotation.set(TsExportAnnotation("gov.cdc.prime.router.TsExport", "gov.cdc.prime.router"))
+    annotation.set(
+        gov.cdc.prime.tsGeneratePlugin.TsExportAnnotation(
+            "gov.cdc.prime.router.TsExport",
+            "gov.cdc.prime.router"
+        )
+    )
     manualClasses.set(
         listOf(
             "gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures"
