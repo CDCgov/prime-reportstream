@@ -1,4 +1,4 @@
-# Release notes
+# Release note
 
 ## Stay up to date with new features, enhancements, and fixes
 
