@@ -24,8 +24,5 @@ const Validate = () => {
 export default Validate;
 
 export const ValidateWithAuth = () => (
-    <AuthElement
-        element={<Validate />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
+    <AuthElement element={<Validate />} requiredUserType={MemberType.SENDER} />
 );

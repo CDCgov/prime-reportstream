@@ -55,7 +55,7 @@ const App = () => {
         ) {
             navigate(
                 toRelativeUrl(
-                    `${window.location.origin}/upload`,
+                    `${window.location.origin}/file-handler/validate`,
                     window.location.origin
                 )
             );
