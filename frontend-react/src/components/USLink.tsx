@@ -18,26 +18,23 @@ type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 export const USLink = ({
     anchor = false,
     children,
-    href,
     className,
-    rel,
-    target,
+    href,
+    ...anchorHTMLAttributes
 }: USLinkProps) => {
     return !anchor ? (
         <Link
-            target={target}
-            rel={rel}
             to={href || ""}
             className={`usa-link ${className}`}
+            {...anchorHTMLAttributes}
         >
             {children}
         </Link>
     ) : (
         <a
-            target={target}
-            rel={rel}
             href={href}
             className={`usa-link ${className}`}
+            {...anchorHTMLAttributes}
         >
             {children}
         </a>
@@ -45,21 +42,32 @@ export const USLink = ({
 };
 
 /** A single link for rendering external links */
-export const USExtLink = ({ href, className, children }: USLinkProps) => (
+export const USExtLink = ({
+    className,
+    children,
+    ...anchorHTMLAttributes
+}: Omit<USLinkProps, "anchor" | "rel" | "target">) => (
     <USLink
         anchor
         target="_blank"
         rel="noreferrer noopener"
-        href={href}
         className={`usa-link--external ${className}`}
+        {...anchorHTMLAttributes}
     >
         {children}
     </USLink>
 );
 
 /** A single link for building breadcrumbs */
-export const USCrumbLink = ({ href, className, children }: USLinkProps) => (
-    <USLink href={href} className={`usa-breadcrumb__link ${className}`}>
+export const USCrumbLink = ({
+    className,
+    children,
+    ...anchorHTMLAttributes
+}: Omit<USLinkProps, "anchor">) => (
+    <USLink
+        className={`usa-breadcrumb__link ${className}`}
+        {...anchorHTMLAttributes}
+    >
         {children}
     </USLink>
 );
