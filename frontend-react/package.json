@@ -82,7 +82,7 @@
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint",
         "lint:write": "npm-run-all -p lint:eslint:write",
-        "lint:eslint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
+        "lint:eslint": "eslint \"src/**/*.{js,ts,jsx,tsx}\" --ignore-pattern \"src/typings/api-codegen.d.ts\"",
         "lint:eslint:write": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
