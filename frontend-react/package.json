@@ -193,7 +193,8 @@
         "ignorePatterns": [
             "node_modules/",
             "build/",
-            "src/reportWebVitals.js"
+            "src/reportWebVitals.js",
+            "typings/api-codegen.d.ts"
         ]
     },
     "browserslist": {

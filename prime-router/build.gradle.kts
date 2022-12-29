@@ -22,7 +22,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
-import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -831,7 +830,7 @@ dependencies {
 }
 
 typescriptGenerator.apply {
-    outputPath.set(project.buildDir.toPath().resolve("api-codegen.d.ts"))
+    outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
     classPath.set(layout.files(project.sourceSets.main.get().runtimeClasspath))
     annotation.set(
         gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig(
@@ -852,27 +851,4 @@ tasks.classes {
 
 tasks.generateTypescriptDefinitions {
     group = rootProject.description ?: ""
-    finalizedBy("lintTypescriptDefinitions")
-}
-
-tasks.register("lintTypescriptDefinitions") {
-    group = "formatting"
-    description = "Run linting on typescript definitions"
-
-    inputs.files(tasks.generateTypescriptDefinitions.get().outputs.files)
-    outputs.files(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
-
-    doLast {
-        val stdOut = ByteArrayOutputStream()
-        copy {
-            from(inputs.files.first())
-            into(outputs.files.first().parentFile)
-        }
-        exec {
-            workingDir = projectDir.toPath().resolve("../frontend-react").toFile()
-            commandLine = listOf("npm", "run", "lint:write:codegen")
-            standardOutput = stdOut
-        }
-        logger.debug("$stdOut")
-    }
 }
