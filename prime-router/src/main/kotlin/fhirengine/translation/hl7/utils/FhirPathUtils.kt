@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
@@ -85,7 +86,7 @@ object FhirPathUtils : Logging {
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
-     * @throws SchemaException if the FHIR path does not evaluate to a boolean type
+     * @throws SchemaException if the FHIR path does not evaluate to a boolean type or fails to evaluate
      */
     fun evaluateCondition(
         appContext: CustomContext?,
@@ -103,12 +104,14 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression for condition. " +
-                    "Setting value of condition to false.",
-                e
-            )
-            false
+            val msg =  when (e) {
+                is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is SchemaException -> e.message ?: "Condition error in FHIR Path expression $expression"
+                else -> "Unknown error while evaluating FHIR Path expression $expression for condition. " +
+                    "Setting value of condition to false."
+            }
+            logger.error(msg, e)
+            throw SchemaException(msg)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal

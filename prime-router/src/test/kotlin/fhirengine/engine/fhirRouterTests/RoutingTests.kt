@@ -26,6 +26,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LookupTable
@@ -696,6 +698,53 @@ class RoutingTests {
         engine.logFilterResults(qualFilter, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
+    }
+
+    @Test
+    fun `test actionLogger trigger during evaluateFilterCondition`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+        mockkObject(FhirPathUtils)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = ActionLogger()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // filters
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns emptyList()
+        every { engine.getRoutingFilter(any(), any()) } returns emptyList()
+        every { engine.getProcessingModeFilter(any(), any()) } returns emptyList()
+
+        val nonBooleanMsg = "Condition did not evaluate to a boolean type"
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        assertThat(actionLogger.hasErrors()).isTrue()
+        assertThat(actionLogger.errors[0].detail.message).isEqualTo(nonBooleanMsg)
     }
 
     @Test
