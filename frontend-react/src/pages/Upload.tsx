@@ -1,11 +1,10 @@
 import { Alert } from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
 import DOMPurify from "dompurify";
 import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
-import { USExtLink } from "../components/USLink";
+import { USExtLink, USLink } from "../components/USLink";
 
 const TransitionBanner = () => {
     return (
@@ -19,7 +18,7 @@ const TransitionBanner = () => {
                     Starting <b>July 18, 2022</b>, the CSV uploader feature will
                     no longer be available from the ReportStream web portal.
                     However, you’ll still have access to your{" "}
-                    <NavLink to="/submissions">CSV submission history</NavLink>{" "}
+                    <USLink href="/submissions">CSV submission history</USLink>{" "}
                     through your ReportStream user account until further notice.
                 </li>
                 <li className="margin-bottom-2">

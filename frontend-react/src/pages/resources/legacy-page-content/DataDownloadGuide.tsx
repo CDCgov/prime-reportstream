@@ -1,5 +1,4 @@
 import DOMPurify from "dompurify";
-import { NavLink } from "react-router-dom";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
@@ -90,13 +89,13 @@ export const DataDownloadGuideIa = () => {
                         </h3>
                         <p>
                             Once logged in to ReportStream, visit{" "}
-                            <NavLink
-                                to="/daily-data"
+                            <USLink
+                                href="/daily-data"
                                 key="daily"
                                 className="usa-link"
                             >
                                 reportstream.cdc.gov/daily-data
-                            </NavLink>
+                            </USLink>
                             .
                         </p>
                         <p>
