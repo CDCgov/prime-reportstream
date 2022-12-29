@@ -1,5 +1,5 @@
 import React, { AnchorHTMLAttributes, PropsWithChildren } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 // Known issue with the `PropsWithChildren generic in React 18,
 // so I wrote this in a way that we can just remove `<any>` and be
@@ -16,14 +16,14 @@ export const USLink = ({
     rel,
     target,
 }: USLinkProps) => (
-    <Link
+    <a
         target={target}
         rel={rel}
-        to={href}
+        href={href}
         className={`usa-link ${className}`}
     >
         {children}
-    </Link>
+    </a>
 );
 
 /** A single link for rendering external links */
