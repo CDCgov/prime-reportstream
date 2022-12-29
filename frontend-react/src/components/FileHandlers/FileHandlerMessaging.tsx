@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { IconHelp, Tooltip } from "@trussworks/react-uswds";
 
 import {
@@ -12,6 +12,7 @@ import {
     ErrorCodeTranslation,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { USExtLink, USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -151,24 +152,17 @@ export const RequestedChangesDisplay = ({
                 <h5 className="margin-bottom-1">Resources</h5>
                 <ul className={"margin-0"}>
                     <li>
-                        <NavLink
+                        <USLink
                             target="_blank"
-                            to={"/resources/programmers-guide"}
+                            href="/resources/programmers-guide"
                         >
                             ReportStream Programmers Guide
-                        </NavLink>
+                        </USLink>
                     </li>
                     <li>
-                        <a
-                            className={"usa-link--external"}
-                            target={"_blank"}
-                            href={
-                                "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
-                            }
-                            rel="noreferrer"
-                        >
+                        <USExtLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </a>
+                        </USExtLink>
                     </li>
                 </ul>
             </StaticAlert>
