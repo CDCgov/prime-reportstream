@@ -14,7 +14,26 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
-/** A single link for rendering standard links */
+/** Helper class to protect against the string literal "undefined" appearing in styles
+ * @example
+ * const className = "style-c"
+ * makeStyle("style-a style-b", className) // "style-a style-b style-c"
+ * */
+const cleanStyles = (
+    enforcedClasses: string,
+    className: string | undefined
+): string => {
+    const styles = [enforcedClasses];
+    if (className !== undefined) styles.push(className);
+    return styles.join(" ");
+};
+
+/** A single link for rendering standard links. Uses a `Link` by default
+ * but adding `anchor` will make this a generic anchor tag.
+ * @example
+ * <USLink href="/page">To Page</USLink> // uses <Link> from react-router-dom
+ * <USLink anchor href="#this-section-on-my-page">To Section</USLink> // uses <a>
+ * */
 export const USLink = ({
     anchor = false,
     children,
@@ -25,7 +44,7 @@ export const USLink = ({
     return !anchor ? (
         <Link
             to={href || ""}
-            className={`usa-link ${className}`}
+            className={cleanStyles("usa-link", className)}
             {...anchorHTMLAttributes}
         >
             {children}
@@ -33,7 +52,7 @@ export const USLink = ({
     ) : (
         <a
             href={href}
-            className={`usa-link ${className}`}
+            className={cleanStyles("usa-link", className)}
             {...anchorHTMLAttributes}
         >
             {children}
@@ -41,38 +60,57 @@ export const USLink = ({
     );
 };
 
-/** A single link for rendering external links */
+/** A single link for rendering external links. Uses {@link USLink} as a baseline,
+ * with `anchor` applied, so it is not a Router link. Also handles target
+ * and rel, and will disperse all other anchor attributes given.
+ * @example
+ * <USExtLink href="www.mysite.com">My Site</USExtLink>
+ * // Same as the following:
+ * <USLink
+ *      anchor
+ *      target="_blank"
+ *      rel="noreferrer noopener"
+ *      href="www.mysite.com"
+ *      className="usa-link--external">
+ *          My Site
+ *  </USLink>
+ * */
 export const USExtLink = ({
     className,
     children,
     ...anchorHTMLAttributes
-}: Omit<USLinkProps, "anchor" | "rel" | "target">) => (
-    <USLink
-        anchor
-        target="_blank"
-        rel="noreferrer noopener"
-        className={`usa-link--external ${className}`}
-        {...anchorHTMLAttributes}
-    >
-        {children}
-    </USLink>
-);
+}: Omit<USLinkProps, "anchor" | "rel" | "target">) => {
+    return (
+        <USLink
+            anchor
+            target="_blank"
+            rel="noreferrer noopener"
+            className={cleanStyles("usa-link--external", className)}
+            {...anchorHTMLAttributes}
+        >
+            {children}
+        </USLink>
+    );
+};
 
-/** A single link for building breadcrumbs */
+/** A single link for building breadcrumbs. Uses `USLink` as a base and renders a
+ * react-router-dom `Link` with applied uswds styling for specific use in breadcrumbs */
 export const USCrumbLink = ({
     className,
     children,
     ...anchorHTMLAttributes
 }: Omit<USLinkProps, "anchor">) => (
     <USLink
-        className={`usa-breadcrumb__link ${className}`}
+        className={cleanStyles("usa-breadcrumb__link", className)}
         {...anchorHTMLAttributes}
     >
         {children}
     </USLink>
 );
 
-/** A single link to replace NavLink (react-router-dom) */
+/** A single link to replace NavLink (react-router-dom). Applies uswds navigation link styling
+ * and handles both active and standard style states. This DOES NOT use `USLink` as a base; it
+ * relies on `NavLink` for additional functionality. */
 export const USNavLink = ({
     href,
     children,
@@ -84,8 +122,8 @@ export const USNavLink = ({
             to={href || ""}
             className={({ isActive }) =>
                 isActive
-                    ? `usa-nav__link usa-current ${activeClassName || ""}`
-                    : `usa-nav__link ${className || ""}`
+                    ? cleanStyles("usa-nav__link usa-current", activeClassName)
+                    : cleanStyles("usa-nav__link", className)
             }
         >
             {children}
