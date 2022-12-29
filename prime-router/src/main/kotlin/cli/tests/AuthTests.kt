@@ -80,7 +80,7 @@ class OktaAuthTests : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
-        val org1 = historyTestOrgName
+        val org1 = historytestOrgName
         val sender1 = historyTestSender
 
         val org2 = orgName
@@ -515,7 +515,7 @@ class Server2ServerAuthTests : CoolTest() {
 
     /**
      * Given a [privateKeyStr], key id [kid] and requested [scope], coming from [sender],
-     * this tries to retrieve a 5 minute access token
+     * this tries to retrieve a 5-minute access token
      * @returns the Pair (http response code, json bod of the response)
      */
     private fun getServer2ServerAccessTok(

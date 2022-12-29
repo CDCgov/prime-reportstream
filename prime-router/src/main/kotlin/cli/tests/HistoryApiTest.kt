@@ -182,7 +182,7 @@ class HistoryApiTest : CoolTest() {
         val testCases = mutableListOf(
             HistoryApiTestCase(
                 "simple history API happy path test",
-                "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
+                "${environment.url}/api/waters/org/$historytestOrgName/submissions",
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
@@ -207,7 +207,7 @@ class HistoryApiTest : CoolTest() {
             testCases.add(
                 HistoryApiTestCase(
                     "bad bearer token - TESTED ON STAGING, NOT TESTED ON LOCAL",
-                    "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
+                    "${environment.url}/api/waters/org/$historytestOrgName/submissions",
                     emptyMap(),
                     listOf("pagesize" to options.submits),
                     bearer + "x",

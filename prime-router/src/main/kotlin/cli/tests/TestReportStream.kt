@@ -660,14 +660,14 @@ abstract class CoolTest {
                     val expected = if (action == TaskAction.receive && asyncProcessMode) {
                         totalItems
                     } else totalItems / receivers.size
-                    if (count == null || expected != count) {
-                        queryResults += Pair(
+                    queryResults += if (count == null || expected != count) {
+                        Pair(
                             false,
                             "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records but got $count"
                         )
                     } else {
-                        queryResults += Pair(
+                        Pair(
                             true,
                             "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records and got $count"
@@ -802,10 +802,10 @@ abstract class CoolTest {
 
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
-        const val historyTestOrgName = "ignore"
+        const val historytestOrgName = "historytest"
         val historyTestSender = (
-            settings.findSender("$historyTestOrgName.default")
-                ?: error("Unable to find sender $historyTestOrgName.default")
+            settings.findSender("$historytestOrgName.default")
+                ?: error("Unable to find sender $historytestOrgName.default")
             ) as CovidSender
         val defaultIgnoreSender = (
             settings.findSender("$orgName.default")
