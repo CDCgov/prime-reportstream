@@ -84,6 +84,7 @@
         "lint:write": "npm-run-all -p lint:eslint:write",
         "lint:eslint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:eslint:write": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
+        "lint:write:codegen": "eslint --fix \"src/**/api-codegen.d.ts\"",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },

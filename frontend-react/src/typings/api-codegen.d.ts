@@ -19,17 +19,13 @@ interface Organization {
     stateCode: string | undefined;
 }
 
-interface TemporalAccessor {
-}
+interface TemporalAccessor {}
 
-interface Temporal extends TemporalAccessor {
-}
+interface Temporal extends TemporalAccessor {}
 
-interface TemporalAdjuster {
-}
+interface TemporalAdjuster {}
 
-interface ZoneId {
-}
+interface ZoneId {}
 
 interface ZoneOffset extends ZoneId, TemporalAccessor, TemporalAdjuster {
     totalSeconds: number;
@@ -57,9 +53,25 @@ interface OrganizationAPI extends Organization, SettingAPI {
 
 type CustomerStatus = "INACTIVE" | "TESTING" | "ACTIVE";
 
-type DateTimeFormat = "OFFSET" | "LOCAL" | "HIGH_PRECISION_OFFSET" | "DATE_ONLY";
+type DateTimeFormat =
+    | "OFFSET"
+    | "LOCAL"
+    | "HIGH_PRECISION_OFFSET"
+    | "DATE_ONLY";
 
-type USTimeZone = "PACIFIC" | "MOUNTAIN" | "ARIZONA" | "CENTRAL" | "EASTERN" | "SAMOA" | "HAWAII" | "EAST_INDIANA" | "INDIANA_STARKE" | "MICHIGAN" | "CHAMORRO" | "UTC";
+type USTimeZone =
+    | "PACIFIC"
+    | "MOUNTAIN"
+    | "ARIZONA"
+    | "CENTRAL"
+    | "EASTERN"
+    | "SAMOA"
+    | "HAWAII"
+    | "EAST_INDIANA"
+    | "INDIANA_STARKE"
+    | "MICHIGAN"
+    | "CHAMORRO"
+    | "UTC";
 
 type BatchOperation = "NONE" | "MERGE";
 
@@ -124,8 +136,7 @@ interface ReceiverAPI extends Receiver, SettingAPI {
     version: number | undefined;
 }
 
-interface UUID {
-}
+interface UUID {}
 
 interface ListSendFailures {
     actionId: number;
@@ -137,4 +148,14 @@ interface ListSendFailures {
     actionResult: string;
     bodyUrl: string;
     reportFileReceiver: string;
+}
+
+interface LookupTableVersion {
+    lookupTableVersionId: number;
+    tableName: string;
+    tableVersion: number;
+    isActive: boolean;
+    createdBy: string;
+    createdAt: OffsetDateTime;
+    tableSha256Checksum: string;
 }

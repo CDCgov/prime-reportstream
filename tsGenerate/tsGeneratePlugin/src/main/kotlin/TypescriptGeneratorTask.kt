@@ -1,19 +1,25 @@
 package gov.cdc.prime.tsGeneratePlugin
 
+import gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig
 import io.github.classgraph.ClassGraph
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import me.ntrrgc.tsGenerator.VoidType
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.*
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CompileClasspath
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import java.net.URLClassLoader
 import java.nio.file.Path
-import org.gradle.api.provider.*
 
 @Suppress("UnstableApiUsage")
 abstract class TypescriptGeneratorTask : DefaultTask() {
     @get:Input
-    abstract val annotation: Property<TsExportAnnotation>
+    abstract val annotation: Property<TsExportAnnotationConfig>
 
     @get:Input
     abstract val manualClasses: ListProperty<String>
@@ -59,8 +65,9 @@ abstract class TypescriptGeneratorTask : DefaultTask() {
         if (!classPath.isPresent) {
             throw IncompletePluginConfigurationException("classPath")
         }
-        if ( (!manualClasses.isPresent || manualClasses.get().isEmpty()) &&
-            !annotation.isPresent) {
+        if ((!manualClasses.isPresent || manualClasses.get().isEmpty()) &&
+            !annotation.isPresent
+        ) {
             throw IncompletePluginConfigurationException("manualClasses or tsExportAnnotation")
         }
 
@@ -71,10 +78,10 @@ abstract class TypescriptGeneratorTask : DefaultTask() {
 
         val klasses = classGraph.allClasses.filter { klass ->
             !klass.hasAnnotation(JsonAnnotations.JSONIGNORETYPE.fullName) &&
-            (annotation.isPresent && klass.hasAnnotation(annotation.get().fullyQualifiedName)) ||
+                (annotation.isPresent && klass.hasAnnotation(annotation.get().fullyQualifiedName)) ||
                 (manualClasses.isPresent && manualClasses.get().any { it == klass.name })
-        }.map{ it.loadClass().kotlin }
-        logger.info("Found ${klasses.size} exportable class(es)")
+        }.map { it.loadClass().kotlin }
+        logger.lifecycle("Found ${klasses.size} exportable class(es)")
 
         val mappings =
             typeMappings.get().entries.associate { (className, typescriptName) ->
@@ -102,10 +109,9 @@ abstract class TypescriptGeneratorTask : DefaultTask() {
                     generator.definitionsText
 
         outputPath.get().toFile().writeText(result)
-        logger.info(outputPath.get().toString())
+        logger.lifecycle(outputPath.get().toString())
     }
 }
-
 
 class IncompletePluginConfigurationException(missing: String) : IllegalArgumentException(
     "Incomplete TypescriptGenerator plugin configuration: $missing is missing"

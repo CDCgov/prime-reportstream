@@ -1,24 +1,19 @@
 package gov.cdc.prime.tsGeneratePlugin
 
+import gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig
 import me.ntrrgc.tsGenerator.VoidType
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
-import java.io.Serializable
+import org.gradle.api.provider.Property
 import java.nio.file.Path
-
-/**
- * Annotation to load
- */
-class TsExportAnnotation(val fullyQualifiedName: String, val packageName: String) : Serializable
 
 open class TypescriptGeneratorExtension(project: Project) {
     /**
      * The annotation to look for to automatically select classes in packages
      */
-    val annotation: Property<TsExportAnnotation> = project.objects.property(TsExportAnnotation::class.java)
+    val annotation: Property<TsExportAnnotationConfig> = project.objects.property(TsExportAnnotationConfig::class.java)
 
     /**
      * Manually select classes. Use their fully qualified names.

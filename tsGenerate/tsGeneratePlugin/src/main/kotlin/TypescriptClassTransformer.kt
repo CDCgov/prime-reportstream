@@ -1,16 +1,20 @@
 package gov.cdc.prime.tsGeneratePlugin
 
 import me.ntrrgc.tsGenerator.ClassTransformer
-import kotlin.reflect.*
-import kotlin.reflect.full.*
-import kotlin.reflect.jvm.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
+import kotlin.reflect.KType
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaMethod
 
 enum class JsonAnnotations(val fullName: String) {
     JSONIGNORE("com.fasterxml.jackson.annotation.JsonIgnore"),
     JSONIGNORETYPE("com.fasterxml.jackson.annotation.JsonIgnoreType")
 }
 
-class TypescriptClassTransformer(): ClassTransformer {
+class TypescriptClassTransformer() : ClassTransformer {
     override fun transformPropertyList(properties: List<KProperty<*>>, klass: KClass<*>): List<KProperty<*>> {
         val filteredProperties = properties.filter { property -> isPropertyOverride(property) || !isPropertyJsonIgnored(property) }
         return super.transformPropertyList(filteredProperties, klass)
@@ -21,7 +25,7 @@ class TypescriptClassTransformer(): ClassTransformer {
      * Default type mappings will convert this to undefined.
      */
     override fun transformPropertyType(type: KType, property: KProperty<*>, klass: KClass<*>): KType {
-        if(isPropertyOverride(property) && isPropertyJsonIgnored(property)){
+        if (isPropertyOverride(property) && isPropertyJsonIgnored(property)) {
             return super.transformPropertyType(Nothing::class.createType(), property, klass)
         }
         return super.transformPropertyType(type, property, klass)
@@ -38,7 +42,7 @@ class TypescriptClassTransformer(): ClassTransformer {
         val interfaces = property.javaField?.declaringClass?.interfaces
 
         return superclass?.kotlin?.declaredMembers?.any { it.name == property.name } ?: false ||
-            interfaces?.any { it.kotlin.declaredMembers.any { member -> member.name == property.name }} ?: false
+            interfaces?.any { it.kotlin.declaredMembers.any { member -> member.name == property.name } } ?: false
     }
 
     /**

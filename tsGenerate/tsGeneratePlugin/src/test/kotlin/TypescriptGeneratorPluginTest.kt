@@ -1,13 +1,13 @@
 package gov.cdc.prime.tsGeneratePlugin
 
+import gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig
 import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
-import org.gradle.testfixtures.ProjectBuilder
-import java.io.File
-import org.junit.jupiter.api.io.TempDir
 
 class TypescriptGeneratorPluginTest {
     @field:TempDir
@@ -38,8 +38,8 @@ class TypescriptGeneratorPluginTest {
         val tmpExportFile = File(tmpDir, "api-codegen.d.ts")
         pluginExt.apply {
             outputPath.set(tmpExportFile.toPath())
-            classPath.set( project.layout.projectDirectory.files("test/kotlin/TsExportTest.kt"))
-            annotation.set(TsExportAnnotation("gov.cdc.prime.tsGeneratePlugin.TsExport", "gov.cdc.prime.tsGeneratePlugin"))
+            classPath.set(project.layout.projectDirectory.files("test/kotlin/TsExportTest.kt"))
+            annotation.set(TsExportAnnotationConfig("gov.cdc.prime.tsGeneratePlugin"))
             manualClasses.set(
                 listOf(
                     "gov.cdc.prime.tsGeneratePlugin.TsExportManualTest"

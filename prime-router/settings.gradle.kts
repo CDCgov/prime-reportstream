@@ -13,5 +13,12 @@ pluginManagement {
             url = uri("https://jitpack.io")
         }
     }
-    includeBuild("../tsGeneratePlugin")
+    includeBuild("../tsGenerate/tsGeneratePlugin")
 }
+// include("tsGenerateLibrary")
+// project(":tsGenerateLibrary").projectDir = file("../tsGenerate/tsGenerateLibrary")
+// includeBuild("../tsGenerate/tsGeneratePlugin") {
+    /*dependencySubstitution {
+        substitute(module("gov.cdc.prime:tsGeneratePlugin:0.2-SNAPSHOT")).using(project(":"))
+    }
+}*/

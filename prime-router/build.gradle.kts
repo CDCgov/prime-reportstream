@@ -21,15 +21,15 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.jooq.meta.jaxb.ForcedType
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.7.22"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -41,7 +41,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("gov.cdc.prime.tsGeneratePlugin")
+    id("gov.cdc.prime.tsGeneratePlugin") version "0.2-SNAPSHOT"
 }
 
 group = "gov.cdc.prime"
@@ -325,10 +325,11 @@ tasks.register("fatJar") {
     dependsOn("shadowJar")
 }
 
-configure<KtlintExtension> {
+ktlint {
     // See ktlint versions at https://github.com/pinterest/ktlint/releases
     version.set("0.43.2")
 }
+
 tasks.ktlintCheck {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
@@ -647,7 +648,7 @@ tasks.register("resetDB") {
     dependsOn("flywayMigrate")
 }
 
-task<RunSQL>("clearDB") {
+tasks.register<RunSQL>("clearDB") {
     group = rootProject.description ?: ""
     description = "Truncate/empty all tables in the database that hold report and related data, and leave settings"
     config {
@@ -668,10 +669,6 @@ task<RunSQL>("clearDB") {
             TRUNCATE TABLE public.task CASCADE;
         """.trimIndent()
     }
-}
-
-tasks.named("assemble") {
-    dependsOn(tasks.named("generateTypescriptDefinitions"))
 }
 
 repositories {
@@ -715,9 +712,12 @@ configurations {
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.5.1")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation(kotlin("script-runtime"))
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.34.0")
@@ -826,21 +826,53 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
-    implementation(kotlin("script-runtime"))
+
+    implementation("gov.cdc.prime:tsGenerateLibrary")
 }
 
 typescriptGenerator.apply {
-    outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
+    outputPath.set(project.buildDir.toPath().resolve("api-codegen.d.ts"))
     classPath.set(layout.files(project.sourceSets.main.get().runtimeClasspath))
     annotation.set(
-        gov.cdc.prime.tsGeneratePlugin.TsExportAnnotation(
-            "gov.cdc.prime.router.TsExport",
+        gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig(
             "gov.cdc.prime.router"
         )
     )
     manualClasses.set(
         listOf(
-            "gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures"
+            "gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures",
+            "gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion"
         )
     )
+}
+
+tasks.classes {
+    finalizedBy("generateTypescriptDefinitions")
+}
+
+tasks.generateTypescriptDefinitions {
+    group = rootProject.description ?: ""
+    finalizedBy("lintTypescriptDefinitions")
+}
+
+tasks.register("lintTypescriptDefinitions") {
+    group = "formatting"
+    description = "Run linting on typescript definitions"
+
+    inputs.files(tasks.generateTypescriptDefinitions.get().outputs.files)
+    outputs.files(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
+
+    doLast {
+        val stdOut = ByteArrayOutputStream()
+        copy {
+            from(inputs.files.first())
+            into(outputs.files.first().parentFile)
+        }
+        exec {
+            workingDir = projectDir.toPath().resolve("../frontend-react").toFile()
+            commandLine = listOf("npm", "run", "lint:write:codegen")
+            standardOutput = stdOut
+        }
+        logger.debug("$stdOut")
+    }
 }
