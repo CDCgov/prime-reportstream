@@ -41,36 +41,40 @@ export const ELRChecklistIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink href="#elr-contact-information">
+                    <USLink anchor href="#elr-contact-information">
                         ELR contact information
                     </USLink>
                 </li>
                 <li>
-                    <USLink href="#alternate-contact-information">
+                    <USLink anchor href="#alternate-contact-information">
                         Program or admin staff contact information
                     </USLink>
                 </li>
                 <li>
-                    <USLink href="#data-requirements-and-preferences">
+                    <USLink anchor href="#data-requirements-and-preferences">
                         Data requirements and preferences
                     </USLink>
                 </li>
                 <li>
-                    <USLink href="#testing-facility-registration">
+                    <USLink anchor href="#testing-facility-registration">
                         Testing facility registration
                     </USLink>
                 </li>
                 <li>
-                    <USLink href="#hl7-data-fields">
+                    <USLink anchor href="#hl7-data-fields">
                         HL7 data fields (Not applicable if using an alternate
                         data format)
                     </USLink>
                 </li>
                 <li>
-                    <USLink href="#sftp-details">SFTP details</USLink>
+                    <USLink anchor href="#sftp-details">
+                        SFTP details
+                    </USLink>
                 </li>
                 <li>
-                    <USLink href="#document-uploads">Document uploads</USLink>
+                    <USLink anchor href="#document-uploads">
+                        Document uploads
+                    </USLink>
                 </li>
             </ul>
 

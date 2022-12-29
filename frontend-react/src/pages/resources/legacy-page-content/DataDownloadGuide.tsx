@@ -89,11 +89,7 @@ export const DataDownloadGuideIa = () => {
                         </h3>
                         <p>
                             Once logged in to ReportStream, visit{" "}
-                            <USLink
-                                href="/daily-data"
-                                key="daily"
-                                className="usa-link"
-                            >
+                            <USLink href="/daily-data" key="daily">
                                 reportstream.cdc.gov/daily-data
                             </USLink>
                             .
@@ -117,11 +113,13 @@ export const DataDownloadGuideIa = () => {
                     Do you have questions, problems, or bugs to report? Contact
                     us for help.
                 </p>
-                <button className="usa-button usa-button--outline">
-                    <USLink href="/support/contact">Contact us</USLink>
-                </button>
+                <USLink href="/support/contact">
+                    <button className="usa-button usa-button--outline">
+                        Contact us
+                    </button>
+                </USLink>
                 <p className="margin-top-8">
-                    <USLink href="#anchor-top" className="usa-link">
+                    <USLink anchor href="#anchor-top">
                         Back to top
                     </USLink>
                 </p>

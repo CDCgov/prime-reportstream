@@ -21,34 +21,19 @@ import { AdminDropdown } from "./DropdownNav";
 const { IS_PREVIEW, CLIENT_ENV } = config;
 
 const ProductIA = () => (
-    <USNavLink
-        href="/product"
-        key="product"
-        data-attribute="hidden"
-        className="usa-nav__link"
-    >
+    <USNavLink href="/product" key="product" data-attribute="hidden">
         <span>Product</span>
     </USNavLink>
 );
 
 const ResourcesIA = () => (
-    <USNavLink
-        href="/resources"
-        key="resources"
-        data-attribute="hidden"
-        className="usa-nav__link"
-    >
+    <USNavLink href="/resources" key="resources" data-attribute="hidden">
         <span>Resources</span>
     </USNavLink>
 );
 
 const SupportIA = () => (
-    <USNavLink
-        href="/support"
-        key="support"
-        data-attribute="hidden"
-        className="usa-nav__link"
-    >
+    <USNavLink href="/support" key="support" data-attribute="hidden">
         <span>Support</span>
     </USNavLink>
 );
@@ -73,7 +58,6 @@ export const ReportStreamHeader = () => {
                     href="/daily-data"
                     key="daily"
                     data-attribute="hidden"
-                    className="usa-nav__link"
                 >
                     <span>Daily data</span>
                 </USNavLink>
@@ -86,19 +70,13 @@ export const ReportStreamHeader = () => {
             activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
-                <USNavLink
-                    href="/upload"
-                    key="upload"
-                    data-attribute="hidden"
-                    className="usa-nav__link"
-                >
+                <USNavLink href="/upload" key="upload" data-attribute="hidden">
                     <span>Upload</span>
                 </USNavLink>,
                 <USNavLink
                     href="/submissions"
                     key="submissions"
                     data-attribute="hidden"
-                    className="usa-nav__link"
                 >
                     <span>Submissions</span>
                 </USNavLink>

@@ -25,7 +25,6 @@ function TableReportsData(props: Props) {
                         <USLink
                             href={"/report-details?reportId=" + report.reportId}
                             key="daily"
-                            className="usa-link"
                         >
                             {report.reportId}
                         </USLink>

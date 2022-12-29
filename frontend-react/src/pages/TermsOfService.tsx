@@ -506,7 +506,9 @@ export const TermsOfService = () => {
                         </p>
 
                         <p className="margin-top-8">
-                            <USLink href="#anchor-top">Back to top</USLink>
+                            <USLink anchor href="#anchor-top">
+                                Back to top
+                            </USLink>
                         </p>
                     </section>
                 </div>
