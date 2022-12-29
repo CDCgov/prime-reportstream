@@ -385,7 +385,8 @@ class WorkflowEngine(
             destination = receiver,
             bodyFormat = receiver.format,
             metadata = Metadata.getInstance(),
-            itemLineage = emptyList()
+            itemLineage = emptyList(),
+            workflowEngine = this
         )
 
         // set the empty report to be sent to the receiver
@@ -483,7 +484,8 @@ class WorkflowEngine(
                         emptyList(),
                         destination = report.destination,
                         bodyFormat = report.bodyFormat,
-                        metadata = Metadata.getInstance()
+                        metadata = Metadata.getInstance(),
+                        workflowEngine = this
                     )
                     emptyReport.filteringResults.add(it)
                     actionHistory.trackFilteredReport(report, emptyReport, receiver)

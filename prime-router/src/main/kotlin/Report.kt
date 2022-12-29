@@ -228,7 +228,7 @@ class Report : Logging {
     /**
      * The workflow engine used for database access
      */
-    var workflowEngine: WorkflowEngine = WorkflowEngine()
+    var workflowEngine: WorkflowEngine
 
     /**
      * The number of items that passed the jurisdictionalFilter for this report, prior to
@@ -318,7 +318,7 @@ class Report : Logging {
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
-        workflowEngine: WorkflowEngine = WorkflowEngine()
+        workflowEngine: WorkflowEngine
     ) {
         this.id = generateRandomReportId(id)
         this.schema = schema
@@ -344,7 +344,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
-        workflowEngine: WorkflowEngine = WorkflowEngine()
+        workflowEngine: WorkflowEngine
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -369,7 +369,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
-        workflowEngine: WorkflowEngine = WorkflowEngine()
+        workflowEngine: WorkflowEngine
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -401,7 +401,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
-        workflowEngine: WorkflowEngine = WorkflowEngine()
+        workflowEngine: WorkflowEngine
     ) {
         this.id = generateRandomReportId()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -429,7 +429,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
-        workflowEngine: WorkflowEngine = WorkflowEngine()
+        workflowEngine: WorkflowEngine
     ) {
         this.id = generateRandomReportId()
         this.schema = schema
@@ -492,7 +492,8 @@ class Report : Logging {
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
             metadata = this.metadata,
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            workflowEngine = workflowEngine
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
         copy.filteringResults.addAll(this.filteringResults)
@@ -607,7 +608,8 @@ class Report : Logging {
             fromThisReport("filter: $filterFunctions"),
             metadata = this.metadata,
             // copy from previous filter; avoid losing info during filtering steps subsequent to quality filter.
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            workflowEngine = workflowEngine
         )
         // Write same info to our logs that goes in the json response obj
         if (doLogging) {
@@ -669,7 +671,8 @@ class Report : Logging {
             fromThisReport("deidentify"),
             itemLineage = this.itemLineages,
             metadata = this.metadata,
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            workflowEngine = workflowEngine
         )
     }
 
@@ -776,7 +779,8 @@ class Report : Logging {
             safeSetStringInRow(it, "patient_zip_code", context.zipCode)
         }
         // return the new copy of the report here
-        return Report(schema, table, fromThisReport("synthesizeData"), metadata = this.metadata)
+        return Report(schema, table, fromThisReport("synthesizeData"), metadata = this.metadata,
+            workflowEngine = workflowEngine)
     }
 
     /**
@@ -791,7 +795,8 @@ class Report : Logging {
                 sources = fromThisReport("split"),
                 destination = destination,
                 bodyFormat = bodyFormat,
-                metadata = this.metadata
+                metadata = this.metadata,
+                workflowEngine = workflowEngine
             )
             oneItemReport.itemLineages =
                 listOf(createItemLineageForRow(this, it, oneItemReport, 0))
@@ -813,7 +818,8 @@ class Report : Logging {
             fromThisReport("mapping"),
             itemLineage = itemLineages,
             metadata = this.metadata,
-            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
+            workflowEngine = workflowEngine
         )
     }
 
@@ -1329,7 +1335,7 @@ class Report : Logging {
         private const val SAFE_HARBOR_DOB_YEAR_REPLACEMENT = "0000"
         private const val SAFE_HARBOR_AGE_CUTOFF = 89
 
-        fun merge(inputs: List<Report>): Report {
+        fun merge(inputs: List<Report>, workflowEngine: WorkflowEngine): Report {
             if (inputs.isEmpty()) {
                 error("Cannot merge an empty report list")
             }
@@ -1365,7 +1371,8 @@ class Report : Logging {
                     sources,
                     destination = head.destination,
                     bodyFormat = head.bodyFormat,
-                    metadata = head.metadata
+                    metadata = head.metadata,
+                    workflowEngine = workflowEngine
                 )
             mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
             return mergedReport

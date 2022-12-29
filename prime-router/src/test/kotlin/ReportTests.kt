@@ -66,19 +66,23 @@ class ReportTests {
     @Test
     fun `test merge`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(settings)
         val report1 = Report(
             one,
             listOf(listOf("1", "2"), listOf("3", "4")),
             source = TestSource,
-            metadata = metadata
+            metadata = metadata,
+            workflowEngine = engine
         )
         val report2 = Report(
             one,
             listOf(listOf("5", "6"), listOf("7", "8")),
             source = TestSource,
-            metadata = metadata
+            metadata = metadata,
+            workflowEngine = engine
         )
-        val mergedReport = Report.merge(listOf(report1, report2))
+        val mergedReport = Report.merge(listOf(report1, report2), engine)
         assertThat(mergedReport.itemCount).isEqualTo(4)
         assertThat(report1.itemCount).isEqualTo(2)
         assertThat(mergedReport.getString(3, "b")).isEqualTo("8")
@@ -91,7 +95,16 @@ class ReportTests {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(settings)
+        val report1 = Report(
+            one,
+            listOf(listOf("1", "2"),
+                listOf("3", "4")),
+            source = TestSource,
+            metadata = metadata,
+            workflowEngine = engine
+        )
         assertThat(report1.itemCount).isEqualTo(2)
         val filteredReport = report1.filter(
             listOf(
@@ -117,12 +130,15 @@ class ReportTests {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(settings)
         // each sublist is a row.
         val report1 = Report(
             one,
             listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")),
             source = TestSource,
-            metadata = metadata
+            metadata = metadata,
+            workflowEngine = engine
         )
         assertThat(2).isEqualTo(report1.itemCount)
         val filteredReportA = report1.filter(
