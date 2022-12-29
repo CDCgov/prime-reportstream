@@ -5,6 +5,7 @@ import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
+import { USExtLink } from "../components/USLink";
 
 const TransitionBanner = () => {
     return (
@@ -23,24 +24,20 @@ const TransitionBanner = () => {
                 </li>
                 <li className="margin-bottom-2">
                     Visit the new CSV uploader by{" "}
-                    <a
-                        href="https://www.simplereport.gov/app/results/upload"
-                        className="usa-link"
-                    >
+                    <USExtLink href="https://www.simplereport.gov/app/results/upload">
                         following this link
-                    </a>{" "}
+                    </USExtLink>{" "}
                     (you can use your existing username and password). If you
                     need assistance or have questions, please email the
                     SimpleReport team at{" "}
-                    <a
+                    <USExtLink
                         href={
                             "mailto:" +
                             DOMPurify.sanitize("support@simplereport.gov")
                         }
-                        className="usa-link"
                     >
                         support@simplereport.gov
-                    </a>
+                    </USExtLink>
                     .
                 </li>
             </ul>
