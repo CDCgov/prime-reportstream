@@ -14,7 +14,6 @@ import { ReactComponent as RightLeftArrows } from "../../content/right-left-arro
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
-import { USNavLink } from "../USLink";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown } from "./DropdownNav";
@@ -109,9 +108,15 @@ export const ReportStreamHeader = () => {
                 >
                     <span>Submissions</span>
                 </NavLink>,
-                <USNavLink href={"/file-handler/validate"} key="validate">
+                <NavLink
+                    to={"/file-handler/validate"}
+                    key="validate"
+                    className={({ isActive }) =>
+                        isActive ? "usa-nav__link usa-current" : "usa-nav__link"
+                    }
+                >
                     Validate
-                </USNavLink>
+                </NavLink>
             );
         }
 
