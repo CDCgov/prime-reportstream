@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
@@ -31,13 +30,12 @@ export const Contact = () => {
                 <p>
                     To register for a free user account, follow the steps
                     outlined in our{" "}
-                    <Link
-                        to="/resources/account-registration-guide"
+                    <USLink
+                        href="/resources/account-registration-guide"
                         key="account registration guide"
-                        className="usa-link"
                     >
                         account registration guide
-                    </Link>
+                    </USLink>
                     .
                 </p>
             </section>

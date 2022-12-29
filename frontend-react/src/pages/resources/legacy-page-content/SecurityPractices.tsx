@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
@@ -143,14 +141,13 @@ export const SecurityPracticesIa = () => {
                     All organizations that send and receive test results through
                     ReportStream to public health agencies are governed under
                     these{" "}
-                    <Link to="/terms-of-service" className="usa-link">
-                        terms of service
-                    </Link>
-                    .
+                    <USLink href="/terms-of-service">terms of service</USLink>.
                 </p>
 
                 <p className="margin-top-8">
-                    <USLink href="#anchor-top">Back to top</USLink>
+                    <USLink anchor href="#anchor-top">
+                        Back to top
+                    </USLink>
                 </p>
             </section>
         </>

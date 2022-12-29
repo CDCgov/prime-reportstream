@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { IconHelp, Tooltip } from "@trussworks/react-uswds";
 
 import {
@@ -52,9 +51,9 @@ export const FileSuccessDisplay = ({
                                     Confirmation Code
                                 </p>
                                 <p className="margin-top-05">
-                                    <Link to={`/submissions/${reportId}`}>
+                                    <USLink href={`/submissions/${reportId}`}>
                                         {reportId}
-                                    </Link>
+                                    </USLink>
                                 </p>
                             </div>
                         )}
