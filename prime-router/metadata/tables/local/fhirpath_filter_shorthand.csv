@@ -1,5 +1,5 @@
 variable,fhirPath
-processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
+processingId,Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code
 messageId,Bundle.entry.resource.ofType(MessageHeader).id
 patient,Bundle.entry.resource.ofType(Patient)
 performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
