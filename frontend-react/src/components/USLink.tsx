@@ -1,11 +1,11 @@
 import React, { AnchorHTMLAttributes, PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 // Known issue with the `PropsWithChildren generic in React 18,
 // so I wrote this in a way that we can just remove `<any>` and be
 // okay if we update our React version.
 type USNavLinkProps = PropsWithChildren<any> &
-    AnchorHTMLAttributes<any> & { className?: string };
+    AnchorHTMLAttributes<any> & { anchor: boolean; className?: string };
 type USLinkProps = Omit<USNavLinkProps, "activeClassName">;
 
 /** A single link for rendering standard links */
@@ -15,20 +15,33 @@ export const USLink = ({
     className,
     rel,
     target,
-}: USLinkProps) => (
-    <a
-        target={target}
-        rel={rel}
-        href={href}
-        className={`usa-link ${className}`}
-    >
-        {children}
-    </a>
-);
+    anchor = false,
+}: USLinkProps) => {
+    return !anchor ? (
+        <Link
+            target={target}
+            rel={rel}
+            to={href}
+            className={`usa-link ${className}`}
+        >
+            {children}
+        </Link>
+    ) : (
+        <a
+            target={target}
+            rel={rel}
+            href={href}
+            className={`usa-link ${className}`}
+        >
+            {children}
+        </a>
+    );
+};
 
 /** A single link for rendering external links */
 export const USExtLink = ({ href, className, children }: USLinkProps) => (
     <USLink
+        anchor
         target="_blank"
         rel="noreferrer noopener"
         href={href}
