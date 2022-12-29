@@ -8,7 +8,7 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
@@ -18,6 +18,7 @@ import {
     MemberType,
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
+import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -141,12 +142,12 @@ export function OrgsTable() {
                             ))}
                         </Dropdown>
                     </div>
-                    <NavLink
-                        to={"/admin/new/org"}
+                    <USNavLink
+                        href={"/admin/new/org"}
                         className="usa-button flex-align-self-end height-5"
                     >
                         Create New Organization
-                    </NavLink>
+                    </USNavLink>
                     <Button
                         key={`savelist`}
                         onClick={() => saveListToCSVFile()}
