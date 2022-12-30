@@ -27,6 +27,8 @@ const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const { APP_ENV } = config;
 
+initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
+
 const App = () => {
     const navigate = useNavigate();
     const handleIdle = (): void => {
@@ -63,8 +65,6 @@ const App = () => {
         }
         navigate(toRelativeUrl(originalUri, window.location.origin));
     };
-
-    initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
     useIdleTimer({
         timeout: 1000 * 60 * 15,
