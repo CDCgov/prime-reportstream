@@ -6,6 +6,10 @@ import { getSessionMembershipState } from "./utils/SessionStorageTools";
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
+export function getAppInsights() {
+    return appInsights;
+}
+
 const createTelemetryService = () => {
     // Runs a side effect to initialize App Insights connection and React plugin
     const initialize = () => {

@@ -8,13 +8,14 @@ import { OrgsTable } from "../../components/Admin/OrgsTable";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
+import { FeatureType } from "../../AppRouter";
 
 export function AdminMain() {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <BasicHelmet pageTitle="Admin" />
+            <BasicHelmet pageTitle={FeatureType.ADMIN} />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >

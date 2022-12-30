@@ -8,27 +8,21 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    FALLBACK_TO,
     FALLBACK_FROM,
+    FALLBACK_TO,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
+import { EventName, TrackAppInsightEvent } from "../../utils/Analytics";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
-export enum FilterName {
-    START_RANGE = "start-range",
-    END_RANGE = "end-range",
-    CURSOR = "cursor",
-    SORT_ORDER = "sort-order",
-    PAGE_SIZE = "page-size",
-}
-
 interface SubmissionFilterProps {
     filterManager: FilterManager;
     cursorManager?: CursorManager;
+    featureEvent?: EventName;
 }
 
 /* This helper ensures start range values are inclusive
@@ -43,7 +37,11 @@ const inclusiveDateString = (originalDate: string) => {
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
+function TableFilters({
+    filterManager,
+    cursorManager,
+    featureEvent,
+}: SubmissionFilterProps) {
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
@@ -54,6 +52,17 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
         try {
             const from = new Date(rangeFrom).toISOString();
             const to = new Date(inclusiveDateString(rangeTo)).toISOString();
+
+            const eventName = featureEvent;
+            const eventData = {
+                tableFilter: {
+                    startRange: from,
+                    endRange: to,
+                },
+            };
+
+            TrackAppInsightEvent(eventName, eventData);
+
             filterManager.updateRange({
                 type: RangeSettingsActionType.RESET,
                 payload: { from, to },
@@ -72,7 +81,6 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = () => {
         updateRange();
-        // Future functions to update filters here
     };
 
     /* Clears manager and local state values */

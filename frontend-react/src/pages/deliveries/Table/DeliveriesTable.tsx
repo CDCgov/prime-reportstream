@@ -18,6 +18,7 @@ import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
+import { EventName } from "../../../utils/Analytics";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -122,7 +123,10 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <TableFilters filterManager={filterManager} />
+            <TableFilters
+                filterManager={filterManager}
+                featureEvent={EventName.DAILY_DATA_TABLE_FILTER}
+            />
             <Table
                 config={resultsTableConfig}
                 filterManager={filterManager}

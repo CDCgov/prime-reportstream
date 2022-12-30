@@ -5,6 +5,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
+import { FeatureType } from "../../AppRouter";
 
 export interface NonStaticOption {
     title: string;
@@ -86,7 +87,13 @@ export const AdminDropdown = () => {
                 "/admin"
             )
         );
-    return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
+    return (
+        <DropdownNav
+            label={FeatureType.ADMIN}
+            root={"/admin"}
+            directories={pages}
+        />
+    );
 };
 
 export default DropdownNav;
