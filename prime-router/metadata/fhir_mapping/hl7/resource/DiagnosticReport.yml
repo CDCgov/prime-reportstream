@@ -70,6 +70,7 @@ identifier_5:
     system: OBR.26.1.2
 
 status:
+  condition: OBR.25 NOT_NULL
   type: DIAGNOSTIC_REPORT_STATUS
   valueOf: OBR.25
   expressionType: HL7Spec
@@ -86,7 +87,7 @@ category:
 code:
   valueOf: datatype/CodeableConcept
   expressionType: resource
-  specs: OBR.4
+  specs: OBR.4.4 | OBR.4.5 | OBR.4.6
   required: true
   vars:
     code: OBR.4
