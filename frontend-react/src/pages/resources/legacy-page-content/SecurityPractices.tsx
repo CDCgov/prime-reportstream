@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
 
 export const SecurityPracticesIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Security practices | Resources" />
-            <h1 id="anchor-top">Security practices</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.SECURITY} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.SECURITY}</h1>
             <h2 className="usa-intro text-base">
                 Answers to common questions about ReportStream security and data
                 practices.
