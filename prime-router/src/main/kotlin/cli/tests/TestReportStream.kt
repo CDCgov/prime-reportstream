@@ -637,9 +637,10 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 180,
-        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
-        asyncProcessMode: Boolean = false
+        maxPollSecs: Int = 360,
+        pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean = false
     ): Boolean {
         var timeElapsedSecs = 0
         var queryResults = listOf<Pair<Boolean, String>>()
@@ -657,8 +658,16 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName, asyncProcessMode)
-                if (!queryResults.map { it.first }.contains(false)) break // everything passed!
+                queryResults = queryForLineageResults(
+                    reportId,
+                    receivers,
+                    totalItems,
+                    filterOrgName,
+                    asyncProcessMode,
+                    isUniversalPipeline
+                )
+                if (!queryResults.map { it.first }.contains(false))
+                    break // everything passed!
             }
         }
         echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
@@ -678,7 +687,8 @@ abstract class CoolTest {
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
-        asyncProcessMode: Boolean = false
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean
     ): List<Pair<Boolean, String>> {
         val queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
@@ -687,29 +697,40 @@ abstract class CoolTest {
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
-                if (asyncProcessMode) actionsList.add(TaskAction.process)
+                if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
+                if (receiver.topic == Topic.FULL_ELR) {
+                    actionsList.add(TaskAction.convert)
+                    actionsList.add(TaskAction.route)
+                    actionsList.add(TaskAction.translate)
+                }
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
+                    val useRecevingServiceName = !(
+                        (action == TaskAction.receive && asyncProcessMode) ||
+                            action == TaskAction.convert ||
+                            action == TaskAction.route
+                        )
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
                         // if we are processing asynchronously the receive step doesn't have any receivers yet
-                        receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
+                        receivingOrgSvc = if (useRecevingServiceName) receiver.name else null,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
-                        action = action
+                        action = action,
+                        isUniversalPipeline = isUniversalPipeline
                     )
                     val expected = if (action == TaskAction.receive && asyncProcessMode) {
                         totalItems
                     } else totalItems / receivers.size
-                    if (count == null || expected != count) {
-                        queryResults += Pair(
+                    queryResults += if (count == null || expected != count) {
+                        Pair(
                             false,
                             "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records but got $count"
                         )
                     } else {
-                        queryResults += Pair(
+                        Pair(
                             true,
                             "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records and got $count"
@@ -837,7 +858,7 @@ abstract class CoolTest {
         }
 
         val universalPipelineReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "UNIVERSAL_PIPELINE"
+            it.organizationName == orgName && it.name == "full-elr-hl7"
         }[0]
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
@@ -981,15 +1002,57 @@ abstract class CoolTest {
             return actionResponses
         }
 
+        /**
+         * Returns the count of item lineages for the parent [reportId] passed in for the [action] specified.
+         * If a [receivingOrgSvc] or [receivingOrg] are specified, only the lineages that match those values will
+         * be counted. If this is looking for Universal Pipeline lineage count, use a different query due to how
+         * parent/child relationships work in lineage
+         * @return Count of matching records.
+         */
         fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
+            isUniversalPipeline: Boolean
         ): Int? {
             val ctx = DSL.using(txn)
-            val sql = """select count(*)
+            return if (isUniversalPipeline) {
+                val sql = """
+                select count(*)
+                from (
+                    select *
+                    from (
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.child_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name != 'receive'
+                        union
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.parent_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name = 'receive'
+                    ) all_lineage
+                  where
+                  action_name = ? 
+                  ${if (receivingOrgSvc != null) "and receiving_org_svc = ?" else ""}
+                  ${if (receivingOrg != null) "and receiving_org = ?" else ""}
+              ) results
+              """
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc, receivingOrg)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, reportId, reportId, action)?.into(Int::class.java)
+                }
+            } else {
+                val sql = """select count(*)
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
@@ -1000,12 +1063,13 @@ abstract class CoolTest {
               and IL.item_lineage_id in
               (select item_descendants(?)) """
 
-            return if (receivingOrg != null && receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
-            } else if (receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
-            } else {
-                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                }
             }
         }
 

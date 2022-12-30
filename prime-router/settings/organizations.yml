@@ -2504,7 +2504,7 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: UNIVERSAL_PIPELINE
+    - name: full-elr-hl7
       externalName: Ignore FHIR Universal Pipeline
       organizationName: ignore
       topic: full-elr

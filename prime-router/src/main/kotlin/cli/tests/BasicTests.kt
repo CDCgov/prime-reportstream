@@ -65,6 +65,10 @@ class Ping : CoolTest() {
     }
 }
 
+/**
+ * End to end test for the universal pipeline. This test should read in a submission, verify it reached all steps
+ * (receive, convert, route, translate, batch, send) and that it generated the correct lineage records.
+ */
 class End2EndUniversalPipeline : CoolTest() {
     override val name = "end2end_up"
     override val description = "Create Fake data, submit, wait, confirm sent via database lineage data for UP"
@@ -150,6 +154,14 @@ class End2EndUniversalPipeline : CoolTest() {
                 passed = passed && examineStepResponse(result, "send")
             if (!passed)
                 bad("***async end2end_up FAILED***: Send result invalid")
+
+            // check that lineages were generated properly
+            passed = passed and pollForLineageResults(
+                reportId, allGoodReceivers,
+                1, // for UP there should be one item per step
+                asyncProcessMode = true,
+                isUniversalPipeline = true
+            )
         }
 
         return passed
@@ -320,7 +332,13 @@ class Merge : CoolTest() {
                 actionsList.forEach { action ->
                     var count = 0
                     reportIds.forEach { reportId ->
-                        count += itemLineageCountQuery(txn, reportId, receiver.name, action = action) ?: 0
+                        count += itemLineageCountQuery(
+                            txn,
+                            reportId,
+                            receiver.name,
+                            action = action,
+                            isUniversalPipeline = false
+                        ) ?: 0
                     }
                     if (expected != count) {
                         queryResults += Pair(
