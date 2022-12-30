@@ -23,7 +23,7 @@ runs:
   using: 'composite'
   steps:
     # Drop existing connections, drop/create db, and restore from backup file
-    - uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+    - uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
       with:
         timeout_minutes: 20
         max_attempts: 3
@@ -37,7 +37,7 @@ runs:
           az postgres db create -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} \
             --charset "UTF8" --collation "English_United States.1252"
         shell: bash
-    - uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+    - uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
       with:
         timeout_minutes: 480
         max_attempts: 3

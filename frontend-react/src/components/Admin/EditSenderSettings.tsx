@@ -14,6 +14,7 @@ import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
+    isProhibitedName,
     VersionWarningType,
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
@@ -22,6 +23,7 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import {
     DropdownComponent,
@@ -104,6 +106,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -115,6 +118,15 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
 
     const ShowCompareConfirm = async () => {
         try {
+            const { prohibited, errorMsg } = isProhibitedName(
+                orgSenderSettings.name
+            );
+
+            if (prohibited) {
+                showError(errorMsg);
+                return false;
+            }
+
             // fetch original version
             setLoading(true);
             const latestResponse = await getLatestSenderResponse();

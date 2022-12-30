@@ -13,68 +13,68 @@
       schemaName: waters/waters-covid-19
       format: CSV
   receivers:
-  - name: "giang"
-    organizationName: "waters"
-    topic: "covid-19"
-    customerStatus: active
-    translation:
-      schemaName: "waters/waters-covid-19"
-      format: "CSV"
-      defaults: {}
-      nameFormat: "STANDARD"
-      receivingOrganization: null
-      type: "CUSTOM"
-    jurisdictionalFilter:
-    - "hasAtLeastOneOf(waters_submitter, sender_id)"
-    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
-    qualityFilter:
-    - "allowAll()"
-    reverseTheQualityFilter: false
-    deidentify: true
-    timing:
-      operation: "MERGE"
-      numberPerDay: 1440
-      initialTime: "00:00"
-      timeZone: "EASTERN"
-      maxReportCount: 10000
-    description: ""
-    transport:
-      type: SFTP
-      host: sftp
-      port: 22
-      filePath: ./upload
-      credentialName: DEFAULT-SFTP
-    externalName: null
-  - name: "giang2"
-    organizationName: "waters"
-    topic: "covid-19"
-    customerStatus: active
-    translation:
-      schemaName: "waters/waters-covid-19"
-      format: "CSV"
-      defaults: {}
-      nameFormat: "STANDARD"
-      receivingOrganization: null
-      type: "CUSTOM"
-    jurisdictionalFilter:
-    - "hasAtLeastOneOf(waters_submitter, sender_id)"
-    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
-    qualityFilter:
-    - "allowAll()"
-    reverseTheQualityFilter: false
-    deidentify: true
-    timing:
-      operation: "MERGE"
-      numberPerDay: 1440
-      initialTime: "00:00"
-      timeZone: "EASTERN"
-      maxReportCount: 10000
-    description: ""
-    transport:
-      storageName: "PartnerStorage"
-      containerName: "hhsprotect"
-      type: "BLOBSTORE"
-    externalName: null
+    - name: "giang"
+      organizationName: "waters"
+      topic: "covid-19"
+      customerStatus: active
+      translation:
+        schemaName: "waters/waters-covid-19"
+        format: "CSV"
+        defaults: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - "hasAtLeastOneOf(waters_submitter, sender_id)"
+        - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+      qualityFilter:
+        - "allowAll()"
+      reverseTheQualityFilter: false
+      deidentify: true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 10000
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+    - name: "giang2"
+      organizationName: "waters"
+      topic: "covid-19"
+      customerStatus: active
+      translation:
+        schemaName: "waters/waters-covid-19"
+        format: "CSV"
+        defaults: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - "hasAtLeastOneOf(waters_submitter, sender_id)"
+        - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+      qualityFilter:
+        - "allowAll()"
+      reverseTheQualityFilter: false
+      deidentify: true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 10000
+      description: ""
+      transport:
+        storageName: "PartnerStorage"
+        containerName: "hhsprotect"
+        type: "BLOBSTORE"
+      externalName: null
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
 # It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.
@@ -88,6 +88,11 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: monkeypox
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+    - topic: full-elr
+      jurisdictionalFilter:
+        - "%performerState = 'IG' or %patientState = 'IG'"
+      qualityFilter:
+        - "%hl7MessageType = 'R01'"
   senders:
     - name: default
       organizationName: ignore

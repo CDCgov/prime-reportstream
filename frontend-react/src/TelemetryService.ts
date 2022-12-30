@@ -1,6 +1,8 @@
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
+import { getSessionMembershipState } from "./utils/SessionStorageTools";
+
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
@@ -30,6 +32,14 @@ const createTelemetryService = () => {
         });
         // Initialize for use in ReportStream
         appInsights.loadAppInsights();
+
+        // Add active membership information to all tracking events
+        appInsights.addTelemetryInitializer((envelope) => {
+            const { activeMembership } = getSessionMembershipState() || {};
+            if (activeMembership) {
+                (envelope.data as any).activeMembership = activeMembership;
+            }
+        });
     };
 
     return {
@@ -43,3 +53,13 @@ const createTelemetryService = () => {
 };
 
 export const ai = createTelemetryService();
+
+export function getAppInsightsHeaders(): { [key: string]: string } {
+    return {
+        "x-ms-session-id": getAppInsightsSessionId(),
+    };
+}
+
+function getAppInsightsSessionId(): string {
+    return appInsights?.context.getSessionId() || "";
+}

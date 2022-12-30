@@ -5,10 +5,12 @@ elements:
   #########################
   # ReportStream specific #
   #########################
-  - name: sending-application-namespace-id
+  - name: sending-application-namespace-id-no-endpoint
+    condition: true
     value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
 
-  - name: sending-application-universal-id
+  - name: sending-application-universal-id-no-endpoint
+    condition: true
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   ######################################################
