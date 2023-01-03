@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import { getStoredOrg } from "../../utils/SessionStorageTools";
@@ -127,8 +127,16 @@ function SubmissionDetailsContent() {
 */
 function SubmissionDetails() {
     const { actionId } = useParams<SubmissionDetailsProps>();
+    const location = useLocation();
+    const submissionCrumb = { label: "Submissions", path: "/submissions" };
+    const messageSearchCrumb = {
+        label: "Message Tracker",
+        path: "/admin/message-tracker",
+    };
     const crumbs: CrumbConfig[] = [
-        { label: "Submissions", path: "/submissions" },
+        (location.state as any).from === "/admin/message-tracker"
+            ? messageSearchCrumb
+            : submissionCrumb,
         { label: `Details: ${actionId}` },
     ];
     return (

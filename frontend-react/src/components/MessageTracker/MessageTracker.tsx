@@ -6,6 +6,7 @@ import {
     Button,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useLocation } from "react-router-dom";
 
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
@@ -23,6 +24,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     messagesData,
     hasSearched,
 }) => {
+    const location = useLocation();
     const tableConfig: TableConfig = {
         columns: [
             {
@@ -51,6 +53,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 feature: {
                     link: true,
                     linkBasePath: "/submissions/",
+                    linkState: { from: location.pathname },
                 },
             },
         ],

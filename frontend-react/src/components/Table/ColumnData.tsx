@@ -79,6 +79,7 @@ export const ColumnData = ({
                 to={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
