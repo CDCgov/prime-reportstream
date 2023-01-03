@@ -22,7 +22,7 @@
         "@types/lodash.uniq": "^4.5.7",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
-        "@uswds/uswds": "3.3.0",
+        "@uswds/uswds": "3.1.0",
         "@xmldom/xmldom": "0.8.6",
         "axios": "^0.27.2",
         "classnames": "^2.3.1",
