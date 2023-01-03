@@ -1,5 +1,6 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
+import classnames from "classnames";
 
 // Known issue with the `PropsWithChildren generic in React 18,
 // so I wrote this in a way that we can just remove `<any>` and be
@@ -13,20 +14,6 @@ interface CustomLinkProps {
 type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
-
-/** Helper class to protect against the string literal "undefined" appearing in styles
- * @example
- * const className = "style-c"
- * makeStyle("style-a style-b", className) // "style-a style-b style-c"
- * */
-const cleanStyles = (
-    enforcedClasses: string,
-    className: string | undefined
-): string => {
-    const styles = [enforcedClasses];
-    if (className !== undefined) styles.push(className);
-    return styles.join(" ");
-};
 
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
@@ -44,7 +31,7 @@ export const USLink = ({
     return !anchor ? (
         <Link
             to={href || ""}
-            className={cleanStyles("usa-link", className)}
+            className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >
             {children}
@@ -52,7 +39,7 @@ export const USLink = ({
     ) : (
         <a
             href={href}
-            className={cleanStyles("usa-link", className)}
+            className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >
             {children}
@@ -85,7 +72,7 @@ export const USExtLink = ({
             anchor
             target="_blank"
             rel="noreferrer noopener"
-            className={cleanStyles("usa-link--external", className)}
+            className={classnames("usa-link--external", className)}
             {...anchorHTMLAttributes}
         >
             {children}
@@ -101,7 +88,7 @@ export const USCrumbLink = ({
     ...anchorHTMLAttributes
 }: Omit<USLinkProps, "anchor">) => (
     <USLink
-        className={cleanStyles("usa-breadcrumb__link", className)}
+        className={classnames("usa-breadcrumb__link", className)}
         {...anchorHTMLAttributes}
     >
         {children}
@@ -122,8 +109,8 @@ export const USNavLink = ({
             to={href || ""}
             className={({ isActive }) =>
                 isActive
-                    ? cleanStyles("usa-nav__link usa-current", activeClassName)
-                    : cleanStyles("usa-nav__link", className)
+                    ? classnames("usa-nav__link usa-current", activeClassName)
+                    : classnames("usa-nav__link", className)
             }
         >
             {children}
