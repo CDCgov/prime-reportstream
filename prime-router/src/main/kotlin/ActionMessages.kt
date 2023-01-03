@@ -236,3 +236,12 @@ class UnsupportedProcessingTypeMessage() : ActionLogDetail {
     override val errorCode = ErrorCode.UNKNOWN
     override val message = "Full ELR senders must be configured for async processing."
 }
+
+/**
+ * A [message] for when a filter has an invalid expression
+ */
+class InvalidFilterExpressionMessage(message: String) : ActionLogDetail {
+    override val scope = ActionLogScope.internal
+    override val message = message
+    override val errorCode = ""
+}

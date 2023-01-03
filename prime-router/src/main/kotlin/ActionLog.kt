@@ -9,7 +9,7 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation
+    parameter, report, item, translation, internal
 }
 
 /**
