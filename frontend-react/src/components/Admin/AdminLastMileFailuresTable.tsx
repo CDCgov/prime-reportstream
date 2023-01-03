@@ -127,7 +127,6 @@ const RenderResendModal = (props: {
                 <ButtonGroup>
                     <Button
                         type="button"
-                        size="small"
                         outline
                         onClick={props.closeResendModal}
                     >
@@ -135,7 +134,6 @@ const RenderResendModal = (props: {
                     </Button>
                     <Button
                         type="button"
-                        size="small"
                         disabled={props.loading}
                         onClick={() => props.startResend()}
                     >
@@ -230,7 +228,6 @@ const DataLoadRenderTable = (props: {
                                 )
                             }
                             type="button"
-                            size="small"
                             className="padding-1 usa-button--outline"
                             title="Requeue items for resend"
                         >

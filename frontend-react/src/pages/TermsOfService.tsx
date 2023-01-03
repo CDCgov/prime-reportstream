@@ -8,6 +8,7 @@ export const TermsOfService = () => {
                 id="anchor-top"
             >
                 <Alert
+                    headingLevel="h4"
                     type="info"
                     heading="This is a U.S. government service"
                     className="margin-bottom-5"
