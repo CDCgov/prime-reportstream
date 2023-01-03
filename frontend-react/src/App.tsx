@@ -22,6 +22,7 @@ import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
+import { USLink } from "./components/USLink";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -82,6 +83,9 @@ const App = () => {
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
                     <DAPHeader env={APP_ENV?.toString()} />
+                    <USLink anchor className="usa-skipnav" href="#main-content">
+                        Skip Nav
+                    </USLink>
                     <GovBanner aria-label="Official government website" />
                     <SenderModeBanner />
                     <ReportStreamHeader />
