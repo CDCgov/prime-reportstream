@@ -830,7 +830,7 @@ dependencies {
 }
 
 typescriptGenerator.apply {
-    outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.d.ts"))
+    outputPath.set(project.projectDir.toPath().resolve("../frontend-react/src/typings/api-codegen.ts"))
     classPath.set(layout.files(project.sourceSets.main.get().runtimeClasspath))
     annotation.set(
         gov.cdc.prime.tsGenerateLibrary.TsExportAnnotationConfig(
