@@ -3,6 +3,19 @@
 ## Stay up to date with new features, enhancements, and fixes
 
 
+---
+
+### December 2022
+
+See Github release notes anytime at [https://github.com/CDCgov/prime-reportstream/releases](https://github.com/CDCgov/prime-reportstream/releases). 
+
+
+* To assist in onboarding new labs and facilities that would like to send data through ReportStream, we have added a new resource: [Guide to Submitting Data to ReportStream](https://reportstream.cdc.gov/resources/getting-started-submitting-data).
+
+* In an effort to be as useful as possible to ReportStream users and visitors, we have updated the content in several items on the ReportStream resources page including: [Account Registration Guide](https://reportstream.cdc.gov/resources/account-registration-guide), [Guide to Receiving ReportStream Data](https://reportstream.cdc.gov/resources/getting-started-public-health-departments), [Manual Data Download Guide](https://reportstream.cdc.gov/resources/data-download-guide).
+
+
+
 
 ---
 
@@ -52,19 +65,19 @@ We’re excited to announce that ReportStream has recently established connectio
 
 #### New Features
 
-ReportStream now supports RADx MARS, the NIH standard for at-home test reporting via HL7 and CSV formats.
+* ReportStream now supports RADx MARS, the NIH standard for at-home test reporting via HL7 and CSV formats.
 
-The Standard CSV schema now accepts “Residence Type” data in your file submission. For details, visit the online guide.
+* The Standard CSV schema now accepts “Residence Type” data in your file submission. For details, visit the online guide.
 
-ReportStream now accepts international phone numbers.
+* ReportStream now accepts international phone numbers.
 
 #### Enhancements
 
-From your ReportStream user account, you can now sort the data column on the Submissions page by ascending or descending order.
+* From your ReportStream user account, you can now sort the data column on the Submissions page by ascending or descending order.
 
 #### Fixed Issues
 
-From your ReportStream user account, you must select a valid date range when using the fixed date filters on the Submissions page.
+* From your ReportStream user account, you must select a valid date range when using the fixed date filters on the Submissions page.
 
 #### Additional Resources
 
