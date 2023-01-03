@@ -12,7 +12,7 @@ import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout } from "./utils/UserUtils";
+import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -26,6 +26,8 @@ import config from "./config";
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const { APP_ENV } = config;
+
+initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
     const navigate = useNavigate();
