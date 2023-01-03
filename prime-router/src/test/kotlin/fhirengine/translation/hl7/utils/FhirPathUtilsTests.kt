@@ -202,14 +202,14 @@ class FhirPathUtilsTests {
 
         // verify it throws exception for bad syntax
         expression = "Bundle.#*($&id.exists()"
-        assertThat{ FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
             messageContains("Syntax error")
         }
 
         // verify it throws exception for non-boolean expression
         expression = "Bundle.id"
-        assertThat{ FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
             messageContains("Condition")
         }
