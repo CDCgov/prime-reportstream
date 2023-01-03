@@ -2,11 +2,11 @@ import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
 
-// Known issue with the `PropsWithChildren generic in React 18,
-// so I wrote this in a way that we can just remove `<any>` and be
-// okay if we update our React version.
+/** React.PropsWithChildren has known issues with generic extension in React 18,
+ * so rather than using it here, we are using our own definition of child types.
+ * One less headache when updating to React 18 in the future! */
 interface CustomLinkProps {
-    children: React.ReactNode | React.ReactNode[];
+    children: React.ReactNode;
     anchor?: boolean;
     className?: string;
     activeClassName?: string;
