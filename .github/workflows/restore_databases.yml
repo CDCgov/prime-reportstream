@@ -269,6 +269,11 @@ jobs:
           file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}
           resource-group: ${{ env.sink_resource_group }}
           options: -j 32 -Fd -O
+      
+      - name: Get sink db public ip
+        shell: bash
+        run: echo "SINK_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+
 
       - name: Clean sink db
         if: |
@@ -290,7 +295,7 @@ jobs:
             UPDATE
               setting    
             SET               
-              values = values || '{"transport": {"host": "172.17.6.20", "port": "22", "type": "SFTP", "filePath": "./staging", "credentialName": null}}'::jsonb
+              values = values || '{"transport": {"host": "${{ env.sink_db_server }}", "port": "22", "type": "SFTP", "filePath": "./${{ env }}", "credentialName": null}}'::jsonb
             WHERE                                     
               type = 'RECEIVER'
               AND values -> 'transport' ->> 'type' = 'SFTP';
