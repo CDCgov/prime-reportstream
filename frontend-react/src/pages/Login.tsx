@@ -8,13 +8,16 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
+import { getSessionBroadcastChannel, SessionEvent } from "../utils/UserUtils";
 
 export const Login = () => {
     const { oktaAuth } = useOktaAuth();
     const { dispatch } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        oktaAuth.handleLoginRedirect(tokens);
+        oktaAuth.handleLoginRedirect(tokens).finally(() => {
+            getSessionBroadcastChannel()?.postMessage(SessionEvent.LOGIN);
+        });
     };
 
     const onError = (err: any) => {
