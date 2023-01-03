@@ -7,7 +7,7 @@ import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
-import { FeatureType } from "../../AppRouter";
+import { FeatureName } from "../../AppRouter";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 
@@ -60,10 +60,10 @@ describe("ReportStreamHeader", () => {
             initialized: true,
         } as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
-        expect(screen.getByText(FeatureType.ADMIN)).toBeInTheDocument();
-        expect(screen.getByText(FeatureType.DAILY_DATA)).toBeInTheDocument();
-        expect(screen.getByText(FeatureType.UPLOAD)).toBeInTheDocument();
-        expect(screen.getByText(FeatureType.SUBMISSIONS)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.UPLOAD)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.SUBMISSIONS)).toBeInTheDocument();
     });
 
     test("senders see sender items and not receiver items", async () => {
@@ -95,10 +95,10 @@ describe("ReportStreamHeader", () => {
         });
         renderWithSession(<ReportStreamHeader />);
         expect(
-            screen.queryByText(FeatureType.DAILY_DATA)
+            screen.queryByText(FeatureName.DAILY_DATA)
         ).not.toBeInTheDocument();
-        expect(screen.getByText(FeatureType.UPLOAD)).toBeInTheDocument();
-        expect(screen.getByText(FeatureType.SUBMISSIONS)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.UPLOAD)).toBeInTheDocument();
+        expect(screen.getByText(FeatureName.SUBMISSIONS)).toBeInTheDocument();
     });
 
     test("receivers see receiver items and not sender items", async () => {
@@ -129,10 +129,10 @@ describe("ReportStreamHeader", () => {
             initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
-        expect(screen.getByText(FeatureType.DAILY_DATA)).toBeInTheDocument();
-        expect(screen.queryByText(FeatureType.UPLOAD)).not.toBeInTheDocument();
+        expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
+        expect(screen.queryByText(FeatureName.UPLOAD)).not.toBeInTheDocument();
         expect(
-            screen.queryByText(FeatureType.SUBMISSIONS)
+            screen.queryByText(FeatureName.SUBMISSIONS)
         ).not.toBeInTheDocument();
     });
 });

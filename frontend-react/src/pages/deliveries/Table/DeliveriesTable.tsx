@@ -19,6 +19,7 @@ import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { EventName } from "../../../utils/Analytics";
+import { FeatureName } from "../../../AppRouter";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -69,6 +70,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     serviceReportsList,
 }) => {
     const { oktaToken, activeMembership } = useSessionContext();
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -125,7 +127,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
         <>
             <TableFilters
                 filterManager={filterManager}
-                featureEvent={EventName.DAILY_DATA_TABLE_FILTER}
+                featureEvent={featureEvent}
             />
             <Table
                 config={resultsTableConfig}

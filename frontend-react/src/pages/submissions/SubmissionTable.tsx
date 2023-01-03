@@ -14,6 +14,7 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { EventName } from "../../utils/Analytics";
+import { FeatureName } from "../../AppRouter";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -38,6 +39,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
     };
+    const featureEvent = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
 
     const columns: Array<ColumnConfig> = [
         {
@@ -72,7 +74,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
         <>
             <TableFilters
                 filterManager={filterManager}
-                featureEvent={EventName.SUBMISSIONS_TABLE_FILTER}
+                featureEvent={featureEvent}
             />
             <Table
                 config={submissionsConfig}

@@ -14,7 +14,7 @@ import { ReactComponent as RightLeftArrows } from "../../content/right-left-arro
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
-import { FeatureType } from "../../AppRouter";
+import { FeatureName } from "../../AppRouter";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown } from "./DropdownNav";
@@ -80,7 +80,7 @@ export const ReportStreamHeader = () => {
                     hidden={true}
                     className="usa-nav__link"
                 >
-                    <span>{FeatureType.DAILY_DATA}</span>
+                    <span>{FeatureName.DAILY_DATA}</span>
                 </NavLink>
             );
         }
@@ -98,7 +98,7 @@ export const ReportStreamHeader = () => {
                     hidden={true}
                     className="usa-nav__link"
                 >
-                    <span>{FeatureType.UPLOAD}</span>
+                    <span>{FeatureName.UPLOAD}</span>
                 </NavLink>,
                 <NavLink
                     to="/submissions"
@@ -107,7 +107,7 @@ export const ReportStreamHeader = () => {
                     hidden={true}
                     className="usa-nav__link"
                 >
-                    <span>{FeatureType.SUBMISSIONS}</span>
+                    <span>{FeatureName.SUBMISSIONS}</span>
                 </NavLink>
             );
         }

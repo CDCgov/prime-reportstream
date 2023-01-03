@@ -7,7 +7,7 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureType } from "../../AppRouter";
+import { FeatureName } from "../../AppRouter";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -17,7 +17,7 @@ function SubmissionHistoryContent() {
 
     return (
         <>
-            <BasicHelmet pageTitle={FeatureType.SUBMISSIONS} />
+            <BasicHelmet pageTitle={FeatureName.SUBMISSIONS} />
             <section className="grid-container margin-top-5">
                 <Title title="Submission History" preTitle={description} />
             </section>

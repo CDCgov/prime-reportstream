@@ -3,7 +3,7 @@ import { RSDelivery } from "../../../config/endpoints/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { useOrganizationSettings } from "../../../hooks/UseOrganizationSettings";
-import { FeatureType } from "../../../AppRouter";
+import { FeatureName } from "../../../AppRouter";
 
 interface Props {
     /* REQUIRED
@@ -18,7 +18,7 @@ function Summary(props: Props) {
     const { description } = orgDetails || {};
     const crumbProps: CrumbsProps = {
         crumbList: [
-            { label: FeatureType.DAILY_DATA, path: "/daily-data" },
+            { label: FeatureName.DAILY_DATA, path: "/daily-data" },
             { label: "Details" },
         ],
         noPadding: true,

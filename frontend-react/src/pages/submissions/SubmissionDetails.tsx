@@ -14,7 +14,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
-import { FeatureType } from "../../AppRouter";
+import { FeatureName } from "../../AppRouter";
 
 /* Custom types */
 type DestinationItemProps = {
@@ -83,7 +83,7 @@ function SubmissionDetailsContent() {
     /* Conditional title strings */
     const preTitle = `${
         actionDetails.sender
-    } ${actionDetails.topic.toUpperCase()} ${FeatureType.SUBMISSIONS}`;
+    } ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
         : "Date and Time parsing error";

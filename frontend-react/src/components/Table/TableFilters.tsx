@@ -12,7 +12,7 @@ import {
     FALLBACK_TO,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
-import { EventName, TrackAppInsightEvent } from "../../utils/Analytics";
+import { TrackAppInsightEvent } from "../../utils/Analytics";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -22,7 +22,7 @@ export enum StyleClass {
 interface SubmissionFilterProps {
     filterManager: FilterManager;
     cursorManager?: CursorManager;
-    featureEvent?: EventName;
+    featureEvent?: string;
 }
 
 /* This helper ensures start range values are inclusive

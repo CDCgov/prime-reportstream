@@ -7,7 +7,7 @@ import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
-import { FeatureType } from "../../AppRouter";
+import { FeatureName } from "../../AppRouter";
 
 import DeliveriesTable from "./Table/DeliveriesTable";
 
@@ -16,9 +16,9 @@ function Deliveries() {
     const { description } = orgDetails || {};
     return (
         <>
-            <BasicHelmet pageTitle={FeatureType.DAILY_DATA} />
+            <BasicHelmet pageTitle={FeatureName.DAILY_DATA} />
             <section className="grid-container margin-bottom-5 tablet:margin-top-6">
-                <Title preTitle={description} title={FeatureType.DAILY_DATA} />
+                <Title preTitle={description} title={FeatureName.DAILY_DATA} />
             </section>
             {withCatchAndSuspense(<DeliveriesTable />)}
             <HipaaNotice />
