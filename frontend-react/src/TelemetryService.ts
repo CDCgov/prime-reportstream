@@ -1,4 +1,7 @@
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import {
+    ApplicationInsights,
+    SeverityLevel,
+} from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
 import { getSessionMembershipState } from "./utils/SessionStorageTools";
@@ -54,12 +57,77 @@ const createTelemetryService = () => {
 
 export const ai = createTelemetryService();
 
+export function getAppInsights() {
+    return appInsights;
+}
+
 export function getAppInsightsHeaders(): { [key: string]: string } {
     return {
-        "x-ms-session-id": getAppInsightsSessionId(),
+        "x-ms-session-id": appInsights?.context.getSessionId() || "",
     };
 }
 
-function getAppInsightsSessionId(): string {
-    return appInsights?.context.getSessionId() || "";
+export enum ConsoleMethod {
+    INFO = "info",
+    LOG = "log",
+    WARN = "warn",
+    ERROR = "error",
+}
+
+export const LOG_SEVERITY_MAP = {
+    [ConsoleMethod.INFO]: SeverityLevel.Information,
+    [ConsoleMethod.LOG]: SeverityLevel.Information,
+    [ConsoleMethod.WARN]: SeverityLevel.Warning,
+    [ConsoleMethod.ERROR]: SeverityLevel.Error,
+};
+
+export const REPORTABLE_SEVERITY_LEVELS = [ConsoleMethod.ERROR];
+
+export function withInsights(console: Console) {
+    const originalConsole = { ...console };
+
+    Object.entries(LOG_SEVERITY_MAP).forEach((el) => {
+        const [method, severityLevel] = el as [
+            keyof typeof LOG_SEVERITY_MAP,
+            SeverityLevel
+        ];
+
+        console[method] = (...data: any[]) => {
+            originalConsole[method](...data);
+
+            if (REPORTABLE_SEVERITY_LEVELS.includes(method)) {
+                const exception =
+                    data[0] instanceof Error ? data[0] : new Error(data[0]);
+
+                appInsights?.trackException({
+                    exception,
+                    id: exception.message,
+                    severityLevel,
+                    properties: {
+                        additionalInformation:
+                            data.length === 1
+                                ? undefined
+                                : JSON.stringify(data.slice(1)),
+                    },
+                });
+
+                return;
+            }
+
+            const message =
+                typeof data[0] === "string" ? data[0] : JSON.stringify(data[0]);
+
+            appInsights?.trackEvent({
+                name: `${method.toUpperCase()} - ${message}`,
+                properties: {
+                    severityLevel,
+                    message,
+                    additionalInformation:
+                        data.length === 1
+                            ? undefined
+                            : JSON.stringify(data.slice(1)),
+                },
+            });
+        };
+    });
 }

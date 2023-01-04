@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
+import { USLink } from "../USLink";
 
 export interface NonStaticOption {
     title: string;
@@ -40,7 +40,7 @@ export const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
         };
     }, []);
     const navMenu = directories.map((dir) => (
-        <NavLink to={`${dir.root}/${dir.slug}`}>{dir.title}</NavLink>
+        <USLink href={`${dir.root}/${dir.slug}`}>{dir.title}</USLink>
     ));
     return (
         <>
