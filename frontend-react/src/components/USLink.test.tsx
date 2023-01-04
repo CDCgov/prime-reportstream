@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../utils/CustomRenderUtils";
 
@@ -46,10 +45,8 @@ describe("USLink", () => {
 /** Specialization of NavLink from react-router-dom */
 describe("USNavLink", () => {
     test("renders without error", () => {
-        render(
-            <BrowserRouter>
-                <USNavLink href={"/some/url"}>Navigation Link</USNavLink>
-            </BrowserRouter>
+        renderWithRouter(
+            <USNavLink href={"/some/url"}>Navigation Link</USNavLink>
         );
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-nav__link");

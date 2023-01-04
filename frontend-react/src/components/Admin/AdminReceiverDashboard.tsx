@@ -16,7 +16,6 @@ import {
 } from "@trussworks/react-uswds";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import moment from "moment";
-import { Link } from "react-router-dom";
 
 import {
     AdmConnStatusResource,
@@ -26,6 +25,7 @@ import { formatDate } from "../../utils/misc";
 import { StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
 import { ErrorPage } from "../../pages/error/ErrorPage";
+import { USLink } from "../USLink";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -539,9 +539,9 @@ function renderAllReceiverRows(props: {
             >
                 <Grid className={`title-column ${titleClassName}`}>
                     <div className={"title-text"}>
-                        <Link to={linkOrgSettings}>{orgName}</Link>
+                        <USLink href={linkOrgSettings}>{orgName}</USLink>
                         <br />
-                        <Link to={linkRecvSettings}>{recvrName}</Link>
+                        <USLink href={linkRecvSettings}>{recvrName}</USLink>
                         <br />
                         {successRate}%
                     </div>
