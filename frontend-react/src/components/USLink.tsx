@@ -108,9 +108,11 @@ export const USNavLink = ({
         <NavLink
             to={href || ""}
             className={({ isActive }) =>
-                isActive
-                    ? classnames("usa-nav__link usa-current", activeClassName)
-                    : classnames("usa-nav__link", className)
+                classnames("usa-nav__link", {
+                    "usa-current": isActive,
+                    [activeClassName as any]: isActive, // `as any` because string may be undefined
+                    [className as any]: !isActive, // `as any` because string may be undefined
+                })
             }
         >
             {children}
