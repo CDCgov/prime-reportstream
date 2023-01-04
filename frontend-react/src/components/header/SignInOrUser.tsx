@@ -25,15 +25,16 @@ const SignInOrUser = () => {
             <span id="emailUser">{user}</span>
             <br />
             {/* Okta handles our logoutRedirectUri, this should _not_ be an anchor tag! */}
-            <button
+            <Button
                 id="logout"
+                type="button"
+                unstyled
                 onClick={() => {
                     logout(oktaAuth);
                 }}
-                className="usa-button usa-button--unstyled"
             >
                 Log out
-            </button>
+            </Button>
         </div>
     ) : (
         <USLink href="/login">
