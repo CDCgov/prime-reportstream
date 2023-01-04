@@ -23,6 +23,7 @@ import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsup
 import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
 import { USLink } from "./components/USLink";
+import { useScrollToTop } from "./hooks/UseScrollToTop";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -31,6 +32,7 @@ const { APP_ENV } = config;
 initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
+    useScrollToTop();
     const navigate = useNavigate();
     const handleIdle = (): void => {
         logout(OKTA_AUTH);
