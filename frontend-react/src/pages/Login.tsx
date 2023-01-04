@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
@@ -8,6 +7,7 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
+import { USLink } from "../components/USLink";
 import { getSessionBroadcastChannel, SessionEvent } from "../utils/UserUtils";
 
 export const Login = () => {
@@ -37,7 +37,7 @@ export const Login = () => {
                 Your use indicates your consent to monitoring, recording, and no
                 expectation of privacy. Misuse is subject to criminal and civil
                 penalties. By logging in, you are agreeing to our{" "}
-                <Link to="/terms-of-service">terms of service.</Link>
+                <USLink href="/terms-of-service">terms of service.</USLink>
             </SiteAlert>
         );
     };
