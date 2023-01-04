@@ -3,6 +3,7 @@ import DOMPurify from "dompurify";
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {
@@ -46,14 +47,14 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
                         <p className="usa-alert__text">
                             Questions? Get in touch at{" "}
-                            <a
+                            <USExtLink
                                 href={
                                     "mailto:" +
                                     DOMPurify.sanitize(site.orgs.RS.email)
                                 }
                             >
                                 reportstream@cdc.gov
-                            </a>
+                            </USExtLink>
                         </p>
                     </div>
                 </div>
@@ -61,14 +62,14 @@ export const AccountRegistrationGuideIa = () => {
                 <p className="text-bold">Jump to:</p>
                 <ul>
                     <li>
-                        <a href="#anchor-mfa" className="usa-link">
+                        <USLink anchor href="#anchor-mfa">
                             Set up multi-factor authentication
-                        </a>
+                        </USLink>
                     </li>
                     <li>
-                        <a href="#anchor-acct-mngt" className="usa-link">
+                        <USLink anchor href="#anchor-acct-mngt">
                             Account management
-                        </a>
+                        </USLink>
                     </li>
                 </ul>
                 <h1>Register for a ReportStream account</h1>
@@ -79,16 +80,15 @@ export const AccountRegistrationGuideIa = () => {
                         </h3>
                         <p className="margin-top-05">
                             Send an email to{" "}
-                            <a
+                            <USExtLink
                                 href={
                                     "mailto:" +
                                     DOMPurify.sanitize(site.orgs.RS.email) +
                                     "?subject=Register a new account: organization or testing facility"
                                 }
-                                className="usa-link"
                             >
                                 reportstream@cdc.gov
-                            </a>
+                            </USExtLink>
                             . Use the example text below as a template for your
                             message:
                         </p>
@@ -146,7 +146,9 @@ export const AccountRegistrationGuideIa = () => {
                             <p>
                                 Open the link to view the form and review the
                                 ReportStream{" "}
-                                <a href="/terms-of-service">terms of service</a>
+                                <USLink href="/terms-of-service">
+                                    terms of service
+                                </USLink>
                             </p>
                             <p>
                                 Fill out and submit the form.{" "}
@@ -215,10 +217,10 @@ export const AccountRegistrationGuideIa = () => {
                             "Setup" below it. These authentication options are
                             meant to secure your account. Below, you can review
                             instructions for setting up{" "}
-                            <a href="#anchor-mfa" className="usa-link">
+                            <USLink anchor href="#anchor-mfa">
                                 SMS authentication and Google Authenticator/Okta
                                 Verify
-                            </a>
+                            </USLink>
                             .
                         </p>
                         <p>
@@ -251,23 +253,22 @@ export const AccountRegistrationGuideIa = () => {
                         <div className="margin-top-2">
                             <p>
                                 Go to{" "}
-                                <a href="/login" className="usa-link">
+                                <USLink href="/login">
                                     https://reportstream.cdc.gov/login
-                                </a>{" "}
+                                </USLink>{" "}
                                 to log in with your username and password.
                             </p>
                             <p>
                                 Need help? Contact us at{" "}
-                                <a
+                                <USExtLink
                                     href={
                                         "mailto:" +
                                         DOMPurify.sanitize(site.orgs.RS.email) +
                                         "?subject=Getting started with ReportStream"
                                     }
-                                    className="usa-link"
                                 >
                                     reportstream@cdc.gov
-                                </a>
+                                </USExtLink>
                             </p>
                         </div>
                     </li>
@@ -354,13 +355,13 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members,{" "}
-                    <a
+                    <USExtLink
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
                         }
                     >
                         contact us
-                    </a>
+                    </USExtLink>
                     .
                 </p>
 
@@ -368,9 +369,11 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     If you forgot your password, follow the instructions under
                     "Need help signing in?" on the login page at{" "}
-                    <a href={DOMPurify.sanitize(`${site.orgs.RS.url}/login`)}>
+                    <USExtLink
+                        href={DOMPurify.sanitize(`${site.orgs.RS.url}/login`)}
+                    >
                         {`${site.orgs.RS.url}/login`}
-                    </a>
+                    </USExtLink>
                     .
                 </p>
                 <p>

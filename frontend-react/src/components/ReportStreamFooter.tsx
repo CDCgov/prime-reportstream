@@ -11,6 +11,8 @@ import {
     IdentifierLink,
 } from "@trussworks/react-uswds";
 
+import { USExtLink } from "./USLink";
+
 export const ReportStreamFooter = () => {
     return (
         <Identifier>
@@ -83,7 +85,7 @@ export const ReportStreamFooter = () => {
             </IdentifierLinks>
             <IdentifierGov aria-label="U.S. government information and services">
                 Looking for U.S. government information and services?{" "}
-                <a href="https://www.usa.gov/">Visit USA.gov</a>
+                <USExtLink href="https://www.usa.gov/">Visit USA.gov</USExtLink>
             </IdentifierGov>
         </Identifier>
     );
