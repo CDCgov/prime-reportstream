@@ -1,4 +1,5 @@
 import { SectionProp } from "../HomeProps";
+import { USLink } from "../../../components/USLink";
 
 export default function CtaSection({ section }: { section: SectionProp }) {
     return (
@@ -15,13 +16,9 @@ export default function CtaSection({ section }: { section: SectionProp }) {
             <p data-testid="summary" className="usa-prose">
                 {section.summary}
             </p>
-            <a
-                data-testid="email-link"
-                href="/support/contact"
-                className="usa-button"
-            >
-                Get in touch
-            </a>
+            <USLink data-testid="email-link" href="/support/contact">
+                <button className="usa-button">Get in touch</button>
+            </USLink>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const SystemAndSettingsIa = () => {
     return (
@@ -17,32 +18,27 @@ export const SystemAndSettingsIa = () => {
             <p className="text-bold">On this page:</p>
             <ul>
                 <li>
-                    <a href="#data-security-and-storage" className="usa-link">
+                    <USLink href="#data-security-and-storage">
                         Data security and storage
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a
-                        href="#data-configuration-and-formatting"
-                        className="usa-link"
-                    >
+                    <USLink href="#data-configuration-and-formatting">
                         Data configuration and formatting
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#data-transport-and-sending" className="usa-link">
+                    <USLink href="#data-transport-and-sending">
                         Data transport and sending
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#file-testing-and-launch" className="usa-link">
+                    <USLink href="#file-testing-and-launch">
                         File testing and launch
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#data-access" className="usa-link">
-                        Data access
-                    </a>
+                    <USLink href="#data-access">Data access</USLink>
                 </li>
             </ul>
 
@@ -62,12 +58,9 @@ export const SystemAndSettingsIa = () => {
                 <p>
                     As a project of the U.S. federal government, ReportStream
                     also complies with the{" "}
-                    <a
-                        href="https://csrc.nist.gov/Projects/risk-management/fisma-background"
-                        className="usa-link"
-                    >
+                    <USExtLink href="https://csrc.nist.gov/Projects/risk-management/fisma-background">
                         Federal Information System Management Act
-                    </a>{" "}
+                    </USExtLink>{" "}
                     (FISMA). FISMA sets standards and requires federal agencies
                     to implement information security plans to protect sensitive
                     data.
@@ -75,12 +68,9 @@ export const SystemAndSettingsIa = () => {
 
                 <p>
                     Get more information on{" "}
-                    <a
-                        href="/resources/security-practices"
-                        className="usa-link"
-                    >
+                    <USLink href="/resources/security-practices">
                         ReportStream security practices
-                    </a>
+                    </USLink>
                     .
                 </p>
             </section>
@@ -93,21 +83,15 @@ export const SystemAndSettingsIa = () => {
 
                 <p>
                     ReportStream data follows{" "}
-                    <a
-                        href="https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html"
-                        className="usa-link"
-                    >
+                    <USExtLink href="https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html">
                         HHS guidance for COVID-19 Lab Data Reporting
-                    </a>
+                    </USExtLink>
                     , including the recommended Health and Human Services
                     COVID-19 “Ask on Order Entry” questions. Sending Ask on
                     Order Entry questions (via{" "}
-                    <a
-                        href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX"
-                        className="usa-link"
-                    >
+                    <USExtLink href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
                         OBX fields
-                    </a>
+                    </USExtLink>
                     ) is optional.
                 </p>
 
@@ -153,14 +137,9 @@ export const SystemAndSettingsIa = () => {
                             Synthetic data (standard):
                         </span>{" "}
                         ReportStream always sends synthetic data in our{" "}
-                        <a
-                            href="https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="usa-link"
-                        >
+                        <USExtLink href="https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
                             standard data schema
-                        </a>{" "}
+                        </USExtLink>{" "}
                         for your review.
                     </li>
                     <li>

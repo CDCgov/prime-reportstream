@@ -17,7 +17,7 @@ jobs:
       has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50
         id: skip_check
         with:
@@ -45,7 +45,7 @@ jobs:
       packages: write
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - name: Log In to the Container Registry
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
@@ -80,7 +80,7 @@ jobs:
         AZ_ENV: [ demo1, demo2, demo3, test, staging, prod ]
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - name: Log In to the Container Registry
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
