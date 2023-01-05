@@ -27,7 +27,10 @@ interface SubmissionFilterProps {
 /* This helper ensures start range values are inclusive
  * of the day set in the date picker. */
 const inclusiveDateString = (originalDate: string) => {
-    return `${originalDate} 23:59:59 GMT`;
+    let inclusiveDateDate = new Date(originalDate);
+    return new Date(
+        inclusiveDateDate.setUTCHours(23, 59, 59, 999)
+    ).toISOString();
 };
 
 /* This component contains the UI for selecting query parameters.
@@ -47,11 +50,11 @@ function TableFilters({
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
 
+    let from = new Date(rangeFrom).toISOString();
+    let to = inclusiveDateString(rangeTo);
+
     const updateRange = () => {
         try {
-            const from = new Date(rangeFrom).toISOString();
-            const to = new Date(inclusiveDateString(rangeTo)).toISOString();
-
             filterManager.updateRange({
                 type: RangeSettingsActionType.RESET,
                 payload: { from, to },
@@ -72,13 +75,7 @@ function TableFilters({
         updateRange();
 
         // call onFilterClick with the specified range
-        try {
-            const from = new Date(rangeFrom).toISOString();
-            const to = new Date(inclusiveDateString(rangeTo)).toISOString();
-            onFilterClick({ from, to });
-        } catch (e) {
-            console.warn(e);
-        }
+        if (onFilterClick) onFilterClick({ from, to });
     };
 
     /* Clears manager and local state values */
