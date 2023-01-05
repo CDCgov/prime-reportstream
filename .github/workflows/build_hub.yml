@@ -20,7 +20,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
@@ -194,7 +194,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98

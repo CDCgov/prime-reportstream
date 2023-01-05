@@ -6,7 +6,6 @@ import {
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
@@ -14,6 +13,7 @@ import { ReactComponent as RightLeftArrows } from "../../content/right-left-arro
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
+import { USLink, USNavLink } from "../USLink";
 import { FeatureName } from "../../AppRouter";
 
 import { SignInOrUser } from "./SignInOrUser";
@@ -22,39 +22,21 @@ import { AdminDropdown } from "./DropdownNav";
 const { IS_PREVIEW, CLIENT_ENV } = config;
 
 const ProductIA = () => (
-    <NavLink
-        to="/product"
-        key="product"
-        data-attribute="hidden"
-        hidden={true}
-        className="usa-nav__link"
-    >
+    <USNavLink href="/product" key="product" data-attribute="hidden">
         <span>Product</span>
-    </NavLink>
+    </USNavLink>
 );
 
 const ResourcesIA = () => (
-    <NavLink
-        to="/resources"
-        key="resources"
-        data-attribute="hidden"
-        hidden={true}
-        className="usa-nav__link"
-    >
+    <USNavLink href="/resources" key="resources" data-attribute="hidden">
         <span>Resources</span>
-    </NavLink>
+    </USNavLink>
 );
 
 const SupportIA = () => (
-    <NavLink
-        to="/support"
-        key="support"
-        data-attribute="hidden"
-        hidden={true}
-        className="usa-nav__link"
-    >
+    <USNavLink href="/support" key="support" data-attribute="hidden">
         <span>Support</span>
-    </NavLink>
+    </USNavLink>
 );
 
 export const ReportStreamHeader = () => {
@@ -73,15 +55,13 @@ export const ReportStreamHeader = () => {
             activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
-                <NavLink
-                    to="/daily-data"
+                <USNavLink
+                    href="/daily-data"
                     key="daily"
                     data-attribute="hidden"
-                    hidden={true}
-                    className="usa-nav__link"
                 >
                     <span>{FeatureName.DAILY_DATA}</span>
-                </NavLink>
+                </USNavLink>
             );
         }
 
@@ -91,24 +71,16 @@ export const ReportStreamHeader = () => {
             activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
-                <NavLink
-                    to="/upload"
-                    key="upload"
-                    data-attribute="hidden"
-                    hidden={true}
-                    className="usa-nav__link"
-                >
+                <USNavLink href="/upload" key="upload" data-attribute="hidden">
                     <span>{FeatureName.UPLOAD}</span>
-                </NavLink>,
-                <NavLink
-                    to="/submissions"
+                </USNavLink>,
+                <USNavLink
+                    href="/submissions"
                     key="submissions"
                     data-attribute="hidden"
-                    hidden={true}
-                    className="usa-nav__link"
                 >
                     <span>{FeatureName.SUBMISSIONS}</span>
-                </NavLink>
+                </USNavLink>
             );
         }
 
@@ -127,9 +99,14 @@ export const ReportStreamHeader = () => {
                     <div className="usa-logo" id="basic-logo">
                         <Title>
                             <em className="usa-logo__text font-sans-md">
-                                <NavLink to="/" title="Home" aria-label="Home">
+                                <USLink
+                                    href="/"
+                                    title="Home"
+                                    aria-label="Home"
+                                    className="rs-header-mark"
+                                >
                                     ReportStream
-                                </NavLink>
+                                </USLink>
                             </em>
                             <span className="rs-oktapreview-watermark">
                                 {IS_PREVIEW ? CLIENT_ENV : ""}
@@ -158,8 +135,8 @@ export const ReportStreamHeader = () => {
                                 </select>
                             )}
                         >
-                            <NavLink
-                                to={`/admin/settings`}
+                            <USLink
+                                href={`/admin/settings`}
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
@@ -172,7 +149,7 @@ export const ReportStreamHeader = () => {
                                         height={"2em"}
                                     />
                                 </span>
-                            </NavLink>
+                            </USLink>
                         </NetworkErrorBoundary>
                     ) : null}
                     <SignInOrUser />

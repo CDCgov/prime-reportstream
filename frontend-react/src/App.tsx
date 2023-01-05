@@ -12,7 +12,7 @@ import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout } from "./utils/UserUtils";
+import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -22,12 +22,17 @@ import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
+import { USLink } from "./components/USLink";
+import { useScrollToTop } from "./hooks/UseScrollToTop";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const { APP_ENV } = config;
 
+initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
+
 const App = () => {
+    useScrollToTop();
     const navigate = useNavigate();
     const handleIdle = (): void => {
         logout(OKTA_AUTH);
@@ -82,6 +87,9 @@ const App = () => {
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
                     <DAPHeader env={APP_ENV?.toString()} />
+                    <USLink anchor className="usa-skipnav" href="#main-content">
+                        Skip Nav
+                    </USLink>
                     <GovBanner aria-label="Official government website" />
                     <SenderModeBanner />
                     <ReportStreamHeader />

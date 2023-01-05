@@ -2,6 +2,7 @@
 import live from "../../../content/live.json";
 import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const WhereWereLive = () => {
     return (
@@ -16,9 +17,9 @@ export const WhereWereLive = () => {
             </h2>
             <h2>
                 Don't see your state or territory?{" "}
-                <a href="/support/contact" className="margin-left-1 usa-link">
+                <USLink href="/support/contact" className="margin-left-1">
                     Get in touch
-                </a>
+                </USLink>
                 .
             </h2>
             <img
@@ -27,13 +28,9 @@ export const WhereWereLive = () => {
                 alt="Map of states using ReportStream"
             />
             <p className="font-body-2xs text-gray-50">
-                <a
-                    href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg"
-                    rel="noreferrer noopener"
-                    className="usa-link--external"
-                >
+                <USExtLink href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg">
                     Heitordp
-                </a>
+                </USExtLink>
                 , CC0, via Wikimedia Commons
             </p>
             <p className="margin-top-10">

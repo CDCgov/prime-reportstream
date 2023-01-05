@@ -1,7 +1,7 @@
 import moment from "moment";
-import { NavLink } from "react-router-dom";
 
 import ReportResource from "../../../resources/ReportResource";
+import { USLink } from "../../../components/USLink";
 
 import ReportLink from "./ReportLink";
 
@@ -22,13 +22,12 @@ function TableReportsData(props: Props) {
             {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
-                        <NavLink
-                            to={"/report-details?reportId=" + report.reportId}
+                        <USLink
+                            href={"/report-details?reportId=" + report.reportId}
                             key="daily"
-                            className="usa-link"
                         >
                             {report.reportId}
-                        </NavLink>
+                        </USLink>
                     </th>
                     <th scope="row">
                         {moment

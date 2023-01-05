@@ -17,7 +17,7 @@ const { upload, validate } = watersEndpoints;
 
 /** Uploads a file to ReportStream */
 export const useWatersUploader = (
-    callback: (data: WatersResponse | undefined) => any,
+    callback: (data?: WatersResponse) => void,
     validateOnly: boolean = false
 ) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
@@ -43,7 +43,7 @@ export const useWatersUploader = (
     };
     const mutation = useMutation<
         WatersResponse,
-        RSNetworkError,
+        RSNetworkError<WatersResponse>,
         WatersPostArgs
     >(mutationFunction, {
         onSuccess: (data) => callback(data),

@@ -3,6 +3,7 @@ import DOMPurify from "dompurify";
 import React from "react";
 
 import site from "../../../content/site.json";
+import { USLink } from "../../../components/USLink";
 
 export const ErrorNoPage = () => {
     return (
@@ -40,13 +41,14 @@ export const ErrorNoPage = () => {
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a href="./" className="usa-button">
-                                            Visit homepage
-                                        </a>
+                                        <USLink href="/">
+                                            <button className="usa-button">
+                                                Visit homepage
+                                            </button>
+                                        </USLink>
                                     </li>
                                     <li className="usa-button-group__item">
-                                        <a
-                                            className="usa-button usa-button--outline"
+                                        <USLink
                                             href={
                                                 "mailto:" +
                                                 DOMPurify.sanitize(
@@ -54,8 +56,10 @@ export const ErrorNoPage = () => {
                                                 )
                                             }
                                         >
-                                            Contact us
-                                        </a>
+                                            <button className="usa-button usa-button--outline">
+                                                Contact us
+                                            </button>
+                                        </USLink>
                                     </li>
                                 </ul>
                             </div>
