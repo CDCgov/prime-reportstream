@@ -1,5 +1,7 @@
 import { Alert } from "@trussworks/react-uswds";
 
+import { USExtLink, USLink } from "../components/USLink";
+
 export const TermsOfService = () => {
     return (
         <>
@@ -72,12 +74,9 @@ export const TermsOfService = () => {
                             and agree that you are solely responsible for and
                             shall abide by these Terms of Service, as well as
                             any relevant sections of 
-                            <a
-                                href="https://www.cdc.gov/other/information.html"
-                                className="usa-link"
-                            >
+                            <USExtLink href="https://www.cdc.gov/other/information.html">
                                 CDC’s Privacy Policies
-                            </a>
+                            </USExtLink>
                              (collectively, Terms).
                         </p>
 
@@ -199,12 +198,9 @@ export const TermsOfService = () => {
                             or sent through PRIME ReportStream. If you would
                             like more information about the application of the
                             Privacy Act at CDC, 
-                            <a
-                                href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html"
-                                className="usa-link"
-                            >
+                            <USExtLink href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html">
                                 click here
-                            </a>
+                            </USExtLink>
                             .
                         </p>
 
@@ -510,9 +506,9 @@ export const TermsOfService = () => {
                         </p>
 
                         <p className="margin-top-8">
-                            <a href="#anchor-top" className="usa-link">
+                            <USLink anchor href="#anchor-top">
                                 Back to top
-                            </a>
+                            </USLink>
                         </p>
                     </section>
                 </div>

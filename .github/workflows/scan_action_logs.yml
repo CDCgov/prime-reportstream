@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan repo run logs
     steps:
-      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Scan run logs
         uses: josiahsiegel/runleaks@b81437c38d6e8a82593d1a5e44820ecb794ae35c
         id: scan

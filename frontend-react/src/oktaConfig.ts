@@ -11,7 +11,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
-        storage: "sessionStorage",
+        storage: "localStorage",
     },
     scopes: ["openid", "email"],
 };
