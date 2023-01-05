@@ -15,5 +15,5 @@ export const trackAppInsightEvent = (
         name: eventName,
     };
 
-    appInsights?.trackEvent(telemetryEvent, eventData);
+    if (eventName !== "") appInsights?.trackEvent(telemetryEvent, eventData);
 };
