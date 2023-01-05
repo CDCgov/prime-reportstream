@@ -80,7 +80,7 @@ class OktaAuthTests : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
-        val org1 = historytestOrgName
+        val org1 = historyTestOrgName
         val sender1 = historyTestSender
 
         val org2 = orgName
