@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const Faq = () => {
     return (
@@ -13,9 +12,9 @@ export const Faq = () => {
             <p>
                 If you forgot your password, follow the instructions under the
                 "Need help signing in?" link on the login page at{" "}
-                <Link to="/login" key="login" className="usa-link">
+                <USLink href="/login" key="login">
                     reportstream.cdc.gov/login
-                </Link>
+                </USLink>
                 .
             </p>
             <hr />
@@ -29,50 +28,30 @@ export const Faq = () => {
                 ReportStream is currently live or getting set up in
                 jurisdictions across the United States. Take a look at the
                 complete{" "}
-                <a className="usa-link" href="/product/where-were-live">
+                <USLink href="/product/where-were-live">
                     list of ReportStream partners
-                </a>
+                </USLink>
                 .
             </p>
             <hr />
             <h3>Which browser is recommended for using ReportStream?</h3>
             <p>
                 Our application works best on a modern desktop browser (ex:{" "}
-                <a
-                    href="https://www.google.com/chrome/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="usa-link"
-                >
+                <USExtLink href="https://www.google.com/chrome/">
                     Chrome
-                </a>
+                </USExtLink>
                 ,{" "}
-                <a
-                    href="https://www.mozilla.org/en-US/firefox/new/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="usa-link"
-                >
+                <USExtLink href="https://www.mozilla.org/en-US/firefox/new/">
                     Firefox
-                </a>
+                </USExtLink>
                 ,{" "}
-                <a
-                    href="https://www.apple.com/safari/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="usa-link"
-                >
+                <USExtLink href="https://www.apple.com/safari/">
                     Safari
-                </a>
+                </USExtLink>
                 ,{" "}
-                <a
-                    href="https://www.microsoft.com/en-us/edge"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="usa-link"
-                >
+                <USExtLink href="https://www.microsoft.com/en-us/edge">
                     Edge
-                </a>
+                </USExtLink>
                 ). ReportStream doesn't support Internet Explorer 11 or below.
             </p>
             <hr />
@@ -83,40 +62,20 @@ export const Faq = () => {
             <p>
                 ReportStream shares some resources with other projects operated
                 by the CDC (e.g.{" "}
-                <a
-                    className="usa-link"
-                    target="_blank"
-                    rel="noreferrer"
-                    href="https://www.simplereport.gov/"
-                >
+                <USExtLink href="https://www.simplereport.gov/">
                     SimpleReport
-                </a>
+                </USExtLink>
                 ).
             </p>
             <p>
                 Some aspects of the registration process may contain references
                 to SimpleReport. To access your ReportStream user account, be
                 sure to log in at{" "}
-                <a
-                    className="usa-link"
-                    rel="noreferrer"
-                    href="https://reportstream.cdc.gov/login"
-                >
-                    reportstream.cdc.gov/login
-                </a>
-                .{" "}
+                <USLink href="/login">reportstream.cdc.gov/login</USLink>.{" "}
             </p>
             <p>
                 For any other issues logging in,{" "}
-                <a
-                    className="usa-link"
-                    target="_blank"
-                    rel="noreferrer"
-                    href="https://reportstream.cdc.gov/support/contact"
-                >
-                    contact us
-                </a>
-                .
+                <USLink href="/support/contact">contact us</USLink>.
             </p>
             <hr />
             <h3>
@@ -124,23 +83,13 @@ export const Faq = () => {
             </h3>
             <p>
                 ReportStream and{" "}
-                <a
-                    className="usa-link"
-                    href="https://simplereport.gov"
-                    target="_blank"
-                    rel="noreferrer"
-                >
+                <USExtLink href="https://simplereport.gov">
                     SimpleReport
-                </a>{" "}
+                </USExtLink>{" "}
                 are sister projects under the{" "}
-                <a
-                    className="usa-link"
-                    rel="noreferrer"
-                    target="_blank"
-                    href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
-                >
+                <USExtLink href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html">
                     Pandemic-Ready Interoperability Modernization Effort (PRIME)
-                </a>
+                </USExtLink>
                 , operated by the CDC.
             </p>
             <p>

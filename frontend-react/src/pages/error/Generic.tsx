@@ -8,6 +8,7 @@ import {
     GENERIC_ERROR_STRING,
     ParagraphWithTitle,
 } from "../../content/error/ErrorMessages";
+import { USLink } from "../../components/USLink";
 
 export const StringErrorDisplay = ({ message }: { message?: string }) => {
     return (
@@ -35,12 +36,11 @@ export const ParagraphErrorDisplay = ({
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a
-                                            href="legacy-content"
-                                            className="usa-button"
-                                        >
-                                            Visit homepage
-                                        </a>
+                                        <USLink href="/">
+                                            <button className="usa-button">
+                                                Visit homepage
+                                            </button>
+                                        </USLink>
                                     </li>
                                 </ul>
                             </div>

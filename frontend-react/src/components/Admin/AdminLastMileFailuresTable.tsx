@@ -13,7 +13,6 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { Link } from "react-router-dom";
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
@@ -24,6 +23,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
+import { USLink } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -212,14 +212,14 @@ const DataLoadRenderTable = (props: {
                         </span>
                     </td>
                     <td>
-                        <Link
+                        <USLink
                             title={"Jump to Settings"}
-                            to={linkRecvSettings}
+                            href={linkRecvSettings}
                             key={`recv_link_${eachRow.pk()}`}
                             className={"font-mono-xs"}
                         >
                             {eachRow.receiver}
-                        </Link>
+                        </USLink>
                     </td>
                     <td>
                         <Button

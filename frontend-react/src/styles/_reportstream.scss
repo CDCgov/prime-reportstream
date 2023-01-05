@@ -19,7 +19,18 @@
   color: #71767a;
 }
 
-// Navigation
+// Link visited color overrides
+.rs-header-mark:visited {
+    color: #1b1b1b;
+}
+.usa-link .usa-link:visited {
+    .usa-button {
+        color: white;
+    }
+    .usa-button .usa-button--outline {
+        color: inherit;
+    }
+}
 
 // Environment watermark above RS wordmark
 .rs-oktapreview-watermark {

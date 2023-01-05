@@ -3,6 +3,7 @@ import DOMPurify from "dompurify";
 import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export type CsvSchemaItem = {
     name: string;
@@ -103,21 +104,14 @@ export const CsvSchemaDocumentation = () => {
             <p>
                 The ReportStream standard CSV schema is a blend of the
                 Department of Health and Human Science's (HHS){" "}
-                <a
-                    href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="usa-link"
-                >
+                <USExtLink href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html">
                     requirements for COVID-19 test data
-                </a>{" "}
+                </USExtLink>{" "}
                 as well as those of numerous jurisdictions. Data reported using
                 this standard schema will be accepted by state, tribal, local,
                 or territorial (STLT) health departments{" "}
-                <a href="/product/where-were-live" className="usa-link">
-                    partnered
-                </a>{" "}
-                with ReportStream.{" "}
+                <USLink href="/product/where-were-live">partnered</USLink> with
+                ReportStream.{" "}
             </p>
             <p className="text-base text-italic">Last updated: May 9, 2022</p>
             <section>
@@ -127,25 +121,20 @@ export const CsvSchemaDocumentation = () => {
                             About CSV upload
                         </h3>
                         This documentation will help you prepare a file for{" "}
-                        <a
-                            href="/resources/csv-upload-guide"
-                            className="usa-link"
-                        >
+                        <USLink href="/resources/csv-upload-guide">
                             CSV upload
-                        </a>
+                        </USLink>
                         . This feature is currently being piloted in select
                         jurisdictions with organizations or facilities that have
                         existing Electronic Medical Record (EMR) systems. Pilot
                         partners are selected by recommendation from
                         jurisdictions. Find out if your jurisdiction is{" "}
-                        <a href="/product/where-were-live" className="usa-link">
+                        <USLink href="/product/where-were-live">
                             partnered
-                        </a>{" "}
+                        </USLink>{" "}
                         with ReportStream and{" "}
-                        <a href="/support/contact" className="usa-link">
-                            contact us
-                        </a>{" "}
-                        to learn more.
+                        <USLink href="/support/contact">contact us</USLink> to
+                        learn more.
                     </div>
                 </div>
 
@@ -154,9 +143,9 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <a href="#formatting-guidelines" className="usa-link">
+                        <USLink anchor href="#formatting-guidelines">
                             General formatting guidelines
-                        </a>
+                        </USLink>
                     </li>
                     {schema.fields.map((field, fieldIndex) => {
                         return (
@@ -167,12 +156,12 @@ export const CsvSchemaDocumentation = () => {
                                             <li
                                                 key={`toc-${fieldIndex}-${sectionIndex}`}
                                             >
-                                                <a
+                                                <USLink
+                                                    anchor
                                                     href={`#${section.slug}`}
-                                                    className="usa-link"
                                                 >
                                                     {section.title}
-                                                </a>
+                                                </USLink>
                                             </li>
                                         );
                                     }
@@ -186,13 +175,12 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <a
+                        <USLink
                             id="standard-csv"
                             href={site.assets.standardCsv.path}
-                            className="usa-link"
                         >
                             ReportStream standard CSV with example data
-                        </a>
+                        </USLink>
                     </li>
                 </ul>
             </section>
@@ -277,9 +265,13 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <a href="#anchor-top" className="usa-link">
+                            <USLink
+                                anchor
+                                href="#anchor-top"
+                                className="usa-link"
+                            >
                                 Return to top
-                            </a>
+                            </USLink>
                         </p>
                     </div>
                 );
