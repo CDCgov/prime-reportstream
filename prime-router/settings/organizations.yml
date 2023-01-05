@@ -140,7 +140,7 @@
       organizationName: osang-otc
       topic: covid-19
       customerStatus: active
-      schemaName: csv-otc-covid-19
+      schemaName: csv-otc-covid-19-training
       format: CSV
 
 - name: vaulthealth

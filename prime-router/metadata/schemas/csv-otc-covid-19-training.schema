@@ -1,0 +1,24 @@
+---
+name: csv-otc-covid-19-training
+description: CSV Schema for OTC Results based on NIH At-Home specs - force training mode.
+topic: covid-19
+trackingElement: message_id
+extends: csv-otc-covid-19
+
+elements:
+    - name: processing_mode_code
+      cardinality: ONE
+      mapper: use(processing_mode_code, processing_mode_code_fromsettings)
+      csvFields: [ { name: processing_mode_code, format: $alt} ]
+      type: CODE
+      altValues:
+        - code: "T"
+          display: "TESTING"
+        - code: "T"
+          display: "INACTIVE"
+        - code: "T"
+          display: "T"
+        - code: "T"
+          display: "ACTIVE"
+        - code: "T"
+          display: "P"
