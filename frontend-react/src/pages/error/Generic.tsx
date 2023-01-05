@@ -39,7 +39,6 @@ export const ParagraphErrorDisplay = ({
                                     <li className="usa-button-group__item">
                                         <Button
                                             type="button"
-                                            outline
                                             onClick={() => navigate("/")}
                                         >
                                             Visit homepage
