@@ -728,7 +728,7 @@ class Server2ServerAuthTests : CoolTest() {
         val mySenderName = "temporary_submission_auth_test"
         val kid = "submission-testing-kid"
 
-        if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
+        if (environment == Environment.PROD) error("Can't create waters test data in PROD")
         val org1 = "waters"
         var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
         // Test various functionality using the general <orgname>.*.user role.
