@@ -58,10 +58,10 @@ describe("RSNetworkError", () => {
         test("Unauthorized", () => {
             const axiosError = new AxiosError(
                 DEFAULT_MSG,
-                "400",
+                "401",
                 undefined,
                 {
-                    status: 400,
+                    status: 401,
                 } as AxiosResponse,
                 undefined
             );
