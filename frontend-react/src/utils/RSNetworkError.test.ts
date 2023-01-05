@@ -31,7 +31,7 @@ describe("RSNetworkError", () => {
                 undefined,
                 undefined,
                 {},
-                undefined
+                {} as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
@@ -46,10 +46,10 @@ describe("RSNetworkError", () => {
                 DEFAULT_MSG,
                 "400",
                 undefined,
+                {},
                 {
                     status: 400,
-                } as AxiosResponse,
-                undefined
+                } as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.BAD_REQUEST);
@@ -60,10 +60,10 @@ describe("RSNetworkError", () => {
                 DEFAULT_MSG,
                 "401",
                 undefined,
+                {},
                 {
                     status: 401,
-                } as AxiosResponse,
-                undefined
+                } as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNAUTHORIZED);
@@ -74,10 +74,10 @@ describe("RSNetworkError", () => {
                 DEFAULT_MSG,
                 "404",
                 undefined,
+                {},
                 {
                     status: 404,
-                } as AxiosResponse,
-                undefined
+                } as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.NOT_FOUND);
@@ -88,10 +88,10 @@ describe("RSNetworkError", () => {
                 DEFAULT_MSG,
                 "503",
                 undefined,
+                {},
                 {
                     status: 503,
-                } as AxiosResponse,
-                undefined
+                } as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.SERVER_ERROR);
@@ -102,10 +102,10 @@ describe("RSNetworkError", () => {
                 DEFAULT_MSG,
                 "467",
                 undefined,
+                {},
                 {
                     status: 467,
-                } as AxiosResponse,
-                undefined
+                } as AxiosResponse
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
