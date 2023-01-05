@@ -1,5 +1,4 @@
-import { getAppInsights } from "../TelemetryService";
-import { TrackAppInsightEvent } from "./Analytics";
+import { trackAppInsightEvent } from "./Analytics";
 
 const mockAppInsights = {
     trackEvent: jest.fn(),
@@ -21,7 +20,7 @@ describe("Analytics", () => {
                 },
             };
 
-            TrackAppInsightEvent(eventName, eventData);
+            trackAppInsightEvent(eventName, eventData);
 
             expect(mockAppInsights.trackEvent).toBeCalledWith(
                 {

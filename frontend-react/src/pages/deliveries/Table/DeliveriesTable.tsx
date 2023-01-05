@@ -18,7 +18,7 @@ import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import { EventName } from "../../../utils/Analytics";
+import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../AppRouter";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -127,7 +127,11 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
         <>
             <TableFilters
                 filterManager={filterManager}
-                featureEvent={featureEvent}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(featureEvent, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
             />
             <Table
                 config={resultsTableConfig}

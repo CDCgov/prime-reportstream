@@ -6,7 +6,7 @@ export enum EventName {
     TABLE_FILTER = "Table Filter",
 }
 
-export const TrackAppInsightEvent = (
+export const trackAppInsightEvent = (
     eventName: string = "",
     eventData: any
 ) => {

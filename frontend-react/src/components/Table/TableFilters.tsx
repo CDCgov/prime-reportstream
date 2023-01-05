@@ -12,7 +12,6 @@ import {
     FALLBACK_TO,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
-import { TrackAppInsightEvent } from "../../utils/Analytics";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -22,7 +21,7 @@ export enum StyleClass {
 interface SubmissionFilterProps {
     filterManager: FilterManager;
     cursorManager?: CursorManager;
-    featureEvent?: string;
+    onFilterClick?: any;
 }
 
 /* This helper ensures start range values are inclusive
@@ -40,7 +39,7 @@ const inclusiveDateString = (originalDate: string) => {
 function TableFilters({
     filterManager,
     cursorManager,
-    featureEvent,
+    onFilterClick,
 }: SubmissionFilterProps) {
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
@@ -52,16 +51,6 @@ function TableFilters({
         try {
             const from = new Date(rangeFrom).toISOString();
             const to = new Date(inclusiveDateString(rangeTo)).toISOString();
-
-            const eventName = featureEvent;
-            const eventData = {
-                tableFilter: {
-                    startRange: from,
-                    endRange: to,
-                },
-            };
-
-            TrackAppInsightEvent(eventName, eventData);
 
             filterManager.updateRange({
                 type: RangeSettingsActionType.RESET,
@@ -81,6 +70,15 @@ function TableFilters({
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = () => {
         updateRange();
+
+        // call onFilterClick with the specified range
+        try {
+            const from = new Date(rangeFrom).toISOString();
+            const to = new Date(inclusiveDateString(rangeTo)).toISOString();
+            onFilterClick({ from, to });
+        } catch (e) {
+            console.warn(e);
+        }
     };
 
     /* Clears manager and local state values */

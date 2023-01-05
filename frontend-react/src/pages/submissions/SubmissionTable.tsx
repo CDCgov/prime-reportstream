@@ -13,7 +13,7 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { EventName } from "../../utils/Analytics";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import { FeatureName } from "../../AppRouter";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
@@ -74,7 +74,11 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
         <>
             <TableFilters
                 filterManager={filterManager}
-                featureEvent={featureEvent}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(featureEvent, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
             />
             <Table
                 config={submissionsConfig}
