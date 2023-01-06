@@ -190,7 +190,7 @@ class MessagesFunctions(
                         result.reportId.toString(),
                         reportResult.externalName,
                         reportResult.bodyUrl,
-                        result.orderingFacilityName,
+                        result.testingLabName,
                         actionLogWarnings,
                         actionLogErrors,
                         receiverData
