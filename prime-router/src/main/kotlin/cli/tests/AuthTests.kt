@@ -515,7 +515,7 @@ class Server2ServerAuthTests : CoolTest() {
 
     /**
      * Given a [privateKeyStr], key id [kid] and requested [scope], coming from [sender],
-     * this tries to retrieve a 5 minute access token
+     * this tries to retrieve a 5-minute access token
      * @returns the Pair (http response code, json bod of the response)
      */
     private fun getServer2ServerAccessTok(
@@ -728,8 +728,8 @@ class Server2ServerAuthTests : CoolTest() {
         val mySenderName = "temporary_submission_auth_test"
         val kid = "submission-testing-kid"
 
-        if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
-        val org1 = "simple_report"
+        if (environment == Environment.PROD) error("Can't create waters test data in PROD")
+        val org1 = "waters"
         var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
         // Test various functionality using the general <orgname>.*.user role.
         val scope1 = "$org1.*.user"
