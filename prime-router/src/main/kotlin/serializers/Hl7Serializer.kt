@@ -21,13 +21,13 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
-import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementNormalizeException
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FieldPrecisionMessage
 import gov.cdc.prime.router.FieldProcessingMessage
@@ -248,7 +248,8 @@ class Hl7Serializer(
             warnings.add(
                 InvalidHL7Message(
                     "Cannot parse empty HL7 message. Please " +
-                        "refer to the HL7 specification and resubmit."
+                        "refer to the HL7 specification and resubmit.",
+                    ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
                 )
             )
             return MessageResult(emptyMap(), errors, warnings)
@@ -261,7 +262,9 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(FieldPrecisionMessage("MSH-9", "Missing required HL7 message type field."))
+                    errors.add(FieldPrecisionMessage("MSH-9",
+                        "Missing required HL7 message type field.",
+                        ErrorCode.INVALID_HL7_MSG_TYPE_MISSING))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -272,7 +275,8 @@ class Hl7Serializer(
                     warnings.add(
                         FieldPrecisionMessage(
                             "ORU_R01",
-                            "Unsupported HL7 message type."
+                            "Unsupported HL7 message type.",
+                            ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED
                         )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
@@ -344,14 +348,8 @@ class Hl7Serializer(
 
                                     else -> rawValue
                                 }
-                            } catch (e: IllegalStateException) { // TODO: Handle from custom Element Exception
-                                warnings.add(
-                                    InvalidHL7Message(
-                                        "The code $rawValue for field $hl7Field is " +
-                                            "invalid. Please refer to the HL7 specification and " +
-                                            "resubmit."
-                                    )
-                                )
+                            } catch (e: ElementNormalizeException) {
+                                warnings.add(FieldProcessingMessage(e.field, e.message, e.errorCode))
                                 ""
                             }
                         }
@@ -383,15 +381,8 @@ class Hl7Serializer(
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
 
-            // TODO: Handle from custom Element Exception
-            if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
-                errors.add(
-                    FieldPrecisionMessage(
-                        "ORC-23(0)",
-                        msg,
-                        ErrorCode.INVALID_HL7_PHONE_NUMBER
-                    )
-                )
+            if (e is ElementNormalizeException) {
+                errors.add(FieldProcessingMessage(e.field, e.message, e.errorCode))
             } else {
                 errors.add(InvalidHL7Message(msg))
             }
@@ -2097,7 +2088,8 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Timestamp for ${element.name} should be precise. Reformat " +
-                                            "to either the HL7 v2.4 TS or ISO 8601 standard format."
+                                            "to either the HL7 v2.4 TS or ISO 8601 standard format.",
+                                        ErrorCode.INVALID_MSG_PARSE_DATETIME
                                     )
                                 )
                             }
@@ -2112,7 +2104,8 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Date for ${element.name} should provide more " +
-                                            "precision. Reformat as YYYYMMDD."
+                                            "precision. Reformat as YYYYMMDD.",
+                                        ErrorCode.INVALID_MSG_PARSE_DATE
                                     )
                                 )
                             }
@@ -2456,42 +2449,16 @@ fun String.trimAndTruncate(maxLength: Int?): String {
     return truncated.trimEnd()
 }
 
-class HL7HapiErrorProcessor {
-    private var errorCodes: Map<Element.Type, ErrorCode> = mapOf(
-        Element.Type.TEXT to ErrorCode.INVALID_HL7_PARSE_TEXT,
-        Element.Type.TEXT_OR_BLANK to ErrorCode.INVALID_HL7_PARSE_TEXT_OR_BLANK,
-        Element.Type.NUMBER to ErrorCode.INVALID_HL7_PARSE_NUMBER,
-        Element.Type.DATE to ErrorCode.INVALID_HL7_PARSE_DATE,
-        Element.Type.DATETIME to ErrorCode.INVALID_HL7_PARSE_DATETIME,
-        Element.Type.DURATION to ErrorCode.INVALID_HL7_PARSE_DURATION,
-        Element.Type.CODE to ErrorCode.INVALID_HL7_PARSE_CODE,
-        Element.Type.TABLE to ErrorCode.INVALID_HL7_PARSE_TABLE,
-        Element.Type.TABLE_OR_BLANK to ErrorCode.INVALID_HL7_PARSE_TABLE_OR_BLANK,
-        Element.Type.EI to ErrorCode.INVALID_HL7_PARSE_EI,
-        Element.Type.HD to ErrorCode.INVALID_HL7_PARSE_HD,
-        Element.Type.ID to ErrorCode.INVALID_HL7_PARSE_ID,
-        Element.Type.ID_CLIA to ErrorCode.INVALID_HL7_PARSE_ID_CLIA,
-        Element.Type.ID_DLN to ErrorCode.INVALID_HL7_PARSE_ID_DLN,
-        Element.Type.ID_SSN to ErrorCode.INVALID_HL7_PARSE_ID_SSN,
-        Element.Type.ID_NPI to ErrorCode.INVALID_HL7_PARSE_ID_NPI,
-        Element.Type.STREET to ErrorCode.INVALID_HL7_PARSE_STREET,
-        Element.Type.STREET_OR_BLANK to ErrorCode.INVALID_HL7_PARSE_STREET_OR_BLANK,
-        Element.Type.CITY to ErrorCode.INVALID_HL7_PARSE_CITY,
-        Element.Type.POSTAL_CODE to ErrorCode.INVALID_HL7_PARSE_POSTAL_CODE,
-        Element.Type.PERSON_NAME to ErrorCode.INVALID_HL7_PARSE_PERSON_NAME,
-        Element.Type.TELEPHONE to ErrorCode.INVALID_HL7_PARSE_TELEPHONE,
-        Element.Type.EMAIL to ErrorCode.INVALID_HL7_PARSE_EMAIL,
-        Element.Type.BLANK to ErrorCode.INVALID_HL7_PARSE_BLANK,
-        Element.Type.UNKNOWN to ErrorCode.INVALID_HL7_PARSE_UNKNOWN
-    )
+/**
+ * Class for processing HL7 HAPI library exceptions that derive from HL7Exception
+ */
+class HL7HapiErrorProcessor : Logging {
 
-    /* programmatically create the errorCodes mapping
-    init {
-        Element.Type.values().forEach { type ->
-            (errorCodes as MutableMap<Element.Type, String>)[type] = "INVALID_HL7_PARSE_$type" }
-    }
+    /**
+     * Return appropriate [ItemActionLogDetail] for a given exception
+     * @param exception the HL7Exception based exception
+     * @param schema the [Schema] to use for error code lookup
      */
-
     fun getExceptionActionMessage(
         exception: HL7Exception,
         schema: Schema
@@ -2501,7 +2468,7 @@ class HL7HapiErrorProcessor {
                 InvalidHL7Message(
                     "Invalid HL7 message format. Please " +
                         "refer to the HL7 specification and resubmit.",
-                    ErrorCode.INVALID_HL7_MESSAGE_FORMAT
+                    ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
                 )
             else -> // try to handle an HL7 field error
                 if (exception.location != null) {
@@ -2515,16 +2482,31 @@ class HL7HapiErrorProcessor {
                 } else {
                     InvalidHL7Message(
                         "Error parsing HL7 message: ${exception.localizedMessage}",
-                        ErrorCode.INVALID_HL7_MESSAGE_VALIDATION
+                        ErrorCode.INVALID_HL7_MSG_VALIDATION
                     )
                 }
         }
     }
 
-    private fun getErrorCode(elementType: Element.Type?): ErrorCode {
-        return errorCodes.getOrDefault(elementType, ErrorCode.INVALID_HL7_PARSE_GENERAL)
+    /**
+     * Attempts to find a parsing [ErrorCode] matching the given [elementType]. Returns UNKNOWN error code if a matching
+     * code cannot be found.
+     * @param elementType the type of the element
+     */
+    fun getErrorCode(elementType: Element.Type?): ErrorCode {
+        var code = ErrorCode.UNKNOWN
+        try {
+            code = ErrorCode.valueOf("INVALID_MSG_PARSE_$elementType")
+        } catch (e : IllegalStateException) {
+            logger.info("Unable to find error code for element $elementType. ${e.message}")
+        }
+        return code
     }
 
+    /**
+     * Converts a field as it appears in a HAPI exception message to a format ReportStream schemas expect
+     * @param field the field to convert
+     */
     private fun getCleanedField(field: String): String {
         return field.replaceFirst("(", "-")
             .replace(")", "")

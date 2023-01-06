@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -1246,6 +1248,17 @@ OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
             ).run {
                 assertThat(this).isEqualTo("")
             }
+        }
+    }
+
+    @Test
+    fun `test HL7HapiErrorProcessor parse error codes exist for each type in Element Type enum`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        enumValues<Element.Type>().forEach { elementType ->
+            val errorCode = errProcessor.getErrorCode(elementType)
+            assertThat(errorCode).isNotNull()
+            assertThat(errorCode).isNotEqualTo(ErrorCode.UNKNOWN)
+            assertThat(errorCode.toString() == "INVALID_HL7_PARSE_$elementType")
         }
     }
 

@@ -1,35 +1,44 @@
 package gov.cdc.prime.router
 
+/**
+ * Possible error codes when parsing/processing messages. Includes Hl7, CSV, FHIR, et al.
+ */
 enum class ErrorCode {
-    INVALID_HL7_MESSAGE_VALIDATION,
-    INVALID_HL7_MESSAGE_FORMAT,
-    INVALID_HL7_PHONE_NUMBER,
-    INVALID_HL7_PARSE_GENERAL,
-    INVALID_HL7_PARSE_TEXT,
-    INVALID_HL7_PARSE_TEXT_OR_BLANK,
-    INVALID_HL7_PARSE_NUMBER,
-    INVALID_HL7_PARSE_DATE,
-    INVALID_HL7_PARSE_DATETIME,
-    INVALID_HL7_PARSE_DURATION,
-    INVALID_HL7_PARSE_CODE,
-    INVALID_HL7_PARSE_TABLE,
-    INVALID_HL7_PARSE_TABLE_OR_BLANK,
-    INVALID_HL7_PARSE_EI,
-    INVALID_HL7_PARSE_HD,
-    INVALID_HL7_PARSE_ID,
-    INVALID_HL7_PARSE_ID_CLIA,
-    INVALID_HL7_PARSE_ID_DLN,
-    INVALID_HL7_PARSE_ID_SSN,
-    INVALID_HL7_PARSE_ID_NPI,
-    INVALID_HL7_PARSE_STREET,
-    INVALID_HL7_PARSE_STREET_OR_BLANK,
-    INVALID_HL7_PARSE_CITY,
-    INVALID_HL7_PARSE_POSTAL_CODE,
-    INVALID_HL7_PARSE_PERSON_NAME,
-    INVALID_HL7_PARSE_TELEPHONE,
-    INVALID_HL7_PARSE_EMAIL,
-    INVALID_HL7_PARSE_BLANK,
-    INVALID_HL7_PARSE_UNKNOWN,
+    INVALID_MSG_PARSE_GENERAL,
+    INVALID_MSG_PARSE_TEXT,
+    INVALID_MSG_PARSE_TEXT_OR_BLANK,
+    INVALID_MSG_PARSE_NUMBER,
+    INVALID_MSG_PARSE_DATE,
+    INVALID_MSG_PARSE_DATETIME,
+    INVALID_MSG_PARSE_DURATION,
+    INVALID_MSG_PARSE_CODE,
+    INVALID_MSG_PARSE_CODE_ALT_VALUES,
+    INVALID_MSG_PARSE_CODE_VALUES,
+    INVALID_MSG_PARSE_ELEMENT_CODE,
+    INVALID_MSG_PARSE_TABLE,
+    INVALID_MSG_PARSE_TABLE_OR_BLANK,
+    INVALID_MSG_PARSE_EI,
+    INVALID_MSG_PARSE_HD,
+    INVALID_MSG_PARSE_ID,
+    INVALID_MSG_PARSE_ID_CLIA,
+    INVALID_MSG_PARSE_ID_DLN,
+    INVALID_MSG_PARSE_ID_SSN,
+    INVALID_MSG_PARSE_ID_NPI,
+    INVALID_MSG_PARSE_STREET,
+    INVALID_MSG_PARSE_STREET_OR_BLANK,
+    INVALID_MSG_PARSE_CITY,
+    INVALID_MSG_PARSE_POSTAL_CODE,
+    INVALID_MSG_PARSE_PERSON_NAME,
+    INVALID_MSG_PARSE_TELEPHONE,
+    INVALID_MSG_PARSE_EMAIL,
+    INVALID_MSG_PARSE_BLANK,
+    INVALID_MSG_PARSE_UNKNOWN,
+    INVALID_MSG_MISSING_FIELD,
+    INVALID_MSG_EQUIPMENT_MAPPING,
+    INVALID_HL7_MSG_VALIDATION,
+    INVALID_HL7_MSG_TYPE_MISSING,
+    INVALID_HL7_MSG_TYPE_UNSUPPORTED,
+    INVALID_HL7_MSG_FORMAT_INVALID,
     UNKNOWN
 }
 
@@ -59,6 +68,7 @@ abstract class GenericActionLogDetail(
 class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "Blank value for element $fieldMapping. " +
         "Please refer to the ReportStream Programmer's Guide for required fields."
+    override val errorCode = ErrorCode.INVALID_MSG_MISSING_FIELD
 }
 
 /**
@@ -77,6 +87,7 @@ class InvalidDateMessage(
         }
         return msg
     }
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_DATE
 }
 
 /**
@@ -94,6 +105,7 @@ class InvalidCodeMessage(
         }
         return msg
     }
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_CODE
 }
 
 /**
@@ -105,6 +117,7 @@ class InvalidPhoneMessage(
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone " +
         "number (e.g. (555) - 555-5555)."
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_TELEPHONE
 }
 
 /**
@@ -122,6 +135,7 @@ class InvalidPostalMessage(
         }
         return msg
     }
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_POSTAL_CODE
 }
 
 /**
@@ -132,6 +146,7 @@ class UnsupportedHDMessage(
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_HD
 }
 
 /**
@@ -142,6 +157,7 @@ class UnsupportedEIMessage(
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
+    override val errorCode = ErrorCode.INVALID_MSG_PARSE_EI
 }
 
 /**
@@ -152,6 +168,7 @@ class InvalidEquipmentMessage(
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "No match found for $fieldMapping; please refer to the " +
         "CDC LIVD table LOINC Mapping spreadsheet for acceptable values."
+    override val errorCode = ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING
 }
 
 /**
@@ -243,5 +260,5 @@ class UnsupportedProcessingTypeMessage() : ActionLogDetail {
 class InvalidFilterExpressionMessage(message: String) : ActionLogDetail {
     override val scope = ActionLogScope.internal
     override val message = message
-    override val errorCode = ""
+    override val errorCode = ErrorCode.UNKNOWN
 }
