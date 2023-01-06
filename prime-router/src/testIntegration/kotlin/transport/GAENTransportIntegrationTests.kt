@@ -76,8 +76,8 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             task,
             reportFile,
             null,
-            settings.findOrganization("wa-phd"),
-            settings.findReceiver("wa-phd.gaen"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.GAEN_TEST"),
             metadata.findSchema("covid-19-gaen"),
             content = content.toByteArray(),
             true
