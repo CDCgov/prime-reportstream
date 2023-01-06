@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
 import { RSNetworkError } from "../utils/RSNetworkError";
@@ -55,8 +55,8 @@ function createTypeWrapperForAuthorizedFetch(
         });
         return axios(axiosConfig)
             .then(({ data }) => data)
-            .catch((e: any) => {
-                throw new RSNetworkError(e.message, e.response);
+            .catch((e: AxiosError) => {
+                throw new RSNetworkError<T>(e as AxiosError<T>);
             });
     };
 }

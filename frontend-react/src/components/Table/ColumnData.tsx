@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+
+import { USLink } from "../USLink";
 
 import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
 import { TableRowData } from "./TableRows";
@@ -74,16 +75,15 @@ export const ColumnData = ({
         // Render column value as NavLink
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
-            <NavLink
-                className="usa-link"
-                to={`${feature.linkBasePath || ""}${
+            <USLink
+                href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </NavLink>
+            </USLink>
         );
     }
 
