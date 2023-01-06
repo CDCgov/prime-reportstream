@@ -48,12 +48,12 @@ describe("CTA rendering", () => {
         const header = screen.getByTestId("heading");
         const description = screen.getByTestId("description");
         const summary = screen.getByTestId("summary");
-        const mailToLink = screen.getByTestId("email-link");
+        const contactButton = screen.getByRole("button");
 
         expect(header).toBeInTheDocument();
         expect(description).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
-        expect(mailToLink).toBeInTheDocument();
+        expect(contactButton).toBeInTheDocument();
     });
 });
 
