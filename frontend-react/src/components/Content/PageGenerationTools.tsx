@@ -5,12 +5,12 @@ import { CrumbConfig, WithCrumbs } from "../Crumbs";
 import { ContentDirectory } from "./MarkdownDirectory";
 
 export const contentContainer = (
-    Content: () => JSX.Element,
+    content: () => JSX.Element,
     crumbs: CrumbConfig[]
 ) => {
     const wrappedElement = (
         <div className="grid-container rs-documentation usa-prose">
-            <Content />
+            {content()}
         </div>
     );
     return renderWithCrumbs(wrappedElement, crumbs);
