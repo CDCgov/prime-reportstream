@@ -98,6 +98,7 @@ class MessagesFunctions(
                                 it.createdAt,
                                 it.reportId.toString(),
                                 null,
+                                null,
                                 null
                             )
                         }
@@ -189,6 +190,7 @@ class MessagesFunctions(
                         result.reportId.toString(),
                         reportResult.externalName,
                         reportResult.bodyUrl,
+                        result.orderingFacilityName,
                         actionLogWarnings,
                         actionLogErrors,
                         receiverData

@@ -76,6 +76,9 @@ components:
         fileUrl:
           description: the blobstore url of the file the message belongs to
           type: string
+        orderingFacilityName:
+          description: the name of the facility that ordered the test
+          type: string
         errors:
           description: a list of errors in the report
           type: array

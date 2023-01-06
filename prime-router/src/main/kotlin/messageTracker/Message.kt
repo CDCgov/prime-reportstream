@@ -26,6 +26,7 @@ data class Message(
     val reportId: String,
     val fileName: String?,
     val fileUrl: String?,
+    val orderingFacilityName: String?,
     val warnings: List<DetailedActionLog> = emptyList(),
     val errors: List<DetailedActionLog> = emptyList(),
     val receiverData: List<MessageReceiver>? = emptyList()
