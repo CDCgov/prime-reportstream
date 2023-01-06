@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { AxiosError } from "axios";
 
 import { RSNetworkError } from "../utils/RSNetworkError";
 
@@ -6,7 +7,7 @@ import { withCatch } from "./RSErrorBoundary";
 
 // Dummy components for testing
 const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
-    if (error) throw new RSNetworkError("");
+    if (error) throw new RSNetworkError(new AxiosError(""));
     return <></>;
 };
 const ThrowsGenericError = ({
