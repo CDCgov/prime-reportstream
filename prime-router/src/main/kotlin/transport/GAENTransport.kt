@@ -240,10 +240,11 @@ class GAENTransport : ITransport, Logging {
         } else {
             // The follow error table is based on ENCV server docs.
             val postResult = when (response.statusCode) {
-                // Note: To keep us not to post error in the Last Mile Failure page, we are going to ignore
-                // the 400 error code since it is content error.  This error is content error.  GAEN messages
-                // generate from the main message sent to STLTs.  STLTs will handle the content error and request
-                // for resubmission.  Then, the new GAEN message from regenerate and resend accordingly.
+                // Note: The majority of GAEN errors are invalid date content errors that can not be rectified by
+                // resubmission via the Last Mile Failures page. We have decided to ignore the 400 error code for
+                // GAEN messages as we are not taking action on these errors. This does not affect ELR messages
+                // sent to STLTs. STLTs will handle the content error and request for resubmission.
+                // Then, the new GAEN message from regenerate and resend accordingly.
                 400, 409 -> PostResult.SUCCESS // Bad parameters and UUID already present (consider this a success)
                 412 -> PostResult.FAIL // Unsupported test type
                 429 -> PostResult.RETRY // Maintenance mode or quota limit
