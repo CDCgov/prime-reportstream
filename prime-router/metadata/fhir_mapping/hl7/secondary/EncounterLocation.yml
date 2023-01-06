@@ -1,8 +1,3 @@
-status:
-  type: STRING
-  vars:
-    patientClass: String, PV1.4
-
 status_1:
   type: STRING
   condition: $patientClass EQUALS $patientClassPlanned
@@ -27,8 +22,8 @@ location:
   specs: PV1.3
   vars:
     poc: String, PL.1
-    bed: String, PV1.3.3
-    room: String, PV1.3.2
+    bed: String, PL.3
+    room: String, PL.2
     facility: String, PL.4
   constants:
     locationJoinChar: ","

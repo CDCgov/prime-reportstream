@@ -48,7 +48,7 @@ type:
    valueOf: datatype/CodeableConcept
    generateList: true
    expressionType: resource
-   specs: PV1.3.1
+   specs: PV1.4
 
 serviceType:
    condition: $valueIn NOT_NULL
