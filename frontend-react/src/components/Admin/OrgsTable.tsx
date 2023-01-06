@@ -3,7 +3,6 @@ import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
-    Dropdown,
     Label,
     Table,
     TextInput,
@@ -45,15 +44,6 @@ export function OrgsTable() {
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload,
-        });
-    };
-
-    const handleSetUserType = (type: MemberType) => {
-        dispatch({
-            type: MembershipActionType.ADMIN_OVERRIDE,
-            payload: {
-                memberType: type,
-            },
         });
     };
 
@@ -120,27 +110,6 @@ export function OrgsTable() {
                             autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
-                    </div>
-                    <div className="flex-fill margin-x-2">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input-filter"
-                        >
-                            Mimic user type:
-                        </Label>
-                        <Dropdown
-                            name="user-type-select"
-                            defaultValue={activeMembership?.memberType}
-                            className="rs-input"
-                            onChange={(e) =>
-                                handleSetUserType(e.target.value as MemberType)
-                            }
-                            id="user-type-select"
-                        >
-                            {Object.values(MemberType).map((type, index) => (
-                                <option key={index}>{type}</option>
-                            ))}
-                        </Dropdown>
                     </div>
                     <USNavLink
                         href={"/admin/new/org"}
