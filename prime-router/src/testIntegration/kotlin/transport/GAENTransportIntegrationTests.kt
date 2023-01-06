@@ -76,8 +76,8 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             task,
             reportFile,
             null,
-            settings.findOrganization("wa-phd"),
-            settings.findReceiver("wa-phd.gaen"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.GAEN_TEST"),
             metadata.findSchema("covid-19-gaen"),
             content = content.toByteArray(),
             true
@@ -128,7 +128,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
     }
 
     @Test
-    fun `test send and error`() {
+    fun `test send and 400 error handling`() {
         val header = makeHeader()
         setupTransport()
 
@@ -143,7 +143,27 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
 
         assertThat(retryItems).isNull()
-        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send_error)
-        assertThat(actionHistory.action.actionResult).contains("""errorCode": "invalid_date""")
+        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
+        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
+    }
+
+    @Test
+    fun `test send and 409 error handling`() {
+        val header = makeHeader()
+        setupTransport()
+
+        // Set up a OK ENVC API response
+        val client = mockk<Client>()
+        every { client.executeRequest(any()).statusCode } returns 409
+        every { client.executeRequest(any()).responseMessage } returns "The UUID has already been used for an issued"
+        every { client.executeRequest(any()).data } returns errorJson.toByteArray()
+        FuelManager.instance.client = client
+
+        val actionHistory = ActionHistory(TaskAction.send)
+        val retryItems = gaenTransport.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
+
+        assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.send)
+        assertThat(actionHistory.action.actionResult).contains("""Successful exposure""")
     }
 }

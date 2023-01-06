@@ -131,8 +131,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("ny-phd"),
-            settings.findReceiver("ny-phd.elr"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.REST_TEST"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
             true
