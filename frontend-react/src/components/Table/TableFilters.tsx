@@ -21,7 +21,7 @@ export enum StyleClass {
 interface SubmissionFilterProps {
     filterManager: FilterManager;
     cursorManager?: CursorManager;
-    onFilterClick?: any;
+    onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
 
 /* This helper ensures start range values are inclusive
@@ -54,20 +54,16 @@ function TableFilters({
     let to = inclusiveDateString(rangeTo);
 
     const updateRange = () => {
-        try {
-            filterManager.updateRange({
-                type: RangeSettingsActionType.RESET,
-                payload: { from, to },
+        filterManager.updateRange({
+            type: RangeSettingsActionType.RESET,
+            payload: { from, to },
+        });
+        cursorManager &&
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload:
+                    filterManager.sortSettings.order === "DESC" ? to : from,
             });
-            cursorManager &&
-                cursorManager.update({
-                    type: CursorActionType.RESET,
-                    payload:
-                        filterManager.sortSettings.order === "DESC" ? to : from,
-                });
-        } catch (e) {
-            console.warn(e);
-        }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */

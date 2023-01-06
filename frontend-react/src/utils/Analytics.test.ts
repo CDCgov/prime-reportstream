@@ -1,8 +1,6 @@
-import { trackAppInsightEvent } from "./Analytics";
+import { mockAppInsights } from "./__mocks__/ApplicationInsights";
 
-const mockAppInsights = {
-    trackEvent: jest.fn(),
-};
+import { trackAppInsightEvent } from "./Analytics";
 
 jest.mock("../TelemetryService", () => ({
     ...jest.requireActual("../TelemetryService"),
@@ -22,17 +20,15 @@ describe("Analytics", () => {
 
             trackAppInsightEvent(eventName, eventData);
 
-            expect(mockAppInsights.trackEvent).toBeCalledWith(
-                {
-                    name: eventName,
-                },
-                {
+            expect(mockAppInsights.trackEvent).toBeCalledWith({
+                name: eventName,
+                properties: {
                     tableFilter: {
                         endRange: "1/20/2021",
                         startRange: "1/1/2021",
                     },
-                }
-            );
+                },
+            });
         });
 
         test("does not call trackEvent when eventName is empty", () => {

@@ -31,16 +31,16 @@ interface SubmissionTableContentProps {
     submissions: SubmissionsResource[];
 }
 
+function transformDate(s: string) {
+    return new Date(s).toLocaleString();
+}
+
 const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,
 }) => {
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
     const featureEvent = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
-
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: "id",
