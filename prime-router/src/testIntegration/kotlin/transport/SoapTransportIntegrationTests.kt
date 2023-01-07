@@ -82,8 +82,8 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("pa-phd"),
-            settings.findReceiver("pa-phd.elr-chester-hl7"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.SOAP_TEST"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
             true
