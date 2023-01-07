@@ -33,6 +33,13 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 
+export enum FeatureName {
+    DAILY_DATA = "Daily Data",
+    SUBMISSIONS = "Submissions",
+    ADMIN = "Admin",
+    UPLOAD = "Upload",
+}
+
 export const AppRouter = () => {
     return (
         <Routes>
