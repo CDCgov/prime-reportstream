@@ -6,14 +6,14 @@ id:
   expressionType: HL7Spec
 
 eventCoding:
-    type: CODING_SYSTEM_V2
-    required: true
-    valueOf: MSH.9.2
-    expressionType: HL7Spec
+  type: CODING_SYSTEM_V2
+  required: true
+  valueOf: MSH.9.2
+  expressionType: HL7Spec
 
 source:
-    valueOf: secondary/Source
-    expressionType: resource
+  valueOf: secondary/Source
+  expressionType: resource
 
 sender:
   valueOf: resource/MessageSender
@@ -22,9 +22,9 @@ sender:
     country: MSH.17
 
 destination:
-    valueOf: secondary/Destination
-    generateList: true
-    expressionType: resource
+  valueOf: secondary/Destination
+  generateList: true
+  expressionType: resource
 
 extension_1:
   generateList: true
@@ -39,3 +39,4 @@ extension_1:
       vars:
         valueIn: String, MSH.21.1
         systemId: String, MSH.21.2
+

@@ -37,7 +37,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.7.10"
+    id("org.jetbrains.dokka") version "1.7.20"
     id("com.avast.gradle.docker-compose") version "0.16.9"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -103,8 +103,8 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.1.3"
-val kotlinVersion = "1.7.22"
+val ktorVersion = "2.2.1"
+val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
 jacoco.toolVersion = "0.8.7"
 
@@ -717,7 +717,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.34.0")
     implementation("com.azure:azure-core-http-netty:1.12.5")
-    implementation("com.azure:azure-storage-blob:12.19.1") {
+    implementation("com.azure:azure-storage-blob:12.20.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.15.1") {

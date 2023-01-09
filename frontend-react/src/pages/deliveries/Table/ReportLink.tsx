@@ -62,11 +62,14 @@ function ReportLink(props: Props) {
 
     if (!props.button) {
         return (
-            <a href="/" onClick={handleClick} className="usa-link">
+            <button
+                onClick={handleClick}
+                className="usa-button usa-button--unstyled"
+            >
                 {props.report !== undefined
                     ? formatFileType(props.report.fileType)
                     : ""}
-            </a>
+            </button>
         );
     } else {
         return (

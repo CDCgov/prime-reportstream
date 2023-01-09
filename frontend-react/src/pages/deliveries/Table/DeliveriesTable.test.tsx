@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
@@ -11,6 +11,7 @@ import {
 } from "../../../__mocks__/OrganizationMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
 
 import DeliveriesTable from "./DeliveriesTable";
 
@@ -31,6 +32,11 @@ jest.mock("../../../hooks/UsePagination", () => ({
         };
     },
     __esModule: true,
+}));
+
+jest.mock("../../../TelemetryService", () => ({
+    ...jest.requireActual("../../../TelemetryService"),
+    getAppInsights: () => mockAppInsights,
 }));
 
 beforeEach(() => {
@@ -140,6 +146,22 @@ describe("DeliveriesTableWithNumberedPagination - with data", () => {
         // since our pagination limit is set to 10
         const rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(10 + 1);
+    });
+
+    describe("TableFilter", () => {
+        test("Clicking on filter invokes the trackAppInsightEvent", () => {
+            fireEvent.click(screen.getByText("Filter"));
+
+            expect(mockAppInsights.trackEvent).toBeCalledWith({
+                name: "Daily Data | Table Filter",
+                properties: {
+                    tableFilter: {
+                        endRange: "3000-01-01T23:59:59.999Z",
+                        startRange: "2000-01-01T00:00:00.000Z",
+                    },
+                },
+            });
+        });
     });
 });
 

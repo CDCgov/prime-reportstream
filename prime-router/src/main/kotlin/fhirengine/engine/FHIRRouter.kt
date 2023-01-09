@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.InvalidFilterExpressionMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
@@ -101,6 +103,11 @@ class FHIRRouter(
     private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
 
     /**
+     * Adds logs for reports that pass through various methods in the FHIRRouter
+     */
+    private var actionLogger: ActionLogger? = null
+
+    /**
      * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
      * used in configuration filter expressions with the specified Fhir Path expression before the expression
      * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
@@ -175,6 +182,7 @@ class FHIRRouter(
         actionHistory: ActionHistory
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
+        this.actionLogger = actionLogger
         try {
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
@@ -331,38 +339,47 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            var passes = try {
+                evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            } catch (e: SchemaException) {
+                false
+            }
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
-            var filters = getQualityFilters(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(
-                filters,
+            passes = passes && evaluateFilterAndLogResult(
+                getQualityFilters(receiver, orgFilters),
                 bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.QUALITY_FILTER,
                 qualFilterDefaultResult,
                 receiver.reverseTheQualityFilter
             )
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
-            }
 
             // ROUTING FILTER
             //  default: allowAll
-            filters = getRoutingFilter(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(filters, bundle, true)
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.ROUTING_FILTER)
-            }
+            passes = passes && evaluateFilterAndLogResult(
+                getRoutingFilter(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.ROUTING_FILTER,
+                true
+            )
 
             // PROCESSING MODE FILTER
             //  default: allowAll
-            filters = getProcessingModeFilter(receiver, orgFilters)
-            passes = passes && evaluateFilterCondition(filters, bundle, processingModeDefaultResult)
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, ReportStreamFilterType.PROCESSING_MODE_FILTER)
-            }
+            passes = passes && evaluateFilterAndLogResult(
+                getProcessingModeFilter(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                processingModeDefaultResult
+            )
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
@@ -371,6 +388,38 @@ class FHIRRouter(
         }
 
         return listOfReceivers
+    }
+
+    /**
+     * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
+     * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
+     * that specific [filterType]
+     * @return Boolean indicating if the bundle passes the filter or not
+     *        Result will be negated if [reverseFilter] is true
+     **/
+    internal fun evaluateFilterAndLogResult(
+        filters: ReportStreamFilter,
+        bundle: Bundle,
+        report: Report,
+        receiver: Receiver,
+        filterType: ReportStreamFilterType,
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false
+    ): Boolean {
+        return try {
+            val passes = evaluateFilterCondition(
+                filters,
+                bundle,
+                defaultResponse,
+                reverseFilter
+            )
+            if (!passes) {
+                logFilterResults(filters, bundle, report, receiver, filterType)
+            }
+            passes
+        } catch (e: SchemaException) {
+            false
+        }
     }
 
     /**
@@ -389,7 +438,7 @@ class FHIRRouter(
         // default response
         val result = if (filter.isNullOrEmpty()) {
             defaultResponse
-        } else {
+        } else try {
             filter.all {
                 FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, bundle, shorthandLookupTable),
@@ -398,6 +447,9 @@ class FHIRRouter(
                     replaceShorthand(it)
                 )
             }
+        } catch (e: SchemaException) {
+            actionLogger?.error(InvalidFilterExpressionMessage(e.message ?: ""))
+            throw e
         }
         return if (reverseFilter) !result else result
     }

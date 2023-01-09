@@ -172,10 +172,10 @@ class WorkflowEngine(
         payloadName: String? = null
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
-        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val reportFormat = Report.Format.safeValueOf(report.bodyFormat.toString())
+        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
-            senderReportFormat,
+            reportFormat,
             rawBody,
             blobFilename,
             sender.fullName,
@@ -871,7 +871,7 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.HL7 -> {
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
