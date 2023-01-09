@@ -127,21 +127,17 @@ function SubmissionDetailsContent() {
 */
 function SubmissionDetails() {
     const { actionId } = useParams<SubmissionDetailsProps>();
-    const location = useLocation();
-    const submissionCrumb = { label: "Submissions", path: "/submissions" };
-    const messageSearchCrumb = {
-        label: "Message Tracker",
-        path: "/admin/message-tracker",
-    };
     const crumbs: CrumbConfig[] = [
-        (location.state as any).from === "/admin/message-tracker"
-            ? messageSearchCrumb
-            : submissionCrumb,
+        { label: "Submissions", path: "/submissions" },
         { label: `Details: ${actionId}` },
     ];
+    const location = useLocation();
     return (
         <>
-            <Crumbs crumbList={crumbs} />
+            <Crumbs
+                crumbList={crumbs}
+                previousPage={location.state.previousPage}
+            />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >
