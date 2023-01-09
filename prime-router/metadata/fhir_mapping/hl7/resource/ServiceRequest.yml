@@ -289,34 +289,6 @@ extension_9:
       constants:
         system_code: "v2-0123"
 
-#extension_10:
-#  generateList: true
-#  expressionType: nested
-#  expressionsMap:
-#    url:
-#      type: SYSTEM_URL
-#      value: start-of-service
-#    valueDateTime:
-#      type: STRING
-#      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-#      expressionType: JEXL
-#      vars:
-#        dateTimeIn: TQ1.7
-#
-#extension_11:
-#  generateList: true
-#  expressionType: nested
-#  expressionsMap:
-#    url:
-#      type: SYSTEM_URL
-#      value: end-of-service
-#    valueDateTime:
-#      type: STRING
-#      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-#      expressionType: JEXL
-#      vars:
-#        dateTimeIn: TQ1.8
-
 extension_12:
   condition: $code NOT_EQUALS S && $code NOT_EQUALS A && $code NOT_EQUALS R && $code NOT_EQUALS U
   generateList: true
