@@ -14,6 +14,7 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { USLink, USNavLink } from "../USLink";
+import { FeatureName } from "../../AppRouter";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown } from "./DropdownNav";
@@ -59,7 +60,7 @@ export const ReportStreamHeader = () => {
                     key="daily"
                     data-attribute="hidden"
                 >
-                    <span>Daily data</span>
+                    <span>{FeatureName.DAILY_DATA}</span>
                 </USNavLink>
             );
         }
@@ -71,14 +72,14 @@ export const ReportStreamHeader = () => {
         ) {
             itemsMenu.push(
                 <USNavLink href="/upload" key="upload" data-attribute="hidden">
-                    <span>Upload</span>
+                    <span>{FeatureName.UPLOAD}</span>
                 </USNavLink>,
                 <USNavLink
                     href="/submissions"
                     key="submissions"
                     data-attribute="hidden"
                 >
-                    <span>Submissions</span>
+                    <span>{FeatureName.SUBMISSIONS}</span>
                 </USNavLink>
             );
         }

@@ -13,6 +13,8 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
+import { FeatureName } from "../../AppRouter";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -29,15 +31,16 @@ interface SubmissionTableContentProps {
     submissions: SubmissionsResource[];
 }
 
+function transformDate(s: string) {
+    return new Date(s).toLocaleString();
+}
+
 const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,
 }) => {
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
-
+    const featureEvent = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: "id",
@@ -69,7 +72,14 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters filterManager={filterManager} />
+            <TableFilters
+                filterManager={filterManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(featureEvent, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
+            />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}

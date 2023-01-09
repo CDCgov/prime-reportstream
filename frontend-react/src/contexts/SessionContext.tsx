@@ -6,6 +6,7 @@ import {
     MembershipSettings,
     useOktaMemberships,
     MembershipAction,
+    MemberType,
 } from "../hooks/UseOktaMemberships";
 
 export interface RSSessionContext {
@@ -47,10 +48,8 @@ const SessionProvider = ({
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
     const isAdminStrictCheck = useMemo(() => {
-        if (initialized && memberships) {
-            return memberships.has("DHPrimeAdmins");
-        }
-    }, [initialized, memberships]);
+        return activeMembership?.memberType === MemberType.PRIME_ADMIN;
+    }, [activeMembership?.memberType]);
 
     return (
         <SessionContext.Provider
