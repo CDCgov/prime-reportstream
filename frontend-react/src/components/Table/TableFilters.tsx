@@ -8,8 +8,8 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import {
-    FALLBACK_TO,
     FALLBACK_FROM,
+    FALLBACK_TO,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
 
@@ -18,23 +18,19 @@ export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
-export enum FilterName {
-    START_RANGE = "start-range",
-    END_RANGE = "end-range",
-    CURSOR = "cursor",
-    SORT_ORDER = "sort-order",
-    PAGE_SIZE = "page-size",
-}
-
 interface SubmissionFilterProps {
     filterManager: FilterManager;
     cursorManager?: CursorManager;
+    onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
 
 /* This helper ensures start range values are inclusive
  * of the day set in the date picker. */
 const inclusiveDateString = (originalDate: string) => {
-    return `${originalDate} 23:59:59 GMT`;
+    let inclusiveDateDate = new Date(originalDate);
+    return new Date(
+        inclusiveDateDate.setUTCHours(23, 59, 59, 999)
+    ).toISOString();
 };
 
 /* This component contains the UI for selecting query parameters.
@@ -43,36 +39,39 @@ const inclusiveDateString = (originalDate: string) => {
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
+function TableFilters({
+    filterManager,
+    cursorManager,
+    onFilterClick,
+}: SubmissionFilterProps) {
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
 
+    let from = new Date(rangeFrom).toISOString();
+    let to = inclusiveDateString(rangeTo);
+
     const updateRange = () => {
-        try {
-            const from = new Date(rangeFrom).toISOString();
-            const to = new Date(inclusiveDateString(rangeTo)).toISOString();
-            filterManager.updateRange({
-                type: RangeSettingsActionType.RESET,
-                payload: { from, to },
+        filterManager.updateRange({
+            type: RangeSettingsActionType.RESET,
+            payload: { from, to },
+        });
+        cursorManager &&
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload:
+                    filterManager.sortSettings.order === "DESC" ? to : from,
             });
-            cursorManager &&
-                cursorManager.update({
-                    type: CursorActionType.RESET,
-                    payload:
-                        filterManager.sortSettings.order === "DESC" ? to : from,
-                });
-        } catch (e) {
-            console.warn(e);
-        }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = () => {
         updateRange();
-        // Future functions to update filters here
+
+        // call onFilterClick with the specified range
+        if (onFilterClick) onFilterClick({ from, to });
     };
 
     /* Clears manager and local state values */
