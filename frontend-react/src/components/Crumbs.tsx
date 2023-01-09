@@ -20,7 +20,6 @@ interface CrumbsProps {
 }
 
 const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
-    console.log("DEBUG DEBUG", previousPage);
     if (crumbList || previousPage) {
         return (
             <div className={!noPadding ? "grid-container" : ""}>
