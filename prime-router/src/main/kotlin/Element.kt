@@ -583,7 +583,8 @@ data class Element(
                             "Invalid date: '$cleanedFormattedValue' for format '$format' for element $fieldMapping",
                             fieldMapping,
                             cleanedFormattedValue,
-                            ErrorCode.INVALID_MSG_PARSE_DATE)
+                            ErrorCode.INVALID_MSG_PARSE_DATE
+                        )
                     }
                 }
             }
@@ -598,10 +599,12 @@ data class Element(
                         ""
                     } else {
                         throw ElementNormalizeException(
-                            "Invalid date time: '$cleanedFormattedValue' for format '$format' for element $fieldMapping",
+                            "Invalid date time: '$cleanedFormattedValue' " +
+                                "for format '$format' for element $fieldMapping",
                             fieldMapping,
                             cleanedFormattedValue,
-                            ErrorCode.INVALID_MSG_PARSE_DATETIME)
+                            ErrorCode.INVALID_MSG_PARSE_DATETIME
+                        )
                     }
                 }
             }
@@ -614,7 +617,8 @@ data class Element(
                                 "Invalid code: '$cleanedFormattedValue' is not a display value in altValues set ",
                                 fieldMapping,
                                 cleanedFormattedValue,
-                                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES)
+                                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+                            )
                     codeToken ->
                         toCode(cleanedFormattedValue)
                             ?: throw ElementNormalizeException(
@@ -622,7 +626,8 @@ data class Element(
                                     "for $fieldMapping",
                                 fieldMapping,
                                 cleanedFormattedValue,
-                                ErrorCode.INVALID_MSG_PARSE_CODE_VALUES)
+                                ErrorCode.INVALID_MSG_PARSE_CODE_VALUES
+                            )
                     displayToken ->
                         valueSetRef?.toCodeFromDisplay(cleanedFormattedValue)
                             ?: throw ElementNormalizeException(
@@ -630,7 +635,8 @@ data class Element(
                                     "for element $fieldMapping",
                                 fieldMapping,
                                 cleanedFormattedValue,
-                                ErrorCode.INVALID_MSG_PARSE_ELEMENT_CODE)
+                                ErrorCode.INVALID_MSG_PARSE_ELEMENT_CODE
+                            )
                     else ->
                         valueSetRef?.toNormalizedCode(cleanedFormattedValue)
                             ?: throw ElementNormalizeException(
@@ -638,7 +644,8 @@ data class Element(
                                     "for $fieldMapping",
                                 fieldMapping,
                                 cleanedFormattedValue,
-                                ErrorCode.INVALID_MSG_PARSE_CODE)
+                                ErrorCode.INVALID_MSG_PARSE_CODE
+                            )
                 }
             }
             Type.TELEPHONE -> {
@@ -649,7 +656,8 @@ data class Element(
                             "Invalid phone number '$cleanedFormattedValue' for $fieldMapping",
                             fieldMapping,
                             cleanedFormattedValue,
-                            ErrorCode.INVALID_MSG_PARSE_TELEPHONE)
+                            ErrorCode.INVALID_MSG_PARSE_TELEPHONE
+                        )
                     }
                     val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                     "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
@@ -658,7 +666,8 @@ data class Element(
                         e.localizedMessage,
                         fieldMapping,
                         cleanedFormattedValue,
-                        ErrorCode.INVALID_MSG_PARSE_TELEPHONE)
+                        ErrorCode.INVALID_MSG_PARSE_TELEPHONE
+                    )
                 }
             }
             Type.POSTAL_CODE -> {
@@ -668,7 +677,8 @@ data class Element(
                         "Input Error: invalid postal code '$cleanedFormattedValue' for $fieldMapping",
                         fieldMapping,
                         cleanedFormattedValue,
-                        ErrorCode.INVALID_MSG_PARSE_POSTAL_CODE)
+                        ErrorCode.INVALID_MSG_PARSE_POSTAL_CODE
+                    )
                 }
                 cleanedFormattedValue.replace(" ", "")
             }
@@ -688,14 +698,16 @@ data class Element(
                             "Schema Error: invalid format value",
                             fieldMapping,
                             cleanedFormattedValue,
-                            ErrorCode.INVALID_MSG_PARSE_HD)
+                            ErrorCode.INVALID_MSG_PARSE_HD
+                        )
                     }
                 } catch (e: IllegalStateException) {
                     throw ElementNormalizeException(
                         e.localizedMessage,
                         fieldMapping,
                         cleanedFormattedValue,
-                        ErrorCode.INVALID_MSG_PARSE_HD)
+                        ErrorCode.INVALID_MSG_PARSE_HD
+                    )
                 }
             }
             Type.EI -> {
@@ -714,14 +726,16 @@ data class Element(
                             "Schema Error: invalid format value",
                             fieldMapping,
                             cleanedFormattedValue,
-                            ErrorCode.INVALID_MSG_PARSE_EI)
+                            ErrorCode.INVALID_MSG_PARSE_EI
+                        )
                     }
                 } catch (e: IllegalStateException) {
                     throw ElementNormalizeException(
                         e.localizedMessage,
                         fieldMapping,
                         cleanedFormattedValue,
-                        ErrorCode.INVALID_MSG_PARSE_EI)
+                        ErrorCode.INVALID_MSG_PARSE_EI
+                    )
                 }
             }
             else -> cleanedFormattedValue
@@ -797,12 +811,14 @@ data class Element(
             "Internal Error: asking for an altDisplay for a non-code type",
             fieldMapping,
             code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+        )
         if (altValues == null) throw ElementNormalizeException(
             "Schema Error: missing alt values for $fieldMapping",
             fieldMapping,
             code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+        )
         val altValue = altValues.find { code.equals(it.code, ignoreCase = true) }
             ?: altValues.find { "*" == it.code }
         return altValue?.display
@@ -813,12 +829,14 @@ data class Element(
             "Internal Error: asking for an altDisplay for a non-code type",
             fieldMapping,
             altDisplay,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+        )
         if (altValues == null) throw ElementNormalizeException(
             "Schema Error: missing alt values for $fieldMapping",
             fieldMapping,
             altDisplay,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+        )
         val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
             ?: altValues.find { "*" == it.display }
         return altValue?.code
@@ -833,13 +851,15 @@ data class Element(
             "Internal Error: asking for codeValue for a non-code type",
             fieldMapping,
             code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_VALUES
+        )
         // if there are alt values, use those, otherwise, use the valueSet
         val values = valueSetRef?.values ?: throw ElementNormalizeException(
             "Unable to find a value set for $fieldMapping.",
             fieldMapping,
             code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_VALUES)
+            ErrorCode.INVALID_MSG_PARSE_CODE_VALUES
+        )
         val codeValue = values.find {
             code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
         } ?: values.find { "*" == it.code }
