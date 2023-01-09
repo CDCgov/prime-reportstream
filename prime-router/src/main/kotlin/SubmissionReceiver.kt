@@ -67,7 +67,7 @@ abstract class SubmissionReceiver(
             val generatedHashes = mutableListOf<String>()
             val duplicateIndexes = mutableListOf<Int>()
             for (rowNum in 0 until report.itemCount) {
-                var itemHash = report.getItemHashForRow(rowNum)
+                val itemHash = report.getItemHashForRow(rowNum)
                 // check for duplicate item
                 val isDuplicate = generatedHashes.contains(itemHash) ||
                     workflowEngine.isDuplicateItem(itemHash)
@@ -114,7 +114,7 @@ abstract class SubmissionReceiver(
 
         /**
          * Determines what type of submission receiver to use based on [sender]
-         * Creates a new SubmissionReceiver using the given the [workflowEngine] and [actionHistory]
+         * Creates a new SubmissionReceiver using the given [workflowEngine] and [actionHistory]
          * @return Returns either a TopicReceiver or ELRReceiver based on the sender
          */
         internal fun getSubmissionReceiver(
@@ -261,15 +261,16 @@ class ELRReceiver : SubmissionReceiver {
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
         // check that our input is valid HL7. Additional validation will happen at a later step
 
-        var report: Report
+        val report: Report
 
         when (sender.format) {
             Sender.Format.HL7 -> {
-                var messages = HL7Reader(actionLogs).getMessages(content)
+                val messages = HL7Reader(actionLogs).getMessages(content)
+                val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
                 // create a Report for this incoming HL7 message to use for tracking in the database
 
                 report = Report(
-                    Format.HL7,
+                    if (isBatch) Format.HL7_BATCH else Format.HL7,
                     sources,
                     messages.size,
                     metadata = metadata,

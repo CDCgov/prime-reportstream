@@ -45,11 +45,18 @@ elements:
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
-  - name: phone-number
-    resource: '%resource.telecom'
+  - name: contact-phone-number
+    resource: '%resource.telecom.where(use != "work")'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-5'
+    schema: datatype/xtn-telecom
+
+  - name: contact-business-phone-number
+    resource: '%resource.telecom.where(use = "work")'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-6'
     schema: datatype/xtn-telecom
 
   - name: contact-persons-phone-number

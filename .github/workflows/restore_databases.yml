@@ -60,7 +60,7 @@ jobs:
       sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - name: Set env variables
         shell: bash
@@ -96,7 +96,7 @@ jobs:
 
       # Restores will fail if sink server is not pre-expanded
       - name: Increase sink server size if necessary
-        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
         with:
           timeout_minutes: 20
           max_attempts: 4
@@ -137,7 +137,7 @@ jobs:
        backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
@@ -225,7 +225,7 @@ jobs:
       sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
@@ -238,7 +238,7 @@ jobs:
       # Allow runner db access
       - name: Add db access
         id: add-db-access
-        uses: nick-fields/retry@3e91a01664abd3c5cd539100d10d33b9c5b68482
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
         with:
           timeout_minutes: 120
           max_attempts: 12
@@ -306,7 +306,7 @@ jobs:
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
           (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: clean_output_${{ matrix.db }}
           path: clean_output_${{ matrix.db }}.html

@@ -26,7 +26,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js ${{ matrix.node-version }} with yarn
-      uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
+      uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
         node-version: "16.18.1"
 
@@ -78,7 +78,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz

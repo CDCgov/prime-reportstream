@@ -1,50 +1,86 @@
 elements:
-  - name: sending-application-namespace-id
+  - name: sending-application-namespace-id-with-endpoint
+    condition: '%resource.source.endpoint.exists()'
     value: [ '%resource.source.name' ]
     hl7Spec: [ MSH-3-1 ]
 
-  - name: sending-application-universal-id
+  - name: sending-application-namespace-id-no-endpoint
+    condition: '%resource.source.endpoint.exists().not()'
+    value: [ '%resource.source.name.split("-").first()' ]
+    hl7Spec: [ MSH-3-1 ]
+
+  - name: sending-application-universal-id-with-endpoint
+    condition: '%resource.source.endpoint.exists()'
     value: [ '%resource.source.endpoint.getId()' ]
     hl7Spec: [ MSH-3-2 ]
 
-  - name: sending-application-universal-id-type
+  - name: sending-application-universal-id-no-endpoint
+    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
+    value: [ '%resource.source.name.split(":").last()' ]
+    hl7Spec: [ MSH-3-2 ]
+
+  - name: sending-application-universal-id-type-with-endpoint
+    condition: '%resource.source.endpoint.exists()'
     value: [ '%resource.source.endpoint.getIdType()' ]
     hl7Spec: [ MSH-3-3 ]
 
+  - name: sending-application-universal-id-type-no-endpoint
+    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
+    value: [ '%resource.source.name.split("-").last().split(":").first()' ]
+    hl7Spec: [ MSH-3-3 ]
+
   - name: sending-facility_namespace-id
-    value: [ '%resource.sender.resolve().name' ]
+    resource: '%resource.sender.resolve().identifier.where(type.exists().not()).first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
-    value: [ '%resource.sender.resolve().identifier[0].value.getId()' ]
+    resource: '%resource.sender.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
-    value: [ '%resource.sender.resolve().identifier[0].value.getIdType()' ]
+    resource: '%resource.sender.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getIdType()' ]
     hl7Spec: [ MSH-4-3 ]
 
   - name: receiving-application-namespace-id
-    value: [ '%resource.destination.name' ]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.exists().not()).first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getId()' ]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    value: [ '%resource.destination.extension(%`rsext-application-identifier`).value.getIdType()' ]
-    hl7Spec: [ MSH-5-3]
+    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+    condition: '%resource.exists() and %resource.type.coding.code.exists()'
+    value: [ '%resource.value.getIdType()' ]
+    hl7Spec: [ MSH-5-3 ]
 
   - name: receiving-facility-namespace-id
-    value: [ '%resource.destination.endpoint' ]
+    resource: '%resource.destination.receiver.resolve().identifier'
+    condition: '%resource.where(system.exists().not()).exists()'
+    value: [ '%resource.where(system.exists().not()).value' ]
     hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
-    value: [ '%resource.destination.extension(%`rsext-facility-identifier`).value.getId()' ]
+    resource: '%resource.destination.receiver.resolve().identifier'
+    condition: '%resource.where(system.exists()).exists()'
+    value: [ '%resource.where(system.exists()).value.getId()' ]
     hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
-    value: [ '%resource.destination.extension(%`rsext-facility-identifier`).value.getIdType()' ]
+    resource: '%resource.destination.receiver.resolve().identifier'
+    condition: '%resource.where(system.exists()).exists()'
+    value: [ '%resource.where(system.exists()).value.getIdType()' ]
     hl7Spec: [ MSH-6-3 ]
 
   - name: message-date-time
@@ -53,7 +89,7 @@ elements:
     hl7Spec: [ MSH-7 ]
 
   - name: security
-    value: [ 'Bundle.meta.security.code' ]
+    value: [ '%resource.meta.security.code' ]
     hl7Spec: [ MSH-8-1 ]
 
   - name: message-control-id
@@ -62,9 +98,16 @@ elements:
     hl7Spec: [ MSH-10 ]
 
   - name: processing-id
-    resource: '%resource.meta.extension(%`rsext-source-processing-id`).value'
-    value: [ '%resource.coding.code' ]
+    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103")'
+    condition: '%resource.exists()'
+    value: [ '%resource.code' ]
     hl7Spec: [ MSH-11-1 ]
+
+  - name: processing-mode
+    resource: '%resource.meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0207")'
+    condition: '%resource.exists()'
+    value: [ '%resource.code' ]
+    hl7Spec: [ MSH-11-2 ]
 
   - name: country-code
     value: [ '%resource.sender.resolve().address.country' ]

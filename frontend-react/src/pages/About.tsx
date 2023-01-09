@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 
 import { BasicHelmet } from "../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../components/USLink";
 
 import site from "./../content/site.json";
 
@@ -17,47 +18,34 @@ export const About = () => {
                     labs, and more through a single connection.
                 </h2>
                 <p>
-                    <a
-                        href="/product"
-                        className="usa-button usa-button--outline"
-                    >
-                        Learn more about ReportStream{" "}
-                    </a>
-                    <a
-                        href="/support/contact"
-                        className="usa-button usa-button--outline"
-                    >
-                        Contact us
-                    </a>
+                    <button className="usa-button usa-button--outline">
+                        <USLink href="/product">
+                            Learn more about ReportStream{" "}
+                        </USLink>
+                    </button>
+                    <button className="usa-button usa-button--outline">
+                        <USLink href="/support/contact">Contact us</USLink>
+                    </button>
                 </p>
                 <hr />
                 <p>
                     ReportStream (also known as PRIME ReportStream) was created
                     for the public good by the{" "}
-                    <a
-                        href={DOMPurify.sanitize(site.orgs.CDC.url)}
-                        className="usa-link"
-                    >
+                    <USExtLink href={DOMPurify.sanitize(site.orgs.CDC.url)}>
                         Centers for Disease Control and Prevention (CDC)
-                    </a>
+                    </USExtLink>
                     , and the{" "}
-                    <a
-                        href={DOMPurify.sanitize(site.orgs.USDS.url)}
-                        className="usa-link"
-                    >
+                    <USExtLink href={DOMPurify.sanitize(site.orgs.USDS.url)}>
                         U.S. Digital Service (USDS)
-                    </a>
+                    </USExtLink>
                     .
                 </p>
                 <p>
                     Part of the{" "}
-                    <a
-                        href={DOMPurify.sanitize(site.orgs.PRIME.url)}
-                        className="usa-link"
-                    >
+                    <USExtLink href={DOMPurify.sanitize(site.orgs.PRIME.url)}>
                         Pandemic-Ready Interoperability Modernization Effort
                         (PRIME)
-                    </a>
+                    </USExtLink>
                     , ReportStream helps to streamline and improve public health
                     reporting during the COVID-19 pandemic, and beyond.
                 </p>
