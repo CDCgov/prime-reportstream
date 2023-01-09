@@ -30,9 +30,7 @@ export interface ButtonProps {
     unstyled?: boolean;
 }
 
-export interface IconButtonProps extends ButtonProps {
-    children: React.ReactElement;
-}
+export interface IconButtonProps extends ButtonProps {}
 
 export const IconButton = ({
     children,
