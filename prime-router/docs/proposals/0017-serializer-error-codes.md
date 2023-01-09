@@ -199,8 +199,6 @@ errors.add(
 The following set of error codes should cover all the types of errors ReportStream currently checks for
 (grouped by data type). More can be added on-demand as ReportStream adds more validation.
 
-    INVALID_MSG_PARSE_DATE
-
 | ReportStream Element Type | Error Code                        | Error Description                                           |
 |---------------------------|-----------------------------------|-------------------------------------------------------------|
 | GENERAL MSG HL7           | INVALID_HL7_MSG_TYPE_MISSING      | Missing required HL7 message type field                     |
