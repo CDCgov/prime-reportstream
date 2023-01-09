@@ -221,7 +221,9 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     return (
         <tr key={"error_" + index}>
             <td>
-                {errorCode && errorCode !== "UNKNOWN"
+                {errorCode &&
+                errorCode !== "UNKNOWN" &&
+                ErrorCodeTranslation[errorCode]
                     ? ErrorCodeTranslation[errorCode]
                     : message}
             </td>

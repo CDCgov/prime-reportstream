@@ -131,8 +131,7 @@ data class Element(
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
-        BLANK,
-        UNKNOWN
+        BLANK
     }
 
     data class CsvField(

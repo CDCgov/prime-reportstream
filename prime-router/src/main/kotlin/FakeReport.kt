@@ -250,7 +250,6 @@ class FakeDataService : Logging {
             Element.Type.PERSON_NAME -> createFakeName(element)
             Element.Type.TELEPHONE -> createFakePhoneNumber(element)
             Element.Type.EMAIL -> createFakeEmail()
-            Element.Type.UNKNOWN -> ""
             null -> error("Element type is null for ${element.name}")
         }
     }
