@@ -269,7 +269,7 @@ describe("Table, filter integration tests", () => {
             defaultCursor
         );
         // Checking for inclusive date
-        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.000Z/);
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
 
         // Change sort order and repeat
         userEvent.click(screen.getByText("Column Two"));
