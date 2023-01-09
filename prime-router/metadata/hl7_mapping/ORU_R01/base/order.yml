@@ -67,9 +67,9 @@ elements:
     schema: datatype/xtn-telecom
     resourceIndex: callbackIndex
 
-  - name: order-effective-date
-    value: [ '%service.occurrence' ]
-    hl7Spec: [ '%{hl7Order}-15' ]
+#  - name: order-effective-date
+#    value: [ '%service.occurrence' ]
+#    hl7Spec: [ '%{hl7Order}-15' ]
 
   - name: ordering-organization
     resource: '%service.extension(%`rsext-entering-organization`)'
