@@ -51,6 +51,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 feature: {
                     link: true,
                     linkBasePath: "/submissions/",
+                    linkState: { previousPage: "Message ID Search" },
                 },
             },
         ],
@@ -122,7 +123,9 @@ export function MessageTracker() {
                                 value={searchFilter}
                                 onChange={(evt) =>
                                     setSearchFilter(
-                                        (evt.target as HTMLInputElement).value
+                                        (
+                                            evt.target as HTMLInputElement
+                                        ).value.trim()
                                     )
                                 }
                                 required={true}

@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import { getStoredOrg } from "../../utils/SessionStorageTools";
@@ -132,9 +132,13 @@ function SubmissionDetails() {
         { label: "Submissions", path: "/submissions" },
         { label: `Details: ${actionId}` },
     ];
+    const location = useLocation();
     return (
         <>
-            <Crumbs crumbList={crumbs} />
+            <Crumbs
+                crumbList={crumbs}
+                previousPage={(location.state as any)?.previousPage}
+            />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >
