@@ -203,7 +203,7 @@ class SenderSettings : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             options.items,
             receivingStates,
             settingsTestReceiver.name,

@@ -10,6 +10,7 @@ interface CustomLinkProps {
     anchor?: boolean;
     className?: string;
     activeClassName?: string;
+    state?: any;
 }
 type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
@@ -26,12 +27,14 @@ export const USLink = ({
     children,
     className,
     href,
+    state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
     return !anchor ? (
         <Link
             to={href || ""}
             className={classnames("usa-link", className)}
+            state={state}
             {...anchorHTMLAttributes}
         >
             {children}
