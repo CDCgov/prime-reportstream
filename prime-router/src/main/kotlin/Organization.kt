@@ -12,6 +12,7 @@ open class Organization(
     val stateCode: String?,
     val countyName: String?,
     val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic.
+    // enabled features for organization. Features defined in lookup table rs_feature_flags
     val featureFlags: List<String>? = emptyList(),
 ) {
     constructor(org: Organization) : this(
