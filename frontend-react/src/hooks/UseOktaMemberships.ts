@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo, useCallback } from "react";
+import React, { useEffect, useReducer, useMemo } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
 import omit from "lodash.omit";
 
@@ -10,10 +10,9 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService, servicesEndpoints } from "../config/endpoints/settings";
-import { RSNetworkError } from "../utils/RSNetworkError";
+import { RSService } from "../config/endpoints/settings";
 
-import { auxExports } from "./UseCreateFetch";
+import { useMemberServices } from "./network/ServiceHooks";
 
 export enum MemberType {
     SENDER = "sender",
@@ -240,69 +239,19 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
-    // Callback for generating the fetcher, moved outside useEffect to reduce effect dependencies
-    const authFetchServicesGenerator = useCallback(() => {
-        return auxExports.createTypeWrapperForAuthorizedFetch(token!!, {
-            parsedName: state?.activeMembership?.parsedName || "",
-            memberType:
-                state?.activeMembership?.memberType || MemberType.NON_STAND,
-        });
-    }, [
-        state?.activeMembership?.memberType,
-        state?.activeMembership?.parsedName,
-        token,
-    ]);
-
-    const hasAllNecessaryVariablesForFetch = useMemo(
-        () =>
-            state?.initialized &&
-            state?.activeMembership?.memberType &&
-            state?.activeMembership?.parsedName &&
-            token,
-        [
-            state?.activeMembership?.memberType,
-            state?.activeMembership?.parsedName,
-            state?.initialized,
-            token,
-        ]
-    );
-
-    // Performs the fetch and membership state update
+    const { senders, receivers } = useMemberServices(state, token);
+    // Update services when these arrays change
     useEffect(() => {
-        const fetcher = authFetchServicesGenerator();
-        const fetcherOptions = {
-            segments: {
-                orgName: state?.activeMembership?.parsedName!!,
-            },
-        };
-        const fetchData = async () => {
-            const { senders, receivers } = servicesEndpoints;
-            const senderServiceResults: RSService[] = await fetcher<
-                RSService[]
-            >(senders, fetcherOptions);
-            const receiverServiceResults: RSService[] = await fetcher<
-                RSService[]
-            >(receivers, fetcherOptions);
-            // TODO: Dispatch update to MembershipSettings
-            dispatch({
-                type: MembershipActionType.UPDATE_MEMBERSHIP,
-                payload: {
-                    senders: senderServiceResults,
-                    receivers: receiverServiceResults,
+        dispatch({
+            type: MembershipActionType.UPDATE_MEMBERSHIP,
+            payload: {
+                services: {
+                    senders: senders,
+                    receivers: receivers,
                 },
-            });
-        };
-        if (hasAllNecessaryVariablesForFetch) {
-            if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
-                fetchData().catch((e: RSNetworkError) => console.error(e));
-            }
-        }
-    }, [
-        hasAllNecessaryVariablesForFetch,
-        authFetchServicesGenerator,
-        state?.activeMembership?.memberType,
-        state?.activeMembership?.parsedName,
-    ]);
+            },
+        });
+    }, [receivers, senders]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login
