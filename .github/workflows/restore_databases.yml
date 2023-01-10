@@ -273,10 +273,10 @@ jobs:
       - name: Get sink db public ip
         shell: bash
         run: |
-            if [[ ${{env.sink_env_name}} = demo]]; then IP="172.17.3.20"; 
-            elif  [[ ${{env.sink_env_name}} = test]]; then IP="172.17.5.21";
-            elif  [[ ${{env.sink_env_name}} = staging]]; then IP="172.17.6.20";
-            elif  [[ ${{env.sink_env_name}} = demo]]; then IP="52.191.22.255";
+            if [[ ${{env.sink_env_name}} = demo3]]; then IP="172.17.3.20" 
+            elif  [[ ${{env.sink_env_name}} = test]]; then IP="172.17.5.21"
+            elif  [[ ${{env.sink_env_name}} = staging]]; then IP="172.17.6.20"
+            elif  [[ ${{env.sink_env_name}} = production]]; then IP="52.191.22.255"
             fi
             echo "SINK_IP=$IP" >> $GITHUB_ENV
            
