@@ -1,7 +1,9 @@
+import { Button } from "@trussworks/react-uswds";
+import DOMPurify from "dompurify";
+
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink } from "../../../components/USLink";
 
 export const ProgrammersGuide = () => {
     return (
@@ -20,13 +22,19 @@ export const ProgrammersGuide = () => {
                     (Updated: August 2022)
                 </p>
                 <p>
-                    <button className="usa-button usa-button--outline">
-                        {/* External link might be misleading, this is a _download_ link
-                        we should consider communicating that better visually */}
-                        <USExtLink href={site.assets.programmersGuidePdf.path}>
-                            API programmer's guide (pdf)
-                        </USExtLink>
-                    </button>
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() =>
+                            window.open(
+                                DOMPurify.sanitize(
+                                    site.assets.programmersGuidePdf.path
+                                )
+                            )
+                        }
+                    >
+                        API programmer's guide (pdf)
+                    </Button>
                 </p>
             </section>
         </>

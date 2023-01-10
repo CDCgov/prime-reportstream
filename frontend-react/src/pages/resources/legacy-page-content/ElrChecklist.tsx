@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import DOMPurify from "dompurify";
+import { Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
@@ -8,6 +10,7 @@ import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const ELRChecklistIa = () => {
+    const navigate = useNavigate();
     return (
         <>
             <BasicHelmet
@@ -24,17 +27,24 @@ export const ELRChecklistIa = () => {
                 gather everything you need to complete the form.
             </h2>
             <hr />
-            <button className={"usa-button"}>
-                <USExtLink
-                    href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                    className="text-white" // .usa-button didn't alter text color
-                >
-                    ELR onboarding form
-                </USExtLink>
-            </button>
-            <button className="usa-button usa-button--outline">
-                <USLink href="/support/contact">Contact us</USLink>
-            </button>
+            <Button
+                type="button"
+                onClick={() =>
+                    window.open(
+                        DOMPurify.sanitize(site.forms.intakeElr.url),
+                        "_blank"
+                    )
+                }
+            >
+                ELR onboarding form
+            </Button>
+            <Button
+                type="button"
+                outline
+                onClick={() => navigate("/support/contact")}
+            >
+                Contact us
+            </Button>
             <hr />
             <p className="margin-top-6">
                 <strong>On this page:</strong>
@@ -303,9 +313,13 @@ export const ELRChecklistIa = () => {
                 </p>
 
                 <p>
-                    <button className="usa-button usa-button--outline">
-                        <USLink href="/support/contact">Get in touch</USLink>
-                    </button>
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() => navigate("/support/contact")}
+                    >
+                        Get in touch
+                    </Button>
                 </p>
             </section>
         </>

@@ -180,6 +180,29 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: FULL_ELR
+      externalName: Ignore FULL_ELR
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "%performerState = 'IG' or %patientState = 'IG'" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: HL7
       externalName: Ignore HL7
       organizationName: ignore
@@ -234,25 +257,6 @@
         type: CUSTOM
         schemaName: az/az-covid-19-hl7
         format: HL7_BATCH
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    - name: FULL_ELR
-      externalName: Ignore FULL_ELR
-      organizationName: ignore
-      topic: full-elr
-      customerStatus: active
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation:
-        type: CUSTOM
-        schemaName: none
-        format: HL7
       transport:
         type: SFTP
         host: sftp
