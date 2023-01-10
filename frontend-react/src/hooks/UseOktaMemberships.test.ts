@@ -182,7 +182,7 @@ describe("useOktaMemberships", () => {
             });
             act(() =>
                 result.current.dispatch({
-                    type: MembershipActionType.ADMIN_OVERRIDE,
+                    type: MembershipActionType.UPDATE_MEMBERSHIP,
                     payload: newActive,
                 })
             );
@@ -205,7 +205,7 @@ describe("useOktaMemberships", () => {
             });
             act(() =>
                 result.current.dispatch({
-                    type: MembershipActionType.ADMIN_OVERRIDE,
+                    type: MembershipActionType.UPDATE_MEMBERSHIP,
                     payload: {
                         memberType: MemberType.SENDER,
                     },

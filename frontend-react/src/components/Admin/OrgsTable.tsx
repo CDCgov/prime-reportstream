@@ -45,7 +45,7 @@ export function OrgsTable() {
                 services?.activeService || "default";
         }
         dispatch({
-            type: MembershipActionType.ADMIN_OVERRIDE,
+            type: MembershipActionType.UPDATE_MEMBERSHIP,
             payload,
         });
     };

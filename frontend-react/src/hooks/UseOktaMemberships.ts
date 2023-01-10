@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo } from "react";
+import React, { useEffect, useReducer, useMemo, useCallback } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
 import omit from "lodash.omit";
 
@@ -10,7 +10,10 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService } from "../config/endpoints/settings";
+import { RSService, servicesEndpoints } from "../config/endpoints/settings";
+import { RSNetworkError } from "../utils/RSNetworkError";
+
+import { auxExports } from "./UseCreateFetch";
 
 export enum MemberType {
     SENDER = "sender",
@@ -20,15 +23,19 @@ export enum MemberType {
 }
 
 export enum MembershipActionType {
-    ADMIN_OVERRIDE = "override",
+    UPDATE_MEMBERSHIP = "override",
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
+    SET_MEMBER_SERVICES = "setServices",
     INITIALIZE = "initialize",
 }
 
 export interface ServiceSettings {
+    // The active service used by features requiring a service
     activeService?: string;
+    // List of available sender services
     senders?: RSService[];
+    // List of available receiver services
     receivers?: RSService[];
 }
 
@@ -58,7 +65,11 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload?: string | AccessToken | Partial<MembershipSettings>;
+    payload?:
+        | string
+        | AccessToken
+        | Partial<MembershipSettings>
+        | Partial<ServiceSettings>;
 }
 
 /* TODO: Refactor - we can reasonably remove the need for DHSender_ group prefix and both
@@ -167,7 +178,7 @@ const calculateNewState = (
                 ),
                 initialized: true,
             };
-        case MembershipActionType.ADMIN_OVERRIDE:
+        case MembershipActionType.UPDATE_MEMBERSHIP:
             const newActive = {
                 ...state.activeMembership,
                 ...(payload as MembershipSettings),
@@ -228,6 +239,70 @@ export const useOktaMemberships = (
 
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
+
+    // Callback for generating the fetcher, moved outside useEffect to reduce effect dependencies
+    const authFetchServicesGenerator = useCallback(() => {
+        return auxExports.createTypeWrapperForAuthorizedFetch(token!!, {
+            parsedName: state?.activeMembership?.parsedName || "",
+            memberType:
+                state?.activeMembership?.memberType || MemberType.NON_STAND,
+        });
+    }, [
+        state?.activeMembership?.memberType,
+        state?.activeMembership?.parsedName,
+        token,
+    ]);
+
+    const hasAllNecessaryVariablesForFetch = useMemo(
+        () =>
+            state?.initialized &&
+            state?.activeMembership?.memberType &&
+            state?.activeMembership?.parsedName &&
+            token,
+        [
+            state?.activeMembership?.memberType,
+            state?.activeMembership?.parsedName,
+            state?.initialized,
+            token,
+        ]
+    );
+
+    // Performs the fetch and membership state update
+    useEffect(() => {
+        const fetcher = authFetchServicesGenerator();
+        const fetcherOptions = {
+            segments: {
+                orgName: state?.activeMembership?.parsedName!!,
+            },
+        };
+        const fetchData = async () => {
+            const { senders, receivers } = servicesEndpoints;
+            const senderServiceResults: RSService[] = await fetcher<
+                RSService[]
+            >(senders, fetcherOptions);
+            const receiverServiceResults: RSService[] = await fetcher<
+                RSService[]
+            >(receivers, fetcherOptions);
+            // TODO: Dispatch update to MembershipSettings
+            dispatch({
+                type: MembershipActionType.UPDATE_MEMBERSHIP,
+                payload: {
+                    senders: senderServiceResults,
+                    receivers: receiverServiceResults,
+                },
+            });
+        };
+        if (hasAllNecessaryVariablesForFetch) {
+            if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
+                fetchData().catch((e: RSNetworkError) => console.error(e));
+            }
+        }
+    }, [
+        hasAllNecessaryVariablesForFetch,
+        authFetchServicesGenerator,
+        state?.activeMembership?.memberType,
+        state?.activeMembership?.parsedName,
+    ]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login
