@@ -1,5 +1,4 @@
 import { mockAppInsights } from "./__mocks__/ApplicationInsights";
-
 import { trackAppInsightEvent } from "./Analytics";
 
 jest.mock("../TelemetryService", () => ({

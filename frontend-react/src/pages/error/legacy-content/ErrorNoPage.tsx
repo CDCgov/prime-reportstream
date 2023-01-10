@@ -1,11 +1,13 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 import React from "react";
+import { Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
-import { USLink } from "../../../components/USLink";
 
 export const ErrorNoPage = () => {
+    const navigate = useNavigate();
     return (
         <>
             <Helmet>
@@ -41,25 +43,27 @@ export const ErrorNoPage = () => {
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <USLink href="/">
-                                            <button className="usa-button">
-                                                Visit homepage
-                                            </button>
-                                        </USLink>
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/")}
+                                        >
+                                            Visit homepage
+                                        </Button>
                                     </li>
                                     <li className="usa-button-group__item">
-                                        <USLink
-                                            href={
-                                                "mailto:" +
-                                                DOMPurify.sanitize(
-                                                    site.orgs.RS.email
+                                        <Button
+                                            type="button"
+                                            outline
+                                            onClick={() =>
+                                                window.open(
+                                                    `mailto:${DOMPurify.sanitize(
+                                                        site.orgs.RS.email
+                                                    )}`
                                                 )
                                             }
                                         >
-                                            <button className="usa-button usa-button--outline">
-                                                Contact us
-                                            </button>
-                                        </USLink>
+                                            Contact us
+                                        </Button>
                                     </li>
                                 </ul>
                             </div>
