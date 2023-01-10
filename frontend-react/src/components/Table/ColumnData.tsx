@@ -101,7 +101,7 @@ export const ColumnData = ({
             return action();
         };
         return tableData(
-            <Button type="button" unstyled onClick={() => doAction()}>
+            <Button type="button" unstyled onClick={doAction}>
                 {displayValue}
             </Button>
         );
