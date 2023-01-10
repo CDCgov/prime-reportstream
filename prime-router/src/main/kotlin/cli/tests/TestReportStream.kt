@@ -858,7 +858,7 @@ abstract class CoolTest {
         }
 
         val universalPipelineReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "full-elr-hl7"
+            it.organizationName == orgName && it.name == "FULL_ELR"
         }[0]
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
