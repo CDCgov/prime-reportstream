@@ -132,8 +132,18 @@ authoredOn:
   vars:
     dateTimeIn: ORC.9 | OBR.6
 
+occurrenceDateTime:
+  condition: $startTiming NULL && $endTiming NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: ORC.15
+    startTiming: TQ1.7
+    endTiming: TQ1.8
+
 occurrenceTiming:
-  valueOf: secondary/Timing
+  valueOf: datatype/Timing
   expressionType: resource
   vars:
     startTiming: TQ1.7
@@ -289,7 +299,7 @@ extension_9:
       constants:
         system_code: "v2-0123"
 
-extension_12:
+extension_10:
   condition: $code NOT_EQUALS S && $code NOT_EQUALS A && $code NOT_EQUALS R && $code NOT_EQUALS U
   generateList: true
   expressionType: nested
@@ -306,6 +316,20 @@ extension_12:
         system: SYSTEM_URL, $system_code
       constants:
         system_code: "v2-0485"
+
+extension_11:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: order-effective-date
+    valueDateTime:
+        type: STRING
+        valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+        expressionType: JEXL
+        vars:
+          dateTimeIn: ORC.15
 
 priority_1:
   condition: $priorityCode EQUALS S

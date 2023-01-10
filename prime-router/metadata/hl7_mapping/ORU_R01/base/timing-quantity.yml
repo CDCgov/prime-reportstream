@@ -8,7 +8,6 @@ elements:
   - name: tq1-start-of-service
     value: [ '%resource.occurrence.repeat.bounds.start' ]
     hl7Spec: [ '%{hl7TQ1}-7' ]
-    debug: true
 
   - name: tq1-end-of-service
     value: [ '%resource.occurrence.repeat.bounds.end' ]
