@@ -5,7 +5,7 @@ import {
 } from "@trussworks/react-uswds";
 import { ReactChild } from "react";
 
-import { IconButton } from "./IconButton/IconButton";
+import { IconButton } from "./IconButton";
 import { USCrumbLink } from "./USLink";
 
 interface CrumbConfig {
