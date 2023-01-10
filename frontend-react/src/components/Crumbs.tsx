@@ -23,7 +23,7 @@ const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
     if (crumbList || previousPage) {
         return (
             <div className={!noPadding ? "grid-container" : ""}>
-                {previousPage !== undefined ? (
+                {Boolean(previousPage) ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
                         <IconButton
                             size="big"
