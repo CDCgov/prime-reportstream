@@ -32,17 +32,22 @@ const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
 }) => {
     return (
         <li className="usa-pagination__item usa-pagination__page-no">
-            <button
+            {/* Using `unstyled` and custom classes is a method used by Trussworks,
+            but they do not export a `PaginationButton` component, so we have to rewrite
+            it here.
+            See: https://github.com/trussworks/react-uswds/blob/main/src/components/Pagination/Pagination.tsx */}
+            <Button
+                type="button"
+                unstyled
                 {...(isCurrentPage && { "aria-current": "page" })}
                 aria-label={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
-                className={classnames(
-                    ["usa-pagination__button", "rs-pagination-no-button"],
-                    { "usa-current": isCurrentPage }
-                )}
+                className={classnames("usa-pagination__button", {
+                    "usa-current": isCurrentPage,
+                })}
                 onClick={() => setSelectedPage(pageNum)}
             >
                 {pageNum}
-            </button>
+            </Button>
         </li>
     );
 };

@@ -122,7 +122,9 @@ export function MessageTracker() {
                                 value={searchFilter}
                                 onChange={(evt) =>
                                     setSearchFilter(
-                                        (evt.target as HTMLInputElement).value
+                                        (
+                                            evt.target as HTMLInputElement
+                                        ).value.trim()
                                     )
                                 }
                                 required={true}
