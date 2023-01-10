@@ -20,7 +20,7 @@ describe("useSenderResource", () => {
             },
             activeMembership: {
                 memberType: MemberType.NON_STAND,
-                service: undefined,
+                services: { activeService: undefined },
             } as MembershipSettings,
             dispatch: () => {},
             initialized: true,
@@ -39,7 +39,7 @@ describe("useSenderResource", () => {
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                service: "testSender",
+                services: { activeService: "testSender" },
             },
             dispatch: () => {},
             initialized: true,

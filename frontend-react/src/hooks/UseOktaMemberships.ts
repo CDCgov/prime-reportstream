@@ -26,15 +26,19 @@ export enum MembershipActionType {
     INITIALIZE = "initialize",
 }
 
+export interface ServiceSettings {
+    activeService?: string;
+    senders?: RSService[];
+    receivers?: RSService[];
+}
+
 export interface MembershipSettings {
-    // The org header value
+    // Organization settings name parsed from Okta group name
     parsedName: string;
     // The type of membership
     memberType: MemberType;
-    // Optional service name (i.e. "elr", "default")
-    service?: string;
-    // List of available services for the current org
-    allServices?: RSService[];
+    // Available sender and receiver service settings
+    services?: ServiceSettings;
 }
 
 export interface MembershipState {

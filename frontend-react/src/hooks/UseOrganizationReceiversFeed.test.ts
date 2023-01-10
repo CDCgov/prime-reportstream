@@ -42,7 +42,7 @@ describe("useOrganizationReceiversFeed", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                service: "testReceiver",
+                services: { activeService: "testReceiver" },
             },
             dispatch: () => {},
             initialized: true,
@@ -66,7 +66,7 @@ describe("useOrganizationReceiversFeed", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                service: "testReceiver",
+                services: { activeService: "testReceiver" },
             },
             dispatch: () => {},
             initialized: true,

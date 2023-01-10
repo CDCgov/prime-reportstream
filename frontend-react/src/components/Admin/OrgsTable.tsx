@@ -30,16 +30,19 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
+        const { services, memberType } = activeMembership || {};
 
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
+            services: {},
         };
+        // TODO Remove - handled by session context
         if (
             memberType === MemberType.SENDER ||
             memberType === MemberType.PRIME_ADMIN
         ) {
-            payload.service = service || "default";
+            payload.services!!.activeService =
+                services?.activeService || "default";
         }
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,

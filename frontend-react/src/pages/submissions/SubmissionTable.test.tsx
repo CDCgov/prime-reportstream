@@ -31,7 +31,7 @@ describe("SubmissionTable", () => {
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                service: "testSender",
+                services: { activeService: "testSender" },
             },
             dispatch: () => {},
             initialized: true,

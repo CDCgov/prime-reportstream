@@ -14,12 +14,12 @@ export const useSenderResource = () => {
             authorizedFetch(senderDetail, {
                 segments: {
                     orgName: activeMembership?.parsedName!!,
-                    sender: activeMembership?.service!!,
+                    sender: activeMembership?.services?.activeService!!,
                 },
             }),
         [
             activeMembership?.parsedName,
-            activeMembership?.service,
+            activeMembership?.services?.activeService,
             authorizedFetch,
         ]
     );
@@ -28,7 +28,8 @@ export const useSenderResource = () => {
         memoizedDataFetch,
         {
             enabled:
-                !!activeMembership?.parsedName && !!activeMembership.service,
+                !!activeMembership?.parsedName &&
+                !!activeMembership?.services?.activeService,
         }
     );
     return { senderDetail: data, senderIsLoading: isLoading };
