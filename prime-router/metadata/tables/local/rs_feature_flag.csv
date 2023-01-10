@@ -1,0 +1,5 @@
+name,code,display,version
+rs_feature_flag,for-tests-only,,
+rs_feature_flag,numbered-pagination,,
+rs_feature_flag,user-upload,,
+rs_feature_flag,message-tracker,,

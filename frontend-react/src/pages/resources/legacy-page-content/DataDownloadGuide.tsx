@@ -1,4 +1,6 @@
 import DOMPurify from "dompurify";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
@@ -6,6 +8,7 @@ import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const DataDownloadGuideIa = () => {
+    const navigate = useNavigate();
     return (
         <>
             <BasicHelmet
@@ -113,11 +116,13 @@ export const DataDownloadGuideIa = () => {
                     Do you have questions, problems, or bugs to report? Contact
                     us for help.
                 </p>
-                <USLink href="/support/contact">
-                    <button className="usa-button usa-button--outline">
-                        Contact us
-                    </button>
-                </USLink>
+                <Button
+                    type="button"
+                    outline
+                    onClick={() => navigate("/support/contact")}
+                >
+                    Contact us
+                </Button>
                 <p className="margin-top-8">
                     <USLink anchor href="#anchor-top">
                         Back to top

@@ -1,11 +1,14 @@
 import DOMPurify from "dompurify";
+import { Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import { BasicHelmet } from "../components/header/BasicHelmet";
-import { USExtLink, USLink } from "../components/USLink";
+import { USExtLink } from "../components/USLink";
 
 import site from "./../content/site.json";
 
 export const About = () => {
+    const navigate = useNavigate();
     return (
         <>
             <div className="grid-container rs-documentation usa-prose desktop:margin-top-6">
@@ -18,14 +21,20 @@ export const About = () => {
                     labs, and more through a single connection.
                 </h2>
                 <p>
-                    <button className="usa-button usa-button--outline">
-                        <USLink href="/product">
-                            Learn more about ReportStream{" "}
-                        </USLink>
-                    </button>
-                    <button className="usa-button usa-button--outline">
-                        <USLink href="/support/contact">Contact us</USLink>
-                    </button>
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() => navigate("/product")}
+                    >
+                        Learn more about ReportStream
+                    </Button>
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() => navigate("/support/contact")}
+                    >
+                        Contact us
+                    </Button>
                 </p>
                 <hr />
                 <p>
