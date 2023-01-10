@@ -239,15 +239,19 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
-    const { senders, receivers } = useMemberServices(state, token);
+    const { activeService, senders, receivers } = useMemberServices(
+        state,
+        token
+    );
     // Update services when these arrays change
     useEffect(() => {
         dispatch({
             type: MembershipActionType.UPDATE_MEMBERSHIP,
             payload: {
                 services: {
-                    senders: senders,
-                    receivers: receivers,
+                    activeService,
+                    senders,
+                    receivers,
                 },
             },
         });

@@ -14,11 +14,11 @@ export const useMemberServices = (
     state: MembershipState,
     token: AccessToken | undefined
 ): ServiceSettings => {
-    const [services, setServices] = useState<ServiceSettings>({
-        activeService: undefined,
-        senders: [],
-        receivers: [],
-    });
+    const [senders, setSenders] = useState<RSService[]>([]);
+    const [receivers, setReceivers] = useState<RSService[]>([]);
+    // TODO: Implement setActiveService where applicable and remove unused var suppression
+    // eslint-disable-next-line
+    const [activeService, setActiveService] = useState<string>("default"); // @typescript-eslint/no-unused-vars
     // Callback for generating the fetcher, moved outside useEffect to reduce effect dependencies
     const authFetchServicesGenerator = useCallback(() => {
         return auxExports.createTypeWrapperForAuthorizedFetch(token!!, {
@@ -62,11 +62,8 @@ export const useMemberServices = (
             const receiverServiceResults: RSService[] = await fetcher<
                 RSService[]
             >(receivers, fetcherOptions);
-            setServices({
-                activeService: undefined,
-                senders: senderServiceResults,
-                receivers: receiverServiceResults,
-            });
+            setSenders(senderServiceResults);
+            setReceivers(receiverServiceResults);
         };
         if (hasAllNecessaryVariablesForFetch) {
             if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
@@ -80,5 +77,9 @@ export const useMemberServices = (
         state?.activeMembership?.parsedName,
     ]);
 
-    return services;
+    return {
+        activeService,
+        senders,
+        receivers,
+    };
 };

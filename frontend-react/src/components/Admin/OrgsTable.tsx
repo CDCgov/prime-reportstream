@@ -14,7 +14,6 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import {
     MembershipActionType,
-    MemberType,
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
@@ -30,20 +29,10 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { services, memberType } = activeMembership || {};
-
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
             services: {},
         };
-        // TODO Remove - handled by session context
-        if (
-            memberType === MemberType.SENDER ||
-            memberType === MemberType.PRIME_ADMIN
-        ) {
-            payload.services!!.activeService =
-                services?.activeService || "default";
-        }
         dispatch({
             type: MembershipActionType.UPDATE_MEMBERSHIP,
             payload,
