@@ -5,6 +5,7 @@ import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { USLink } from "../USLink";
+import { FeatureName } from "../../AppRouter";
 
 export interface NonStaticOption {
     title: string;
@@ -86,7 +87,13 @@ export const AdminDropdown = () => {
                 "/admin"
             )
         );
-    return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
+    return (
+        <DropdownNav
+            label={FeatureName.ADMIN}
+            root={"/admin"}
+            directories={pages}
+        />
+    );
 };
 
 export default DropdownNav;

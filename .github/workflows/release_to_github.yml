@@ -19,7 +19,7 @@ jobs:
       enable_builds: 'true'
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
         with:
           fetch-depth: 0
       - name: Build vars
@@ -36,7 +36,7 @@ jobs:
         working-directory: prime-router
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Build backend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-backend
@@ -53,7 +53,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Build frontend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-frontend
@@ -72,18 +72,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
         with:
           fetch-depth: 0
       - name: Download router artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Download frontend artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
@@ -108,7 +108,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@d0814e580b0dffbc99d2b25e54cd42d2eb533a97
+        uses: mikepenz/release-changelog-builder-action@da6847f9fdcb3211124cd0c078c1d0359b103ee5
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks
