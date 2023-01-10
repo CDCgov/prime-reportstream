@@ -41,7 +41,7 @@ const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
                 unstyled
                 {...(isCurrentPage && { "aria-current": "page" })}
                 aria-label={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
-                className={classnames(["usa-pagination__button"], {
+                className={classnames("usa-pagination__button", {
                     "usa-current": isCurrentPage,
                 })}
                 onClick={() => setSelectedPage(pageNum)}
