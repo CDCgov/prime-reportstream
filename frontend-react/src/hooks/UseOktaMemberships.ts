@@ -41,6 +41,7 @@ export interface MembershipState {
     // null here points specifically to an uninitialized state
     activeMembership?: MembershipSettings | null;
     // Key is the OKTA group name, settings has parsedName
+    /* TODO Remove - we do not anticipate a need for one user having multiple Okta groups */
     memberships?: Map<string, MembershipSettings>;
     initialized?: boolean;
 }
@@ -88,6 +89,7 @@ export const getSettingsFromOrganization = (
     };
 };
 
+/* TODO Remove - we do not anticipate a need for one user having multiple Okta groups */
 export const makeMembershipMapFromToken = (
     token: AccessToken
 ): Map<string, MembershipSettings> => {
