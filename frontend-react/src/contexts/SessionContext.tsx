@@ -10,11 +10,13 @@ import {
 } from "../hooks/UseOktaMemberships";
 
 export interface RSSessionContext {
+    /* TODO: Remove - we do not anticipate a need for one user having multiple Okta groups */
     memberships?: Map<string, MembershipSettings>;
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
+    /* TODO: Remove - see comment on L50-51 */
     isAdminStrictCheck?: boolean;
 }
 
@@ -45,8 +47,8 @@ const SessionProvider = ({
         state: { memberships, activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
-    /* This logic is a for when admins have other orgs present on their Okta claims
-     * that interfere with the activeMembership.memberType "soft" check */
+    /* TODO: Remove - logic can be easily checked by accessing the session context
+     *   and confirming memberType from any component */
     const isAdminStrictCheck = useMemo(() => {
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
