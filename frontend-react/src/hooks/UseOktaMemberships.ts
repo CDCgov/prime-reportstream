@@ -56,6 +56,11 @@ export interface MembershipAction {
     payload?: string | AccessToken | Partial<MembershipSettings>;
 }
 
+/* TODO: Refactor - we can reasonably remove the need for DHSender_ group prefix and both
+ *   SENDER/RECEIVER MemberType values (consolidate as AUTHENTICATED) when we are providing
+ *   SessionContext.services which contains knowledge of whether an authenticated user has
+ *   senders, receivers, or both. A truer measure to show/hide features is to conditionally
+ *   show/hide based on available services, not an Okta group name */
 export const getTypeOfGroup = (org: string) => {
     const isStandardType = org.startsWith("DH");
     const isSenderType = org.startsWith("DHSender_");
@@ -73,26 +78,13 @@ export const getTypeOfGroup = (org: string) => {
     }
 };
 
-export const extractSenderName = (org: string) =>
-    org.split(".")?.[1] || undefined;
-
-/** This method constructs membership settings
- * @remarks This will put you as a default sender if you are not in a specific sender group */
+/** This method constructs membership settings */
 export const getSettingsFromOrganization = (
     org: string
 ): MembershipSettings => {
-    const parsedName = parseOrgName(org);
-    const memberType = getTypeOfGroup(org);
-    let senderName = extractSenderName(org);
-
-    if (memberType === MemberType.SENDER && !senderName) {
-        senderName = "default";
-    }
-
     return {
-        parsedName,
-        memberType,
-        service: senderName,
+        parsedName: parseOrgName(org),
+        memberType: getTypeOfGroup(org),
     };
 };
 

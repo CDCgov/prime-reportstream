@@ -25,7 +25,6 @@ const fakeMemberships = new Map([
         {
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
-            service: undefined,
         },
     ],
     [
@@ -33,7 +32,6 @@ const fakeMemberships = new Map([
         {
             parsedName: "ignore",
             memberType: MemberType.SENDER,
-            service: "default",
         },
     ],
     [
@@ -41,7 +39,6 @@ const fakeMemberships = new Map([
         {
             parsedName: "md-phd",
             memberType: MemberType.RECEIVER,
-            service: undefined,
         },
     ],
 ]);
