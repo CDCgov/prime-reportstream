@@ -15,6 +15,7 @@ import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -293,6 +294,7 @@ Examples:
             Ping(),
             SftpcheckTest(),
             End2End(),
+            End2EndUniversalPipeline(),
             Merge(),
             Server2ServerAuthTests(),
             OktaAuthTests(),
@@ -462,10 +464,11 @@ abstract class CoolTest {
     }
 
     /**
-     * Polls for the json result of the process action for [reportId]
+     * Polls for the json result of the [taskAction] action for [reportId]
      */
-    suspend fun pollForProcessResult(
+    suspend fun pollForStepResult(
         reportId: ReportId,
+        taskAction: TaskAction,
         maxPollSecs: Int = 180,
         pollSleepSecs: Int = 20,
     ): Map<UUID, DetailedSubmissionHistory?> {
@@ -485,7 +488,7 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResult = queryForProcessResults(reportId)
+                queryResult = queryForStepResults(reportId, taskAction)
                 @Suppress("SENSELESS_COMPARISON")
                 if (queryResult != null)
                     break
@@ -539,13 +542,14 @@ abstract class CoolTest {
     /**
      * Returns all children produced by the process step for the parent [reportId], along with json response for each
      */
-    private fun queryForProcessResults(
+    private fun queryForStepResults(
         reportId: ReportId,
+        taskAction: TaskAction
     ): Map<UUID, DetailedSubmissionHistory?> {
         var queryResult = emptyMap<UUID, DetailedSubmissionHistory?>()
         db = WorkflowEngine().db
         db.transact { txn ->
-            queryResult = processActionResultQuery(txn, reportId)
+            queryResult = stepActionResultQuery(txn, reportId, taskAction)
         }
         return queryResult
     }
@@ -589,15 +593,54 @@ abstract class CoolTest {
         return passed
     }
 
+    /**
+     * Examine the [history] from the convert action, make sure it successfully converted and there is a fhir bundle
+     * @return true if there are no errors in the response, false otherwise
+     */
+    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String): Boolean {
+
+        var passed = true
+        try {
+            // if there is no response, this test fails
+            if (history == null)
+                return bad("Test Failed: No $step response")
+
+            val reportId = history.reportId
+            echo("Id of submitted report: $reportId")
+            val topic = history.topic
+            val errorCount = history.errorCount
+
+            if (topic != null && topic.equals("full-elr", true)) {
+                good("'topic' is in response and correctly set to 'full-elr'")
+            } else {
+                passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            }
+
+            if (errorCount == 0) {
+                good("No errors detected.")
+            } else {
+                passed = bad("***$name Test FAILED***: There were errors reported.")
+            }
+
+            if (reportId == null) {
+                passed = bad("***$name Test FAILED***: Report ID was empty.")
+            }
+        } catch (e: NullPointerException) {
+            passed = bad("***$name Test FAILED***: Unable to properly parse response json")
+        }
+        return passed
+    }
+
     suspend fun pollForLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 180,
-        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
-        asyncProcessMode: Boolean = false
+        maxPollSecs: Int = 360,
+        pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean = false
     ): Boolean {
         var timeElapsedSecs = 0
         var queryResults = listOf<Pair<Boolean, String>>()
@@ -615,8 +658,16 @@ abstract class CoolTest {
                     delay(pollSleepSecs.toLong() * 1000)
                 }
                 timeElapsedSecs += pollSleepSecs
-                queryResults = queryForLineageResults(reportId, receivers, totalItems, filterOrgName, asyncProcessMode)
-                if (!queryResults.map { it.first }.contains(false)) break // everything passed!
+                queryResults = queryForLineageResults(
+                    reportId,
+                    receivers,
+                    totalItems,
+                    filterOrgName,
+                    asyncProcessMode,
+                    isUniversalPipeline
+                )
+                if (!queryResults.map { it.first }.contains(false))
+                    break // everything passed!
             }
         }
         echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
@@ -636,7 +687,8 @@ abstract class CoolTest {
         receivers: List<Receiver>,
         totalItems: Int,
         filterOrgName: Boolean = false,
-        asyncProcessMode: Boolean = false
+        asyncProcessMode: Boolean = false,
+        isUniversalPipeline: Boolean
     ): List<Pair<Boolean, String>> {
         val queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
@@ -645,17 +697,28 @@ abstract class CoolTest {
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
-                if (asyncProcessMode) actionsList.add(TaskAction.process)
+                if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
+                if (receiver.topic == Topic.FULL_ELR) {
+                    actionsList.add(TaskAction.convert)
+                    actionsList.add(TaskAction.route)
+                    actionsList.add(TaskAction.translate)
+                }
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
+                    val useRecevingServiceName = !(
+                        (action == TaskAction.receive && asyncProcessMode) ||
+                            action == TaskAction.convert ||
+                            action == TaskAction.route
+                        )
                     val count = itemLineageCountQuery(
                         txn = txn,
                         reportId = reportId,
                         // if we are processing asynchronously the receive step doesn't have any receivers yet
-                        receivingOrgSvc = if (action == TaskAction.receive && asyncProcessMode) null else receiver.name,
+                        receivingOrgSvc = if (useRecevingServiceName) receiver.name else null,
                         receivingOrg = if (filterOrgName) receiver.organizationName else null,
-                        action = action
+                        action = action,
+                        isUniversalPipeline = isUniversalPipeline
                     )
                     val expected = if (action == TaskAction.receive && asyncProcessMode) {
                         totalItems
@@ -709,8 +772,13 @@ abstract class CoolTest {
             val errorCount = tree["errorCount"]
             val destCount = tree["destinationCount"]
 
-            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
-                good("'topic' is in response and correctly set to 'covid-19'")
+            if (topic != null && !topic.isNull &&
+                (
+                    topic.textValue().equals(Topic.COVID_19.json_val, true) ||
+                        topic.textValue().equals(Topic.FULL_ELR.json_val, true)
+                    )
+            ) {
+                good("'topic' is in response and correctly set")
             } else {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
             }
@@ -789,6 +857,9 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org.name}")
         }
 
+        val universalPipelineReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "FULL_ELR"
+        }[0]
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
         val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
@@ -812,8 +883,16 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $orgName.default")
             ) as CovidSender
 
-        fun initListOfGoodReceiversAndCounties() {
-            allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
+        fun initListOfGoodReceiversAndCountiesForTopicPipeline() {
+            allGoodReceivers = mutableListOf(
+                csvReceiver, hl7Receiver,
+                hl7BatchReceiver, hl7NullReceiver
+            )
+            allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
+        }
+
+        fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
+            allGoodReceivers = mutableListOf(universalPipelineReceiver)
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 
@@ -872,22 +951,23 @@ abstract class CoolTest {
 
         /**
          * Queries the database and pulls back the action_response json for the requested [reportId]
-         * @return String representing the jsonb value of action_result for the process action for this report
+         * @return String representing the jsonb value of action_result for the [taskAction] action for this report
          */
-        fun processActionResultQuery(
+        fun stepActionResultQuery(
             txn: DataAccessTransaction,
-            reportId: UUID
+            reportId: UUID,
+            taskAction: TaskAction
         ): Map<UUID, DetailedSubmissionHistory?> {
             val ctx = DSL.using(txn)
 
-            // get the reports generated by the 'process' step
-            val processingReportIds = ctx.selectFrom(REPORT_LINEAGE)
+            // get the child reports of the report passed in
+            val childReportIds = ctx.selectFrom(REPORT_LINEAGE)
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
             val actionResponses = mutableMapOf<UUID, DetailedSubmissionHistory?>()
-            for (processingReportId in processingReportIds) {
+            for (childReportId in childReportIds) {
                 val report = ctx.selectFrom(Tables.REPORT_FILE)
-                    .where(Tables.REPORT_FILE.REPORT_ID.eq(processingReportId))
+                    .where(Tables.REPORT_FILE.REPORT_ID.eq(childReportId))
                     .fetchOne()
                 if (report != null && report.actionId != null) {
                     val ret = ctx.select(
@@ -895,13 +975,13 @@ abstract class CoolTest {
                     )
                         .from(ACTION)
                         .where(
-                            ACTION.ACTION_NAME.eq(TaskAction.process)
+                            ACTION.ACTION_NAME.eq(taskAction)
                                 .and(ACTION.ACTION_ID.eq(report.actionId))
                         )
                         .fetchOne()?.into(DetailedSubmissionHistory::class.java)
                     // Fill out the rest of the history data
                     if (ret != null) {
-                        ret.reportId = processingReportId.toString()
+                        ret.reportId = childReportId.toString()
                         ret.reportItemCount = report.itemCount
                         ret.externalName = report.externalName
                         ret.topic = report.schemaTopic
@@ -911,26 +991,68 @@ abstract class CoolTest {
                         // Get errors and warnings
                         ret.logs = ctx.selectFrom(ACTION_LOG).where(
                             ACTION_LOG.ACTION_ID.eq(report.actionId)
-                                .and(ACTION_LOG.REPORT_ID.eq(processingReportId))
+                                .and(ACTION_LOG.REPORT_ID.eq(childReportId))
                                 .and(ACTION_LOG.TYPE.eq(ActionLogType.warning))
                         ).fetchInto(DetailedActionLog::class.java)
                     }
-                    actionResponses[processingReportId] = ret
-                } else actionResponses[processingReportId] = null
+                    actionResponses[childReportId] = ret
+                } else actionResponses[childReportId] = null
             }
 
             return actionResponses
         }
 
+        /**
+         * Returns the count of item lineages for the parent [reportId] passed in for the [action] specified.
+         * If a [receivingOrgSvc] or [receivingOrg] are specified, only the lineages that match those values will
+         * be counted. If this is looking for Universal Pipeline lineage count, use a different query due to how
+         * parent/child relationships work in lineage
+         * @return Count of matching records.
+         */
         fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
+            isUniversalPipeline: Boolean
         ): Int? {
             val ctx = DSL.using(txn)
-            val sql = """select count(*)
+            return if (isUniversalPipeline) {
+                val sql = """
+                select count(*)
+                from (
+                    select *
+                    from (
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.child_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name != 'receive'
+                        union
+                        select il.item_lineage_id, a.action_name, rf.receiving_org, rf.receiving_org_svc
+                        from item_lineage il
+                        inner join report_file rf on il.parent_report_id = rf.report_id
+                        inner join action a on a.action_id = rf.action_id
+                        where item_lineage_id in (select * from item_descendants(?))
+                        and a.action_name = 'receive'
+                    ) all_lineage
+                  where
+                  action_name = ? 
+                  ${if (receivingOrgSvc != null) "and receiving_org_svc = ?" else ""}
+                  ${if (receivingOrg != null) "and receiving_org = ?" else ""}
+              ) results
+              """
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc, receivingOrg)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, reportId, reportId, action)?.into(Int::class.java)
+                }
+            } else {
+                val sql = """select count(*)
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
@@ -941,12 +1063,13 @@ abstract class CoolTest {
               and IL.item_lineage_id in
               (select item_descendants(?)) """
 
-            return if (receivingOrg != null && receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
-            } else if (receivingOrgSvc != null) {
-                ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
-            } else {
-                ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                if (receivingOrg != null && receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+                } else if (receivingOrgSvc != null) {
+                    ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+                } else {
+                    ctx.fetchOne(sql, action, reportId)?.into(Int::class.java)
+                }
             }
         }
 

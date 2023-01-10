@@ -103,6 +103,13 @@ main {
   }
 }
 
+// TABLE
+
+.usa-table {
+  display: block;
+  overflow-x: auto;
+}
+
 // MEDIA: DESKTOP
 
 @media (min-width: 64em) {

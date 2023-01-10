@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import { Security } from "@okta/okta-react";
 import { OktaAuth } from "@okta/okta-auth-js";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
@@ -38,6 +39,7 @@ export const AppWrapper = ({
                                 {children}
                             </FeatureFlagProvider>
                         </AuthorizedFetchProvider>
+                        <ReactQueryDevtools initialIsOpen={false} />
                     </QueryClientProvider>
                 </SessionProvider>
             </AppInsightsProvider>
