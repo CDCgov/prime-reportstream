@@ -32,16 +32,16 @@ export const AppWrapper = ({
     return (
         <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
             <AppInsightsProvider>
-                <SessionProvider oktaHook={oktaHook}>
-                    <QueryClientProvider client={appQueryClient}>
+                <QueryClientProvider client={appQueryClient}>
+                    <SessionProvider oktaHook={oktaHook}>
                         <AuthorizedFetchProvider>
                             <FeatureFlagProvider>
                                 {children}
                             </FeatureFlagProvider>
                         </AuthorizedFetchProvider>
                         <ReactQueryDevtools initialIsOpen={false} />
-                    </QueryClientProvider>
-                </SessionProvider>
+                    </SessionProvider>
+                </QueryClientProvider>
             </AppInsightsProvider>
         </Security>
     );
