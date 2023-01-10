@@ -16,11 +16,3 @@ runs:
       run: |
         PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
         echo "ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
-
-    - name: Get SINK DB public ip
-      id: get_ip
-      shell: bash
-      run: |
-        sink_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-        echo "ip=$sink_IP" >> $GITHUB_OUTPUT
-

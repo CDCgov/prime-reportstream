@@ -272,9 +272,14 @@ jobs:
       
       - name: Get sink db public ip
         shell: bash
-        run: echo "SINK_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
-
-
+        run: |
+            if [[ ${{env.sink_env_name}} = demo]]; then IP="172.17.3.20"; 
+            elif  [[ ${{env.sink_env_name}} = test]]; then IP="172.17.5.21";
+            elif  [[ ${{env.sink_env_name}} = staging]]; then IP="172.17.6.20";
+            elif  [[ ${{env.sink_env_name}} = demo]]; then IP="52.191.22.255";
+            fi
+            echo "SINK_IP=$IP" >> $GITHUB_ENV
+           
       - name: Clean sink db
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
@@ -295,7 +300,7 @@ jobs:
             UPDATE
               setting    
             SET               
-              values = values || '{"transport": {"host": "${{ env.sink_db_server }}", "port": "22", "type": "SFTP", "filePath": "./${{ env }}", "credentialName": null}}'::jsonb
+              values = values || '{"transport": {"host": "${{ env.SINK_IP }}", "port": "22", "type": "SFTP", "filePath": "./${{ env.sink_env_name }}", "credentialName": null}}'::jsonb
             WHERE                                     
               type = 'RECEIVER'
               AND values -> 'transport' ->> 'type' = 'SFTP';
