@@ -12,6 +12,7 @@
         "@okta/okta-signin-widget": "^6.0.1",
         "@rest-hooks/rest": "^3.0.3",
         "@tanstack/react-query": "^4.20.9",
+        "@tanstack/react-query-devtools": "^4.20.9",
         "@testing-library/user-event": "^13.5.0",
         "@trussworks/react-uswds": "<3.0.0",
         "@types/downloadjs": "^1.4.2",
@@ -247,6 +248,6 @@
         "@types/react-dom": "<18.0.0"
     },
     "engines": {
-        "node": "~16.18.0"
+        "node": "~16.19.0"
     }
 }

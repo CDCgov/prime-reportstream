@@ -1,6 +1,11 @@
-import { BreadcrumbBar, Breadcrumb } from "@trussworks/react-uswds";
+import {
+    BreadcrumbBar,
+    Breadcrumb,
+    IconArrowBack,
+} from "@trussworks/react-uswds";
 import { ReactChild } from "react";
 
+import { IconButton } from "./IconButton";
 import { USCrumbLink } from "./USLink";
 
 interface CrumbConfig {
@@ -11,28 +16,49 @@ interface CrumbConfig {
 interface CrumbsProps {
     crumbList?: CrumbConfig[];
     noPadding?: boolean;
+    previousPage?: string;
 }
 
-const Crumbs = ({ crumbList, noPadding }: CrumbsProps) => {
-    if (crumbList) {
+const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
+    if (crumbList || previousPage) {
         return (
             <div className={!noPadding ? "grid-container" : ""}>
-                <BreadcrumbBar>
-                    {crumbList?.map((crumbConfig) => (
-                        <Breadcrumb
-                            key={`${crumbConfig.label}`}
-                            current={!crumbConfig?.path}
+                {Boolean(previousPage) ? (
+                    <div className="font-sans-lg line-height-sans-4 margin-top-8">
+                        <IconButton
+                            size="big"
+                            type="button"
+                            onClick={() => window.history.back()}
                         >
-                            {crumbConfig?.path ? (
-                                <USCrumbLink href={crumbConfig?.path || ""}>
-                                    {crumbConfig.label}
-                                </USCrumbLink>
-                            ) : (
-                                crumbConfig.label
-                            )}
-                        </Breadcrumb>
-                    ))}
-                </BreadcrumbBar>
+                            <IconArrowBack />
+                        </IconButton>
+                        Return to {previousPage}
+                    </div>
+                ) : null}
+                {crumbList !== undefined && crumbList.length > 0 ? (
+                    <>
+                        <hr />
+                        <BreadcrumbBar>
+                            {crumbList?.map((crumbConfig) => (
+                                <Breadcrumb
+                                    key={`${crumbConfig.label}`}
+                                    current={!crumbConfig?.path}
+                                >
+                                    {crumbConfig?.path ? (
+                                        <USCrumbLink
+                                            href={crumbConfig?.path || ""}
+                                        >
+                                            {crumbConfig.label}
+                                        </USCrumbLink>
+                                    ) : (
+                                        crumbConfig.label
+                                    )}
+                                </Breadcrumb>
+                            ))}
+                        </BreadcrumbBar>
+                        <hr />
+                    </>
+                ) : null}
             </div>
         );
     } else {

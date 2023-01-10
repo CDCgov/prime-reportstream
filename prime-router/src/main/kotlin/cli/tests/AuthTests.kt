@@ -52,7 +52,7 @@ class OktaAuthTests : CoolTest() {
             return FileUtilities.createFakeCovidFile(
                 metadata,
                 settings,
-                sender = sender as CovidSender,
+                schemaName = (sender as CovidSender).schemaName,
                 count = 1,
                 format = Report.Format.CSV,
                 directory = System.getProperty("java.io.tmpdir"),

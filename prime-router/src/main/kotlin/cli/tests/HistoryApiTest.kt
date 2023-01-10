@@ -101,7 +101,7 @@ class HistoryApiTest : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            historyTestSender,
+            historyTestSender.schemaName,
             fakeItemCount,
             receivingStates,
             counties,

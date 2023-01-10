@@ -103,7 +103,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.2.1"
+val ktorVersion = "2.2.2"
 val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
 jacoco.toolVersion = "0.8.7"
@@ -716,7 +716,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.34.0")
-    implementation("com.azure:azure-core-http-netty:1.12.5")
+    implementation("com.azure:azure-core-http-netty:1.12.8")
     implementation("com.azure:azure-storage-blob:12.20.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -771,7 +771,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.5.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
-    implementation("org.commonmark:commonmark:0.19.0")
+    implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.11.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages

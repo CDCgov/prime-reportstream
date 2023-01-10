@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import java.io.IOException
@@ -18,7 +19,7 @@ class Hl7Ingest : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         var passed = true
         val sender = hl7Sender
         val receivers = allGoodReceivers
@@ -27,7 +28,7 @@ class Hl7Ingest : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            sender,
+            sender.schemaName,
             itemCount,
             receivingStates,
             allGoodCounties,
@@ -58,7 +59,7 @@ class Hl7Ingest : CoolTest() {
                 // gets back the id of the internal report
                 val internalReportId = getSingleChildReportId(reportId)
 
-                val processResults = pollForProcessResult(internalReportId)
+                val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults.values)
                     passed = passed && examineProcessResponse(result)
