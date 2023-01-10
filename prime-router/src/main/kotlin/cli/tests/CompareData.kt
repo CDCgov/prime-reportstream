@@ -16,6 +16,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
@@ -159,9 +160,9 @@ class DataCompareTest : CoolTest() {
                             // gets back the id of the internal report
                             val internalReportId = getSingleChildReportId(reportId)
 
-                            pollForProcessResult(internalReportId)
+                            pollForStepResult(internalReportId, TaskAction.process)
 
-                            val processResults = pollForProcessResult(internalReportId)
+                            val processResults = pollForStepResult(internalReportId, TaskAction.process)
                             // verify each result is valid
                             for (result in processResults.values)
                                 passed = passed && examineProcessResponse(result)
