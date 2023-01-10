@@ -12,8 +12,6 @@ import {
 import { updateApiSessions } from "../network/Apis";
 import { RSService } from "../config/endpoints/settings";
 
-import { useMemberServices } from "./network/ServiceHooks";
-
 export enum MemberType {
     SENDER = "sender",
     RECEIVER = "receiver",
@@ -25,7 +23,6 @@ export enum MembershipActionType {
     UPDATE_MEMBERSHIP = "override",
     RESET = "reset",
     SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
-    SET_MEMBER_SERVICES = "setServices",
     INITIALIZE = "initialize",
 }
 
@@ -239,23 +236,25 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
-    const { activeService, senders, receivers } = useMemberServices(
-        state,
-        token
-    );
-    // Update services when these arrays change
-    useEffect(() => {
-        dispatch({
-            type: MembershipActionType.UPDATE_MEMBERSHIP,
-            payload: {
-                services: {
-                    activeService,
-                    senders,
-                    receivers,
-                },
-            },
-        });
-    }, [receivers, senders]);
+    // TODO Implement - waiting until we strip the dead weight off of MembershipState so tests
+    //  can be refactored once instead of twice. To test functionality, uncomment this block!
+    // const { activeService, senders, receivers } = useMemberServices(
+    //     state,
+    //     token
+    // );
+    // // Update services when these arrays change
+    // useEffect(() => {
+    //     dispatch({
+    //         type: MembershipActionType.UPDATE_MEMBERSHIP,
+    //         payload: {
+    //             services: {
+    //                 activeService,
+    //                 senders,
+    //                 receivers,
+    //             },
+    //         },
+    //     });
+    // }, [activeService, receivers, senders]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login
