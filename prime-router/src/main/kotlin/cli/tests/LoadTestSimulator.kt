@@ -89,7 +89,7 @@ abstract class LoadTestSimulator : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simulation.sender as CovidSender,
+            (simulation.sender as CovidSender).schemaName,
             simulation.numItemsPerSubmission,
             simulation.targetStates,
             simulation.targetCounties,

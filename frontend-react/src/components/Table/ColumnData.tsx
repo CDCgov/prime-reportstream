@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { Button } from "@trussworks/react-uswds";
 
 import { USLink } from "../USLink";
 
@@ -79,6 +80,7 @@ export const ColumnData = ({
                 href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
@@ -100,12 +102,9 @@ export const ColumnData = ({
             return action();
         };
         return tableData(
-            <button
-                className="usa-link bg-transparent border-transparent"
-                onClick={() => doAction()}
-            >
+            <Button type="button" unstyled onClick={doAction}>
                 {displayValue}
-            </button>
+            </Button>
         );
     }
 
