@@ -137,7 +137,7 @@ function SubmissionDetails() {
         <>
             <Crumbs
                 crumbList={crumbs}
-                previousPage={location.state.previousPage}
+                previousPage={location.state?.previousPage}
             />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
