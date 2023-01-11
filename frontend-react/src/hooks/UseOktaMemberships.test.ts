@@ -19,33 +19,6 @@ const mockStoreSessionMembershipState = jest.fn();
 const mockStoreOrganizationOverride = jest.fn();
 const mockUpdateApiSessions = jest.fn();
 
-const fakeMemberships = new Map([
-    [
-        "DHPrimeAdmins",
-        {
-            parsedName: "PrimeAdmins",
-            memberType: MemberType.PRIME_ADMIN,
-            service: undefined,
-        },
-    ],
-    [
-        "DHSender_ignore",
-        {
-            parsedName: "ignore",
-            memberType: MemberType.SENDER,
-            service: "default",
-        },
-    ],
-    [
-        "DHmd_phd",
-        {
-            parsedName: "md-phd",
-            memberType: MemberType.RECEIVER,
-            service: undefined,
-        },
-    ],
-]);
-
 jest.mock("../utils/SessionStorageTools", () => {
     return {
         storeSessionMembershipState: (value: string) =>
@@ -57,6 +30,7 @@ jest.mock("../utils/SessionStorageTools", () => {
     };
 });
 
+// Unused value, but required mock for test running
 jest.mock("../network/Apis", () => {
     return {
         updateApiSessions: () => mockUpdateApiSessions(),
@@ -92,40 +66,48 @@ describe("useOktaMemberships", () => {
 
         test("initializes with stored state where available", async () => {
             mockGetSessionMembershipState = jest.fn(() => ({
-                memberships: fakeMemberships,
-                activeMembership: fakeMemberships.get("DHmd_phd"),
+                activeMembership: {
+                    parsedName: "MyOrganization",
+                    memberType: MemberType.NON_STAND,
+                    service: undefined,
+                },
             }));
-
             const { result } = renderHook(() => useOktaMemberships(null));
-
-            expect(result.current.state.activeMembership).toEqual(
-                fakeMemberships.get("DHmd_phd")
-            );
+            expect(result.current.state.activeMembership).toEqual({
+                parsedName: "MyOrganization",
+                memberType: MemberType.NON_STAND,
+                service: undefined,
+            });
         });
 
         test("initializes with stored state and override where available", async () => {
             mockGetSessionMembershipState = jest.fn(() => ({
-                activeMembership: fakeMemberships.get("DHmd_phd"),
+                activeMembership: {
+                    parsedName: "MyFirstOrg",
+                    memberType: MemberType.RECEIVER,
+                    service: undefined,
+                },
             }));
-
-            mockGetOrganizationOverride = jest.fn(() =>
-                fakeMemberships.get("DHSender_ignore")
-            );
-
+            mockGetOrganizationOverride = jest.fn(() => ({
+                parsedName: "MyOverrideOrg",
+                memberType: MemberType.SENDER,
+                service: undefined,
+            }));
             const { result } = renderHook(() => useOktaMemberships(null));
-
-            expect(result.current.state.activeMembership).toEqual(
-                fakeMemberships.get("DHSender_ignore")
-            );
+            expect(result.current.state.activeMembership).toEqual({
+                parsedName: "MyOverrideOrg",
+                memberType: MemberType.SENDER,
+                service: undefined,
+            });
         });
         test("accounts for non-standard groups", () => {
+            // Should result in parsing as non-standard due to lack of DH prefix
             const fakeAuthState = fakeAuthStateForOrgs([
                 "NotYourStandardGroup",
             ]);
             const { result } = renderHook(() =>
                 useOktaMemberships(fakeAuthState)
             );
-
             expect(result.current.state.activeMembership?.memberType).toEqual(
                 "non-standard"
             );
@@ -134,15 +116,9 @@ describe("useOktaMemberships", () => {
 
     describe("on dispatch", () => {
         test("can set membership from AccessToken", () => {
-            const fakeAuthState = fakeAuthStateForOrgs([
-                "DHPrimeAdmins",
-                "DHSender_ignore",
-                "DHmd_phd",
-            ]);
+            const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result } = renderHook(() => useOktaMemberships(null));
-
             expect(result.current.state.activeMembership).toBeUndefined();
-
             // simulate login
             act(() => {
                 result.current.dispatch({
@@ -150,26 +126,24 @@ describe("useOktaMemberships", () => {
                     payload: fakeAuthState.accessToken as AccessToken,
                 });
             });
-
             expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
             });
         });
 
-        test("can override active membership as admin", () => {
+        test("can override active membership (Admin-only behavior)", () => {
             const newActive = {
                 parsedName: "sender-org",
                 memberType: MemberType.SENDER,
             };
-            const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
+            const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result } = renderHook(() =>
                 useOktaMemberships(fakeAuthState)
             );
-
             expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
             });
             act(() =>
                 result.current.dispatch({
@@ -178,52 +152,19 @@ describe("useOktaMemberships", () => {
                 })
             );
             expect(result.current.state.activeMembership).toEqual(newActive);
-
             expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
                 JSON.stringify(newActive)
             );
         });
 
-        test("can partially override membership as admin", () => {
-            const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
-            const { result } = renderHook(() =>
-                useOktaMemberships(fakeAuthState)
-            );
-
-            expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
-            });
-            act(() =>
-                result.current.dispatch({
-                    type: MembershipActionType.ADMIN_OVERRIDE,
-                    payload: {
-                        memberType: MemberType.SENDER,
-                    },
-                })
-            );
-            expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.SENDER,
-            });
-
-            expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
-                JSON.stringify({
-                    parsedName: "PrimeAdmins",
-                    memberType: MemberType.SENDER,
-                })
-            );
-        });
-
         test("can be reset", () => {
-            const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
+            const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result } = renderHook(() =>
                 useOktaMemberships(fakeAuthState)
             );
-
             expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
             });
             expect(result.current.state.initialized).toEqual(true);
 
@@ -235,6 +176,7 @@ describe("useOktaMemberships", () => {
             expect(result.current.state).toEqual({
                 memberships: undefined,
                 activeMembership: null,
+                service: undefined,
                 initialized: true,
             });
         });
@@ -242,35 +184,21 @@ describe("useOktaMemberships", () => {
 
     describe("reactive behavior", () => {
         test("dispatches `SET_MEMBERSHIP_FROM_TOKEN` when token memberships change", async () => {
-            const fakeAuthState = fakeAuthStateForOrgs([
-                "DHPrimeAdmins",
-                "DHSender_ignore",
-                "DHmd_phd",
-            ]);
-
+            const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result, rerender } = renderWithAuthUpdates(null);
-
             expect(result.current.state.activeMembership).toBeUndefined();
-
             rerender(fakeAuthState);
-
             expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
             });
         });
         test("dispatches `RESET` when authState is not authenticated", async () => {
-            const fakeAuthState = fakeAuthStateForOrgs([
-                "DHPrimeAdmins",
-                "DHSender_ignore",
-                "DHmd_phd",
-            ]);
-
+            const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result, rerender } = renderWithAuthUpdates(fakeAuthState);
-
             expect(result.current.state.activeMembership).toEqual({
-                parsedName: "PrimeAdmins",
-                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
             });
             expect(result.current.state.initialized).toEqual(true);
 
@@ -304,17 +232,20 @@ describe("helper functions", () => {
                 activeMembership: null,
             });
         });
-        test("returns processed memberships", () => {
+        test("returns processed membership", () => {
             const state = membershipsFromToken(
                 mockToken({
                     claims: {
                         sub: "",
-                        organization: ["DHSender_ignore"],
+                        organization: ["DHmy-organization"],
                     },
                 })
             );
             expect(state).toEqual({
-                activeMembership: fakeMemberships.get("DHSender_ignore"),
+                activeMembership: {
+                    parsedName: "my-organization",
+                    memberType: MemberType.RECEIVER,
+                },
             });
         });
 
@@ -324,40 +255,65 @@ describe("helper functions", () => {
                     claims: {
                         sub: "",
                         organization: [
-                            "DHPrimeAdmins",
-                            "DHSender_ignore",
-                            "DHmd_phd",
+                            "DHmy-organization",
+                            "DHmy-other-organization",
                         ],
                     },
                 })
             );
             expect(state).toEqual({
-                activeMembership: fakeMemberships.get("DHPrimeAdmins"),
+                activeMembership: {
+                    parsedName: "my-organization",
+                    memberType: MemberType.RECEIVER,
+                },
+            });
+        });
+        // This is to protect our admins from messy Okta claims!
+        test("return admin membership if present, even when not first", () => {
+            const state = membershipsFromToken(
+                mockToken({
+                    claims: {
+                        sub: "",
+                        organization: ["DHmy-organization", "DHPrimeAdmins"],
+                    },
+                })
+            );
+            expect(state).toEqual({
+                activeMembership: {
+                    parsedName: "PrimeAdmins",
+                    memberType: MemberType.PRIME_ADMIN,
+                },
             });
         });
     });
     describe("calculateMembershipsWithOverride", () => {
         test("assigns stored override to active", () => {
-            mockGetOrganizationOverride = jest.fn(() =>
-                fakeMemberships.get("DHmd_phd")
-            );
-            const overridenState = calculateMembershipsWithOverride({
-                activeMembership: fakeMemberships.get("PrimeAdmins"),
+            mockGetOrganizationOverride = jest.fn(() => ({
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
+            }));
+            const overriddenState = calculateMembershipsWithOverride({
+                activeMembership: {
+                    parsedName: "my-overridden-org",
+                    memberType: MemberType.NON_STAND,
+                },
             });
-
             expect(mockGetOrganizationOverride).toHaveBeenCalledTimes(1);
-            expect(overridenState.activeMembership).toEqual(
-                fakeMemberships.get("DHmd_phd")
-            );
+            expect(overriddenState.activeMembership).toEqual({
+                parsedName: "my-organization",
+                memberType: MemberType.RECEIVER,
+            });
         });
         test("returns passed state if there is no override present", () => {
             mockGetOrganizationOverride = jest.fn(() => {});
             const initialState = {
-                activeMembership: fakeMemberships.get("DHPrimeAdmins"),
+                activeMembership: {
+                    parsedName: "my-organization",
+                    memberType: MemberType.RECEIVER,
+                },
             };
             const overridenState =
                 calculateMembershipsWithOverride(initialState);
-
             expect(mockGetOrganizationOverride).toHaveBeenCalledTimes(1);
             expect(overridenState).toEqual(initialState);
         });
@@ -367,7 +323,7 @@ describe("helper functions", () => {
             membershipReducer(
                 {
                     activeMembership: {
-                        parsedName: "some_active_org",
+                        parsedName: "my-organization",
                         memberType: MemberType.RECEIVER,
                     },
                 },
@@ -376,26 +332,24 @@ describe("helper functions", () => {
                     payload: mockToken({
                         claims: {
                             sub: "",
-                            organization: [
-                                "DHPrimeAdmins",
-                                "DHSender_ignore",
-                                "DHmd_phd",
-                            ],
+                            organization: ["DHmy-organization"],
                         },
                     }),
                 }
             );
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
-                    activeMembership: fakeMemberships.get("DHPrimeAdmins"),
+                    activeMembership: {
+                        parsedName: "my-organization",
+                        memberType: MemberType.RECEIVER,
+                    },
                     initialized: true,
                 })
             );
-
             membershipReducer(
                 {
                     activeMembership: {
-                        parsedName: "some_active_org",
+                        parsedName: "my-organization",
                         memberType: MemberType.RECEIVER,
                     },
                 },
