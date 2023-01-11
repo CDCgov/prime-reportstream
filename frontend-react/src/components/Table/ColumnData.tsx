@@ -80,6 +80,7 @@ export const ColumnData = ({
                 href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
@@ -101,7 +102,12 @@ export const ColumnData = ({
             return action();
         };
         return tableData(
-            <Button type="button" unstyled onClick={doAction}>
+            <Button
+                className="font-mono-2xs line-height-alt-4"
+                type="button"
+                unstyled
+                onClick={doAction}
+            >
                 {displayValue}
             </Button>
         );

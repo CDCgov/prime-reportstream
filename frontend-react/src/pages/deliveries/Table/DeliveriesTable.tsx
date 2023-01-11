@@ -107,7 +107,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             columnHeader: "Items",
         },
         {
-            dataAttr: DeliveriesDataAttr.FILE_TYPE,
+            dataAttr: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "File",
             feature: {
                 action: handleFetchAndDownload,

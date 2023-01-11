@@ -10,8 +10,6 @@ import {
 } from "../hooks/UseOktaMemberships";
 
 export interface RSSessionContext {
-    /* TODO: Remove - we do not anticipate a need for one user having multiple Okta groups */
-    memberships?: Map<string, MembershipSettings>;
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
@@ -28,7 +26,6 @@ interface ISessionProviderProps {
 
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
-    memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
     initialized: false,
@@ -44,7 +41,7 @@ const SessionProvider = ({
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
     const {
-        state: { memberships, activeMembership, initialized },
+        state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
     /* TODO: Remove - logic can be easily checked by accessing the session context
@@ -57,7 +54,6 @@ const SessionProvider = ({
         <SessionContext.Provider
             value={{
                 oktaToken: authState?.accessToken,
-                memberships,
                 activeMembership,
                 isAdminStrictCheck,
                 dispatch,

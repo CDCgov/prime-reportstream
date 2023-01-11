@@ -1,0 +1,10 @@
+$theme-hr-border-color: "base-lighter";
+
+hr {
+    border: 1px solid color($theme-hr-border-color)
+}
+
+.usa-icon-button {
+    border-radius: 100%;
+    padding: 0.25rem 0.25rem;
+}

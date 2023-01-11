@@ -51,6 +51,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 feature: {
                     link: true,
                     linkBasePath: "/submissions/",
+                    linkState: { previousPage: "Message ID Search" },
                 },
             },
         ],
