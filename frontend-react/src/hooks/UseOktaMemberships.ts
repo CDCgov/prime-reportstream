@@ -12,6 +12,8 @@ import {
 import { updateApiSessions } from "../network/Apis";
 import { RSService } from "../config/endpoints/settings";
 
+import { useMemberServices } from "./network/ServiceHooks";
+
 const PRIME_ADMINS = "DHPrimeAdmins";
 const PREFIX_SENDER = "DHSender_";
 const PREFIX_GENERAL = "DH";
@@ -220,25 +222,23 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
-    // TODO Implement - waiting until we strip the dead weight off of MembershipState so tests
-    //  can be refactored once instead of twice. To test functionality, uncomment this block!
-    // const { activeService, senders, receivers } = useMemberServices(
-    //     state,
-    //     token
-    // );
-    // // Update services when these arrays change
-    // useEffect(() => {
-    //     dispatch({
-    //         type: MembershipActionType.UPDATE_MEMBERSHIP,
-    //         payload: {
-    //             services: {
-    //                 activeService,
-    //                 senders,
-    //                 receivers,
-    //             },
-    //         },
-    //     });
-    // }, [activeService, receivers, senders]);
+    const { activeService, senders, receivers } = useMemberServices(
+        state,
+        token
+    );
+    // Update services when these values change
+    useEffect(() => {
+        dispatch({
+            type: MembershipActionType.UPDATE_MEMBERSHIP,
+            payload: {
+                services: {
+                    activeService,
+                    senders,
+                    receivers,
+                },
+            },
+        });
+    }, [activeService, receivers, senders]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login
