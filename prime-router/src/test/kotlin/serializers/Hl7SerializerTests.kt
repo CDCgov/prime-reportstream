@@ -1262,6 +1262,13 @@ OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
         }
     }
 
+    @Test
+    fun `test HL7HapiErrorProcessor getErrorCode handles valueOf exception properly`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        val errorCode = errProcessor.getErrorCode(null)
+        assertThat(errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_UNKNOWN)
+    }
+
     /**
      * Given a string message, parse it and turn it into a message that can be interacted with
      * @param rawMessage - the raw string message to parse

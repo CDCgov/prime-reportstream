@@ -50,6 +50,7 @@ import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -2494,10 +2495,10 @@ class HL7HapiErrorProcessor : Logging {
      * @param elementType the type of the element
      */
     fun getErrorCode(elementType: Element.Type?): ErrorCode {
-        var code = ErrorCode.UNKNOWN
+        var code = ErrorCode.INVALID_MSG_PARSE_UNKNOWN
         try {
             code = ErrorCode.valueOf("INVALID_MSG_PARSE_$elementType")
-        } catch (e : IllegalStateException) {
+        } catch (e : IllegalArgumentException) {
             logger.info("Unable to find error code for element $elementType. ${e.message}")
         }
         return code
