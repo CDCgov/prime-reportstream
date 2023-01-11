@@ -10,6 +10,7 @@ import {
     useOktaMemberships,
     calculateMembershipsWithOverride,
     membershipReducer,
+    getTypeOfGroup,
 } from "./UseOktaMemberships";
 
 let mockGetSessionMembershipState = jest.fn();
@@ -183,6 +184,21 @@ describe("useOktaMemberships", () => {
     });
 
     describe("reactive behavior", () => {
+        test("dispatches `UPDATE_MEMBERSHIP` when services hook values change", async () => {
+            // mockUseMemberServices.mockReturnValue({
+            //     activeService: "test-service",
+            //     receivers: [],
+            //     senders: [],
+            //     setActiveService(
+            //         _value: ((prevState: string) => string) | string
+            //     ): void {
+            //         return;
+            //     },
+            // });
+            const fakeAuthState = fakeAuthStateForOrgs(["DHtest-org"]);
+            const { result } = renderWithAuthUpdates(null);
+            expect(result.current.state.activeMembership).toEqual(undefined);
+        });
         test("dispatches `SET_MEMBERSHIP_FROM_TOKEN` when token memberships change", async () => {
             const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result, rerender } = renderWithAuthUpdates(null);
@@ -212,6 +228,16 @@ describe("useOktaMemberships", () => {
 });
 
 describe("helper functions", () => {
+    describe("getTypeOfGroup", () => {
+        test("returns the right type of group", () => {
+            const admin = getTypeOfGroup("DHPrimeAdmins");
+            const sender = getTypeOfGroup("DHSender_test-group");
+            const receiver = getTypeOfGroup("DHtest-group");
+            expect(admin).toEqual("prime-admin");
+            expect(sender).toEqual("sender");
+            expect(receiver).toEqual("receiver");
+        });
+    });
     describe("membershipsFromToken", () => {
         test("can handle token with undefined claims", () => {
             const state = membershipsFromToken(mockToken());

@@ -47,8 +47,8 @@ describe("useMemberServices", () => {
         expect(mockConsoleLog).toHaveBeenCalledWith(
             "Did not fetch member services"
         );
-        expect(result.current.receivers).toHaveLength(0);
-        expect(result.current.senders).toHaveLength(0);
+        expect(result.current.receivers).toBeUndefined();
+        expect(result.current.senders).toBeUndefined();
         expect(result.current.activeService).toEqual("default");
     });
 
@@ -59,8 +59,8 @@ describe("useMemberServices", () => {
         expect(mockConsoleLog).toHaveBeenCalledWith(
             "Did not fetch member services"
         );
-        expect(result.current.receivers).toHaveLength(0);
-        expect(result.current.senders).toHaveLength(0);
+        expect(result.current.receivers).toBeUndefined();
+        expect(result.current.senders).toBeUndefined();
         expect(result.current.activeService).toEqual("default");
     });
 

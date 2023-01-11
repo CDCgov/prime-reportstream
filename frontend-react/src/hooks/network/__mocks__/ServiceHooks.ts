@@ -1,3 +1,6 @@
-import * as ServiceHooks from "../ServiceHooks"
+import * as ServiceHooks from "../ServiceHooks";
 
-export const mockUseMemberServices = jest.spyOn(ServiceHooks, "useMemberServices");
+export const mockUseMemberServices = jest.spyOn(
+    ServiceHooks,
+    "useMemberServices"
+);

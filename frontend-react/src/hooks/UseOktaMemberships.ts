@@ -228,16 +228,18 @@ export const useOktaMemberships = (
     );
     // Update services when these values change
     useEffect(() => {
-        dispatch({
-            type: MembershipActionType.UPDATE_MEMBERSHIP,
-            payload: {
-                services: {
-                    activeService,
-                    senders,
-                    receivers,
+        if (senders && receivers) {
+            dispatch({
+                type: MembershipActionType.UPDATE_MEMBERSHIP,
+                payload: {
+                    services: {
+                        activeService,
+                        senders,
+                        receivers,
+                    },
                 },
-            },
-        });
+            });
+        }
     }, [activeService, receivers, senders]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state

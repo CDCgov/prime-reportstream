@@ -27,8 +27,8 @@ export const useMemberServices = (
     state: MembershipState,
     token: AccessToken | undefined
 ): ServiceState => {
-    const [senders, setSenders] = useState<RSService[]>([]);
-    const [receivers, setReceivers] = useState<RSService[]>([]);
+    const [senders, setSenders] = useState<RSService[] | undefined>();
+    const [receivers, setReceivers] = useState<RSService[] | undefined>();
     const [activeService, setActiveService] = useState<string>("default");
     /* Because this is used at the SessionContext > useOktaMemberships level, it does not have access
      * to the AuthorizedFetchProvider nested within SessionContext. For this, we must generate an auth fetch
