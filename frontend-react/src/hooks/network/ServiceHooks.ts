@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { auxExports } from "../UseCreateFetch";
@@ -10,18 +17,19 @@ import {
 import { RSService, servicesEndpoints } from "../../config/endpoints/settings";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
+type ServiceState = ServiceSettings & {
+    setActiveService: Dispatch<SetStateAction<string>>;
+};
 /** Fetches membership services (senders, receivers) from the ReportStream API. Updates
  * whenever the given {@link MembershipState} or AccessToken (Okta) are updated.
  * @remarks ONLY FOR USE WITHIN {@link SessionContext} */
 export const useMemberServices = (
     state: MembershipState,
     token: AccessToken | undefined
-): ServiceSettings => {
+): ServiceState => {
     const [senders, setSenders] = useState<RSService[]>([]);
     const [receivers, setReceivers] = useState<RSService[]>([]);
-    // TODO: Implement setActiveService where applicable and remove unused var suppression
-    // eslint-disable-next-line
-    const [activeService, setActiveService] = useState<string>("default"); // @typescript-eslint/no-unused-vars
+    const [activeService, setActiveService] = useState<string>("default");
     /* Because this is used at the SessionContext > useOktaMemberships level, it does not have access
      * to the AuthorizedFetchProvider nested within SessionContext. For this, we must generate an auth fetch
      * manually using our custom tooling. */
@@ -74,6 +82,8 @@ export const useMemberServices = (
             if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
                 fetchData().catch((e: RSNetworkError) => console.error(e));
             }
+        } else {
+            console.log("Did not fetch member services");
         }
     }, [
         hasAllNecessaryVariablesForFetch,
@@ -86,5 +96,6 @@ export const useMemberServices = (
         activeService,
         senders,
         receivers,
+        setActiveService,
     };
 };
