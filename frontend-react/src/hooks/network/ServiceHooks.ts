@@ -23,7 +23,7 @@ type ServiceState = ServiceSettings & {
 };
 
 /** Prunes all settings data not relevant to our application session */
-const cleanServicesArray = (arr: RSService[]) => {
+export const cleanServicesArray = (arr: RSService[]) => {
     return arr.map((obj) =>
         _.pick(obj, "name", "organizationName", "topic", "customerStatus")
     );

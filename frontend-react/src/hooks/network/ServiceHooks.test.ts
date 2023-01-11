@@ -4,7 +4,7 @@ import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { MembershipState, MemberType } from "../UseOktaMemberships";
 import { mockToken } from "../../utils/TestUtils";
 
-import { useMemberServices } from "./ServiceHooks";
+import { cleanServicesArray, useMemberServices } from "./ServiceHooks";
 
 const mockConsoleLog = jest.spyOn(console, "log");
 
@@ -77,6 +77,27 @@ describe("useMemberServices", () => {
                 result.current.setActiveService("new-service");
             });
             expect(result.current.activeService).toEqual("new-service");
+        });
+    });
+
+    describe("helper functions", () => {
+        test("cleanServiceArray", () => {
+            const dirtyValue = {
+                name: "my-setting-name",
+                customerStatus: "active",
+                organizationName: "my-organization",
+                topic: "covid-19",
+                dirt: "smudge",
+                scratch: "dent",
+                spoiled: "mold",
+            };
+            const cleanValue = cleanServicesArray([dirtyValue]);
+            expect(cleanValue[0]).toEqual({
+                name: "my-setting-name",
+                customerStatus: "active",
+                organizationName: "my-organization",
+                topic: "covid-19",
+            });
         });
     });
 });
