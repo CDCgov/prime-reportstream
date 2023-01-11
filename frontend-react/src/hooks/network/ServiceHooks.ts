@@ -7,6 +7,7 @@ import {
     useState,
 } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
+import _ from "lodash";
 
 import { auxExports } from "../UseCreateFetch";
 import {
@@ -20,6 +21,14 @@ import { RSNetworkError } from "../../utils/RSNetworkError";
 type ServiceState = ServiceSettings & {
     setActiveService: Dispatch<SetStateAction<string>>;
 };
+
+/** Prunes all settings data not relevant to our application session */
+const cleanServicesArray = (arr: RSService[]) => {
+    return arr.map((obj) =>
+        _.pick(obj, "name", "organizationName", "topic", "customerStatus")
+    );
+};
+
 /** Fetches membership services (senders, receivers) from the ReportStream API. Updates
  * whenever the given {@link MembershipState} or AccessToken (Okta) are updated.
  * @remarks ONLY FOR USE WITHIN {@link SessionContext} */
@@ -69,14 +78,13 @@ export const useMemberServices = (
         };
         const fetchData = async () => {
             const { senders, receivers } = servicesEndpoints;
-            const senderServiceResults: RSService[] = await fetcher<
-                RSService[]
-            >(senders, fetcherOptions);
-            const receiverServiceResults: RSService[] = await fetcher<
-                RSService[]
-            >(receivers, fetcherOptions);
-            setSenders(senderServiceResults);
-            setReceivers(receiverServiceResults);
+            const [receiverServiceResults, senderServiceResults] =
+                await Promise.all([
+                    fetcher<RSService[]>(receivers, fetcherOptions),
+                    fetcher<RSService[]>(senders, fetcherOptions),
+                ]);
+            setSenders(cleanServicesArray(senderServiceResults));
+            setReceivers(cleanServicesArray(receiverServiceResults));
         };
         if (hasAllNecessaryVariablesForFetch) {
             if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
