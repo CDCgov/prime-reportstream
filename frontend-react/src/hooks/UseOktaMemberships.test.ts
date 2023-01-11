@@ -87,7 +87,6 @@ describe("useOktaMemberships", () => {
     describe("initialization", () => {
         test("returns default initial values", () => {
             const { result } = renderHook(() => useOktaMemberships(null));
-            expect(result.current.state.memberships).toBeUndefined();
             expect(result.current.state.activeMembership).toBeUndefined();
         });
 
@@ -102,15 +101,10 @@ describe("useOktaMemberships", () => {
             expect(result.current.state.activeMembership).toEqual(
                 fakeMemberships.get("DHmd_phd")
             );
-
-            // this works in the test (since the session functionality is mocked) but actually won't work in the app
-            // this is a bug due to the fact taht Maps cannot be serialized
-            expect(result.current.state.memberships).toEqual(fakeMemberships);
         });
 
         test("initializes with stored state and override where available", async () => {
             mockGetSessionMembershipState = jest.fn(() => ({
-                memberships: fakeMemberships,
                 activeMembership: fakeMemberships.get("DHmd_phd"),
             }));
 
@@ -123,10 +117,6 @@ describe("useOktaMemberships", () => {
             expect(result.current.state.activeMembership).toEqual(
                 fakeMemberships.get("DHSender_ignore")
             );
-
-            // this works in the test (since the session functionality is mocked) but actually won't work in the app
-            // this is a bug due to the fact taht Maps cannot be serialized
-            expect(result.current.state.memberships).toEqual(fakeMemberships);
         });
         test("accounts for non-standard groups", () => {
             const fakeAuthState = fakeAuthStateForOrgs([
@@ -152,7 +142,6 @@ describe("useOktaMemberships", () => {
             const { result } = renderHook(() => useOktaMemberships(null));
 
             expect(result.current.state.activeMembership).toBeUndefined();
-            expect(result.current.state.memberships).toEqual(undefined);
 
             // simulate login
             act(() => {
@@ -166,7 +155,6 @@ describe("useOktaMemberships", () => {
                 parsedName: "PrimeAdmins",
                 memberType: MemberType.PRIME_ADMIN,
             });
-            expect(result.current.state.memberships).toEqual(fakeMemberships);
         });
 
         test("can override active membership as admin", () => {
@@ -263,7 +251,6 @@ describe("useOktaMemberships", () => {
             const { result, rerender } = renderWithAuthUpdates(null);
 
             expect(result.current.state.activeMembership).toBeUndefined();
-            expect(result.current.state.memberships).toEqual(undefined);
 
             rerender(fakeAuthState);
 
@@ -271,7 +258,6 @@ describe("useOktaMemberships", () => {
                 parsedName: "PrimeAdmins",
                 memberType: MemberType.PRIME_ADMIN,
             });
-            expect(result.current.state.memberships).toEqual(fakeMemberships);
         });
         test("dispatches `RESET` when authState is not authenticated", async () => {
             const fakeAuthState = fakeAuthStateForOrgs([
@@ -286,14 +272,12 @@ describe("useOktaMemberships", () => {
                 parsedName: "PrimeAdmins",
                 memberType: MemberType.PRIME_ADMIN,
             });
-            expect(result.current.state.memberships).toEqual(fakeMemberships);
             expect(result.current.state.initialized).toEqual(true);
 
             rerender({
                 isAuthenticated: false,
             });
             expect(result.current.state.activeMembership).toEqual(null);
-            expect(result.current.state.memberships).toEqual(undefined);
             expect(result.current.state.initialized).toEqual(true);
         });
     });
@@ -305,7 +289,6 @@ describe("helper functions", () => {
             const state = membershipsFromToken(mockToken());
             expect(state).toEqual({
                 activeMembership: null,
-                memberships: undefined,
             });
         });
         test("can handle token with empty claims", () => {
@@ -319,7 +302,6 @@ describe("helper functions", () => {
             );
             expect(state).toEqual({
                 activeMembership: null,
-                memberships: undefined,
             });
         });
         test("returns processed memberships", () => {
@@ -333,9 +315,6 @@ describe("helper functions", () => {
             );
             expect(state).toEqual({
                 activeMembership: fakeMemberships.get("DHSender_ignore"),
-                memberships: new Map([
-                    ["DHSender_ignore", fakeMemberships.get("DHSender_ignore")],
-                ]),
             });
         });
 
@@ -354,7 +333,6 @@ describe("helper functions", () => {
             );
             expect(state).toEqual({
                 activeMembership: fakeMemberships.get("DHPrimeAdmins"),
-                memberships: fakeMemberships,
             });
         });
     });
@@ -364,7 +342,6 @@ describe("helper functions", () => {
                 fakeMemberships.get("DHmd_phd")
             );
             const overridenState = calculateMembershipsWithOverride({
-                memberships: fakeMemberships,
                 activeMembership: fakeMemberships.get("PrimeAdmins"),
             });
 
@@ -376,7 +353,6 @@ describe("helper functions", () => {
         test("returns passed state if there is no override present", () => {
             mockGetOrganizationOverride = jest.fn(() => {});
             const initialState = {
-                memberships: fakeMemberships,
                 activeMembership: fakeMemberships.get("DHPrimeAdmins"),
             };
             const overridenState =
@@ -394,7 +370,6 @@ describe("helper functions", () => {
                         parsedName: "some_active_org",
                         memberType: MemberType.RECEIVER,
                     },
-                    memberships: new Map(),
                 },
                 {
                     type: MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN,
@@ -413,7 +388,6 @@ describe("helper functions", () => {
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
                     activeMembership: fakeMemberships.get("DHPrimeAdmins"),
-                    memberships: fakeMemberships,
                     initialized: true,
                 })
             );
@@ -424,7 +398,6 @@ describe("helper functions", () => {
                         parsedName: "some_active_org",
                         memberType: MemberType.RECEIVER,
                     },
-                    memberships: new Map(),
                 },
                 {
                     type: MembershipActionType.RESET,
@@ -433,7 +406,6 @@ describe("helper functions", () => {
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
                     activeMembership: null,
-                    memberships: undefined,
                 })
             );
         });
