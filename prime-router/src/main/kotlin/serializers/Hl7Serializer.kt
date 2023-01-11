@@ -288,7 +288,7 @@ class Hl7Serializer(
                 }
             }
         } catch (e: HL7Exception) {
-            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            logger.info("${e.localizedMessage} ${e.stackTraceToString()}")
             errors.add(hl7HapiErrorProcessor.getExceptionActionMessage(e, schema))
             return MessageResult(emptyMap(), errors, warnings)
         }
