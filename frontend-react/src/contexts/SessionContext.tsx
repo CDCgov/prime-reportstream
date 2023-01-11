@@ -10,7 +10,6 @@ import {
 } from "../hooks/UseOktaMemberships";
 
 export interface RSSessionContext {
-    memberships?: Map<string, MembershipSettings>;
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
@@ -26,7 +25,6 @@ interface ISessionProviderProps {
 
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
-    memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
     initialized: false,
@@ -42,7 +40,7 @@ const SessionProvider = ({
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
     const {
-        state: { memberships, activeMembership, initialized },
+        state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
@@ -55,7 +53,6 @@ const SessionProvider = ({
         <SessionContext.Provider
             value={{
                 oktaToken: authState?.accessToken,
-                memberships,
                 activeMembership,
                 isAdminStrictCheck,
                 dispatch,
