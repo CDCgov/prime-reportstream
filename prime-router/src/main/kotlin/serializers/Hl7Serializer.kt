@@ -45,7 +45,6 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -437,16 +436,7 @@ class Hl7Serializer(
         if (actionLogs.hasErrors()) {
             throw ActionError(actionLogs.errors)
         } else {
-            val messages = HL7Reader(actionLogs).getMessages(messageBody)
-            val isBatch = HL7Reader(actionLogs).isBatch(messageBody, messages.size)
-
-            val report = Report(
-                schema,
-                mappedRows,
-                source,
-                metadata = metadata,
-                bodyFormat = if (isBatch) Report.Format.HL7_BATCH else Report.Format.HL7,
-            )
+            val report = Report(schema, mappedRows, source, metadata = metadata)
             return ReadResult(report, actionLogs)
         }
     }

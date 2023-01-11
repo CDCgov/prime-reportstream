@@ -90,36 +90,7 @@ class CsvSerializerTests {
             defaultValues = mapOf("c" to "dynamicDefault")
         ).report
         assertThat(report.itemCount).isEqualTo(1)
-        assertThat(report.bodyFormat == Report.Format.CSV_SINGLE)
         assertThat(report.getString(0, "c")).isEqualTo("dynamicDefault")
-    }
-
-    @Test
-    fun `test body format for csv`() {
-        val one = Schema(
-            name = "one",
-            topic = Topic.TEST,
-            elements = listOf(
-                Element("a", csvFields = Element.csvFields("a")),
-                Element("b", csvFields = Element.csvFields("b")),
-                Element("c", default = "elementDefault")
-            )
-        )
-        val csv = """
-            a,b
-            1,2
-            3,4
-        """.trimIndent()
-
-        val csvConverter = CsvSerializer(Metadata(schema = one))
-        val report = csvConverter.readExternal(
-            "one",
-            ByteArrayInputStream(csv.toByteArray()),
-            listOf(TestSource),
-            defaultValues = mapOf("c" to "dynamicDefault")
-        ).report
-        assertThat(report.itemCount).isEqualTo(2)
-        assertThat(report.bodyFormat == Report.Format.CSV)
     }
 
     @Test
