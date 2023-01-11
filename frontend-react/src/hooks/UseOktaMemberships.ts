@@ -222,25 +222,26 @@ export const useOktaMemberships = (
     const token = authState?.accessToken;
     const organizations = authState?.accessToken?.claims?.organization;
 
-    const { activeService, senders, receivers } = useMemberServices(
-        state,
-        token
-    );
+    const memberServices = useMemberServices(state, token);
     // Update services when these values change
     useEffect(() => {
-        if (senders && receivers) {
+        if (memberServices?.senders && memberServices?.receivers) {
             dispatch({
                 type: MembershipActionType.UPDATE_MEMBERSHIP,
                 payload: {
                     services: {
-                        activeService,
-                        senders,
-                        receivers,
+                        activeService: memberServices.activeService,
+                        senders: memberServices.senders,
+                        receivers: memberServices.receivers,
                     },
                 },
             });
         }
-    }, [activeService, receivers, senders]);
+    }, [
+        memberServices.activeService,
+        memberServices.receivers,
+        memberServices.senders,
+    ]);
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
     // this would potentially happen on a new login

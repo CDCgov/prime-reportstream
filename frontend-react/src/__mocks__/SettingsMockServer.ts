@@ -6,7 +6,7 @@ import { RSService } from "../config/endpoints/settings";
 export const senderSettingsUrl = (orgName: string, senderName: string) =>
     `/api/settings/organizations/${orgName}/senders/${senderName}`;
 
-const testService: RSService = {
+export const testService: RSService = {
     customerStatus: "testing",
     name: "test-service",
     organizationName: "test-org",

@@ -2,6 +2,7 @@ import { AccessToken, AuthState } from "@okta/okta-auth-js";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { mockToken } from "../utils/TestUtils";
+import { settingsServer, testService } from "../__mocks__/SettingsMockServer";
 
 import {
     MemberType,
@@ -185,19 +186,25 @@ describe("useOktaMemberships", () => {
 
     describe("reactive behavior", () => {
         test("dispatches `UPDATE_MEMBERSHIP` when services hook values change", async () => {
-            // mockUseMemberServices.mockReturnValue({
-            //     activeService: "test-service",
-            //     receivers: [],
-            //     senders: [],
-            //     setActiveService(
-            //         _value: ((prevState: string) => string) | string
-            //     ): void {
-            //         return;
-            //     },
-            // });
+            /* Integrates the actual network listener (msw) */
+            settingsServer.listen();
             const fakeAuthState = fakeAuthStateForOrgs(["DHtest-org"]);
-            const { result } = renderWithAuthUpdates(null);
+            const { result, rerender, waitForNextUpdate } =
+                renderWithAuthUpdates(null);
             expect(result.current.state.activeMembership).toEqual(undefined);
+            rerender(fakeAuthState);
+            await waitForNextUpdate();
+            expect(result.current.state.activeMembership).toEqual({
+                parsedName: "test-org",
+                memberType: MemberType.RECEIVER,
+                services: {
+                    activeService: "default",
+                    /* testService is a dummy var stored in SettingsMockServer */
+                    receivers: [testService, testService],
+                    senders: [testService, testService],
+                },
+            });
+            settingsServer.close();
         });
         test("dispatches `SET_MEMBERSHIP_FROM_TOKEN` when token memberships change", async () => {
             const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
