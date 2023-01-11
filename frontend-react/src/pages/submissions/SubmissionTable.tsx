@@ -41,6 +41,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     submissions,
 }) => {
     const featureEvent = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
+    const featurePagination = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_PAGINATION}`;
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: "id",
@@ -84,6 +85,14 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
                 config={submissionsConfig}
                 filterManager={filterManager}
                 paginationProps={paginationProps}
+                onPaginationClick={({ pageNumber }: { pageNumber: number }) =>
+                    trackAppInsightEvent(featurePagination, {
+                        tablePagination: {
+                            pageSize: filterManager.pageSettings.size,
+                            pageNumber: pageNumber,
+                        },
+                    })
+                }
             />
         </>
     );
