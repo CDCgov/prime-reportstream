@@ -53,7 +53,7 @@
         "rehype-slug": "^5.0.1",
         "remark-gfm": "^3.0.1",
         "remark-toc": "^8.0.1",
-        "rest-hooks": "^6.1.7",
+        "rest-hooks": "^6.6.3",
         "rimraf": "^3.0.2",
         "use-deep-compare-effect": "^1.8.1",
         "uswds": "^2.13.0",
