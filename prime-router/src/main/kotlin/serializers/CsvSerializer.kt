@@ -58,7 +58,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         sources: List<Source>,
         destination: Receiver? = null,
         defaultValues: Map<String, String> = emptyMap(),
-        sender: Sender? = null,
+        sender: Sender? = null
     ): ReadResult {
         val actionLogs = ActionLogger()
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
@@ -146,7 +146,17 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             }
         }
 
-        return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), actionLogs)
+        return ReadResult(
+            Report(
+                schema,
+                mappedRows,
+                sources,
+                destination,
+                metadata = metadata,
+                bodyFormat = if (mappedRows.size == 1) Report.Format.CSV_SINGLE else Report.Format.CSV
+            ),
+            actionLogs
+        )
     }
 
     /**
