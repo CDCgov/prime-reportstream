@@ -424,21 +424,21 @@ internal class ElementTests {
         // Test wrong date = 50
         try {
             one.toNormalized("12502021")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: '12502021' for format 'null' for element datetime (a)")
         }
         // Test wrong month = 13
         try {
             one.toNormalized("13/2/2021")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element datetime (a)")
         }
         // Test wrong year = abcd
         try {
             one.toNormalized("abcd/12/3")
-        } catch (e: IllegalStateException) {
+        } catch (e: ElementNormalizeException) {
             assertThat(e.message)
                 .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element datetime (a)")
         }
