@@ -23,7 +23,7 @@ export enum DeliveriesDataAttr {
     BATCH_READY = "batchReadyAt",
     EXPIRES = "expires",
     ITEM_COUNT = "reportItemCount",
-    FILE_TYPE = "fileType",
+    FILE_NAME = "fileName",
 }
 
 const filterManagerDefaults: FilterManagerDefaults = {
