@@ -779,7 +779,7 @@ dependencies {
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
-    implementation("commons-net:commons-net:3.8.0")
+    implementation("commons-net:commons-net:3.9.0")
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
