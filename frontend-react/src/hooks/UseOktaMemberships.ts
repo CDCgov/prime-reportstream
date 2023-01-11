@@ -117,12 +117,9 @@ export const membershipsFromToken = (
     if (!claims?.organization?.length) {
         return omit(defaultState, "initialized");
     }
-    // If we're admins, set that always, else set default to first in org claim array
-    const adminIndex = claims.organization.indexOf(PRIME_ADMINS);
     const orgClaim =
-        adminIndex !== -1
-            ? claims.organization[adminIndex]
-            : claims.organization[0];
+        claims.organization.find((org) => org === PRIME_ADMINS) ||
+        claims.organization[0];
     return {
         activeMembership: getSettingsFromOrganization(orgClaim),
     };
