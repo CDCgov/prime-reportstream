@@ -263,9 +263,13 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(FieldPrecisionMessage("MSH-9",
-                        "Missing required HL7 message type field.",
-                        ErrorCode.INVALID_HL7_MSG_TYPE_MISSING))
+                    errors.add(
+                        FieldPrecisionMessage(
+                            "MSH-9",
+                            "Missing required HL7 message type field.",
+                            ErrorCode.INVALID_HL7_MSG_TYPE_MISSING
+                        )
+                    )
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -2498,7 +2502,7 @@ class HL7HapiErrorProcessor : Logging {
         var code = ErrorCode.INVALID_MSG_PARSE_UNKNOWN
         try {
             code = ErrorCode.valueOf("INVALID_MSG_PARSE_$elementType")
-        } catch (e : IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             logger.info("Unable to find error code for element $elementType. ${e.message}")
         }
         return code
