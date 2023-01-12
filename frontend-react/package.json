@@ -24,7 +24,7 @@
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "@xmldom/xmldom": "0.8.6",
-        "axios": "^0.27.2",
+        "axios": "^1.2.1",
         "classnames": "^2.3.1",
         "dompurify": "^2.3.4",
         "dotenv": "^16.0.1",
@@ -91,7 +91,10 @@
     "jest": {
         "transformIgnorePatterns": [
             "[/\\\\]node_modules[/\\\\](?!(react-markdown|vfile|vfile-message|markdown-table|unist-.*|unified|bail|is-plain-obj|trough|remark-.*|rehype-.*|html-void-elements|hast-util-.*|zwitch|hast-to-hyperscript|hastscript|web-namespaces|mdast-util-.*|escape-string-regexp|micromark.*|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount|mdast-util-gfm|gemoji)).+\\.(js|jsx|mjs|cjs|ts|tsx)$"
-        ]
+        ],
+        "moduleNameMapper": {
+            "axios": "axios/dist/node/axios.cjs"
+        }
     },
     "eslintConfig": {
         "parser": "@typescript-eslint/parser",
