@@ -716,7 +716,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.34.0")
-    implementation("com.azure:azure-core-http-netty:1.12.5")
+    implementation("com.azure:azure-core-http-netty:1.12.8")
     implementation("com.azure:azure-storage-blob:12.20.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -779,7 +779,7 @@ dependencies {
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
-    implementation("commons-net:commons-net:3.8.0")
+    implementation("commons-net:commons-net:3.9.0")
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
