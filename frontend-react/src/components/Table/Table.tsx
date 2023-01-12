@@ -65,7 +65,6 @@ export interface TableProps {
     enableEditableRows?: boolean;
     editableCallback?: RowSideEffect;
     classes?: string;
-    onPaginationClick?: ({ pageNumber }: { pageNumber: number }) => void;
 }
 
 export interface LegendItem {
@@ -88,7 +87,6 @@ const Table = ({
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
     classes,
-    onPaginationClick,
 }: TableProps) => {
     const [rowToEdit, setRowToEdit] = useState<number | undefined>();
 
@@ -147,9 +145,6 @@ const Table = ({
             return datasetAction;
         }
     }, [addRow, datasetAction]);
-
-    if (onPaginationClick && paginationProps)
-        onPaginationClick({ pageNumber: paginationProps.currentPageNum });
 
     return (
         <div className={wrapperClasses}>

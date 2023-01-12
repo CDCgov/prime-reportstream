@@ -40,8 +40,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     paginationProps,
     submissions,
 }) => {
-    const featureEvent = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
-    const featurePagination = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_PAGINATION}`;
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: "id",
@@ -76,7 +75,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
             <TableFilters
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    trackAppInsightEvent(featureEvent, {
+                    trackAppInsightEvent(analyticsEventName, {
                         tableFilter: { startRange: from, endRange: to },
                     })
                 }
@@ -85,14 +84,6 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
                 config={submissionsConfig}
                 filterManager={filterManager}
                 paginationProps={paginationProps}
-                onPaginationClick={({ pageNumber }: { pageNumber: number }) =>
-                    trackAppInsightEvent(featurePagination, {
-                        tablePagination: {
-                            pageSize: filterManager.pageSettings.size,
-                            pageNumber: pageNumber,
-                        },
-                    })
-                }
             />
         </>
     );
@@ -140,9 +131,10 @@ function SubmissionTableWithNumberedPagination() {
     // inclusive: the request will return results whose cursor values are >= the
     // cursor.
     // When we move the `cursor` value in descending requests, the cursor is
-    // exclusive: the requst will return results whose cursor values are < the
+    // exclusive: the request will return results whose cursor values are < the
     // cursor.
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: submissions,
@@ -154,6 +146,7 @@ function SubmissionTableWithNumberedPagination() {
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
 
     if (isLoading) {
