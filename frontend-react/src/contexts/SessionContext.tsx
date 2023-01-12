@@ -16,6 +16,8 @@ export interface RSSessionContext {
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
     isAdminStrictCheck?: boolean;
+    sessionStartTime?: Date;
+    sessionTimeAggregate?: number;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -31,6 +33,8 @@ export const SessionContext = createContext<RSSessionContext>({
     dispatch: () => {},
     initialized: false,
     isAdminStrictCheck: false,
+    sessionStartTime: new Date(),
+    sessionTimeAggregate: 0,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -42,7 +46,13 @@ const SessionProvider = ({
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
     const {
-        state: { memberships, activeMembership, initialized },
+        state: {
+            memberships,
+            activeMembership,
+            initialized,
+            sessionStartTime,
+            sessionTimeAggregate,
+        },
         dispatch,
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
@@ -60,6 +70,8 @@ const SessionProvider = ({
                 isAdminStrictCheck,
                 dispatch,
                 initialized: authState !== null && !!initialized,
+                sessionStartTime,
+                sessionTimeAggregate,
             }}
         >
             {children}
