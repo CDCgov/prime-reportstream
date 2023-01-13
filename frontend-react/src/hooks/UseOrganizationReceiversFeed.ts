@@ -18,7 +18,12 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
 
     useEffect(() => {
         if (receivers?.length) {
-            setActive(receivers[0]);
+            setActive(
+                // Checks for an active receiver first
+                receivers.find((val) => val.customerStatus === "active") ||
+                    // Defaults to first in array
+                    receivers[0]
+            );
         }
     }, [receivers]);
 
