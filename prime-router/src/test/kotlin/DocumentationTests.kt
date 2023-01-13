@@ -88,7 +88,7 @@ class DocumentationTests {
 
 **Cardinality**:    [0..1]
 ---
-"""
+        """
 
         val docString = MarkdownDocumentationFactory.getElementDocumentation(elem)
         assertThat(docString).isEqualTo(expected)
@@ -117,7 +117,7 @@ class DocumentationTests {
 **Cardinality**: [0..1]
 
 ---
-"""
+        """
 
         val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema).joinToString(separator = "")
         assertThat(actual).isEqualTo(expected)
@@ -141,7 +141,7 @@ class DocumentationTests {
 $documentation
 
 ---
-"""
+        """
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertThat(actual).isEqualTo(expected)
     }
@@ -167,7 +167,7 @@ $documentation
 **Cardinality**: [0..1]
 
 ---
-"""
+        """
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -193,7 +193,7 @@ $documentation
 **Cardinality**: [0..1]
 
 ---
-"""
+        """
         MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
             assertThat(actual).isEqualTo(expected)
         }
@@ -220,7 +220,7 @@ $documentation
 **Cardinality**: [0..1]
 
 ---
-"""
+        """
         MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
             assertThat(actual).isEqualTo(expected)
         }
@@ -247,7 +247,7 @@ $documentation
 **Cardinality**: [0..1]
 
 ---
-"""
+        """
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -281,7 +281,7 @@ Code | Display | System
 &#62;|Above absolute high-off instrument scale|HL7
 
 ---
-"""
+        """
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -321,7 +321,7 @@ Code | Display | System
 &#62;|Above absolute high-off instrument scale|LOINC
 
 ---
-"""
+        """
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }

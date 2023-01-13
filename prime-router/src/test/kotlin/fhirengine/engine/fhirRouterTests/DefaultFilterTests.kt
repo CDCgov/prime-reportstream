@@ -123,7 +123,8 @@ class DefaultFilterTests {
                 }
             }
         ]
-    }"""
+    }
+    """
 
     private val fhirCodeT = """
     {
@@ -167,7 +168,8 @@ class DefaultFilterTests {
                 }
             }
         ]
-    }"""
+    }
+    """
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)

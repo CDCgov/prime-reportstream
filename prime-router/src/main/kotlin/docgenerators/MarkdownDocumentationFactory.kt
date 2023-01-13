@@ -84,7 +84,7 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
                 """**Documentation**:
 
 ${element.documentation}
-"""
+                """
             )
         }
 
@@ -129,7 +129,8 @@ ${element.documentation}
 ### Extends: $schemaExtends
 #### Description: $schemaDescription
 
----""" + "\n"
+---
+            """ + "\n"
         )
 
         schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
@@ -183,7 +184,7 @@ ${element.documentation}
                 """
 **$label**:
 [${linkText ?: url}]($url) 
-"""
+                """
             )
         }
     }

@@ -85,7 +85,7 @@ Examples:
  ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
 ```
 
-""",
+    """,
 ) {
     val defaultWorkingDir = "./build/csv_test_files"
 
@@ -118,7 +118,7 @@ Examples:
         metavar = "test1,test2",
         help = """Specify names of tests to run.   Default is to run all smoke tests if not specified.
             Use --list to see a list of all the tests.
-       """
+        """
     )
     private val itemsDefault: Int = 5
     private val items by option(
@@ -511,7 +511,8 @@ abstract class CoolTest {
             val ctx = DSL.using(txn)
             val sql = """select cr.covid_results_metadata_id
                 from covid_result_metadata as cr
-                where cr.report_id = ?"""
+                where cr.report_id = ?
+            """
             val ret = ctx.fetch(sql, reportId).into(Int::class.java)
             @Suppress("SENSELESS_COMPARISON")
             passed = ret != null && ret.size > 0
@@ -1043,7 +1044,7 @@ abstract class CoolTest {
                   ${if (receivingOrgSvc != null) "and receiving_org_svc = ?" else ""}
                   ${if (receivingOrg != null) "and receiving_org = ?" else ""}
               ) results
-              """
+                """
                 if (receivingOrg != null && receivingOrgSvc != null) {
                     ctx.fetchOne(sql, reportId, reportId, action, receivingOrgSvc, receivingOrg)?.into(Int::class.java)
                 } else if (receivingOrgSvc != null) {
@@ -1061,7 +1062,8 @@ abstract class CoolTest {
               ${if (receivingOrg != null) "RF.receiving_org = ? and" else ""}
               A.action_name = ?
               and IL.item_lineage_id in
-              (select item_descendants(?)) """
+              (select item_descendants(?)) 
+                """
 
                 if (receivingOrg != null && receivingOrgSvc != null) {
                     ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
@@ -1087,7 +1089,8 @@ abstract class CoolTest {
                 from report_file as RF
                 join action as A ON A.action_id = RF.action_id
                 where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ?
-                order by A.action_id """
+                order by A.action_id 
+            """
             return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
 
