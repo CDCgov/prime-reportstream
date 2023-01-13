@@ -837,7 +837,8 @@ SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasoph
         val hl7Config = createConfig(cliaForOutOfStateTesting = "10DfakeCL")
         val receiver = Receiver("test", "ca-dph", Topic.COVID_19, translation = hl7Config)
         val schema = "direct/direct-covid-19"
-        val csvHeader = """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
+        val csvHeader =
+            """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
             testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,
             deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,
             patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,
@@ -851,7 +852,7 @@ SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasoph
             orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,
             previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,
             hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility
-        """
+            """
 
         val csvBlankState =
             """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
