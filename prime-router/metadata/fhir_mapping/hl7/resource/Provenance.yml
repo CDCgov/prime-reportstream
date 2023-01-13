@@ -53,8 +53,13 @@ agent_2:
   constants:
     participantType: "author"
 
-entity:
-  valueOf: secondary/ProvenanceEntity
+entity_1:
+  valueOf: secondary/ProvenanceEntity1
+  generateList: true
+  expressionType: resource
+
+entity_2:
+  valueOf: secondary/ProvenanceEntity2
   generateList: true
   expressionType: resource
 
