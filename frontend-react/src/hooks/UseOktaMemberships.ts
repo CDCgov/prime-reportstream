@@ -43,8 +43,6 @@ export interface MembershipState {
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
     initialized?: boolean;
-    sessionStartTime?: Date;
-    sessionTimeAggregate?: number;
 }
 
 export interface MembershipController {

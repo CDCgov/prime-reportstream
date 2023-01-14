@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken } from "@okta/okta-auth-js";
 
@@ -16,8 +16,10 @@ export interface RSSessionContext {
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
     isAdminStrictCheck?: boolean;
-    sessionStartTime?: Date;
-    sessionTimeAggregate?: number;
+    sessionStartTime: Date;
+    setSessionStartTime: (date: Date) => void;
+    sessionTimeAggregate: number;
+    setSessionTimeAggregate: (timeInSeconds: number) => void;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -34,7 +36,9 @@ export const SessionContext = createContext<RSSessionContext>({
     initialized: false,
     isAdminStrictCheck: false,
     sessionStartTime: new Date(),
+    setSessionStartTime: () => {},
     sessionTimeAggregate: 0,
+    setSessionTimeAggregate: () => {},
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -45,14 +49,9 @@ const SessionProvider = ({
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
+
     const {
-        state: {
-            memberships,
-            activeMembership,
-            initialized,
-            sessionStartTime,
-            sessionTimeAggregate,
-        },
+        state: { memberships, activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
@@ -61,19 +60,33 @@ const SessionProvider = ({
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
 
+    const updateSessionStartTime = (date: Date) => {
+        setState((prevState) => {
+            return { ...prevState, sessionStartTime: date };
+        });
+    };
+
+    const updateSessionTimeAggregate = (timeInSeconds: number) => {
+        setState((prevState) => {
+            return { ...prevState, sessionTimeAggregate: timeInSeconds };
+        });
+    };
+
+    const [state, setState] = useState<RSSessionContext>({
+        oktaToken: authState?.accessToken,
+        memberships,
+        activeMembership,
+        isAdminStrictCheck,
+        dispatch,
+        initialized: authState !== null && !!initialized,
+        sessionStartTime: new Date(),
+        setSessionStartTime: updateSessionStartTime,
+        sessionTimeAggregate: 0,
+        setSessionTimeAggregate: updateSessionTimeAggregate,
+    });
+
     return (
-        <SessionContext.Provider
-            value={{
-                oktaToken: authState?.accessToken,
-                memberships,
-                activeMembership,
-                isAdminStrictCheck,
-                dispatch,
-                initialized: authState !== null && !!initialized,
-                sessionStartTime,
-                sessionTimeAggregate,
-            }}
-        >
+        <SessionContext.Provider value={state}>
             {children}
         </SessionContext.Provider>
     );

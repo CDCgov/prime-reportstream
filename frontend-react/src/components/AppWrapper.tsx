@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren } from "react";
 import { Security } from "@okta/okta-react";
 import { OktaAuth } from "@okta/okta-auth-js";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -10,7 +10,6 @@ import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { ai } from "../TelemetryService";
-import { trackAppInsightEvent } from "../utils/Analytics";
 
 const AppInsightsProvider = (props: PropsWithChildren<{}>) => (
     <AppInsightsContext.Provider value={ai.reactPlugin!!}>
@@ -30,21 +29,6 @@ export const AppWrapper = ({
     restoreOriginalUri,
     oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
-    const onUnload = () => {
-        return "unloading";
-    };
-
-    const onVisibilityChange = () => {
-        console.log(document.visibilityState);
-        trackAppInsightEvent("session", {
-            sessionLength: 100,
-        });
-    };
-
-    useEffect(() => {
-        window.addEventListener("beforeunload", onUnload);
-        window.addEventListener("visibilitychange", onVisibilityChange);
-    }, []);
     return (
         <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
             <AppInsightsProvider>

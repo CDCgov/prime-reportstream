@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { About } from "./pages/About";
@@ -32,6 +32,8 @@ import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSet
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
+import { useSessionContext } from "./contexts/SessionContext";
+import { trackAppInsightEvent } from "./utils/Analytics";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -41,6 +43,36 @@ export enum FeatureName {
 }
 
 export const AppRouter = () => {
+    const {
+        sessionStartTime,
+        setSessionStartTime,
+        sessionTimeAggregate,
+        setSessionTimeAggregate,
+    } = useSessionContext();
+
+    useEffect(() => {
+        const onUnload = () => {
+            trackAppInsightEvent("session", {
+                sessionLength: sessionTimeAggregate,
+            });
+        };
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                setSessionTimeAggregate(
+                    // Typescript doesn't like subtracting Date objects from
+                    // each other as there's implicit type coercion, so
+                    // we explicitly turn them into integers for subtraction.
+                    (new Date().getTime() - sessionStartTime.getTime()) / 1000
+                );
+            } else if (document.visibilityState === "visible") {
+                setSessionStartTime(new Date());
+            }
+        };
+
+        window.addEventListener("beforeunload", onUnload);
+        window.addEventListener("visibilitychange", onVisibilityChange);
+    }, []);
     return (
         <Routes>
             {/* Public Site */}
