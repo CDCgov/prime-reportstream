@@ -44,8 +44,7 @@ const SessionProvider = ({
         state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
-    /* TODO: Remove - logic can be easily checked by accessing the session context
-     *   and confirming memberType from any component */
+    /* TODO: Consolidate all memberType checks with booleans like isAdmin, isReceiver, isSender */
     const isAdminStrictCheck = useMemo(() => {
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);

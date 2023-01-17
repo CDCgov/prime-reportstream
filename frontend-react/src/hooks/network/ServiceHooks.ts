@@ -7,7 +7,7 @@ import {
     useState,
 } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import _ from "lodash";
+import pick from "lodash.pick";
 
 import { auxExports } from "../UseCreateFetch";
 import {
@@ -25,7 +25,7 @@ type ServiceState = ServiceSettings & {
 /** Prunes all settings data not relevant to our application session */
 export const cleanServicesArray = (arr: RSService[]) => {
     return arr.map((obj) =>
-        _.pick(obj, "name", "organizationName", "topic", "customerStatus")
+        pick(obj, "name", "organizationName", "topic", "customerStatus")
     );
 };
 
