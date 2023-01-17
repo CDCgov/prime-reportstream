@@ -1,7 +1,7 @@
 
 ### Schema: hl7/color-labs-covid-19
 ### Topic: covid-19
-### Tracking Element: (specimen_id)
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
 #### Description: Color Labs
@@ -3710,7 +3710,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Format**: use value found in the Code column
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -3946,8 +3946,6 @@ Does the patient reside in a congregate care setting?
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: color-lab
 
 **Cardinality**: [1..1]
 

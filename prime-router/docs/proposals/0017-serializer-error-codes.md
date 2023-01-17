@@ -199,42 +199,37 @@ errors.add(
 The following set of error codes should cover all the types of errors ReportStream currently checks for
 (grouped by data type). More can be added on-demand as ReportStream adds more validation.
 
-| ReportStream Element Type  | Error Code                               | Error Description                                            |
-|----------------------------|------------------------------------------|--------------------------------------------------------------|
-| DATE or DATETIME           | INVALID_HL7_DATE_PRECISION               | date is not HL7 v2.4 TS or ISO 8601 standard format          |
-| DATE or DATETIME           | INVALID_HL7_DATE_SCHEMA_TYPE             | the Schema specifies the date is not either DATE or DATETIME |
-| CODE                       | INVALID_HL7_CODE_TOKEN_PARSE             | code is not a display value in valueSet for given field      |
-| CODE                       | INVALID_HL7_CODE_ALT_TOKEN_PARSE         | code is not a display value in altValues set for given field |
-| CODE                       | INVALID_HL7_CODE_ALT_DISPLAY_TOKEN_PARSE | code is not a display value for given field                  |
-| POSTAL_CODE                | INVALID_HL7_POSTAL_CODE_UNSUPPORTED      | postal code not in DHL list of supported format              |
-| EI (Entity Identifier)     | INVALID_HL7_EI_FORMAT                    | EI format is not eiCompleteFormat or eiNameToken             |
-| HD (Hierarchic Designator) | INVALID_HL7_HD_FORMAT                    | HD format is not hdCompleteFormat or hdNameToken             |
-| GENERAL MSG                | INVALID_HL7_MSG_TYPE_MISSING             | Missing required HL7 message type field                      |
-| GENERAL MSG                | INVALID_HL7_MSG_TYPE_UNSUPPORTED         | Unsupported HL7 message type                                 |
-| GENERAL MSG                | INVALID_HL7_MSG_FORMAT_INVALID           | Invalid HL7 message format                                   |
-| MISC                       | UNKNOWN                                  | Error cannot be determined                                   |
-| FIELD PARSE                | INVALID_HL7_PARSE_GENERAL                | Parse err for an unknown field type                          |
-| FIELD PARSE                | INVALID_HL7_PARSE_TEXT                   | Parse err for TEXT field type                                |
-| FIELD PARSE                | INVALID_HL7_PARSE_TEXT_OR_BLANK          | Parse err for TEXT_OR_BLANK field type                       |
-| FIELD PARSE                | INVALID_HL7_PARSE_NUMBER                 | Parse err for PARSE_NUMBER field type                        |
-| FIELD PARSE                | INVALID_HL7_PARSE_DATE                   | Parse err for PARSE_DATE field type                          |
-| FIELD PARSE                | INVALID_HL7_PARSE_DATETIME               | Parse err for PARSE_DATETIME field type                      |
-| FIELD PARSE                | INVALID_HL7_PARSE_DURATION               | Parse err for DURATION field type                            |
-| FIELD PARSE                | INVALID_HL7_PARSE_CODE                   | Parse err for CODE field type                                |
-| FIELD PARSE                | INVALID_HL7_PARSE_TABLE                  | Parse err for TABLE field type                               |
-| FIELD PARSE                | INVALID_HL7_PARSE_TABLE_OR_BLANK         | Parse err for TABLE_OR_BLANK field type                      |
-| FIELD PARSE                | INVALID_HL7_PARSE_EI                     | Parse err for EI field type                                  |
-| FIELD PARSE                | INVALID_HL7_PARSE_HD                     | Parse err for HD field type                                  |
-| FIELD PARSE                | INVALID_HL7_PARSE_ID                     | Parse err for ID field type                                  |
-| FIELD PARSE                | INVALID_HL7_PARSE_ID_CLIA                | Parse err for ID_CLIA field type                             |
-| FIELD PARSE                | INVALID_HL7_PARSE_ID_DLN                 | Parse err for ID_DLN field type                              |
-| FIELD PARSE                | INVALID_HL7_PARSE_ID_SSN                 | Parse err for ID_SSN field type                              |
-| FIELD PARSE                | INVALID_HL7_PARSE_ID_NPI                 | Parse err for ID_NPI field type                              |
-| FIELD PARSE                | INVALID_HL7_PARSE_STREET                 | Parse err for STREET field type                              |
-| FIELD PARSE                | INVALID_HL7_PARSE_STREET_OR_BLANK        | Parse err for STREET_OR_BLANK field type                     |
-| FIELD PARSE                | INVALID_HL7_PARSE_CITY                   | Parse err for CITY field type                                |
-| FIELD PARSE                | INVALID_HL7_PARSE_POSTAL_CODE            | Parse err for POSTAL_CODE field type                         |
-| FIELD PARSE                | INVALID_HL7_PARSE_PERSON_NAME            | Parse err for PERSON_NAME field type                         |
-| FIELD PARSE                | INVALID_HL7_PARSE_TELEPHONE              | Parse err for TELEPHONE field type                           |
-| FIELD PARSE                | INVALID_HL7_PARSE_EMAIL                  | Parse err for EMAIL field type                               |
-| FIELD PARSE                | INVALID_HL7_PARSE_BLANK                  | Parse err for BLANK field type                               |
+| ReportStream Element Type | Error Code                        | Error Description                                           |
+|---------------------------|-----------------------------------|-------------------------------------------------------------|
+| GENERAL MSG HL7           | INVALID_HL7_MSG_TYPE_MISSING      | Missing required HL7 message type field                     |
+| GENERAL MSG HL7           | INVALID_HL7_MSG_TYPE_UNSUPPORTED  | Unsupported HL7 message type                                |
+| GENERAL MSG HL7           | INVALID_HL7_MSG_FORMAT_INVALID    | Invalid HL7 message format                                  |
+| GENERAL MSG HL7           | INVALID_HL7_MSG_VALIDATION        | General validation/parsing error                            |
+| General                   | INVALID_MSG_MISSING_FIELD         | Required "field" is missing in message                      |
+| General                   | INVALID_MSG_EQUIPMENT_MAPPING     | equipment was not found in the LIVD table for a given field |
+| MISC                      | UNKNOWN                           | Error cannot be determined                                  |
+| FIELD PARSE               | INVALID_MSG_PARSE_GENERAL         | Parse err for an unknown field type                         |
+| FIELD PARSE               | INVALID_MSG_PARSE_TEXT            | Parse err for TEXT field type                               |
+| FIELD PARSE               | INVALID_MSG_PARSE_TEXT_OR_BLANK   | Parse err for TEXT_OR_BLANK field type                      |
+| FIELD PARSE               | INVALID_MSG_PARSE_NUMBER          | Parse err for PARSE_NUMBER field type                       |
+| FIELD PARSE               | INVALID_MSG_PARSE_DATE            | Parse err for PARSE_DATE field type                         |
+| FIELD PARSE               | INVALID_MSG_PARSE_DATETIME        | Parse err for PARSE_DATETIME field type                     |
+| FIELD PARSE               | INVALID_MSG_PARSE_DURATION        | Parse err for DURATION field type                           |
+| FIELD PARSE               | INVALID_MSG_PARSE_CODE            | Parse err for CODE field type                               |
+| FIELD PARSE               | INVALID_MSG_PARSE_TABLE           | Parse err for TABLE field type                              |
+| FIELD PARSE               | INVALID_MSG_PARSE_TABLE_OR_BLANK  | Parse err for TABLE_OR_BLANK field type                     |
+| FIELD PARSE               | INVALID_MSG_PARSE_EI              | Parse err for EI field type                                 |
+| FIELD PARSE               | INVALID_MSG_PARSE_HD              | Parse err for HD field type                                 |
+| FIELD PARSE               | INVALID_MSG_PARSE_ID              | Parse err for ID field type                                 |
+| FIELD PARSE               | INVALID_MSG_PARSE_ID_CLIA         | Parse err for ID_CLIA field type                            |
+| FIELD PARSE               | INVALID_MSG_PARSE_ID_DLN          | Parse err for ID_DLN field type                             |
+| FIELD PARSE               | INVALID_MSG_PARSE_ID_SSN          | Parse err for ID_SSN field type                             |
+| FIELD PARSE               | INVALID_MSG_PARSE_ID_NPI          | Parse err for ID_NPI field type                             |
+| FIELD PARSE               | INVALID_MSG_PARSE_STREET          | Parse err for STREET field type                             |
+| FIELD PARSE               | INVALID_MSG_PARSE_STREET_OR_BLANK | Parse err for STREET_OR_BLANK field type                    |
+| FIELD PARSE               | INVALID_MSG_PARSE_CITY            | Parse err for CITY field type                               |
+| FIELD PARSE               | INVALID_MSG_PARSE_POSTAL_CODE     | Parse err for POSTAL_CODE field type                        |
+| FIELD PARSE               | INVALID_MSG_PARSE_PERSON_NAME     | Parse err for PERSON_NAME field type                        |
+| FIELD PARSE               | INVALID_MSG_PARSE_TELEPHONE       | Parse err for TELEPHONE field type                          |
+| FIELD PARSE               | INVALID_MSG_PARSE_EMAIL           | Parse err for EMAIL field type                              |
+| FIELD PARSE               | INVALID_MSG_PARSE_BLANK           | Parse err for BLANK field type                              |
