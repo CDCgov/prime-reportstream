@@ -1281,7 +1281,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         ThreadContext.put("start_time", actionHistory.startTime.toString())
         ThreadContext.put("end_time", actionEndTime.toString())
         ThreadContext.put("duration", Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString())
-        logger.info("action complete!")
+        logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
         ThreadContext.clearAll()
     }
 
