@@ -41,6 +41,7 @@ import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
+import org.apache.logging.log4j.ThreadContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -54,6 +55,8 @@ import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -1268,6 +1271,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         actionHistory.actionLogs.forEach {
             this.insertActionLog(it, txn)
         }
+
+        // log for app insights
+        val actionEndTime = LocalDateTime.now()
+        ThreadContext.put("action_id", actionHistory.action.actionId.toString())
+        ThreadContext.put("action_name", actionHistory.action.actionName.name)
+        ThreadContext.put("username", actionHistory.action.username)
+        ThreadContext.put("sending_organization", actionHistory.action.sendingOrg)
+        ThreadContext.put("start_time", actionHistory.startTime.toString())
+        ThreadContext.put("end_time", actionEndTime.toString())
+        ThreadContext.put("duration", Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString())
+        logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
+        ThreadContext.clearAll()
     }
 
     /**
