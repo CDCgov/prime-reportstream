@@ -59,6 +59,7 @@ export const useMemberServices = (
             state?.initialized &&
             state?.activeMembership?.memberType &&
             state?.activeMembership?.parsedName &&
+            state?.activeMembership?.parsedName !== "PrimeAdmins" &&
             token,
         [
             state?.activeMembership?.memberType,
@@ -87,11 +88,7 @@ export const useMemberServices = (
             setReceivers(cleanServicesArray(receiverServiceResults));
         };
         if (hasAllNecessaryVariablesForFetch) {
-            if (state?.activeMembership?.parsedName !== "PrimeAdmins") {
-                fetchData().catch((e: RSNetworkError) => console.error(e));
-            }
-        } else {
-            console.log("Did not fetch member services");
+            fetchData().catch((e: RSNetworkError) => console.error(e));
         }
     }, [
         hasAllNecessaryVariablesForFetch,

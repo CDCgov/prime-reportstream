@@ -44,9 +44,6 @@ describe("useMemberServices", () => {
         const { result } = renderHook(() =>
             useMemberServices(sadState, happyToken)
         );
-        expect(mockConsoleLog).toHaveBeenCalledWith(
-            "Did not fetch member services"
-        );
         expect(result.current.receivers).toBeUndefined();
         expect(result.current.senders).toBeUndefined();
         expect(result.current.activeService).toEqual("default");
@@ -55,9 +52,6 @@ describe("useMemberServices", () => {
     test("does not fetch with undefined token", () => {
         const { result } = renderHook(() =>
             useMemberServices(happyState, undefined)
-        );
-        expect(mockConsoleLog).toHaveBeenCalledWith(
-            "Did not fetch member services"
         );
         expect(result.current.receivers).toBeUndefined();
         expect(result.current.senders).toBeUndefined();
