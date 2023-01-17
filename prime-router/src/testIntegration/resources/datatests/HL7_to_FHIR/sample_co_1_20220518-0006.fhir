@@ -12822,7 +12822,16 @@
         "system" : "phone",
         "value" : "+1 303 934 9914",
         "use" : "home"
-      }, {
+      },  {
+           "system":"phone",
+           "value":"(248) 555 1234",
+           "use":"mobile"
+        },
+        {
+           "system":"email",
+           "value":"foo@example.com"
+        },
+       {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
           "valueString" : "Business"

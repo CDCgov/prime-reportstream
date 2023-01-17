@@ -21,8 +21,13 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
+  - name: xtn-use-code-from-constant
+    condition: '%{homePhoneExists} = "true" '
+    value: [ '"ORN"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
   - name: xtn-system
-    condition: '%resource.use != "mobile"'
+    condition: '%resource.use.exists().not() or  %resource.use != "mobile"'
     value: [ '%resource.system' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
     valueSet:
@@ -32,7 +37,7 @@ elements:
       fax: FX
 
   - name: xtn-system-from-use
-    condition: '%resource.use = "mobile"'
+    condition: '%resource.use.exists() and %resource.use = "mobile"'
     value: [ '"CP"' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
 
