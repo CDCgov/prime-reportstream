@@ -6,8 +6,6 @@ import { mockToken } from "../../utils/TestUtils";
 
 import { cleanServicesArray, useMemberServices } from "./ServiceHooks";
 
-const mockConsoleLog = jest.spyOn(console, "log");
-
 const happyState: MembershipState = {
     activeMembership: {
         parsedName: "test-org",
