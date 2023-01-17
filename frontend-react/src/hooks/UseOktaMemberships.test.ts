@@ -237,12 +237,12 @@ describe("useOktaMemberships", () => {
 describe("helper functions", () => {
     describe("getTypeOfGroup", () => {
         test("returns the right type of group", () => {
-            const admin = getTypeOfGroup("DHPrimeAdmins");
-            const sender = getTypeOfGroup("DHSender_test-group");
-            const receiver = getTypeOfGroup("DHtest-group");
-            expect(admin).toEqual("prime-admin");
-            expect(sender).toEqual("sender");
-            expect(receiver).toEqual("receiver");
+            expect(getTypeOfGroup("DHPrimeAdmins")).toEqual("prime-admin");
+            expect(getTypeOfGroup("DHSender_test-group")).toEqual("sender");
+            expect(getTypeOfGroup("DHtest-group")).toEqual("receiver");
+            expect(getTypeOfGroup("not_your_mamas_group")).toEqual(
+                "non-standard"
+            );
         });
     });
     describe("membershipsFromToken", () => {
