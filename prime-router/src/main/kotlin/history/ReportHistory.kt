@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.ItemActionLogDetail
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -118,7 +119,7 @@ class ConsolidatedActionLog(log: DetailedActionLog) {
     /**
      * The error code for the message.
      */
-    val errorCode: String
+    val errorCode: ErrorCode
 
     init {
         scope = log.scope
