@@ -107,7 +107,7 @@ identifier_4:
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
-  valueOf: ORC.5
+  valueOf: ORC.5 | ORC.1
   expressionType: HL7Spec
 
 intent:
@@ -248,7 +248,7 @@ extension_2:
       value: entering-organization
     valueString:
       type: STRING
-      valueOf: ORC.17.1 | ORC.17.9 | ORC.17.2
+      valueOf: ORC.17.1 | ORC.17.2
       expressionType: HL7Spec
 
 extension_3:
