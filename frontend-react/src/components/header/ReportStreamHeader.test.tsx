@@ -58,6 +58,10 @@ describe("ReportStreamHeader", () => {
             isAdminStrictCheck: true,
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         } as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
@@ -92,6 +96,10 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(
@@ -127,6 +135,10 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();

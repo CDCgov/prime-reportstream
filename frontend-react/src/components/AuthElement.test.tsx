@@ -39,6 +39,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
@@ -61,6 +65,10 @@ describe("AuthElement unit tests", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -79,6 +87,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -100,6 +112,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -122,6 +138,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
@@ -147,6 +167,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -168,6 +192,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -188,6 +216,10 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: false,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         render(
             <AuthElement
@@ -222,6 +254,10 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
             isAdminStrictCheck: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         } as RSSessionContext);
         render(
             <AuthElement

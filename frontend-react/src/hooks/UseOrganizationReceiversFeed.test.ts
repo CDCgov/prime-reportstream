@@ -25,6 +25,10 @@ describe("useOrganizationReceiversFeed", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         const { result } = renderHook(() => useOrganizationReceiversFeed(), {
             wrapper: QueryWrapper(),
@@ -46,6 +50,10 @@ describe("useOrganizationReceiversFeed", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationReceiversFeed(),
@@ -70,6 +78,10 @@ describe("useOrganizationReceiversFeed", () => {
             },
             dispatch: () => {},
             initialized: true,
+            sessionStartTime: new Date(),
+            setSessionStartTime: () => {},
+            sessionTimeAggregate: 0,
+            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationReceiversFeed(),

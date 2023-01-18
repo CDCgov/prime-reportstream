@@ -62,8 +62,10 @@ export const AppRouter = () => {
                 setSessionTimeAggregate(
                     // Typescript doesn't like subtracting Date objects from
                     // each other as there's implicit type coercion, so
-                    // we explicitly turn them into integers for subtraction.
-                    (new Date().getTime() - sessionStartTime.getTime()) / 1000
+                    // we explicitly turn them into integers for subtraction
+                    // and return a value in seconds.
+                    (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
+                        sessionTimeAggregate
                 );
             } else if (document.visibilityState === "visible") {
                 setSessionStartTime(new Date());
@@ -72,7 +74,19 @@ export const AppRouter = () => {
 
         window.addEventListener("beforeunload", onUnload);
         window.addEventListener("visibilitychange", onVisibilityChange);
-    }, []);
+        return () => {
+            // We MUST remove the event listeners as the dependency values
+            // update or else we'll have 100s of event listeners on the page
+            // all with stale values
+            window.removeEventListener("beforeunload", onUnload);
+            window.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+    }, [
+        sessionStartTime,
+        sessionTimeAggregate,
+        setSessionStartTime,
+        setSessionTimeAggregate,
+    ]);
     return (
         <Routes>
             {/* Public Site */}
