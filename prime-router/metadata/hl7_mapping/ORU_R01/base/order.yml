@@ -101,3 +101,8 @@ elements:
     schema: datatype/xad-extended-address
     constants:
       hl7AddressField: '%{hl7Order}-24'
+
+  - name: businessEvent
+    condition: '%resource.extension(%`businessEvent`).exists()'
+    value: [ '%resource.extension(%`businessEvent`).value' ]
+    hl7Spec: [ '%{hl7Order}-9' ]
