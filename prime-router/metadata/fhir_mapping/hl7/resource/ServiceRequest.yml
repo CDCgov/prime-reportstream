@@ -149,6 +149,46 @@ occurrenceTiming:
     startTiming: TQ1.7
     endTiming: TQ1.8
 
+priority_1:
+  condition: $priorityCode EQUALS S
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "stat"
+
+priority_2:
+  condition: $priorityCode EQUALS A
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "asap"
+
+priority_3:
+  condition: $priorityCode EQUALS R
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "routine"
+
+priority_4:
+  condition: $priorityCode EQUALS U
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "urgent"
+
 requester:
   valueOf: resource/PractitionerRole
   expressionType: reference
@@ -330,43 +370,3 @@ extension_11:
         expressionType: JEXL
         vars:
           dateTimeIn: ORC.15
-
-priority_1:
-  condition: $priorityCode EQUALS S
-  type: STRING
-  valueOf: $priorityValue
-  expressionType: HL7Spec
-  vars:
-    priorityCode: String, TQ1.9.1
-  constants:
-    priorityValue: "stat"
-
-priority_2:
-  condition: $priorityCode EQUALS A
-  type: STRING
-  valueOf: $priorityValue
-  expressionType: HL7Spec
-  vars:
-    priorityCode: String, TQ1.9.1
-  constants:
-    priorityValue: "asap"
-
-priority_3:
-  condition: $priorityCode EQUALS R
-  type: STRING
-  valueOf: $priorityValue
-  expressionType: HL7Spec
-  vars:
-    priorityCode: String, TQ1.9.1
-  constants:
-    priorityValue: "routine"
-
-priority_4:
-  condition: $priorityCode EQUALS U
-  type: STRING
-  valueOf: $priorityValue
-  expressionType: HL7Spec
-  vars:
-    priorityCode: String, TQ1.9.1
-  constants:
-    priorityValue: "urgent"
