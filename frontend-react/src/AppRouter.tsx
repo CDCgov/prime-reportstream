@@ -53,7 +53,9 @@ export const AppRouter = () => {
     useEffect(() => {
         const onUnload = () => {
             trackAppInsightEvent(EventName.SESSION, {
-                sessionLength: sessionTimeAggregate,
+                sessionLength:
+                    (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
+                    sessionTimeAggregate,
             });
         };
 

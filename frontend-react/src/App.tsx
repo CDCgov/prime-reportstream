@@ -36,12 +36,14 @@ initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 const App = () => {
     useScrollToTop();
 
-    const { sessionTimeAggregate } = useSessionContext();
+    const { sessionTimeAggregate, sessionStartTime } = useSessionContext();
     const onUnload = useCallback(() => {
         trackAppInsightEvent(EventName.SESSION, {
-            sessionLength: sessionTimeAggregate,
+            sessionLength:
+                (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
+                sessionTimeAggregate,
         });
-    }, [sessionTimeAggregate]);
+    }, [sessionStartTime, sessionTimeAggregate]);
     const navigate = useNavigate();
     const handleIdle = (): void => {
         onUnload();
