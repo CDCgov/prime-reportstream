@@ -24,7 +24,7 @@ import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
-import { trackAppInsightEvent } from "./utils/Analytics";
+import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { useSessionContext } from "./contexts/SessionContext";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -38,7 +38,7 @@ const App = () => {
 
     const { sessionTimeAggregate } = useSessionContext();
     const onUnload = useCallback(() => {
-        trackAppInsightEvent("session", {
+        trackAppInsightEvent(EventName.SESSION, {
             sessionLength: sessionTimeAggregate,
         });
     }, [sessionTimeAggregate]);

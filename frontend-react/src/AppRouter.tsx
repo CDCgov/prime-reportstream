@@ -33,7 +33,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { useSessionContext } from "./contexts/SessionContext";
-import { trackAppInsightEvent } from "./utils/Analytics";
+import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -52,7 +52,7 @@ export const AppRouter = () => {
 
     useEffect(() => {
         const onUnload = () => {
-            trackAppInsightEvent("session", {
+            trackAppInsightEvent(EventName.SESSION, {
                 sessionLength: sessionTimeAggregate,
             });
         };
