@@ -77,24 +77,13 @@ elements:
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
-  - name: phone-number-mobile-email
-    condition: '%resource.telecom.where(use = "home").exists().not()'
+  - name: phone-number-home
     resource: '%resource.telecom.where(use != "work" or system = "email")'
     constants:
-      homePhoneExists: 'false'
+      telecomResource: '%resource'
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
-
-  - name: phone-number-home-email
-    condition: '%resource.telecom.where(use = "home").exists()'
-    resource: '%resource.telecom.where(use != "work" or system = "email")'
-    constants:
-      homePhoneExists: 'true'
-      hl7TelecomField: '%{hl7PIDField}-13'
-    schema: datatype/xtn-telecom
-    resourceIndex: telecomIndex
-
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
