@@ -1,4 +1,3 @@
-
 ### Schema: direct/imagemover-covid-19
 ### Topic: covid-19
 ### Tracking Element: specimenId (specimen_id)
@@ -19,9 +18,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, 20210112
-
 ---
 
 **Name**: healthcareEmployee
@@ -47,9 +44,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: serialNumber
@@ -63,9 +58,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Barcode or QR code.  Unique within one manufacturer.
-
 ---
 
 **Name**: deviceName
@@ -81,15 +74,13 @@ Barcode or QR code.  Unique within one manufacturer.
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
 **Documentation**:
-
 Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-
 ---
 
 **Name**: specimenId
@@ -109,9 +100,7 @@ Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accension number
-
 ---
 
 **Name**: firstTest
@@ -137,9 +126,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: healthcareEmployeeType
@@ -654,9 +641,7 @@ Code | Display | System
 999480461000087104|Kinesthesiologist|SNOMED_CT
 
 **Documentation**:
-
 Custom.  eg, 6816002
-
 ---
 
 **Name**: hospitalized
@@ -682,9 +667,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: hospitalizedCode
@@ -725,9 +708,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 Custom.  eg, 840539006, same valueset as testResult
-
 ---
 
 **Name**: symptomsIcu
@@ -753,9 +734,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: testId
@@ -769,9 +748,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ReportStream copies value from the specimenId if none is provided by the sender.
-
 ---
 
 **Name**: testOrderedDate
@@ -785,9 +762,7 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, 20210108
-
 ---
 
 **Name**: testOrdered
@@ -805,9 +780,7 @@ eg, 20210108
 **Table Column**: Test Ordered LOINC Code
 
 **Documentation**:
-
 eg, 94531-1
-
 ---
 
 **Name**: testName
@@ -825,9 +798,7 @@ eg, 94531-1
 **Table Column**: Test Ordered LOINC Long Name
 
 **Documentation**:
-
 Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
-
 ---
 
 **Name**: orderingFacilityCity
@@ -841,9 +812,7 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingFacilityCounty
@@ -885,9 +854,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingFacilityPhone
@@ -901,9 +868,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingFacilityState
@@ -921,9 +886,7 @@ The phone number of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 Note that many states expect this field to be available, or ReportStream is not able to route data to them.  Please provide if possible in order for us to route to as many states as possible.
-
 ---
 
 **Name**: orderingFacilityStreet
@@ -937,9 +900,7 @@ Note that many states expect this field to be available, or ReportStream is not 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingFacilityStreet2
@@ -953,9 +914,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The secondary address of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingFacilityZip
@@ -969,9 +928,7 @@ The secondary address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingProviderCity
@@ -985,9 +942,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the provider
-
 ---
 
 **Name**: orderingProviderFname
@@ -1006,9 +961,7 @@ The city of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: orderingProviderNpi
@@ -1027,9 +980,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, "1265050918"
-
 ---
 
 **Name**: orderingProviderLname
@@ -1048,9 +999,7 @@ eg, "1265050918"
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: orderingProviderPhone
@@ -1069,9 +1018,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: orderingProviderPhoneArea
@@ -1085,9 +1032,7 @@ The phone number of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.  Not currently used. ReportStream assumes area code is in orderingProviderPhone
-
 ---
 
 **Name**: orderingProviderState
@@ -1105,9 +1050,7 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 **Table Column**: State
 
 **Documentation**:
-
 The state of the provider
-
 ---
 
 **Name**: orderingProviderAddress
@@ -1121,9 +1064,7 @@ The state of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address of the provider
-
 ---
 
 **Name**: orderingProviderAddress2
@@ -1137,9 +1078,7 @@ The street address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street second address of the provider
-
 ---
 
 **Name**: orderingProviderZip
@@ -1153,9 +1092,7 @@ The street second address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: patientAge
@@ -1192,9 +1129,7 @@ mo|months|LOCAL
 yr|years|LOCAL
 
 **Documentation**:
-
 Always filled when `patient_age` is filled
-
 ---
 
 **Name**: patientCity
@@ -1208,9 +1143,7 @@ Always filled when `patient_age` is filled
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: patientCounty
@@ -1240,11 +1173,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -1294,9 +1225,7 @@ U|UNK|HL7
 U|ASKU|HL7
 
 **Documentation**:
-
 Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-2, 2186-5, UNK, ASKU). A mapping is done here, but better is to switch all of RS to HHS standard.
-
 ---
 
 **Name**: patientEthnicityText
@@ -1310,9 +1239,7 @@ Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom. ReportStream uses the patientEthnicity code, not this text value.
-
 ---
 
 **Name**: patientNameFirst
@@ -1326,9 +1253,7 @@ Custom. ReportStream uses the patientEthnicity code, not this text value.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: patientSex
@@ -1355,9 +1280,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -1372,10 +1295,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -1402,9 +1323,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Not required, but generally data will not flow to states if last/first name provided.
-
 ---
 
 **Name**: patientNameMiddle
@@ -1430,9 +1349,7 @@ Not required, but generally data will not flow to states if last/first name prov
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: patientPhoneArea
@@ -1446,9 +1363,7 @@ The patient's phone number with area code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom. Not currently used. ReportStream assumes area code is in patientPhone
-
 ---
 
 **Name**: patientRace
@@ -1477,9 +1392,7 @@ UNK|Unknown|NULLFL
 ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -1494,9 +1407,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.    ReportStream uses patientRace code, not this text value.
-
 ---
 
 **Name**: patientState
@@ -1514,9 +1425,7 @@ Custom.    ReportStream uses patientRace code, not this text value.
 **Table Column**: State
 
 **Documentation**:
-
 Extremely important field for routing data to states.
-
 ---
 
 **Name**: patientHomeAddress
@@ -1530,9 +1439,7 @@ Extremely important field for routing data to states.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: patientHomeAddress2
@@ -1546,9 +1453,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's second address line
-
 ---
 
 **Name**: patientZip
@@ -1562,9 +1467,7 @@ The patient's second address line
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: specimenId
@@ -1583,9 +1486,7 @@ The patient's zip code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: pregnant
@@ -1611,9 +1512,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Is the patient pregnant?
-
 ---
 
 **Name**: pregnantText
@@ -1627,9 +1526,7 @@ Is the patient pregnant?
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.  ReportStream uses the 'pregnant' code, not this text value.
-
 ---
 
 **Name**: correctedTestId
@@ -1643,9 +1540,7 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
-
 ---
 
 **Name**: previousTestDate
@@ -1659,9 +1554,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom field
-
 ---
 
 **Name**: previousTestResult
@@ -1702,9 +1595,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 Custom field.  Example - 260415000
-
 ---
 
 **Name**: previousTestType
@@ -1718,9 +1609,7 @@ Custom field.  Example - 260415000
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
-
 ---
 
 **Name**: processingModeCode
@@ -1746,9 +1635,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: congregateResident
@@ -1774,9 +1661,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: senderId
@@ -1792,9 +1677,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: congregateResidentType
@@ -1834,9 +1717,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Custom field
-
 ---
 
 **Name**: specimenCollectedDate
@@ -1857,9 +1738,7 @@ Custom field
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 eg, 20210113
-
 ---
 
 **Name**: specimenId
@@ -1879,11 +1758,9 @@ eg, 20210113
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique id, such as a UUID. Note - Need to override the mapper in covid-19.schema file.
-
 ---
 
 **Name**: specimenSource
@@ -1926,9 +1803,7 @@ Code | Display | System
 309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: symptomatic
@@ -1954,9 +1829,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: symptomsList
@@ -1970,9 +1843,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
-
 ---
 
 **Name**: testCodingSystem
@@ -1986,9 +1857,7 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.  Eg, "LN"
-
 ---
 
 **Name**: deviceIdentifier
@@ -2004,15 +1873,13 @@ Custom.  Eg, "LN"
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
 
 **Documentation**:
-
 Must match LIVD column M, "Test Kit Name ID"
-
 ---
 
 **Name**: testPerformed
@@ -2030,9 +1897,7 @@ Must match LIVD column M, "Test Kit Name ID"
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 eg, 94558-4
-
 ---
 
 **Name**: testResult
@@ -2073,9 +1938,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 eg, 260373001
-
 ---
 
 **Name**: testResultCodingSystem
@@ -2089,9 +1952,7 @@ eg, 260373001
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, SCT.   Custom
-
 ---
 
 **Name**: testResultDate
@@ -2105,9 +1966,7 @@ eg, SCT.   Custom
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, 20210111
-
 ---
 
 **Name**: testResultText
@@ -2121,9 +1980,7 @@ eg, 20210111
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value.
-
 ---
 
 **Name**: performingFacilityCity
@@ -2137,9 +1994,7 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: performingFacility
@@ -2162,9 +2017,7 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Expecting a CLIA number here.  eg, "10D2218834"
-
 ---
 
 **Name**: performingFacilityCounty
@@ -2182,9 +2035,7 @@ Expecting a CLIA number here.  eg, "10D2218834"
 **Table Column**: County
 
 **Documentation**:
-
 The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
-
 ---
 
 **Name**: performingFacilityName
@@ -2208,9 +2059,7 @@ The text value for the testing lab county. This is used to do the lookup in the 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 ---
 
 **Name**: performingFacilityPhone
@@ -2224,9 +2073,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: performingFacilityState
@@ -2244,9 +2091,7 @@ The phone number of the testing lab
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: performingFacilityStreet
@@ -2260,9 +2105,7 @@ The state for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: performingFacilityStreet2
@@ -2276,9 +2119,7 @@ The street address for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Street 2 field for the testing lab
-
 ---
 
 **Name**: performingFacilityZip
@@ -2292,9 +2133,7 @@ Street 2 field for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: patient_id_type
@@ -2330,9 +2169,7 @@ The postal code for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: reporting_facility_name
@@ -2354,9 +2191,7 @@ The reporting facility's CLIA
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's name
-
 ---
 
 **Name**: test_authorized_for_home
@@ -2374,15 +2209,13 @@ The reporting facility's name
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
 **Documentation**:
-
 Is the test authorized for home use by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_otc
@@ -2400,15 +2233,13 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
 **Documentation**:
-
 Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -2426,15 +2257,13 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 
 **Documentation**:
-
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_result_status
@@ -2469,10 +2298,8 @@ W|Post original as wrong, e.g., transmitted for wrong patient|HL7
 X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
