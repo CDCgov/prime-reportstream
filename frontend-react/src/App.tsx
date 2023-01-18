@@ -3,7 +3,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense } from "react";
+import React, { Suspense, useCallback } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,8 @@ import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
+import { trackAppInsightEvent } from "./utils/Analytics";
+import { useSessionContext } from "./contexts/SessionContext";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -33,8 +35,16 @@ initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
     useScrollToTop();
+
+    const { sessionTimeAggregate } = useSessionContext();
+    const onUnload = useCallback(() => {
+        trackAppInsightEvent("session", {
+            sessionLength: sessionTimeAggregate,
+        });
+    }, [sessionTimeAggregate]);
     const navigate = useNavigate();
     const handleIdle = (): void => {
+        onUnload();
         logout(OKTA_AUTH);
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
