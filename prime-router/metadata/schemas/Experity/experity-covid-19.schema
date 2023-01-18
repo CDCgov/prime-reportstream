@@ -671,3 +671,5 @@ elements:
       type: TEXT
       csvFields: [{name: flatfile_version_no}]
       documentation: This field is ignored.
+
+    - name: test_type

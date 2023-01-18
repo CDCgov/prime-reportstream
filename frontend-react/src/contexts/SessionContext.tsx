@@ -6,15 +6,15 @@ import {
     MembershipSettings,
     useOktaMemberships,
     MembershipAction,
+    MemberType,
 } from "../hooks/UseOktaMemberships";
 
-export interface ISessionContext {
-    memberships?: Map<string, MembershipSettings>;
+export interface RSSessionContext {
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
-    adminHardCheck?: boolean;
+    isAdminStrictCheck?: boolean;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -23,13 +23,12 @@ interface ISessionProviderProps {
     oktaHook: OktaHook;
 }
 
-export const SessionContext = createContext<ISessionContext>({
+export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
-    memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
     initialized: false,
-    adminHardCheck: false,
+    isAdminStrictCheck: false,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -40,26 +39,22 @@ const SessionProvider = ({
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
-
     const {
-        state: { memberships, activeMembership, initialized },
+        state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
-    const adminHardCheck = useMemo(() => {
-        if (initialized && memberships) {
-            return memberships.has("DHPrimeAdmins");
-        }
-    }, [initialized, memberships]);
+    const isAdminStrictCheck = useMemo(() => {
+        return activeMembership?.memberType === MemberType.PRIME_ADMIN;
+    }, [activeMembership?.memberType]);
 
     return (
         <SessionContext.Provider
             value={{
                 oktaToken: authState?.accessToken,
-                memberships,
                 activeMembership,
-                adminHardCheck,
+                isAdminStrictCheck,
                 dispatch,
                 initialized: authState !== null && !!initialized,
             }}

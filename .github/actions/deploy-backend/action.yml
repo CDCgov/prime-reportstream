@@ -18,6 +18,39 @@ runs:
   using: "composite"
   steps:
 
+    - name: Set environment variables - demo1
+      if: inputs.env-name == 'demo1'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo1" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo1" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo1containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo1-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo2
+      if: inputs.env-name == 'demo2'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo2" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo2" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo2containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo2" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo2-functionapp" >> $GITHUB_ENV
+
+    - name: Set environment variables - demo3
+      if: inputs.env-name == 'demo3'
+      shell: bash
+      run: |
+        echo "RESOURCE_GROUP=prime-data-hub-demo3" >> $GITHUB_ENV
+        echo "TERRAFORM_ENV=demo3" >> $GITHUB_ENV
+        echo "ACR_NAME=pdhdemo3containerregistry.azurecr.io" >> $GITHUB_ENV
+        echo "IMAGE_REPO=pdhdemo3" >> $GITHUB_ENV
+        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
+        echo "FUNCTION_APP=pdhdemo3-functionapp" >> $GITHUB_ENV
+
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash
@@ -58,7 +91,7 @@ runs:
       shell: bash
       run: echo "USE_DCT=true" >> $GITHUB_ENV
 
-    - uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
+    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
@@ -73,7 +106,7 @@ runs:
       run: az acr login --name ${{ env.ACR_NAME }}
       shell: bash
 
-    - uses: Azure/get-keyvault-secrets@71857adb0104f2651bcd91bef5e55f3d6c28a16a
+    - uses: Azure/get-keyvault-secrets@c2b531e47fab4ca7cd8df09d44a65256651bf46e
       if: env.USE_DCT == 'true'
       with:
         keyvault: ${{ env.KEY_VAULT }}
@@ -179,7 +212,7 @@ runs:
           > /dev/null
       shell: bash
 
-    - uses: Azure/functions-container-action@v1
+    - uses: Azure/functions-container-action@291eeb26a8f20958889600ba18e0d10657ce0818
       id: deploy-candidate
       with:
         app-name: ${{ env.FUNCTION_APP }}

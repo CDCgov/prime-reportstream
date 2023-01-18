@@ -3,18 +3,21 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
@@ -24,6 +27,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.main
 import io.mockk.every
@@ -58,7 +62,8 @@ class Hl7SerializerIntegrationTests {
         csvSerializer = CsvSerializer(metadata)
         serializer = Hl7Serializer(metadata, settings)
         testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report
-        sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        sampleHl7Message =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
@@ -70,8 +75,10 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
-        sampleHl7MessageWithRepeats = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+NTE|1|L|This is a final comment|RE
+            """
+        sampleHl7MessageWithRepeats =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^NET^Internet^roscoe.wilkinson@email.com~(211)224-0784^PRN^PH^^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
@@ -83,7 +90,8 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
+NTE|1|L|This is a final comment|RE
+            """
     }
 
     private fun createConfig(
@@ -138,7 +146,7 @@ NTE|1|L|This is a final comment|RE"""
             replaceValue = mapOf("PID-22-3" to "CDCREC,-,testCDCREC", "MSH-9" to "MSH-10"),
             cliaForOutOfStateTesting = "1234FAKECLIA"
         )
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
@@ -149,7 +157,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(suppressNonNPI = false)
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
         val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val testReport = translator.translateByReceiver(pdiInput, receiver)
         val output = serializer.buildMessage(testReport, 2)
@@ -163,7 +171,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/bad-character-replacements.csv").inputStream()
         val schema = "strac/strac-covid-19"
         val hl7Config = createConfig(stripInvalidCharsRegex = "\u0019")
-        val receiver = Receiver("mock", "pa-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "pa-phd", Topic.COVID_19, translation = hl7Config)
         val stracInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val testReport = translator.translateByReceiver(stracInput, receiver)
         val output = serializer.buildMessage(testReport, 0)
@@ -177,7 +185,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(suppressNonNPI = true)
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
         val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val testReport = translator.translateByReceiver(pdiInput, receiver)
         val output = serializer.buildMessage(testReport, 2)
@@ -193,7 +201,7 @@ NTE|1|L|This is a final comment|RE"""
         val schema = "primedatainput/pdi-covid-19"
 
         val hl7Config = createConfig(truncateHl7Fields = "OBX-23-1, MSH-4-1")
-        val receiver = Receiver("test", "vt-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("test", "vt-phd", Topic.COVID_19, translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
@@ -227,7 +235,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(replaceUnicodeWithAscii = true)
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 3)
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -260,7 +268,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(replaceUnicodeWithAscii = false)
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 3)
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -294,7 +302,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(useBatchHeaders = true)
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config, deidentify = true)
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config, deidentify = true)
         val rawInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         var deidentifiedTestReport = translator.translateByReceiver(rawInput, receiver)
         val singleOutput = serializer.buildMessage(deidentifiedTestReport, 0)
@@ -493,6 +501,76 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test error messages bad death date`() {
+        val badDeathMsg =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+SFT|Centers for Disease Control and Prevention|0.2-SNAPSHOT|PRIME ReportStream|0.2-SNAPSHOT||20220816000000+0000
+PID|1||apfetlj^^^Any lab USA&78D8659823&CLIA^b7k3c1^Any facility USA&78D8659823&CLIA||Gutmann^Theron^Stuart^^^^1bqxp||19300117||||315 Francesco Lock^^Riverdale^MI^48877^USA^^^26057||(219)489-3600^PRN^PH^^1^219^4893600~^NET^Internet^tim.gerlach@email.com|||||||348-25-6785|||||||||08112022|N
+            """
+        val mappedMessage = serializer.convertMessageToMap(badDeathMsg, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_DATE)
+    }
+
+    @Test
+    fun `test error messages bad phone ordering`() {
+        val badPhoneMsg =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+SFT|Centers for Disease Control and Prevention|0.2-SNAPSHOT|PRIME ReportStream|0.2-SNAPSHOT||20220816000000+0000
+PID|1||apfetlj^^^Any lab USA&78D8659823&CLIA^b7k3c1^Any facility USA&78D8659823&CLIA||Gutmann^Theron^Stuart^^^^1bqxp||19300117||||315 Francesco Lock^^Riverdale^MI^48877^USA^^^26057||(219)489-3600^PRN^PH^^1^219^4893600~^NET^Internet^tim.gerlach@email.com|||||||348-25-6785|||||||||20220811|N
+ORC|RE|797773^Any lab USA^82D7546467^CLIA|704220^Any lab USA^82D7546467^CLIA|988705^vxuzaz^56D2778463^CLIA||||||||1172556940^Veum^Deetta^Harris^^^^^0.0.0.0.1^^^^04jfc||(209)462-0271^WPN^PH^^1^209^4620271|20220811234213+0000||||||Any facility USA^L|1739 Fadel Road^^Riverdale^MI^48877^^^^26057|+999999999999|9215 Oren Views^^Riverdale^MI^48877^^^^26057
+            """
+        val mappedMessage = serializer.convertMessageToMap(badPhoneMsg, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_TELEPHONE)
+    }
+
+    @Test
+    fun `test error messages bad livd lookup`() {
+        val badDatetime =
+            """MSH|^~\&|ProPhase^2.16.840.1.114222.4.1.238646^ISO^PI|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20220413233348-0500||ORU^R01^ORU_R01^R01|00038772|P|2.5.1||||NE|||||PHLabReport-Batch^^2.16.840.1.114222.4.1.238646^ISO|
+PID|1||1649709582^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO|02856-PZ-22101|Patient^Test||20000513|F||UNK^Unknown^HL70005|123 St Apt 1^^TestCity^NY^11102||8887776666^^^fakeemail@gmail.com^^^8887776666|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N|||||10007059|
+SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
+ORC|RE|PH-388002|221010003714^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|1|||^^^20220411163900||20220411163900|||1215053962^Brandeis^Vincent|^^^LABWORQ&PZ-1001|646-450-4344|20220411163900-0500|||||1|ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|646-450-4344|711 Stewart Ave Ste 200^^Garden City^NY^11530
+OBR|1|PH-388002|221010003714^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|94500-6^SARS-CoV-2 (COVID-19) RNA NAA+probe Ql (Resp)^LN|R||20220411163900|||PUnknown^Unknown^Phleb||||20220412022700|Swab|1215053962^Brandeis^Vincent||||||20220413233206-0500||PGC|F||^^^20220411163900^^R||^02856-PZ-22101|||||System|||||||||||||||||||||PATIENT|||||
+OBX|1|CWE|94500-6^SARS-CoV-2 RNA^LN^^SARS-CoV-2 RNA^LN||260373001^Detected^SCT||Detected|A|||F|||20220413233206-0500|PGC|System|PhoenixDx SARS-CoV-2 Multiplex_Trax Management Services Inc.^SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection^EUA||20220413233206-0500||||ProPhase Diagnostics^L^^^^CLIA^33D2215033^ISO^XX^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
+SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SNOMED_CT|||||||||20220411163900-0500|20220413233206-0500
+            """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.warnings.size).isEqualTo(2)
+        assertThat(mappedMessage.warnings[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING)
+        assertThat(mappedMessage.warnings[1].errorCode).isEqualTo(ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING)
+    }
+
+    @Test
+    fun `test error messages bad missing fields`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(2)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_MISSING_FIELD)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_MISSING_FIELD)
+    }
+
+    @Test
+    fun `test error messages unsupported HL7 msg type`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^57D2109627^CLIA|0.0.0.0.1|0.0.0.0.1|20220832|ORU^R01^ORU_R01|186294|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^dw1aq^e3yul7^if520yz2l
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.warnings.size).isEqualTo(1)
+        assertThat(mappedMessage.warnings[0].errorCode).isEqualTo(ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED)
+    }
+
+    @Test
+    fun `test error messages missing Hl7 MSH`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000|||474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_HL7_MSG_TYPE_MISSING)
+    }
+
+    @Test
     fun `test reading HL7 batch message from file`() {
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile).readText()
@@ -531,6 +609,83 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(report.itemCount == 2).isTrue()
         val hospitalized = (0 until report.itemCount).map { report.getString(it, "hospitalized") }
         assertThat(hospitalized.toSet()).isEqualTo(setOf(""))
+    }
+
+    @Test
+    fun `test checkLIVDValueExists`() {
+        // happy path success
+        val modelCOVIDSeqTest = serializer.checkLIVDValueExists("Model", "COVIDSeq Test")
+        assertThat(modelCOVIDSeqTest).isTrue()
+
+        // happy path fail
+        val modelFake = serializer.checkLIVDValueExists("Model", "Fake")
+        assertThat(modelFake).isFalse()
+
+        // unhappy path input 1
+        val fakeCOVIDSeqTest = serializer.checkLIVDValueExists("fake", "COVIDSeq Test")
+        assertThat(fakeCOVIDSeqTest).isFalse()
+
+        // unhappy path input 1 and 2
+        val fakeFake = serializer.checkLIVDValueExists("fake", "fake")
+        assertThat(fakeFake).isFalse()
+    }
+
+    /**
+     * confirmObservationOrder takes in a message then reviews LOINC codes in the OBX segments. The first LOINC
+     * should be present in the LIVD table. If that is not the case, then the OBX segments are reordered.
+     */
+    @Test
+    fun `test confirmObservationOrder`() {
+        // message where first OBX segment contains the test result
+        val sampleRegMessage = File("./src/testIntegration/resources/serializers/test_result_first_rep.hl7")
+            .readText()
+
+        arrangeTest(sampleRegMessage).run {
+            val oruR01SampleReg: ORU_R01? = this as? ORU_R01
+            // save OBX-3 for first OBX segment prior to the function run
+            val sampleObsID = oruR01SampleReg
+                ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+
+            // assert
+            serializer.organizeObservationOrder(this).run {
+                val happyORUR01 = this as? ORU_R01
+                // extract OBX-3 for first OBX segment after function run
+                val happyFullObsIdentifier = happyORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+                // since first OBX segment does contain the test result, the sample and final OBX-3 values should match
+                assertThat(happyFullObsIdentifier).isEqualTo(sampleObsID)
+            }
+        }
+        // message where first OBX segment does not contain the test result
+        val sampleComplexMessage = File("./src/testIntegration/resources/serializers/test_result_not_first_rep.hl7")
+            .readText()
+
+        arrangeTest(sampleComplexMessage).run {
+            val oruR01SampleComplex: ORU_R01? = this as? ORU_R01
+            // save OBX-3 for first OBX segment prior to the function run
+            val sampleComplexObsID = oruR01SampleComplex
+                ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+
+            // assert
+            serializer.organizeObservationOrder(this).run {
+                val happyComplexORUR01 = this as? ORU_R01
+                // extract OBX-3 for first OBX segment after function run
+                val happyComplexObsIdentifier = happyComplexORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.observationIdentifier?.identifier
+                // since first OBX segment does not contain the test result, the sample and final OBX-3 values
+                // should not match
+                assertThat(happyComplexObsIdentifier).isNotEqualTo(sampleComplexObsID)
+
+                // the OBX segments were rearranged. But the OBX set IDs should still be sequential
+                val happyComplexSetID = happyComplexORUR01
+                    ?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.obx?.setIDOBX
+                assertThat(happyComplexSetID.toString()).isEqualTo("1")
+
+                // the OBX segment with the test result has an attached NTE. That should be moved along with the OBX
+                val happyComplexNTE = happyComplexORUR01?.patienT_RESULT?.ordeR_OBSERVATION?.observation?.nte
+                assertThat(happyComplexNTE).isNotNull()
+            }
+        }
     }
 
     @Test
@@ -680,9 +835,10 @@ NTE|1|L|This is a final comment|RE"""
         val reg = "[\r\n]".toRegex()
 
         val hl7Config = createConfig(cliaForOutOfStateTesting = "10DfakeCL")
-        val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
+        val receiver = Receiver("test", "ca-dph", Topic.COVID_19, translation = hl7Config)
         val schema = "direct/direct-covid-19"
-        val csvHeader = """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
+        val csvHeader =
+            """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
             testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,
             deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,
             patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,
@@ -695,16 +851,19 @@ NTE|1|L|This is a final comment|RE"""
             patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,
             orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,
             previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,
-            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility"""
+            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility
+            """
 
-        val csvBlankState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+        val csvBlankState =
+            """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
             Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
             BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,
             45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
             9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
             93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
             ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,
-            UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         val csvContentBlankState = ByteArrayInputStream(
             csvHeader.replace("\n            ", "")
@@ -726,13 +885,15 @@ NTE|1|L|This is a final comment|RE"""
 
         assertThat(cliaTersedBlankState).isNotEqualTo("10DfakeCL")
 
-        val csvCompleteProviderState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+        val csvCompleteProviderState =
+            """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
             Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
             BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
             yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
             9902 Brimhall rd ste 100,,Bakersfield,TX,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
             93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
-            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         // SenderID is set to "fake" in this CSV
         val csvContentProviderState = ByteArrayInputStream(
@@ -755,13 +916,15 @@ NTE|1|L|This is a final comment|RE"""
 
         assertThat(cliaTersedProviderState).isEqualTo("10DfakeCL")
 
-        val csvCompleteFacilityState = """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
+        val csvCompleteFacilityState =
+            """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
             Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,
             BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,
             yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
             9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,TX,93312,
             Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,
-            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         // SenderID is set to "fake" in this CSV
         val csvContentFacilityState = ByteArrayInputStream(
@@ -795,11 +958,13 @@ NTE|1|L|This is a final comment|RE"""
         val reg = "[\r\n]".toRegex()
 
         // SenderID is set to "fake" in this CSV
-        val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
+        val csvContent = ByteArrayInputStream(
+            "senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray() // ktlint-disable max-line-length
+        )
         val schema = "direct/direct-covid-19"
 
         val hl7Config = createConfig(cliaForSender = mapOf("fake1" to "ABCTEXT123", "fake" to "10D1234567"))
-        val receiver = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
+        val receiver = Receiver("test", "ca-dph", Topic.COVID_19, translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
@@ -812,10 +977,17 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(cliaTersed).isEqualTo("10D1234567")
 
         // Test when sender is not found or blank
-        val csvContentSenderNotFound = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
-        val receiverSenderNotFound = Receiver("test", "ca-dph", "covid-19", translation = hl7Config)
+        val csvContentSenderNotFound = ByteArrayInputStream(
+            "senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray() // ktlint-disable max-line-length
+        )
+        val receiverSenderNotFound = Receiver("test", "ca-dph", Topic.COVID_19, translation = hl7Config)
 
-        val testRptSenderNotFound = csvSerializer.readExternal(schema, csvContentSenderNotFound, listOf(TestSource), receiverSenderNotFound).report // ktlint-disable max-line-length
+        val testRptSenderNotFound = csvSerializer.readExternal(
+            schema,
+            csvContentSenderNotFound,
+            listOf(TestSource),
+            receiverSenderNotFound
+        ).report
         val outputSenderNotFound = serializer.createMessage(testRptSenderNotFound, 0)
 
         val cleanedMessageSenderNotFound = reg.replace(outputSenderNotFound, "\r")
@@ -837,7 +1009,9 @@ NTE|1|L|This is a final comment|RE"""
         val reg = "[\r\n]".toRegex()
 
         // SenderID is set to "fake" in this CSV
-        val csvContent = ByteArrayInputStream("senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray()) // ktlint-disable max-line-length
+        val csvContent = ByteArrayInputStream(
+            "senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname,orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName,performingFacilityStreet,performingFacilityStreet2,performingFacilityCity,performingFacilityState,performingFacilityZip,performingFacilityCounty,performingFacilityPhone,orderingFacilityName,orderingFacilityStreet,orderingFacilityStreet2,orderingFacilityCity,orderingFacilityState,orderingFacilityZip,orderingFacilityCounty,orderingFacilityPhone,specimenSource,patientNameLast,patientNameFirst,patientNameMiddle,patientUniqueId,patientHomeAddress,patientHomeAddress2,patientCity,patientState,patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility\nfake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,Not Detected,94558-4,SCT,202110062022-0400,202110062022-0400,20211007,20211007,00382902560821,BD Veritor System for Rapid Detection of SARS-CoV-2*,4efd9df8-9424-4e50-b168-f3aa894bfa42,4efd9df8-9424-4e50-b168-f3aa894bfa42,45,yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,CA,93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880".toByteArray() // ktlint-disable max-line-length
+        )
         val schema = "direct/direct-covid-19"
 
         val hl7Config = createConfig(
@@ -850,7 +1024,7 @@ NTE|1|L|This is a final comment|RE"""
                 "MSH-10" to "yeah,/,MSH-4-1"
             )
         )
-        val receiver = Receiver("mock", "ca-dph", "covid-19", translation = hl7Config)
+        val receiver = Receiver("mock", "ca-dph", Topic.COVID_19, translation = hl7Config)
 
         val testReport = csvSerializer.readExternal(schema, csvContent, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 0)
@@ -883,5 +1057,20 @@ NTE|1|L|This is a final comment|RE"""
         val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
 
         assertThat(nte22).isNull()
+    }
+
+    /**
+     * Given a string message, parse it and turn it into a message that can be interacted with
+     * @param rawMessage - the raw string message to parse
+     */
+    private fun arrangeTest(rawMessage: String): Message {
+        // arrange
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(rawMessage, "\r")
+        return parser.parse(cleanedMessage)
     }
 }

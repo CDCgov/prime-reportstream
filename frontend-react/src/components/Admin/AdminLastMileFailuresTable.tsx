@@ -13,7 +13,6 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { Link } from "react-router-dom";
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
@@ -23,6 +22,8 @@ import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
+import { getAppInsightsHeaders } from "../../TelemetryService";
+import { USLink } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -101,7 +102,7 @@ const RenderResendModal = (props: {
 }) => {
     return (
         <>
-            <p className={"border"}>
+            <p className={""}>
                 <b>You are about to trigger a retransmission.</b>
                 <br />
                 Copy the information below into a github issue to coordinate
@@ -127,17 +128,18 @@ const RenderResendModal = (props: {
                     <Button
                         type="button"
                         size="small"
-                        disabled={props.loading}
-                        onClick={() => props.startResend()}
+                        outline
+                        onClick={props.closeResendModal}
                     >
-                        Trigger Resend
+                        Cancel
                     </Button>
                     <Button
                         type="button"
                         size="small"
-                        onClick={props.closeResendModal}
+                        disabled={props.loading}
+                        onClick={() => props.startResend()}
                     >
-                        Cancel
+                        Trigger Resend
                     </Button>
                 </ButtonGroup>
             </ModalFooter>
@@ -210,14 +212,14 @@ const DataLoadRenderTable = (props: {
                         </span>
                     </td>
                     <td>
-                        <Link
+                        <USLink
                             title={"Jump to Settings"}
-                            to={linkRecvSettings}
+                            href={linkRecvSettings}
                             key={`recv_link_${eachRow.pk()}`}
                             className={"font-mono-xs"}
                         >
                             {eachRow.receiver}
-                        </Link>
+                        </USLink>
                     </td>
                     <td>
                         <Button
@@ -355,6 +357,7 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${getStoredOktaToken()}`,
                 },
                 mode: "cors",

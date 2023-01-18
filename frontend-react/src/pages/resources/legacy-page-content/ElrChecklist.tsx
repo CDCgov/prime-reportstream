@@ -1,15 +1,22 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import DOMPurify from "dompurify";
+import { Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const ELRChecklistIa = () => {
+    const navigate = useNavigate();
     return (
         <>
-            <BasicHelmet pageTitle="ELR onboarding checklist | Resources" />
-            <h1 id="anchor-top">ELR onboarding checklist</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.ELR_CHECKLIST} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.ELR_CHECKLIST}</h1>
             <h2>
                 If you're a public health department and want to connect
                 ReportStream through Electronic Lab Reporting (ELR), you'll need
@@ -20,69 +27,64 @@ export const ELRChecklistIa = () => {
                 gather everything you need to complete the form.
             </h2>
             <hr />
-            <a
-                href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                target="_blank"
-                rel="noreferrer"
-                className="usa-button margin-bottom-2 tablet:margin-bottom-0"
+            <Button
+                type="button"
+                onClick={() =>
+                    window.open(
+                        DOMPurify.sanitize(site.forms.intakeElr.url),
+                        "_blank"
+                    )
+                }
             >
                 ELR onboarding form
-            </a>
-            <a
-                href="/support/contact"
-                className="usa-button usa-button--outline"
+            </Button>
+            <Button
+                type="button"
+                outline
+                onClick={() => navigate("/support/contact")}
             >
                 Contact us
-            </a>
+            </Button>
             <hr />
             <p className="margin-top-6">
                 <strong>On this page:</strong>
             </p>
             <ul>
                 <li>
-                    <a href="#elr-contact-information" className="usa-link">
+                    <USLink anchor href="#elr-contact-information">
                         ELR contact information
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a
-                        href="#alternate-contact-information"
-                        className="usa-link"
-                    >
+                    <USLink anchor href="#alternate-contact-information">
                         Program or admin staff contact information
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a
-                        href="#data-requirements-and-preferences"
-                        className="usa-link"
-                    >
+                    <USLink anchor href="#data-requirements-and-preferences">
                         Data requirements and preferences
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a
-                        href="#testing-facility-registration"
-                        className="usa-link"
-                    >
+                    <USLink anchor href="#testing-facility-registration">
                         Testing facility registration
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#hl7-data-fields" className="usa-link">
+                    <USLink anchor href="#hl7-data-fields">
                         HL7 data fields (Not applicable if using an alternate
                         data format)
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#sftp-details" className="usa-link">
+                    <USLink anchor href="#sftp-details">
                         SFTP details
-                    </a>
+                    </USLink>
                 </li>
                 <li>
-                    <a href="#document-uploads" className="usa-link">
+                    <USLink anchor href="#document-uploads">
                         Document uploads
-                    </a>
+                    </USLink>
                 </li>
             </ul>
 
@@ -90,19 +92,13 @@ export const ELRChecklistIa = () => {
                 Before gathering information on the checklist or completing the
                 ELR onboarding form, we recommend first reviewing information on
                 our{" "}
-                <a
-                    href="/getting-started/public-health-departments/overview"
-                    className="usa-link"
-                >
+                <USLink href="/getting-started/public-health-departments/overview">
                     Getting started page
-                </a>{" "}
+                </USLink>{" "}
                 and the technical details outlined in{" "}
-                <a
-                    href="/how-it-works/systems-and-settings"
-                    className="usa-link"
-                >
+                <USLink href="/how-it-works/systems-and-settings">
                     Systems & settings
-                </a>{" "}
+                </USLink>{" "}
                 with your IT and data specialists.
             </p>
             <section>
@@ -137,17 +133,17 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <a href="https://hl7.org/">HL7</a> file via Secure File
-                    Transfer Protocol (SFTP). We capture Health and Human
-                    Services (HHS) required fields, including “Ask on Order
-                    Entry” questions.{" "}
+                    <USExtLink href="https://hl7.org/">HL7</USExtLink> file via
+                    Secure File Transfer Protocol (SFTP). We capture Health and
+                    Human Services (HHS) required fields, including “Ask on
+                    Order Entry” questions.{" "}
                 </p>
 
                 <p>
                     Please note: ReportStream follows industry standards for{" "}
-                    <a href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
+                    <USExtLink href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
                         data formatting
-                    </a>{" "}
+                    </USExtLink>{" "}
                     and reporting. While we can support custom format or sending
                     mechanisms, this will increase the time required to build
                     your connection.{" "}
@@ -168,9 +164,9 @@ export const ELRChecklistIa = () => {
                     <li>
                         <span className="text-bold">Batching:</span> Do you want
                         HL7 message batching{" "}
-                        <a href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">
+                        <USExtLink href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">
                             using FHS and BHS segments
-                        </a>
+                        </USExtLink>
                         ?{" "}
                     </li>
                     <li>
@@ -180,9 +176,9 @@ export const ELRChecklistIa = () => {
                     <li>
                         <span className="text-bold">“Ask on Order Entry”:</span>{" "}
                         Do you want “Ask on Order Entry” questions as{" "}
-                        <a href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
+                        <USExtLink href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
                             OBX fields
-                        </a>
+                        </USExtLink>
                         ?{" "}
                     </li>
                     <li>
@@ -219,7 +215,9 @@ export const ELRChecklistIa = () => {
                 <p>
                     ReportStream collects unique identifiers from testing
                     facilities when they register to send data, including name,{" "}
-                    <a href="https://www.cdc.gov/clia/about.html">CLIA</a>{" "}
+                    <USExtLink href="https://www.cdc.gov/clia/about.html">
+                        CLIA
+                    </USExtLink>{" "}
                     number, and address. This information is included with data
                     sent to public health departments.
                 </p>
@@ -253,15 +251,19 @@ export const ELRChecklistIa = () => {
                 </h3>
 
                 <ul>
-                    <li>Receiving application name </li>
+                    <li>Receiving application name</li>
                     <li>
                         Receiving application{" "}
-                        <a href="https://www.hl7.org/oid/">OID</a>
+                        <USExtLink href="https://www.hl7.org/oid/">
+                            OID
+                        </USExtLink>
                     </li>
-                    <li>Receiving facility name </li>
+                    <li>Receiving facility name</li>
                     <li>
                         Receiving facility{" "}
-                        <a href="https://www.hl7.org/oid/">OID</a>
+                        <USExtLink href="https://www.hl7.org/oid/">
+                            OID
+                        </USExtLink>
                     </li>
                 </ul>
             </section>
@@ -270,9 +272,9 @@ export const ELRChecklistIa = () => {
 
                 <ul>
                     <li>Staging host name (DNS name)</li>
-                    <li>Staging folder (folder name) </li>
-                    <li>Prod host name (DNS name) </li>
-                    <li>Prod host folder (folder name) </li>
+                    <li>Staging folder (folder name)</li>
+                    <li>Prod host name (DNS name)</li>
+                    <li>Prod host folder (folder name)</li>
                 </ul>
             </section>
             <section>
@@ -299,9 +301,9 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     Once you have all the information you need, submit our{" "}
-                    <a href="https://prime.powerappsportals.us/siw/">
+                    <USExtLink href="https://prime.powerappsportals.us/siw/">
                         ReportStream ELR onboarding form
-                    </a>
+                    </USExtLink>
                     . We'll get back to you within a week.
                 </p>
 
@@ -311,12 +313,13 @@ export const ELRChecklistIa = () => {
                 </p>
 
                 <p>
-                    <a
-                        href="/support/contact"
-                        className="usa-button usa-button--outline"
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() => navigate("/support/contact")}
                     >
                         Get in touch
-                    </a>
+                    </Button>
                 </p>
             </section>
         </>

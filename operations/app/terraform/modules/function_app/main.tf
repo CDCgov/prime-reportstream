@@ -145,7 +145,8 @@ resource "azurerm_function_app" "function_app" {
   }
 
   app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
+    "POSTGRES_URL"         = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
+    "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
   })
@@ -213,7 +214,7 @@ resource "azurerm_resource_group_template_deployment" "functionapp_sticky_settin
   resource_group_name = var.resource_group
   deployment_mode     = "Incremental"
 
-  template_content = <<DEPLOY
+  template_content = <<TEMPLATE
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -239,7 +240,7 @@ resource "azurerm_resource_group_template_deployment" "functionapp_sticky_settin
       }
   ]
 }
-DEPLOY
+TEMPLATE
 
   parameters_content = jsonencode({
     webAppName = {

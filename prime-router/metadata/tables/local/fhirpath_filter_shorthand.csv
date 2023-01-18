@@ -1,0 +1,11 @@
+variable,fhirPath
+processingId,Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code
+messageId,Bundle.entry.resource.ofType(MessageHeader).id
+patient,Bundle.entry.resource.ofType(Patient)
+performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
+patientState,Bundle.entry.resource.ofType(Patient).address.state
+specimen,Bundle.entry.resource.ofType(Specimen)
+serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
+observation,Bundle.entry.resource.ofType(Observation)
+provenance,Bundle.entry.resource.ofType(Provenance)
+hl7MessageType,Bundle.entry.resource.ofType(Provenance).activity.coding.code

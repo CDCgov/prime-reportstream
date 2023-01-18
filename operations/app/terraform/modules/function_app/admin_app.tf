@@ -96,6 +96,9 @@ resource "azurerm_function_app" "admin" {
       site_config[0].ip_restriction
     ]
   }
+  depends_on = [
+    var.app_service_plan
+  ]
   tags = {
     environment = local.config.environment
     managed-by  = "terraform"
@@ -118,9 +121,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_
 
 locals {
   admin_publish_command = <<EOF
-      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} \
-      --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} \
-      --build-remote false --timeout 600
+      az functionapp deployment source config-zip --resource-group ${local.interface.resource_group_name} --name ${azurerm_function_app.admin.name} --src ${data.archive_file.admin_function_app.output_path} --build-remote false --timeout 600
     EOF
 }
 
@@ -141,7 +142,7 @@ data "archive_file" "admin_function_app" {
 
 resource "null_resource" "admin_function_app_publish" {
   provisioner "local-exec" {
-    command = local.admin_publish_command
+    command = var.is_temp_env == true ? "echo 'admin app disabled'" : local.admin_publish_command
   }
   depends_on = [
     local.admin_publish_command,

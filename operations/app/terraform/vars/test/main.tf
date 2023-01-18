@@ -84,6 +84,8 @@ module "database" {
   use_cdc_managed_vnet     = local.network.use_cdc_managed_vnet
   postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
+  postgres_readonly_user   = data.azurerm_key_vault_secret.postgres_readonly_user.value
+  postgres_readonly_pass   = data.azurerm_key_vault_secret.postgres_readonly_pass.value
   db_sku_name              = local.database.db_sku_name
   db_version               = local.database.db_version
   db_storage_mb            = local.database.db_storage_mb
@@ -95,6 +97,8 @@ module "database" {
   application_key_vault_id = module.key_vault.application_key_vault_id
   dns_vnet                 = local.network.dns_vnet
   dns_zones                = module.network.dns_zones
+  flex_sku_name            = local.database.flex_sku_name
+  flex_instances           = local.database.flex_instances
 }
 
 module "storage" {
@@ -148,6 +152,7 @@ module "function_app" {
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
+  storage_account                   = module.storage.storage_account_id
 }
 
 module "front_door" {
@@ -198,7 +203,8 @@ module "sftp_container" {
   location              = local.init.location
   use_cdc_managed_vnet  = local.network.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
-
+  dns_zones             = module.network.dns_zones
+  storage_account       = module.storage.storage_account
 }
 
 module "metabase" {

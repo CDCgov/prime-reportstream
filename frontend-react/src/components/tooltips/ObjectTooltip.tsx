@@ -45,8 +45,7 @@ const EnumTooltip = ({ vals }: EnumTooltipProps) => {
     })}`;
     return (
         <Tooltip
-            className="fixed-tooltip"
-            position="right"
+            position="bottom"
             label={label}
             onClick={() => copyToClipboard(clipboard)}
         >

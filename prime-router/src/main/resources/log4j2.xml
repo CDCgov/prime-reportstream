@@ -4,7 +4,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
                 <!-- Might be able to use entity references to avoid repeating this pattern over and over. -->
-                <LevelPatternSelector defaultPattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg%n">
+                <LevelPatternSelector defaultPattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg - %X%n">
                   <!-- Add some color to ERROR and WARN -->
                   <PatternMatch key="ERROR" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
                   <PatternMatch key="WARN" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
@@ -37,7 +37,7 @@
         <Logger name="ca.uhn.fhir.parser.LenientErrorHandler" level="error"/>
         <Logger name="ca.uhn.fhir" level="error"/>
         <Logger name="org.apache.commons.beanutils.FluentPropertyBeanIntrospector" level="error"/>
-        <Logger name="gov.cdc.prime.router.fhirengine.translation.hl7" level="debug"/>
+        <Logger name="gov.cdc.prime.router.fhirengine.translation.hl7" level="info"/>
 
         <!-- Example to turn on debugging in your favorite package
         <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">

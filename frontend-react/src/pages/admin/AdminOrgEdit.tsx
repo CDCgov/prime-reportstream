@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useState } from "react";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -39,6 +39,8 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import config from "../../config";
+import { getAppInsightsHeaders } from "../../TelemetryService";
+import { USLink } from "../../components/USLink";
 
 const { RS_API_URL } = config;
 
@@ -68,6 +70,7 @@ export function AdminOrgEdit() {
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -156,11 +159,11 @@ export function AdminOrgEdit() {
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
                     Org name: {orgname} {" - "}
-                    <Link
-                        to={`/admin/revisionhistory/org/${orgname}/settingtype/organization`}
+                    <USLink
+                        href={`/admin/revisionhistory/org/${orgname}/settingtype/organization`}
                     >
                         History
-                    </Link>
+                    </USLink>
                 </h2>
             </section>
             <NetworkErrorBoundary

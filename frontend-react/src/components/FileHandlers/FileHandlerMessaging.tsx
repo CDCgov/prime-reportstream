@@ -1,14 +1,17 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo } from "react";
+import { IconHelp, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
-import { ResponseError } from "../../network/api/WatersApi";
+import {
+    ResponseError,
+    ErrorCodeTranslation,
+} from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { USExtLink, USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -48,9 +51,9 @@ export const FileSuccessDisplay = ({
                                     Confirmation Code
                                 </p>
                                 <p className="margin-top-05">
-                                    <Link to={`/submissions/${reportId}`}>
+                                    <USLink href={`/submissions/${reportId}`}>
                                         {reportId}
-                                    </Link>
+                                    </USLink>
                                 </p>
                             </div>
                         )}
@@ -93,76 +96,97 @@ export const FileSuccessDisplay = ({
     );
 };
 
-/***
- * This function attempts to truncate an error message if it contains
- * a full stack trace
- * @param errorMessage - the error message to potentially reformat
- * @returns - the original or transformed error message
- */
-const truncateErrorMessage = (errorMessage: string | undefined): string => {
-    if (!errorMessage) return "";
+export enum RequestLevel {
+    WARNING = "Warnings",
+    ERROR = "Errors",
+}
 
-    if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
-        return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
-
-    return errorMessage;
+const TrackingIDTooltip = () => {
+    return (
+        <Tooltip
+            className="fixed-tooltip"
+            position="right"
+            label={"Defaults to MSH-10"}
+        >
+            <IconHelp />
+        </Tooltip>
+    );
 };
 
-type FileErrorDisplayProps = {
-    errors: ResponseError[];
+type RequestedChangesDisplayProps = {
+    title: RequestLevel;
+    data: ResponseError[];
     message: string;
-    fileName: string;
-    handlerType: string;
     heading: string;
+    handlerType: string;
 };
 
-export const FileErrorDisplay = ({
-    fileName,
-    errors,
+export const RequestedChangesDisplay = ({
+    title,
+    data,
     message,
     heading,
     handlerType,
-}: FileErrorDisplayProps) => {
-    const showErrorTable =
-        errors && errors.length && errors.some((error) => error.message);
+}: RequestedChangesDisplayProps) => {
+    const alertType = useMemo(
+        () => (title === RequestLevel.WARNING ? "warning" : "error"),
+        [title]
+    );
+    const showTable =
+        data &&
+        data.length &&
+        data.some((responseItem) => responseItem.message);
 
     useEffect(() => {
-        errors.forEach((error: ResponseError) => {
-            if (error.details) {
+        data.forEach((error: ResponseError) => {
+            if (title === RequestLevel.ERROR && error.details) {
                 console.error(`${handlerType} failure: ${error.details}`);
             }
         });
-    }, [errors, handlerType]);
+    }, [data, handlerType, title]);
 
     return (
         <>
-            <StaticAlert type={"error"} heading={heading} message={message} />
-            <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
-            </div>
-            {showErrorTable && (
+            <StaticAlert type={alertType} heading={heading} message={message}>
+                <h5 className="margin-bottom-1">Resources</h5>
+                <ul className={"margin-0"}>
+                    <li>
+                        <USLink
+                            target="_blank"
+                            href="/resources/programmers-guide"
+                        >
+                            ReportStream Programmers Guide
+                        </USLink>
+                    </li>
+                    <li>
+                        <USExtLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
+                            LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
+                        </USExtLink>
+                    </li>
+                </ul>
+            </StaticAlert>
+            {showTable && (
                 <>
-                    <h3>Errors</h3>
+                    <h3>{title}</h3>
                     <table
-                        className="usa-table usa-table--borderless"
+                        className="usa-table usa-table--borderless rs-width-100"
                         data-testid="error-table"
                     >
                         <thead>
                             <tr>
-                                <th>Requested Edit</th>
-                                <th>Areas Containing the Requested Edit</th>
-                                <th>Field</th>
-                                <th>Tracking ID(s)</th>
+                                <th className="rs-table-column-minwidth">
+                                    Requested Edit
+                                </th>
+                                <th className="rs-table-column-minwidth">
+                                    Field
+                                </th>
+                                <th className="rs-table-column-minwidth">
+                                    Tracking ID(s) <TrackingIDTooltip />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {errors.map((e, i) => {
+                            {data.map((e, i) => {
                                 return (
                                     <ErrorRow
                                         error={e}
@@ -187,89 +211,29 @@ export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
     return <StaticAlert type={"warning"} heading="Warning" message={message} />;
 };
 
-type FileWarningsDisplayProps = {
-    warnings: ResponseError[];
-    message: string;
-    heading: string;
-};
-
-export const FileWarningsDisplay = ({
-    warnings,
-    message,
-    heading,
-}: FileWarningsDisplayProps) => {
-    return (
-        <>
-            <StaticAlert
-                type={"warning slim"}
-                heading={heading}
-                message={message}
-            />
-            <h3>Warnings</h3>
-            <table
-                className="usa-table usa-table--borderless"
-                data-testid="error-table"
-            >
-                <thead>
-                    <tr>
-                        <th>Warning</th>
-                        <th>Indices</th>
-                        <th>Field</th>
-                        <th>Tracking ID(s)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {warnings.map((w, i) => {
-                        return (
-                            <ErrorRow error={w} index={i} key={`warning${i}`} />
-                        );
-                    })}
-                </tbody>
-            </table>
-        </>
-    );
-};
-
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
 }
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { message, indices, field, trackingIds } = error;
+    const { message, field, errorCode, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{truncateErrorMessage(message)}</td>
             <td>
-                {indices?.length && indices.length > 0 && (
-                    <span>Row(s): {indices.join(", ")}</span>
-                )}
+                {errorCode &&
+                errorCode !== "UNKNOWN" &&
+                ErrorCodeTranslation[errorCode]
+                    ? ErrorCodeTranslation[errorCode]
+                    : message}
             </td>
-            <td>{field}</td>
-            <td>
+            <td className="rs-table-column-minwidth">{field}</td>
+            <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
                     <span>{trackingIds.join(", ")}</span>
                 )}
             </td>
         </tr>
-    );
-};
-
-interface NoSenderBannerProps {
-    action: string;
-    organization: string;
-}
-
-export const NoSenderBanner = ({
-    action,
-    organization,
-}: NoSenderBannerProps) => {
-    return (
-        <StaticAlert
-            type={"error"}
-            heading={`${capitalizeFirst(action)} unavailable`}
-            message={`No valid sender found for ${organization}`}
-        />
     );
 };
 
@@ -295,14 +259,14 @@ export const FileQualityFilterDisplay = ({
             {destinations?.map((d) => (
                 <React.Fragment key={d.organization_id}>
                     <table
-                        className="usa-table usa-table--borderless"
+                        className="usa-table usa-table--borderless width-full"
                         data-testid="error-table"
                     >
                         <thead>
-                            <tr>
+                            <tr className="text-baseline">
                                 <th>
-                                    {d.organization}
-                                    <span className="font-ui-3xs">
+                                    {d.organization} <br />
+                                    <span className="font-sans-3xs text-normal">
                                         {" "}
                                         ({d.filteredReportItems.length})
                                         record(s) filtered out

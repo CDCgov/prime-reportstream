@@ -42,6 +42,10 @@ variable "postgres_user" {}
 variable "postgres_pass" {
   sensitive = true
 }
+variable "postgres_readonly_user" {}
+variable "postgres_readonly_pass" {
+  sensitive = true
+}
 variable "db_sku_name" {}
 variable "db_version" {}
 variable "db_storage_mb" {}
@@ -60,4 +64,10 @@ variable "subnets" {
 
 variable "dns_zones" {
   description = "A set of all available dns zones"
+}
+variable "flex_instances" {
+  default = []
+}
+variable "flex_sku_name" {
+  default = "GP_Standard_D4ds_v4"
 }

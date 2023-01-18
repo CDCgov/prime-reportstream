@@ -1,6 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import range from "lodash.range";
 
+import { mockAppInsights } from "../utils/__mocks__/ApplicationInsights";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 
 import usePagination, {
@@ -17,6 +18,11 @@ interface SampleRecord {
     cursor: string;
 }
 const extractCursor: CursorExtractor<SampleRecord> = (r) => r.cursor;
+
+jest.mock("../TelemetryService", () => ({
+    ...jest.requireActual("../TelemetryService"),
+    getAppInsights: () => mockAppInsights,
+}));
 
 function createSampleRecords(
     numRecords: number,
@@ -589,5 +595,41 @@ describe("usePagination", () => {
         // The initial request should check for the presence of up to five pages.
         expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61);
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
+    });
+
+    test("Calls appInsights.trackEvent with page size and page number.", async () => {
+        const mockFetchResults = jest
+            .fn()
+            .mockResolvedValueOnce(createSampleRecords(11))
+            .mockResolvedValueOnce(createSampleRecords(11));
+        const { result, waitForNextUpdate } = doRenderHook({
+            startCursor: "0",
+            isCursorInclusive: false,
+            pageSize: 10,
+            fetchResults: mockFetchResults,
+            extractCursor,
+            analyticsEventName: "Test Analytics Event",
+        });
+
+        // Wait for the fetch promise to resolve, then check the slots and move
+        // to the next page.
+        await waitForNextUpdate();
+        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
+        expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
+        expect(mockAppInsights.trackEvent).not.toBeCalled();
+
+        act(() => {
+            result.current.paginationProps?.setSelectedPage(2);
+        });
+
+        expect(mockAppInsights.trackEvent).toBeCalledWith({
+            name: "Test Analytics Event",
+            properties: {
+                tablePagination: {
+                    pageSize: 10,
+                    pageNumber: 2,
+                },
+            },
+        });
     });
 });

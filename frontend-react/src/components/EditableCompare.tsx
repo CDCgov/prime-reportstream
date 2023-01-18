@@ -11,19 +11,25 @@ import {
 import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-import { Diff, SES_TYPE } from "../utils/diff";
-import { checkTextAreaJson, splitOn } from "../utils/misc";
+import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
+import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
+import { checkJson, splitOn } from "../utils/misc";
+
+import { showError } from "./AlertNotifications";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
     getOriginalText: () => string;
-    refreshEditedText: (updatedjson: string) => void;
+    refreshEditedText: (updatedjson?: string) => boolean; // returns true if valid JSON
+    isValidSyntax: () => boolean;
 };
 
 interface EditableCompareProps {
     original: string;
     modified: string;
+    jsonDiffMode: boolean; // true is json aware compare, false is a text compare
+    onChange: (text: string, isValid: boolean) => void;
 }
 
 /**
@@ -43,7 +49,7 @@ interface EditableCompareProps {
 export const EditableCompare = forwardRef(
     // allows for functions on components (useImperativeHandle)
     (
-        props: EditableCompareProps,
+        { jsonDiffMode, modified, onChange, original }: EditableCompareProps,
         ref: Ref<EditableCompareRef>
     ): ReactElement => {
         // useRefs are used to access html elements directly (instead of document.getElementById)
@@ -58,6 +64,93 @@ export const EditableCompare = forwardRef(
         const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
             useState("");
 
+        // the API call into this forwardRef well say if json is valid (to enable save button)
+        const [isValidSyntax, setIsValidSyntax] = useState(true);
+
+        const refreshDiffCallback = useCallback(
+            (originalText: string, modifiedText: string) => {
+                if (originalText.length === 0 || modifiedText.length === 0) {
+                    return;
+                }
+
+                // jsonDiffMode requires json be valid. If it's not then don't run it.
+                const { valid, offset } = checkJson(modifiedText);
+                if (!valid) {
+                    // clear the diff on the left since the right is invalid
+                    setLeftHandSideHighlightHtml(originalText);
+
+                    // show where the error is:
+                    const start = Math.max(offset - 4, 0); // don't let go negative
+                    const end = Math.min(offset + 4, modifiedText.length); // don't let go past len
+
+                    const threeParts = splitOn(modifiedText, start, end);
+                    // we're using HTML5's <s> tag to show error, style sets background to red.
+                    const errorHtml = `${threeParts[0]}<s data-testid="EditableCompare__errorDiff">${threeParts[1]}</s>${threeParts[2]}`;
+                    setRightHandSideHighlightHtml(errorHtml);
+
+                    return;
+                }
+
+                const result = jsonDiffMode
+                    ? jsonDifferMarkup(
+                          JSON.parse(originalText),
+                          JSON.parse(modifiedText)
+                      )
+                    : textDifferMarkup(originalText, modifiedText);
+
+                // now stick it back into the edit boxes.
+                if (result.left.markupText !== leftHandSideHighlightHtml) {
+                    setLeftHandSideHighlightHtml(result.left.markupText);
+                }
+
+                // we only change the highlighting on the BACKGROUND div so we don't mess up typing/cursor
+                if (result.right.markupText !== rightHandSideHighlightHtml) {
+                    setRightHandSideHighlightHtml(result.right.markupText);
+                }
+            },
+            [
+                leftHandSideHighlightHtml,
+                rightHandSideHighlightHtml,
+                jsonDiffMode,
+            ]
+        );
+
+        // force an update of the content
+        // will update with the provided content or infer from previous content
+        const refreshEditedText = useCallback(
+            (updatedJson: string | undefined) => {
+                let formattedText = updatedJson || textAreaContent;
+                const { valid, errorMsg } = checkJson(formattedText);
+
+                if (valid) {
+                    formattedText = JSON.stringify(
+                        JSON.parse(formattedText),
+                        null,
+                        2
+                    );
+                    setTextAreaContent(formattedText);
+                } else {
+                    showError(`JSON data generated an error "${errorMsg}"`);
+                }
+
+                setIsValidSyntax(valid);
+                refreshDiffCallback(original, formattedText);
+
+                return valid;
+            },
+            [original, textAreaContent, refreshDiffCallback]
+        );
+
+        const onChangeHandler = useCallback(
+            (newText: string) => {
+                setTextAreaContent(newText);
+                // Disable highlighting while the user's typing
+                setRightHandSideHighlightHtml("");
+                onChange(newText, checkJson(newText).valid);
+            },
+            [setTextAreaContent, setRightHandSideHighlightHtml, onChange]
+        );
+
         useImperativeHandle(
             ref,
             () => ({
@@ -65,107 +158,26 @@ export const EditableCompare = forwardRef(
                     return textAreaContent;
                 },
                 getOriginalText() {
-                    return props.original;
+                    return original;
                 },
-                // when showing/hiding json, force am update of the content
-                refreshEditedText(updatedjson) {
-                    setTextAreaContent(updatedjson);
-                    onChangeHandler(updatedjson);
+                refreshEditedText,
+                isValidSyntax() {
+                    return isValidSyntax;
                 },
             }),
-            // onChangeHandler appears below, remove from deps
-            // eslint-disable-next-line
-            [textAreaContent]
-        );
-
-        const turnOffSpellCheckSwigglies = () => {
-            if (editDiffRef?.current?.spellcheck) {
-                editDiffRef.current.spellcheck = false;
-            }
-        };
-
-        const refreshDiffCallback = useCallback(
-            (originalText: string, modifiedText: string) => {
-                if (originalText.length === 0 || modifiedText.length === 0) {
-                    return;
-                }
-                const insertHighlight = (
-                    s1: string,
-                    offset: number,
-                    length: number
-                ): string => {
-                    if (s1 === "" || length === 0) {
-                        return "";
-                    }
-                    // we want to insert a <span></span> around text.
-                    const threeParts = splitOn(s1, offset, offset + length);
-                    if (threeParts.length !== 3) {
-                        console.error("split failed");
-                        return s1;
-                    }
-
-                    return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;
-                };
-
-                turnOffSpellCheckSwigglies();
-
-                const differ = Diff(originalText, modifiedText);
-                differ.compose();
-                const sesses = differ.getses();
-
-                // because we're modifying text, it will change offsets UNLESS we go backwards.
-                // the later items in the patches array are sequential
-                let patchedLeftStr = originalText;
-                let patchedRightStr = modifiedText;
-
-                for (let ii = sesses.length - 1; ii >= 0; --ii) {
-                    const eachses = sesses[ii];
-                    if (eachses.sestype === SES_TYPE.DELETE) {
-                        patchedLeftStr = insertHighlight(
-                            patchedLeftStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } else if (eachses.sestype === SES_TYPE.ADD) {
-                        patchedRightStr = insertHighlight(
-                            patchedRightStr,
-                            eachses.index - 1,
-                            eachses.len
-                        );
-                    } // ignore SES_TYPE.COMMON
-                }
-
-                // now stick it back into the edit boxes.
-                if (patchedLeftStr !== leftHandSideHighlightHtml) {
-                    setLeftHandSideHighlightHtml(patchedLeftStr);
-                }
-
-                // we only change the hightlighting on the BACKGROUND div so we don't mess up typing/cursor
-                if (patchedRightStr !== rightHandSideHighlightHtml) {
-                    setRightHandSideHighlightHtml(patchedRightStr);
-                }
-            },
-            [leftHandSideHighlightHtml, rightHandSideHighlightHtml]
-        );
-
-        const onChangeHandler = useCallback(
-            (newText: string) => {
-                setTextAreaContent(newText);
-                refreshDiffCallback(props.original, newText);
-            },
-            [setTextAreaContent, refreshDiffCallback, props]
+            [textAreaContent, original, isValidSyntax, refreshEditedText]
         );
 
         useEffect(() => {
-            if (props.modified?.length > 0 && textAreaContent.length === 0) {
+            if (modified?.length > 0 && textAreaContent.length === 0) {
                 // initialization only
-                onChangeHandler(props.modified);
+                onChangeHandler(modified);
             }
-        }, [textAreaContent, props, onChangeHandler]);
+        }, [textAreaContent, modified, onChangeHandler]);
 
         return (
             <ScrollSync>
-                <div className="rs-editable-compare-container">
+                <div className="rs-editable-compare-container differ-marks">
                     <div className="rs-editable-stacked-container">
                         <ScrollSyncPane>
                             <div
@@ -173,7 +185,7 @@ export const EditableCompare = forwardRef(
                                 className="rs-editable-compare-base rs-editable-compare-static"
                                 contentEditable={false}
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(props.original),
+                                    __html: DOMPurify.sanitize(original),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -197,15 +209,10 @@ export const EditableCompare = forwardRef(
                                 ref={editDiffRef}
                                 value={textAreaContent}
                                 onChange={(e) => {
-                                    onChangeHandler(e.target.value);
+                                    onChangeHandler(e?.target?.value || "");
                                 }}
-                                onBlur={(e) => {
-                                    checkTextAreaJson(
-                                        e?.target?.value,
-                                        "edited text",
-                                        editDiffRef
-                                    );
-                                }}
+                                spellCheck="false"
+                                data-testid="EditableCompare__textarea"
                             />
                         </ScrollSyncPane>
 

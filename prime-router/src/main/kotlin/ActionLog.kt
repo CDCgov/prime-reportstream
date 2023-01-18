@@ -9,7 +9,7 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation
+    parameter, report, item, translation, internal
 }
 
 /**
@@ -42,7 +42,7 @@ data class ActionLog(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: ActionLogLevel = ActionLogLevel.info,
-    val created_at: Instant = Instant.now(),
+    val created_at: Instant = Instant.now()
 ) {
     val scope = detail.scope
 
@@ -89,6 +89,11 @@ interface ActionLogDetail {
      * The log message.
      */
     val message: String
+
+    /**
+     * The error code used to translate the error in the UI.
+     */
+    val errorCode: ErrorCode
 }
 
 /**

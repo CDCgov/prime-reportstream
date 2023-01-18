@@ -17,48 +17,44 @@ class ConfigSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("name")
+        schema = ConfigSchema()
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("name", "ORU_R01")
+        schema = ConfigSchema("ORU_R01")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("name", "ORU_R01", "2.5.1")
+        schema = ConfigSchema("ORU_R01", "2.5.1")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        val goodElement = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
-        schema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(goodElement))
+        val goodElement = ConfigSchemaElement(value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
+        schema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
 
         // A child schema
-        schema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(goodElement))
+        schema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.validate(true)).isNotEmpty()
 
         // A bad type
-        schema = ConfigSchema("name", "VAT", "2.5.1", mutableListOf(goodElement))
+        schema = ConfigSchema("VAT", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema(null, "ORU_R01", "2.5.1", mutableListOf(goodElement))
+        schema = ConfigSchema(null, "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("name", null, "2.5.1", mutableListOf(goodElement))
-        assertThat(schema.isValid()).isFalse()
-        assertThat(schema.errors).isNotEmpty()
-
-        schema = ConfigSchema("name", "ORU_R01", null, mutableListOf(goodElement))
+        schema = ConfigSchema("ORU_R01", null, mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.isValid()).isFalse() // We check again to make sure we get the same value
         assertThat(schema.errors).isNotEmpty()
 
-        // Check on contants
+        // Check on constants
         schema = ConfigSchema(
-            "name", "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "")
+            "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "")
         )
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
@@ -66,7 +62,7 @@ class ConfigSchemaTests {
         assertThat(schema.errors[0]).contains(schema.constants.firstKey())
 
         schema = ConfigSchema(
-            "name", "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "value")
+            "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "value")
         )
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
@@ -130,7 +126,6 @@ class ConfigSchemaTests {
 
         // Check on resource index
         val aSchema = ConfigSchema(
-            "schemaname",
             elements = mutableListOf(ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7")))
         )
         element = ConfigSchemaElement(
@@ -166,28 +161,28 @@ class ConfigSchemaTests {
     @Test
     fun `test validate schema with schemas`() {
         var goodElement = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
-        var childSchema = ConfigSchema("name", elements = mutableListOf(goodElement))
+        var childSchema = ConfigSchema(elements = mutableListOf(goodElement))
         var elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        var topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        var topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
         goodElement = ConfigSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
-        childSchema = ConfigSchema("name", elements = mutableListOf(goodElement))
+        childSchema = ConfigSchema(elements = mutableListOf(goodElement))
         elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
 
-        childSchema = ConfigSchema("name", hl7Version = "2.5.1", elements = mutableListOf(goodElement))
+        childSchema = ConfigSchema(hl7Version = "2.5.1", elements = mutableListOf(goodElement))
         elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
 
-        childSchema = ConfigSchema("name", hl7Type = "ORU_R01", elements = mutableListOf(goodElement))
+        childSchema = ConfigSchema(hl7Type = "ORU_R01", elements = mutableListOf(goodElement))
         elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
     }
@@ -274,7 +269,6 @@ class ConfigSchemaTests {
     @Test
     fun `test find element`() {
         val childSchema = ConfigSchema(
-            "child",
             elements = mutableListOf(
                 ConfigSchemaElement("child1"),
                 ConfigSchemaElement("child2"),
@@ -282,7 +276,6 @@ class ConfigSchemaTests {
             )
         )
         val schema = ConfigSchema(
-            "parent",
             elements = mutableListOf(
                 ConfigSchemaElement("parent1"),
                 ConfigSchemaElement("parent2"),
@@ -298,7 +291,6 @@ class ConfigSchemaTests {
     @Test
     fun `test merge of schemas`() {
         val childSchema = ConfigSchema(
-            "child",
             elements = mutableListOf(
                 ConfigSchemaElement("child1"),
                 ConfigSchemaElement("child2"),
@@ -306,7 +298,8 @@ class ConfigSchemaTests {
             )
         )
         val schema = ConfigSchema(
-            "parent", hl7Type = "ORU_R01", hl7Version = "2.5.1",
+            hl7Type = "ORU_R01",
+            hl7Version = "2.5.1",
             elements = mutableListOf(
                 ConfigSchemaElement("parent1"),
                 ConfigSchemaElement("parent2"),
@@ -316,7 +309,8 @@ class ConfigSchemaTests {
         )
 
         val extendedSchema = ConfigSchema(
-            "extended", hl7Type = "ORU_R01", hl7Version = "2.7",
+            hl7Type = "ORU_R01",
+            hl7Version = "2.7",
             elements = mutableListOf(
                 ConfigSchemaElement("parent1", required = true),
                 ConfigSchemaElement("child2", condition = "condition1"),

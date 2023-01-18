@@ -3,11 +3,10 @@ import { MatcherFunction, screen } from "@testing-library/react";
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { DetailItem } from "../../components/DetailItem/DetailItem";
+import { FeatureName } from "../../AppRouter";
 
-import SubmissionDetails, {
-    DestinationItem,
-    DetailItem,
-} from "./SubmissionDetails";
+import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
 
 /*
     Using the included regex can end up pulling various elements where the
@@ -16,7 +15,7 @@ import SubmissionDetails, {
 const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
 const timeRegex: RegExp = /\d{1,2}:\d{2}/;
 
-/* 
+/*
     We can only mock one behavior for useResource currently. This is a major
     limitation for us that doesn't allow us to test negative cases.
 */
@@ -41,7 +40,7 @@ describe("SubmissionDetails", () => {
     test("renders crumb nav to Submissions list", () => {
         const submissionCrumb = screen.getByRole("link");
         expect(submissionCrumb).toBeInTheDocument();
-        expect(submissionCrumb).toHaveTextContent("Submissions");
+        expect(submissionCrumb).toHaveTextContent(FeatureName.SUBMISSIONS);
     });
 
     test("renders without error", async () => {
@@ -90,7 +89,7 @@ describe("SubmissionDetails", () => {
     });
 
     test("Filename conditionally shows in title", () => {
-        /* 
+        /*
             TODO: How can we use the object and not static strings to
             check for substrings like this??
         */

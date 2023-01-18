@@ -1,12 +1,14 @@
-import { Link } from "react-router-dom";
-
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const SecurityPracticesIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Security practices | Resources" />
-            <h1 id="anchor-top">Security practices</h1>
+            <BasicHelmet
+                pageTitle={`${ResourcesDirectories.SECURITY} | Resources`}
+            />
+            <h1 id="anchor-top">{ResourcesDirectories.SECURITY}</h1>
             <h2 className="usa-intro text-base">
                 Answers to common questions about ReportStream security and data
                 practices.
@@ -53,14 +55,9 @@ export const SecurityPracticesIa = () => {
                 </p>
                 <p>
                     Learn more about the FISMA process and the NIST guidance:{" "}
-                    <a
-                        href="https://csrc.nist.gov/projects/risk-management"
-                        className="usa-link"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    <USExtLink href="https://csrc.nist.gov/projects/risk-management">
                         NIST Risk Management Framework (CSRC)
-                    </a>
+                    </USExtLink>
                 </p>
             </section>
             <section>
@@ -144,16 +141,13 @@ export const SecurityPracticesIa = () => {
                     All organizations that send and receive test results through
                     ReportStream to public health agencies are governed under
                     these{" "}
-                    <Link to="/terms-of-service" className="usa-link">
-                        terms of service
-                    </Link>
-                    .
+                    <USLink href="/terms-of-service">terms of service</USLink>.
                 </p>
 
                 <p className="margin-top-8">
-                    <a href="#anchor-top" className="usa-link">
+                    <USLink anchor href="#anchor-top">
                         Back to top
-                    </a>
+                    </USLink>
                 </p>
             </section>
         </>

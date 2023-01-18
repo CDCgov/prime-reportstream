@@ -1,26 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useSenderResource } from "../../hooks/UseSenderResource";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
-import { WatersPost } from "../../network/api/WatersApiFunctions";
-import { OverallStatus } from "../../network/api/WatersApi";
+import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
-    FileHandlerActionType,
     ErrorType,
+    FileHandlerActionType,
     FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
+import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { NoServicesBanner } from "../alerts/NoServicesAlert";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 
 import {
-    FileErrorDisplay,
-    FileSuccessDisplay,
-    FileWarningsDisplay,
-    FileWarningBanner,
-    NoSenderBanner,
+    RequestLevel,
     FileQualityFilterDisplay,
+    FileSuccessDisplay,
+    FileWarningBanner,
+    RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -64,33 +64,28 @@ export enum FileHandlerType {
 interface FileHandlerProps {
     headingText: string;
     handlerType: FileHandlerType;
-    fetcher: WatersPost;
     successMessage: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
     showWarningBanner: boolean;
     warningText?: string;
-    endpointName: string;
 }
 
 const FileHandler = ({
     headingText,
     handlerType,
-    fetcher,
     successMessage,
     resetText,
     submitText,
     showSuccessMetadata,
     showWarningBanner,
     warningText,
-    endpointName,
 }: FileHandlerProps) => {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
 
     const {
-        isSubmitting,
         fileInputResetValue,
         contentType,
         fileType,
@@ -113,16 +108,33 @@ const FileHandler = ({
         }
     }, [localError]);
 
-    const { activeMembership, oktaToken } = useSessionContext();
-    const { organization, loading: organizationLoading } =
-        useOrganizationResource();
+    const { activeMembership } = useSessionContext();
+    // TODO: Transition from isLoading to Suspense component
+    const { data: organization, isLoading: organizationLoading } =
+        useOrganizationSettings();
     // need to fetch sender from API to grab cvs vs hl7 format info
-    const { sender, loading: senderLoading } = useSenderResource();
+    const { senderDetail: sender, senderIsLoading } = useSenderResource();
 
-    const accessToken = oktaToken?.accessToken;
     const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.senderName;
+    const senderName = activeMembership?.service;
     const client = `${parsedName}.${senderName}`;
+    const validateOnly = useMemo(
+        () => handlerType !== FileHandlerType.UPLOAD,
+        [handlerType]
+    );
+    const uploaderCallback = useCallback(
+        (data?: WatersResponse) => {
+            dispatch({
+                type: FileHandlerActionType.REQUEST_COMPLETE,
+                payload: { response: data!! }, // Strong asserting that this won't be undefined
+            });
+        },
+        [dispatch]
+    );
+    const { sendFile, isWorking } = useWatersUploader(
+        uploaderCallback,
+        validateOnly
+    );
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -166,26 +178,12 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-
-        try {
-            const response = await fetcher(
-                client,
-                fileName,
-                contentType as string,
-                fileContent,
-                parsedName || "",
-                accessToken || "",
-                endpointName
-            );
-            // handles error and success cases via reducer
-            dispatch({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response },
-            });
-        } catch (error) {
-            // Noop.  Errors are collected below
-            console.error("Unexpected error in file handler", error);
-        }
+        await sendFile({
+            contentType: contentType,
+            fileContent: fileContent,
+            fileName: fileName,
+            client: client,
+        });
     };
 
     const resetState = () => {
@@ -209,6 +207,12 @@ const FileHandler = ({
                 : "standard CSV";
         return `The file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
+
+    const warningHeading = useMemo(() => {
+        return handlerType === FileHandlerType.VALIDATION
+            ? `${successMessage} with recommended edits`
+            : "";
+    }, [handlerType, successMessage]);
 
     const warningDescription = useMemo(() => {
         return handlerType === FileHandlerType.UPLOAD
@@ -246,7 +250,7 @@ const FileHandler = ({
         (reportId || overallStatus === OverallStatus.VALID) &&
         !hasQualityFilterMessages;
 
-    if (senderLoading || organizationLoading) {
+    if (senderIsLoading || organizationLoading) {
         return <FileHandlerSpinner message="Loading..." />;
     }
 
@@ -255,11 +259,10 @@ const FileHandler = ({
             <div className="grid-container usa-section margin-bottom-10">
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoSenderBanner
-                    action={handlerType}
-                    organization={
-                        organization?.description || "your organization"
-                    }
+                <NoServicesBanner
+                    featureName={handlerType}
+                    organization={organization?.description}
+                    serviceType={"sender"}
                 />
             </div>
         );
@@ -269,7 +272,7 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
-            {isFileSuccess && (
+            {fileName && (
                 <>
                     <p
                         id="validatedFilename"
@@ -283,14 +286,7 @@ const FileHandler = ({
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
             )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading=""
-                    message={warningDescription}
-                />
-            )}
-            {isFileSuccess && (
+            {isFileSuccess && warnings.length === 0 && (
                 <FileSuccessDisplay
                     extendedMetadata={{
                         destinations,
@@ -302,13 +298,22 @@ const FileHandler = ({
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
-            {errors.length > 0 && (
-                <FileErrorDisplay
-                    fileName={fileName}
+            {warnings.length > 0 && (
+                <RequestedChangesDisplay
+                    title={RequestLevel.WARNING}
+                    data={warnings}
+                    message={warningDescription}
+                    heading={warningHeading}
                     handlerType={handlerType}
-                    errors={errors}
-                    heading={errorMessaging.heading}
+                />
+            )}
+            {errors.length > 0 && (
+                <RequestedChangesDisplay
+                    title={RequestLevel.ERROR}
+                    data={errors}
                     message={errorMessaging.message}
+                    heading={errorMessaging.heading}
+                    handlerType={handlerType}
                 />
             )}
             {hasQualityFilterMessages && (
@@ -318,10 +323,8 @@ const FileHandler = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-            {isSubmitting && (
-                <FileHandlerSpinner message="Processing file..." />
-            )}
-            {!isSubmitting && (
+            {isWorking && <FileHandlerSpinner message="Processing file..." />}
+            {!isWorking && (
                 <FileHandlerForm
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}

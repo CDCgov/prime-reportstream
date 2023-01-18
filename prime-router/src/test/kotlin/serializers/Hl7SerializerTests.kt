@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -37,6 +39,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -360,7 +363,8 @@ class Hl7SerializerTests {
         )
 
         // Java strings are stored as UTF-16
-        val intMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        val intMessage =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||$greekString^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
@@ -372,7 +376,8 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
+NTE|1|L|This is a final comment|RE
+            """
 
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -390,7 +395,8 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test reading NTE segments into a single string value`() {
         // a simple message with a single comment
-        val sampleMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        val sampleMessage =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
@@ -401,7 +407,8 @@ OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
-SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+            """
 
         arrangeTest(sampleMessage).run {
             // assert
@@ -410,7 +417,8 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             }
         }
         // a message with many comments
-        val complexMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        val complexMessage =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 NTE|1|L|This is patient comment 1|RE
@@ -424,7 +432,8 @@ OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
-SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+            """
         arrangeTest(complexMessage).run {
             // assert
             Hl7Serializer.decodeNTESegments(this).run {
@@ -823,6 +832,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         // assert
         assertThat(actualValue).isEqualTo(expectedValue)
     }
+
     @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
@@ -896,9 +906,9 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         // Setup
         val oneOrganization = DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+            receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
         )
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -937,9 +947,14 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     fun `testOrganizationYmlReplaceValueAwithBUsingTerserSettingField`() {
         val oneOrganization = DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+            receivers = listOf(
+                Receiver(
+                    "elr", "phd", Topic.TEST,
+                    CustomerStatus.INACTIVE, "one"
+                )
+            )
         )
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val serializer = Hl7Serializer(metadata, settings)
@@ -951,6 +966,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         // SEG: ORC, FIELD: 12, ELEMENT: 2
         val pathORCf12e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
         val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+        val pathOBR = "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
         // SEG: OBX, FIELD: 3, ELEMENT: 1
         val pathOBXf3e1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
         val pathOBXf3e2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
@@ -966,6 +982,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
 
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-10", "0987654321") // Message ID
         terser.set("MSH-11-1", "P")
         terser.set(pathOBXf3e1, "94534-5")
         terser.set(pathOBXf3e2, "SARS Old String")
@@ -992,15 +1009,21 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
         // Unit test for replace "" (Blank) and Not replace if something is there (ORC-4-1)
+        // terser.set("$pathORC-2-2", "SA.OTCSelfReport")
+        terser.set("$pathORC-2-3", "1234567890")
+        terser.set("$pathORC-2-4", "CLIA")
         terser.set("$pathORC-3-1", "")
         terser.set("$pathORC-4-1", "NOT REPLACE")
+        val replaceBlankWithValueRef = arrayListOf(mapOf("" to "*MSH-10"))
         val orcValuePairReplaceBlank = arrayListOf(mapOf("" to "REPLACED BLANK"))
         val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "ORC-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
             "ORC-3" to orcValuePairReplaceBlank,
             "ORC-4" to orcValuePairNotReplaceBlank, // Don't replace bcz something is in there
+            "OBR-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "MSH-3" to msh3ValuePair,
             "MSH-11-1" to mshf11e1Values,
             // Note for the value=""/blank/null/empty is same as the value is not in HL7 file.
@@ -1019,10 +1042,15 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
 
-            assertThat(terser.get("$pathORC-2-1")).isEqualTo(null)
+            // Check ORC-2-1 (was blank) replaced with content of MSH-10 which is 0987654321
+            assertThat(terser.get("$pathORC-2-1")).isEqualTo("0987654321")
             assertThat(terser.get("$pathORC-2-2")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-3-1")).isEqualTo("REPLACED BLANK")
             assertThat(terser.get("$pathORC-4-1")).isEqualTo("NOT REPLACE")
+
+            // Check OBR-2-1 (was blank) replaced with content of MSH-10 which is 0987654321
+            assertThat(terser.get("$pathOBR-2-1")).isEqualTo("0987654321")
+
             assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
             assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
@@ -1151,7 +1179,8 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     @Test
     fun `parse a complex message with many AOEs`() {
         // a message with many AOEs
-        val complexMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+        val complexMessage =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
 PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Test^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
 NTE|1|L|This is patient comment 1|RE
@@ -1168,7 +1197,7 @@ OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
 OBX|2|NM|30525-0^Age^LN||14|a^year^UCUM
 OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
-"""
+            """
         arrangeTest(complexMessage).run {
             // assert
             Hl7Serializer.decodeAOEQuestion(
@@ -1223,6 +1252,24 @@ OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
                 assertThat(this).isEqualTo("")
             }
         }
+    }
+
+    @Test
+    fun `test HL7HapiErrorProcessor parse error codes exist for each type in Element Type enum`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        enumValues<Element.Type>().forEach { elementType ->
+            val errorCode = errProcessor.getErrorCode(elementType)
+            assertThat(errorCode).isNotNull()
+            assertThat(errorCode).isNotEqualTo(ErrorCode.UNKNOWN)
+            assertThat(errorCode.toString() == "INVALID_HL7_PARSE_$elementType")
+        }
+    }
+
+    @Test
+    fun `test HL7HapiErrorProcessor getErrorCode handles valueOf exception properly`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        val errorCode = errProcessor.getErrorCode(null)
+        assertThat(errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_UNKNOWN)
     }
 
     /**

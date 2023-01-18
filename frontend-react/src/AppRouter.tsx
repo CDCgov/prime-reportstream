@@ -20,16 +20,25 @@ import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
 import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
 import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
+import { AdminMessageTrackerWithAuth } from "./pages/admin/AdminMessageTracker";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
-import { DetailsWithAuth } from "./pages/details/Details";
+import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
 import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import Home from "./pages/home/Home";
-import { DailyWithAuth } from "./pages/daily/Daily";
+import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
+import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
+
+export enum FeatureName {
+    DAILY_DATA = "Daily Data",
+    SUBMISSIONS = "Submissions",
+    ADMIN = "Admin",
+    UPLOAD = "Upload",
+}
 
 export const AppRouter = () => {
     return (
@@ -45,8 +54,11 @@ export const AppRouter = () => {
             <Route path="/product/*" element={<Product />} />
             <Route path="/support/*" element={<Support />} />
             {/* User pages */}
-            <Route path="/daily-data" element={<DailyWithAuth />} />
-            <Route path="/report-details" element={<DetailsWithAuth />} />
+            <Route path="/daily-data" element={<DeliveriesWithAuth />} />
+            <Route
+                path="/report-details/:reportId"
+                element={<DeliveryDetailWithAuth />}
+            />
             <Route path="/upload" element={<UploadWithAuth />} />
             <Route path="/submissions" element={<SubmissionsWithAuth />} />
             <Route
@@ -78,6 +90,14 @@ export const AppRouter = () => {
                 element={<AdminReceiverDashWithAuth />}
             />
             <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
+            <Route
+                path="/admin/message-tracker"
+                element={<AdminMessageTrackerWithAuth />}
+            />
+            <Route
+                path="/message-details/:id"
+                element={<MessageDetailsWithAuth />}
+            />
             <Route
                 path={"/admin/value-sets/:valueSetName"}
                 element={<ValueSetsDetailWithAuth />}

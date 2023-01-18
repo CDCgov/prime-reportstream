@@ -46,7 +46,7 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
     };
 });
 
-describe("AdminDropdownNav", () => {
+describe("AdminDropdownNav - value-sets", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
@@ -76,29 +76,107 @@ describe("AdminDropdownNav", () => {
         renderWithRouter(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
+        const lastMileFailures = screen.getByText("Last Mile Failures");
+        const receiverStatus = screen.getByText("Receiver Status Dashboard");
+        const queryForNavItemValueSets = screen.queryByText("Value Sets");
+        const validate = screen.queryByText("Validate");
 
         expect(settings).toBeInTheDocument();
         expect(featureFlags).toBeInTheDocument();
+        expect(lastMileFailures).toBeInTheDocument();
+        expect(receiverStatus).toBeInTheDocument();
+        expect(queryForNavItemValueSets).toBeInTheDocument();
+        expect(validate).toBeInTheDocument();
     });
+});
 
-    test("Flagged admin pages are hidden by default", () => {
+describe("AdminDropdownNav - user-upload", () => {
+    beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "value-sets"),
+            checkFlag: jest.fn((flag) => flag === "user-upload"),
         });
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItem = screen.queryByText("Value Sets");
-
-        // Assert they're hidden without flag
-        expect(queryForNavItem).not.toBeInTheDocument();
     });
 
-    test("Flagged admin pages are shown when flag is set", () => {
+    test("Flagged user-upload page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "user-upload"),
+        });
         renderWithRouter(<AdminDropdown />);
-        const queryForNavItem = screen.queryByText("Value Sets");
+        const userUpload = screen.queryByText("User Upload");
+
+        // Assert they're hidden without flag
+        expect(userUpload).not.toBeInTheDocument();
+    });
+
+    test("Flagged user-upload page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "user-upload"),
+        });
+        renderWithRouter(<AdminDropdown />);
+        const userUpload = screen.queryByText("User Upload");
+
+        // Assert they're hidden without flag
+        expect(userUpload).not.toBeInTheDocument();
+    });
+
+    test("Flagged user-upload is shown when flag is set", () => {
+        renderWithRouter(<AdminDropdown />);
+        const userUpload = screen.queryByText("User Upload");
 
         // Assert not hidden
-        expect(queryForNavItem).toBeInTheDocument();
+        expect(userUpload).toBeInTheDocument();
+    });
+});
+
+describe("AdminDropdownNav - message-tracker", () => {
+    beforeEach(() => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag === "message-tracker"),
+        });
+    });
+
+    test("Flagged message-tracker page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
+        });
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemMessageIdSearch =
+            screen.queryByText("Message Id Search");
+
+        // Assert they're hidden without flag
+        expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
+    });
+
+    test("Flagged message-tracker page is hidden by default", () => {
+        mockFeatureFlagContext.mockReturnValue({
+            dispatch: () => {},
+            featureFlags: [],
+            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
+        });
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemMessageIdSearch =
+            screen.queryByText("Message Id Search");
+
+        // Assert they're hidden without flag
+        expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
+    });
+
+    test("Flagged message-tracker page is shown when flag is set", () => {
+        renderWithRouter(<AdminDropdown />);
+        const queryForNavItemMessageIdSearch =
+            screen.queryByText("Message Id Search");
+
+        // Assert not hidden
+        expect(queryForNavItemMessageIdSearch).toBeInTheDocument();
     });
 });

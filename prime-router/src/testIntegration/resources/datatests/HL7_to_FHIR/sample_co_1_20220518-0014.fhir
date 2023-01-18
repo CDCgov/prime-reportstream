@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1664462406986070300.2bee2bf8-7b70-4bbd-843e-9966b3011ce0",
+  "id" : "1671844540875519800.57cfbf1b-d9a9-4cf7-a9fa-042e5b8098db",
   "meta" : {
-    "lastUpdated" : "2022-09-29T10:40:07.039-04:00"
+    "lastUpdated" : "2022-12-23T20:15:40.945-05:00"
   },
   "identifier" : {
     "value" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
@@ -16,19 +16,12 @@
       "id" : "0a494db8-c6f4-3901-9ba7-44651a20ea87",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "eventCoding" : {
@@ -36,14 +29,19 @@
         "code" : "R01",
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
+      "destination" : [ {
+        "target" : {
+          "reference" : "Device/1671844541125531800.18da292b-4beb-403f-9a70-2cfa12e66066"
+        }
+      } ],
       "sender" : {
-        "reference" : "Organization/1664462407186149000.650b9858-e8c1-44ca-81ab-8e539f0d9ce5"
+        "reference" : "Organization/1671844541116534800.e3506777-7d45-4c7a-9237-966141a4042c"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/1664462407223746400.454a8f96-13a5-4088-b68e-fa9d972599bb"
+            "reference" : "Organization/1671844541150803500.b2b01971-524f-443c-b988-1e0789d03dd5"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
@@ -58,49 +56,53 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1664462407186149000.650b9858-e8c1-44ca-81ab-8e539f0d9ce5",
+    "fullUrl" : "Organization/1671844541116534800.e3506777-7d45-4c7a-9237-966141a4042c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462407186149000.650b9858-e8c1-44ca-81ab-8e539f0d9ce5",
+      "id" : "1671844541116534800.e3506777-7d45-4c7a-9237-966141a4042c",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
-      "name" : "COCZS"
+      "identifier" : [ {
+        "value" : "COCZS"
+      } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462407223746400.454a8f96-13a5-4088-b68e-fa9d972599bb",
+    "fullUrl" : "Device/1671844541125531800.18da292b-4beb-403f-9a70-2cfa12e66066",
     "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1664462407223746400.454a8f96-13a5-4088-b68e-fa9d972599bb",
+      "resourceType" : "Device",
+      "id" : "1671844541125531800.18da292b-4beb-403f-9a70-2cfa12e66066",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1671844541150803500.b2b01971-524f-443c-b988-1e0789d03dd5",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1671844541150803500.b2b01971-524f-443c-b988-1e0789d03dd5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -130,25 +132,18 @@
       "name" : "MEDITECH, Inc."
     }
   }, {
-    "fullUrl" : "Provenance/1664462409824413100.acdc46c7-612d-43fd-a4f9-77dda36d1a71",
+    "fullUrl" : "Provenance/1671844544206061400.47af4930-329d-487a-9493-9e8052095611",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1664462409824413100.acdc46c7-612d-43fd-a4f9-77dda36d1a71",
+      "id" : "1671844544206061400.47af4930-329d-487a-9493-9e8052095611",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "occurredDateTime" : "2028-08-14T13:50:01-06:00",
@@ -168,38 +163,34 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1664462409821414000.1b9a187e-8822-4bf0-b645-6342c5aff908"
+          "reference" : "Organization/1671844544204060300.ffa9c581-ceeb-478c-b808-54516b45104e"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1664462409827412900.2b65a833-a189-4dba-9012-865a8c5632dd"
+          "reference" : "Device/1671844544209060200.78b6282e-46fb-49f4-b232-c0e506c5f0bd"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462409821414000.1b9a187e-8822-4bf0-b645-6342c5aff908",
+    "fullUrl" : "Organization/1671844544204060300.ffa9c581-ceeb-478c-b808-54516b45104e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462409821414000.1b9a187e-8822-4bf0-b645-6342c5aff908",
+      "id" : "1671844544204060300.ffa9c581-ceeb-478c-b808-54516b45104e",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
+      "identifier" : [ {
+        "value" : "COCZS"
+      } ],
       "name" : "COCZS",
       "contact" : [ {
         "purpose" : {
@@ -213,25 +204,19 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1664462409827412900.2b65a833-a189-4dba-9012-865a8c5632dd",
+    "fullUrl" : "Device/1671844544209060200.78b6282e-46fb-49f4-b232-c0e506c5f0bd",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1664462409827412900.2b65a833-a189-4dba-9012-865a8c5632dd",
+      "id" : "1671844544209060200.78b6282e-46fb-49f4-b232-c0e506c5f0bd",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P",
+          "display" : "MEDITECH LAB"
         } ]
       },
       "deviceName" : [ {
@@ -240,31 +225,24 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/1664462410036275500.0be6035e-e8ec-4879-9715-8a4aed910aff",
+    "fullUrl" : "Observation/1671844544434701000.3fb0e372-50f2-4ab1-88fa-e87c26843649",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1664462410036275500.0be6035e-e8ec-4879-9715-8a4aed910aff",
+      "id" : "1671844544434701000.3fb0e372-50f2-4ab1-88fa-e87c26843649",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/1664462410036275500.3139883d-0e48-4b5b-bb66-ee6b1d7082ad"
+          "reference" : "Organization/1671844544434701000.d8fcaede-8d04-49d8-a8b1-445851944ac7"
         }
       } ],
       "identifier" : [ {
@@ -291,15 +269,15 @@
         "text" : "Hepatitis B virus surface Ag [Presence] in Serum or Plasma by Immunoassay"
       },
       "subject" : {
-        "reference" : "Patient/1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d"
+        "reference" : "Patient/1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b"
       },
       "encounter" : {
-        "reference" : "Encounter/1664462409952699100.5e8fb62b-6d71-403c-8e39-8e56418bab61"
+        "reference" : "Encounter/1671844544347517500.25492f95-c374-4638-a5f3-d199fdf075a7"
       },
       "effectiveDateTime" : "2028-08-14T08:05:01-06:00",
       "issued" : "2021-08-16T10:47:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1664462410028275400.0d4bb6ec-3e9e-4c2b-b417-32686f6799d8"
+        "reference" : "PractitionerRole/1671844544429103900.de2e00ca-81c6-41a9-98ac-0c388ee753c4"
       } ],
       "valueCodeableConcept" : {
         "coding" : [ {
@@ -313,49 +291,35 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1664462410013276600.d87e2452-2c0a-499a-bc31-de436eec4c68",
+    "fullUrl" : "Location/1671844544419104200.5ad88007-2c22-4898-9c0a-eb7d1b4994fb",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1664462410013276600.d87e2452-2c0a-499a-bc31-de436eec4c68",
+      "id" : "1671844544419104200.5ad88007-2c22-4898-9c0a-eb7d1b4994fb",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "name" : "SWEDISH MEDICAL CENT"
     }
   }, {
-    "fullUrl" : "Practitioner/1664462410017277700.14fe66aa-e186-420c-a57d-e5f1dab1f01d",
+    "fullUrl" : "Practitioner/1671844544421104900.2e320f5c-1349-49d4-9099-bb5b2dcc5469",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462410017277700.14fe66aa-e186-420c-a57d-e5f1dab1f01d",
+      "id" : "1671844544421104900.2e320f5c-1349-49d4-9099-bb5b2dcc5469",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -369,7 +333,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/1664462410013276600.d87e2452-2c0a-499a-bc31-de436eec4c68"
+          "reference" : "Location/1671844544419104200.5ad88007-2c22-4898-9c0a-eb7d1b4994fb"
         }
       } ],
       "identifier" : [ {
@@ -395,25 +359,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462410028275400.c604318e-dec2-49f5-8a49-0cdc8241bb88",
+    "fullUrl" : "Organization/1671844544429103900.d878626f-7340-47ab-88b0-235e6e628689",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462410028275400.c604318e-dec2-49f5-8a49-0cdc8241bb88",
+      "id" : "1671844544429103900.d878626f-7340-47ab-88b0-235e6e628689",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -448,32 +405,25 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1664462410028275400.0d4bb6ec-3e9e-4c2b-b417-32686f6799d8",
+    "fullUrl" : "PractitionerRole/1671844544429103900.de2e00ca-81c6-41a9-98ac-0c388ee753c4",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1664462410028275400.0d4bb6ec-3e9e-4c2b-b417-32686f6799d8",
+      "id" : "1671844544429103900.de2e00ca-81c6-41a9-98ac-0c388ee753c4",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1664462410017277700.14fe66aa-e186-420c-a57d-e5f1dab1f01d"
+        "reference" : "Practitioner/1671844544421104900.2e320f5c-1349-49d4-9099-bb5b2dcc5469"
       },
       "organization" : {
-        "reference" : "Organization/1664462410028275400.c604318e-dec2-49f5-8a49-0cdc8241bb88"
+        "reference" : "Organization/1671844544429103900.d878626f-7340-47ab-88b0-235e6e628689"
       },
       "code" : [ {
         "coding" : [ {
@@ -483,25 +433,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462410036275500.3139883d-0e48-4b5b-bb66-ee6b1d7082ad",
+    "fullUrl" : "Organization/1671844544434701000.d8fcaede-8d04-49d8-a8b1-445851944ac7",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462410036275500.3139883d-0e48-4b5b-bb66-ee6b1d7082ad",
+      "id" : "1671844544434701000.d8fcaede-8d04-49d8-a8b1-445851944ac7",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "identifier" : [ {
@@ -519,25 +462,18 @@
       "name" : "SWEDISH MEDICAL CENTER"
     }
   }, {
-    "fullUrl" : "Specimen/1664462410337226100.3916ba81-7833-48a4-a2e9-56f6c91e7315",
+    "fullUrl" : "Specimen/1671844544741764200.ccdfe937-132f-4948-b541-96ecb2968895",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1664462410337226100.3916ba81-7833-48a4-a2e9-56f6c91e7315",
+      "id" : "1671844544741764200.ccdfe937-132f-4948-b541-96ecb2968895",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "identifier" : [ {
@@ -560,30 +496,23 @@
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1664462410344901200.56f9bdc3-c76a-4ca8-8e6a-8f0ba1f2354a",
+    "fullUrl" : "DiagnosticReport/1671844544748769400.6d6cdec3-c49e-40e3-816d-950135517069",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1664462410344901200.56f9bdc3-c76a-4ca8-8e6a-8f0ba1f2354a",
+      "id" : "1671844544748769400.6d6cdec3-c49e-40e3-816d-950135517069",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
@@ -637,7 +566,7 @@
         "value" : "0816:ZS:S00004R"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1664462410350899400.8c401af5-f8bf-4d30-840f-f40b507e136e"
+        "reference" : "ServiceRequest/1671844544755768700.6c87f3d6-4f12-41be-8392-2cea84af15ae"
       } ],
       "status" : "partial",
       "code" : {
@@ -648,10 +577,10 @@
         "text" : "HEPATITIS B SURFACE ANTIGEN"
       },
       "subject" : {
-        "reference" : "Patient/1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d"
+        "reference" : "Patient/1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b"
       },
       "encounter" : {
-        "reference" : "Encounter/1664462409952699100.5e8fb62b-6d71-403c-8e39-8e56418bab61"
+        "reference" : "Encounter/1671844544347517500.25492f95-c374-4638-a5f3-d199fdf075a7"
       },
       "effectivePeriod" : {
         "start" : "2028-08-14T08:05:01-06:00",
@@ -659,95 +588,74 @@
       },
       "issued" : "2021-08-16T10:47:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/1664462410337226100.3916ba81-7833-48a4-a2e9-56f6c91e7315"
+        "reference" : "Specimen/1671844544741764200.ccdfe937-132f-4948-b541-96ecb2968895"
       } ],
       "result" : [ {
-        "reference" : "Observation/1664462410036275500.0be6035e-e8ec-4879-9715-8a4aed910aff"
+        "reference" : "Observation/1671844544434701000.3fb0e372-50f2-4ab1-88fa-e87c26843649"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462410349900800.604f0dfa-c567-4427-a973-e5c20bca01c1",
+    "fullUrl" : "Practitioner/1671844544754769600.61a54ad5-43a3-4cc8-87c0-e41c7ca54213",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462410349900800.604f0dfa-c567-4427-a973-e5c20bca01c1",
+      "id" : "1671844544754769600.61a54ad5-43a3-4cc8-87c0-e41c7ca54213",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "identifier" : [ {
         "value" : "AQLB.SG"
       } ]
     }
   }, {
-    "fullUrl" : "Location/1664462410354901500.d2701509-7eb3-433b-bc6a-9cb2816b4295",
+    "fullUrl" : "Location/1671844544760769200.d8f0dc7e-4d15-46b4-ab17-08e552372e6a",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1664462410354901500.d2701509-7eb3-433b-bc6a-9cb2816b4295",
+      "id" : "1671844544760769200.d8f0dc7e-4d15-46b4-ab17-08e552372e6a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "name" : "COCZS"
     }
   }, {
-    "fullUrl" : "Practitioner/1664462410357498700.1b350df7-d240-443c-a5e2-13078e59a2d9",
+    "fullUrl" : "Practitioner/1671844544762769000.784d46a1-a4ca-419f-8893-b95db1cf5dbe",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462410357498700.1b350df7-d240-443c-a5e2-13078e59a2d9",
+      "id" : "1671844544762769000.784d46a1-a4ca-419f-8893-b95db1cf5dbe",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
@@ -758,20 +666,9 @@
           } ]
         }
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
-        "valueContactPoint" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
-            "valueString" : "Hospital Line"
-          } ],
-          "system" : "phone",
-          "value" : "+1 303 788 8500",
-          "use" : "work"
-        }
-      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/1664462410354901500.d2701509-7eb3-433b-bc6a-9cb2816b4295"
+          "reference" : "Location/1671844544760769200.d8f0dc7e-4d15-46b4-ab17-08e552372e6a"
         }
       } ],
       "identifier" : [ {
@@ -796,6 +693,22 @@
         "given" : [ "James", "J" ],
         "suffix" : [ "MD" ]
       } ],
+      "telecom" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+          "valueString" : "Hospital Line"
+        } ],
+        "system" : "phone",
+        "value" : "+1 303 788 8500",
+        "use" : "work"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+          "valueString" : "Beeper"
+        } ],
+        "system" : "pager",
+        "value" : "+1 303 852 1548"
+      } ],
       "address" : [ {
         "use" : "work",
         "line" : [ "499 E Hampden #300" ],
@@ -807,30 +720,23 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462410365498800.43f0d777-3a8b-46ec-9615-1da5c3dec82d",
+    "fullUrl" : "Organization/1671844544771763800.a92d949e-a25d-4666-9094-685f1e3387aa",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462410365498800.43f0d777-3a8b-46ec-9615-1da5c3dec82d",
+      "id" : "1671844544771763800.a92d949e-a25d-4666-9094-685f1e3387aa",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
@@ -872,63 +778,49 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1664462410365498800.644990cc-6bba-47dd-914c-3b8f07b62154",
+    "fullUrl" : "PractitionerRole/1671844544771763800.de78e917-0298-4445-9a80-63089395a510",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1664462410365498800.644990cc-6bba-47dd-914c-3b8f07b62154",
+      "id" : "1671844544771763800.de78e917-0298-4445-9a80-63089395a510",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1664462410357498700.1b350df7-d240-443c-a5e2-13078e59a2d9"
+        "reference" : "Practitioner/1671844544762769000.784d46a1-a4ca-419f-8893-b95db1cf5dbe"
       },
       "organization" : {
-        "reference" : "Organization/1664462410365498800.43f0d777-3a8b-46ec-9615-1da5c3dec82d"
+        "reference" : "Organization/1671844544771763800.a92d949e-a25d-4666-9094-685f1e3387aa"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/1664462410350899400.8c401af5-f8bf-4d30-840f-f40b507e136e",
+    "fullUrl" : "ServiceRequest/1671844544755768700.6c87f3d6-4f12-41be-8392-2cea84af15ae",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1664462410350899400.8c401af5-f8bf-4d30-840f-f40b507e136e",
+      "id" : "1671844544755768700.6c87f3d6-4f12-41be-8392-2cea84af15ae",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
@@ -939,7 +831,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/1664462410349900800.604f0dfa-c567-4427-a973-e5c20bca01c1"
+          "reference" : "Practitioner/1671844544754769600.61a54ad5-43a3-4cc8-87c0-e41c7ca54213"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -1028,12 +920,12 @@
         "text" : "HEPATITIS B SURFACE ANTIGEN"
       },
       "subject" : {
-        "reference" : "Patient/1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d"
+        "reference" : "Patient/1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b"
       },
       "occurrenceDateTime" : "2021-08-16T05:03:00Z",
       "authoredOn" : "2028-08-14T13:50:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/1664462410365498800.644990cc-6bba-47dd-914c-3b8f07b62154"
+        "reference" : "PractitionerRole/1671844544771763800.de78e917-0298-4445-9a80-63089395a510"
       },
       "reasonCode" : [ {
         "coding" : [ {
@@ -1044,30 +936,23 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d",
+    "fullUrl" : "Patient/1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d",
+      "id" : "1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "extension" : [ {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
@@ -1280,35 +1165,28 @@
           "country" : "USA"
         },
         "organization" : {
-          "reference" : "Organization/1664462409909044400.e3fbf68c-03cc-4e0d-9821-721c9a9a87e9"
+          "reference" : "Organization/1671844544293912800.273fd230-a823-4cf9-8227-42a6526d2cb6"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1664462409909044400.e3fbf68c-03cc-4e0d-9821-721c9a9a87e9",
+    "fullUrl" : "Organization/1671844544293912800.273fd230-a823-4cf9-8227-42a6526d2cb6",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1664462409909044400.e3fbf68c-03cc-4e0d-9821-721c9a9a87e9",
+      "id" : "1671844544293912800.273fd230-a823-4cf9-8227-42a6526d2cb6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
           "valueString" : "COCZS"
         }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ],
-        "lastUpdated" : "2021-08-15T11:51:00-06:00"
+        "lastUpdated" : "2021-08-15T11:51:00-06:00",
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
       },
       "contact" : [ {
         "telecom" : [ {
@@ -1327,25 +1205,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Encounter/1664462409952699100.5e8fb62b-6d71-403c-8e39-8e56418bab61",
+    "fullUrl" : "Encounter/1671844544347517500.25492f95-c374-4638-a5f3-d199fdf075a7",
     "resource" : {
       "resourceType" : "Encounter",
-      "id" : "1664462409952699100.5e8fb62b-6d71-403c-8e39-8e56418bab61",
+      "id" : "1671844544347517500.25492f95-c374-4638-a5f3-d199fdf075a7",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1390,7 +1261,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1664462409911044700.6f9c4f99-4a21-4476-9ae0-83ee72e4ad6d"
+        "reference" : "Patient/1671844544296913000.9e8eeb20-abd3-445a-9c85-b49fd36a508b"
       },
       "participant" : [ {
         "type" : [ {
@@ -1401,7 +1272,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409930699300.44a49fa1-886b-4455-aad9-11ac6d736e58"
+          "reference" : "Practitioner/1671844544323915800.2f56d9ae-fdad-4397-a832-75f01cc870de"
         }
       }, {
         "type" : [ {
@@ -1412,7 +1283,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409935696700.195dd36a-0981-415a-8b4e-088905234bbc"
+          "reference" : "Practitioner/1671844544329915800.53dcefca-4e1a-460f-b730-c4b4b306c41c"
         }
       }, {
         "type" : [ {
@@ -1423,7 +1294,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409940700100.3eaf3154-5cf3-476a-a5be-82299ad6125c"
+          "reference" : "Practitioner/1671844544335915300.cc5f283e-47ac-4cf5-8326-320b2e820488"
         }
       }, {
         "type" : [ {
@@ -1434,7 +1305,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409946699500.8b4170bb-268c-44dd-95ba-b83af8274256"
+          "reference" : "Practitioner/1671844544340514100.395ddcd8-0e67-44c7-891d-0f6e6c64f339"
         }
       }, {
         "type" : [ {
@@ -1445,7 +1316,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409951696400.43bb68c1-057a-452e-8e1d-693b7962584b"
+          "reference" : "Practitioner/1671844544346513600.e9a28dbf-efd8-4149-b0f4-e069366ad65f"
         }
       }, {
         "type" : [ {
@@ -1456,7 +1327,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1664462409955698900.9dfc36db-3cac-4c6a-b3a6-ae9f05a13f17"
+          "reference" : "Practitioner/1671844544351513400.91555a16-f592-478f-a648-05bb11c9c8fb"
         }
       } ],
       "period" : {
@@ -1476,31 +1347,24 @@
       },
       "location" : [ {
         "location" : {
-          "reference" : "Location/1664462410006276900.2d4d9e3b-e402-4d61-9e3a-1976c6995d33"
+          "reference" : "Location/1671844544410105500.6ad7c4cf-2b5b-434a-ba84-8ab5fad690be"
         },
         "status" : "active"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409930699300.44a49fa1-886b-4455-aad9-11ac6d736e58",
+    "fullUrl" : "Practitioner/1671844544323915800.2f56d9ae-fdad-4397-a832-75f01cc870de",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409930699300.44a49fa1-886b-4455-aad9-11ac6d736e58",
+      "id" : "1671844544323915800.2f56d9ae-fdad-4397-a832-75f01cc870de",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1535,25 +1399,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409935696700.195dd36a-0981-415a-8b4e-088905234bbc",
+    "fullUrl" : "Practitioner/1671844544329915800.53dcefca-4e1a-460f-b730-c4b4b306c41c",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409935696700.195dd36a-0981-415a-8b4e-088905234bbc",
+      "id" : "1671844544329915800.53dcefca-4e1a-460f-b730-c4b4b306c41c",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1587,25 +1444,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409940700100.3eaf3154-5cf3-476a-a5be-82299ad6125c",
+    "fullUrl" : "Practitioner/1671844544335915300.cc5f283e-47ac-4cf5-8326-320b2e820488",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409940700100.3eaf3154-5cf3-476a-a5be-82299ad6125c",
+      "id" : "1671844544335915300.cc5f283e-47ac-4cf5-8326-320b2e820488",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1639,25 +1489,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409946699500.8b4170bb-268c-44dd-95ba-b83af8274256",
+    "fullUrl" : "Practitioner/1671844544340514100.395ddcd8-0e67-44c7-891d-0f6e6c64f339",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409946699500.8b4170bb-268c-44dd-95ba-b83af8274256",
+      "id" : "1671844544340514100.395ddcd8-0e67-44c7-891d-0f6e6c64f339",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1692,25 +1535,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409951696400.43bb68c1-057a-452e-8e1d-693b7962584b",
+    "fullUrl" : "Practitioner/1671844544346513600.e9a28dbf-efd8-4149-b0f4-e069366ad65f",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409951696400.43bb68c1-057a-452e-8e1d-693b7962584b",
+      "id" : "1671844544346513600.e9a28dbf-efd8-4149-b0f4-e069366ad65f",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1745,25 +1581,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1664462409955698900.9dfc36db-3cac-4c6a-b3a6-ae9f05a13f17",
+    "fullUrl" : "Practitioner/1671844544351513400.91555a16-f592-478f-a648-05bb11c9c8fb",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1664462409955698900.9dfc36db-3cac-4c6a-b3a6-ae9f05a13f17",
+      "id" : "1671844544351513400.91555a16-f592-478f-a648-05bb11c9c8fb",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -1798,25 +1627,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1664462410006276900.2d4d9e3b-e402-4d61-9e3a-1976c6995d33",
+    "fullUrl" : "Location/1671844544410105500.6ad7c4cf-2b5b-434a-ba84-8ab5fad690be",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1664462410006276900.2d4d9e3b-e402-4d61-9e3a-1976c6995d33",
+      "id" : "1671844544410105500.6ad7c4cf-2b5b-434a-ba84-8ab5fad690be",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
-              "code" : "P"
-            } ]
-          }
-        }, {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
-          "valueId" : "MT_COCZS_ORU_ZSPHELR.1.6384446"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {

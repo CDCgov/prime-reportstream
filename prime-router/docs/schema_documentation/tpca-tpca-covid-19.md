@@ -1,4 +1,3 @@
-
 ### Schema: tpca/tpca-covid-19
 ### Topic: covid-19
 ### Tracking Element: Sample ID (specimen_id)
@@ -45,9 +44,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 Is the patient employed in health care?
-
 ---
 
 **Name**: 1st Test?
@@ -73,9 +70,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 Is this the patient's first test for this condition?
-
 ---
 
 **Name**: Hosp?
@@ -101,9 +96,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 Is the patient hospitalized?
-
 ---
 
 **Name**: ICU?
@@ -129,9 +122,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 Is the patient in the ICU?
-
 ---
 
 **Name**: Sympt Date
@@ -185,9 +176,7 @@ Is the patient in the ICU?
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: DOB
@@ -203,11 +192,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -222,10 +209,8 @@ Other states may choose to define their own formats.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -306,9 +291,7 @@ N/A|N/A|HL7
 ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -327,9 +310,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: Address
@@ -343,9 +324,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: Zip
@@ -363,9 +342,7 @@ The patient's street address
 **Table Column**: zipcode
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: Preg?
@@ -402,9 +379,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Is the patient pregnant?
-
 ---
 
 **Name**: Nsg Home?
@@ -451,9 +426,7 @@ Is the patient pregnant?
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -474,11 +447,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique code for this specimen
-
 ---
 
 **Name**: Symptomatic
@@ -504,9 +475,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 Is the patient symptomatic?
-
 ---
 
 **Name**: LOINC
@@ -524,9 +493,7 @@ Is the patient symptomatic?
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 The LOINC code of the test performed. This is a standardized coded value describing the test
-
 ---
 
 **Name**: LOINC Test Descr
@@ -579,9 +546,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 ---
 
 **Name**: Result Descr
@@ -644,9 +609,7 @@ WR|Weakly reactive|HL7
 W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
-
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
 ---
 
 **Name**: equipment_model_name
@@ -662,7 +625,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -680,9 +643,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: message_profile_id
@@ -698,9 +659,7 @@ unique id to track the usage of the message
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The message profile identifer
-
 ---
 
 **Name**: ordering_facility_city
@@ -714,9 +673,7 @@ The message profile identifer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_county
@@ -748,9 +705,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_state
@@ -768,9 +723,7 @@ The phone number of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_street
@@ -784,9 +737,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_zip_code
@@ -800,9 +751,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_provider_first_name
@@ -821,9 +770,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: ordering_provider_last_name
@@ -842,9 +789,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: patient_age
@@ -885,9 +830,7 @@ mo|months|UCUM
 a|years|UCUM
 
 **Documentation**:
-
 Always filled when `patient_age` is filled
-
 ---
 
 **Name**: patient_county
@@ -917,9 +860,7 @@ Always filled when `patient_age` is filled
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: patient_last_name
@@ -933,9 +874,7 @@ The patient's first name
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: patient_phone_number
@@ -949,9 +888,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: sending_application
@@ -967,9 +904,7 @@ The patient's phone number with area code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name and OID for the application sending information to the receivers
-
 
 ---
 
@@ -988,15 +923,13 @@ The name and OID for the application sending information to the receivers
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
 **Documentation**:
-
 Is the test authorized for home use by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_otc
@@ -1014,15 +947,13 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
 **Documentation**:
-
 Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -1040,15 +971,13 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 
 **Documentation**:
-
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: testing_lab_city
@@ -1064,9 +993,7 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: testing_lab_clia
@@ -1091,11 +1018,9 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -1116,9 +1041,7 @@ An example of the ID is 03D2159846
 **Table Column**: County
 
 **Documentation**:
-
 The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
-
 ---
 
 **Name**: testing_lab_name
@@ -1144,9 +1067,7 @@ The text value for the testing lab county. This is used to do the lookup in the 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 ---
 
 **Name**: testing_lab_phone_number
@@ -1162,9 +1083,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: testing_lab_state
@@ -1184,9 +1103,7 @@ The phone number of the testing lab
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: testing_lab_street
@@ -1202,9 +1119,7 @@ The state for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: testing_lab_zip_code
@@ -1220,7 +1135,5 @@ The street address for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---

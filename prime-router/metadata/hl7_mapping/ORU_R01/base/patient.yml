@@ -1,9 +1,8 @@
-name: ORU-R01-patient
 constants:
   hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
   hl7PatientGroup: '/PATIENT_RESULT/PATIENT'
 elements:
-  - name: set-id
+  - name: patient-set-id
     value: [ '"1"' ]
     hl7Spec: [ '%{hl7PIDField}-1' ]
 
@@ -33,8 +32,13 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-7' ]
 
   - name: patient-sex
-    value: [ '%resource.gender.GetAdministrativeGenderCode()' ]
+    value: [ '%resource.gender' ]
     hl7Spec: [ '%{hl7PIDField}-8' ]
+    valueSet:
+      unknown: U
+      female: F
+      male: M
+      other: O
 
   #race
   - name: patient-race-identifier
@@ -113,8 +117,11 @@ elements:
 
   - name: patient-death-indicator-2
     condition: '%resource.deceased.exists() and %resource.deceased is Boolean'
-    value: [ '%resource.deceased.GetYesNoValue()' ]
+    value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
+    valueSet:
+      true: Y
+      false: N
 
   - name: patient-last-updated-at
     value: [ '%resource.meta.lastUpdated' ]

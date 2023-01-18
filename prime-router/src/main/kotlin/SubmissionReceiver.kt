@@ -3,14 +3,17 @@ package gov.cdc.prime.router
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
+import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -64,7 +67,7 @@ abstract class SubmissionReceiver(
             val generatedHashes = mutableListOf<String>()
             val duplicateIndexes = mutableListOf<Int>()
             for (rowNum in 0 until report.itemCount) {
-                var itemHash = report.getItemHashForRow(rowNum)
+                val itemHash = report.getItemHashForRow(rowNum)
                 // check for duplicate item
                 val isDuplicate = generatedHashes.contains(itemHash) ||
                     workflowEngine.isDuplicateItem(itemHash)
@@ -111,7 +114,7 @@ abstract class SubmissionReceiver(
 
         /**
          * Determines what type of submission receiver to use based on [sender]
-         * Creates a new SubmissionReceiver using the given the [workflowEngine] and [actionHistory]
+         * Creates a new SubmissionReceiver using the given [workflowEngine] and [actionHistory]
          * @return Returns either a TopicReceiver or ELRReceiver based on the sender
          */
         internal fun getSubmissionReceiver(
@@ -170,7 +173,11 @@ class TopicReceiver : SubmissionReceiver {
         }
 
         workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report,
+            rawBody,
+            sender,
+            actionHistory,
+            payloadName
         )
 
         actionHistory.trackLogs(actionLogs.logs)
@@ -220,11 +227,8 @@ class TopicReceiver : SubmissionReceiver {
 
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
 
-        val blobInfo = workflowEngine.blob.generateBodyAndUploadReport(
-            report,
-            senderName,
-            action = processEvent.eventAction
-        )
+        val bodyBytes = ReportWriter.getBodyBytes(report)
+        val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
 
         // add task to task table
@@ -254,30 +258,59 @@ class ELRReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         val actionLogs = ActionLogger()
-
-        // check that our input is valid HL7. Additional validation will happen at a later step
-        var messages = HL7Reader(actionLogs).getMessages(content)
-
-        // create a Report for this incoming HL7 message to use for tracking in the database
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
-        val report = Report(
-            Format.HL7,
-            sources,
-            messages.size,
-            metadata = metadata
-        )
+        // check that our input is valid HL7. Additional validation will happen at a later step
 
-        // dupe detection if needed, and if we have not already produced an error
-        if (!allowDuplicates && !actionLogs.hasErrors()) {
-            doDuplicateDetection(
-                workflowEngine,
-                report,
-                actionLogs
-            )
+        val report: Report
+
+        when (sender.format) {
+            Sender.Format.HL7 -> {
+                val messages = HL7Reader(actionLogs).getMessages(content)
+                val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
+                // create a Report for this incoming HL7 message to use for tracking in the database
+
+                report = Report(
+                    if (isBatch) Format.HL7_BATCH else Format.HL7,
+                    sources,
+                    messages.size,
+                    metadata = metadata,
+                    nextAction = TaskAction.convert
+                )
+
+                // dupe detection if needed, and if we have not already produced an error
+                if (!allowDuplicates && !actionLogs.hasErrors()) {
+                    doDuplicateDetection(
+                        workflowEngine,
+                        report,
+                        actionLogs
+                    )
+                }
+
+                // check for valid message type
+                messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+            }
+            Sender.Format.FHIR -> {
+                try {
+                    val bundle = FhirTranscoder.decode(content)
+                    if (bundle.isEmpty) {
+                        actionLogs.error(InvalidReportMessage("Unable to find FHIR Bundle in provided data."))
+                    }
+                } catch (e: Exception) {
+                    logger.error(e)
+                    actionLogs.error(InvalidReportMessage("Unable to parse FHIR data."))
+                }
+                report = Report(
+                    Format.FHIR,
+                    sources,
+                    1,
+                    metadata = metadata,
+                    nextAction = TaskAction.convert
+                )
+            }
+            else -> {
+                throw IllegalStateException("Unexpected sender format ${sender.format}")
+            }
         }
-
-        // check for valid message type
-        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
@@ -290,11 +323,15 @@ class ELRReceiver : SubmissionReceiver {
         val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
             report.nextAction = TaskAction.none
             Event.EventAction.NONE
-        } else Event.EventAction.PROCESS
+        } else Event.EventAction.CONVERT
 
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report,
+            rawBody,
+            sender,
+            actionHistory,
+            payloadName
         )
 
         // track logs
@@ -313,11 +350,7 @@ class ELRReceiver : SubmissionReceiver {
                     report.id,
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),
-                    sender.fullName,
-                    // TODO: do we need these here? Will need to figure out how to serialize/deserialize
-                    //                options,
-                    //                defaults,
-                    //                routeTo
+                    sender.fullName
                 ).serialize()
             )
         }

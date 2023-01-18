@@ -48,6 +48,7 @@ variable "use_cdc_managed_vnet" {
 
 variable "pagerduty_url" {}
 variable "app_service_plan" {}
+variable "storage_account" {}
 variable "primary_access_key" {
   sensitive = true
 }
@@ -77,6 +78,10 @@ variable "subnets" {
   description = "A set of all available subnet combinations"
 }
 
+variable "is_temp_env" {
+  default     = false
+  description = "Is a temporary environment. true or false"
+}
 variable "function_runtime_version" {
   type        = string
   description = "function app runtime version"

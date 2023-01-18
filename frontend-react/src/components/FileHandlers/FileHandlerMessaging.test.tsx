@@ -1,14 +1,18 @@
-import { screen, render, within } from "@testing-library/react";
-
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-import { Destination } from "../../resources/ActionDetailsResource";
+import { render, screen, within } from "@testing-library/react";
 
 import {
-    FileSuccessDisplay,
-    FileErrorDisplay,
-    FileWarningsDisplay,
+    renderWithFullAppContext,
+    renderWithRouter,
+} from "../../utils/CustomRenderUtils";
+import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
+import { Destination } from "../../resources/ActionDetailsResource";
+import { ResponseError } from "../../config/endpoints/waters";
+
+import {
+    RequestLevel,
     FileQualityFilterDisplay,
+    FileSuccessDisplay,
+    RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -57,103 +61,14 @@ describe("FileSuccessDisplay", () => {
 });
 
 describe("FileErrorDisplay", () => {
-    test("renders expected content (no error table)", async () => {
-        render(
-            <FileErrorDisplay
-                fileName={"file.file"}
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                errors={[]}
-                handlerType={""}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--error");
-
-        const fileName = await screen.findByText("file.file");
-        expect(fileName).toHaveClass("margin-top-05");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading"); // imperfect, just want to make sure it's there
-
-        const table = screen.queryByRole("table");
-        expect(table).not.toBeInTheDocument();
-    });
-
-    test("renders expected content (with error table)", async () => {
-        // implicitly testing message truncation functionality here as well
-        const errors = [
-            {
-                message: "Exception: first error\ntruncated",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "Exception: second error\ntruncated",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
-        render(
-            <FileErrorDisplay
-                fileName={"file.file"}
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                errors={errors}
-                handlerType={""}
-            />
-        );
-
-        const table = screen.queryByRole("table");
-        expect(table).toBeInTheDocument();
-
-        const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 errors + header
-
-        const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
-        expect(firstCells[0]).toHaveTextContent("Exception: first error");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
-    });
-});
-
-describe("FileWarningsDisplay", () => {
     test("renders expected content", async () => {
-        const warnings = [
-            {
-                message: "first warning",
-                indices: [1],
-                field: "first field",
-                trackingIds: ["first_id"],
-                scope: "unclear",
-                details: "none",
-            },
-            {
-                message: "second warning",
-                indices: [2],
-                field: "second field",
-                trackingIds: ["second_id"],
-                scope: "unclear",
-                details: "none",
-            },
-        ];
-        render(
-            <FileWarningsDisplay
+        renderWithFullAppContext(
+            <RequestedChangesDisplay
+                title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
-                warnings={warnings}
+                data={[]}
+                handlerType={""}
             />
         );
 
@@ -167,17 +82,70 @@ describe("FileWarningsDisplay", () => {
         expect(heading).toHaveClass("usa-alert__heading"); // imperfect, just want to make sure it's there
 
         const table = screen.queryByRole("table");
+        expect(table).not.toBeInTheDocument();
+    });
+
+    test("renders table when data is given", async () => {
+        // implicitly testing message truncation functionality here as well
+        const fakeError1: ResponseError = {
+            message: "Exception: first error\ntruncated",
+            indices: [1],
+            field: "first field",
+            trackingIds: ["first_id"],
+            scope: "unclear",
+            errorCode: "INVALID_MSG_PARSE_DATE",
+            details: "none",
+        };
+        const fakeError2: ResponseError = {
+            message: "Exception: second error\ntruncated",
+            indices: [2],
+            field: "second field",
+            trackingIds: ["second_id"],
+            scope: "unclear",
+            errorCode: "INVALID_HL7_MSG_VALIDATION",
+            details: "none",
+        };
+        const fakeError3: ResponseError = {
+            message: "Exception: third error\ntruncated",
+            indices: [3],
+            field: "third field",
+            trackingIds: ["third_id"],
+            scope: "unclear",
+            errorCode: "INVALID_MSG_PARSE_TELEPHONE",
+            details: "none",
+        };
+        const errors = [fakeError1, fakeError2, fakeError3];
+        renderWithFullAppContext(
+            <RequestedChangesDisplay
+                title={RequestLevel.ERROR}
+                heading={"THE HEADING"}
+                message={"Broken Glass, Everywhere"}
+                data={errors}
+                handlerType={""}
+            />
+        );
+
+        const table = screen.queryByRole("table");
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(3); // 2 warnings + header
+        expect(rows).toHaveLength(4); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(4);
-        expect(firstCells[0]).toHaveTextContent("first warning");
-        expect(firstCells[1]).toHaveTextContent("Row(s): 1");
-        expect(firstCells[2]).toHaveTextContent("first field");
-        expect(firstCells[3]).toHaveTextContent("first_id");
+        expect(firstCells).toHaveLength(3);
+        expect(firstCells[0]).toHaveTextContent(
+            "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format."
+        );
+        expect(firstCells[1]).toHaveTextContent("first field");
+        expect(firstCells[2]).toHaveTextContent("first_id");
+
+        const secondCells = await within(rows[2]).findAllByRole("cell");
+        expect(secondCells[0]).toHaveTextContent("Invalid entry for field.");
+
+        const thirdCells = await within(rows[3]).findAllByRole("cell");
+        expect(thirdCells[0]).toHaveTextContent(
+            "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
+        );
     });
 });
 

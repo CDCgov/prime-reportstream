@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
-import { ResponseError } from "../network/api/WatersApi";
+import { ResponseError } from "../config/endpoints/waters";
 
 import useFileHandler, {
     INITIAL_STATE,
@@ -28,6 +28,7 @@ const fakeError: ResponseError = {
     message: "error message",
     trackingIds: ["track me"],
     scope: "some scope",
+    errorCode: "INVALID_HL7_MSG_VALIDATION",
     details: "this happened",
 };
 
@@ -37,6 +38,7 @@ const fakeWarning: ResponseError = {
     message: "warning message",
     trackingIds: ["track me"],
     scope: "some warning scope",
+    errorCode: "INVALID_HL7_MSG_VALIDATION",
     details: "this happened - a warning",
 };
 

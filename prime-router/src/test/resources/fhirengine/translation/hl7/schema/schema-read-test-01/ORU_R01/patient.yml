@@ -1,4 +1,3 @@
-name: ORU-R01-patient
 elements:
   - name: patient-last-name
     condition: '%resource is Patient and %resource.name.family.exists()'

@@ -29,6 +29,25 @@ address:
   generateList: true
   specs: $addressSpec
 
+# useObrOrcCallbackNumber is used to work around an issue where variables with repeating HL7 fields do not
+# support the repetitions, so we directly reference the field here in the SPECS property.  Also, extensions
+# do not support repetitions in this library.
+telecom_1:
+  condition: $useObrOrcCallbackNumber NOT_NULL && $obr17 NULL
+  valueOf: datatype/ContactPoint
+  expressionType: resource
+  generateList: true
+  specs: ORC.14
+  vars:
+    obr17: OBR.17
+
+telecom_2:
+  condition: $useObrOrcCallbackNumber NOT_NULL
+  valueOf: datatype/ContactPoint
+  expressionType: resource
+  generateList: true
+  specs: OBR.17
+
 extension_1:
   generateList: true
   condition: $locationName NOT_NULL
@@ -46,19 +65,6 @@ extension_1:
         name: String, XCN.14.1
 
 extension_2:
-  condition: $contactSpec NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: "callback-number"
-    valueContactPoint:
-      valueOf: datatype/ContactPoint
-      expressionType: resource
-      specs: $contactSpec
-
-extension_4:
   generateList: true
   expressionType: nested
   expressionsMap:

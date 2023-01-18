@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -19,7 +21,7 @@ import java.time.ZoneId
  * @param jurisdictionalFilter defines the geographic region filters for this receiver
  * @param qualityFilter defines the filters that remove data, based on quality criteria
  * @param routingFilter The original use case was for filters that remove data the
- * receiver does not want, based on who sent it.  However, its available for any general purpose use.
+ * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
@@ -34,7 +36,7 @@ import java.time.ZoneId
 open class Receiver(
     val name: String,
     val organizationName: String,
-    val topic: String,
+    val topic: Topic,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: ReportStreamFilter = emptyList(),
@@ -62,25 +64,45 @@ open class Receiver(
      * while someone set to LOCAL would have their date formatted "uuuuMMdd HH:mm:ss" without the offset. Instead,
      * the date time would have the offset applied to it
      */
-    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
+    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET
 ) {
     /** A custom constructor primarily used for testing */
     constructor(
         name: String,
         organizationName: String,
-        topic: String,
+        topic: Topic,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
         dateTimeFormat: DateUtilities.DateTimeFormat? = null,
+        translation: TranslatorConfiguration = CustomConfiguration(
+            schemaName = schemaName,
+            format = format,
+            emptyMap(),
+            "standard",
+            null
+        ),
+        jurisdictionalFilter: ReportStreamFilter = emptyList(),
+        qualityFilter: ReportStreamFilter = emptyList(),
+        routingFilter: ReportStreamFilter = emptyList(),
+        processingModeFilter: ReportStreamFilter = emptyList(),
+        reverseTheQualityFilter: Boolean = false
     ) : this(
-        name, organizationName, topic, customerStatus,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
+        name,
+        organizationName,
+        topic,
+        customerStatus,
+        translation,
+        jurisdictionalFilter = jurisdictionalFilter,
+        qualityFilter = qualityFilter,
+        routingFilter = routingFilter,
+        processingModeFilter = processingModeFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
+        reverseTheQualityFilter = reverseTheQualityFilter
     )
 
     /** A copy constructor for the receiver */
@@ -102,15 +124,18 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.timeZone,
-        copy.dateTimeFormat,
+        copy.dateTimeFormat
     )
 
     @get:JsonIgnore
     val fullName: String get() = createFullName(organizationName, name)
+
     @get:JsonIgnore
     val schemaName: String get() = translation.schemaName
+
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
     val displayName: String get() = externalName ?: name
@@ -203,12 +228,23 @@ open class Receiver(
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
         // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic == Topic.FULL_ELR.json_val) return null
+        if (topic == Topic.FULL_ELR) return null
 
-        when (translation) {
-            is CustomConfiguration -> {
-                if (metadata.findSchema(translation.schemaName) == null)
-                    return "Invalid schemaName: ${translation.schemaName}"
+        if (translation is CustomConfiguration) {
+            when (this.topic) {
+                Topic.FULL_ELR -> {
+                    try {
+                        FhirToHl7Converter(translation.schemaName)
+                    } catch (e: SchemaException) {
+                        return e.message
+                    }
+                }
+
+                else -> {
+                    if (metadata.findSchema(translation.schemaName) == null) {
+                        return "Invalid schemaName: ${translation.schemaName}"
+                    }
+                }
             }
         }
         return null

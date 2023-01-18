@@ -9,6 +9,9 @@ import {
     toHumanReadable,
     capitalizeFirst,
     groupBy,
+    checkJson,
+    isProhibitedName,
+    includesSpecialChars,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -25,6 +28,24 @@ test("splitOn test", () => {
     // boundary conditions
     const r4 = splitOn("fooBAr", 0, 6);
     expect(JSON.stringify(r4)).toBe(`["","fooBAr",""]`);
+});
+
+test("verify checking json for errors", () => {
+    expect(checkJson(`{}`)).toStrictEqual({
+        valid: true,
+        offset: -1,
+        errorMsg: "",
+    });
+    expect(checkJson(`{`)).toStrictEqual({
+        valid: false,
+        offset: 1,
+        errorMsg: "Unexpected end of JSON input",
+    });
+    expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
+        valid: false,
+        offset: 16,
+        errorMsg: "Unexpected token } in JSON at position 16",
+    });
 });
 
 const mockErrorEvent = mockEvent({
@@ -66,7 +87,7 @@ test("formatDate test", () => {
         ":23" // check the minutes are at least correct
     );
 
-    console.error = jest.fn(); // we KNOW the next call complains with a console.error(). don't let it stop the test
+    console.warn = jest.fn(); // we KNOW the next call complains with a console.warn(). don't let it stop the test
     expect(formatDate("bad date")).toBe("bad date");
 });
 
@@ -107,6 +128,93 @@ describe("groupBy ", () => {
             3: ["one", "two"],
             4: ["four", "five"],
             5: ["three"],
+        });
+    });
+});
+
+describe("includesSpecialChars", () => {
+    describe("returns true if the string contains a non-ascii char", () => {
+        const stringsWithSpecialChars = [
+            "test/",
+            "te.st",
+            "te$t",
+            "tes#",
+            "@est",
+            "te,st",
+            "te)",
+            "a\\ttest",
+            "|test ",
+        ];
+
+        stringsWithSpecialChars.forEach((name) => {
+            test(`string ${name} contains a non-ascii char `, () => {
+                expect(includesSpecialChars(name)).toBeTruthy();
+            });
+        });
+    });
+
+    describe("returns false if the string does not contain a non-ascii char", () => {
+        const stringsWithSpecialChars = ["orgname", "org name"];
+
+        stringsWithSpecialChars.forEach((name) => {
+            test(`string ${name} does not contain a non-ascii char `, () => {
+                expect(includesSpecialChars(name)).toBeFalsy();
+            });
+        });
+    });
+});
+
+describe("isProhibitedName", () => {
+    describe("returns false if the orgName is not prohibited", () => {
+        test("valid org name", () => {
+            expect(isProhibitedName("test")).toStrictEqual({
+                prohibited: false,
+                errorMsg: "",
+            });
+        });
+    });
+
+    describe("returns true if the orgName is prohibited", () => {
+        const prohibitedNames = [
+            "sender",
+            "receiver",
+            "org",
+            "ORG",
+            "organization",
+            "list",
+            "List",
+            "all",
+            "revs",
+        ];
+
+        prohibitedNames.forEach((name) => {
+            test(`name containing the prohibited word ${name}`, () => {
+                expect(isProhibitedName(name)).toEqual({
+                    errorMsg: `'${name}' is a prohibited name.`,
+                    prohibited: true,
+                });
+            });
+        });
+    });
+
+    describe("returns true if the orgName contains a non-ascii character", () => {
+        const specialChar = [
+            "test/",
+            "te.st",
+            "te$t",
+            "tes#",
+            "@est",
+            "te,st",
+            "te)",
+        ];
+
+        specialChar.forEach((name) => {
+            test(`name containing the prohibited word ${name}`, () => {
+                expect(isProhibitedName(name)).toEqual({
+                    errorMsg: `'${name}' cannot contain special character(s).`,
+                    prohibited: true,
+                });
+            });
         });
     });
 });

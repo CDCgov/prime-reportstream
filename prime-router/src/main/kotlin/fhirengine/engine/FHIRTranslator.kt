@@ -1,21 +1,28 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -30,20 +37,18 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess
 ) : FHIREngine(metadata, settings, db, blob, queue) {
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
      *  element.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
-     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata?
+        actionHistory: ActionHistory
     ) {
         logger.trace("Translating FHIR file for receivers.")
         try {
@@ -53,74 +58,44 @@ class FHIRTranslator(
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
 
-            // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("ignore.FULL_ELR")
+            val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+            val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
 
-            receivers.forEach { receiver ->
-                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
-                //  receiver-specific transforms
-                val converter = FhirToHl7Converter(
-                    bundle, "ORU_R01-base",
-                    "metadata/hl7_mapping/ORU_R01"
-                )
-                val hl7Message = converter.convert()
+            receivers.forEach { recName ->
+                val receiver = settings.findReceiver(recName)
+                // We only process receivers that are active and for this pipeline.
+                if (receiver != null && receiver.topic == Topic.FULL_ELR) {
+                    val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                    val bodyBytes = hl7Message.encode().toByteArray()
 
-                // create report object
-                val sources = emptyList<Source>()
-                val report = Report(
-                    Report.Format.HL7,
-                    sources,
-                    1,
-                    metadata = metadata,
-                    // todo: when we actually want to send HL7 data to a receiver, we will need to ensure the
-                    //  destination property of the report is set
-                    // destination = settings.findReceiver(it)
-                )
-
-                // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        message.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
+                    // get a Report from the hl7 message
+                    val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                        Event.EventAction.BATCH,
+                        bodyBytes,
+                        listOf(message.reportId),
+                        receiver,
+                        this.metadata,
+                        actionHistory
                     )
-                )
 
-                // create batch event
-                val batchEvent = ProcessEvent(
-                    Event.EventAction.BATCH,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
+                    // insert batch task into Task table
+                    this.insertBatchTask(
+                        report,
+                        report.bodyFormat.toString(),
+                        blobInfo.blobUrl,
+                        event
+                    )
 
-                // upload the translated copy to blobstore
-                val bodyBytes = hl7Message.encode().toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.HL7,
-                    bodyBytes,
-                    report.name,
-                    receiver,
-                    batchEvent.eventAction
-                )
-
-                // track generated reports, one per receiver
-                actionHistory.trackCreatedReport(batchEvent, report, blobInfo)
-
-                // insert batch task into Task table
-                this.insertBatchTask(
-                    report,
-                    report.bodyFormat.toString(),
-                    blobInfo.blobUrl,
-                    batchEvent
-                )
+                    // nullify the previous task next_action
+                    db.updateTask(
+                        message.reportId,
+                        TaskAction.none,
+                        null,
+                        null,
+                        finishedField = Tables.TASK.TRANSLATED_AT,
+                        null
+                    )
+                }
             }
         } catch (e: IllegalArgumentException) {
             logger.error(e)
@@ -142,5 +117,28 @@ class FHIRTranslator(
         nextAction: Event
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
+    }
+
+    /**
+     * Turn a fhir [bundle] into an hl7 message formatter for the [receiver] specified.
+     * @return HL7 Message in the format required by the receiver
+     */
+    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
+        val converter = FhirToHl7Converter(
+            receiver.schemaName
+        )
+        val hl7Message = converter.convert(bundle)
+
+        // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is
+        if (receiver.customerStatus == CustomerStatus.TESTING ||
+            (
+                (receiver.translation is Hl7Configuration) &&
+                    receiver.translation.useTestProcessingMode
+                )
+        ) {
+            Terser(hl7Message).set("MSH-11-1", "T")
+        }
+
+        return hl7Message
     }
 }

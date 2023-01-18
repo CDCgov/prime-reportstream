@@ -48,3 +48,15 @@ variable "dns_zones" {
 variable "delete_pii_storage_after_days" {
   description = "Number of days after which we'll delete PII-related blobs from the storage account"
 }
+
+variable "is_temp_env" {
+  default     = false
+  description = "Is a temporary environment. true or false"
+}
+
+variable "storage_queue_name" {
+  description = "Default storage queue names that will be created in the storage account."
+  type        = list(string)
+  default     = ["process", "batch", "batch-poison", "process-poison", "send", "send-poison"]
+
+}

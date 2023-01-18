@@ -127,7 +127,6 @@ abstract class FHIREngine(
     abstract fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory,
-        metadata: Metadata? = null
+        actionHistory: ActionHistory
     )
 }

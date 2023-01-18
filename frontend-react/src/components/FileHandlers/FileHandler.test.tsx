@@ -1,35 +1,38 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { renderWithSession } from "../../utils/CustomRenderUtils";
 import {
-    EndpointName,
-    ResponseError,
-    WatersResponse,
-} from "../../network/api/WatersApi";
+    renderWithFullAppContext,
+    renderWithQueryProvider,
+} from "../../utils/CustomRenderUtils";
+import { ResponseError } from "../../config/endpoints/waters";
 import {
     INITIAL_STATE,
     FileType,
     FileHandlerActionType,
 } from "../../hooks/UseFileHandler";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
+import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
+import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
+import { RSSender } from "../../config/endpoints/settings";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
 let fakeState = {};
 
-const hl7Sender = {
-    sender: { format: "HL7" },
-    loading: false,
+const hl7Sender: RSSender = {
+    name: "default",
+    organizationName: "hcintegrations",
+    format: "HL7",
+    customerStatus: "active",
+    schemaName: "hl7/hcintegrations-covid-19",
+    processingType: "sync",
+    allowDuplicates: true,
+    topic: "covid-19",
 };
 
 const mockState = (state: any) => (fakeState = state);
 const fakeStateProvider = () => fakeState;
 const mockDispatch = jest.fn();
-
-// again, foiled when trying to use an actual jest mock here
-// someday we should get to the bottom of why we can't control
-// return values for jest mocks when they are used to mock imported functions this way
-let mockUseSenderResource = () => {};
 
 jest.mock("../../hooks/UseFileHandler", () => ({
     ...jest.requireActual("../../hooks/UseFileHandler"),
@@ -42,17 +45,13 @@ jest.mock("../../hooks/UseFileHandler", () => ({
     __esModule: true,
 }));
 
-jest.mock("../../hooks/UseOrganizationResource", () => ({
-    useOrganizationResource: () => {
+jest.mock("../../hooks/UseOrganizationSettings", () => ({
+    useOrganizationSettings: () => {
         return {
-            organization: { description: "wow, cool organization" },
-            loading: false,
+            data: { description: "wow, cool organization" },
+            isLoading: false,
         };
     },
-}));
-
-jest.mock("../../hooks/UseSenderResource", () => ({
-    useSenderResource: () => mockUseSenderResource(),
 }));
 
 /*
@@ -84,23 +83,26 @@ const fileChangeEvent = {
 
 describe("FileHandler", () => {
     test("renders a spinner while loading sender / organization", async () => {
-        mockUseSenderResource = () => ({
-            ...hl7Sender,
-            loading: true,
+        mockUseSenderResource.mockReturnValue({
+            senderDetail: undefined,
+            senderIsLoading: true,
         });
         mockState(INITIAL_STATE);
-        renderWithSession(
+        mockUseWatersUploader.mockReturnValue({
+            isWorking: false,
+            uploaderError: null,
+            sendFile: async () => Promise.resolve({}),
+        });
+        renderWithFullAppContext(
             <FileHandler
                 headingText="handler heading"
                 handlerType={FileHandlerType.VALIDATION}
-                fetcher={() => Promise.resolve({} as WatersResponse)}
                 successMessage=""
                 resetText=""
                 submitText=""
                 showSuccessMetadata={false}
                 showWarningBanner={false}
                 warningText=""
-                endpointName={EndpointName.WATERS}
             />
         );
         const spinner = await screen.findByLabelText("loading-indicator");
@@ -110,24 +112,27 @@ describe("FileHandler", () => {
         expect(imaginaryHeading).not.toBeInTheDocument();
     });
     describe("post load", () => {
-        beforeEach(() => {
-            mockUseSenderResource = () => hl7Sender;
-        });
-
         test("renders as expected (initial form)", async () => {
             mockState(INITIAL_STATE);
-            renderWithSession(
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: jest.fn(),
+            });
+            renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText="SEND SOMEWHERE"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -148,19 +153,26 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected (submitting)", async () => {
-            mockState({ ...INITIAL_STATE, isSubmitting: true });
-            renderWithSession(
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
+            mockState({ ...INITIAL_STATE });
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: true,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -173,22 +185,29 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected (errors)", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
-                errors: [{ message: "error" } as ResponseError],
+                errors: [{ message: "Error" } as ResponseError],
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -213,6 +232,10 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected (success)", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -220,18 +243,21 @@ describe("FileHandler", () => {
                 reportId: "IDIDID",
                 successTimestamp: new Date(0).toString(),
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -269,6 +295,10 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -277,18 +307,21 @@ describe("FileHandler", () => {
                 successTimestamp: new Date(0).toString(),
                 overallStatus: "Valid",
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.VALIDATE}
                 />
             );
 
@@ -318,23 +351,30 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected (warnings)", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
                 warnings: [{ message: "error" } as ResponseError],
                 reportId: 1,
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.VALIDATION}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -354,21 +394,28 @@ describe("FileHandler", () => {
         });
 
         test("renders as expected (warning banner)", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={true}
                     warningText="THIS IS A WARNING"
-                    endpointName={EndpointName.WATERS}
                 />
             );
             const message = await screen.findByText("THIS IS A WARNING");
@@ -379,21 +426,28 @@ describe("FileHandler", () => {
         });
 
         test("calls dispatch as expected on file change", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                sendFile: () => Promise.resolve({}),
+                isWorking: false,
+                uploaderError: null,
+            });
+            renderWithQueryProvider(
                 <FileHandler
                     headingText=""
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage=""
                     resetText=""
                     submitText=""
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -419,24 +473,30 @@ describe("FileHandler", () => {
             });
         });
         test("calls fetch and dispatch as expected on submit", async () => {
-            const fakeResponse: WatersResponse = {};
-            const fetchSpy = jest.fn(() => Promise.resolve(fakeResponse));
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
+            const fetchSpy = jest.fn(() => Promise.resolve({}));
             mockState({
                 ...INITIAL_STATE,
                 fileName: "anything",
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: fetchSpy,
+            });
+            renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={fetchSpy}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -462,55 +522,50 @@ describe("FileHandler", () => {
 
             expect(submitButton).toBeEnabled();
             fireEvent.click(submitButton);
-
-            await waitFor(
-                () => {
-                    // expect(mockDispatch).toHaveBeenCalledTimes(2);
-                    expect(fetchSpy).toHaveBeenCalledTimes(1);
-                },
-                {
-                    onTimeout: (e) => {
-                        console.error("dispatch not called on submit handler");
-                        return e;
-                    },
-                }
-            );
-
-            // more complete file mocking would result in better data here, but I'm good with this
-            expect(fetchSpy).toHaveBeenCalledWith(
-                "undefined.undefined", // client
-                "anything", // filename
-                undefined, //contentType
-                contentString, //fileContent
-                "", //parsedName
-                "", //accessToken
-                EndpointName.WATERS
-            );
-            expect(mockDispatch).toHaveBeenCalledWith({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response: fakeResponse },
+            expect(fetchSpy).toHaveBeenLastCalledWith({
+                client: "undefined.undefined",
+                contentType: undefined,
+                fileContent: "some file content",
+                fileName: "anything",
             });
+            // await waitFor(
+            //     () => {
+            //         // expect(mockDispatch).toHaveBeenCalledTimes(2);
+            //
+            //     },
+            //     {
+            //         onTimeout: (e) => {
+            //             console.error("dispatch not called on submit handler");
+            //             return e;
+            //         },
+            //     }
+            // );
         });
 
         test("calls dispatch as expected on reset", async () => {
-            const fakeResponse: WatersResponse = {};
-            const fetchSpy = jest.fn(() => Promise.resolve(fakeResponse));
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
             mockState({
                 ...INITIAL_STATE,
                 cancellable: true,
             });
-            renderWithSession(
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve({}),
+            });
+            renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
                     handlerType={FileHandlerType.UPLOAD}
-                    fetcher={fetchSpy}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName={EndpointName.WATERS}
                 />
             );
 

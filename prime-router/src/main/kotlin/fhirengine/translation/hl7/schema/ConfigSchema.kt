@@ -15,13 +15,19 @@ import java.util.SortedMap
  */
 @JsonIgnoreProperties
 data class ConfigSchema(
-    var name: String? = null,
     var hl7Type: String? = null,
     var hl7Version: String? = null,
     var elements: MutableList<ConfigSchemaElement> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
+    /**
+     * Name used to identify this schema.
+     * Can be set from outside this class to make it useful in context.
+     * e.g. The schema's filename
+     */
+    var name: String? = null
+
     /**
      * List of the names of schemas that have led to this schema being loaded.
      */
@@ -64,28 +70,30 @@ data class ConfigSchema(
             validationErrors.add("Schema $name: $msg")
         }
 
-        if (name.isNullOrBlank())
-            addError("Schema name cannot be blank")
-
         // hl7Type or hl7Version is only allowed at the top level.
         if (isChildSchema) {
-            if (!hl7Type.isNullOrBlank())
+            if (!hl7Type.isNullOrBlank()) {
                 addError("Schema hl7Type can only be specified in top level schema")
-            if (!hl7Version.isNullOrBlank())
+            }
+            if (!hl7Version.isNullOrBlank()) {
                 addError("Schema hl7Version can only be specified in top level schema")
+            }
         } else {
-            if (hl7Type.isNullOrBlank())
+            if (hl7Type.isNullOrBlank()) {
                 addError("Schema hl7Type cannot be blank")
-            if (hl7Version.isNullOrBlank())
+            }
+            if (hl7Version.isNullOrBlank()) {
                 addError("Schema hl7Version cannot be blank")
+            }
 
             // Do we support the provided HL7 type and version?
             if (hl7Version != null && hl7Type != null) {
-                if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!))
+                if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!)) {
                     addError(
                         "Schema unsupported hl7 type and version. Must be one of: " +
                             HL7Utils.SupportedMessages.getSupportedListAsString()
                     )
+                }
             }
         }
 
@@ -95,8 +103,9 @@ data class ConfigSchema(
         }
 
         // Validate the schema elements.
-        if (elements.isEmpty())
+        if (elements.isEmpty()) {
             addError("Schema elements cannot be empty")
+        }
         elements.forEach { element ->
             element.validate().forEach { addError(it) }
         }
@@ -114,8 +123,9 @@ data class ConfigSchema(
         childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
         childSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
-            if (childElement.name.isNullOrBlank())
+            if (childElement.name.isNullOrBlank()) {
                 throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+            }
             val elementInSchema = findElement(childElement.name!!)
             if (elementInSchema != null) {
                 elementInSchema.merge(childElement)
@@ -162,6 +172,7 @@ data class ConfigSchema(
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
+ * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
@@ -174,7 +185,9 @@ data class ConfigSchemaElement(
     var value: List<String> = emptyList(),
     var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
-    var constants: SortedMap<String, String> = sortedMapOf()
+    var constants: SortedMap<String, String> = sortedMapOf(),
+    var valueSet: SortedMap<String, String> = sortedMapOf(),
+    var debug: Boolean = false
 ) {
     /**
      * Validate the element.
@@ -190,10 +203,6 @@ data class ConfigSchemaElement(
             validationErrors.add("[$name]: $msg")
         }
 
-        if (name.isNullOrBlank()) {
-            addError("Element name cannot be blank")
-        }
-
         when {
             resource.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
                 addError("Resource property is required to use the resourceIndex property")
@@ -201,14 +210,20 @@ data class ConfigSchemaElement(
                 addError("Schema property is required to use the resourceIndex property")
         }
 
-        // Hl7spec and value cannot be used with schema.
+        // Hl7spec, value and valueSet cannot be used with schema.
         when {
-            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty()) ->
-                addError("Schema property cannot be used with hl7Spec or value properties")
+            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty() || valueSet.isNotEmpty()) ->
+                addError("Schema property cannot be used with hl7Spec, value or valueSet properties")
             schema.isNullOrBlank() && hl7Spec.isEmpty() ->
                 addError("Hl7Spec property is required when not using a schema")
             schema.isNullOrBlank() && value.isEmpty() ->
                 addError("Value property is required when not using a schema")
+        }
+
+        // value sets need a value to be...set
+        when {
+            valueSet.isNotEmpty() && value.isEmpty() ->
+                addError("Value property is required when using a value set")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {

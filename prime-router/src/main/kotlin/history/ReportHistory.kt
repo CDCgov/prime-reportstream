@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.ItemActionLogDetail
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -34,7 +35,7 @@ abstract class ReportHistory(
     @JsonProperty("id")
     var reportId: String? = null,
     var topic: String? = null,
-    var reportItemCount: Int? = null,
+    var reportItemCount: Int? = null
 )
 
 /**
@@ -75,7 +76,7 @@ data class DetailedReport(
     @JsonIgnore
     val itemCountBeforeQualFilter: Int?,
     @JsonIgnore
-    val receiverHasTransport: Boolean,
+    val receiverHasTransport: Boolean
 )
 
 /**
@@ -115,10 +116,16 @@ class ConsolidatedActionLog(log: DetailedActionLog) {
      */
     val message: String
 
+    /**
+     * The error code for the message.
+     */
+    val errorCode: ErrorCode
+
     init {
         scope = log.scope
         type = log.type
         message = log.detail.message
+        errorCode = log.detail.errorCode
         if (log.detail.scope == ActionLogScope.item) {
             field = if (log.detail is ItemActionLogDetail) log.detail.fieldMapping else null
             indices = mutableListOf()
@@ -170,5 +177,5 @@ class DetailedActionLog(
     val index: Int?,
     val trackingId: String?,
     val type: ActionLogLevel,
-    val detail: ActionLogDetail,
+    val detail: ActionLogDetail
 )

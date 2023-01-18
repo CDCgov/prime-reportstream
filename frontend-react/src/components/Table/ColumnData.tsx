@@ -1,17 +1,15 @@
 import React, { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
 
-import {
-    ColumnConfig,
-    LinkableColumn,
-    ActionableColumn,
-    TableRow,
-} from "./Table";
+import { USLink } from "../USLink";
+
+import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
+import { TableRowData } from "./TableRows";
 
 export interface ColumnProps {
     rowIndex: number;
     colIndex: number;
-    rowData: TableRow;
+    rowData: TableRowData;
     columnConfig: ColumnConfig;
     editing?: boolean;
     setUpdatedRow?: (value: any, field: string) => void;
@@ -19,7 +17,7 @@ export interface ColumnProps {
 
 const showMappedFieldValue = (
     columnConfig: ColumnConfig,
-    rowData: TableRow
+    rowData: TableRowData
 ) => {
     const rawFieldValue = rowData[columnConfig.dataAttr];
     if (columnConfig.valueMap) {
@@ -78,16 +76,16 @@ export const ColumnData = ({
         // Render column value as NavLink
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
-            <NavLink
-                className="usa-link"
-                to={`${feature.linkBasePath || ""}${
+            <USLink
+                href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </NavLink>
+            </USLink>
         );
     }
 
@@ -104,12 +102,14 @@ export const ColumnData = ({
             return action();
         };
         return tableData(
-            <button
-                className="usa-link bg-transparent border-transparent"
-                onClick={() => doAction()}
+            <Button
+                className="font-mono-2xs line-height-alt-4"
+                type="button"
+                unstyled
+                onClick={doAction}
             >
                 {displayValue}
-            </button>
+            </Button>
         );
     }
 
