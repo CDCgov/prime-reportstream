@@ -531,7 +531,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 select * from report_descendants(?)
                 limit(100)
                 )
-              """
+        """
         return ctx.fetch(sql, parentReportId, parentReportId)
             .into(ReportFile::class.java)
             .toList()

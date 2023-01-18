@@ -1,4 +1,3 @@
-
 ### Schema: nm/nm-covid-19-csv
 ### Topic: covid-19
 ### Tracking Element: (message_id)
@@ -42,9 +41,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Is the patient employed in health care?
-
 ---
 
 **Name**: FirstTest
@@ -81,9 +78,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Is this the patient's first test for this condition?
-
 ---
 
 **Name**: Hospitalized
@@ -120,9 +115,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Is the patient hospitalized?
-
 ---
 
 **Name**: ICU
@@ -159,9 +152,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Is the patient in the ICU?
-
 ---
 
 **Name**: DateTimeMessage
@@ -480,9 +471,7 @@ Code | Display | System
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdFacName
@@ -496,9 +485,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdFacPhone
@@ -512,9 +499,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdFacState
@@ -532,9 +517,7 @@ The phone number of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdFacAddrStreet
@@ -548,9 +531,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdFacZip
@@ -564,9 +545,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: OrdProvFirstName
@@ -585,9 +564,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: OrdProvLastName
@@ -606,9 +583,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: OrdProvPhone
@@ -627,9 +602,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: PtAddrCity
@@ -643,9 +616,7 @@ The phone number of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: PtCounty
@@ -677,11 +648,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -718,10 +687,8 @@ N|Non Hispanic or Latino|HL7
 U|Unknown|HL7
 
 **Documentation**:
-
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
 consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -736,9 +703,7 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: PtSex
@@ -765,9 +730,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -782,10 +745,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -800,9 +761,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: PtPhone
@@ -816,9 +775,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: PtRace
@@ -868,9 +825,7 @@ UNK|U|HL7
 ASKU|U|HL7
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -889,9 +844,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: PtAddrStreet
@@ -905,9 +858,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: PtTribe
@@ -1494,9 +1445,7 @@ Code | Display | System
 99|Hannahville Indian Community of Wisconsin Potawato|HL7
 
 **Documentation**:
-
 The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
-
 ---
 
 **Name**: PtAddrZip
@@ -1510,9 +1459,7 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: Pregnant
@@ -1549,9 +1496,7 @@ Code | Display | System
 261665006|U|SNOMED_CT
 
 **Documentation**:
-
 Is the patient pregnant?
-
 ---
 
 **Name**: RptFacName
@@ -1567,10 +1512,8 @@ Is the patient pregnant?
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
 aggregator
-
 
 ---
 
@@ -1593,9 +1536,7 @@ aggregator
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: CongSetting
@@ -1632,9 +1573,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Does the patient reside in a congregate care setting?
-
 ---
 
 **Name**: SendingApp
@@ -1650,9 +1589,7 @@ Does the patient reside in a congregate care setting?
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name and OID for the application sending information to the receivers
-
 
 ---
 
@@ -1676,9 +1613,7 @@ The name and OID for the application sending information to the receivers
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -1699,11 +1634,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique code for this specimen
-
 ---
 
 **Name**: SpecType
@@ -1746,9 +1679,7 @@ Code | Display | System
 309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: Symptomatic
@@ -1785,9 +1716,7 @@ N|N|HL7
 UNK|U|HL7
 
 **Documentation**:
-
 Is the patient symptomatic?
-
 ---
 
 **Name**: ResultTestCode
@@ -1828,9 +1757,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 ---
 
 **Name**: TestResultDt
@@ -1860,7 +1787,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model

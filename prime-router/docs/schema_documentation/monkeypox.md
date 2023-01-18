@@ -1,15 +1,14 @@
-
-### Schema: monkeypox
-### Topic: monkeypox
-### Tracking Element: (message_id)
-### Base On: none
-### Extends: none
-#### Description: A collection of standard elements, not an actual schema. Based on specifications from several locations:
+            ### Schema: monkeypox
+            ### Topic: monkeypox
+            ### Tracking Element: (message_id)
+            ### Base On: none
+            ### Extends: none
+            #### Description: A collection of standard elements, not an actual schema. Based on specifications from several locations:
 https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html
 https://www.who.int/publications/i/item/WHO-MPX-laboratory-2022.1
 
-
----
+            
+            ---
 
 **Name**: abnormal_flag
 
@@ -59,9 +58,7 @@ WR|Weakly reactive|HL7
 W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
-
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
 ---
 
 **Name**: comment
@@ -158,9 +155,7 @@ RE|Remark|HL7
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Device_id is a generated value for the OBX-17 field.
-
 
 ---
 
@@ -175,9 +170,7 @@ Device_id is a generated value for the OBX-17 field.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Device_id_type is a generated value for the OBX-17 field.
-
 
 ---
 
@@ -252,9 +245,7 @@ Device_id_type is a generated value for the OBX-17 field.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 When was this file created. This is only used for HL7 generation.
-
 ---
 
 **Name**: filler_clia
@@ -292,9 +283,7 @@ When was this file created. This is only used for HL7 generation.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accession number
-
 ---
 
 **Name**: flatfile_version_no
@@ -320,9 +309,7 @@ Accession number
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: message_profile_id
@@ -338,9 +325,7 @@ unique id to track the usage of the message
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The message profile identifer
-
 ---
 
 **Name**: message_profile_id_namespace_id
@@ -356,9 +341,7 @@ The message profile identifer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The message profile identifer namespace id
-
 ---
 
 **Name**: message_profile_id_universal_id
@@ -374,9 +357,7 @@ The message profile identifer namespace id
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The message profile identifer universal id
-
 ---
 
 **Name**: message_profile_id_universal_id_type
@@ -392,9 +373,7 @@ The message profile identifer universal id
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The message profile identifier universal id type
-
 ---
 
 **Name**: observation_result_status
@@ -567,9 +546,7 @@ Z|No record of this patient|HL7
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_country
@@ -641,9 +618,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_name_assigning_authority
@@ -693,9 +668,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_state
@@ -713,9 +686,7 @@ The phone number of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_street
@@ -729,9 +700,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_street2
@@ -745,9 +714,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The secondary address of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_zip_code
@@ -761,9 +728,7 @@ The secondary address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_provider_city
@@ -777,9 +742,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the provider
-
 ---
 
 **Name**: ordering_provider_country
@@ -823,9 +786,7 @@ The city of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The FIPS code for the ordering provider
-
 ---
 
 **Name**: ordering_provider_first_name
@@ -844,9 +805,7 @@ The FIPS code for the ordering provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: ordering_provider_id
@@ -865,9 +824,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ordering provider’s National Provider Identifier
-
 ---
 
 **Name**: ordering_provider_id_authority
@@ -886,9 +843,7 @@ The ordering provider’s National Provider Identifier
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Usually the OID for CMS
-
 ---
 
 **Name**: ordering_provider_id_authority_oid
@@ -941,9 +896,7 @@ Usually the OID for CMS
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Usually NPI
-
 ---
 
 **Name**: ordering_provider_last_name
@@ -962,9 +915,7 @@ Usually NPI
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: ordering_provider_middle_initial
@@ -1034,9 +985,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: ordering_provider_professional_suffix
@@ -1071,9 +1020,7 @@ The phone number of the provider
 **Table Column**: State
 
 **Documentation**:
-
 The state of the provider
-
 ---
 
 **Name**: ordering_provider_street
@@ -1087,9 +1034,7 @@ The state of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address of the provider
-
 ---
 
 **Name**: ordering_provider_street2
@@ -1103,9 +1048,7 @@ The street address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street second address of the provider
-
 ---
 
 **Name**: ordering_provider_zip_code
@@ -1119,9 +1062,7 @@ The street second address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: organization_name
@@ -1135,10 +1076,8 @@ The zip code of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The SimpleReport concept of organization. It refers to organization for the 
 ordering & performing facility
-
 
 ---
 
@@ -1227,9 +1166,7 @@ ordering & performing facility
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Patient age from AOE field
-
 ---
 
 **Name**: patient_age_calculated
@@ -1243,9 +1180,7 @@ Patient age from AOE field
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Patient age calculated from DOB and specimen collection datetime
-
 ---
 
 **Name**: patient_citizenship
@@ -1527,9 +1462,7 @@ ZWE|Zimbabwe|ISO
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: patient_country
@@ -1571,9 +1504,7 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The FIPS code for the patient's county
-
 ---
 
 **Name**: patient_death_date
@@ -1623,11 +1554,9 @@ UNK|Unknown|NULLFL
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -1642,9 +1571,7 @@ Other states may choose to define their own formats.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's drivers license number
-
 ---
 
 **Name**: patient_email
@@ -1670,10 +1597,8 @@ The patient's drivers license number
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
 consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -1688,9 +1613,7 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: patient_gender
@@ -1706,11 +1629,9 @@ The patient's first name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, 
 but downstream consumers are free to define their own accepted values. Please refer to 
 the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -1725,11 +1646,9 @@ the consumer-specific schema if you have questions.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, 
 or even within the PRIME system itself.
-
 
 ---
 
@@ -1744,9 +1663,7 @@ or even within the PRIME system itself.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
-
 ---
 
 **Name**: patient_id_assigner_universal_id
@@ -1796,9 +1713,7 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: patient_middle_initial
@@ -2118,9 +2033,7 @@ ZWE|Zimbabwe|ISO
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: patient_preferred_language
@@ -2651,9 +2564,7 @@ zul|Zulu|ISO
 zun|Zuni|ISO
 
 **Documentation**:
-
 The patient's preferred language
-
 ---
 
 **Name**: patient_race
@@ -2669,10 +2580,8 @@ The patient's preferred language
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states 
 may choose to define different code/value combinations.
-
 
 ---
 
@@ -2787,9 +2696,7 @@ may choose to define different code/value combinations.
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: patient_street
@@ -2803,9 +2710,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: patient_street2
@@ -2819,9 +2724,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's second address line
-
 ---
 
 **Name**: patient_suffix
@@ -2835,9 +2738,7 @@ The patient's second address line
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The suffix for the patient's name, (i.e. Jr, Sr, etc)
-
 ---
 
 **Name**: patient_tribal_citizenship
@@ -3424,9 +3325,7 @@ Code | Display | System
 99|Hannahville Indian Community of Wisconsin Potawato|HL7
 
 **Documentation**:
-
 The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.113883.5.140) table
-
 ---
 
 **Name**: patient_zip_code
@@ -3440,9 +3339,7 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: placer_clia
@@ -3462,9 +3359,7 @@ The patient's zip code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The CLIA of the order placer
-
 ---
 
 **Name**: placer_name
@@ -3484,9 +3379,7 @@ The CLIA of the order placer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the placer of the lab order
-
 ---
 
 **Name**: placer_order_group_id
@@ -3517,9 +3410,7 @@ The name of the placer of the lab order
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: previous_message_id
@@ -3533,10 +3424,8 @@ The ID number of the lab order from the placer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 pointer/link to the unique id of a previously submitted result.  
 Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
-
 
 ---
 
@@ -3587,9 +3476,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: reason_for_study_alternate_coding_system
@@ -3675,9 +3562,7 @@ P, D, or T for Production, Debugging, or Training
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving application name for the message (specified by the receiver)
-
 ---
 
 **Name**: receiving_application_universal_id
@@ -3691,9 +3576,7 @@ The receiving application name for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving application id for the message (specified by the receiver)
-
 ---
 
 **Name**: receiving_application_universal_id_type
@@ -3707,9 +3590,7 @@ The receiving application id for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving application id type for the message (specified by the receiver)
-
 ---
 
 **Name**: receiving_facility_namespace_id
@@ -3723,9 +3604,7 @@ The receiving application id type for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving facility name for the message (specified by the receiver)
-
 ---
 
 **Name**: receiving_facility_universal_id
@@ -3739,9 +3618,7 @@ The receiving facility name for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving facility id for the message (specified by the receiver)
-
 ---
 
 **Name**: receiving_facility_universal_id_type
@@ -3755,9 +3632,7 @@ The receiving facility id for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The receiving facility id type for the message (specified by the receiver)
-
 ---
 
 **Name**: reference_range
@@ -3771,10 +3646,8 @@ The receiving facility id type for the message (specified by the receiver)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reference range of the lab result, such as “Negative” or “Normal”. 
 For IgG, IgM and CT results that provide a value you MUST fill out this filed.
-
 
 ---
 
@@ -3789,10 +3662,8 @@ For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
 aggregator
-
 
 ---
 
@@ -3812,9 +3683,7 @@ aggregator
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: reporting_facility_name
@@ -3833,9 +3702,7 @@ The reporting facility's CLIA
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's name
-
 ---
 
 **Name**: result_format
@@ -3875,11 +3742,9 @@ The reporting facility's name
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  
 Not to be confused with sending_application, in which ReportStream acts as the 'sender' 
 to the downstream jurisdiction.
-
 
 ---
 
@@ -3896,9 +3761,7 @@ to the downstream jurisdiction.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name for the application sending information to the receivers
-
 
 ---
 
@@ -3915,9 +3778,7 @@ The name for the application sending information to the receivers
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the application sending information to the receivers
-
 
 ---
 
@@ -3934,9 +3795,7 @@ The ID for the application sending information to the receivers
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID type for the application sending information to the receivers
-
 
 ---
 
@@ -3951,10 +3810,8 @@ The ID type for the application sending information to the receivers
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The type of facility providing care (Hospital, Nursing Home, etc.).  
 This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
-
 
 ---
 
@@ -3976,9 +3833,7 @@ This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -4019,7 +3874,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
-
+                
 ---
 
 **Name**: specimen_collection_site_text
@@ -4035,7 +3890,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
-
+                
 ---
 
 **Name**: specimen_collector_first_name
@@ -4087,7 +3942,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24) 
-
+                
 ---
 
 **Name**: specimen_description
@@ -4103,7 +3958,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14](https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14) 
-
+                
 ---
 
 **Name**: specimen_id
@@ -4124,11 +3979,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique code for this specimen
-
 ---
 
 **Name**: specimen_id_namespace_id
@@ -4289,9 +4142,7 @@ A unique code for this specimen
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Refers back to the specimen source site, which is then encoded into the SPM-8 segment
-
 ---
 
 **Name**: specimen_source_site_system
@@ -4305,9 +4156,7 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The coding system the sender is using for the specimen source
-
 ---
 
 **Name**: specimen_source_site_text
@@ -4321,9 +4170,7 @@ The coding system the sender is using for the specimen source
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The text for the specimen source site
-
 ---
 
 **Name**: specimen_type_alternate_value
@@ -4373,9 +4220,7 @@ The text for the specimen source site
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: specimen_type_code_system
@@ -4449,9 +4294,7 @@ The specimen source, such as Blood or Serum
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Follows guidence for OBX-17 as defined in the HL7 Confluence page
-
 ---
 
 **Name**: test_kit_name_id_cwe_version
@@ -4465,9 +4308,7 @@ Follows guidence for OBX-17 as defined in the HL7 Confluence page
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Follows guidance for OBX-17-7 where the version of the CWE field is passed along
-
 ---
 
 **Name**: test_kit_name_id_type
@@ -4493,9 +4334,7 @@ Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 A text field that allows the lab to provide more information aboout the test method
-
 ---
 
 **Name**: test_performed_alternate_code
@@ -4557,9 +4396,7 @@ A text field that allows the lab to provide more information aboout the test met
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The LOINC code of the test performed. This is a standardized coded value describing the test
-
 ---
 
 **Name**: test_performed_name
@@ -4573,9 +4410,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The LOINC description of the test performed as related to the LOINC code.
-
 ---
 
 **Name**: test_performed_system
@@ -4639,9 +4474,7 @@ The LOINC description of the test performed as related to the LOINC code.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 
 ---
 
@@ -4675,10 +4508,8 @@ W|Post original as wrong, e.g., transmitted for wrong patient|HL7
 X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
@@ -4717,9 +4548,7 @@ the test result is in some intermediate status, is a correction, or is the final
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The units the test result is measured in.
-
 ---
 
 **Name**: testing_lab_accession_number
@@ -4733,9 +4562,7 @@ The units the test result is measured in.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The accession number of the specimen collected
-
 ---
 
 **Name**: testing_lab_accession_number_namespace_id
@@ -4797,9 +4624,7 @@ The accession number of the specimen collected
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: testing_lab_clia
@@ -4821,11 +4646,9 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -4842,9 +4665,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The country for the testing lab. Currently defaults to USA
-
 ---
 
 **Name**: testing_lab_county
@@ -4862,9 +4683,7 @@ The country for the testing lab. Currently defaults to USA
 **Table Column**: County
 
 **Documentation**:
-
 The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
-
 ---
 
 **Name**: testing_lab_county_code
@@ -4878,9 +4697,7 @@ The text value for the testing lab county. This is used to do the lookup in the 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The county code for the testing lab from the FIPS dataset. This is the standard code used in ELR reporting.
-
 
 ---
 
@@ -4895,9 +4712,7 @@ The county code for the testing lab from the FIPS dataset. This is the standard 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
 ---
 
 **Name**: testing_lab_id_assigner
@@ -4911,10 +4726,8 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This is the assigner of the CLIA for the testing lab. If the 
 testing lab has a CLIA, this field will be filled in.
-
 
 ---
 
@@ -4961,9 +4774,7 @@ testing lab has a CLIA, this field will be filled in.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 
 ---
 
@@ -4990,9 +4801,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: testing_lab_specimen_id
@@ -5006,9 +4815,7 @@ The phone number of the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The specimen-id from the testing lab
-
 ---
 
 **Name**: testing_lab_specimen_received_datetime
@@ -5022,12 +4829,10 @@ The specimen-id from the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The received date time for the specimen. This field is very important to many states for their HL7,
 but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
 setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
 be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-
 
 ---
 
@@ -5046,9 +4851,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: testing_lab_street
@@ -5062,9 +4865,7 @@ The state for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: testing_lab_street2
@@ -5078,9 +4879,7 @@ The street address for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Street 2 field for the testing lab
-
 ---
 
 **Name**: testing_lab_zip_code
@@ -5094,9 +4893,7 @@ Street 2 field for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: topic
@@ -5110,10 +4907,8 @@ The postal code for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The topic for the data. This way it can be interrogated at the row level for HL7 serialization and we can
 branch out any disease-specific logic.
-
 
 ---
 
