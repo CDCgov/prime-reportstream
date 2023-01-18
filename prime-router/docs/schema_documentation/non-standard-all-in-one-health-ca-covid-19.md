@@ -1,4 +1,3 @@
-
 ### Schema: non-standard/all-in-one-health-ca-covid-19
 ### Topic: covid-19
 ### Tracking Element: (message_id)
@@ -19,9 +18,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Notes
@@ -35,9 +32,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Ok to Contact Patient
@@ -51,9 +46,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Patient County
@@ -67,9 +60,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Provider Facility Name
@@ -83,9 +74,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Result
@@ -99,9 +88,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Specimen Site
@@ -115,9 +102,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Test Name
@@ -131,9 +116,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Date Reported
@@ -163,7 +146,7 @@ This field is ignored.
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -199,9 +182,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accension number
-
 ---
 
 **Name**: Date Test Ordered
@@ -229,9 +210,7 @@ Accension number
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: Facility Name
@@ -245,9 +224,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: Facility Phone
@@ -261,9 +238,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: Facility State
@@ -281,9 +256,7 @@ The phone number of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: Facility Street Address
@@ -297,9 +270,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: Facility Zip
@@ -313,9 +284,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: Provider City
@@ -329,9 +298,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the provider
-
 ---
 
 **Name**: Provider First Name
@@ -350,9 +317,7 @@ The city of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: Provider ID/ NPI
@@ -371,9 +336,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ordering provider’s National Provider Identifier
-
 ---
 
 **Name**: Provider ID/ NPI
@@ -404,9 +367,7 @@ The ordering provider’s National Provider Identifier
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: Provider Phone Number
@@ -425,9 +386,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: Provider State
@@ -445,9 +404,7 @@ The phone number of the provider
 **Table Column**: State
 
 **Documentation**:
-
 The state of the provider
-
 ---
 
 **Name**: Provider Street Address
@@ -461,9 +418,7 @@ The state of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The street address of the provider
-
 ---
 
 **Name**: Provider ZIP
@@ -477,9 +432,7 @@ The street address of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: Patient City
@@ -493,9 +446,7 @@ The zip code of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: Patient County
@@ -527,11 +478,9 @@ The patient's city
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -577,9 +526,7 @@ U|NULL|LOCAL
 U|Patient Declines|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound ethnicity values to RS / OMB values
-
 ---
 
 **Name**: Patient First Name
@@ -593,9 +540,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: Patient Sex
@@ -632,9 +577,7 @@ A|A|LOCAL
 A|Ambiguous|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Gender values to RS values
-
 ---
 
 **Name**: Patient Identifier
@@ -648,10 +591,8 @@ Translate multiple inbound Gender values to RS values
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -671,9 +612,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
-
 ---
 
 **Name**: Patient Last Name
@@ -687,9 +626,7 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: Patient Middle Initial
@@ -715,9 +652,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: Race
@@ -779,9 +714,7 @@ ASKU|Asked, but unknown|LOCAL
 ASKU|ASKU|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Race values to RS / OMB values
-
 ---
 
 **Name**: Patient State
@@ -799,9 +732,7 @@ Translate multiple inbound Race values to RS / OMB values
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: Patient Street Address
@@ -815,9 +746,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: Patient Zip
@@ -831,9 +760,7 @@ The patient's street address
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: Specimen ID
@@ -852,9 +779,7 @@ The patient's zip code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: Facility CLIA
@@ -876,9 +801,7 @@ The ID number of the lab order from the placer
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: Facility Name
@@ -900,9 +823,7 @@ The reporting facility's CLIA
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The reporting facility's name
-
 ---
 
 **Name**: Specimen Collection Date
@@ -925,9 +846,7 @@ The reporting facility's name
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -1017,9 +936,7 @@ Code | Display | System
 39607008|39607008|SNOMED_CT
 
 **Documentation**:
-
 Translate inbound text to outbound SNOMED Codes
-
 ---
 
 **Name**: Specimen Type
@@ -1103,9 +1020,7 @@ Code | Display | System
 258607008|258607008|SNOMED_CT
 
 **Documentation**:
-
 Translate inbound text to outbound SNOMED Codes
-
 ---
 
 **Name**: Test Code
@@ -1192,9 +1107,7 @@ Code | Display | System
 82334004|82334004|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound Test Result values to RS values
-
 ---
 
 **Name**: Result Date
@@ -1243,10 +1156,8 @@ W|Post original as wrong, e.g., transmitted for wrong patient|HL7
 X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
@@ -1261,9 +1172,7 @@ the test result is in some intermediate status, is a correction, or is the final
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: Facility CLIA
@@ -1286,11 +1195,9 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -1305,9 +1212,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
 ---
 
 **Name**: Facility Name
@@ -1331,9 +1236,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 ---
 
 **Name**: Facility Phone
@@ -1347,9 +1250,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: Specimen ID
@@ -1363,9 +1264,7 @@ The phone number of the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The specimen-id from the testing lab
-
 ---
 
 **Name**: Specimen Received Date
@@ -1381,12 +1280,10 @@ The specimen-id from the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The received date time for the specimen. This field is very important to many states for their HL7,
 but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
 setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
 be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-
 
 ---
 
@@ -1405,9 +1302,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: Facility Street Address
@@ -1421,9 +1316,7 @@ The state for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: Facility Zip
@@ -1437,9 +1330,7 @@ The street address for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: message_id
@@ -1453,9 +1344,7 @@ The postal code for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: patient_county_code
@@ -1473,9 +1362,7 @@ unique id to track the usage of the message
 **Table Column**: FIPS
 
 **Documentation**:
-
 The FIPS code for the patient's county
-
 ---
 
 **Name**: patient_id_type
@@ -1515,9 +1402,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: sender_id
@@ -1533,9 +1418,7 @@ P, D, or T for Production, Debugging, or Training
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: test_performed_code
@@ -1553,9 +1436,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 The LOINC code of the test performed. This is a standardized coded value describing the test
-
 ---
 
 **Name**: test_type

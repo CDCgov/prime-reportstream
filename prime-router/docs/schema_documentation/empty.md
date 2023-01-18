@@ -1,4 +1,3 @@
-
 ### Schema: empty
 ### Topic: covid-19
 ### Tracking Element: Message_ID (message_id)
@@ -31,9 +30,7 @@
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: Ordering_facility_county
@@ -67,9 +64,7 @@ unique id to track the usage of the message
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: processing_mode_code
@@ -95,9 +90,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: sender_fullname

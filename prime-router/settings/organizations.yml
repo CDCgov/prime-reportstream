@@ -658,3 +658,157 @@
       customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
+
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
+
+- name: hcintegrations
+  description: Healthcare Integrations
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: hcintegrations
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/hcintegrations-covid-19
+      format: HL7
+
+- name: oh-doh
+  description: Ohio Department of Health
+  jurisdiction: STATE
+  stateCode: OH
+  receivers:
+    - name: elr
+      organizationName: oh-doh
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        suppressQstForAoe: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
+        nameFormat: ohio
+        suppressHl7Fields: OBX-23-11, MSH-19-1, MSH-19-2, MSH-19-3
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+- name: hi-phd
+  description: Hawaii Public Health Department
+  jurisdiction: STATE
+  stateCode: HI
+  receivers:
+    - name: elr
+      organizationName: hi-phd
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, HI, patient_state, HI)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+
+- name: ak-phd
+  description: Alaska Public Health Department
+  jurisdiction: STATE
+  stateCode: AK
+  receivers:
+    - name: elr
+      organizationName: ak-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, AK, patient_state, AK)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        suppressHl7Fields: PID-5-7, ORC-12-1, OBR-16-1
+        replaceValue:
+          PID-22-3: CDCREC
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+- name: md-phd
+  description: TEST Maryland Public Health Department
+  jurisdiction: STATE
+  filters:
+    - topic: covid-19
+      jurisdictionalFilter: [ "orEquals(ordering_facility_state, MD, patient_state, MD)" ]
+    - topic: full-elr
+      jurisdictionalFilter: [ "%performerState = 'MD' or %patientState = 'MD'" ]
+  stateCode: MD
+  receivers:
+    - name: elr
+      organizationName: md-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(patient_state, MD, ordering_facility_state, MD)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
+
