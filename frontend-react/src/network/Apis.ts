@@ -9,12 +9,17 @@ interface ReportStreamApi {
     basePath: string;
     headers: AxiosRequestHeaders;
     root: string;
-    updateSession: (headers: AxiosRequestHeaders) => void;
+    updateSession: (headers: ReportStreamApiHeaders) => void;
 }
 
 const apis: ReportStreamApi[] = [];
 
-const headersFromStoredSession = (): AxiosRequestHeaders => ({
+interface ReportStreamApiHeaders {
+    Authorization: string;
+    Organization: string;
+}
+
+const headersFromStoredSession = (): ReportStreamApiHeaders => ({
     Authorization: `Bearer ${getStoredOktaToken() || ""}`,
     Organization: getStoredOrg() || "",
 });

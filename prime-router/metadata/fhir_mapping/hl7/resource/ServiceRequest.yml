@@ -133,11 +133,61 @@ authoredOn:
     dateTimeIn: ORC.9 | OBR.6
 
 occurrenceDateTime:
+  condition: $startTiming NULL && $endTiming NULL
   type: STRING
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: ORC.15 | OBR.7 | OBR.27.4
+    dateTimeIn: ORC.15
+    startTiming: TQ1.7
+    endTiming: TQ1.8
+
+occurrenceTiming:
+  valueOf: datatype/Timing
+  expressionType: resource
+  vars:
+    startTiming: TQ1.7
+    endTiming: TQ1.8
+
+priority_1:
+  condition: $priorityCode EQUALS S
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "stat"
+
+priority_2:
+  condition: $priorityCode EQUALS A
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "asap"
+
+priority_3:
+  condition: $priorityCode EQUALS R
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "routine"
+
+priority_4:
+  condition: $priorityCode EQUALS U
+  type: STRING
+  valueOf: $priorityValue
+  expressionType: HL7Spec
+  vars:
+    priorityCode: String, TQ1.9.1
+  constants:
+    priorityValue: "urgent"
 
 requester:
   valueOf: resource/PractitionerRole
@@ -290,36 +340,11 @@ extension_9:
         system_code: "v2-0123"
 
 extension_10:
+  condition: $code NOT_EQUALS S && $code NOT_EQUALS A && $code NOT_EQUALS R && $code NOT_EQUALS U
   generateList: true
   expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: start-of-service
-    valueDateTime:
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: TQ1.7
-
-extension_11:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: end-of-service
-    valueDateTime:
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: TQ1.8
-
-extension_12:
-  generateList: true
-  expressionType: nested
+  vars:
+    code: String, TQ1.9.1
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -329,6 +354,19 @@ extension_12:
       expressionType: resource
       vars:
         system: SYSTEM_URL, $system_code
-        code: String, TQ1.9.1
       constants:
         system_code: "v2-0485"
+
+extension_11:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: order-effective-date
+    valueDateTime:
+        type: STRING
+        valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+        expressionType: JEXL
+        vars:
+          dateTimeIn: ORC.15

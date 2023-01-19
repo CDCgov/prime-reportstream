@@ -30,7 +30,7 @@ class GetOrganizations(
             methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations"
-        ) request: HttpRequestMessage<String?>,
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         return when (request.httpMethod) {
             HttpMethod.HEAD -> getHead(request)
@@ -53,7 +53,7 @@ class GetOneOrganization(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String,
+        @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
         // Counter-intuitive:  this fails if you pass the organizationName as the organizationName. ;)
         return getOne(request, organizationName, OrganizationAPI::class.java, null)
@@ -73,7 +73,7 @@ class UpdateOrganization(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String,
+        @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -99,7 +99,7 @@ class GetSenders(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/senders"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String,
+        @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
         return getList(request, organizationName, Sender::class.java)
     }
@@ -119,7 +119,7 @@ class GetOneSender(
             route = "settings/organizations/{organizationName}/senders/{senderName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("senderName") senderName: String,
+        @BindingName("senderName") senderName: String
     ): HttpResponseMessage {
         return getOne(request, senderName, Sender::class.java, organizationName)
     }
@@ -139,7 +139,7 @@ class UpdateSender(
             route = "settings/organizations/{organizationName}/senders/{senderName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("senderName") senderName: String,
+        @BindingName("senderName") senderName: String
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -167,7 +167,7 @@ class GetReceiver(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/receivers"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String,
+        @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
         return getList(request, organizationName, ReceiverAPI::class.java)
     }
@@ -187,7 +187,7 @@ class GetOneReceiver(
             route = "settings/organizations/{organizationName}/receivers/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("receiverName") receiverName: String,
+        @BindingName("receiverName") receiverName: String
     ): HttpResponseMessage {
         return getOne(request, receiverName, ReceiverAPI::class.java, organizationName)
     }
@@ -207,7 +207,7 @@ class UpdateReceiver(
             route = "settings/organizations/{organizationName}/receivers/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("receiverName") receiverName: String,
+        @BindingName("receiverName") receiverName: String
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -231,7 +231,6 @@ class UpdateReceiver(
  *   `settings/revision/organizations/{organizationName}/sender`
  *   `settings/revision/organizations/{organizationName}/receiver`
  *   `settings/revision/organizations/{organizationName}/organization`
-
  *   @param settingsFacade Same pattern as the rest of the funs in this module
  *   @param oktaAuthentication Default to require org admin, caller can override
  *   @return Spring HttpTrigger call
@@ -335,7 +334,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         settingName: String,
         clazz: Class<T>,
-        organizationName: String? = null,
+        organizationName: String? = null
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organizationName ?: settingName) {
             val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
@@ -353,8 +352,9 @@ open class BaseFunction(
         return oktaAuthentication.checkAccess(request, organizationName ?: settingName) { claims ->
             val (result, outputBody) = when (request.httpMethod) {
                 HttpMethod.PUT -> {
-                    if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType)
+                    if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType) {
                         return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
+                    }
                     val body = request.body
                         ?: return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
                     facade.putSetting(settingName, body, claims, clazz, organizationName)
