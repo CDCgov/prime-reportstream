@@ -36,14 +36,16 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val mockClientAuthOk = mockJsonResponseWithSuccess(
         """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
-                        |"token_type": "Bearer", "expires_in": 3600}"""
+                        |"token_type": "Bearer", "expires_in": 3600}
+        """
     )
 
     private val mockClientAuthIDTokenOk = mockJsonResponseWithSuccess(
         """{"email": "test-email@test.com",
                         "idToken": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"expiresIn": 3600,
-                        "refreshToken": "RjY2NjM5NzA2OWJjuE7c"}"""
+                        "refreshToken": "RjY2NjM5NzA2OWJjuE7c"}
+        """
     )
 
     private val mockClientAuthError = mockJsonResponseWithError(
@@ -57,7 +59,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val mockClientPostOk = mockJsonResponseWithSuccess(
         """{"status": "Success", 
                         |"statusDesc": "Received. LIN:4299844", 
-                        |"respTrackingId": "UT-20211119-746000000-54"}"""
+                        |"respTrackingId": "UT-20211119-746000000-54"}
+        """
     )
 
     private val mockClientPostError = mockJsonResponseWithError(
@@ -129,7 +132,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private fun makeHeader(): WorkflowEngine.Header {
         val content = "HL7|Stuff"
         return WorkflowEngine.Header(
-            task, reportFile,
+            task,
+            reportFile,
             null,
             settings.findOrganization("ignore"),
             settings.findReceiver("ignore.REST_TEST"),
