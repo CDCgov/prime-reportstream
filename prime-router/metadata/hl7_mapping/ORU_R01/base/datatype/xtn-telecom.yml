@@ -1,6 +1,7 @@
 constants:
   hl7TelecomPath: '%{hl7TelecomField}(%{telecomIndex})'
 
+#TODO: Need to look for a way to set use code to ORN when home and cell phone is passed
 elements:
   - name: xtn-use-code
     value: [ '%resource.use' ]
@@ -19,11 +20,6 @@ elements:
   - name: xtn-use-code-from-system
     condition: '%resource.system = "email"'
     value: [ '"NET"' ]
-    hl7Spec: [ '%{hl7TelecomPath}-2' ]
-
-  - name: xtn-use-code-from-constant
-    condition: '%{homePhoneExists} = "true" '
-    value: [ '"ORN"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: xtn-system
