@@ -98,7 +98,8 @@ class BundleUpdateTests {
                 }
             }
         ]
-    }"""
+    }
+    """
 
     @BeforeEach
     fun reset() {

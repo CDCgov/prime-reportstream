@@ -1,4 +1,3 @@
-
 ### Schema: sample/fed1-sample
 ### Topic: test
 ### Tracking Element: (specimen_id)

@@ -1,4 +1,3 @@
-
 ### Schema: direct/abbott-covid-19
 ### Topic: covid-19
 ### Tracking Element: specimenId (specimen_id)
@@ -19,9 +18,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, 20210112
-
 ---
 
 **Name**: healthcareEmployee
@@ -47,9 +44,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: deviceName
@@ -65,15 +60,13 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
 **Documentation**:
-
 If present, match LIVD column B, "Model". eg,  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
-
 ---
 
 **Name**: firstTest
@@ -99,9 +92,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: hospitalized
@@ -127,9 +118,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: symptomsIcu
@@ -155,9 +144,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: testId
@@ -171,9 +158,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ReportStream copies value from the specimenId if none is provided by the sender.
-
 ---
 
 **Name**: testOrdered
@@ -191,9 +176,7 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 **Table Column**: Test Ordered LOINC Code
 
 **Documentation**:
-
 eg, 94531-1
-
 ---
 
 **Name**: testName
@@ -211,9 +194,7 @@ eg, 94531-1
 **Table Column**: Test Ordered LOINC Long Name
 
 **Documentation**:
-
 Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
-
 ---
 
 **Name**: orderingProviderFname
@@ -232,9 +213,7 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: orderingProviderNpi
@@ -253,9 +232,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, "1265050918"
-
 ---
 
 **Name**: orderingProviderLname
@@ -274,9 +251,7 @@ eg, "1265050918"
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: orderingProviderZip
@@ -290,9 +265,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: patientAge
@@ -359,9 +332,7 @@ U|UNK|HL7
 U|ASKU|HL7
 
 **Documentation**:
-
 Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-2, 2186-5, UNK, ASKU). A mapping is done here, but better is to switch all of RS to HHS standard.
-
 ---
 
 **Name**: patientSex
@@ -388,9 +359,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -405,10 +374,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -450,9 +417,7 @@ UNK|Unknown|NULLFL
 ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -471,9 +436,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: patientZip
@@ -487,9 +450,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: pregnant
@@ -515,9 +476,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Is the patient pregnant?
-
 ---
 
 **Name**: previousTestResult
@@ -558,9 +517,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 Custom field.  Example - 260415000
-
 ---
 
 **Name**: previousTestType
@@ -574,9 +531,7 @@ Custom field.  Example - 260415000
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
-
 ---
 
 **Name**: processingModeCode
@@ -602,9 +557,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: congregateResident
@@ -630,9 +583,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: senderId
@@ -648,9 +599,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: congregateResidentType
@@ -690,9 +639,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Custom field
-
 ---
 
 **Name**: specimenId
@@ -712,11 +659,9 @@ Custom field
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique id, such as a UUID. Note - Need to override the mapper in covid-19.schema file.
-
 ---
 
 **Name**: specimenSource
@@ -759,9 +704,7 @@ Code | Display | System
 309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: symptomatic
@@ -787,9 +730,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: symptomsList
@@ -803,9 +744,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
-
 ---
 
 **Name**: deviceIdentifier
@@ -821,15 +760,13 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
 
 **Documentation**:
-
 Must match LIVD column M, "Test Kit Name ID"
-
 ---
 
 **Name**: testPerformed
@@ -847,9 +784,7 @@ Must match LIVD column M, "Test Kit Name ID"
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 eg, 94558-4
-
 ---
 
 **Name**: testResult
@@ -890,9 +825,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 eg, 260373001
-
 ---
 
 **Name**: testResultDate
@@ -906,9 +839,7 @@ eg, 260373001
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 eg, 20210111
-
 ---
 
 **Name**: performingFacility
@@ -931,9 +862,7 @@ eg, 20210111
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Expecting a CLIA number here.  eg, "10D2218834"
-
 ---
 
 **Name**: performingFacilityName
@@ -957,9 +886,7 @@ Expecting a CLIA number here.  eg, "10D2218834"
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 ---
 
 **Name**: performingFacilityState
@@ -977,9 +904,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: performingFacilityZip
@@ -993,9 +918,7 @@ The state for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: filler_order_id
@@ -1015,9 +938,7 @@ The postal code for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accension number
-
 ---
 
 **Name**: patient_id_type
@@ -1050,9 +971,7 @@ Accension number
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: reporting_facility_clia
@@ -1074,9 +993,7 @@ The ID number of the lab order from the placer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: reporting_facility_name
@@ -1098,9 +1015,7 @@ The reporting facility's CLIA
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's name
-
 ---
 
 **Name**: test_authorized_for_home
@@ -1118,15 +1033,13 @@ The reporting facility's name
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
 **Documentation**:
-
 Is the test authorized for home use by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_otc
@@ -1144,15 +1057,13 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
 **Documentation**:
-
 Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -1170,15 +1081,13 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 
 **Documentation**:
-
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_result_status
@@ -1213,10 +1122,8 @@ W|Post original as wrong, e.g., transmitted for wrong patient|HL7
 X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
