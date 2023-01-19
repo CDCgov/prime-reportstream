@@ -801,6 +801,8 @@ dependencies {
     implementation("com.anyascii:anyascii:0.3.1")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.15.3")
+    // implementation("com.microsoft.azure:applicationinsights-core:2.6.4")
+    implementation("com.microsoft.azure:applicationinsights-core:3.4.7")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

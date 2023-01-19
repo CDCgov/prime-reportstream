@@ -1,6 +1,9 @@
 package gov.cdc.prime.router.azure
 
 import com.google.common.net.HttpHeaders
+import com.microsoft.applicationinsights.TelemetryClient
+import com.microsoft.applicationinsights.telemetry.RequestTelemetry
+import com.microsoft.applicationinsights.telemetry.TelemetryContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -28,6 +31,7 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
+import java.util.Date
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -51,6 +55,21 @@ class ValidateFunction(
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
+        val context = TelemetryContext()
+        context.properties["ArnejTestDimKey"] = "ArnejTestDimVal"
+        context.properties["JimTestDimKey"] = "JimTestDimVal"
+        val client = TelemetryClient()
+        client.trackEvent("ArnejEvent")
+        client.trackMetric("ArnejMetric", 10.0)
+        client.trackRequest(
+            RequestTelemetry(
+                "ArnejRequestTelemetry",
+                Date(),
+                Long.MIN_VALUE,
+                "200",
+                true
+            )
+        )
         val senderName = extractClient(request)
         if (senderName.isBlank()) {
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
