@@ -431,6 +431,7 @@ function TermsOfServiceForm() {
                         Submit registration
                     </Button>
                     <Alert
+                        headingLevel="h4"
                         style={{
                             visibility: sendGridErrorFlag.isError
                                 ? "visible"

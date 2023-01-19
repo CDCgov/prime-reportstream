@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
@@ -108,7 +108,7 @@ const TrackingIDTooltip = () => {
             position="right"
             label={"Defaults to MSH-10"}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
