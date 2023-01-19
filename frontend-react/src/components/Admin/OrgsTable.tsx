@@ -14,6 +14,7 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MembershipActionType } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
+import { ServiceActionType } from "../../hooks/UseServiceSettings";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -22,13 +23,22 @@ export function OrgsTable() {
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
-    const { activeMembership, updateMembership } = useSessionContext();
+    const { activeMembership, updateMembership, updateServices } =
+        useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
         updateMembership({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload: { parsedName: orgName },
+        });
+        // TODO: This is a holdover of our previous "default" logic. We know all senders
+        //  have a `default` service, and this behavior does not break any receiver functionality.
+        //  Remove once we fetch sender services on Sender feature pages, to follow the same "fetch
+        //  once and stash" pattern on Daily Data
+        updateServices({
+            type: ServiceActionType.SET_ACTIVE,
+            payload: { active: "default" },
         });
     };
 
