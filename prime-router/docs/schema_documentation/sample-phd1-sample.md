@@ -1,4 +1,3 @@
-
 ### Schema: sample/phd1-sample
 ### Topic: test
 ### Tracking Element: (specimen_id)

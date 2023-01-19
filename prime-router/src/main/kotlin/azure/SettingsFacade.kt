@@ -331,10 +331,19 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    featureFlags: List<String>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
-) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+) : Organization(
+    name,
+    description,
+    jurisdiction,
+    stateCode.trimToNull(),
+    countyName.trimToNull(),
+    filters,
+    featureFlags
+),
 
     SettingAPI {
     @get:JsonIgnore
