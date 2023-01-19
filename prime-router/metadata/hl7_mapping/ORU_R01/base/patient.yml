@@ -77,11 +77,10 @@ elements:
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
-  # We have to check for or system equal "email" because we're not receiving use for email
+  # We have to check for system equals "email" because we're not receiving use for email
   - name: phone-number-home-mobile-email
     resource: '%resource.telecom.where(use != "work" or system = "email")'
     constants:
-      telecomResource: '%resource'
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
