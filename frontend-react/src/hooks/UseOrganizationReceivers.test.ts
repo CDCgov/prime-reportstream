@@ -36,8 +36,8 @@ describe("useOrganizationReceivers", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
-                service: "testReceiver",
             },
+            service: "testReceiver",
             dispatch: () => {},
             initialized: true,
         });

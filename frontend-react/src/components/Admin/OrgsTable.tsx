@@ -12,11 +12,7 @@ import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
-import {
-    MembershipActionType,
-    MemberType,
-    MembershipSettings,
-} from "../../hooks/UseOktaMemberships";
+import { MembershipActionType } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
@@ -30,20 +26,9 @@ export function OrgsTable() {
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const { service, memberType } = activeMembership || {};
-
-        let payload: Partial<MembershipSettings> = {
-            parsedName: orgName,
-        };
-        if (
-            memberType === MemberType.SENDER ||
-            memberType === MemberType.PRIME_ADMIN
-        ) {
-            payload.service = service || "default";
-        }
         dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
-            payload,
+            payload: { parsedName: orgName },
         });
     };
 

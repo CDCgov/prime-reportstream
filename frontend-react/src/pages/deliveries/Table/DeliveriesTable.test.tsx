@@ -48,8 +48,8 @@ beforeEach(() => {
         activeMembership: {
             memberType: MemberType.RECEIVER,
             parsedName: "testOrg",
-            service: "testReceiver",
         },
+        service: "testReceiver",
         dispatch: () => {},
         initialized: true,
     });
@@ -77,8 +77,8 @@ describe("DeliveriesTable", () => {
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
                 },
+                service: "testReceiver",
                 dispatch: () => {},
                 initialized: true,
             });
@@ -183,8 +183,8 @@ describe("DeliveriesTableWithNumberedPagination - with no data", () => {
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrgNoReceivers",
-                service: "testReceiver",
             },
+            service: "testReceiver",
             dispatch: () => {},
             initialized: true,
         });

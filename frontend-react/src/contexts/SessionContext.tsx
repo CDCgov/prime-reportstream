@@ -11,6 +11,8 @@ import {
 
 export interface RSSessionContext {
     activeMembership?: MembershipSettings | null;
+    // Optional service name (i.e. "elr", "default")
+    service?: string;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
@@ -26,6 +28,7 @@ interface ISessionProviderProps {
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
     activeMembership: {} as MembershipSettings,
+    service: undefined, // TODO: this becomes `services` of type ServiceSettings in later commits
     dispatch: () => {},
     initialized: false,
     isAdminStrictCheck: false,
@@ -43,6 +46,7 @@ const SessionProvider = ({
         state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
+    const service = "default"; // TODO: this becomes a hook w/ provided controller and values
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
     const isAdminStrictCheck = useMemo(() => {
@@ -54,6 +58,7 @@ const SessionProvider = ({
             value={{
                 oktaToken: authState?.accessToken,
                 activeMembership,
+                service,
                 isAdminStrictCheck,
                 dispatch,
                 initialized: authState !== null && !!initialized,

@@ -10,7 +10,6 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService } from "../config/endpoints/settings";
 
 const PRIME_ADMINS = "DHPrimeAdmins";
 const PREFIX_SENDER = "DHSender_";
@@ -35,10 +34,6 @@ export interface MembershipSettings {
     parsedName: string;
     // The type of membership
     memberType: MemberType;
-    // Optional service name (i.e. "elr", "default")
-    service?: string;
-    // List of available services for the current org
-    allServices?: RSService[];
 }
 
 export interface MembershipState {
@@ -85,16 +80,10 @@ export const getSettingsFromOrganization = (
 ): MembershipSettings => {
     const parsedName = parseOrgName(org);
     const memberType = getTypeOfGroup(org);
-    let senderName = extractSenderName(org);
-
-    if (memberType === MemberType.SENDER && !senderName) {
-        senderName = "default";
-    }
 
     return {
         parsedName,
         memberType,
-        service: senderName,
     };
 };
 

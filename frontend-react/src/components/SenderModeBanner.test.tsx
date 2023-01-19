@@ -25,8 +25,8 @@ describe("SenderModeBanner", () => {
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
-                service: "testSender",
             },
+            service: "testSender",
             dispatch: () => {},
             initialized: true,
         });
