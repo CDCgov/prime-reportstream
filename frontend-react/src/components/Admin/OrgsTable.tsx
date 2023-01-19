@@ -22,11 +22,11 @@ export function OrgsTable() {
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
-    const { activeMembership, dispatch } = useSessionContext();
+    const { activeMembership, updateMembership } = useSessionContext();
     const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        dispatch({
+        updateMembership({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload: { parsedName: orgName },
         });

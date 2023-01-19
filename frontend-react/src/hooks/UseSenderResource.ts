@@ -8,22 +8,22 @@ const { senderDetail } = servicesEndpoints;
 export const useSenderResource = () => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();
     /* Access the session. */
-    const { activeMembership, service } = useSessionContext();
+    const { activeMembership, services } = useSessionContext();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(senderDetail, {
                 segments: {
                     orgName: activeMembership?.parsedName!!,
-                    sender: service!!,
+                    sender: services?.active!!,
                 },
             }),
-        [activeMembership?.parsedName, service, authorizedFetch]
+        [activeMembership?.parsedName, services?.active, authorizedFetch]
     );
     const { data, isLoading } = rsUseQuery(
         [senderDetail.queryKey, activeMembership],
         memoizedDataFetch,
         {
-            enabled: !!activeMembership?.parsedName && !!service,
+            enabled: !!activeMembership?.parsedName && !!services?.active,
         }
     );
     return { senderDetail: data, senderIsLoading: isLoading };

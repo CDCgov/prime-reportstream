@@ -32,8 +32,13 @@ describe("SubmissionTable", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
             },
-            service: "testSender",
-            dispatch: () => {},
+            services: {
+                active: "testSender",
+                senders: [],
+                receivers: [],
+            },
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const fixtures: Fixture[] = [

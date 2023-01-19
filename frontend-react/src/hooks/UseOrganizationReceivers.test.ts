@@ -19,7 +19,8 @@ describe("useOrganizationReceivers", () => {
                 accessToken: "TOKEN",
             },
             activeMembership: undefined,
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
@@ -37,8 +38,13 @@ describe("useOrganizationReceivers", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            service: "testReceiver",
-            dispatch: () => {},
+            services: {
+                active: "testReceiver",
+                senders: [],
+                receivers: [],
+            },
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(

@@ -37,7 +37,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.PRIME_ADMIN,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         mockFeatureFlagContext.mockReturnValue({
@@ -59,7 +60,8 @@ describe("AuthElement unit tests", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
             activeMembership: undefined,
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         render(
@@ -77,7 +79,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         render(
@@ -98,7 +101,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         render(
@@ -120,7 +124,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         mockFeatureFlagContext.mockReturnValue({
@@ -145,7 +150,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         render(
@@ -166,7 +172,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.NON_STAND,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         render(
@@ -186,7 +193,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.NON_STAND,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: false,
         });
         render(
@@ -219,7 +227,8 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "xx-phd",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
             isAdminStrictCheck: true,
         } as RSSessionContext);

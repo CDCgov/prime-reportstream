@@ -12,7 +12,7 @@ import { getSessionBroadcastChannel, SessionEvent } from "../utils/UserUtils";
 
 export const Login = () => {
     const { oktaAuth } = useOktaAuth();
-    const { dispatch } = useSessionContext();
+    const { updateMembership } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens).finally(() => {
@@ -21,7 +21,7 @@ export const Login = () => {
     };
 
     const onError = (err: any) => {
-        dispatch({
+        updateMembership({
             type: MembershipActionType.RESET,
         });
         console.log("error logging in", err);

@@ -8,13 +8,18 @@ import {
     MembershipAction,
     MemberType,
 } from "../hooks/UseOktaMemberships";
+import {
+    ServiceAction,
+    ServiceSettings,
+    useServiceSettings,
+} from "../hooks/UseServiceSettings";
 
 export interface RSSessionContext {
-    activeMembership?: MembershipSettings | null;
-    // Optional service name (i.e. "elr", "default")
-    service?: string;
+    activeMembership?: MembershipSettings | null; // Org name and Membership type
     oktaToken?: Partial<AccessToken>;
-    dispatch: React.Dispatch<MembershipAction>;
+    services?: ServiceSettings; // Sender and Receiver settings
+    updateServices: React.Dispatch<ServiceAction>; // Dispatch for services
+    updateMembership: React.Dispatch<MembershipAction>; // Dispatch for membership
     initialized: boolean;
     isAdminStrictCheck?: boolean;
 }
@@ -28,8 +33,9 @@ interface ISessionProviderProps {
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
     activeMembership: {} as MembershipSettings,
-    service: undefined, // TODO: this becomes `services` of type ServiceSettings in later commits
-    dispatch: () => {},
+    services: undefined,
+    updateServices: () => {},
+    updateMembership: () => {},
     initialized: false,
     isAdminStrictCheck: false,
 });
@@ -44,9 +50,9 @@ const SessionProvider = ({
     const { authState } = oktaHook();
     const {
         state: { activeMembership, initialized },
-        dispatch,
+        dispatch: updateMembership,
     } = useOktaMemberships(authState);
-    const service = "default"; // TODO: this becomes a hook w/ provided controller and values
+    const { state: services, dispatch: updateServices } = useServiceSettings();
     /* This logic is a for when admins have other orgs present on their Okta claims
      * that interfere with the activeMembership.memberType "soft" check */
     const isAdminStrictCheck = useMemo(() => {
@@ -58,9 +64,10 @@ const SessionProvider = ({
             value={{
                 oktaToken: authState?.accessToken,
                 activeMembership,
-                service,
+                updateMembership,
+                services,
+                updateServices,
                 isAdminStrictCheck,
-                dispatch,
                 initialized: authState !== null && !!initialized,
             }}
         >

@@ -21,8 +21,9 @@ describe("useSenderResource", () => {
             activeMembership: {
                 memberType: MemberType.NON_STAND,
             } as MembershipSettings,
-            service: undefined,
-            dispatch: () => {},
+            services: undefined,
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result } = renderHook(() => useSenderResource(), {
@@ -40,8 +41,13 @@ describe("useSenderResource", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
             },
-            service: "testSender",
-            dispatch: () => {},
+            services: {
+                active: "testSender",
+                senders: [],
+                receivers: [],
+            },
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(

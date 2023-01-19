@@ -108,7 +108,7 @@ const FileHandler = ({
         }
     }, [localError]);
 
-    const { activeMembership, service } = useSessionContext();
+    const { activeMembership, services } = useSessionContext();
     // TODO: Transition from isLoading to Suspense component
     const { data: organization, isLoading: organizationLoading } =
         useOrganizationSettings();
@@ -116,7 +116,7 @@ const FileHandler = ({
     const { senderDetail: sender, senderIsLoading } = useSenderResource();
 
     const parsedName = activeMembership?.parsedName;
-    const senderName = service; // TODO: becomes `services.active` in later commits
+    const senderName = services?.active;
     const client = `${parsedName}.${senderName}`;
     const validateOnly = useMemo(
         () => handlerType !== FileHandlerType.UPLOAD,

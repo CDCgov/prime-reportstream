@@ -24,7 +24,8 @@ describe("useMessageSearch", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
 
@@ -58,7 +59,8 @@ describe("useMessageDetails", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
 

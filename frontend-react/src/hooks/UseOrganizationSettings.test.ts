@@ -19,7 +19,8 @@ describe("useOrganizationSettings", () => {
                 accessToken: "TOKEN",
             },
             activeMembership: undefined,
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result } = renderHook(() => useOrganizationSettings(), {
@@ -37,8 +38,13 @@ describe("useOrganizationSettings", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
             },
-            service: "testSender",
-            dispatch: () => {},
+            services: {
+                active: "testSender",
+                senders: [],
+                receivers: [],
+            },
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(

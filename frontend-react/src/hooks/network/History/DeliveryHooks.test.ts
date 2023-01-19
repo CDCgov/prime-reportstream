@@ -24,7 +24,8 @@ describe("DeliveryHooks", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
 
@@ -52,7 +53,8 @@ describe("DeliveryHooks", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(
@@ -71,7 +73,8 @@ describe("DeliveryHooks", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         const { result, waitForNextUpdate } = renderHook(

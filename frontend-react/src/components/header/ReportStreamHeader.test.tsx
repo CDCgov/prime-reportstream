@@ -56,7 +56,8 @@ describe("ReportStreamHeader", () => {
                 parsedName: "PrimeAdmins",
             },
             isAdminStrictCheck: true,
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         } as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
@@ -90,7 +91,8 @@ describe("ReportStreamHeader", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "ignore",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
@@ -125,7 +127,8 @@ describe("ReportStreamHeader", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "ignore",
             },
-            dispatch: () => {},
+            updateMembership: () => {},
+            updateServices: () => {},
             initialized: true,
         });
         renderWithSession(<ReportStreamHeader />);
