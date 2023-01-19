@@ -107,8 +107,8 @@ effectiveDateTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBR.7 | ORC.15
-    start: OBR.7 | ORC.15
+    dateTimeIn: OBR.7
+    start: OBR.7
     end: OBR.8
 
 effectivePeriod:
