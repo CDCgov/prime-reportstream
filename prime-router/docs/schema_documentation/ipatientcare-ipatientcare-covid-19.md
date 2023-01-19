@@ -1,4 +1,3 @@
-
 ### Schema: ipatientcare/ipatientcare-covid-19
 ### Topic: covid-19
 ### Tracking Element: Accession_no (message_id)
@@ -19,9 +18,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: LOINC
@@ -35,9 +32,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Lab name
@@ -51,9 +46,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: PhyAddress1
@@ -67,9 +60,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: PhysCity
@@ -83,9 +74,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: PhysPhone
@@ -99,9 +88,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: PhysST
@@ -115,9 +102,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: PhysZip
@@ -131,9 +116,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: Reference Range
@@ -147,9 +130,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: ResultUnits
@@ -163,9 +144,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: SSN
@@ -179,9 +158,7 @@ This field is ignored.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 This field is ignored.
-
 ---
 
 **Name**: ResultDate
@@ -197,9 +174,7 @@ This field is ignored.
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ResultDate populates multiple fields.  This instance populates date_result_released.
-
 ---
 
 **Name**: Accession_no
@@ -213,9 +188,7 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: DateColl
@@ -231,9 +204,7 @@ unique id to track the usage of the message
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 DateColl populates multiple fields.  This instance populates order_test_date.
-
 ---
 
 **Name**: TestName
@@ -251,9 +222,7 @@ DateColl populates multiple fields.  This instance populates order_test_date.
 **Table Column**: Test Ordered LOINC Long Name
 
 **Documentation**:
-
 TestName populates multiple fields.  This instance populates ordered_test_name.
-
 ---
 
 **Name**: Fac_City
@@ -267,9 +236,7 @@ TestName populates multiple fields.  This instance populates ordered_test_name.
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_City populates multiple fields.  This instance populates ordering_facility_city.
-
 ---
 
 **Name**: Facility
@@ -283,9 +250,7 @@ Fac_City populates multiple fields.  This instance populates ordering_facility_c
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Facility populates multiple fields.  This instance populates ordering_facility_name.
-
 ---
 
 **Name**: Fac_Phone
@@ -299,9 +264,7 @@ Facility populates multiple fields.  This instance populates ordering_facility_n
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Fac_Phone populates multiple fields.  This instance populates ordering_facility_phone_number.
-
 ---
 
 **Name**: Fac_State
@@ -319,9 +282,7 @@ Fac_Phone populates multiple fields.  This instance populates ordering_facility_
 **Table Column**: State
 
 **Documentation**:
-
 Fac_State populates multiple fields.  This instance populates ordering_facility_state.
-
 ---
 
 **Name**: Fac_Addr1
@@ -335,9 +296,7 @@ Fac_State populates multiple fields.  This instance populates ordering_facility_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_street.
-
 ---
 
 **Name**: Fac_Zip
@@ -351,9 +310,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Zip populates multiple fields.  This instance populates ordering_facility_zip_code.
-
 ---
 
 **Name**: Fac_City
@@ -367,9 +324,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_facility_zi
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_City populates multiple fields.  This instance populates ordering_provider_city.
-
 ---
 
 **Name**: Fac_Phone
@@ -388,9 +343,7 @@ Fac_City populates multiple fields.  This instance populates ordering_provider_c
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Fac_Phone populates multiple fields.  This instance populates ordering_provider_phone_number.
-
 ---
 
 **Name**: Fac_State
@@ -408,9 +361,7 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 **Table Column**: State
 
 **Documentation**:
-
 Fac_State populates multiple fields.  This instance populates ordering_provider_state.
-
 ---
 
 **Name**: Fac_Addr1
@@ -424,9 +375,7 @@ Fac_State populates multiple fields.  This instance populates ordering_provider_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_street.
-
 ---
 
 **Name**: Fac_Zip
@@ -440,9 +389,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Zip populates multiple fields.  This instance populates ordering_provider_zip_code.
-
 ---
 
 **Name**: Patient City
@@ -456,9 +403,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_provider_zi
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: Birth Date
@@ -474,11 +419,9 @@ The patient's city
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -524,9 +467,7 @@ U|NULL|LOCAL
 U|Patient Declines|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound ethnicity values to RS / OMB values
-
 ---
 
 **Name**: First Name
@@ -540,9 +481,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: Sex
@@ -579,9 +518,7 @@ A|A|LOCAL
 A|Ambiguous|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Gender values to RS values
-
 ---
 
 **Name**: MRN
@@ -595,10 +532,8 @@ Translate multiple inbound Gender values to RS values
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -613,9 +548,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: Middle Name
@@ -641,9 +574,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: RACE
@@ -705,9 +636,7 @@ ASKU|Asked, but unknown|LOCAL
 ASKU|ASKU|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Race values to RS / OMB values
-
 ---
 
 **Name**: Patient State
@@ -725,9 +654,7 @@ Translate multiple inbound Race values to RS / OMB values
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: Patient Address
@@ -741,9 +668,7 @@ The patient's state
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: Patient ZipCode
@@ -757,9 +682,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: Pregnant
@@ -803,9 +726,7 @@ Code | Display | System
 261665006|261665006|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound values into the Pregnancy SNOMED Codes
-
 ---
 
 **Name**: processing_mode_code
@@ -831,9 +752,7 @@ P|Production|HL7
 T|Training|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: Facility
@@ -855,9 +774,7 @@ P, D, or T for Production, Debugging, or Training
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Facility populates multiple fields.  This instance populates reporting_facility_name.
-
 ---
 
 **Name**: sender_id
@@ -871,9 +788,7 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: DateColl
@@ -896,9 +811,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 DateColl populates multiple fields.  This instance populates specimen_collection_date_time.
-
 ---
 
 **Name**: TestName
@@ -916,9 +829,7 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 **Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
-
 TestName populates multiple fields.  This instance populates test_performed_name.
-
 ---
 
 **Name**: LabResult
@@ -993,9 +904,7 @@ Code | Display | System
 82334004|82334004|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound Test Result values to RS values
-
 ---
 
 **Name**: ResultDate
@@ -1011,9 +920,7 @@ Translate multiple inbound Test Result values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ResultDate populates multiple fields.  This instance populates test_result_date.
-
 ---
 
 **Name**: Fac_City
@@ -1027,9 +934,7 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_City populates multiple fields.  This instance populates testing_lab_city.
-
 ---
 
 **Name**: CLIA No
@@ -1052,11 +957,9 @@ Fac_City populates multiple fields.  This instance populates testing_lab_city.
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -1081,9 +984,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Facility populates multiple fields.  This instance populates testing_lab_name.
-
 ---
 
 **Name**: Fac_Phone
@@ -1097,9 +998,7 @@ Facility populates multiple fields.  This instance populates testing_lab_name.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_number.
-
 ---
 
 **Name**: DateColl
@@ -1115,9 +1014,7 @@ Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 DateColl populates multiple fields.  This instance populates testing_lab_specimen_received_datetime.
-
 ---
 
 **Name**: Fac_State
@@ -1135,9 +1032,7 @@ DateColl populates multiple fields.  This instance populates testing_lab_specime
 **Table Column**: State
 
 **Documentation**:
-
 Fac_State populates multiple fields.  This instance populates testing_lab_state.
-
 ---
 
 **Name**: Fac_Addr1
@@ -1151,9 +1046,7 @@ Fac_State populates multiple fields.  This instance populates testing_lab_state.
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street.
-
 ---
 
 **Name**: Fac_Zip
@@ -1167,9 +1060,7 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
-
 ---
 
 **Name**: filler_clia
@@ -1200,9 +1091,7 @@ Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 Facility populates multiple fields.  This instance populates filler_name.
-
 ---
 
 **Name**: filler_order_id
@@ -1222,9 +1111,7 @@ Facility populates multiple fields.  This instance populates filler_name.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accension number
-
 ---
 
 **Name**: hospitalized
@@ -1252,9 +1139,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
 ---
 
 **Name**: icu
@@ -1282,9 +1167,7 @@ N|No|HL7
 UNK|Unknown|NULLFL
 
 **Documentation**:
-
 iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
-
 ---
 
 **Name**: patient_county
@@ -1319,9 +1202,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Facility populates multiple fields.  This instance populates patient_id_assigner.
-
 ---
 
 **Name**: patient_id_type
@@ -1354,9 +1235,7 @@ Facility populates multiple fields.  This instance populates patient_id_assigner
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: reporting_facility_clia
@@ -1378,9 +1257,7 @@ The ID number of the lab order from the placer
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: test_result_status
@@ -1415,10 +1292,8 @@ W|Post original as wrong, e.g., transmitted for wrong patient|HL7
 X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
@@ -1449,7 +1324,5 @@ the test result is in some intermediate status, is a correction, or is the final
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
 ---

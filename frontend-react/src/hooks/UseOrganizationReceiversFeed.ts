@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
 import { RSReceiver } from "../config/endpoints/settings";
+import { CustomerStatus } from "../utils/TemporarySettingsAPITypes";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
@@ -18,7 +19,12 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
 
     useEffect(() => {
         if (receivers?.length) {
-            setActive(receivers[0]);
+            setActive(
+                receivers.find(
+                    // Checks for an active receiver first
+                    (val) => val.customerStatus === CustomerStatus.ACTIVE
+                ) || receivers[0] // Defaults to first in array
+            );
         }
     }, [receivers]);
 

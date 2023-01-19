@@ -203,3 +203,6 @@
 # Effective Date of Reference Range
 - id: "effective-reference-range"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/effective-reference-range"
+# Order effective date
+- id: "order-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"

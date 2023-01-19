@@ -107,7 +107,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             columnHeader: "Items",
         },
         {
-            dataAttr: DeliveriesDataAttr.FILE_TYPE,
+            dataAttr: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "File",
             feature: {
                 action: handleFetchAndDownload,
@@ -167,6 +167,7 @@ const DeliveriesTableWithNumberedPagination = ({
     // and the low value when the results are in ascending order.
     const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: serviceReportsList,
@@ -178,6 +179,7 @@ const DeliveriesTableWithNumberedPagination = ({
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
 
     if (paginationProps) {
