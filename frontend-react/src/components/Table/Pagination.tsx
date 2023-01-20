@@ -1,9 +1,5 @@
 import classnames from "classnames";
-import {
-    Button,
-    IconNavigateBefore,
-    IconNavigateNext,
-} from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 
 export const OVERFLOW_INDICATOR = Symbol("…");
 export type SlotItem = number | typeof OVERFLOW_INDICATOR;
@@ -79,9 +75,9 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
                 type="button"
                 unstyled
             >
-                {direction === "previous" && <IconNavigateBefore />}
+                {direction === "previous" && <Icon.NavigateBefore />}
                 <span className="usa-pagination__link-text">{label}</span>
-                {direction === "next" && <IconNavigateNext />}
+                {direction === "next" && <Icon.NavigateNext />}
             </Button>
         </li>
     );

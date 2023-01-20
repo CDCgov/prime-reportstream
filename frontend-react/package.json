@@ -14,7 +14,7 @@
         "@tanstack/react-query": "^4.20.9",
         "@tanstack/react-query-devtools": "^4.20.9",
         "@testing-library/user-event": "^13.5.0",
-        "@trussworks/react-uswds": "<3.0.0",
+        "@trussworks/react-uswds": "<4.0.0",
         "@types/downloadjs": "^1.4.2",
         "@types/lodash.chunk": "^4.2.7",
         "@types/lodash.omit": "^4.5.7",
