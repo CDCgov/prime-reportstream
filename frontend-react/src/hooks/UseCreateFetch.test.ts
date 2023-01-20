@@ -114,7 +114,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
             data: "some data",
             timeout: 1,
             headers: {
-                "authentication-type": "overridden",
+                organization: "overridden",
                 "x-fake-header": "me",
             },
         });
@@ -125,10 +125,10 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
             data: "some data",
             timeout: 1,
             headers: {
-                "authentication-type": "overridden",
+                "authentication-type": "okta",
                 "x-fake-header": "me",
                 authorization: "Bearer this token",
-                organization: "any",
+                organization: "overridden",
                 "x-ms-session-id": "DUMMY",
             },
         });

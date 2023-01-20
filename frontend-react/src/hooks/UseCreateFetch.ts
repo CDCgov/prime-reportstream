@@ -6,6 +6,7 @@ import {
     RSEndpoint,
     AxiosOptionsWithSegments,
     HTTPMethods,
+    RSRequestHeaders,
 } from "../config/endpoints/RSEndpoint";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { getAppInsightsHeaders } from "../TelemetryService";
@@ -30,7 +31,7 @@ function createTypeWrapperForAuthorizedFetch(
     oktaToken: Partial<AccessToken>,
     activeMembership: MembershipSettings
 ) {
-    const authHeaders = {
+    const authHeaders: RSRequestHeaders = {
         ...getAppInsightsHeaders(),
         "authentication-type": "okta",
         authorization: `Bearer ${oktaToken?.accessToken || ""}`,
@@ -53,7 +54,7 @@ function createTypeWrapperForAuthorizedFetch(
                 EndpointConfig
             );
         }
-        const axiosConfig = EndpointConfig.toRSConfig({
+        const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
             method: options.method ?? HTTPMethods.GET,
             headers,

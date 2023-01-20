@@ -70,7 +70,7 @@ describe("RSEndpoint", () => {
     describe("toAxiosConfig", () => {
         test("passes along key params from class", () => {
             expect(
-                testEndpoint.toRSConfig({ method: HTTPMethods.GET })
+                testEndpoint.toAxiosConfig({ method: HTTPMethods.GET })
             ).toEqual({
                 url: "https://test.prime.cdc.gov/api/path",
                 method: "GET",
@@ -78,7 +78,7 @@ describe("RSEndpoint", () => {
         });
         test("passes along additional options", () => {
             expect(
-                testEndpoint.toRSConfig({
+                testEndpoint.toAxiosConfig({
                     method: HTTPMethods.GET,
                     headers: { "x-fake-header": "anyway" },
                 })
@@ -92,7 +92,7 @@ describe("RSEndpoint", () => {
         });
         test("does not overwrite key params with options", () => {
             expect(
-                testEndpoint.toRSConfig({
+                testEndpoint.toAxiosConfig({
                     headers: { "x-fake-header": "anyway" },
                     url: "do not use",
                     method: HTTPMethods.GET,
@@ -107,7 +107,7 @@ describe("RSEndpoint", () => {
         });
         test("does not pass through segments data", () => {
             expect(
-                dynamicEndpoint.toRSConfig({
+                dynamicEndpoint.toAxiosConfig({
                     method: HTTPMethods.GET,
                     headers: { "x-fake-header": "anyway" },
                     segments: {

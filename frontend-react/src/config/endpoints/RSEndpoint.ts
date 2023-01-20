@@ -1,5 +1,6 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import axios, { AxiosRequestConfig } from "axios";
+import { omit } from "lodash";
 
 import { RequiredProps, StringIndexed } from "../../utils/UsefulTypes";
 import { getMembershipsFromToken } from "../../hooks/UseOktaMemberships";
@@ -20,13 +21,16 @@ export interface RSRequestHeaders extends AppInsightsHeaders {
     "authentication-type"?: RSAuthenticationType;
     authorization?: string;
     organization?: string;
-    [k: string]: undefined | string | number | boolean;
+    [k: string]: undefined | string | string[] | number | boolean | null;
 }
 
-export type RSRequestConfig = RequiredProps<AxiosRequestConfig, "url">;
+export type RSRequestConfig = Omit<
+    RequiredProps<AxiosRequestConfig, "url">,
+    "headers"
+> & { headers: RSRequestHeaders };
 
 export async function getRSRequestHeaders(
-    headers?: AxiosRequestHeaders
+    headers?: Partial<RSRequestHeaders>
 ): Promise<RSRequestHeaders> {
     const accessToken = (await OKTA_AUTH.tokenManager.getTokens()).accessToken;
     // Isn't membership a mandatory thing? Should membershipsFromToken throw an error
@@ -77,9 +81,10 @@ export interface EndpointConfigMap {
 }
 
 export interface AxiosOptionsWithSegments
-    extends Omit<AxiosRequestConfig, "method"> {
+    extends Omit<AxiosRequestConfig, "method" | "headers"> {
     method: HTTPMethod;
     segments?: StringIndexed<string>;
+    headers?: Partial<RSRequestHeaders>;
 }
 
 export type RSEndpoints = {
@@ -138,10 +143,9 @@ export class RSEndpoint<E extends Readonly<EndpointConfig> = any> {
         return async (
             args: Partial<Omit<AxiosOptionsWithSegments, "method">>
         ) => {
-            const options = this.toRSConfig({ ...args, method });
-            const headers = await getRSRequestHeaders(options?.headers);
+            const options = await this.toRSConfig({ ...args, method });
 
-            if (!headers.authorization) {
+            if (!options.headers.authorization) {
                 console.warn(
                     `Unauthenticated request to '${this.url}'\n Options:`,
                     options,
@@ -194,14 +198,27 @@ export class RSEndpoint<E extends Readonly<EndpointConfig> = any> {
     }
 
     // return the complete params that will be passed to axios to make a specific call to this endpoint
-    toRSConfig({
+    toAxiosConfig(
+        requestOptions: Partial<AxiosOptionsWithSegments>
+    ): Partial<AxiosRequestConfig> {
+        const dynamicUrl = this.toDynamicUrl(requestOptions.segments);
+        return {
+            ...omit(requestOptions, "segments"), // this is yucky but necessary for now
+            url: dynamicUrl,
+        };
+    }
+
+    // return the complete params that will be passed to axios to make a specific call to this endpoint
+    async toRSConfig({
         segments,
         ...requestOptions
-    }: AxiosOptionsWithSegments): RSRequestConfig {
+    }: AxiosOptionsWithSegments): Promise<RSRequestConfig> {
+        const headers = await getRSRequestHeaders(requestOptions?.headers);
         const dynamicUrl = this.toDynamicUrl(segments);
         return {
             ...requestOptions,
             url: dynamicUrl,
+            headers,
         };
     }
 }
