@@ -1,8 +1,8 @@
 import {
     HTTPMethods,
-    RSApiEndpoints,
+    RSEndpoints,
     RSEndpoint,
-} from "../../../config/endpoints";
+} from "../../../config/endpoints/RSEndpoint";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 
 /** shape of data returned **/
@@ -24,10 +24,13 @@ export type SettingRevisionParams = {
 };
 
 /** endpoint component used below - not exported **/
-const settingRevisionEndpoints: RSApiEndpoints = {
+const settingRevisionEndpoints: RSEndpoints = {
     getList: new RSEndpoint({
         path: "/waters/org/:org/settings/revs/:settingType",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
+        queryKey: "watersOrganizationSettingRevisions",
     }),
 };
 

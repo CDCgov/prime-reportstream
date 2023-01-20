@@ -33,6 +33,7 @@ export const useWatersUploader = (
         fileName,
     }: WatersPostArgs) => {
         return authorizedFetch(memoizedEndpoint, {
+            method: "POST",
             headers: {
                 "Content-Type": contentType || ContentType.CSV,
                 payloadName: fileName,

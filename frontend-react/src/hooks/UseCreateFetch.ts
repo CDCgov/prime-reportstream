@@ -2,7 +2,11 @@ import { useCallback } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import axios, { AxiosError } from "axios";
 
-import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
+import {
+    RSEndpoint,
+    AxiosOptionsWithSegments,
+    HTTPMethods,
+} from "../config/endpoints/RSEndpoint";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { getAppInsightsHeaders } from "../TelemetryService";
 
@@ -49,13 +53,16 @@ function createTypeWrapperForAuthorizedFetch(
                 EndpointConfig
             );
         }
-        const axiosConfig = EndpointConfig.toAxiosConfig({
+        const axiosConfig = EndpointConfig.toRSConfig({
             ...options,
+            method: options.method ?? HTTPMethods.GET,
             headers,
         });
         return axios(axiosConfig)
             .then(({ data }) => data)
             .catch((e: AxiosError) => {
+                console.error(e);
+                console.error(axiosConfig);
                 throw new RSNetworkError<T>(e as AxiosError<T>);
             });
     };

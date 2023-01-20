@@ -1,6 +1,6 @@
 import { Destination } from "../../resources/ActionDetailsResource";
 
-import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
+import { HTTPMethods, RSEndpoints, RSEndpoint } from "./RSEndpoint";
 
 export enum OverallStatus {
     VALID = "Valid",
@@ -65,15 +65,19 @@ Waters Endpoints
 * waters -> uploads a file to the ReportStream service
 * validate -> validates a file against ReportStream file requirements (filters, data quality, etc.)
 */
-export const watersEndpoints: RSApiEndpoints = {
+export const watersEndpoints: RSEndpoints = {
     upload: new RSEndpoint({
         path: WatersUrls.UPLOAD,
-        method: HTTPMethods.POST,
+        methods: {
+            [HTTPMethods.POST]: {} as unknown,
+        },
         queryKey: "watersPost",
     }),
     validate: new RSEndpoint({
         path: WatersUrls.VALIDATE,
-        method: HTTPMethods.POST,
+        methods: {
+            [HTTPMethods.POST]: {} as unknown,
+        },
         queryKey: "watersValidate",
     }),
 };

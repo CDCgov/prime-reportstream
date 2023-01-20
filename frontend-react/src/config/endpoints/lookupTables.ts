@@ -1,4 +1,4 @@
-import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
+import { HTTPMethods, RSEndpoints, RSEndpoint } from "./RSEndpoint";
 
 // the shape used by the frontend client for value sets
 export interface ValueSet {
@@ -49,24 +49,34 @@ Lookup Table Endpoints
 * activateTable -> given a table name and version, activates the specified version of the lookup table of that name
 */
 
-export const lookupTablesEndpoints: RSApiEndpoints = {
+export const lookupTablesEndpoints: RSEndpoints = {
     getTableList: new RSEndpoint({
         path: "/lookuptables/list",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "lookupTables",
     }),
     getTableData: new RSEndpoint({
         // notice the react-router style colon demarcated dynamic path segments
         path: "/lookuptables/:tableName/content",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "lookupTable",
     }),
     updateTable: new RSEndpoint({
         path: "/lookuptables/:tableName",
-        method: HTTPMethods.POST,
+        methods: {
+            [HTTPMethods.POST]: {} as unknown,
+        },
+        queryKey: "lookupTablesTablename",
     }),
     activateTable: new RSEndpoint({
         path: "/lookuptables/:tableName/:version/activate",
-        method: HTTPMethods.PUT,
+        methods: {
+            [HTTPMethods.PUT]: {} as unknown,
+        },
+        queryKey: "lookupTablesVersionActivate",
     }),
 };

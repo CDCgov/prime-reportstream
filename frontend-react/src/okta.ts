@@ -1,6 +1,7 @@
-import { OktaAuthOptions } from "@okta/okta-auth-js";
+import { OktaAuth, OktaAuthOptions } from "@okta/okta-auth-js";
 
 import config from "./config";
+import { initializeSessionBroadcastChannel } from "./utils/UserUtils";
 
 const { OKTA_URL, OKTA_CLIENT_ID } = config;
 
@@ -11,7 +12,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
-        storage: "localStorage",
+        storage: config.APP_ENV === "test" ? "memory" : "localStorage",
     },
     scopes: ["openid", "email"],
 };
@@ -36,4 +37,10 @@ const oktaSignInConfig = {
     scopes: ["openid", "email"],
 };
 
-export { oktaAuthConfig, oktaSignInConfig };
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+
+if (config.APP_ENV !== "test") {
+    initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
+}
+
+export { oktaAuthConfig, oktaSignInConfig, OKTA_AUTH };

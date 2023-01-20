@@ -61,7 +61,11 @@ export function getAppInsights() {
     return appInsights;
 }
 
-export function getAppInsightsHeaders(): { [key: string]: string } {
+export interface AppInsightsHeaders {
+    "x-ms-session-id": string;
+}
+
+export function getAppInsightsHeaders(): AppInsightsHeaders {
     return {
         "x-ms-session-id": appInsights?.context.getSessionId() || "",
     };

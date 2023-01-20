@@ -1,4 +1,4 @@
-import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
+import { HTTPMethods, RSEndpoint, RSEndpoints } from "./RSEndpoint";
 
 export enum ServicesUrls {
     SETTINGS = "/settings/organizations/:orgName",
@@ -56,25 +56,33 @@ Services Endpoints
 * senders -> fetches a list of organization's senders
 * receivers -> fetches a list of organization's receivers
 */
-export const servicesEndpoints: RSApiEndpoints = {
+export const servicesEndpoints: RSEndpoints = {
     settings: new RSEndpoint({
         path: ServicesUrls.SETTINGS,
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "servicesSettings",
     }),
     senders: new RSEndpoint({
         path: ServicesUrls.SENDERS,
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "servicesSenders",
     }),
     senderDetail: new RSEndpoint({
         path: ServicesUrls.SENDER_DETAIL,
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "servicesSenderDetail",
     }),
     receivers: new RSEndpoint({
         path: ServicesUrls.RECEIVERS,
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "servicesReceivers",
     }),
 };

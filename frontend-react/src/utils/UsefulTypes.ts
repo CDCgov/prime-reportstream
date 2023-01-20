@@ -22,3 +22,51 @@ export class SimpleError {
         this.message = message;
     }
 }
+
+/**
+ * Recursively make the type readonly as regular Readonly only goes one level deep.
+ */
+export type RecursiveReadonly<T> = {
+    readonly [P in keyof T]: T[P] extends
+        | string
+        | boolean
+        | symbol
+        | number
+        | undefined
+        | null
+        ? T[P]
+        : T[P] extends Array<infer AT>
+        ? readonly AT[]
+        : RecursiveReadonly<T[P]>;
+};
+
+/**
+ * Recursively make the type mutable.
+ */
+export type RecursiveMutable<T> = {
+    [P in keyof T]: T[P] extends Readonly<
+        string | boolean | symbol | number | undefined | null
+    >
+        ? T[P]
+        : T[P] extends ReadonlyArray<infer AT>
+        ? AT[]
+        : RecursiveMutable<T[P]>;
+};
+
+type Identity<T> = T;
+
+/**
+ * Flatten union keys into one
+ */
+export type Merge<T> = T extends any
+    ? Identity<{ [k in keyof T]: T[k] }>
+    : never;
+
+/**
+ * Selectively require properties vs. Required
+ */
+export type RequiredProps<T, K extends keyof T = keyof T> = Merge<
+    Omit<T, K> & {
+        [P in K]-?: T[P];
+    }
+>;

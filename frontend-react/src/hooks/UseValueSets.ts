@@ -124,6 +124,7 @@ export const useValueSetUpdate = () => {
 
     const updateValueSet = ({ data, tableName }: UpdateValueSetOptions) => {
         return authorizedFetch(updateTable, {
+            method: "POST",
             segments: { tableName: tableName },
             data,
         });
@@ -150,6 +151,7 @@ export const useValueSetActivation = () => {
         tableName,
     }: ActivateValueSetOptions) => {
         return authorizedFetch(activateTable, {
+            method: "PUT",
             segments: {
                 tableName,
                 version: `${tableVersion}`,

@@ -1,21 +1,39 @@
-import { RSEndpoint } from ".";
+import { getMembershipsFromToken } from "../../hooks/UseOktaMemberships";
+import { OKTA_AUTH } from "../../okta";
+import { RecursiveMutable } from "../../utils/UsefulTypes";
+import { mockSenderAccessToken } from "../../__mocks__/OktaTokens";
 
-const testEndpoint = new RSEndpoint({
+import {
+    getRSRequestHeaders,
+    HTTPMethods,
+    RSAuthenticationTypes,
+    RSEndpoint,
+} from "./RSEndpoint";
+
+const testEndpointMeta = {
     path: "/path",
-    method: "GET",
+    methods: {
+        [HTTPMethods.GET]: {} as unknown,
+    },
     queryKey: "a query key",
-});
+} as const;
+const testEndpoint = new RSEndpoint(testEndpointMeta);
 
-const dynamicEndpoint = new RSEndpoint({
+const dynamicEndpointMeta = {
     path: "/:something/:anything",
-    method: "GET",
-});
+    methods: {
+        [HTTPMethods.GET]: {} as unknown,
+    },
+    queryKey: "anything",
+} as const;
+const dynamicEndpoint = new RSEndpoint(dynamicEndpointMeta);
 
 describe("RSEndpoint", () => {
     test("instantiates with expected values", () => {
         expect(testEndpoint.path).toEqual("/path");
         expect(testEndpoint.queryKey).toEqual("a query key");
-        expect(testEndpoint.method).toEqual("GET");
+        expect(Object.keys(testEndpoint.fetchers)).toEqual([HTTPMethods.GET]);
+        // not sure how to test the dynamic functions
     });
 
     test("has a getter for url that works", () => {
@@ -51,14 +69,17 @@ describe("RSEndpoint", () => {
 
     describe("toAxiosConfig", () => {
         test("passes along key params from class", () => {
-            expect(testEndpoint.toAxiosConfig({})).toEqual({
+            expect(
+                testEndpoint.toRSConfig({ method: HTTPMethods.GET })
+            ).toEqual({
                 url: "https://test.prime.cdc.gov/api/path",
                 method: "GET",
             });
         });
         test("passes along additional options", () => {
             expect(
-                testEndpoint.toAxiosConfig({
+                testEndpoint.toRSConfig({
+                    method: HTTPMethods.GET,
                     headers: { "x-fake-header": "anyway" },
                 })
             ).toEqual({
@@ -71,10 +92,10 @@ describe("RSEndpoint", () => {
         });
         test("does not overwrite key params with options", () => {
             expect(
-                testEndpoint.toAxiosConfig({
+                testEndpoint.toRSConfig({
                     headers: { "x-fake-header": "anyway" },
                     url: "do not use",
-                    method: "POST",
+                    method: HTTPMethods.GET,
                 })
             ).toEqual({
                 url: "https://test.prime.cdc.gov/api/path",
@@ -86,7 +107,8 @@ describe("RSEndpoint", () => {
         });
         test("does not pass through segments data", () => {
             expect(
-                dynamicEndpoint.toAxiosConfig({
+                dynamicEndpoint.toRSConfig({
+                    method: HTTPMethods.GET,
                     headers: { "x-fake-header": "anyway" },
                     segments: {
                         something: "else",
@@ -102,4 +124,55 @@ describe("RSEndpoint", () => {
             });
         });
     });
+
+    const getTokensInstance = jest.spyOn(OKTA_AUTH.tokenManager, "getTokens");
+    // const axiosInstance = jest.spyOn(Axios,"default");
+    // const warnInstance = jest.spyOn(console, "warn");
+
+    const tokens = {
+        accessToken: mockSenderAccessToken as unknown as RecursiveMutable<
+            typeof mockSenderAccessToken
+        >,
+    };
+    const { activeMembership } = getMembershipsFromToken(tokens.accessToken);
+    // const mockResponse = Promise.resolve({foo: "bar"}) as any;
+
+    describe("getAPIRequestHeaders", () => {
+        it("authenticated", async () => {
+            getTokensInstance.mockResolvedValueOnce(Promise.resolve(tokens));
+            const headers = await getRSRequestHeaders();
+            expect(headers["authentication-type"]).toEqual(
+                RSAuthenticationTypes.OKTA
+            );
+            expect(headers.authorization).toEqual(
+                `Bearer ${mockSenderAccessToken.accessToken}`
+            );
+            expect(headers.organization).toEqual(activeMembership?.parsedName);
+        });
+
+        it("unauthenticated", async () => {
+            getTokensInstance.mockResolvedValueOnce({});
+            const headers = await getRSRequestHeaders();
+            expect(headers["authentication-type"]).toBeUndefined();
+            expect(headers.authorization).toBeUndefined();
+            expect(headers.organization).toBeUndefined();
+        });
+
+        it("provided headers take priority", async () => {
+            getTokensInstance.mockResolvedValueOnce(Promise.resolve(tokens));
+            const override = "foo";
+            const headers = await getRSRequestHeaders({
+                organization: override,
+            });
+            expect(headers["authentication-type"]).toEqual(
+                RSAuthenticationTypes.OKTA
+            );
+            expect(headers.authorization).toEqual(
+                `Bearer ${mockSenderAccessToken.accessToken}`
+            );
+            expect(headers.organization).toEqual(override);
+        });
+    });
+
+    // TODO: Endpoint fetchers, createFetcher, queryFn
 });

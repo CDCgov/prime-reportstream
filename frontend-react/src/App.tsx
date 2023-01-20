@@ -1,5 +1,5 @@
 import { GovBanner } from "@trussworks/react-uswds";
-import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
+import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
@@ -10,9 +10,9 @@ import { useNavigate } from "react-router-dom";
 
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaAuthConfig } from "./oktaConfig";
+import { OKTA_AUTH } from "./okta";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
+import { logout } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -25,11 +25,7 @@ import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
-
 const { APP_ENV } = config;
-
-initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
     useScrollToTop();

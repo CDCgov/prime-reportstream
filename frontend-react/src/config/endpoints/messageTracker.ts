@@ -1,4 +1,4 @@
-import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
+import { HTTPMethods, RSEndpoints, RSEndpoint } from "./RSEndpoint";
 
 export interface QualityFilter {
     trackingId: string | null;
@@ -47,15 +47,19 @@ export interface MessageListResource {
     reportId: string;
 }
 
-export const messageTrackerEndpoints: RSApiEndpoints = {
+export const messageTrackerEndpoints: RSEndpoints = {
     search: new RSEndpoint({
         path: "/messages/search",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "messagesSearch",
     }),
     getMessageDetails: new RSEndpoint({
         path: "/message/:id",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "messageDetails",
     }),
 };

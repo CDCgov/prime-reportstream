@@ -1,4 +1,4 @@
-import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
+import { HTTPMethods, RSEndpoints, RSEndpoint } from "./RSEndpoint";
 
 export interface RSDelivery {
     deliveryId: number;
@@ -27,20 +27,33 @@ Deliveries API Endpoints
 * getDeliveryDetails -> Retrieves details of a single report using a report id
 * getDeliveryFacilities -> Retrieves a list of facilities who contributed to a report by a report id
 */
-export const deliveriesEndpoints: RSApiEndpoints = {
+export const deliveriesEndpoints: RSEndpoints = {
     getOrgDeliveries: new RSEndpoint({
         path: "/waters/org/:orgAndService/deliveries",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "getOrgDeliveries",
     }),
     getDeliveryDetails: new RSEndpoint({
         path: "/waters/report/:id/delivery",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "getDeliveryDetails",
     }),
     getDeliveryFacilities: new RSEndpoint({
         path: "/waters/report/:id/facilities",
-        method: HTTPMethods.GET,
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
         queryKey: "getDeliveryFacilities",
+    }),
+    getDeliveryHistory: new RSEndpoint({
+        path: "/waters/report/:id/history",
+        methods: {
+            [HTTPMethods.GET]: {} as unknown,
+        },
+        queryKey: "getDeliveryHistory",
     }),
 };
