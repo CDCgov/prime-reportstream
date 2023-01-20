@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
@@ -108,7 +108,7 @@ const TrackingIDTooltip = () => {
             position="right"
             label={"Defaults to MSH-10"}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
@@ -220,7 +220,13 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, field, errorCode, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{errorCode ? ErrorCodeTranslation[errorCode] : message}</td>
+            <td>
+                {errorCode &&
+                errorCode !== "UNKNOWN" &&
+                ErrorCodeTranslation[errorCode]
+                    ? ErrorCodeTranslation[errorCode]
+                    : message}
+            </td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (

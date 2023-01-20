@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
@@ -172,7 +173,11 @@ class WorkflowEngine(
         payloadName: String? = null
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val reportFormat = Report.Format.safeValueOf(report.bodyFormat.toString())
+        val reportFormat = when (sender.topic) {
+            Topic.FULL_ELR -> report.bodyFormat
+            else -> Report.Format.safeValueOf(sender.format.toString())
+        }
+
         val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
             reportFormat,

@@ -68,7 +68,8 @@ elements:
     resourceIndex: callbackIndex
 
   - name: order-effective-date
-    value: [ '%service.occurrence' ]
+    condition: '%service.extension(%`rsext-order-effective-date`).exists()'
+    value: [ '%service.extension(%`rsext-order-effective-date`).value' ]
     hl7Spec: [ '%{hl7Order}-15' ]
 
   - name: ordering-organization

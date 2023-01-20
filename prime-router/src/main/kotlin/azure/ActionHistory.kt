@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -45,9 +46,11 @@ class ActionHistory(
      *
      */
     val action = Action()
+    val startTime: LocalDateTime
 
     init {
         action.actionName = taskAction
+        startTime = LocalDateTime.now()
     }
 
     /**

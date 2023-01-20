@@ -14,7 +14,7 @@ export interface ButtonProps {
     accentStyle?: "cool" | "warm";
     outline?: boolean;
     inverse?: boolean;
-    size?: "big" | "small"; // small is deprecated
+    size?: "big";
     /**
      * @deprecated since 1.6.0, use size
      */
