@@ -73,13 +73,35 @@ export type HTTPMethod = typeof HTTPMethods[keyof typeof HTTPMethods];
  * Please use react-router's types directly for react-router
  * work.
  */
-export type ParamParseSegment<Segment extends string> = Segment extends `${infer LeftSegment}/${infer RightSegment}` ? ParamParseSegment<LeftSegment> extends infer LeftResult ? ParamParseSegment<RightSegment> extends infer RightResult ? LeftResult extends string ? RightResult extends string ? LeftResult | RightResult : LeftResult : RightResult extends string ? RightResult : ParamParseFailed : ParamParseFailed : ParamParseSegment<RightSegment> extends infer RightResult ? RightResult extends string ? RightResult : ParamParseFailed : ParamParseFailed : Segment extends `:${infer Remaining}` ? Remaining : ParamParseFailed;
-export type ParamParseKey<Segment extends string> = ParamParseSegment<Segment> extends string ? ParamParseSegment<Segment> : string;
+export type ParamParseSegment<Segment extends string> =
+    Segment extends `${infer LeftSegment}/${infer RightSegment}`
+        ? ParamParseSegment<LeftSegment> extends infer LeftResult
+            ? ParamParseSegment<RightSegment> extends infer RightResult
+                ? LeftResult extends string
+                    ? RightResult extends string
+                        ? LeftResult | RightResult
+                        : LeftResult
+                    : RightResult extends string
+                    ? RightResult
+                    : ParamParseFailed
+                : ParamParseFailed
+            : ParamParseSegment<RightSegment> extends infer RightResult
+            ? RightResult extends string
+                ? RightResult
+                : ParamParseFailed
+            : ParamParseFailed
+        : Segment extends `:${infer Remaining}`
+        ? Remaining
+        : ParamParseFailed;
+export type ParamParseKey<Segment extends string> =
+    ParamParseSegment<Segment> extends string
+        ? ParamParseSegment<Segment>
+        : string;
 /**
  * The parameters that were parsed from the URL path.
  */
 export type Params<Key extends string = string> = {
-    readonly [key in Key]: string | undefined;
+    readonly [key in Key]: string;
 };
 export type ParamParseFailed = {
     failed: true;
