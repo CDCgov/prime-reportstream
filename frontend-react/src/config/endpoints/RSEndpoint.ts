@@ -68,6 +68,23 @@ export const HTTPMethods = {
 } as const;
 export type HTTPMethod = typeof HTTPMethods[keyof typeof HTTPMethods];
 
+/**
+ * Copied from react-router for internal use with Endpoints.
+ * Please use react-router's types directly for react-router
+ * work.
+ */
+export type ParamParseSegment<Segment extends string> = Segment extends `${infer LeftSegment}/${infer RightSegment}` ? ParamParseSegment<LeftSegment> extends infer LeftResult ? ParamParseSegment<RightSegment> extends infer RightResult ? LeftResult extends string ? RightResult extends string ? LeftResult | RightResult : LeftResult : RightResult extends string ? RightResult : ParamParseFailed : ParamParseFailed : ParamParseSegment<RightSegment> extends infer RightResult ? RightResult extends string ? RightResult : ParamParseFailed : ParamParseFailed : Segment extends `:${infer Remaining}` ? Remaining : ParamParseFailed;
+export type ParamParseKey<Segment extends string> = ParamParseSegment<Segment> extends string ? ParamParseSegment<Segment> : string;
+/**
+ * The parameters that were parsed from the URL path.
+ */
+export type Params<Key extends string = string> = {
+    readonly [key in Key]: string | undefined;
+};
+export type ParamParseFailed = {
+    failed: true;
+};
+
 export interface EndpointConfig {
     path: string;
     methods: {
@@ -98,7 +115,7 @@ export type EndpointMethodResponse<
     ? ReturnType<NonNullable<E["methods"][M]>>
     : never;
 
-type RSEndpointFetchers<E extends EndpointConfig> = {
+export type RSEndpointFetchers<E extends EndpointConfig> = {
     [P in keyof E["methods"]]: (
         args: Partial<Omit<AxiosOptionsWithSegments, "method">>
     ) => P extends HTTPMethod
@@ -106,14 +123,20 @@ type RSEndpointFetchers<E extends EndpointConfig> = {
         : never;
 };
 
-export interface RSOptions {
+export type RSEndpointOptionsBase = {
     segments?: {
-        [k: string]: string | number | boolean;
-    };
+        [k: string]: undefined | string | boolean | number
+    },
     params?: {
-        [k: string]: string | number | boolean;
-    };
+        [k: string]: undefined | string | boolean | number
+    }
 }
+
+export type RSEndpointOptions<T extends RSEndpoint<any>> = T extends RSEndpoint<infer C> 
+    ? ParamParseKey<C["path"]> extends `${any}`
+        ? Omit<RSEndpointOptionsBase,"segments"> & {segments: Params<ParamParseKey<C["path"]>>}
+        : Omit<RSEndpointOptionsBase,"segments">
+    : never;
 
 export class RSEndpoint<E extends Readonly<EndpointConfig> = any> {
     path: string;
