@@ -4,12 +4,14 @@ import {
     AxiosOptionsWithSegments,
     HTTPMethods,
     RSEndpoint,
-    RSOptions,
+    RSEndpointOptions,
 } from "../config/endpoints/RSEndpoint";
 
 export function useRSQuery<T extends RSEndpoint<any>, TError = unknown>(
     endpointConfig: T,
-    rsOptions: RSOptions,
+    rsOptions: "segments" extends keyof RSEndpointOptions<T>
+        ? RSEndpointOptions<T>
+        : RSEndpointOptions<T> | undefined,
     queryOptions: Omit<
         UseQueryOptions<ReturnType<T["fetchers"]["GET"]>, TError>,
         "queryKey" | "queryFn" | "initialData"
