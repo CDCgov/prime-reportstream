@@ -137,7 +137,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                     <ButtonGroup type="segmented">
                                         <Button
                                             type="button"
-                                            size="small"
                                             key={`receiver-row-checkcmd-${eachOrgSetting.name}-${index}`}
                                             data-receiver={eachOrgSetting.name}
                                             onClick={() =>
@@ -212,7 +211,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     <ButtonGroup>
                         <Button
                             type="button"
-                            size="small"
                             outline
                             onClick={() =>
                                 modalRef?.current?.toggleModal(undefined, false)
@@ -222,7 +220,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         </Button>
                         <Button
                             type="button"
-                            size="small"
                             disabled={isLoading}
                             onClick={() => clickDoCheckCmd()}
                         >
