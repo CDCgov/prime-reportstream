@@ -121,7 +121,6 @@ export function OrgsTable() {
                         key={`savelist`}
                         onClick={() => saveListToCSVFile()}
                         type="button"
-                        size="small"
                         className="usa-button usa-button--outline usa-button--small flex-align-self-end height-5"
                     >
                         Save List to CSV
@@ -173,7 +172,6 @@ export function OrgsTable() {
                                                     )
                                                 }
                                                 type="button"
-                                                size="small"
                                                 className="padding-1 usa-button--outline"
                                             >
                                                 Set
@@ -186,7 +184,6 @@ export function OrgsTable() {
                                                     )
                                                 }
                                                 type="button"
-                                                size="small"
                                                 className="padding-1 usa-button--outline"
                                             >
                                                 Edit
