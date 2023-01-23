@@ -9,10 +9,8 @@ import {
 
 export function useRSQuery<T extends RSEndpoint<any>, TError = unknown>(
     endpointConfig: T,
-    rsOptions: "segments" extends keyof RSEndpointOptions<T>
-        ? RSEndpointOptions<T>
-        : RSEndpointOptions<T> | undefined,
-    queryOptions: Omit<
+    rsOptions?: RSEndpointOptions<T>,
+    queryOptions?: Omit<
         UseQueryOptions<ReturnType<T["fetchers"]["GET"]>, TError>,
         "queryKey" | "queryFn" | "initialData"
     > & { initialData?: () => undefined }

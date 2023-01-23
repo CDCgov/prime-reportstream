@@ -15,7 +15,7 @@ export const RSAuthenticationTypes = {
     OKTA: "okta",
 } as const;
 export type RSAuthenticationType =
-    typeof RSAuthenticationTypes[keyof typeof RSAuthenticationTypes];
+    (typeof RSAuthenticationTypes)[keyof typeof RSAuthenticationTypes];
 
 export interface RSRequestHeaders extends AppInsightsHeaders {
     "authentication-type"?: RSAuthenticationType;
@@ -66,7 +66,7 @@ export const HTTPMethods = {
     DELETE: "DELETE",
     PATCH: "PATCH",
 } as const;
-export type HTTPMethod = typeof HTTPMethods[keyof typeof HTTPMethods];
+export type HTTPMethod = (typeof HTTPMethods)[keyof typeof HTTPMethods];
 
 /**
  * Copied from react-router for internal use with Endpoints.
@@ -112,6 +112,7 @@ export interface EndpointConfig {
     methods: {
         [key in HTTPMethod]?: unknown;
     };
+    params?: unknown;
     queryKey: string;
 }
 
@@ -130,13 +131,6 @@ export type RSEndpoints = {
     [endpointName: string]: RSEndpoint<any>;
 };
 
-export type EndpointMethodResponse<
-    M extends HTTPMethod,
-    E extends EndpointConfig
-> = E["methods"][M] extends () => any
-    ? ReturnType<NonNullable<E["methods"][M]>>
-    : never;
-
 export type RSEndpointFetchers<E extends EndpointConfig> = {
     [P in keyof E["methods"]]: (
         args: Partial<Omit<AxiosOptionsWithSegments, "method">>
@@ -145,25 +139,31 @@ export type RSEndpointFetchers<E extends EndpointConfig> = {
         : never;
 };
 
-export type RSEndpointOptionsBase = {
-    segments?: {
-        [k: string]: undefined | string | boolean | number
-    },
-    params?: {
-        [k: string]: undefined | string | boolean | number
-    }
-}
+export type RSEndpointParams<T extends RSEndpoint<EndpointConfig>> =
+    T["config"]["params"];
 
-export type RSEndpointOptions<T extends RSEndpoint<any>> = T extends RSEndpoint<infer C> 
-    ? ParamParseKey<C["path"]> extends `${any}`
-        ? Omit<RSEndpointOptionsBase,"segments"> & {segments: Params<ParamParseKey<C["path"]>>}
-        : Omit<RSEndpointOptionsBase,"segments">
-    : never;
+export type RSEndpointSegments<T extends RSEndpoint<EndpointConfig>> =
+    ParamParseKey<T["config"]["path"]> extends `${any}`
+        ? Params<ParamParseKey<T["config"]["path"]>>
+        : never;
+
+export type RSEndpointOptions<T extends RSEndpoint<EndpointConfig>> =
+    RSEndpointSegments<T> extends never
+        ? RSEndpointParams<T> extends never
+            ? never
+            : { params?: RSEndpointParams<T> | any }
+        : RSEndpointParams<T> extends never
+        ? { segments: RSEndpointSegments<T>; params?: any }
+        : {
+              segments: RSEndpointSegments<T>;
+              params?: RSEndpointParams<T> | any;
+          };
 
 export class RSEndpoint<E extends Readonly<EndpointConfig> = any> {
     path: string;
     queryKey: string;
     fetchers: RSEndpointFetchers<E>;
+    declare config: E;
 
     constructor(params: E extends Readonly<EndpointConfig> ? E : never) {
         this.path = params.path;
