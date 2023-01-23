@@ -187,7 +187,6 @@
       "target": [ {
          "reference": "Endpoint/1666038441953190000.245100f2-cee6-4c1b-9f7c-9635ab87fe74"
       } ],
-      "occurredDateTime" : "2022-08-03T04:07:05-06:00",
       "recorded" : "2022-08-03T04:07:05-06:00",
       "activity" : {
         "coding" : [ {

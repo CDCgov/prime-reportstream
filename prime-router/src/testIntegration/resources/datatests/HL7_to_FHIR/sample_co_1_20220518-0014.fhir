@@ -146,7 +146,6 @@
           "code" : "P"
         } ]
       },
-      "occurredDateTime" : "2028-08-14T13:50:01-06:00",
       "recorded" : "2028-08-14T13:50:01-06:00",
       "activity" : {
         "coding" : [ {
