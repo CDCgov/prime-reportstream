@@ -312,13 +312,14 @@ extension_6:
 extension_7:
   generateList: true
   expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: ORC.9
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: businessEvent
+      value: business-event
     valueDateTime:
       type: STRING
       valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
       expressionType: JEXL
-      vars:
-        dateTimeIn: ORC.9
