@@ -3,7 +3,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense, useCallback } from "react";
+import React, { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,6 @@ import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
-import { useSessionContext } from "./contexts/SessionContext";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -34,19 +33,41 @@ const { APP_ENV } = config;
 initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
+    const sessionStartTime = useRef<number>(new Date().getTime());
+    const sessionTimeAggregate = useRef<number>(0);
+
+    useEffect(() => {
+        const onUnload = () => {
+            trackAppInsightEvent(EventName.SESSION, {
+                sessionLength:
+                    (new Date().getTime() -
+                        sessionStartTime.current +
+                        sessionTimeAggregate.current) /
+                    1000,
+            });
+        };
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                sessionTimeAggregate.current =
+                    new Date().getTime() -
+                    sessionStartTime.current +
+                    sessionTimeAggregate.current;
+            } else if (document.visibilityState === "visible") {
+                sessionStartTime.current = new Date().getTime();
+            }
+        };
+
+        window.addEventListener("beforeunload", onUnload);
+        window.addEventListener("visibilitychange", onVisibilityChange);
+    }, []);
     useScrollToTop();
 
-    const { sessionTimeAggregate, sessionStartTime } = useSessionContext();
-    const onUnload = useCallback(() => {
-        trackAppInsightEvent(EventName.SESSION, {
-            sessionLength:
-                (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
-                sessionTimeAggregate,
-        });
-    }, [sessionStartTime, sessionTimeAggregate]);
     const navigate = useNavigate();
     const handleIdle = (): void => {
-        onUnload();
+        trackAppInsightEvent(EventName.SESSION, {
+            sessionLength: sessionTimeAggregate.current / 1000,
+        });
         logout(OKTA_AUTH);
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {

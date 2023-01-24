@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
-import React, { useEffect } from "react";
+import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { About } from "./pages/About";
@@ -32,8 +32,6 @@ import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSet
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
-import { useSessionContext } from "./contexts/SessionContext";
-import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -42,133 +40,82 @@ export enum FeatureName {
     UPLOAD = "Upload",
 }
 
-export const AppRouter = () => {
-    const {
-        sessionStartTime,
-        setSessionStartTime,
-        sessionTimeAggregate,
-        setSessionTimeAggregate,
-    } = useSessionContext();
-
-    useEffect(() => {
-        const onUnload = () => {
-            trackAppInsightEvent(EventName.SESSION, {
-                sessionLength:
-                    (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
-                    sessionTimeAggregate,
-            });
-        };
-
-        const onVisibilityChange = () => {
-            if (document.visibilityState === "hidden") {
-                setSessionTimeAggregate(
-                    // Typescript doesn't like subtracting Date objects from
-                    // each other as there's implicit type coercion, so
-                    // we explicitly turn them into integers for subtraction
-                    // and return a value in seconds.
-                    (new Date().getTime() - sessionStartTime.getTime()) / 1000 +
-                        sessionTimeAggregate
-                );
-            } else if (document.visibilityState === "visible") {
-                setSessionStartTime(new Date());
-            }
-        };
-
-        window.addEventListener("beforeunload", onUnload);
-        window.addEventListener("visibilitychange", onVisibilityChange);
-        return () => {
-            // We MUST remove the event listeners as the dependency values
-            // update or else we'll have 100s of event listeners on the page
-            // all with stale values
-            window.removeEventListener("beforeunload", onUnload);
-            window.removeEventListener("visibilitychange", onVisibilityChange);
-        };
-    }, [
-        sessionStartTime,
-        sessionTimeAggregate,
-        setSessionStartTime,
-        setSessionTimeAggregate,
-    ]);
-    return (
-        <Routes>
-            {/* Public Site */}
-            <Route path="/" element={<Home />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/login/callback" element={<LoginCallback />} />
-            <Route path="/sign-tos" element={<TermsOfServiceForm />} />
-            <Route path="/resources/*" element={<Resources />} />
-            <Route path="/product/*" element={<Product />} />
-            <Route path="/support/*" element={<Support />} />
-            {/* User pages */}
-            <Route path="/daily-data" element={<DeliveriesWithAuth />} />
-            <Route
-                path="/report-details/:reportId"
-                element={<DeliveryDetailWithAuth />}
-            />
-            <Route path="/upload" element={<UploadWithAuth />} />
-            <Route path="/submissions" element={<SubmissionsWithAuth />} />
-            <Route
-                path="/submissions/:actionId"
-                element={<SubmissionDetailsWithAuth />}
-            />
-            {/* Admin pages */}
-            <Route path="/admin/settings" element={<AdminMainWithAuth />} />
-            <Route path="/admin/new/org" element={<AdminOrgNewWithAuth />} />
-            <Route
-                path="/admin/orgsettings/org/:orgname"
-                element={<AdminOrgEditWithAuth />}
-            />
-            <Route
-                path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                element={<EditReceiverSettingsWithAuth />}
-            />
-            <Route
-                path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-                element={<EditSenderSettingsWithAuth />}
-            />
-            <Route
-                path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-                element={<NewSettingWithAuth />}
-            />
-            <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
-            <Route
-                path="/admin/send-dash"
-                element={<AdminReceiverDashWithAuth />}
-            />
-            <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
-            <Route
-                path="/admin/message-tracker"
-                element={<AdminMessageTrackerWithAuth />}
-            />
-            <Route
-                path="/message-details/:id"
-                element={<MessageDetailsWithAuth />}
-            />
-            <Route
-                path={"/admin/value-sets/:valueSetName"}
-                element={<ValueSetsDetailWithAuth />}
-            />
-            <Route
-                path={"/admin/value-sets"}
-                element={<ValueSetsIndexWithAuth />}
-            />
-            <Route
-                path="/admin/revisionhistory/org/:org/settingtype/:settingType"
-                element={<AdminRevHistoryWithAuth />}
-            />
-            {/* Feature-flagged pages */}
-            <Route
-                path={"/file-handler/user-upload"}
-                element={<UploadToPipelineWithAuth />}
-            />
-            <Route
-                path="/file-handler/validate"
-                element={<ValidateWithAuth />}
-            />
-            {/* Handles any undefined route */}
-            <Route path={"*"} element={<ErrorNoPage />} />
-        </Routes>
-    );
-};
+export const AppRouter = () => (
+    <Routes>
+        {/* Public Site */}
+        <Route path="/" element={<Home />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/callback" element={<LoginCallback />} />
+        <Route path="/sign-tos" element={<TermsOfServiceForm />} />
+        <Route path="/resources/*" element={<Resources />} />
+        <Route path="/product/*" element={<Product />} />
+        <Route path="/support/*" element={<Support />} />
+        {/* User pages */}
+        <Route path="/daily-data" element={<DeliveriesWithAuth />} />
+        <Route
+            path="/report-details/:reportId"
+            element={<DeliveryDetailWithAuth />}
+        />
+        <Route path="/upload" element={<UploadWithAuth />} />
+        <Route path="/submissions" element={<SubmissionsWithAuth />} />
+        <Route
+            path="/submissions/:actionId"
+            element={<SubmissionDetailsWithAuth />}
+        />
+        {/* Admin pages */}
+        <Route path="/admin/settings" element={<AdminMainWithAuth />} />
+        <Route path="/admin/new/org" element={<AdminOrgNewWithAuth />} />
+        <Route
+            path="/admin/orgsettings/org/:orgname"
+            element={<AdminOrgEditWithAuth />}
+        />
+        <Route
+            path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
+            element={<EditReceiverSettingsWithAuth />}
+        />
+        <Route
+            path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
+            element={<EditSenderSettingsWithAuth />}
+        />
+        <Route
+            path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+            element={<NewSettingWithAuth />}
+        />
+        <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
+        <Route
+            path="/admin/send-dash"
+            element={<AdminReceiverDashWithAuth />}
+        />
+        <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
+        <Route
+            path="/admin/message-tracker"
+            element={<AdminMessageTrackerWithAuth />}
+        />
+        <Route
+            path="/message-details/:id"
+            element={<MessageDetailsWithAuth />}
+        />
+        <Route
+            path={"/admin/value-sets/:valueSetName"}
+            element={<ValueSetsDetailWithAuth />}
+        />
+        <Route
+            path={"/admin/value-sets"}
+            element={<ValueSetsIndexWithAuth />}
+        />
+        <Route
+            path="/admin/revisionhistory/org/:org/settingtype/:settingType"
+            element={<AdminRevHistoryWithAuth />}
+        />
+        {/* Feature-flagged pages */}
+        <Route
+            path={"/file-handler/user-upload"}
+            element={<UploadToPipelineWithAuth />}
+        />
+        <Route path="/file-handler/validate" element={<ValidateWithAuth />} />
+        {/* Handles any undefined route */}
+        <Route path={"*"} element={<ErrorNoPage />} />
+    </Routes>
+);
