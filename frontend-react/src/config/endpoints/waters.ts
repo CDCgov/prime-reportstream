@@ -47,7 +47,7 @@ export interface ResponseError {
 
 export enum WatersUrls {
     UPLOAD = "/waters",
-    VALIDATE = "/validate",
+    VALIDATE = "/validateWithClient",
 }
 
 /*

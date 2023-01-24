@@ -6,6 +6,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
@@ -17,6 +18,8 @@ const val DEFAULT_PARAMETER = "default"
 const val ROUTE_TO_PARAMETER = "routeTo"
 const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
 const val TOPIC_PARAMETER = "topic"
+const val SCHEMA_PARAMETER = "schema"
+const val FORMAT_PARAMETER = "format"
 
 /**
  * Base class for ReportFunction and ValidateFunction
@@ -31,7 +34,7 @@ abstract class RequestFunction(
         val content: String = "",
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
-        val sender: Sender,
+        val sender: Sender?,
         val topic: String = "covid-19"
     )
 
@@ -70,27 +73,40 @@ abstract class RequestFunction(
         routeTo.filter { workflowEngine.settings.findReceiver(it) == null }
             .forEach { actionLogs.error(InvalidParamMessage("Invalid receiver name: $it")) }
 
+        var sender: Sender? = null
+        var schema: Schema? = null
         val clientName = extractClient(request)
         if (clientName.isBlank()) {
-            actionLogs.error(InvalidParamMessage("Expected a '$CLIENT_PARAMETER' query parameter"))
-        }
-
-        val sender = workflowEngine.settings.findSender(clientName)
-        if (sender == null) {
-            actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
-        }
-
-        // verify schema if the sender is a topic sender
-        var schema: Schema? = null
-        if (sender != null && sender is HasSchema) {
-            schema = workflowEngine.metadata.findSchema(sender.schemaName)
-            if (schema == null) {
+            // Find schema via SCHEMA_PARAMETER parameter
+            val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
+            if (schemaName == null) {
                 actionLogs.error(
-                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                    InvalidParamMessage("Expected a '$CLIENT_PARAMETER' or '$SCHEMA_PARAMETER' query parameter")
                 )
+            }
+            schema = Metadata.getInstance().findSchema(schemaName)
+            if (schema == null) {
+                actionLogs.error(InvalidParamMessage("Failed to find schema with name '$schemaName'"))
+            }
+        } else {
+            // Find schema via CLIENT_PARAMETER parameter
+            sender = workflowEngine.settings.findSender(clientName)
+            if (sender == null) {
+                actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
+            }
+
+            // verify schema if the sender is a topic sender
+            if (sender != null && sender is HasSchema) {
+                schema = workflowEngine.metadata.findSchema(sender.schemaName)
+                if (schema == null) {
+                    actionLogs.error(
+                        InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                    )
+                }
             }
         }
 
+        // validate content type
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             actionLogs.error(InvalidParamMessage("Missing ${HttpHeaders.CONTENT_TYPE} header"))
@@ -111,7 +127,7 @@ abstract class RequestFunction(
             }
         }
 
-        if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {
+        if (content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
@@ -125,7 +141,7 @@ abstract class RequestFunction(
                 }
 
                 // only non full ELR senders will have a schema
-                if (sender is HasSchema && schema != null) {
+                if (schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))

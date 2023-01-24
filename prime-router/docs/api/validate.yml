@@ -1,0 +1,86 @@
+openapi: 3.0.2
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+
+paths:
+  # The validation endpoints are public endpoints for validating payloads of various formats.
+  /validateWithClient:
+    post:
+      summary: Validate a message using client information
+      parameters:
+        - in: header
+          name: client
+          description: The client.sender to validate against
+          required: true
+          schema:
+            type: string
+          example: simple_report.default
+      requestBody:
+        description: The message to validate
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'reports.yml#/components/schemas/Report'
+        '400':
+          description: Bad Request
+
+  /validateWithSchema:
+    post:
+      summary: Validate a message using schema information
+      parameters:
+        - in: query
+          name: schema
+          description: The schema path to validate the message against
+          schema:
+            type: string
+          required: true
+          example: hl7/hcintegrations-covid-19
+        - in: query
+          name: format
+          description: The format of the message
+          required: true
+          schema:
+            type: string
+            enum:
+              - CSV
+              - HL7
+              - HL7_BATCH
+          example: HL7
+      requestBody:
+        description: The message to validate
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'reports.yml#/components/schemas/Report'
+        '400':
+          description: Bad Request

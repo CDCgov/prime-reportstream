@@ -12,8 +12,10 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -23,10 +25,8 @@ import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import java.security.InvalidParameterException
 import java.time.OffsetDateTime
 
 /**
@@ -42,33 +42,60 @@ class ValidateFunction(
      * entry point for the /validate endpoint, which validates a potential submission without writing
      * to the database or storing/sending a file
      */
-    @FunctionName("validate")
+    @FunctionName("validateWithClient")
     @StorageAccount("AzureWebJobsStorage")
-    fun run(
+    fun validateWithClient(
         @HttpTrigger(
-            name = "validate",
+            name = "validateWithClient",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        val senderName = extractClient(request)
-        if (senderName.isBlank()) {
-            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        }
         return try {
-            val claims = AuthenticatedClaims.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            // Sender should eventually be obtained directly from who is authenticated
+            val senderName = extractClient(request)
+            if (senderName.isBlank()) {
+                return HttpUtilities.bad(
+                    request, "Expected a '$CLIENT_PARAMETER' query parameter"
+                )
+            }
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
-            if (!claims.authorizedForSendOrReceive(sender, request)) {
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
             actionHistory.trackActionParams(request)
-
             processRequest(request, sender)
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    /**
+     * entry point for the /validate endpoint, which validates a potential submission without writing
+     * to the database or storing/sending a file
+     */
+    @FunctionName("validateWithSchema")
+    @StorageAccount("AzureWebJobsStorage")
+    fun validateWithSchema(
+        @HttpTrigger(
+            name = "validateWithSchema",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return try {
+            val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
+            val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
+            if (schemaName != null && format != null) {
+                actionHistory.trackActionParams(request)
+                processRequest(request, schemaName = schemaName, format = format)
+            } else {
+                return HttpUtilities.bad(
+                    request, "Expected '$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters"
+                )
+            }
         } catch (ex: Exception) {
             if (ex.message != null) {
                 logger.error(ex.message!!, ex)
@@ -87,8 +114,15 @@ class ValidateFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender
+        sender: Sender? = null,
+        schemaName: String? = null,
+        format: String? = null
     ): HttpResponseMessage {
+        if (sender == null && (schemaName == null || format == null)) {
+            throw InvalidParameterException(
+                "Invalid request. Must provide at least one of: sender or schemaName with format"
+            )
+        }
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         var routedTo = emptyList<Translator.RoutedReport>()
@@ -96,22 +130,46 @@ class ValidateFunction(
             try {
                 val validatedRequest = validateRequest(request)
 
-                // if the override parameter is populated, use that, otherwise use the sender value
-                val allowDuplicates = if
-                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else {
-                    sender.allowDuplicates
+                // if the override parameter is populated, use that, otherwise use the sender value. Default to false.
+                var allowDuplicates = false
+                if (!allowDuplicatesParam.isNullOrEmpty()) {
+                    allowDuplicates = allowDuplicatesParam == "true"
+                } else if (sender != null) {
+                    allowDuplicates = sender.allowDuplicates
                 }
 
+                // setup dummy sender if needed
+                var validationSender = sender
+                if (validationSender == null) {
+                    if (schemaName != null && format != null) {
+                        val schema = workflowEngine.metadata.findSchema(schemaName)
+                        if (schema != null) {
+                            validationSender = TopicSender(
+                                "ValidationSender",
+                                "Internal",
+                                Sender.Format.valueOf(format),
+                                CustomerStatus.TESTING,
+                                schemaName,
+                                schema.topic
+                            )
+                        } else {
+                            // error schema not found
+                            throw InvalidParameterException("Schema of name '$schemaName' could not be found")
+                        }
+                    } else {
+                        throw InvalidParameterException(
+                            "Parameters 'schemaName' and 'format' not found when sender also not provided"
+                        )
+                    }
+                }
                 val receiver = ValidationReceiver(workflowEngine, actionHistory)
                 routedTo = receiver.validateAndRoute(
-                    sender,
+                    validationSender,
                     validatedRequest.content,
                     validatedRequest.defaults,
                     validatedRequest.routeTo,
                     allowDuplicates,
                 )
-
                 // return OK status, report validation was successful
                 HttpStatus.OK
             } catch (e: ActionError) {
@@ -123,6 +181,11 @@ class ValidateFunction(
                 )
                 HttpStatus.BAD_REQUEST
             } catch (e: IllegalStateException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
+            } catch (e: InvalidParameterException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )
