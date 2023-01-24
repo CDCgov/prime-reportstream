@@ -38,7 +38,7 @@ class ValidateFunction(
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
-     * entry point for the /validate endpoint, which validates a potential submission without writing
+     * entry point for the /validateWithClient endpoint, which validates a potential submission without writing
      * to the database or storing/sending a file
      */
     @FunctionName("validateWithClient")
@@ -72,7 +72,7 @@ class ValidateFunction(
     }
 
     /**
-     * entry point for the /validate endpoint, which validates a potential submission without writing
+     * entry point for the /validateWithSchema endpoint, which validates a potential submission without writing
      * to the database or storing/sending a file
      */
     @FunctionName("validateWithSchema")
@@ -120,7 +120,7 @@ class ValidateFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender,
+        sender: Sender
     ): HttpResponseMessage {
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
@@ -210,6 +210,13 @@ class ValidateFunction(
             .build()
     }
 
+    /**
+     * Return [TopicSender] for a given schema if that schema exists. This lets us wrap the data needed by
+     * processRequest without making changes to the method
+     * @param schemaName the name or path of the schema
+     * @param format the message format that the schema supports
+     * @return TopicSender if schema exists, null otherwise
+     */
     internal fun getDummySender(schemaName: String, format: String): TopicSender? {
         val schema = workflowEngine.metadata.findSchema(schemaName)
         return if (schema != null) {
