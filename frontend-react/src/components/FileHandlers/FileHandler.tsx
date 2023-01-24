@@ -14,6 +14,7 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 
 import {
     RequestLevel,
@@ -249,6 +250,19 @@ const FileHandler = ({
     const isFileSuccess =
         (reportId || overallStatus === OverallStatus.VALID) &&
         !hasQualityFilterMessages;
+
+    // Once file is submitted, send to analytics
+    if (submitted && !isWorking) {
+        trackAppInsightEvent(EventName.FILE_VALIDATOR, {
+            fileValidator: {
+                warningCount: warnings.length,
+                errorCount: errors.length,
+                schema: sender?.schemaName,
+                fileType: fileType,
+                sender: organization?.name,
+            },
+        });
+    }
 
     if (senderIsLoading || organizationLoading) {
         return <FileHandlerSpinner message="Loading..." />;

@@ -3,6 +3,7 @@ import { getAppInsights } from "../TelemetryService";
 export enum EventName {
     TABLE_FILTER = "Table Filter",
     TABLE_PAGINATION = "Table Pagination",
+    FILE_VALIDATOR = "File Validator",
 }
 
 export const trackAppInsightEvent = (eventName: string, eventData: any) => {
