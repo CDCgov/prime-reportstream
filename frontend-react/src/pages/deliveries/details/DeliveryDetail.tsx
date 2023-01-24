@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../../components/HipaaNotice";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { useReportsDetail } from "../../../hooks/api/Deliveries/UseReportsDetail";
 
 import Summary from "./Summary";
 import DeliveryInfo from "./DeliveryInfo";

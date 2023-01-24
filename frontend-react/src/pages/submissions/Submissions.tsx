@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../hooks/api/Settings/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 import { MemberType } from "../../hooks/UseOktaMemberships";

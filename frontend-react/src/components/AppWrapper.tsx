@@ -7,7 +7,7 @@ import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
-import { appQueryClient } from "../network/QueryClients";
+import { appQueryClient } from "../config/api/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { ai } from "../TelemetryService";
 

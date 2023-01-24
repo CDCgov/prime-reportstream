@@ -6,7 +6,7 @@ import { AuthElement } from "../AuthElement";
 import { DetailItem } from "../DetailItem/DetailItem";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import { useMessageDetails } from "../../hooks/api/MessageTracker/UseMessageDetails";
 
 import { WarningsErrors } from "./WarningsErrors";
 import { MessageReceivers } from "./MessageReceivers";

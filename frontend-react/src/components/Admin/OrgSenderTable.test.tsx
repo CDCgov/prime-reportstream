@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../config/__mocks__/SettingsMockServer";
 import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
 
 import { OrgSenderTable } from "./OrgSenderTable";

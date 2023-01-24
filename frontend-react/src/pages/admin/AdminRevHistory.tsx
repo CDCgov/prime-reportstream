@@ -4,11 +4,6 @@ import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accor
 import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
-import {
-    SettingRevision,
-    SettingRevisionParams,
-    useSettingRevisionEndpointsQuery,
-} from "../../network/api/Organizations/SettingRevisions";
 import Spinner from "../../components/Spinner";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
@@ -16,6 +11,11 @@ import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
+import {
+    SettingRevision,
+    SettingRevisionParams,
+} from "../../config/api/revisions";
+import { useSettingRevision } from "../../hooks/api/SettingRevisions";
 
 type AccordionClickHandler = (
     key: string,
@@ -98,8 +98,7 @@ interface MainComponentProps extends SettingRevisionParams {
  * the network request happens.
  */
 const MainRevHistoryComponent = (props: MainComponentProps) => {
-    const { data, isLoading, isError } =
-        useSettingRevisionEndpointsQuery(props);
+    const { data, isLoading, isError } = useSettingRevision(props);
     const msg = isError
         ? "Failed to load data"
         : isLoading

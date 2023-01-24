@@ -1,5 +1,5 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { mockUseReportDetail } from "../../../hooks/api/Deliveries/__mocks__/DeliveryHooks";
+import { RSDelivery } from "../../../config/api/deliveries";
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 
 import { DeliveryDetail } from "./DeliveryDetail";

@@ -6,18 +6,17 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import {
-    useValueSetsMeta,
-    useValueSetsTable,
-} from "../../../hooks/UseValueSets";
-import {
     LookupTable,
     LookupTables,
     ValueSet,
-} from "../../../config/endpoints/lookupTables";
+} from "../../../config/api/lookupTables";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { useValueSetsMeta } from "../../../hooks/api/LookupTables/UseValueSetsMeta";
+import { useValueSetsTable } from "../../../hooks/api/LookupTables/UseValueSetsTable";
+import Spinner from "../../../components/Spinner";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -63,10 +62,14 @@ const toValueSetWithMeta = (
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const { valueSetMeta } = useValueSetsMeta();
-    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
+    const { data: valueSetMeta } = useValueSetsMeta();
+    const { data: valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
+
+    if (!valueSetArray || !valueSetMeta) {
+        return <Spinner />;
+    }
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,

@@ -1,8 +1,8 @@
 import ReportLink from "../Table/ReportLink";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { RSDelivery } from "../../../config/api/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
-import { useOrganizationSettings } from "../../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../../hooks/api/Settings/UseOrganizationSettings";
 import { FeatureName } from "../../../AppRouter";
 
 interface Props {

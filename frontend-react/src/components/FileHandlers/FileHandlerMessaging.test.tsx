@@ -5,8 +5,8 @@ import {
     renderWithRouter,
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-import { Destination } from "../../resources/ActionDetailsResource";
-import { ResponseError } from "../../config/endpoints/waters";
+import { ResponseError } from "../../config/api/waters";
+import { Destination } from "../../config/api/deliveries";
 
 import {
     RequestLevel,

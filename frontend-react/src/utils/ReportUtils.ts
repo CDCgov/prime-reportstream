@@ -1,4 +1,4 @@
-import { RSDelivery } from "../config/endpoints/deliveries";
+import { RSDelivery } from "../config/api/deliveries";
 
 function extractService(receiver: string) {
     const service = receiver.split(".")?.[1];

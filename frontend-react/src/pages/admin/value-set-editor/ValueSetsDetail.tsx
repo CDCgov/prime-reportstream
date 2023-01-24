@@ -13,17 +13,8 @@ import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import {
-    useValueSetActivation,
-    useValueSetsMeta,
-    useValueSetsTable,
-    useValueSetUpdate,
-} from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
-import {
-    LookupTable,
-    ValueSetRow,
-} from "../../../config/endpoints/lookupTables";
+import { LookupTable, ValueSetRow } from "../../../config/api/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
@@ -35,6 +26,10 @@ import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
+import { useValueSetActivation } from "../../../hooks/api/LookupTables/UseValueSetActivation";
+import { useValueSetsMeta } from "../../../hooks/api/LookupTables/UseValueSetsMeta";
+import { useValueSetsTable } from "../../../hooks/api/LookupTables/UseValueSetsTable";
+import { useValueSetUpdate } from "../../../hooks/api/LookupTables/UseValueSetUpdate";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -213,13 +208,19 @@ const ValueSetsDetailContent = () => {
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
-    const { valueSetArray } = useValueSetsTable<ValueSetRow[]>(valueSetName!!);
-    const { valueSetMeta } = useValueSetsMeta(valueSetName);
+    const { data: valueSetArray } = useValueSetsTable<ValueSetRow[]>(
+        valueSetName!!
+    );
+    const { data: valueSetMeta } = useValueSetsMeta(valueSetName);
 
     const readableName = useMemo(
         () => toHumanReadable(valueSetName!!),
         [valueSetName]
     );
+
+    if (!valueSetArray || !valueSetMeta) {
+        return <Spinner />;
+    }
 
     return (
         <>

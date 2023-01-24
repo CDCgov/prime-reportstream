@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
-import { RSReceiver } from "../config/endpoints/settings";
+import { RSReceiver } from "../config/api/settings";
 import { CustomerStatus } from "../utils/TemporarySettingsAPITypes";
 
-import { useOrganizationReceivers } from "./UseOrganizationReceivers";
+import { useOrganizationReceiversSettings } from "./api/Settings/UseOrganizationReceiversSettings";
 
 interface ReceiverFeeds {
     loadingServices: boolean;
@@ -14,7 +14,7 @@ interface ReceiverFeeds {
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
 export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
-    const { data: receivers, isLoading } = useOrganizationReceivers();
+    const { data: receivers, isLoading } = useOrganizationReceiversSettings();
     const [active, setActive] = useState<RSReceiver | undefined>();
 
     useEffect(() => {

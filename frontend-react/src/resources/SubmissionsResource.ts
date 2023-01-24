@@ -1,19 +1,9 @@
 import config from "../config";
+import { OrganizationSubmissionsParams } from "../config/api/deliveries";
 
 import AuthResource from "./AuthResource";
 
 const { RS_API_URL } = config;
-
-type SubmissionsResourceParams = {
-    organization: string;
-    sortdir: string;
-    sortcol: string;
-    cursor: string;
-    since: string;
-    until: string;
-    pageSize: number;
-    showFailed: boolean;
-};
 
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
@@ -39,7 +29,7 @@ export default class SubmissionsResource extends AuthResource {
         return "SubmissionsResource";
     }
 
-    static listUrl(searchParams: SubmissionsResourceParams): string {
+    static listUrl(searchParams: OrganizationSubmissionsParams): string {
         const url = new URL(`
             ${RS_API_URL}/api/waters/org/${searchParams.organization}/submissions`);
         url.searchParams.append("pageSize", searchParams.pageSize.toString());

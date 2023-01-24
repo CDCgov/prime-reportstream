@@ -2,12 +2,8 @@ import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosResponse } from "axios";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
-import { ValueSet } from "../../../config/endpoints/lookupTables";
+import { ValueSet } from "../../../config/api/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
-} from "../../../hooks/UseValueSets";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -30,28 +26,27 @@ const fakeMeta = {
 let mockUseValueSetsTable = jest.fn();
 let mockUseValueSetsMeta = jest.fn();
 
-jest.mock("../../../hooks/UseValueSets", () => {
+jest.mock("../../../hooks/api/LookupTables/UseValueSetsTable", () => {
     return {
         useValueSetsTable: () => mockUseValueSetsTable(),
+    };
+});
+
+jest.mock("../../../hooks/api/LookupTables/UseValueSetsMeta", () => {
+    return {
         useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
 
 describe("ValueSetsIndex tests", () => {
     test("Renders with no errors", () => {
-        mockUseValueSetsTable = jest.fn(
-            () =>
-                ({
-                    valueSetArray: [] as ValueSet[],
-                } as ValueSetsTableResponse<any>)
-        );
+        mockUseValueSetsTable = jest.fn(() => ({
+            data: [] as ValueSet[],
+        }));
 
-        mockUseValueSetsMeta = jest.fn(
-            () =>
-                ({
-                    valueSetMeta: {},
-                } as ValueSetsMetaResponse)
-        );
+        mockUseValueSetsMeta = jest.fn(() => ({
+            data: {},
+        }));
         renderWithFullAppContext(<ValueSetsIndex />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
@@ -63,19 +58,13 @@ describe("ValueSetsIndex tests", () => {
     });
 
     test("Renders rows with data returned from hook", () => {
-        mockUseValueSetsTable = jest.fn(
-            () =>
-                ({
-                    valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
-        );
+        mockUseValueSetsTable = jest.fn(() => ({
+            data: fakeRows,
+        }));
 
-        mockUseValueSetsMeta = jest.fn(
-            () =>
-                ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
-        );
+        mockUseValueSetsMeta = jest.fn(() => ({
+            data: fakeMeta,
+        }));
 
         renderWithFullAppContext(<ValueSetsIndex />);
         const rows = screen.getAllByRole("row");
@@ -94,12 +83,9 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        mockUseValueSetsMeta = jest.fn(
-            () =>
-                ({
-                    valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
-        );
+        mockUseValueSetsMeta = jest.fn(() => ({
+            data: fakeMeta,
+        }));
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {

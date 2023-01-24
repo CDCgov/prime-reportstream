@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 
-import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseReportFacilities } from "../../../hooks/api/Deliveries/__mocks__/DeliveryHooks";
 
 import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 

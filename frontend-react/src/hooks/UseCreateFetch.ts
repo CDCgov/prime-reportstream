@@ -2,14 +2,18 @@ import { useCallback } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import axios, { AxiosError } from "axios";
 
-import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
+import {
+    RSEndpoint,
+    AxiosOptionsWithSegments,
+    HTTPMethods,
+} from "../config/api/RSEndpoint";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { getAppInsightsHeaders } from "../TelemetryService";
 
 import { MembershipSettings } from "./UseOktaMemberships";
 
 export type AuthorizedFetcher<T> = (
-    EndpointConfig: RSEndpoint,
+    EndpointConfig: RSEndpoint<any>,
     options?: Partial<AxiosOptionsWithSegments>
 ) => Promise<T>;
 
@@ -34,7 +38,7 @@ function createTypeWrapperForAuthorizedFetch(
     };
 
     return async function <T>(
-        EndpointConfig: RSEndpoint,
+        EndpointConfig: RSEndpoint<any>,
         options: Partial<AxiosOptionsWithSegments> = {}
     ): Promise<T> {
         const headerOverrides = options?.headers || {};
@@ -51,6 +55,7 @@ function createTypeWrapperForAuthorizedFetch(
         }
         const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
+            method: options.method ?? HTTPMethods.GET,
             headers,
         });
         return axios(axiosConfig)

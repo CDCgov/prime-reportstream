@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import * as axios from "axios";
 
-import { RSEndpoint } from "../config/endpoints";
+import { HTTPMethods, RSEndpoint } from "../config/api/RSEndpoint";
 import { mockToken } from "../utils/TestUtils";
 
 import * as UseCreateFetch from "./UseCreateFetch";
@@ -27,7 +27,10 @@ const fakeMembership = {
 
 const fakeEndpoint = new RSEndpoint({
     path: "/anything",
-    method: "GET",
+    methods: {} as {
+        [HTTPMethods.GET]: unknown;
+    },
+    queryKey: "fakeQuery",
 });
 
 describe("useCreateFetch", () => {
@@ -111,7 +114,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
             data: "some data",
             timeout: 1,
             headers: {
-                "authentication-type": "overridden",
+                organization: "overridden",
                 "x-fake-header": "me",
             },
         });
@@ -122,10 +125,10 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
             data: "some data",
             timeout: 1,
             headers: {
-                "authentication-type": "overridden",
+                "authentication-type": "okta",
                 "x-fake-header": "me",
                 authorization: "Bearer this token",
-                organization: "any",
+                organization: "overridden",
                 "x-ms-session-id": "DUMMY",
             },
         });
@@ -144,7 +147,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
             url: "https://test.prime.cdc.gov/api/anything",
-            method: "GET",
+            method: "POST",
             data: "some data",
             timeout: 1,
             headers: {

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { DetailItem } from "../DetailItem/DetailItem";
-import { ReceiverData } from "../../config/endpoints/messageTracker";
+import { ReceiverData } from "../../config/api/messageTracker";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 
 import { QualityFilters } from "./QualityFilters";

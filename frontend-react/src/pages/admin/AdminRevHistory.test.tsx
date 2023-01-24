@@ -6,7 +6,7 @@ import { renderWithQueryProvider } from "../../utils/CustomRenderUtils";
 import {
     SettingRevision,
     SettingRevisionParams,
-} from "../../network/api/Organizations/SettingRevisions";
+} from "../../config/api/revisions";
 
 import { _exportForTesting } from "./AdminRevHistory";
 
@@ -54,11 +54,11 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // replace this call to return our mock data
-jest.mock("../../network/api/Organizations/SettingRevisions", () => {
+jest.mock("../../hooks/api/SettingRevisions", () => {
     return {
-        useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
+        useSettingRevision: (_params: SettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
-            // expects to get back from the call to useSettingRevisionEndpointsQuery()
+            // expects to get back from the call to useSettingRevision()
             return {
                 data: fakeRows,
                 isError: false,

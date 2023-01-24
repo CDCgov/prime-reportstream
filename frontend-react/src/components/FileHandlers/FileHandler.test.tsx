@@ -4,22 +4,22 @@ import {
     renderWithFullAppContext,
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/endpoints/waters";
+import { ResponseError } from "../../config/api/waters";
 import {
     INITIAL_STATE,
     FileType,
     FileHandlerActionType,
 } from "../../hooks/UseFileHandler";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
+import { mockUseWatersUploader } from "../../hooks/api/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
-import { RSSender } from "../../config/endpoints/settings";
+import { RSSender } from "../../config/api/settings";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
 let fakeState = {};
 
-const hl7Sender: RSSender = {
+const hl7Sender: Partial<RSSender> = {
     name: "default",
     organizationName: "hcintegrations",
     format: "HL7",
@@ -45,7 +45,7 @@ jest.mock("../../hooks/UseFileHandler", () => ({
     __esModule: true,
 }));
 
-jest.mock("../../hooks/UseOrganizationSettings", () => ({
+jest.mock("../../hooks/api/Settings/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
         return {
             data: { description: "wow, cool organization" },
@@ -84,9 +84,9 @@ const fileChangeEvent = {
 describe("FileHandler", () => {
     test("renders a spinner while loading sender / organization", async () => {
         mockUseSenderResource.mockReturnValue({
-            senderDetail: undefined,
-            senderIsLoading: true,
-        });
+            data: undefined,
+            isLoading: true,
+        } as any);
         mockState(INITIAL_STATE);
         mockUseWatersUploader.mockReturnValue({
             isWorking: false,
@@ -115,9 +115,9 @@ describe("FileHandler", () => {
         test("renders as expected (initial form)", async () => {
             mockState(INITIAL_STATE);
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
@@ -154,9 +154,9 @@ describe("FileHandler", () => {
 
         test("renders as expected (submitting)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({ ...INITIAL_STATE });
             mockUseWatersUploader.mockReturnValue({
                 isWorking: true,
@@ -186,9 +186,9 @@ describe("FileHandler", () => {
 
         test("renders as expected (errors)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 errors: [{ message: "Error" } as ResponseError],
@@ -233,9 +233,9 @@ describe("FileHandler", () => {
 
         test("renders as expected (success)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -296,9 +296,9 @@ describe("FileHandler", () => {
 
         test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -352,9 +352,9 @@ describe("FileHandler", () => {
 
         test("renders as expected (warnings)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 warnings: [{ message: "error" } as ResponseError],
@@ -395,9 +395,9 @@ describe("FileHandler", () => {
 
         test("renders as expected (warning banner)", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
             });
@@ -427,9 +427,9 @@ describe("FileHandler", () => {
 
         test("calls dispatch as expected on file change", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
             });
@@ -474,9 +474,9 @@ describe("FileHandler", () => {
         });
         test("calls fetch and dispatch as expected on submit", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             const fetchSpy = jest.fn(() => Promise.resolve({}));
             mockState({
                 ...INITIAL_STATE,
@@ -544,9 +544,9 @@ describe("FileHandler", () => {
 
         test("calls dispatch as expected on reset", async () => {
             mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
+                data: hl7Sender,
+                isLoading: false,
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 cancellable: true,

@@ -1,4 +1,4 @@
-import { RSReceiver } from "../../../config/endpoints/settings";
+import { RSReceiver } from "../../../config/api/settings";
 
 interface Props {
     /* REQUIRED

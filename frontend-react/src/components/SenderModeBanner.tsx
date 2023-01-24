@@ -3,7 +3,7 @@ import { Icon } from "@trussworks/react-uswds";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
-import { useSenderResource } from "../hooks/UseSenderResource";
+import { useOrganizationSenderSettings } from "../hooks/api/Settings/UseOrganizationSenderSettings";
 
 import { USLink } from "./USLink";
 
@@ -12,8 +12,8 @@ const isNotActive = (val: string | undefined): boolean => {
 };
 
 const BannerContent = () => {
-    const { senderDetail: sender, senderIsLoading: loading } =
-        useSenderResource();
+    const { data: sender, isLoading: loading } =
+        useOrganizationSenderSettings();
     if (!loading && isNotActive(sender?.customerStatus)) {
         return (
             <section>

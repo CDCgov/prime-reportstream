@@ -5,7 +5,7 @@ import {
     dummyActiveReceiver,
     dummyReceivers,
     orgServer,
-} from "../__mocks__/OrganizationMockServer";
+} from "../config/__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";

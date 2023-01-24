@@ -1,16 +1,16 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockUseOrgDeliveries } from "../../../hooks/api/Deliveries/__mocks__/DeliveryHooks";
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import {
     orgServer,
     receiversGenerator,
-} from "../../../__mocks__/OrganizationMockServer";
-import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+} from "../../../config/__mocks__/OrganizationMockServer";
+import { makeDeliveryFixtureArray } from "../../../config/__mocks__/DeliveriesMockServer";
+import { mockUseOrganizationReceiversFeed } from "../../../hooks/api/Settings/__mocks__/ReceiversHooks";
 import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
 
 import DeliveriesTable from "./DeliveriesTable";

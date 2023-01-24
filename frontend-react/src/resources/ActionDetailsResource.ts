@@ -1,40 +1,13 @@
 import config from "../config";
+import {
+    Destination,
+    ReportError,
+    ReportWarning,
+} from "../config/api/deliveries";
 
 import AuthResource from "./AuthResource";
 
 const { RS_API_URL } = config;
-
-export interface Destination {
-    organization_id: string;
-    organization: string;
-    service: string;
-    filteredReportRows: string[];
-    filteredReportItems: FilteredReportItem[];
-    sending_at: string;
-    itemCount: number;
-    itemCountBeforeQualityFiltering: number;
-    sentReports: string[];
-}
-
-export interface FilteredReportItem {
-    filterType: string;
-    filterName: string;
-    filteredTrackingElement: string;
-    filterArgs: string[];
-    message: string;
-}
-
-export interface ReportWarning {
-    scope: string;
-    errorCode: string;
-    type: string;
-    message: string;
-}
-
-export interface ReportError extends ReportWarning {
-    index: number;
-    trackingId: string;
-}
 
 export default class ActionDetailsResource extends AuthResource {
     readonly submissionId: number = -1;

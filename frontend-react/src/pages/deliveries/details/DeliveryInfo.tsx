@@ -1,6 +1,6 @@
 import moment from "moment";
 
-import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { RSDelivery } from "../../../config/api/deliveries";
 
 interface Props {
     /* REQUIRED

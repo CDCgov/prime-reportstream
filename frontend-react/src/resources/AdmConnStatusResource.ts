@@ -1,26 +1,13 @@
 import config from "../config";
+import { ReceiverConnectionStatus } from "../config/api/admin";
 
 import AuthResource from "./AuthResource";
 
 const { RS_API_URL } = config;
 
-/** having the type separate makes unit tests easier **/
-export type AdmConnStatusDataType = {
-    /* the unique id  */
-    readonly receiverConnectionCheckResultId: number;
-    readonly organizationId: number;
-    readonly receiverId: number;
-    readonly connectionCheckResult: string;
-    readonly connectionCheckSuccessful: boolean;
-    readonly connectionCheckStartedAt: string;
-    readonly connectionCheckCompletedAt: string;
-    readonly organizationName: string;
-    readonly receiverName: string;
-};
-
 export class AdmConnStatusResource
     extends AuthResource
-    implements AdmConnStatusDataType
+    implements Readonly<ReceiverConnectionStatus>
 {
     // would be nice if we didn't have to inline repeat the type above,
     // but I can't figure out an alternative using templates.

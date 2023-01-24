@@ -6,7 +6,7 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../hooks/api/Settings/UseOrganizationSettings";
 import { FeatureName } from "../../AppRouter";
 
 import DeliveriesTable from "./Table/DeliveriesTable";

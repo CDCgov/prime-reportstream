@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useSenderResource } from "../../hooks/UseSenderResource";
-import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
+import { useOrganizationSenderSettings } from "../../hooks/api/Settings/UseOrganizationSenderSettings";
+import { OverallStatus, WatersResponse } from "../../config/api/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     ErrorType,
@@ -11,9 +11,9 @@ import useFileHandler, {
     FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
-import { useWatersUploader } from "../../hooks/network/WatersHooks";
+import { useWatersUploader } from "../../hooks/api/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../hooks/api/Settings/UseOrganizationSettings";
 
 import {
     RequestLevel,
@@ -113,7 +113,8 @@ const FileHandler = ({
     const { data: organization, isLoading: organizationLoading } =
         useOrganizationSettings();
     // need to fetch sender from API to grab cvs vs hl7 format info
-    const { senderDetail: sender, senderIsLoading } = useSenderResource();
+    const { data: sender, isLoading: senderIsLoading } =
+        useOrganizationSenderSettings();
 
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.service;

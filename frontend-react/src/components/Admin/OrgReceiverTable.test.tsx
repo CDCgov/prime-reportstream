@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../config/__mocks__/SettingsMockServer";
 
 import { OrgReceiverTable } from "./OrgReceiverTable";
 

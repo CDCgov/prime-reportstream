@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
-import { testQueryClient } from "../network/QueryClients";
+import { testQueryClient } from "../config/api/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 
 import { mockToken } from "./TestUtils";

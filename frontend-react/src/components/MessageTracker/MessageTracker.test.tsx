@@ -1,7 +1,7 @@
 import { fireEvent, screen, cleanup, within } from "@testing-library/react";
 
 import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
-import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
+import { MOCK_MESSAGE_SENDER_DATA } from "../../config/__mocks__/MessageTrackerMockServer";
 
 import { MessageTracker } from "./MessageTracker";
 
@@ -11,7 +11,7 @@ const mockUseMessageSearch = {
     error: null,
 };
 
-jest.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", () => {
+jest.mock("../../hooks/api/MessageTracker/UseMessageSearch", () => {
     return {
         useMessageSearch: () => mockUseMessageSearch,
     };
