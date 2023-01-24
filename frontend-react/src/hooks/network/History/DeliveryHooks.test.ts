@@ -26,10 +26,6 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
 
         const { result } = renderHook(() => useOrgDeliveries("testService"));
@@ -58,10 +54,6 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useReportsDetail("123"),
@@ -81,10 +73,6 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useReportsFacilities("123"),

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken } from "@okta/okta-auth-js";
 
@@ -15,10 +15,6 @@ export interface RSSessionContext {
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
     isAdminStrictCheck?: boolean;
-    sessionStartTime: Date;
-    setSessionStartTime: (date: Date) => void;
-    sessionTimeAggregate: number;
-    setSessionTimeAggregate: (timeInSeconds: number) => void;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -33,10 +29,6 @@ export const SessionContext = createContext<RSSessionContext>({
     dispatch: () => {},
     initialized: false,
     isAdminStrictCheck: false,
-    sessionStartTime: new Date(),
-    setSessionStartTime: () => {},
-    sessionTimeAggregate: 0,
-    setSessionTimeAggregate: () => {},
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -47,7 +39,6 @@ const SessionProvider = ({
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
-
     const {
         state: { activeMembership, initialized },
         dispatch,
@@ -58,32 +49,16 @@ const SessionProvider = ({
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
 
-    const updateSessionStartTime = (date: Date) => {
-        setState((prevState) => {
-            return { ...prevState, sessionStartTime: date };
-        });
-    };
-
-    const updateSessionTimeAggregate = (timeInSeconds: number) => {
-        setState((prevState) => {
-            return { ...prevState, sessionTimeAggregate: timeInSeconds };
-        });
-    };
-
-    const [state, setState] = useState<RSSessionContext>({
-        oktaToken: authState?.accessToken,
-        activeMembership,
-        isAdminStrictCheck,
-        dispatch,
-        initialized: authState !== null && !!initialized,
-        sessionStartTime: new Date(),
-        setSessionStartTime: updateSessionStartTime,
-        sessionTimeAggregate: 0,
-        setSessionTimeAggregate: updateSessionTimeAggregate,
-    });
-
     return (
-        <SessionContext.Provider value={state}>
+        <SessionContext.Provider
+            value={{
+                oktaToken: authState?.accessToken,
+                activeMembership,
+                isAdminStrictCheck,
+                dispatch,
+                initialized: authState !== null && !!initialized,
+            }}
+        >
             {children}
         </SessionContext.Provider>
     );

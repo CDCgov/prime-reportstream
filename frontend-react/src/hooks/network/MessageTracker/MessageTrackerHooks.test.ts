@@ -26,10 +26,6 @@ describe("useMessageSearch", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
 
         const { result } = renderHook(() => useMessageSearch(), {
@@ -64,10 +60,6 @@ describe("useMessageDetails", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
 
         const { result, waitForNextUpdate } = renderHook(

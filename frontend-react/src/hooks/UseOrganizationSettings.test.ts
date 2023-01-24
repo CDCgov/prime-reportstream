@@ -21,10 +21,6 @@ describe("useOrganizationSettings", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result } = renderHook(() => useOrganizationSettings(), {
             wrapper: QueryWrapper(),
@@ -44,10 +40,6 @@ describe("useOrganizationSettings", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationSettings(),

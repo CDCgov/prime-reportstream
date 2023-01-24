@@ -21,10 +21,6 @@ describe("useOrganizationReceivers", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
             wrapper: QueryWrapper(),
@@ -44,10 +40,6 @@ describe("useOrganizationReceivers", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationReceivers(),

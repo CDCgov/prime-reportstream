@@ -29,10 +29,6 @@ describe("SenderModeBanner", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         renderWithFullAppContext(
             <SenderModeBanner />,

@@ -24,10 +24,6 @@ describe("useSenderResource", () => {
             } as MembershipSettings,
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: QueryWrapper(),
@@ -47,10 +43,6 @@ describe("useSenderResource", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useSenderResource(),

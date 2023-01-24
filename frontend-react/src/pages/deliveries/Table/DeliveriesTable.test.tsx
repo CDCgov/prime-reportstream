@@ -52,10 +52,6 @@ beforeEach(() => {
         },
         dispatch: () => {},
         initialized: true,
-        sessionStartTime: new Date(),
-        setSessionStartTime: () => {},
-        sessionTimeAggregate: 0,
-        setSessionTimeAggregate: () => {},
     });
 });
 describe("DeliveriesTable", () => {
@@ -85,10 +81,6 @@ describe("DeliveriesTable", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
-                sessionStartTime: new Date(),
-                setSessionStartTime: () => {},
-                sessionTimeAggregate: 0,
-                setSessionTimeAggregate: () => {},
             });
 
             // Mock the response from the Deliveries hook
@@ -195,10 +187,6 @@ describe("DeliveriesTableWithNumberedPagination - with no data", () => {
             },
             dispatch: () => {},
             initialized: true,
-            sessionStartTime: new Date(),
-            setSessionStartTime: () => {},
-            sessionTimeAggregate: 0,
-            setSessionTimeAggregate: () => {},
         });
 
         // Mock the response from the Deliveries hook
