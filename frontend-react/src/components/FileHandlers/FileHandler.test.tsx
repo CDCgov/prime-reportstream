@@ -14,6 +14,8 @@ import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
 import { RSSender } from "../../config/endpoints/settings";
+import { mockAppInsights } from "../../utils/__mocks__/ApplicationInsights";
+import { EventName } from "../../utils/Analytics";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
@@ -48,10 +50,23 @@ jest.mock("../../hooks/UseFileHandler", () => ({
 jest.mock("../../hooks/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
         return {
-            data: { description: "wow, cool organization" },
+            data: {
+                description: "wow, cool organization",
+                createdAt: "2023-01-10T21:23:14.467Z",
+                createdBy: "local@test.com",
+                filters: [],
+                jurisdiction: "FEDERAL",
+                name: "aegis",
+                version: 0,
+            },
             isLoading: false,
         };
     },
+}));
+
+jest.mock("../../TelemetryService", () => ({
+    ...jest.requireActual("../../TelemetryService"),
+    getAppInsights: () => mockAppInsights,
 }));
 
 /*
@@ -292,6 +307,19 @@ describe("FileHandler", () => {
                 )
             );
             expect(timestampDate).toHaveClass("margin-top-05");
+
+            expect(mockAppInsights.trackEvent).toBeCalledWith({
+                name: EventName.FILE_VALIDATOR,
+                properties: {
+                    fileValidator: {
+                        warningCount: 0,
+                        errorCount: 0,
+                        schema: "hl7/hcintegrations-covid-19",
+                        fileType: "HL7",
+                        sender: "aegis",
+                    },
+                },
+            });
         });
 
         test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
@@ -472,6 +500,7 @@ describe("FileHandler", () => {
                 payload: { file: fakeFile },
             });
         });
+
         test("calls fetch and dispatch as expected on submit", async () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
