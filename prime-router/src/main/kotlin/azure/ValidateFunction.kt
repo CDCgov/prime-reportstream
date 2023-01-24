@@ -26,7 +26,6 @@ import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
 import org.apache.logging.log4j.kotlin.Logging
-import java.security.InvalidParameterException
 import java.time.OffsetDateTime
 
 /**
@@ -90,7 +89,14 @@ class ValidateFunction(
             val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
             if (schemaName != null && format != null) {
                 actionHistory.trackActionParams(request)
-                processRequest(request, schemaName = schemaName, format = format)
+                val sender = getDummySender(schemaName, format)
+                if (sender != null) {
+                    processRequest(request, sender)
+                } else {
+                    return HttpUtilities.bad(
+                        request, "Could not find schema named '$schemaName"
+                    )
+                }
             } else {
                 return HttpUtilities.bad(
                     request, "Expected '$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters"
@@ -114,15 +120,8 @@ class ValidateFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender? = null,
-        schemaName: String? = null,
-        format: String? = null
+        sender: Sender,
     ): HttpResponseMessage {
-        if (sender == null && (schemaName == null || format == null)) {
-            throw InvalidParameterException(
-                "Invalid request. Must provide at least one of: sender or schemaName with format"
-            )
-        }
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         var routedTo = emptyList<Translator.RoutedReport>()
@@ -131,40 +130,14 @@ class ValidateFunction(
                 val validatedRequest = validateRequest(request)
 
                 // if the override parameter is populated, use that, otherwise use the sender value. Default to false.
-                var allowDuplicates = false
-                if (!allowDuplicatesParam.isNullOrEmpty()) {
-                    allowDuplicates = allowDuplicatesParam == "true"
-                } else if (sender != null) {
-                    allowDuplicates = sender.allowDuplicates
+                val allowDuplicates = if (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
+                else {
+                    sender.allowDuplicates
                 }
 
-                // setup dummy sender if needed
-                var validationSender = sender
-                if (validationSender == null) {
-                    if (schemaName != null && format != null) {
-                        val schema = workflowEngine.metadata.findSchema(schemaName)
-                        if (schema != null) {
-                            validationSender = TopicSender(
-                                "ValidationSender",
-                                "Internal",
-                                Sender.Format.valueOf(format),
-                                CustomerStatus.TESTING,
-                                schemaName,
-                                schema.topic
-                            )
-                        } else {
-                            // error schema not found
-                            throw InvalidParameterException("Schema of name '$schemaName' could not be found")
-                        }
-                    } else {
-                        throw InvalidParameterException(
-                            "Parameters 'schemaName' and 'format' not found when sender also not provided"
-                        )
-                    }
-                }
                 val receiver = ValidationReceiver(workflowEngine, actionHistory)
                 routedTo = receiver.validateAndRoute(
-                    validationSender,
+                    sender,
                     validatedRequest.content,
                     validatedRequest.defaults,
                     validatedRequest.routeTo,
@@ -181,11 +154,6 @@ class ValidateFunction(
                 )
                 HttpStatus.BAD_REQUEST
             } catch (e: IllegalStateException) {
-                actionHistory.trackLogs(
-                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
-                )
-                HttpStatus.BAD_REQUEST
-            } catch (e: InvalidParameterException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )
@@ -240,5 +208,22 @@ class ValidateFunction(
                     .writeValueAsString(submission)
             )
             .build()
+    }
+
+    internal fun getDummySender(schemaName: String, format: String): TopicSender? {
+        val schema = workflowEngine.metadata.findSchema(schemaName)
+        return if (schema != null) {
+            TopicSender(
+                "ValidationSender",
+                "Internal",
+                Sender.Format.valueOf(format),
+                CustomerStatus.TESTING,
+                schemaName,
+                schema.topic
+            )
+        } else {
+            // error schema not found
+            null
+        }
     }
 }

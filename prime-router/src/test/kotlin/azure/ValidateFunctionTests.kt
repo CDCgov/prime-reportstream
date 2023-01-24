@@ -133,13 +133,13 @@ class ValidateFunctionTests {
             "content-length" to "4"
         )
         req.parameters += mapOf(
-            "schema" to "hl7/hcintegrations-covid-19",
-            "format" to "HL7"
+            "schema" to "one",
+            "format" to "CSV"
         )
         // Invoke the waters function run
         validateFunc.validateWithSchema(req)
         // processFunction should never be called
-        verify(exactly = 1) { validateFunc.processRequest(any(), null, "hl7/hcintegrations-covid-19", "HL7") }
+        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
@@ -149,12 +149,12 @@ class ValidateFunctionTests {
             "content-length" to "4"
         )
         req.parameters += mapOf(
-            "schema" to "hl7/hcintegrations-covid-19"
+            "schema" to "one"
         )
         // Invoke the waters function run
         validateFunc.validateWithSchema(req)
         // processFunction should never be called
-        verify(exactly = 0) { validateFunc.processRequest(any(), any(), any(), any()) }
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
@@ -164,12 +164,12 @@ class ValidateFunctionTests {
             "content-length" to "4"
         )
         req.parameters += mapOf(
-            "format" to "HL7"
+            "format" to "CSV"
         )
         // Invoke the waters function run
         validateFunc.validateWithSchema(req)
         // processFunction should never be called
-        verify(exactly = 0) { validateFunc.processRequest(any(), any(), any(), any()) }
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
@@ -290,37 +290,6 @@ class ValidateFunctionTests {
 
         // act
         val resp = validateFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 2) { engine.isDuplicateItem(any()) }
-        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
-    }
-
-    @Test
-    fun `test processFunction no sender`() {
-        // setup steps
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
-
-        val req = MockHttpRequestMessage(csvString_2Records)
-        req.parameters += mapOf(
-            "schema" to "one",
-            "format" to "CSV"
-        )
-
-        every { validateFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
-            csvString_2Records,
-            sender = null
-        )
-
-        every { accessSpy.isDuplicateItem(any(), any()) } returns true
-
-        // act
-        val resp = validateFunc.processRequest(req, schemaName = "one", format = "CSV")
 
         // assert
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
