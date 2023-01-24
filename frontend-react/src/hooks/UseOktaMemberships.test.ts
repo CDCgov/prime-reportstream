@@ -31,7 +31,7 @@ jest.mock("../utils/SessionStorageTools", () => {
 });
 
 // Unused value, but required mock for test running
-jest.mock("../config/api/apis", () => {
+jest.mock("../config/api/Apis", () => {
     return {
         updateApiSessions: () => mockUpdateApiSessions(),
     };
