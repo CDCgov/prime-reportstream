@@ -35,24 +35,24 @@ initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 const App = () => {
     const sessionStartTime = useRef<number>(new Date().getTime());
     const sessionTimeAggregate = useRef<number>(0);
+    const calculateAggregateTime = () => {
+        return (
+            new Date().getTime() -
+            sessionStartTime.current +
+            sessionTimeAggregate.current
+        );
+    };
 
     useEffect(() => {
         const onUnload = () => {
-            trackAppInsightEvent(EventName.SESSION, {
-                sessionLength:
-                    (new Date().getTime() -
-                        sessionStartTime.current +
-                        sessionTimeAggregate.current) /
-                    1000,
+            trackAppInsightEvent(EventName.SESSION_DURATION, {
+                sessionLength: calculateAggregateTime() / 1000,
             });
         };
 
         const onVisibilityChange = () => {
             if (document.visibilityState === "hidden") {
-                sessionTimeAggregate.current =
-                    new Date().getTime() -
-                    sessionStartTime.current +
-                    sessionTimeAggregate.current;
+                sessionTimeAggregate.current = calculateAggregateTime();
             } else if (document.visibilityState === "visible") {
                 sessionStartTime.current = new Date().getTime();
             }
@@ -65,7 +65,7 @@ const App = () => {
 
     const navigate = useNavigate();
     const handleIdle = (): void => {
-        trackAppInsightEvent(EventName.SESSION, {
+        trackAppInsightEvent(EventName.SESSION_DURATION, {
             sessionLength: sessionTimeAggregate.current / 1000,
         });
         logout(OKTA_AUTH);

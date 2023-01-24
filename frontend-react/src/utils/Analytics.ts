@@ -2,7 +2,7 @@ import { getAppInsights } from "../TelemetryService";
 
 export enum EventName {
     TABLE_FILTER = "Table Filter",
-    SESSION = "Session",
+    SESSION_DURATION = "Session Duration",
     TABLE_PAGINATION = "Table Pagination",
 }
 
