@@ -172,6 +172,22 @@ class ValidateFunctionTests {
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
+    @Test
+    fun `test validate endpoint with schemaName but schema not found`() {
+        val (validateFunc, req) = setupForDotNotationTests()
+        req.httpHeaders += mapOf(
+            "content-length" to "4"
+        )
+        req.parameters += mapOf(
+            "schema" to "does-not-exist",
+            "format" to "CSV"
+        )
+        // Invoke the waters function run
+        validateFunc.validateWithSchema(req)
+        // processFunction should never be called
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
+    }
+
     // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
     // Hits processRequest, tracks 'receive' action in actionHistory
     @Test
