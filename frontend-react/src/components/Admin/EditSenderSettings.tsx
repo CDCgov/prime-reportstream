@@ -274,7 +274,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     valuesFrom={"processingType"}
                 />
                 <CheckboxComponent
-                    fieldname="allow-duplicates"
+                    fieldname="allowDuplicates"
                     label="Allow Duplicates"
                     defaultvalue={orgSenderSettings.allowDuplicates}
                     savefunc={(v) => (orgSenderSettings.allowDuplicates = v)}
