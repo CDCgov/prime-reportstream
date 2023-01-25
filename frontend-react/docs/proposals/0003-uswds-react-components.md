@@ -1,4 +1,4 @@
-# [0003: Title of Proposal]
+# [0003: Creating New React Components]
 
 * Status: [proposed | rejected | accepted | deprecated | superseded by [0005](0005-example.md)]
 * Authors: @etanb
@@ -24,6 +24,7 @@ In a very similar vein to [Nava's previous ADR](https://github.com/navapbc/templ
 For each of the following options, I will build a simple feature on top of the concept of the USWDS `<Table />` component: Adding a sticky header.
 
 ### Option 1: Wrap Trussworks USWDS React Components
+<a name="option-one"></a>
 
 #### Description
 
@@ -37,70 +38,205 @@ Wrapping their components provides all of their underlying work (latest USWDS ve
 - Extremely actively maintained with an associated [Truss Storybook](https://trussworks.github.io/react-uswds/) which would make diffing our extended components very easy.
 - Follows our currently implemented solutions of extending components, so least overhead in terms of code changes.
 - Ideal for stylistic changes to Truss React components. Can simply use the scoped `.module` syntax to create new dynamic styles.
+- No need to add styles to our convoluted overrides file `_uswds_overrides.scss`
 
 #### Cons
 - Not ideal for complex functional extensions of React components.
 - Can get convoluted quickly since we're essentially wrapping a wrapper.
 - Potentially easy breaking changes as we'd be two levels from USWDS.
+- Still need to manually override USWDS styles on occasion using `!important`.
+
+Sample `<RSTable/>` component with a `stickyHeader` feature:
+
+`RSTable.jsx`:
+
+```js
+import { Table } from "@trussworks/react-uswds";
+
+import styles from "./RSTable.module.css";
+
+export const RSTable = ({ stickyHeader, children, ...props }) => {
+    return (
+        <div className={stickyHeader && styles.stickyHeader}>
+            <Table {...props}>{children}</Table>
+        </div>
+    );
+};
+```
+
+`RSTable.module.css`:
+
+```css
+.stickyHeader thead th {
+    position: sticky;
+    top: 0;
+}
+```
 
 ### Option 2: Utilize USWDS Base Library Only
+<a name="option-two"></a>
 
 #### Description
 
-_Write a few sentences of what this approach would entail.  At a high level, what would change between the current state and the ideal state with Option 2?_
+Utilize the raw [USWDS library](https://github.com/uswds/uswds) which would remove a level of abstraction to our components. We'd then wrap their components and create a React component that interacts directly with their code which will allow us full customization of props and functionality. CSS will still need to be overridden at times, but can be component-scoped.
 
 #### Pros
 
-- [option 2 pro]
-- [option 2 pro]
-- ...
+- 1:1 relationship with USWDS which means we can upgrade our dependencies without having to rely on Truss upgrading theirs.
+- Removes a layer of abstraction so we can create React components with naming conventions and styling that more closely matches our designs and syntax.
+- DOM structure will be exposed so we can more easily understand what's going on under the hood which will also help with writing better tests.
 
 #### Cons
-- [option 2 con]
-- [option 2 con]
-- ...
+- Potential breaking changes as we'd be building on top of USWDS.
+- Still need to manually override USWDS styles on occasion using `!important`.
+- Not ideal for very complicated features, like some of the more advanced ideas we had for a ReportStream table.
+
+`RSTable.jsx`:
+
+```js
+import styles from "./RSTable.module.css";
+import classnames from "classnames";
+
+export const RSTable = ({ props, children }) => {
+    // We could easily make a master hash file
+    // with all USWDS CSS classes instead
+    const USWDSTableClasses = {
+      borderless: 'usa-table--borderless',
+      compact: 'usa-table--compact',
+      striped: 'usa-table--striped',
+      stickyHeader: 'rs-table--sticky-header',
+    }
+    
+    // The classnames library recursively flattens arrays
+    const classes = classnames("usa-table", Object.keys(props).map((class) => USWDSTableClasses[class]));
+
+    return (
+      <table className={classes}>
+        {children}
+      </table>
+    );
+};
+```
+
+`RSTable.module.css`:
+
+```css
+.rs-table--sticky-header thead th {
+    position: sticky;
+    top: 0;
+}
+```
 
 ### Option 3: Greenstart Customized Components
+<a name="option-three"></a>
 
 #### Description
 
-_Write a few sentences of what this approach would entail.  At a high level, what would change between the current state and the ideal state with Option 2?_
+Many of the USWDS components are not very complicated from a Design, animation and overall front-end point of view. Re-creating them from the ground up, especially potentially very complicated components like ReportStream's proposed new tables, would give us granular control and better testing.
 
 #### Pros
 
-- [option 2 pro]
-- [option 2 pro]
-- ...
+- Complete control over presentation and functionality of our components.
+- Can set the standard for other government applications and how they create accessible, usable and beautiful web components for their users.
+- Zero dependencies on external teams to fix broken code or add certain features.
 
 #### Cons
-- [option 2 con]
-- [option 2 con]
-- ...
+- Have to maintain, top-to-bottom, the codebase including: testing, accessibility, optimization and everything else that comes with maintaining a library of sorts.
+- Removing ourselves from the USWDS ecosystem.
+- Massive lift to recode and recreate entire components in our codebase.
+
+
+`RSTable.jsx`:
+
+```js
+import styles from "./RSTable.module.css";
+import classnames from "classnames";
+
+export const RSTable = ({ styles, dataHeader, dataBody }) => {
+    // The classnames library recursively flattens arrays
+    const classes = classnames("rs-table", styles);
+
+    return (
+      <div className={classes}>
+        <div className="rs-table-header">
+          {dataHeader.map((headerItem) => {
+            return (
+              <>
+                {headerItem}
+              </>
+            )
+          })}
+        </div>
+        <div className="rs-table-body">
+          {dataBody.map((bodyItem) => {
+            return (
+              <>
+                {bodyItem}
+              </>
+            )
+          })}
+        </div>
+      </div>
+    );
+};
+```
+
+`RSTable.module.css`:
+
+```css
+/* We can port over any styles from USWDS we want to copy over */
+.rs-table {
+  font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+  font-size: 1.06rem;
+  line-height: 1.5;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: #1b1b1b;
+  margin: 1.25rem 0;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.scrollable {
+  overflow-x: auto;
+}
+```
 
 ## Decision Outcome
 
-_Note which option was chosen and list the main contributing factors that led to this decision.  Until a decision has been reached by the team, this section can be left blank._
+There is no one-size-fits-all solution here. All of the above solutions are viable and have their place, it just depends on the context of what we're try to create. What we can have is a framework for deciding which of the above options is best suited for a developer:
+
+**[Option 1 (Wrap Trussworks USWDS React Components)](#option-one):**
+
+- [ ] My component's fundamentals are based on the USWDS design system.
+- [ ] My component deviates from a USWDS-based component in only minor ways, preferably just stylistically.
+- [ ] My component can be represented within a simple, single-level-deep wrapper of a single Trussworks USWDS React component.
+
+**[Option 2 (Utilize USWDS Base Library Only)](#option-two):**
+
+- [ ] My component's fundamentals are based on the USWDS design system.
+- [ ] My component deviates from a USWDS-based component in deeper ways that include functionality and style.
+- [ ] My component can be represented by extending a single or sewing together multiple Trussworks USWDS React component(s).
+
+**[Option 3 (Greenstart Customized Components)](#option-three):**
+
+- [ ] My component's fundamentals are *not* based on the USWDS design system.
+- [ ] My component is very complicated and *cannot* be represented by extending multiple Trussworks USWDS React components.
+- [ ] My Engineering, Product and Design teams understand that a fundamentally new component will be added to our ecosystem.
+
+
 
 ### Rollout Plan
 
-_Explain how the proposed change will be implemented.  Break down the implementation into small steps to mitigate as much risk as possible and note what sort of user impact (internal or external) this may have. Note any potential obstacles or blockers that may impede progress along the way._
-
-- [step 1]
-- [step 2]
-- ...
+As stated before, this is more a guide for developers on creating components within our system. However, part of this proposal _should_ be implementing Storybook within our repo because as we create more and more components, we need to be able to track and share them amongst our team. Especially as we create deviations / extensions of USWDS components.
 
 ### Follow-Ups
 
 _List any actions that need to be made or any questions that need to be answered as a direct consequence of this decision outcome. If any of these are hard blockers to start on this proposal's implementation, they should optimally be factored into and discussed as part of this proposal._
 
-- [follow-up 1]
-- [follow-up 2]
-- ...
-
-## Additional Information
-
-_List follow-up points or links (e.g., example or real GitHub repositories) that helped to influence this proposal._  
-
-- [link 1]
-- [link 2]
-- ...
+- Will we convert our previously created components to our new structure or only new ones?
+- If we're not cleaning up previous components, can we put that on the road map to tackle at some point?
+- Will we want visual regression testing on our Storybook instance? Should it be a part of this implementation?
+- What other testing do we need?
