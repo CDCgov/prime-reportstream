@@ -8,14 +8,14 @@
 
 ## Problem Statement
 
-- We rely on USWDS components for the basis of much of the code here in ReportStream. This creates a rigidity in our codebase since our designs require improvements on their initial code and contributing to their codebase has proved a cumbersome and untimely process.
-- On top of the base USWDS, we also use their trussworks react component library. This adds another level of rigidity to the stack since we aren't interacting with the base USWDS library, we're only exposed to whatever `props` trussworks exposes for us.
+- We rely on [USWDS components](https://designsystem.digital.gov/components/overview/) for the basis of much of the code in ReportStream. This creates a rigidity in our codebase since our designs require extensions on their library and contributing to their codebase has proved a cumbersome and untimely process.
+- On top of the base USWDS library, we also use [Trussworks React component library](https://github.com/trussworks/react-uswds). This adds another level of rigidity to the stack since we aren't interacting with the base USWDS library, we're only exposed to whatever `props` trussworks exposes for us.
 - From-the-ground-up customized components while offering complete control, could move us too far off the standardized, accessible components offered by the USWDS + would be quite a lot of work to create and maintain.
 
 ## Decision Drivers
 
 - Recent experience adding a simple addition to USWDS showed that we can't rely on them to update their library according to our needs.
-- Our `<Table />` component is becoming increasing complex and to be utilized fully, requires us to deviate from the USWDS base `<Table />` component.
+- Our `<Table />` component is becoming increasing complex and to be realized fully, requires us to deviate significantly from the USWDS base `<Table />` component.
 
 ## Considered Options
 
@@ -30,17 +30,17 @@ For each of the following options, I will build a simple feature on top of the c
 
 #### Description
 
-The Trussworks React component library is, in an ideal world, all we would need. As taken from the [Nava ADR](https://github.com/navapbc/template-application-nextjs/blob/0f58517add316235e7c187bd00a820e91d4221c9/docs/decisions/app/0004-uswds-in-react.md#use-the-existing-open-source-react-uswds-library), Truss maintains this repo, is a trusted vendor in the space, and they keep their library very up-to-date.
+The Trussworks React component library is, in an ideal world, all we would need. As taken from the [Nava ADR](https://github.com/navapbc/template-application-nextjs/blob/0f58517add316235e7c187bd00a820e91d4221c9/docs/decisions/app/0004-uswds-in-react.md#use-the-existing-open-source-react-uswds-library), Trussworks maintains this repo, is a trusted vendor in the space, and they keep their library very up-to-date.
 
 Wrapping their components provides all of their underlying work (latest USWDS version, adhere strictly to USWDS code design, etc) for free.
 
 #### Pros
 
-- Truss handles turning USWDS base library into exposed React components.
-- Extremely actively maintained with an associated [Truss Storybook](https://trussworks.github.io/react-uswds/) which would make diffing our extended components very easy.
+- Trussworks handles turning the USWDS base library into exposed React components.
+- Extremely actively maintained with an associated [Trussworks Storybook](https://trussworks.github.io/react-uswds/) which would make diffing our extended components very easy.
 - Follows our currently implemented solutions of extending components, so least overhead in terms of code changes.
-- Ideal for stylistic changes to Truss React components. Can simply use the scoped `.module` syntax to create new dynamic styles.
-- No need to add styles to our convoluted overrides file `_uswds_overrides.scss`
+- Ideal for stylistic changes to Trussworks React components. Can simply use the scoped `.module` syntax to create new dynamic styles.
+- No need to add styles to our convoluted overrides file `_uswds_overrides.scss` anymore.
 
 #### Cons
 - Not ideal for complex functional extensions of React components.
@@ -86,9 +86,9 @@ Utilize the raw [USWDS library](https://github.com/uswds/uswds) which would remo
 
 #### Pros
 
-- 1:1 relationship with USWDS which means we can upgrade our dependencies without having to rely on Truss upgrading theirs.
-- Removes a layer of abstraction so we can create React components with naming conventions and styling that more closely matches our designs and syntax.
-- DOM structure will be exposed so we can more easily understand what's going on under the hood which will also help with writing better tests.
+- 1:1 relationship with USWDS which means we can upgrade our dependencies without having to rely on Trussworks upgrading theirs.
+- Removes a layer of abstraction so we can create React components with naming conventions and styling that more closely match our designs and syntax.
+- DOM structure will be exposed so we can more easily understand what's going on under the hood which will also help with writing better tests and writing more complex, yet clear, components.
 
 #### Cons
 - Potential breaking changes as we'd be building on top of USWDS.
