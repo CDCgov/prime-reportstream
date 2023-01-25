@@ -298,6 +298,8 @@ elements:
     - name: ordering_provider_middle_name
       csvFields: [{name: ordering_provider_middle_name}]
 
+    - name: ordering_provider_name_type_code
+
     - name: ordering_provider_street
       csvFields: [{name: ordering_provider_street}]
 
@@ -355,6 +357,8 @@ elements:
           display: "00Z0000014"
         - code: "SA.Prescription"
           display: "00Z0000015"
+
+    - name: testing_lab_name_type_code
 
     - name: testing_lab_street
       cardinality: ONE 

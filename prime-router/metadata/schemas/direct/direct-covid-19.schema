@@ -158,6 +158,8 @@ elements:
   - name: ordering_provider_first_name
     csvFields: [{ name: orderingProviderFname}]
 
+  - name: ordering_provider_name_type_code
+
   - name: ordering_provider_zip_code
     csvFields: [{ name: orderingProviderZip}]
 
@@ -167,6 +169,8 @@ elements:
 
   - name: testing_lab_name
     csvFields: [{ name: performingFacilityName}]
+
+  - name: testing_lab_name_type_code
 
   - name: testing_lab_street
     csvFields: [{ name: performingFacilityStreet}]

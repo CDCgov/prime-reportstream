@@ -201,6 +201,9 @@ elements:
       csvFields: [{name: Facility}]
       documentation: Facility populates multiple fields.  This instance populates testing_lab_name.
 
+    - name: testing_lab_name_type_code
+      documentation: Creates type code with lab name is present. See covid-19 schema for mapper.
+
     - name: testing_lab_street
       cardinality: ONE
       csvFields: [{name: Fac_Addr1}]

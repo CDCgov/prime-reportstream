@@ -172,8 +172,12 @@ elements:
   - name: ordering_provider_last_name
     mapper: splitByComma(ordering_provider, 2)
 
+  - name: ordering_provider_name_type_code
+
   - name: testing_lab_name
     default: TPCA Lab and Diagnostic Imaging Center
+
+  - name: testing_lab_name_type_code
 
   - name: testing_lab_city
     default: Talahassee
