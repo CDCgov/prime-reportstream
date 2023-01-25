@@ -23,8 +23,10 @@ In a very similar vein to [Nava's previous ADR](https://github.com/navapbc/templ
 
 For each of the following options, I will build a simple feature on top of the concept of the USWDS `<Table />` component: Adding a sticky header.
 
-### Option 1: Wrap Trussworks USWDS React Components
+---
+
 <a name="option-one"></a>
+### Option 1: Wrap Trussworks USWDS React Components
 
 #### Description
 
@@ -73,8 +75,10 @@ export const RSTable = ({ stickyHeader, children, ...props }) => {
 }
 ```
 
-### Option 2: Utilize USWDS Base Library Only
+---
+
 <a name="option-two"></a>
+### Option 2: Utilize USWDS Base Library Only
 
 #### Description
 
@@ -127,8 +131,10 @@ export const RSTable = ({ props, children }) => {
 }
 ```
 
-### Option 3: Greenstart Customized Components
+---
+
 <a name="option-three"></a>
+### Option 3: Greenstart Customized Components
 
 #### Description
 
@@ -203,6 +209,9 @@ export const RSTable = ({ styles, dataHeader, dataBody }) => {
   overflow-x: auto;
 }
 ```
+
+---
+
 
 ## Decision Outcome
 
