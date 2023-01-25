@@ -121,7 +121,7 @@ class ValidateFunctionTests {
             "content-length" to "4"
         )
         // Invoke the waters function run
-        validateFunc.validateWithClient(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
@@ -137,7 +137,7 @@ class ValidateFunctionTests {
             "format" to "CSV"
         )
         // Invoke the waters function run
-        validateFunc.validateWithSchema(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
     }
@@ -152,7 +152,7 @@ class ValidateFunctionTests {
             "schema" to "one"
         )
         // Invoke the waters function run
-        validateFunc.validateWithSchema(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
@@ -167,7 +167,7 @@ class ValidateFunctionTests {
             "format" to "CSV"
         )
         // Invoke the waters function run
-        validateFunc.validateWithSchema(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
@@ -183,7 +183,7 @@ class ValidateFunctionTests {
             "format" to "CSV"
         )
         // Invoke the waters function run
-        validateFunc.validateWithSchema(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
@@ -213,7 +213,7 @@ class ValidateFunctionTests {
         )
 
         // Invoke function run
-        validateFunc.validateWithClient(req)
+        validateFunc.validate(req)
 
         // processFunction should be called
         verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
@@ -242,7 +242,7 @@ class ValidateFunctionTests {
         )
 
         // Invoke function run
-        val res = validateFunc.validateWithClient(req)
+        val res = validateFunc.validate(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -271,7 +271,7 @@ class ValidateFunctionTests {
         )
 
         // Invoke function run
-        val res = validateFunc.validateWithClient(req)
+        val res = validateFunc.validate(req)
 
         // verify
         assert(res.statusCode == 400)

@@ -10,7 +10,7 @@ info:
 
 paths:
   # The validation endpoints are public endpoints for validating payloads of various formats.
-  /validateWithClient:
+  /validate:
     post:
       summary: Validate a message using client information
       parameters:
@@ -42,7 +42,7 @@ paths:
         '400':
           description: Bad Request
 
-  /validateWithSchema:
+  /validate?schema={schema}&format={format}:
     post:
       summary: Validate a message using schema information
       parameters:

@@ -38,27 +38,42 @@ class ValidateFunction(
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
-     * entry point for the /validateWithClient endpoint, which validates a potential submission without writing
+     * entry point for the /validate endpoint, which validates a potential submission without writing
      * to the database or storing/sending a file
      */
-    @FunctionName("validateWithClient")
+    @FunctionName("validate")
     @StorageAccount("AzureWebJobsStorage")
-    fun validateWithClient(
+    fun validate(
         @HttpTrigger(
-            name = "validateWithClient",
+            name = "validate",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         return try {
+            val sender: Sender?
             val senderName = extractClient(request)
-            if (senderName.isBlank()) {
-                return HttpUtilities.bad(
-                    request, "Expected a '$CLIENT_PARAMETER' query parameter"
-                )
+            if (senderName.isNotBlank()) {
+                sender = workflowEngine.settings.findSender(senderName)
+                    ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+            } else {
+                val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
+                val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
+                if (schemaName != null && format != null) {
+                    sender = getDummySender(schemaName, format)
+                    if (sender == null) {
+                        return HttpUtilities.bad(
+                            request, "Could not find schema named '$schemaName"
+                        )
+                    }
+                } else {
+                    return HttpUtilities.bad(
+                        request,
+                        "No client found in header so expected " +
+                            "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters"
+                    )
+                }
             }
-            val sender = workflowEngine.settings.findSender(senderName)
-                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
             actionHistory.trackActionParams(request)
             processRequest(request, sender)
         } catch (ex: Exception) {
@@ -72,48 +87,7 @@ class ValidateFunction(
     }
 
     /**
-     * entry point for the /validateWithSchema endpoint, which validates a potential submission without writing
-     * to the database or storing/sending a file
-     */
-    @FunctionName("validateWithSchema")
-    @StorageAccount("AzureWebJobsStorage")
-    fun validateWithSchema(
-        @HttpTrigger(
-            name = "validateWithSchema",
-            methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
-    ): HttpResponseMessage {
-        return try {
-            val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
-            val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
-            if (schemaName != null && format != null) {
-                actionHistory.trackActionParams(request)
-                val sender = getDummySender(schemaName, format)
-                if (sender != null) {
-                    processRequest(request, sender)
-                } else {
-                    return HttpUtilities.bad(
-                        request, "Could not find schema named '$schemaName"
-                    )
-                }
-            } else {
-                return HttpUtilities.bad(
-                    request, "Expected '$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters"
-                )
-            }
-        } catch (ex: Exception) {
-            if (ex.message != null) {
-                logger.error(ex.message!!, ex)
-            } else {
-                logger.error(ex)
-            }
-            HttpUtilities.internalErrorResponse(request)
-        }
-    }
-
-    /**
-     * Handles an incoming validation request after it has been authenticated via the /validate endpoint.
+     * Handles an incoming validation request from the /validate endpoint.
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
