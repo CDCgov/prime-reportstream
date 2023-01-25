@@ -1613,3 +1613,17 @@ the test result is in some intermediate status, is a correction, or is the final
 **Documentation**:
 Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 ---
+
+**Name**: testing_lab_name_type_code
+
+**ReportStream Internal Name**: testing_lab_name_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+Creates type code with lab name is present. See covid-19 schema for mapper.
+---
