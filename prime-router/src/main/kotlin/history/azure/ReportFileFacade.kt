@@ -42,10 +42,23 @@ abstract class ReportFileFacade(
      * @return true if [claims] authorizes access to this [orgName].  Return
      * false if the [orgName] is empty or if the claim does not give access.
      */
-    abstract fun checkAccessAuthorization(
+    fun checkAccessAuthorizationForOrg(
         claims: AuthenticatedClaims,
         orgName: String? = null,
         senderOrReceiver: String? = null,
+        request: HttpRequestMessage<String?>,
+    ): Boolean {
+        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
+    }
+
+    /**
+     * Check whether these [claims] from this [request]
+     * allow access to the sender or receiver associated with this [action].
+     * @return true if authorized, false otherwise.
+     */
+    abstract fun checkAccessAuthorizationForAction(
+        claims: AuthenticatedClaims,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean
 }

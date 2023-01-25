@@ -133,7 +133,7 @@ class AuthenticatedClaims : Logging {
         return if (authorized(requiredScopes)) {
             logger.info(
                 "Authorized request by user with claims ${this.scopes}" +
-                    " for submission-related resources. client= $requiredOrganization."
+                    " for org-related resources. client= $requiredOrganization."
             )
             true
         } else {

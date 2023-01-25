@@ -391,6 +391,8 @@ class ActionHistory(
         reportFile.nextAction = TaskAction.send
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
+        action.receivingOrg = receiver.organizationName
+        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
@@ -422,6 +424,8 @@ class ActionHistory(
         reportFile.reportId = report.id
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
+        action.receivingOrg = receiver.organizationName
+        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.itemCount = report.itemCount
@@ -452,6 +456,8 @@ class ActionHistory(
         reportFile.nextActionAt = event.at
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
+        action.receivingOrg = receiver.organizationName
+        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
@@ -497,6 +503,8 @@ class ActionHistory(
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
             reportFile.receivingOrgSvc = report.destination.name
+            action.receivingOrg = report.destination.organizationName
+            action.receivingOrgSvc = report.destination.name
         }
         reportsOut[reportFile.reportId] = reportFile
         trackItemLineages(report)
@@ -531,6 +539,8 @@ class ActionHistory(
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
+        action.receivingOrg = receiver.organizationName
+        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic.json_val
         reportFile.externalName = filename
@@ -567,6 +577,8 @@ class ActionHistory(
         reportFile.reportId = externalReportId // child report
         reportFile.receivingOrg = parentReportFile.receivingOrg
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
+        action.receivingOrg = parentReportFile.receivingOrg
+        action.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
