@@ -4,7 +4,6 @@ import {
     renderWithFullAppContext,
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/api/waters";
 import {
     INITIAL_STATE,
     FileType,
@@ -13,7 +12,6 @@ import {
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { mockUseWatersUploader } from "../../hooks/api/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
-import { RSSender } from "../../config/api/settings";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 

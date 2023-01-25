@@ -6,9 +6,8 @@ import {
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
 import { StaticAlert } from "../StaticAlert";
-import { ResponseError, ErrorCodeTranslation } from "../../config/api/waters";
 import { USExtLink, USLink } from "../USLink";
-import { Destination } from "../../config/api/deliveries";
+import { ErrorCodeTranslation } from "../../config/api/types";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;

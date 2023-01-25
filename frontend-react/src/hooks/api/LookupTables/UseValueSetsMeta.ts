@@ -1,7 +1,5 @@
-import {
-    lookupTablesEndpoints,
-    LookupTables,
-} from "../../../config/api/lookupTables";
+import { lookupTablesEndpoints } from "../../../config/api/lookupTables";
+import { LookupTables } from "../../../config/api/types";
 import { useRSQuery } from "../UseRSQuery";
 
 import { findTableMetaByName } from "./FindTableMetaByName";

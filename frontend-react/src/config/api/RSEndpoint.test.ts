@@ -1,6 +1,5 @@
 import { getMembershipsFromToken } from "../../hooks/UseOktaMemberships";
 import { OKTA_AUTH } from "../../okta";
-import { RecursiveMutable } from "../../utils/UsefulTypes";
 import { mockSenderAccessToken } from "../../__mocks__/OktaTokens";
 
 import {

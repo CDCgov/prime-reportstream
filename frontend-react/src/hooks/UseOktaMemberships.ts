@@ -10,7 +10,6 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../config/api/Apis";
-import { RSService } from "../config/api/settings";
 
 const PRIME_ADMINS = "DHPrimeAdmins";
 const PREFIX_SENDER = "DHSender_";

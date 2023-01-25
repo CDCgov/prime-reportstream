@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useOrganizationSenderSettings } from "../../hooks/api/Settings/UseOrganizationSenderSettings";
-import { OverallStatus, WatersResponse } from "../../config/api/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     ErrorType,
@@ -14,6 +13,7 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/api/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 import { useOrganizationSettings } from "../../hooks/api/Settings/UseOrganizationSettings";
+import { OverallStatus } from "../../config/api/types";
 
 import {
     RequestLevel,

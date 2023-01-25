@@ -14,7 +14,6 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import { toHumanReadable } from "../../../utils/misc";
-import { LookupTable, ValueSetRow } from "../../../config/api/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,

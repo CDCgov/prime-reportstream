@@ -1,5 +1,4 @@
 import ReportLink from "../Table/ReportLink";
-import { RSDelivery } from "../../../config/api/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { useOrganizationSettings } from "../../../hooks/api/Settings/UseOrganizationSettings";

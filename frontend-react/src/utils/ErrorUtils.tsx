@@ -30,3 +30,15 @@ export const handleErrorWithAlert = ({
         setAlert({ type: "error", message });
     }
 };
+
+/* Useful for when a function catches errors and could possibly
+ * return something other than the desired object type
+ *
+ * example: MyObjectError extends SimpleError { ... }
+ * example: a return type of MyObject | SimpleError  */
+export class SimpleError {
+    message: string;
+    constructor(message: string) {
+        this.message = message;
+    }
+}

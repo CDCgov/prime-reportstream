@@ -1,9 +1,6 @@
 import { useCallback } from "react";
 
-import {
-    RSOrganizationSettings,
-    settingsEndpoints,
-} from "../../../config/api/settings";
+import { settingsEndpoints } from "../../../config/api/settings";
 import { useRSMutation } from "../UseRSQuery";
 
 export interface UseCreateOrganizationSettingsMutationProps {

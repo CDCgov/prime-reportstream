@@ -1,4 +1,4 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { NetworkErrorBoundary } from "rest-hooks";
 import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
@@ -17,15 +17,12 @@ import {
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import moment from "moment";
 
-import {
-    AdmConnStatusResource,
-    AdmConnStatusDataType,
-} from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
 import { StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import { USLink } from "../USLink";
+import { useAdminReceiversConnectionStatus } from "../../hooks/api/Admin/UseAdminReceiversConnectionStatus";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -312,37 +309,42 @@ class TimeSlots implements IterateTimeSlots {
  * @param dataIn
  */
 const sortStatusData = (
-    dataIn: AdmConnStatusDataType[]
-): AdmConnStatusDataType[] => {
+    dataIn: ReceiverConnectionStatus[]
+): ReceiverConnectionStatus[] => {
     // empty case
     if (dataIn.length === 0) {
         return [];
     }
 
-    dataIn.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
-        // sorting by organizationName, then receiverName, then connectionCheckStartedAt
-        const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
-        // orgNameCmp === 0 means same
-        if (orgNameCmp !== 0) {
-            return orgNameCmp;
+    dataIn.sort(
+        (d1: ReceiverConnectionStatus, d2: ReceiverConnectionStatus) => {
+            // sorting by organizationName, then receiverName, then connectionCheckStartedAt
+            const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
+            // orgNameCmp === 0 means same
+            if (orgNameCmp !== 0) {
+                return orgNameCmp;
+            }
+            const receiverNameCmp = strcmp(d1.receiverName, d2.receiverName);
+            if (receiverNameCmp !== 0) {
+                return receiverNameCmp;
+            }
+            return strcmp(
+                d1.connectionCheckStartedAt,
+                d2.connectionCheckStartedAt
+            );
         }
-        const receiverNameCmp = strcmp(d1.receiverName, d2.receiverName);
-        if (receiverNameCmp !== 0) {
-            return receiverNameCmp;
-        }
-        return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
-    });
+    );
     return dataIn; // we modified array in place, but returning value is handy for chaining.
 };
 
 // PreRenderedRowComponents breaks out row status and org+receiver name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
 function renderAllReceiverRows(props: {
-    data: AdmConnStatusDataType[];
+    data: ReceiverConnectionStatus[];
     startDate: Date;
     endDate: Date;
     filterErrorText: string;
-    onClick: (dataItems: AdmConnStatusDataType[]) => void;
+    onClick: (dataItems: ReceiverConnectionStatus[]) => void;
 }): JSX.Element[] {
     const filterErrorText = props.filterErrorText.trim().toLowerCase();
     const perReceiverRowElements: JSX.Element[] = [];
@@ -572,7 +574,7 @@ function FilterRenderedRows(props: {
     filterRowStatus: SuccessRate;
     filterRowReceiver: string;
     filterErrorText: string;
-    onClick: (dataItem: AdmConnStatusDataType[]) => void;
+    onClick: (dataItem: ReceiverConnectionStatus[]) => void;
 }) {
     const renderedRows = props.renderedRows;
 
@@ -616,18 +618,18 @@ function MainRender(props: {
     filterRowStatus: SuccessRate;
     filterErrorText: string;
     filterRowReceiver: string;
-    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+    onDetailsClick: (subData: ReceiverConnectionStatus[]) => void;
 }) {
     const startDate = props.datesRange[0];
     const endDate = props.datesRange[1];
-    const results = useResource(AdmConnStatusResource.list(), {
-        startDate: startOfDayIso(startDate),
-        endDate: endOfDayIso(endDate),
-    });
-    const data = useMemo(() => sortStatusData(results), [results]);
+    const { data: results } = useAdminReceiversConnectionStatus(
+        startDate,
+        endDate
+    );
+    const data = useMemo(() => sortStatusData(results ?? []), [results]);
 
     const onClick = useCallback(
-        (dataItems: AdmConnStatusDataType[]) => {
+        (dataItems: ReceiverConnectionStatus[]) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
             props.onDetailsClick(dataItems);
         },
@@ -672,12 +674,12 @@ function MainRender(props: {
     );
 }
 
-function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
+function ModalInfoRender(props: { subData: ReceiverConnectionStatus[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
 
-    const duration = (dataItem: AdmConnStatusDataType) => {
+    const duration = (dataItem: ReceiverConnectionStatus) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
             new Date(dataItem.connectionCheckStartedAt)
@@ -863,15 +865,18 @@ export function AdminReceiverDashboard() {
     // used to show hide the modal
     const modalShowInfoRef = useRef<ModalRef>(null);
     const [currentDataForModal, setCurrentDataForModal] = useState<
-        AdmConnStatusDataType[]
+        ReceiverConnectionStatus[]
     >([]);
 
-    const showDetailsModal = useCallback((subData: AdmConnStatusDataType[]) => {
-        if (subData.length) {
-            setCurrentDataForModal(subData);
-            modalShowInfoRef?.current?.toggleModal(undefined, true);
-        }
-    }, []);
+    const showDetailsModal = useCallback(
+        (subData: ReceiverConnectionStatus[]) => {
+            if (subData.length) {
+                setCurrentDataForModal(subData);
+                modalShowInfoRef?.current?.toggleModal(undefined, true);
+            }
+        },
+        []
+    );
 
     return (
         <section className="grid-container">

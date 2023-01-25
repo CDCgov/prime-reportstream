@@ -1,45 +1,5 @@
 import { HTTPMethods, RSEndpoint } from "./RSEndpoint";
 
-// the shape used by the frontend client for value sets
-export interface ValueSet {
-    name: string;
-    createdBy: string;
-    createdAt: string;
-    system: string;
-}
-
-// the shape sent down by the API for value sets
-export interface ApiValueSet {
-    name: string;
-    created_by: string; // unused
-    created_at: string; // unused
-    system: string;
-    reference: string; // unused
-    referenceURL: string; // unused
-}
-
-export interface ValueSetRow {
-    name: string;
-    code: string;
-    display: string;
-    version: string;
-}
-
-export interface LookupTable {
-    lookupTableVersionId: number;
-    tableName: string;
-    tableVersion: number;
-    isActive: boolean;
-    createdBy: string;
-    createdAt: string;
-    tableSha256Checksum: string;
-}
-
-export enum LookupTables {
-    VALUE_SET = "sender_automation_value_set",
-    VALUE_SET_ROW = "sender_automation_value_set_row",
-}
-
 /*
 Lookup Table Endpoints
 

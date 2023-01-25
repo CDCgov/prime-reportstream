@@ -1,8 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { RSDelivery, RSFacility } from "../api/deliveries";
-import config from "..";
+import config from "../..";
 
 const { RS_API_URL } = config;
 

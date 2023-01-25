@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
-import { RSReceiver } from "../config/api/settings";
 import { CustomerStatus } from "../utils/TemporarySettingsAPITypes";
 
 import { useOrganizationReceiversSettings } from "./api/Settings/UseOrganizationReceiversSettings";

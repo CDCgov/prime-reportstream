@@ -11,10 +11,6 @@ import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
-import {
-    SettingRevision,
-    SettingRevisionParams,
-} from "../../config/api/revisions";
 import { useSettingRevision } from "../../hooks/api/SettingRevisions";
 
 type AccordionClickHandler = (

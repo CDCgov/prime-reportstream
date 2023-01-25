@@ -37,8 +37,12 @@ export function useRSQuery<
 
 export function useRSMutation<
     T extends RSEndpoint<any>,
-    M extends string & Uppercase<string & keyof T["fetchers"]>,
-    TData = ReturnType<T["fetchers"][M]>,
+    M extends Uppercase<string & keyof T["fetchers"]>,
+    TData = Lowercase<M> extends keyof T["fetchers"]
+        ? T["fetchers"][Lowercase<M>] extends (...args: never) => infer D
+            ? D
+            : never
+        : never,
     TError = unknown,
     TVariables = void,
     TContext = unknown
@@ -53,12 +57,14 @@ export function useRSMutation<
         "mutationFn"
     >
 ) {
-    if (!endpointConfig.fetchers[method.toLocaleLowerCase()])
+    if (!endpointConfig.fetchers[method.toLocaleLowerCase() as any])
         throw new Error(`This endpoint does not support ${method} requests`);
     return useMutation<TData, TError, TVariables, TContext>(
         [endpointConfig.meta.queryKey],
         (args: any) =>
-            endpointConfig.fetchers[method.toLocaleLowerCase()](fn(args)),
+            endpointConfig.fetchers[method.toLocaleLowerCase() as any](
+                fn(args)
+            ),
         mutationOptions
     );
 }

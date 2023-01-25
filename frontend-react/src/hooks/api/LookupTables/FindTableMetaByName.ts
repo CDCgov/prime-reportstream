@@ -1,5 +1,3 @@
-import { LookupTable } from "../../../config/api/lookupTables";
-
 /*
 
   Helper function to find the table we want within the response for ALL tables

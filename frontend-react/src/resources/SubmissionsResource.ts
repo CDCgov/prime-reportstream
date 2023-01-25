@@ -1,5 +1,4 @@
 import config from "../config";
-import { OrganizationSubmissionsParams } from "../config/api/deliveries";
 
 import AuthResource from "./AuthResource";
 

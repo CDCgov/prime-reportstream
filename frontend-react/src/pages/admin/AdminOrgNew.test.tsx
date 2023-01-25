@@ -1,23 +1,18 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../config/__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import OrganizationResource from "../../resources/OrganizationResource";
+import { settingsServer } from "../../config/api/__mocks__/SettingsMockServer";
+import { mockOrganizationSettingsPOSTResponse } from "../../config/api/__mocks__/SettingsData";
 
 import { AdminOrgNew } from "./AdminOrgNew";
 
-const mockData: OrganizationResource = new TestResponse(
-    ResponseType.NEW_ORGANIZATION
-).data;
-
 jest.mock("rest-hooks", () => ({
     useResource: () => {
-        return mockData;
+        return mockOrganizationSettingsPOSTResponse;
     },
     useController: () => {
         // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
+        return { fetch: () => mockOrganizationSettingsPOSTResponse };
     },
     // Must return children when mocking, otherwise nothing inside renders
     NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {

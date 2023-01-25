@@ -1,12 +1,8 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import config from "../";
-import {
-    Message,
-    MessagesItem,
-    messageTrackerEndpoints,
-} from "../api/messageTracker";
+import config from "../../";
+import { messageTrackerEndpoints } from "../messageTracker";
 
 const { RS_API_URL } = config;
 export const makeMessageDetailsFixture = (

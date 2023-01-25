@@ -1,10 +1,9 @@
 import { MatcherFunction, screen } from "@testing-library/react";
 
-import ActionDetailsResource from "../../resources/ActionDetailsResource";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../AppRouter";
+import { mockActionDetail } from "../../config/api/__mocks__/DeliveriesData";
 
 import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
 
@@ -19,12 +18,9 @@ const timeRegex: RegExp = /\d{1,2}:\d{2}/;
     We can only mock one behavior for useResource currently. This is a major
     limitation for us that doesn't allow us to test negative cases.
 */
-const mockData: ActionDetailsResource = new TestResponse(
-    ResponseType.ACTION_DETAIL
-).data;
 jest.mock("rest-hooks", () => ({
     useResource: () => {
-        return mockData;
+        return mockActionDetail;
     },
     /* Must return children when mocking, otherwise nothing inside renders */
     NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
@@ -55,19 +51,19 @@ describe("SubmissionDetails", () => {
         };
 
         /* Report ID DetailItem */
-        const idElement = await screen.findByText(mockData.id);
+        const idElement = await screen.findByText(mockActionDetail.id);
 
         /* DestinationItem contents*/
         const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization}`
+            `${mockActionDetail.destinations[0].organization}`
         );
         const dataStream = await screen.findByText(
-            mockData.destinations[0].service.toUpperCase()
+            mockActionDetail.destinations[0].service.toUpperCase()
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
         const recordsTransmitted = await screen.findByText(
-            mockData.destinations[0].itemCount
+            mockActionDetail.destinations[0].itemCount
         );
 
         /*
@@ -114,7 +110,9 @@ describe("DetailItem", () => {
 describe("DestinationItem", () => {
     beforeEach(() => {
         renderWithRouter(
-            <DestinationItem destinationObj={mockData.destinations[0]} />
+            <DestinationItem
+                destinationObj={mockActionDetail.destinations[0]}
+            />
         );
     });
 

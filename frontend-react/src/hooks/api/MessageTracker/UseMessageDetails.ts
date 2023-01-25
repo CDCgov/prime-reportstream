@@ -1,9 +1,6 @@
 import { useCallback } from "react";
 
-import {
-    Message,
-    messageTrackerEndpoints,
-} from "../../../config/api/messageTracker";
+import { messageTrackerEndpoints } from "../../../config/api/messageTracker";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 
 // TODO: Use commented out code instead

@@ -1,7 +1,4 @@
-import {
-    settingRevisionEndpoints,
-    SettingRevisionParams,
-} from "../../config/api/revisions";
+import { settingRevisionEndpoints } from "../../config/api/revisions";
 
 import { useRSQuery } from "./UseRSQuery";
 

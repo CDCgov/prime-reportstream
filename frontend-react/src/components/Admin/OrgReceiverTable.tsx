@@ -14,7 +14,6 @@ import DOMPurify from "dompurify";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
-import { CheckSettingParams, CheckSettingResult } from "../../config/api/check";
 import { useCheckSettingsCmd } from "../../hooks/api/CheckSettingCmd";
 
 import { DisplayMeta } from "./DisplayMeta";

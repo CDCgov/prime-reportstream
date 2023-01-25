@@ -1,8 +1,6 @@
 import { useReducer } from "react";
 import pick from "lodash.pick";
 
-import { ResponseError, WatersResponse } from "../config/api/waters";
-import { Destination } from "../resources/ActionDetailsResource";
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 
 export enum ErrorType {

@@ -1,9 +1,6 @@
 import { useCallback } from "react";
 
-import {
-    deliveriesEndpoints,
-    RSFacility,
-} from "../../../config/api/deliveries";
+import { deliveriesEndpoints } from "../../../config/api/deliveries";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 
 // TODO: Use commented code instead

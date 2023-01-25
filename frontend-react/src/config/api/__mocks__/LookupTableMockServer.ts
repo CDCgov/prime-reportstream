@@ -1,11 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import {
-    lookupTablesEndpoints,
-    LookupTable,
-    ApiValueSet,
-} from "../api/lookupTables";
+import { lookupTablesEndpoints } from "../lookupTables";
 
 const tableListUrl = lookupTablesEndpoints.lookupTables.toDynamicUrl();
 const tableDataUrl = lookupTablesEndpoints.lookupTableContent.toDynamicUrl({

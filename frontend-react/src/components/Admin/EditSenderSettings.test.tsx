@@ -1,25 +1,21 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { render } from "../../utils/CustomRenderUtils";
-import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { settingsServer } from "../../config/__mocks__/SettingsMockServer";
-import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import { settingsServer } from "../../config/api/__mocks__/SettingsMockServer";
+import { mockSenderSettingsPUTResponse } from "../../config/api/__mocks__/SettingsData";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
-const mockData: OrgSenderSettingsResource = new TestResponse(
-    ResponseType.SENDER_SETTINGS
-).data;
 let editJsonAndSaveButton: HTMLElement;
 let nameField: HTMLElement;
 
 jest.mock("rest-hooks", () => ({
     useResource: () => {
-        return mockData;
+        return mockSenderSettingsPUTResponse;
     },
     useController: () => {
         // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
+        return { fetch: () => mockSenderSettingsPUTResponse };
     },
     // Must return children when mocking, otherwise nothing inside renders
     NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {

@@ -19,11 +19,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "jest",
-      "cypress",
-      "@testing-library/cypress"
-    ],
     "noImplicitAny": true
   },
   "include": [

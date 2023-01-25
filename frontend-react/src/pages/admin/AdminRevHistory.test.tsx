@@ -3,10 +3,6 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithQueryProvider } from "../../utils/CustomRenderUtils";
-import {
-    SettingRevision,
-    SettingRevisionParams,
-} from "../../config/api/revisions";
 
 import { _exportForTesting } from "./AdminRevHistory";
 

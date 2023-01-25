@@ -4,7 +4,7 @@ import { QueryWrapper } from "../../../utils/CustomRenderUtils";
 import {
     dummyReceivers,
     orgServer,
-} from "../../../config/__mocks__/OrganizationMockServer";
+} from "../../../config/api/__mocks__/OrganizationMockServer";
 import { MemberType } from "../../UseOktaMemberships";
 import { mockAuthReturnValue } from "../__mocks__/OktaAuth";
 

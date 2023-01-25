@@ -1,7 +1,4 @@
-import {
-    lookupTablesEndpoints,
-    ValueSetRow,
-} from "../../../config/api/lookupTables";
+import { lookupTablesEndpoints } from "../../../config/api/lookupTables";
 import { useRSMutation } from "../UseRSQuery";
 
 interface UseValueSetUpdateMutationProps {

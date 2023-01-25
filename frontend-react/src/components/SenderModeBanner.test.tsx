@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../config/__mocks__/OrganizationMockServer";
+import { orgServer } from "../config/api/__mocks__/OrganizationMockServer";
 import {
     makeOktaHook,
     renderWithFullAppContext,

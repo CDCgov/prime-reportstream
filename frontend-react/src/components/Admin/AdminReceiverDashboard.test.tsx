@@ -1,97 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { NetworkErrorBoundary } from "rest-hooks";
-import React, { Suspense } from "react";
+import React from "react";
 import { MemoryRouter } from "react-router-dom";
 
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
+import { mockReceiverConnectionStatuses } from "../../config/api/__mocks__/AdminData";
+import { renderWithQueryProvider } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
-const mockData: AdmConnStatusDataType[] = [
-    {
-        receiverConnectionCheckResultId: 2397,
-        organizationId: 61,
-        receiverId: 313,
-        connectionCheckResult: "connectionCheckResult dummy result 2397",
-        connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T00:00:00.001Z",
-        connectionCheckCompletedAt: "2022-07-11T00:00:50.000Z",
-        organizationName: "ca-dph",
-        receiverName: "elr",
-    },
-    {
-        receiverConnectionCheckResultId: 2398,
-        organizationId: 61,
-        receiverId: 313,
-        connectionCheckResult: "connectionCheckResult dummy result 2398",
-        connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T07:59:24.036Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:24.358Z",
-        organizationName: "ca-dph",
-        receiverName: "elr-secondary",
-    },
-    {
-        receiverConnectionCheckResultId: 2399,
-        organizationId: 49,
-        receiverId: 311,
-        connectionCheckResult: "connectionCheckResult dummy result 2399",
-        connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T07:59:23.713Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:24.033Z",
-        organizationName: "oh-doh",
-        receiverName: "elr",
-    },
-    {
-        // this entry is out-of-sort-order and connectionCheckSuccessful:failed
-        receiverConnectionCheckResultId: 2396,
-        organizationId: 61,
-        receiverId: 312,
-        connectionCheckResult: "connectionCheckResult dummy result 2396",
-        connectionCheckSuccessful: false,
-        connectionCheckStartedAt: "2022-07-11T07:59:23.385Z",
-        connectionCheckCompletedAt: "2022-07-11T07:59:23.711Z",
-        organizationName: "ca-dph",
-        receiverName: "elr",
-    },
-    {
-        receiverConnectionCheckResultId: 2395,
-        organizationId: 46,
-        receiverId: 310,
-        connectionCheckResult: "connectionCheckResult dummy result 2395",
-        connectionCheckSuccessful: true,
-        connectionCheckStartedAt: "2022-07-11T08:09:23.066Z",
-        connectionCheckCompletedAt: "2022-07-11T08:09:23.383Z",
-        organizationName: "vt-doh",
-        receiverName: "elr-otc",
-    },
-    {
-        receiverConnectionCheckResultId: 2394,
-        organizationId: 46,
-        receiverId: 309,
-        connectionCheckResult: "connectionCheckResult dummy result 2394",
-        connectionCheckSuccessful: false,
-        connectionCheckStartedAt: "2022-07-11T08:09:22.748Z",
-        connectionCheckCompletedAt: "2022-07-11T08:09:23.063Z",
-        organizationName: "vt-doh",
-        receiverName: "elr-secondary",
-    },
-];
-// </editor-fold>
-
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
-    },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
+jest.mock("../../hooks/api/Admin/UseAdminReceiversConnectionStatus", () => ({
+    useAdminReceiversConnectionStatus: () => ({
+        data: mockReceiverConnectionStatuses,
+    }),
 }));
 
 describe("AdminReceiverDashboard tests", () => {
@@ -229,36 +148,32 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData", async () => {
-        const data = _exportForTesting.sortStatusData(mockData); // sorts
+        const data = _exportForTesting.sortStatusData(
+            mockReceiverConnectionStatuses
+        ); // sorts
         expect(data.length).toBe(6);
         // make sure sortStatusData sorted correctly.
         expect(data[3].organizationName).toBe("oh-doh");
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = render(
+        const { baseElement } = renderWithQueryProvider(
             <MemoryRouter>
-                <Suspense fallback={<></>}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                        <_exportForTesting.MainRender
-                            datesRange={[
-                                new Date("2022-07-11"),
-                                new Date("2022-07-14"),
-                            ]}
-                            filterRowStatus={
-                                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
-                            }
-                            filterErrorText={" "}
-                            filterRowReceiver={"-"}
-                            onDetailsClick={(
-                                _subdata: AdmConnStatusDataType[]
-                            ) => {}}
-                        />
-                    </NetworkErrorBoundary>
-                </Suspense>
+                {/*eslint-disable-next-line react/jsx-pascal-case*/}
+                <_exportForTesting.MainRender
+                    datesRange={[
+                        new Date("2022-07-11"),
+                        new Date("2022-07-14"),
+                    ]}
+                    filterRowStatus={
+                        _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                    }
+                    filterErrorText={" "}
+                    filterRowReceiver={"-"}
+                    onDetailsClick={(
+                        _subdata: ReceiverConnectionStatus[]
+                    ) => {}}
+                />
             </MemoryRouter>
         );
 
@@ -298,7 +213,9 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender", async () => {
-        const data = _exportForTesting.sortStatusData(mockData); // sorts
+        const data = _exportForTesting.sortStatusData(
+            mockReceiverConnectionStatuses
+        ); // sorts
         const subData = data[0];
         render(
             // eslint-disable-next-line react/jsx-pascal-case

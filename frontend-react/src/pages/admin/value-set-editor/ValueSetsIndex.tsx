@@ -5,11 +5,6 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
-import {
-    LookupTable,
-    LookupTables,
-    ValueSet,
-} from "../../../config/api/lookupTables";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
@@ -17,6 +12,7 @@ import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import { useValueSetsMeta } from "../../../hooks/api/LookupTables/UseValueSetsMeta";
 import { useValueSetsTable } from "../../../hooks/api/LookupTables/UseValueSetsTable";
 import Spinner from "../../../components/Spinner";
+import { LookupTables } from "../../../config/api/types";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (

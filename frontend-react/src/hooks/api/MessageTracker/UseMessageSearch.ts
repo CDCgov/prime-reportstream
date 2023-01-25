@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import {
-    MessagesItem,
-    messageTrackerEndpoints,
-} from "../../../config/api/messageTracker";
+import { messageTrackerEndpoints } from "../../../config/api/messageTracker";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 
 // TODO: Convert to Query instead of mutation

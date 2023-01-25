@@ -1,9 +1,4 @@
 import config from "../config";
-import {
-    Destination,
-    ReportError,
-    ReportWarning,
-} from "../config/api/deliveries";
 
 import AuthResource from "./AuthResource";
 

@@ -9,7 +9,6 @@ import {
     getAppInsightsHeaders,
 } from "../../TelemetryService";
 import config from "..";
-import { RequiredProps, StringIndexed } from "../../utils/UsefulTypes";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
 export const RSAuthenticationTypes = {
@@ -139,13 +138,16 @@ export type RSApiEndpoints = {
     [endpointName: string]: RSEndpoint<any>;
 };
 
-type RSEndpointFetchers<E extends EndpointConfig> = {
+export type RSEndpointMethodRequestType<
+    E extends EndpointConfig,
+    M extends HTTPMethod
+> = E["methods"][M] extends {} ? NonNullable<E["methods"][M]> : never;
+
+export type RSEndpointFetchers<E extends EndpointConfig> = {
     [P in string & keyof E["methods"] as Lowercase<P>]: (
         args: Partial<Omit<RSOptionsWithSegments, "method">>
     ) => P extends HTTPMethod
-        ? E["methods"][P] extends unknown
-            ? Promise<unknown>
-            : Promise<Exclude<E["methods"][P], undefined>>
+        ? Promise<RSEndpointMethodRequestType<E, P>>
         : never;
 };
 
@@ -197,29 +199,30 @@ export class RSEndpoint<E extends EndpointConfig> {
         return this.meta.path.indexOf("/:") > -1;
     }
 
-    addFetcher(method: keyof E["methods"] & HTTPMethod): void {
-        this.fetchers[method.toLocaleLowerCase() as Lowercase<HTTPMethod>] =
-            async (args: Partial<Omit<RSOptionsWithSegments, "method">>) => {
-                const options = await this.toRSConfig({ ...args, method });
+    addFetcher<T extends keyof E["methods"] & HTTPMethod>(method: T): void {
+        this.fetchers[method.toLocaleLowerCase() as Lowercase<T>] = (async (
+            args: Partial<Omit<RSOptionsWithSegments, "method">>
+        ) => {
+            const options = await this.toRSConfig({ ...args, method });
 
-                if (!options.headers.authorization) {
-                    console.warn(
-                        `Unauthenticated request to '${this.url}'\n Options:`,
-                        options,
-                        `\n Endpoint: `,
-                        this
-                    );
-                }
+            if (!options.headers.authorization) {
+                console.warn(
+                    `Unauthenticated request to '${this.url}'\n Options:`,
+                    options,
+                    `\n Endpoint: `,
+                    this
+                );
+            }
 
-                try {
-                    const res = await axios<E["methods"][typeof method]>(
-                        options
-                    );
-                    return res.data;
-                } catch (e: any) {
-                    throw new RSNetworkError(e);
-                }
-            };
+            try {
+                const res = await axios<RSEndpointMethodRequestType<E, T>>(
+                    options
+                );
+                return res.data;
+            } catch (e: any) {
+                throw new RSNetworkError(e);
+            }
+        }) as any;
     }
 
     queryFn = async (

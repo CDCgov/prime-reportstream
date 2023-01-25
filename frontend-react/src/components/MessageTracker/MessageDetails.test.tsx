@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/api/MessageTracker/__mocks__/MessageTrackerHooks";
-import { Message } from "../../config/api/messageTracker";
 
 import { MessageDetails } from "./MessageDetails";
 

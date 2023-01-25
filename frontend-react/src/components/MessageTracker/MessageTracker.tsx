@@ -9,7 +9,6 @@ import {
 
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
-import { MessagesItem } from "../../config/api/messageTracker";
 import { useMessageSearch } from "../../hooks/api/MessageTracker/UseMessageSearch";
 
 interface MessageListTableContentProps {

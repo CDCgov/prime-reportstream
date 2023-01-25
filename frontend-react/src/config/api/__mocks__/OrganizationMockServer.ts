@@ -1,8 +1,6 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { RSReceiver } from "../api/settings";
-
 const base = "https://test.prime.cdc.gov/api/settings/organizations";
 const getSender = (org: string, sender: string) =>
     `${base}/${org}/senders/${sender}`;

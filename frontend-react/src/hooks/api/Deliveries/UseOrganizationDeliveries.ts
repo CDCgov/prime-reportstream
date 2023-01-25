@@ -2,10 +2,7 @@ import { useCallback, useMemo } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
-import {
-    deliveriesEndpoints,
-    RSDelivery,
-} from "../../../config/api/deliveries";
+import { deliveriesEndpoints } from "../../../config/api/deliveries";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import useFilterManager, {
     FilterManagerDefaults,

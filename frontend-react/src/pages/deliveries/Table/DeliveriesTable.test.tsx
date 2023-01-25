@@ -8,8 +8,8 @@ import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManage
 import {
     orgServer,
     receiversGenerator,
-} from "../../../config/__mocks__/OrganizationMockServer";
-import { makeDeliveryFixtureArray } from "../../../config/__mocks__/DeliveriesMockServer";
+} from "../../../config/api/__mocks__/OrganizationMockServer";
+import { makeDeliveryFixtureArray } from "../../../config/api/__mocks__/DeliveriesMockServer";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/api/Settings/__mocks__/ReceiversHooks";
 import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
 
