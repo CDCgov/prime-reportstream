@@ -18,7 +18,7 @@ object ConfigSchemaReader : Logging {
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
-    fun fromFile(schemaName: String, folder: String? = null): ConfigSchema {
+    fun fromFile(schemaName: String, folder: String? = null, isFHIRTransform: Boolean = false): ConfigSchema {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = mutableListOf<ConfigSchema>()
         schemaList.add(readSchemaTreeFromFile(schemaName, folder))
@@ -30,7 +30,7 @@ object ConfigSchemaReader : Logging {
             }
             val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
             val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder))
+            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = isFHIRTransform))
         }
 
         // Now merge the parent with all the child schemas
@@ -63,7 +63,8 @@ object ConfigSchemaReader : Logging {
     internal fun readSchemaTreeFromFile(
         schemaName: String,
         folder: String? = null,
-        ancestry: List<String> = listOf()
+        ancestry: List<String> = listOf(),
+        isFHIRTransform: Boolean = false
     ): ConfigSchema {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
@@ -86,7 +87,11 @@ object ConfigSchemaReader : Logging {
         // Process any schema references
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef = readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry)
+            element.schemaRef =
+                readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, isFHIRTransform)
+        }
+        if (isFHIRTransform) {
+            rawSchema.elements.forEach { element -> element.markFHIRTransformElement() }
         }
         return rawSchema
     }

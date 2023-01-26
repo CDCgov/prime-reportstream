@@ -197,22 +197,27 @@ class ValueSetTable(input: String) {
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
-    var name: String? = null, // Both
-    var condition: String? = null, // Both
-    var required: Boolean? = null, // HL7
-    var schema: String? = null, // Both
-    var schemaRef: ConfigSchema? = null, // Both
-    var resource: String? = null, // Both
-    var value: List<String> = emptyList(), // Both
-    var hl7Spec: List<String> = emptyList(), // HL7
-    var resourceIndex: String? = null, // Both
-    var constants: SortedMap<String, String> = sortedMapOf(), // Both
-    var valueSet: SortedMap<String, String> = sortedMapOf(), // Both
-    var debug: Boolean = false, // HL7
-    var bundleProperty: String? = null, // FHIR
-    var valueSetTable: ValueSetTable? = null, // FHIR
-    val isFHIRTransformElement: Boolean = false // FHIR
+    var name: String? = null,
+    var condition: String? = null,
+    var required: Boolean? = null,
+    var schema: String? = null,
+    var schemaRef: ConfigSchema? = null,
+    var resource: String? = null,
+    var value: List<String> = emptyList(),
+    var hl7Spec: List<String> = emptyList(),
+    var resourceIndex: String? = null,
+    var constants: SortedMap<String, String> = sortedMapOf(),
+    var valueSet: SortedMap<String, String> = sortedMapOf(),
+    var debug: Boolean = false,
+    var bundleProperty: String? = null,
+    var valueSetTable: ValueSetTable? = null
 ) {
+    private var isFHIRTransformElement: Boolean = false
+
+    fun markFHIRTransformElement() {
+        isFHIRTransformElement = true
+    }
+
     /**
      * Validate the element.
      * @return a list of validation errors, or an empty list if no errors
