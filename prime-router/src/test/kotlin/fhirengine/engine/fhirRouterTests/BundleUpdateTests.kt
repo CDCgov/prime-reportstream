@@ -84,7 +84,6 @@ class BundleUpdateTests {
                 "resource": {
                     "resourceType": "Provenance",
                     "id": "1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
-                    "occurredDateTime": "2028-08-08T09:28:05-06:00",
                     "recorded": "2028-08-08T09:28:05-06:00",
                     "activity": {
                         "coding": [

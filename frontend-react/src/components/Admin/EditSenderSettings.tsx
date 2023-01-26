@@ -26,6 +26,7 @@ import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import {
+    CheckboxComponent,
     DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
@@ -271,6 +272,12 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     defaultvalue={orgSenderSettings.processingType}
                     savefunc={(v) => (orgSenderSettings.processingType = v)}
                     valuesFrom={"processingType"}
+                />
+                <CheckboxComponent
+                    fieldname="allowDuplicates"
+                    label="Allow Duplicates"
+                    defaultvalue={orgSenderSettings.allowDuplicates}
+                    savefunc={(v) => (orgSenderSettings.allowDuplicates = v)}
                 />
                 <Grid row className="margin-top-2">
                     <Grid col={6}>
