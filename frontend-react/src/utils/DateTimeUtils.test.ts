@@ -1,4 +1,4 @@
-import { ResponseType, TestResponse } from "../resources/TestResponse";
+import { mockActionDetails } from "../hooks/api/__mocks__/TestResponse";
 
 import { generateDateTitles } from "./DateTimeUtils";
 
@@ -9,9 +9,7 @@ import { generateDateTitles } from "./DateTimeUtils";
 */
 describe("submission details date display", () => {
     test("SubmissionDates have valid format", () => {
-        const actionDetailsTestResource = new TestResponse(
-            ResponseType.ACTION_DETAIL
-        ).data;
+        const actionDetailsTestResource = mockActionDetails;
         const submissionDate = generateDateTitles(
             actionDetailsTestResource.timestamp
         );

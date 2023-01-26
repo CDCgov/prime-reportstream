@@ -1,7 +1,4 @@
-import { AdminSendFailure } from "hooks/api/Admin/UseAdminSendFailures";
-import { formatDate } from "utils/misc";
-import { AdminAction } from "hooks/api/Admin/UseAdminResends";
-import { AdminReceiverConnectionStatus } from "hooks/api/Admin/UseAdminReceiversConnectionStatus";
+import { formatDate } from "./misc";
 
 type Transformers<T> = { [P in keyof T]?: (value: T[P]) => string };
 
@@ -38,7 +35,7 @@ export const adminActionFilterMatch = createObjectSimpleFilterFn<AdminAction>([
 ]);
 
 export const adminSendFailureFilterMatch =
-    createObjectSimpleFilterFn<AdminSendFailure>(
+    createObjectSimpleFilterFn<SendFailure>(
         [
             "reportId",
             "receiver",
@@ -51,12 +48,21 @@ export const adminSendFailureFilterMatch =
     );
 
 export const adminReceiverStatusFilterOnName =
-    createObjectSimpleFilterFn<AdminReceiverConnectionStatus>([
+    createObjectSimpleFilterFn<ReceiverConnectionStatus>([
         "organizationName",
         "receiverName",
     ]);
 
 export const adminReceiverStatusFilterOnCheckResultStr =
-    createObjectSimpleFilterFn<AdminReceiverConnectionStatus>([
+    createObjectSimpleFilterFn<ReceiverConnectionStatus>([
         "connectionCheckResult",
+    ]);
+
+export const organizationSettingsFilterMatch =
+    createObjectSimpleFilterFn<RSOrganizationSettings>([
+        "name",
+        "description",
+        "jurisdiction",
+        "stateCode",
+        "countyName",
     ]);

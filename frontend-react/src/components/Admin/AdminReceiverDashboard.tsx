@@ -549,11 +549,13 @@ function renderAllReceiverRows(props: {
                     </div>
                 </Grid>
                 <ScrollSyncPane enabled>
-                    <Grid row className={"horizontal-scroll"}>
-                        <Grid row className={"week-column"}>
-                            {perDayElements}
+                    <>
+                        <Grid row className={"horizontal-scroll"}>
+                            <Grid row className={"week-column"}>
+                                {perDayElements}
+                            </Grid>
                         </Grid>
-                    </Grid>
+                    </>
                 </ScrollSyncPane>
             </Grid>
         );

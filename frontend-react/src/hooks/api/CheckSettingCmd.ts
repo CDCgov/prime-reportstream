@@ -6,7 +6,13 @@ import { useRSMutation } from "./UseRSQuery";
 
 export const useCheckSettingsCmd = () => {
     const updateValueSet = useCallback(
-        (orgName: string, receiverName: string) => ({
+        ({
+            orgName,
+            receiverName,
+        }: {
+            orgName: string;
+            receiverName: string;
+        }) => ({
             segments: { orgName, receiverName },
         }),
         []

@@ -89,7 +89,7 @@ describe("FileHandler", () => {
         mockUseWatersUploader.mockReturnValue({
             isWorking: false,
             uploaderError: null,
-            sendFile: async () => Promise.resolve({}),
+            sendFile: async () => Promise.resolve({} as any),
         });
         renderWithFullAppContext(
             <FileHandler
@@ -159,7 +159,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: true,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithFullAppContext(
                 <FileHandler
@@ -194,7 +194,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithFullAppContext(
                 <FileHandler
@@ -244,7 +244,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithFullAppContext(
                 <FileHandler
@@ -308,7 +308,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithQueryProvider(
                 <FileHandler
@@ -361,7 +361,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithFullAppContext(
                 <FileHandler
@@ -402,7 +402,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithQueryProvider(
                 <FileHandler
@@ -432,7 +432,7 @@ describe("FileHandler", () => {
                 ...INITIAL_STATE,
             });
             mockUseWatersUploader.mockReturnValue({
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
                 isWorking: false,
                 uploaderError: null,
             });
@@ -475,7 +475,7 @@ describe("FileHandler", () => {
                 data: hl7Sender,
                 isLoading: false,
             } as any);
-            const fetchSpy = jest.fn(() => Promise.resolve({}));
+            const fetchSpy = jest.fn(() => Promise.resolve({} as any));
             mockState({
                 ...INITIAL_STATE,
                 fileName: "anything",
@@ -552,7 +552,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve({} as any),
             });
             renderWithQueryProvider(
                 <FileHandler

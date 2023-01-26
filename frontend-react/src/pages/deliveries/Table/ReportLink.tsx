@@ -2,7 +2,6 @@ import download from "downloadjs";
 import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
-import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../utils/SessionStorageTools";
 import config from "../../../config";
 
@@ -12,7 +11,7 @@ interface Props {
     /* REQUIRED
     A ReportResource is passed in using this property. This is necessary for download()
     since that function relies on the content, fileName, and mimeType properties */
-    report: ReportResource | RSDelivery | undefined;
+    report: HistoryReport | RSDelivery | undefined;
 
     /* OPTIONAL
     This boolean flag changes the return value from a standard <a> link to a <Button> (USWDS)

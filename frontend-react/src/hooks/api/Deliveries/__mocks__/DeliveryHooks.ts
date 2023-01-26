@@ -1,6 +1,6 @@
 import * as UseOrgDeliveries from "../UseOrganizationDeliveries";
 import * as UseReportsDetail from "../UseReportsDetail";
-import * as UseReportsFacilities from "../UseReportsFacilities";
+import * as UseReportsFacilities from "../UseReportFacilities";
 import * as UseReportHistory from "../UseReportHistory";
 
 export const mockUseOrgDeliveries = jest.spyOn(
@@ -15,7 +15,7 @@ export const mockUseReportDetail = jest.spyOn(
 
 export const mockUseReportFacilities = jest.spyOn(
     UseReportsFacilities,
-    "useReportsFacilities"
+    "useReportFacilities"
 );
 
 export const mockUseReportHistory = jest.spyOn(

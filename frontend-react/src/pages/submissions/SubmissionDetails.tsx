@@ -5,9 +5,7 @@ import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { getStoredOrg } from "../../utils/SessionStorageTools";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
-import ActionDetailsResource, {
-    Destination,
-} from "../../resources/ActionDetailsResource";
+import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
 import Crumbs, { CrumbConfig } from "../../components/Crumbs";

@@ -19,7 +19,7 @@ export const TextInputComponent = (params: {
     fieldname: string;
     label: string;
     defaultvalue: string | null;
-    savefunc: (val: string) => void;
+    savefunc: (val: string, fieldname: string) => void;
     disabled?: boolean;
     toolTip?: JSX.Element;
 }): JSX.Element => {
@@ -39,7 +39,12 @@ export const TextInputComponent = (params: {
                     data-testid={key}
                     maxLength={255}
                     className="rs-input"
-                    onChange={(e) => params.savefunc(e?.target?.value || "")}
+                    onChange={(e) =>
+                        params.savefunc(
+                            e?.target?.value || "",
+                            params.fieldname
+                        )
+                    }
                     disabled={params.disabled}
                 />
             </Grid>
@@ -51,7 +56,7 @@ export const TextAreaComponent = (params: {
     fieldname: string;
     label: string;
     defaultvalue: object;
-    savefunc: (val: object) => void;
+    savefunc: (val: object, name: string) => void;
     defaultnullvalue: string | null;
     disabled?: boolean;
     toolTip?: JSX.Element;
@@ -90,7 +95,7 @@ export const TextAreaComponent = (params: {
                         const { valid, errorMsg } = checkJson(text);
                         if (valid) {
                             // checkJson made sure the following JSON.parse won't throw.
-                            params.savefunc(JSON.parse(text));
+                            params.savefunc(JSON.parse(text), params.fieldname);
                         } else {
                             showError(
                                 `JSON data generated an error "${errorMsg}"`
@@ -108,7 +113,7 @@ export const CheckboxComponent = (params: {
     fieldname: string;
     label: string;
     defaultvalue: boolean;
-    savefunc: (val: boolean) => void;
+    savefunc: (val: boolean, fieldname: string) => void;
 }): JSX.Element => {
     const key = params.fieldname;
     return (
@@ -123,7 +128,9 @@ export const CheckboxComponent = (params: {
                     defaultChecked={params.defaultvalue}
                     data-testid={key}
                     label=""
-                    onChange={(e) => params.savefunc(e?.target?.checked)}
+                    onChange={(e) =>
+                        params.savefunc(e?.target?.checked, params.fieldname)
+                    }
                 />
             </Grid>
         </Grid>
@@ -134,7 +141,7 @@ export interface DropdownProps {
     fieldname: string;
     label: string;
     defaultvalue: string | undefined;
-    savefunc: (val: string) => void;
+    savefunc: (val: string, fieldname: string) => void;
     disabled?: boolean;
     toolTip?: JSX.Element;
     valuesFrom: ReportStreamSettingsEnum;
@@ -155,7 +162,9 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
                     name={key}
                     defaultValue={params.defaultvalue}
                     className="rs-input"
-                    onChange={(e) => params.savefunc(e?.target?.value)}
+                    onChange={(e) =>
+                        params.savefunc(e?.target?.value, params.fieldname)
+                    }
                 >
                     <option value={""}>-- Please Select --</option>
                     {getListOfEnumValues(params.valuesFrom).map((v) => (

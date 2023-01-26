@@ -1,4 +1,5 @@
 import {
+    QueryKey,
     useMutation,
     UseMutationOptions,
     useQuery,
@@ -11,6 +12,19 @@ import {
     RSOptionsWithSegments,
 } from "../../config/api/RSEndpoint";
 
+export type UseRSQueryOptions<
+    T extends RSEndpoint<any>,
+    TQueryFnData = Awaited<ReturnType<T["queryFn"]>>,
+    TError = unknown,
+    TData = TQueryFnData,
+    TQueryKey extends QueryKey = [string, RSEndpointOptions<T> | undefined]
+> = Omit<
+    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+    "queryKey" | "queryFn" | "initialData"
+> & {
+    initialData?: () => undefined;
+};
+
 export function useRSQuery<
     T extends RSEndpoint<any>,
     TQueryFnData extends Awaited<ReturnType<T["queryFn"]>> = Awaited<
@@ -21,15 +35,10 @@ export function useRSQuery<
 >(
     endpointConfig: T,
     rsOptions?: RSEndpointOptions<T>,
-    queryOptions?: Omit<
-        UseQueryOptions<TQueryFnData, TError, TData, [string, object]>,
-        "queryKey" | "queryFn" | "initialData"
-    > & {
-        initialData?: () => undefined;
-    }
+    queryOptions?: UseRSQueryOptions<T, TQueryFnData, TError, TData>
 ) {
     return useQuery(
-        [endpointConfig.meta.queryKey, rsOptions] as [string, object],
+        [endpointConfig.meta.queryKey, rsOptions],
         endpointConfig.queryFn as () => TQueryFnData,
         queryOptions
     );
@@ -44,26 +53,29 @@ export function useRSMutation<
             : never
         : never,
     TError = unknown,
-    TVariables = void,
     TContext = unknown
 >(
     endpointConfig: T,
     method: M,
     fn: (
-        ...args: TVariables[]
-    ) => Partial<Omit<RSOptionsWithSegments, "method">>,
+        variables: any,
+        options?: {}
+    ) => Partial<Omit<RSOptionsWithSegments<T>, "method">>,
     mutationOptions?: Omit<
-        UseMutationOptions<TData, TError, TVariables, TContext>,
+        UseMutationOptions<TData, TError, Parameters<typeof fn>[0], TContext>,
         "mutationFn"
     >
 ) {
     if (!endpointConfig.fetchers[method.toLocaleLowerCase() as any])
         throw new Error(`This endpoint does not support ${method} requests`);
-    return useMutation<TData, TError, TVariables, TContext>(
+    return useMutation<TData, TError, Parameters<typeof fn>[0], TContext>(
         [endpointConfig.meta.queryKey],
-        (args: any) =>
+        (
+            variables: Parameters<typeof fn>[0],
+            options?: Parameters<typeof fn>[1]
+        ) =>
             endpointConfig.fetchers[method.toLocaleLowerCase() as any](
-                fn(args)
+                fn(variables, options)
             ),
         mutationOptions
     );

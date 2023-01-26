@@ -1,5 +1,4 @@
-import { useController } from "rest-hooks";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import Spinner from "../../components/Spinner";
 import usePagination from "../../hooks/UsePagination";
@@ -10,13 +9,13 @@ import useFilterManager, {
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import { FeatureName } from "../../AppRouter";
+import { useOrganizationSubmissions } from "../../hooks/api/Deliveries/UseOrganizationSubmissions";
 
-const extractCursor = (s: SubmissionsResource) => s.timestamp;
+const extractCursor = (s: OrganizationSubmission) => s.timestamp;
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -28,18 +27,18 @@ const filterManagerDefaults: FilterManagerDefaults = {
 interface SubmissionTableContentProps {
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
-    submissions: SubmissionsResource[];
+    submissions: OrganizationSubmission[];
 }
 
 function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
 
-const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
+const SubmissionTableContent = ({
     filterManager,
     paginationProps,
     submissions,
-}) => {
+}: SubmissionTableContentProps) => {
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: Array<ColumnConfig> = [
         {
@@ -97,27 +96,45 @@ function SubmissionTableWithNumberedPagination() {
     const sortOrder = filterManager.sortSettings.order;
     const rangeTo = filterManager.rangeSettings.to;
     const rangeFrom = filterManager.rangeSettings.from;
+    const [pageParams, setPageParams] = useState({
+        organization: activeMembership?.parsedName,
+        cursor: "",
+        since: rangeFrom,
+        until: rangeTo,
+        pageSize: 0,
+        sortdir: sortOrder,
+        showFailed: false,
+    });
 
-    const { fetch: controllerFetch } = useController();
+    const { data } = useOrganizationSubmissions(activeMembership?.parsedName, {
+        params: pageParams,
+        enabled: !!pageParams.cursor && !!pageParams.pageSize,
+    });
+
+    // TODO: Integrate pagination into hook
+    const [__TEMPORARY_PAGINATION_FIX, set__TEMPORARY_PAGINATION_FIX] =
+        useState<(...args: any) => void>();
+
     const fetchResults = useCallback(
-        (currentCursor: string, numResults: number) => {
-            return controllerFetch(SubmissionsResource.list(), {
-                organization: activeMembership?.parsedName,
-                cursor: currentCursor,
-                since: rangeFrom,
-                until: rangeTo,
-                pageSize: numResults,
-                sortdir: sortOrder,
-                showFailed: false,
-            }) as unknown as Promise<SubmissionsResource[]>;
+        async (currentCursor: string, numResults: number) => {
+            return new Promise<OrganizationSubmission[]>((resolve, reject) => {
+                const onResults = (
+                    results: OrganizationSubmission[] | Error
+                ) => {
+                    if ("length" in results) {
+                        resolve(results);
+                    }
+                    reject(results);
+                };
+                set__TEMPORARY_PAGINATION_FIX(() => onResults);
+                setPageParams((v) => ({
+                    ...v,
+                    cursor: currentCursor,
+                    pageSize: numResults,
+                }));
+            });
         },
-        [
-            activeMembership?.parsedName,
-            sortOrder,
-            controllerFetch,
-            rangeFrom,
-            rangeTo,
-        ]
+        []
     );
 
     // The start cursor is the high value when results are in descending order
@@ -140,7 +157,7 @@ function SubmissionTableWithNumberedPagination() {
         currentPageResults: submissions,
         paginationProps,
         isLoading,
-    } = usePagination<SubmissionsResource>({
+    } = usePagination<OrganizationSubmission>({
         startCursor,
         isCursorInclusive,
         pageSize,
@@ -148,6 +165,15 @@ function SubmissionTableWithNumberedPagination() {
         extractCursor,
         analyticsEventName,
     });
+
+    // On new data, if we're waiting for a callback then callback
+    // and clear callback state
+    useEffect(() => {
+        if (__TEMPORARY_PAGINATION_FIX && data) {
+            __TEMPORARY_PAGINATION_FIX(data);
+            set__TEMPORARY_PAGINATION_FIX(undefined);
+        }
+    }, [__TEMPORARY_PAGINATION_FIX, data]);
 
     if (isLoading) {
         return <Spinner />;

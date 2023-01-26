@@ -1,10 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
-import { useController, useResource } from "rest-hooks";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import {
     getStoredOktaToken,
@@ -28,6 +26,10 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 import { getAppInsightsHeaders } from "../../TelemetryService";
+import { useOrganizationReceiverSettings } from "../../hooks/api/Settings/UseOrganizationReceiverSettings";
+import { useDeleteOrganizationReceiverSettings } from "../../hooks/api/Settings/UseDeleteOrganizationReceiverSettings";
+import { useUpdateOrganizationReceiverSettings } from "../../hooks/api/Settings/UseUpdateOrganizationReceiverSettings";
+import Spinner from "../Spinner";
 
 import {
     ConfirmSaveSettingModal,
@@ -58,17 +60,25 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
-    const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
-        OrgReceiverSettingsResource.detail(),
-        { orgname, receivername, action }
+    const { data, refetch } = useOrganizationReceiverSettings(
+        receivername,
+        orgname
     );
+    const { mutateAsync: updateReceiver } =
+        useUpdateOrganizationReceiverSettings(orgname);
+    const { mutateAsync: deleteReceiver } =
+        useDeleteOrganizationReceiverSettings();
 
-    const { fetch: fetchController } = useController();
+    const [orgReceiverSettings, setOrgReceiverSettings] =
+        useState<RSReceiver>();
     const [orgReceiverSettingsOldJson, setOrgReceiverSettingsOldJson] =
         useState("");
     const [orgReceiverSettingsNewJson, setOrgReceiverSettingsNewJson] =
         useState("");
-    const { invalidate } = useController();
+
+    useEffect(() => {
+        if (!orgReceiverSettings && data) setOrgReceiverSettings(data);
+    }, [data, orgReceiverSettings]);
 
     const modalRef = useRef<ModalConfirmRef>(null);
     const ShowDeleteConfirm = (deleteItemId: string) => {
@@ -80,29 +90,32 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             itemId: deleteItemId,
         });
     };
-    const doDelete = async (deleteItemId: string) => {
-        try {
-            await fetchController(OrgReceiverSettingsResource.deleteSetting(), {
-                orgname: orgname,
-                receivername: deleteItemId,
-            });
+    const doDelete = useCallback(
+        async (deleteItemId: string) => {
+            try {
+                if (orgReceiverSettings?.name !== deleteItemId)
+                    throw new Error("Invalid deletion id");
 
-            showAlertNotification(
-                "success",
-                `Item '${deleteItemId}' has been deleted`
-            );
+                await deleteReceiver(orgReceiverSettings);
 
-            // navigate back to list since this item was just deleted
-            navigate(-1);
-            return true;
-        } catch (e: any) {
-            console.trace(e);
-            showError(
-                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
-            );
-            return false;
-        }
-    };
+                showAlertNotification(
+                    "success",
+                    `Item '${deleteItemId}' has been deleted`
+                );
+
+                // navigate back to list since this item was just deleted
+                navigate(-1);
+                return true;
+            } catch (e: any) {
+                console.trace(e);
+                showError(
+                    `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+                );
+                return false;
+            }
+        },
+        [deleteReceiver, navigate, orgReceiverSettings]
+    );
 
     async function getLatestReceiverResponse() {
         const accessToken = getStoredOktaToken();
@@ -158,10 +171,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     };
 
     const resetReceiverList = async () => {
-        await invalidate(OrgReceiverSettingsResource.list(), {
-            orgname,
-            receivername: receivername,
-        });
+        refetch();
 
         return true;
     };
@@ -187,13 +197,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             const data = confirmModalRef?.current?.getEditedText();
 
             const receivernamelocal =
-                action === "clone" ? orgReceiverSettings.name : receivername;
+                action === "clone" ? orgReceiverSettings?.name : receivername;
 
-            await fetchController(
-                OrgReceiverSettingsResource.update(),
-                { orgname, receivername: receivernamelocal },
-                data
-            );
+            await updateReceiver({ receiverName: receivernamelocal, data });
 
             await resetReceiverList();
             showAlertNotification(
@@ -216,6 +222,19 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         return true;
     };
 
+    const onSaveField = useCallback((value: any, name: string) => {
+        setOrgReceiverSettings((v) => {
+            if (v) {
+                return { ...v, [name]: value };
+            }
+            return v;
+        });
+    }, []);
+
+    if (!orgReceiverSettings) {
+        return <Spinner />;
+    }
+
     return (
         <section className="grid-container margin-top-0">
             <GridContainer containerSize={"desktop"}>
@@ -223,37 +242,37 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     fieldname={"name"}
                     label={"Name"}
                     defaultvalue={
-                        action === "edit" ? orgReceiverSettings.name : ""
+                        action === "edit" ? orgReceiverSettings?.name ?? "" : ""
                     }
-                    savefunc={(v) => (orgReceiverSettings.name = v)}
+                    savefunc={onSaveField}
                     disabled={action === "edit"}
                 />
                 <TextInputComponent
                     fieldname={"topic"}
                     label={"Topic"}
-                    defaultvalue={orgReceiverSettings.topic}
-                    savefunc={(v) => (orgReceiverSettings.topic = v)}
+                    defaultvalue={orgReceiverSettings?.topic ?? ""}
+                    savefunc={onSaveField}
                 />
                 <DropdownComponent
                     fieldname={"customerStatus"}
                     label={"Customer Status"}
-                    defaultvalue={orgReceiverSettings.customerStatus}
-                    savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
+                    defaultvalue={orgReceiverSettings?.customerStatus ?? ""}
+                    savefunc={onSaveField}
                     valuesFrom={"customerStatus"}
                 />
                 <TextInputComponent
                     fieldname={"description"}
                     label={"Description"}
-                    defaultvalue={orgReceiverSettings.description}
-                    savefunc={(v) => (orgReceiverSettings.description = v)}
+                    defaultvalue={orgReceiverSettings?.description ?? ""}
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"translation"}
                     label={"Translation"}
                     toolTip={<ObjectTooltip obj={new SampleTranslationObj()} />}
-                    defaultvalue={orgReceiverSettings.translation}
+                    defaultvalue={orgReceiverSettings?.translation ?? ""}
                     defaultnullvalue={null}
-                    savefunc={(v) => (orgReceiverSettings.translation = v)}
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"jurisdictionalFilter"}
@@ -265,11 +284,11 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             )}
                         />
                     }
-                    defaultvalue={orgReceiverSettings.jurisdictionalFilter}
-                    defaultnullvalue="[]"
-                    savefunc={(v) =>
-                        (orgReceiverSettings.jurisdictionalFilter = v)
+                    defaultvalue={
+                        orgReceiverSettings?.jurisdictionalFilter ?? ""
                     }
+                    defaultnullvalue="[]"
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"qualityFilter"}
@@ -281,17 +300,17 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             )}
                         />
                     }
-                    defaultvalue={orgReceiverSettings.qualityFilter}
+                    defaultvalue={orgReceiverSettings?.qualityFilter ?? ""}
                     defaultnullvalue="[]"
-                    savefunc={(v) => (orgReceiverSettings.qualityFilter = v)}
+                    savefunc={onSaveField}
                 />
                 <CheckboxComponent
                     fieldname={"reverseTheQualityFilter"}
                     label={"Reverse the Quality Filter"}
-                    defaultvalue={orgReceiverSettings.reverseTheQualityFilter}
-                    savefunc={(v) =>
-                        (orgReceiverSettings.reverseTheQualityFilter = v)
+                    defaultvalue={
+                        orgReceiverSettings?.reverseTheQualityFilter ?? ""
                     }
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"routingFilter"}
@@ -303,9 +322,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             )}
                         />
                     }
-                    defaultvalue={orgReceiverSettings.routingFilter}
+                    defaultvalue={orgReceiverSettings?.routingFilter ?? ""}
                     defaultnullvalue="[]"
-                    savefunc={(v) => (orgReceiverSettings.routingFilter = v)}
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"processingModeFilter"}
@@ -317,25 +336,25 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                             )}
                         />
                     }
-                    defaultvalue={orgReceiverSettings.processingModeFilter}
-                    defaultnullvalue="[]"
-                    savefunc={(v) =>
-                        (orgReceiverSettings.processingModeFilter = v)
+                    defaultvalue={
+                        orgReceiverSettings.processingModeFilter ?? ""
                     }
+                    defaultnullvalue="[]"
+                    savefunc={onSaveField}
                 />
                 <CheckboxComponent
                     fieldname={"deidentify"}
                     label={"De-identify"}
-                    defaultvalue={orgReceiverSettings.deidentify}
-                    savefunc={(v) => (orgReceiverSettings.deidentify = v)}
+                    defaultvalue={orgReceiverSettings?.deidentify ?? ""}
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"timing"}
                     label={"Timing"}
                     toolTip={<ObjectTooltip obj={new SampleTimingObj()} />}
-                    defaultvalue={orgReceiverSettings.timing}
+                    defaultvalue={orgReceiverSettings?.timing ?? ""}
                     defaultnullvalue={null}
-                    savefunc={(v) => (orgReceiverSettings.timing = v)}
+                    savefunc={onSaveField}
                 />
                 <TextAreaComponent
                     fieldname={"transport"}
@@ -343,15 +362,15 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <ObjectTooltip obj={new SampleTransportObject()} />
                     }
-                    defaultvalue={orgReceiverSettings.transport}
+                    defaultvalue={orgReceiverSettings?.transport ?? {}}
                     defaultnullvalue={null}
-                    savefunc={(v) => (orgReceiverSettings.transport = v)}
+                    savefunc={onSaveField}
                 />
                 <TextInputComponent
                     fieldname={"externalName"}
                     label={"External Name"}
-                    defaultvalue={orgReceiverSettings.externalName}
-                    savefunc={(v) => (orgReceiverSettings.externalName = v)}
+                    defaultvalue={orgReceiverSettings?.externalName ?? ""}
+                    savefunc={onSaveField}
                 />
                 <Grid row className="margin-top-2">
                     <Grid col={6}>
@@ -391,7 +410,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     uniquid={
                         action === "edit"
                             ? receivername
-                            : orgReceiverSettings.name
+                            : orgReceiverSettings?.name ?? ""
                     }
                     ref={confirmModalRef}
                     onConfirm={saveReceiverData}

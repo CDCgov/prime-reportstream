@@ -12,8 +12,8 @@ describe("DeliveryFacilitiesTable", () => {
      * fetch data. */
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportFacilities.mockReturnValueOnce({
-            reportFacilities: [],
-        });
+            data: [],
+        } as any);
         render(<DeliveryFacilitiesTable reportId={TEST_ID} />);
         expect(mockUseReportFacilities).toHaveBeenCalledWith(TEST_ID);
     });

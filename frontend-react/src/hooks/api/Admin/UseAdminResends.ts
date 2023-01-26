@@ -1,10 +1,16 @@
 import { adminEndpoints } from "../../../config/api/admin";
-import { useRSQuery } from "../UseRSQuery";
+import { useRSQuery, UseRSQueryOptions } from "../UseRSQuery";
 
-export const useAdminResends = (days: number) => {
-    return useRSQuery(adminEndpoints.resend, {
-        params: {
-            days_to_show: days,
+export function useAdminResends<
+    T extends UseRSQueryOptions<(typeof adminEndpoints)["resend"]>
+>(days: number, rsOptions?: T) {
+    return useRSQuery(
+        adminEndpoints.resend,
+        {
+            params: {
+                days_to_show: days,
+            },
         },
-    });
-};
+        rsOptions
+    );
+}

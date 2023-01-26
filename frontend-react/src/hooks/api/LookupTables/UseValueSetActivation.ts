@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import {
-    lookupTablesEndpoints,
-    LookupTable,
-} from "../../../config/api/lookupTables";
+import { lookupTablesEndpoints } from "../../../config/api/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 
 interface ActivateValueSetOptions {

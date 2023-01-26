@@ -77,18 +77,8 @@ const mockData = [
     },
 ];
 
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
-    },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
+jest.mock("../../hooks/api/Settings/UseOrganizationReceiversSettings", () => ({
+    useOrganizationReceiversSettings: () => ({ data: mockData }),
 }));
 
 describe("OrgReceiverTable", () => {

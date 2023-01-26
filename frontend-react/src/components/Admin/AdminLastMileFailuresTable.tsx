@@ -1,5 +1,4 @@
-import React, { Suspense, useCallback, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
+import React, { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 import {
     Button,
@@ -14,22 +13,23 @@ import {
     TextInput,
 } from "@trussworks/react-uswds";
 
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../utils/SessionStorageTools";
-import AdmAction from "../../resources/AdmActionResource";
-import { ErrorPage } from "../../pages/error/ErrorPage";
-import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../USLink";
+import { useAdminSendFailures } from "../../hooks/api/Admin/UseAdminSendFailures";
+import { useAdminResends } from "../../hooks/api/Admin/UseAdminResends";
+import { adminActionFilterMatch } from "../../utils/ObjectSimpleFilters";
+import Spinner from "../Spinner";
+import RSErrorBoundary from "../RSErrorBoundary";
 
 const { RS_API_URL } = config;
 
 interface DataForDialog {
-    info: AdmSendFailuresResource;
-    resends: AdmAction[];
+    info: SendFailure;
+    resends: AdminAction[];
 }
 
 // Improves readability
@@ -149,94 +149,86 @@ const RenderResendModal = (props: {
  * This is factored out so refreshing only rerenders the table itself.
  */
 const DataLoadRenderTable = (props: {
-    daysToShow: string;
-    filterText: string;
+    lastMileData: SendFailure[];
+    lastMileResends: AdminAction[];
     handleRetrySendClick: (jsonRowData: string) => void;
     handleShowDetailsClick: (jsonRowData: string) => void;
 }) => {
-    const lastMileData: AdmSendFailuresResource[] = useResource(
-        AdmSendFailuresResource.list(),
-        { days_to_show: props.daysToShow }
-    );
-    const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
-        days_to_show: props.daysToShow,
-    });
-
     const fiterResends = (reportId: string) => {
-        return lastMileResends.filter((each) => each.filterMatch(reportId));
+        return props.lastMileResends?.filter((each) =>
+            adminActionFilterMatch(each, reportId)
+        );
     };
 
-    const rows = lastMileData
-        .filter((eachRow) => eachRow.filterMatch(props.filterText))
-        .map((eachRow) => {
-            // would be nice if org and receiver name were separate
-            const parts = eachRow.receiver.split(".") || eachRow.receiver;
-            const org = parts[0] || "";
-            const recvrName = parts.slice(1).join(".");
-            const linkRecvSettings = `/admin/orgreceiversettings/org/${org}/receiver/${recvrName}/action/edit`;
-            const resends = fiterResends(eachRow.reportId);
-            const dataForDialog: DataForDialog = {
-                info: eachRow,
-                resends: resends,
-            };
-            return (
-                <tr key={`lastmile_row_${eachRow.pk()}`}>
-                    <td>
-                        <span className={"font-mono-2xs"}>
-                            {formatDate(eachRow.failedAt)}
-                        </span>
-                    </td>
-                    <td className={"font-mono-xs"}>
-                        <Button
-                            type="button"
-                            unstyled
-                            className={"font-mono-xs"}
-                            title={"Show Info"}
-                            key={`details_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleShowDetailsClick(
-                                    JSON.stringify(dataForDialog, null, 4)
-                                )
-                            }
-                        >
-                            {eachRow.reportId}
-                            {" ⧉"}
-                        </Button>
-                        <span
-                            className={"rs-resendmarker"}
-                            title={"Resends attempted."}
-                        >
-                            {resends.length ? "⚠️" : null}
-                        </span>
-                    </td>
-                    <td>
-                        <USLink
-                            title={"Jump to Settings"}
-                            href={linkRecvSettings}
-                            key={`recv_link_${eachRow.pk()}`}
-                            className={"font-mono-xs"}
-                        >
-                            {eachRow.receiver}
-                        </USLink>
-                    </td>
-                    <td>
-                        <Button
-                            key={`retry_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleRetrySendClick(
-                                    JSON.stringify(eachRow, null, 2)
-                                )
-                            }
-                            type="button"
-                            className="padding-1 usa-button--outline"
-                            title="Requeue items for resend"
-                        >
-                            Resend...
-                        </Button>
-                    </td>
-                </tr>
-            );
-        });
+    const rows = props.lastMileData.map((eachRow) => {
+        // would be nice if org and receiver name were separate
+        const parts = eachRow.receiver.split(".") || eachRow.receiver;
+        const org = parts[0] || "";
+        const recvrName = parts.slice(1).join(".");
+        const linkRecvSettings = `/admin/orgreceiversettings/org/${org}/receiver/${recvrName}/action/edit`;
+        const resends = fiterResends(eachRow.reportId);
+        const dataForDialog: DataForDialog = {
+            info: eachRow,
+            resends: resends ?? [],
+        };
+        return (
+            <tr key={`lastmile_row_${eachRow.actionId}`}>
+                <td>
+                    <span className={"font-mono-2xs"}>
+                        {formatDate(eachRow.failedAt)}
+                    </span>
+                </td>
+                <td className={"font-mono-xs"}>
+                    <Button
+                        type="button"
+                        unstyled
+                        className={"font-mono-xs"}
+                        title={"Show Info"}
+                        key={`details_${eachRow.actionId}`}
+                        onClick={() =>
+                            props.handleShowDetailsClick(
+                                JSON.stringify(dataForDialog, null, 4)
+                            )
+                        }
+                    >
+                        {eachRow.reportId}
+                        {" ⧉"}
+                    </Button>
+                    <span
+                        className={"rs-resendmarker"}
+                        title={"Resends attempted."}
+                    >
+                        {resends?.length ? "⚠️" : null}
+                    </span>
+                </td>
+                <td>
+                    <USLink
+                        title={"Jump to Settings"}
+                        href={linkRecvSettings}
+                        key={`recv_link_${eachRow.actionId}`}
+                        className={"font-mono-xs"}
+                    >
+                        {eachRow.receiver}
+                    </USLink>
+                </td>
+                <td>
+                    <Button
+                        key={`retry_${eachRow.actionId}`}
+                        onClick={() =>
+                            props.handleRetrySendClick(
+                                JSON.stringify(eachRow, null, 2)
+                            )
+                        }
+                        type="button"
+                        className="padding-1 usa-button--outline"
+                        title="Requeue items for resend"
+                    >
+                        Resend...
+                    </Button>
+                </td>
+            </tr>
+        );
+    });
 
     return (
         <Table
@@ -266,7 +258,6 @@ export function AdminLastMileFailuresTable() {
     const modalResendId = "sendFailuresModalDetails";
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
     const [daysToShow, setDaysToShow] = useState(defaultDaysToShow);
-    const { invalidate: forceRefresh } = useController();
 
     // this is the input box filter
     const [filter, setFilter] = useState("");
@@ -295,27 +286,34 @@ export function AdminLastMileFailuresTable() {
     // the handler can easily get to them for the async network fetch
     const [currentReportId, setCurrentReportId] = useState("");
     const [currentReceiver, setCurrentReceiver] = useState("");
-    const [loading, setLoading] = useState(false);
 
-    const refresh = async () => {
-        // Promise.all runs in parallel
-        await Promise.all([
-            forceRefresh(AdmSendFailuresResource.list(), {
-                days_to_show: daysToShow,
-            }),
-            forceRefresh(AdmAction.list(), {
-                days_to_show: daysToShow,
-            }),
-        ]);
+    const {
+        data: lastMileData,
+        isLoading: isSendFailuresLoading,
+        refetch: refetchSendFailures,
+    } = useAdminSendFailures(parseInt(daysToShow));
 
-        return true;
+    const {
+        data: lastMileResends,
+        isLoading: isResendsLoading,
+        refetch: refetchResends,
+    } = useAdminResends(parseInt(daysToShow), {
+        select: (data) =>
+            data.filter((eachRow) => adminActionFilterMatch(eachRow, filter)),
+    });
+
+    const loading = isSendFailuresLoading || isResendsLoading;
+
+    const refresh = () => {
+        refetchResends();
+        refetchSendFailures();
     };
 
     // called from the list when retry button is clicked.
     // all the data is serialized to a json string as a cheap clone.
     const handleRetrySendClick = useCallback(
         (jsonRowData: string) => {
-            const data = JSON.parse(jsonRowData) as AdmSendFailuresResource;
+            const data = JSON.parse(jsonRowData) as SendFailure;
 
             // the content has line feeds, etc. so the formatted content isn't tabbed here in the code
             const formatted = `Report ID:
@@ -346,7 +344,6 @@ ${data.receiver}`;
     // Trigger a resend by issuing an api call
     const startResend = async () => {
         try {
-            setLoading(true);
             setHtmlContentResultText(`Starting...`);
             const url =
                 `${RS_API_URL}/api/adm/resend?` +
@@ -378,8 +375,9 @@ ${data.receiver}`;
             showError(msg);
             setHtmlContentResultText(msg);
         }
-        setLoading(false);
     };
+
+    if (loading) return <Spinner />;
 
     return (
         <section className="grid-container rs-maxwidth-vw80">
@@ -443,18 +441,14 @@ ${data.receiver}`;
             </form>
 
             <div className={"grid-row margin-0 rs-container-unbounded"}>
-                <Suspense fallback={<Spinner />}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        <DataLoadRenderTable
-                            daysToShow={daysToShow}
-                            filterText={filter}
-                            handleRetrySendClick={handleRetrySendClick}
-                            handleShowDetailsClick={handleShowDetailsClick}
-                        />
-                    </NetworkErrorBoundary>
-                </Suspense>
+                <RSErrorBoundary>
+                    <DataLoadRenderTable
+                        lastMileData={lastMileData ?? []}
+                        lastMileResends={lastMileResends ?? []}
+                        handleRetrySendClick={handleRetrySendClick}
+                        handleShowDetailsClick={handleShowDetailsClick}
+                    />
+                </RSErrorBoundary>
             </div>
 
             <Modal

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-import { MetaTaggedResource } from "../../resources/OrgSettingsBaseResource";
 import { formatDate } from "../../utils/misc";
 
 type DisplayMetaProps = {

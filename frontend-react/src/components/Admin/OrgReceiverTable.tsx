@@ -1,4 +1,3 @@
-import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
@@ -11,10 +10,10 @@ import {
 import React, { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
-import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import Spinner from "../Spinner";
 import { USLink, USNavLink } from "../USLink";
 import { useCheckSettingsCmd } from "../../hooks/api/CheckSettingCmd";
+import { useOrganizationReceiversSettings } from "../../hooks/api/Settings/UseOrganizationReceiversSettings";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -29,10 +28,8 @@ const DEFAULT_DATA: CheckSettingResult = {
 
 export function OrgReceiverTable(props: OrgSettingsTableProps) {
     const { orgname: orgName } = props;
-    const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(
-        OrgReceiverSettingsResource.list(),
-        props
-    );
+    const { data: orgReceiverSettings } =
+        useOrganizationReceiversSettings(orgName);
 
     const { doCheck, isLoading } = useCheckSettingsCmd();
     const [checkResultData, setCheckResultData] =
@@ -79,7 +76,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             className="grid-container margin-bottom-5"
         >
             <h2>
-                Organization Receiver Settings ({orgReceiverSettings.length})
+                Organization Receiver Settings ({orgReceiverSettings?.length})
                 {" - "}
                 <USLink
                     href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}

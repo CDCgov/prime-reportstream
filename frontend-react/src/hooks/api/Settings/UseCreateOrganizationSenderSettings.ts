@@ -3,22 +3,19 @@ import { useCallback } from "react";
 import { settingsEndpoints } from "../../../config/api/settings";
 import { useRSMutation } from "../UseRSQuery";
 
-export const useUpdateOrganizationSettings = (orgName: string) => {
-    const mutationFunction = useCallback(
+export const useCreateOrganizationSenderSettings = () => {
+    const mutationOptionsFn = useCallback(
         (settings: RSOrganizationSettings) => {
             return {
                 segments: {
-                    orgName,
+                    orgName: settings.organizationName,
+                    sender: settings.name,
                 },
                 data: settings,
             };
         },
-        [orgName]
+        []
     );
 
-    return useRSMutation(
-        settingsEndpoints.organization,
-        "PUT",
-        mutationFunction
-    );
+    return useRSMutation(settingsEndpoints.sender, "POST", mutationOptionsFn);
 };

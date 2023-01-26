@@ -1,6 +1,8 @@
 import { settingsEndpoints } from "../../../config/api/settings";
-import { useRSQuery } from "../UseRSQuery";
+import { useRSQuery, UseRSQueryOptions } from "../UseRSQuery";
 
-export const useOrganizationsSettings = () => {
-    return useRSQuery(settingsEndpoints.organization);
-};
+export function useOrganizationsSettings<
+    T extends UseRSQueryOptions<(typeof settingsEndpoints)["organizations"]>
+>(options: T) {
+    return useRSQuery(settingsEndpoints.organizations, undefined, options);
+}

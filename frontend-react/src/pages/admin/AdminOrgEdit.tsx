@@ -1,12 +1,15 @@
-import React, { Suspense, useRef, useState } from "react";
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
+import React, {
+    Suspense,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { ErrorPage } from "../error/ErrorPage";
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
@@ -41,6 +44,9 @@ import { BasicHelmet } from "../../components/header/BasicHelmet";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
+import { useOrganizationSettings } from "../../hooks/api/Settings/UseOrganizationSettings";
+import { useUpdateOrganizationSettings } from "../../hooks/api/Settings/UseUpdateOrganizationSettings";
+import RSErrorBoundary from "../../components/RSErrorBoundary";
 
 const { RS_API_URL } = config;
 
@@ -51,16 +57,20 @@ type AdminOrgEditProps = {
 export function AdminOrgEdit() {
     const { orgname } = useParams<AdminOrgEditProps>();
 
-    const orgSettings: OrgSettingsResource = useResource(
-        OrgSettingsResource.detail(),
-        { orgname: orgname }
-    );
+    const { data } = useOrganizationSettings(orgname);
+    const { mutateAsync } = useUpdateOrganizationSettings(orgname!!);
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
     const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
-    const { fetch: fetchController } = useController();
     const [loading, setLoading] = useState(false);
+    const [orgSettings, setOrgSettings] = useState<RSOrganizationSettings>();
+
+    useEffect(() => {
+        if (!orgSettings && data) {
+            setOrgSettings(data);
+        }
+    }, [data, orgSettings]);
 
     async function getLatestOrgResponse() {
         const accessToken = getStoredOktaToken();
@@ -129,11 +139,7 @@ export function AdminOrgEdit() {
 
             const data = confirmModalRef?.current?.getEditedText();
             showAlertNotification("success", `Saving...`);
-            await fetchController(
-                OrgSettingsResource.update(),
-                { orgname },
-                data
-            );
+            await mutateAsync(data);
             showAlertNotification(
                 "success",
                 `Item '${orgname}' has been updated`
@@ -151,10 +157,21 @@ export function AdminOrgEdit() {
         return true;
     };
 
+    const onUpdateSettings = useCallback((value: any, name: string) => {
+        setOrgSettings((v) => {
+            if (v) {
+                return {
+                    ...v,
+                    [name]: value === "" ? null : value,
+                };
+            }
+        });
+    }, []);
+
+    if (!orgSettings) return <Spinner />;
+
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <RSErrorBoundary>
             <BasicHelmet pageTitle="Admin | Org Edit" />
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
@@ -166,89 +183,77 @@ export function AdminOrgEdit() {
                     </USLink>
                 </h2>
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <section className="grid-container margin-top-0">
-                        <GridContainer>
-                            <Grid row>
-                                <Grid col={3}>Meta:</Grid>
-                                <Grid col={9}>
-                                    <DisplayMeta metaObj={orgSettings} />
-                                    <br />
-                                </Grid>
+            <Suspense fallback={<Spinner />}>
+                <section className="grid-container margin-top-0">
+                    <GridContainer>
+                        <Grid row>
+                            <Grid col={3}>Meta:</Grid>
+                            <Grid col={9}>
+                                <DisplayMeta metaObj={orgSettings} />
+                                <br />
                             </Grid>
-                            <TextInputComponent
-                                fieldname={"description"}
-                                label={"Description"}
-                                defaultvalue={orgSettings.description}
-                                savefunc={(v) => (orgSettings.description = v)}
-                            />
-                            <DropdownComponent
-                                fieldname={"jurisdiction"}
-                                label={"Jurisdiction"}
-                                defaultvalue={orgSettings.jurisdiction}
-                                savefunc={(v) => (orgSettings.jurisdiction = v)}
-                                valuesFrom={"jurisdiction"}
-                            />
-                            <TextInputComponent
-                                fieldname={"countyName"}
-                                label={"County Name"}
-                                defaultvalue={orgSettings.countyName || null}
-                                savefunc={(v) =>
-                                    (orgSettings.countyName =
-                                        v === "" ? null : v)
-                                }
-                            />
-                            <TextInputComponent
-                                fieldname={"stateCode"}
-                                label={"State Code"}
-                                defaultvalue={orgSettings.stateCode || null}
-                                savefunc={(v) =>
-                                    (orgSettings.stateCode =
-                                        v === "" ? null : v)
-                                }
-                            />
-                            <TextAreaComponent
-                                fieldname={"filters"}
-                                label={"Filters"}
-                                toolTip={
-                                    <ObjectTooltip
-                                        obj={new SampleFilterObject()}
-                                    />
-                                }
-                                defaultvalue={orgSettings.filters}
-                                defaultnullvalue="[]"
-                                savefunc={(v) => (orgSettings.filters = v)}
-                            />
-                            <Grid row>
-                                <Button
-                                    form="edit-setting"
-                                    type="submit"
-                                    data-testid="submit"
-                                    disabled={loading}
-                                    onClick={() => ShowCompareConfirm()}
-                                >
-                                    Preview save...
-                                </Button>
-                            </Grid>
-                            <ConfirmSaveSettingModal
-                                uniquid={orgname || ""}
-                                onConfirm={saveOrgData}
-                                ref={confirmModalRef}
-                                oldjson={orgSettingsOldJson}
-                                newjson={orgSettingsNewJson}
-                            />
-                        </GridContainer>
-                        <br />
-                    </section>
-                    <OrgSenderTable orgname={orgname || ""} />
-                    <OrgReceiverTable orgname={orgname || ""} />
-                </Suspense>
-            </NetworkErrorBoundary>
+                        </Grid>
+                        <TextInputComponent
+                            fieldname={"description"}
+                            label={"Description"}
+                            defaultvalue={orgSettings.description}
+                            savefunc={onUpdateSettings}
+                        />
+                        <DropdownComponent
+                            fieldname={"jurisdiction"}
+                            label={"Jurisdiction"}
+                            defaultvalue={orgSettings.jurisdiction}
+                            savefunc={onUpdateSettings}
+                            valuesFrom={"jurisdiction"}
+                        />
+                        <TextInputComponent
+                            fieldname={"countyName"}
+                            label={"County Name"}
+                            defaultvalue={orgSettings.countyName || null}
+                            savefunc={onUpdateSettings}
+                        />
+                        <TextInputComponent
+                            fieldname={"stateCode"}
+                            label={"State Code"}
+                            defaultvalue={orgSettings.stateCode || null}
+                            savefunc={onUpdateSettings}
+                        />
+                        <TextAreaComponent
+                            fieldname={"filters"}
+                            label={"Filters"}
+                            toolTip={
+                                <ObjectTooltip obj={new SampleFilterObject()} />
+                            }
+                            defaultvalue={orgSettings.filters}
+                            defaultnullvalue="[]"
+                            savefunc={onUpdateSettings}
+                        />
+                        <Grid row>
+                            <Button
+                                form="edit-setting"
+                                type="submit"
+                                data-testid="submit"
+                                disabled={loading}
+                                onClick={() => ShowCompareConfirm()}
+                            >
+                                Preview save...
+                            </Button>
+                        </Grid>
+                        <ConfirmSaveSettingModal
+                            uniquid={orgname || ""}
+                            onConfirm={saveOrgData}
+                            ref={confirmModalRef}
+                            oldjson={orgSettingsOldJson}
+                            newjson={orgSettingsNewJson}
+                        />
+                    </GridContainer>
+                    <br />
+                </section>
+                <OrgSenderTable orgname={orgname || ""} />
+                <OrgReceiverTable orgname={orgname || ""} />
+            </Suspense>
             <HipaaNotice />
-        </NetworkErrorBoundary>
+        </RSErrorBoundary>
     );
 }
 

@@ -1,5 +1,5 @@
 import Table, { TableConfig } from "../../../components/Table/Table";
-import { useReportsFacilities } from "../../../hooks/api/Deliveries/UseReportsFacilities";
+import { useReportFacilities } from "../../../hooks/api/Deliveries/UseReportFacilities";
 
 interface FacilitiesTableProps {
     /* REQUIRED
@@ -10,7 +10,7 @@ interface FacilitiesTableProps {
 
 function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
     const { reportId }: FacilitiesTableProps = props;
-    const { reportFacilities } = useReportsFacilities(reportId);
+    const { data: reportFacilities } = useReportFacilities(reportId);
 
     const tableConfig: TableConfig = {
         columns: [
@@ -20,7 +20,7 @@ function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
             { dataAttr: "total", columnHeader: "Total tests" },
             { dataAttr: "positive", columnHeader: "Total positive" },
         ],
-        rows: reportFacilities!!,
+        rows: reportFacilities ?? [],
     };
 
     return (

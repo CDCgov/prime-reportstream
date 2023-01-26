@@ -44,6 +44,7 @@ export async function getRSRequestHeaders(
     if (accessToken) {
         apiHeaders = {
             ...apiHeaders,
+            "Content-Type": "application/json",
             "authentication-type": "okta",
             authorization: `Bearer ${accessToken.accessToken}`,
             organization: organization,
@@ -127,60 +128,28 @@ export interface AxiosOptionsWithSegments
     headers?: Partial<RawAxiosRequestHeaders>;
 }
 
-export interface RSOptionsWithSegments
-    extends Omit<AxiosRequestConfig, "method" | "headers"> {
-    method: HTTPMethod;
-    segments?: StringIndexed<string>;
-    headers?: Partial<RSRequestHeaders>;
-}
-
 export type RSApiEndpoints = {
     [endpointName: string]: RSEndpoint<any>;
 };
 
 export type RSEndpointMethodRequestType<
-    E extends EndpointConfig,
+    T extends RSEndpoint<any>,
     M extends HTTPMethod
-> = E["methods"][M] extends {} ? NonNullable<E["methods"][M]> : never;
+> = T["meta"]["methods"][M] extends {}
+    ? NonNullable<T["meta"]["methods"][M]>
+    : never;
 
-export type RSEndpointFetchers<E extends EndpointConfig> = {
-    [P in string & keyof E["methods"] as Lowercase<P>]: (
-        args: Partial<Omit<RSOptionsWithSegments, "method">>
+export type RSEndpointFetchers<T extends RSEndpoint<any>> = {
+    [P in string & keyof T["meta"]["methods"] as Lowercase<P>]: (
+        args: Partial<Omit<RSOptionsWithSegments<T>, "method">>
     ) => P extends HTTPMethod
-        ? Promise<RSEndpointMethodRequestType<E, P>>
+        ? Promise<RSEndpointMethodRequestType<T, P>>
         : never;
 };
 
-export type RSEndpointParams<T extends RSEndpoint<EndpointConfig>> =
-    T["meta"]["params"];
-
-export type RSEndpointSegments<T extends RSEndpoint<EndpointConfig>> =
-    ParamParseKey<T["meta"]["path"]> extends `${any}`
-        ? Params<ParamParseKey<T["meta"]["path"]>>
-        : never;
-
-export type RSEndpointOptions<T extends RSEndpoint<EndpointConfig>> =
-    RSEndpointSegments<T> extends never
-        ? RSEndpointParams<T> extends never
-            ? never
-            : { params?: Partial<RSEndpointParams<T>> | any }
-        : RSEndpointParams<T> extends never
-        ? { segments?: RSEndpointSegments<T>; params?: any }
-        : {
-              segments?: Partial<RSEndpointSegments<T>>;
-              params?: RSEndpointParams<T> | any;
-          };
-
-export function createPathName(path: string) {
-    return path
-        .replaceAll(":", "")
-        .split("/")
-        .map((f) => f[0].toLocaleUpperCase() + f.slice(1));
-}
-
 export class RSEndpoint<E extends EndpointConfig> {
     meta: E;
-    fetchers: RSEndpointFetchers<E>;
+    fetchers: RSEndpointFetchers<this>;
 
     constructor(meta: E) {
         this.meta = meta;
@@ -201,7 +170,7 @@ export class RSEndpoint<E extends EndpointConfig> {
 
     addFetcher<T extends keyof E["methods"] & HTTPMethod>(method: T): void {
         this.fetchers[method.toLocaleLowerCase() as Lowercase<T>] = (async (
-            args: Partial<Omit<RSOptionsWithSegments, "method">>
+            args?: Partial<Omit<RSOptionsWithSegments<this>, "method">>
         ) => {
             const options = await this.toRSConfig({ ...args, method });
 
@@ -215,7 +184,7 @@ export class RSEndpoint<E extends EndpointConfig> {
             }
 
             try {
-                const res = await axios<RSEndpointMethodRequestType<E, T>>(
+                const res = await axios<RSEndpointMethodRequestType<this, T>>(
                     options
                 );
                 return res.data;
@@ -246,7 +215,9 @@ export class RSEndpoint<E extends EndpointConfig> {
     // with supplied dynamic segment values.
     // ex. an endpoint with the path `/:hello` called with { hello: 'world' }
     // would return `/world`
-    toDynamicUrl(segments?: StringIndexed<string>) {
+    toDynamicUrl(segments?: {
+        [k: string]: undefined | string | boolean | number;
+    }) {
         if (!segments && this.hasDynamicSegments) {
             throw new Error(
                 `Attempted to use dynamic url without providing segment values: ${this.meta.path}`
@@ -255,11 +226,16 @@ export class RSEndpoint<E extends EndpointConfig> {
         if (!segments) {
             return this.url;
         }
-        const pathWithSegments = Object.entries(segments).reduce(
-            (pathWithSegments, [segmentKey, segmentValue]) =>
-                pathWithSegments.replace(`:${segmentKey}`, segmentValue),
-            this.url
-        );
+        const pathWithSegments = Object.entries(segments)
+            .filter((s): s is any => s !== undefined)
+            .reduce(
+                (pathWithSegments, [segmentKey, segmentValue]) =>
+                    pathWithSegments.replace(
+                        `:${segmentKey}`,
+                        segmentValue.toString()
+                    ),
+                this.url
+            );
         if (pathWithSegments.indexOf("/:") > -1) {
             throw new Error(
                 `missing dynamic path param: ${this.url}, ${segments}`
@@ -283,7 +259,7 @@ export class RSEndpoint<E extends EndpointConfig> {
     async toRSConfig({
         segments,
         ...requestOptions
-    }: RSOptionsWithSegments): Promise<RSRequestConfig> {
+    }: RSOptionsWithSegments<this>): Promise<RSRequestConfig> {
         const headers = await getRSRequestHeaders(requestOptions?.headers);
         const dynamicUrl = this.toDynamicUrl(segments);
         return {
@@ -299,3 +275,22 @@ export function createEndpoints<T extends EndpointConfigMap>(meta: T) {
         Object.entries(meta).map(([k, m]) => [k, new RSEndpoint(m)])
     ) as unknown as { [P in keyof T]: RSEndpoint<T[P]> };
 }
+
+export type RSEndpointParams<T extends RSEndpoint<EndpointConfig>> =
+    T["meta"]["params"];
+
+export type RSEndpointSegments<T extends RSEndpoint<EndpointConfig>> =
+    ParamParseKey<T["meta"]["path"]> extends `${any}`
+        ? Params<ParamParseKey<T["meta"]["path"]>>
+        : never;
+
+export type RSEndpointOptions<T extends RSEndpoint<EndpointConfig>> = {
+    segments?: Partial<RSEndpointSegments<T>>;
+    params?: RSEndpointParams<T>;
+};
+
+export type RSOptionsWithSegments<T extends RSEndpoint<any> = RSEndpoint<any>> =
+    Omit<AxiosRequestConfig, "method" | "headers"> & {
+        method: HTTPMethod;
+        headers?: Partial<RSRequestHeaders>;
+    } & RSEndpointOptions<T>;

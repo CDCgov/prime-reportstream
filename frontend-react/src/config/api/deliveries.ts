@@ -16,7 +16,7 @@ export const deliveriesEndpoints = {
         queryKey: "getOrgDeliveries",
     } as const),
     orgAndServiceSubmissions: new RSEndpoint({
-        path: "waters/org/:orgAndService/submissions",
+        path: "/waters/org/:orgAndService/submissions",
         methods: {
             [HTTPMethods.GET]: {} as OrganizationSubmission[],
         },
@@ -32,7 +32,7 @@ export const deliveriesEndpoints = {
     reportFacilities: new RSEndpoint({
         path: "/waters/report/:id/facilities",
         methods: {
-            [HTTPMethods.GET]: {} as RSFacility,
+            [HTTPMethods.GET]: {} as RSFacility[],
         },
         queryKey: "getDeliveryFacilities",
     } as const),

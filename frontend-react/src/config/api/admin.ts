@@ -11,6 +11,9 @@ export const adminEndpoints = {
         methods: {
             [HTTPMethods.GET]: {} as AdminAction[],
         },
+        params: {
+            days_to_show: {} as number,
+        },
         queryKey: "adminResend",
     } as const),
     sendFailures: new RSEndpoint({

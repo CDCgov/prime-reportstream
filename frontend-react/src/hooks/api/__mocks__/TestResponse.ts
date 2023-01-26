@@ -1,10 +1,4 @@
-import { ReportHistory } from "config/endpoints/deliveries";
-import {
-    OrganizationSenderSettings,
-    OrganizationSettings,
-} from "config/endpoints/settings";
-
-export const mockActionDetails: ReportHistory = {
+export const mockActionDetails: ActionDetail = {
     submissionId: 12345,
     timestamp: "1970-04-07T16:26:14.345Z",
     sender: "Jest",
@@ -50,41 +44,40 @@ export const mockActionDetails: ReportHistory = {
     errorCount: 0,
 };
 
-export const mockSenderSettingsPutResponse: Partial<OrganizationSenderSettings> =
-    {
-        keys: [
-            {
-                keys: [
-                    {
-                        x: "asdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
-                        y: "asdfasdfasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
-                        crv: "P-384",
-                        kid: "hca.default",
-                        kty: "EC",
-                    },
-                    {
-                        e: "AQAB",
-                        n: "asdfaasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffasdfasdfasdfasdf",
-                        kid: "hca.default",
-                        kty: "RSA",
-                    },
-                ],
-                scope: "hca.default.report",
-            },
-        ],
-        topic: "covid-19",
-        format: "HL7",
-        schemaName: "direct/hca-covid-19",
-        customerStatus: "active",
-        processingType: "sync",
-        organizationName: "hca",
-        name: "",
-        version: 0,
-        createdBy: "mctest@example.com",
-        createdAt: "1/1/2000 00:00:00",
-    };
+export const mockSenderSettingsPutResponse: Partial<RSSender> = {
+    keys: [
+        {
+            keys: [
+                {
+                    x: "asdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
+                    y: "asdfasdfasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
+                    crv: "P-384",
+                    kid: "hca.default",
+                    kty: "EC",
+                },
+                {
+                    e: "AQAB",
+                    n: "asdfaasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffasdfasdfasdfasdf",
+                    kid: "hca.default",
+                    kty: "RSA",
+                },
+            ],
+            scope: "hca.default.report",
+        },
+    ],
+    topic: "covid-19",
+    format: "HL7",
+    schemaName: "direct/hca-covid-19",
+    customerStatus: "active",
+    processingType: "sync",
+    organizationName: "hca",
+    name: "",
+    version: 0,
+    createdBy: "mctest@example.com",
+    createdAt: "1/1/2000 00:00:00",
+};
 
-export const mockNewOrgResponse: Partial<OrganizationSettings> = {
+export const mockNewOrgResponse: Partial<RSOrganizationSettings> = {
     name: "test",
     description: "A Test Organization",
     jurisdiction: "STATE",

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
@@ -10,7 +9,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
-import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import {
     MembershipActionType,
@@ -18,12 +16,13 @@ import {
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
+import { useOrganizationsSettings } from "../../hooks/api/Settings/UseOrganizationsSettings";
+import { organizationSettingsFilterMatch } from "../../utils/ObjectSimpleFilters";
 
 export function OrgsTable() {
-    const orgs: OrgSettingsResource[] = useResource(
-        OrgSettingsResource.list(),
-        {}
-    ).sort((a, b) => a.name.localeCompare(b.name));
+    const { data: orgs } = useOrganizationsSettings({
+        select: (data) => data.sort((a, b) => a.name.localeCompare(b.name)),
+    });
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, dispatch } = useSessionContext();
@@ -55,7 +54,9 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            ?.filter((eachOrg) =>
+                organizationSettingsFilterMatch(eachOrg, filter)
+            )
             .map((eachOrg) =>
                 [
                     `"`,
@@ -92,7 +93,7 @@ export function OrgsTable() {
                 id="orgsettings"
                 className="grid-container margin-bottom-5"
             >
-                <h2>Organizations ({orgs.length})</h2>
+                <h2>Organizations ({orgs?.length})</h2>
                 <form autoComplete="off" className="grid-row">
                     <div className="flex-fill">
                         <Label
@@ -144,7 +145,9 @@ export function OrgsTable() {
                     </thead>
                     <tbody id="tBodyFac" className="font-mono-2xs">
                         {orgs
-                            .filter((eachOrg) => eachOrg.filterMatch(filter))
+                            ?.filter((eachOrg) =>
+                                organizationSettingsFilterMatch(eachOrg, filter)
+                            )
                             .map((eachOrg) => (
                                 <tr key={`sender-row-${eachOrg.name}`}>
                                     <td>
