@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.utils.FHIRReader
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -53,7 +54,7 @@ class FHIRConverter(
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
             Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(message, actionLogger)
-            Report.Format.FHIR -> getContentFromFHIR(message)
+            Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
 
@@ -66,7 +67,7 @@ class FHIRConverter(
                 val report = Report(
                     Report.Format.FHIR,
                     emptyList(),
-                    fhirBundles.size,
+                    1,
                     itemLineage = listOf(
                         ItemLineage()
                     ),
@@ -178,9 +179,10 @@ class FHIRConverter(
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        message: RawSubmission
+        message: RawSubmission,
+        actionLogger: ActionLogger
     ): List<Bundle> {
-        return listOf(FhirTranscoder.decode(message.downloadContent()))
+        return FHIRReader(actionLogger).getBundles(message.downloadContent())
     }
 
     /**
