@@ -160,6 +160,27 @@ data class ConfigSchema(
     }
 }
 
+class ValueSetTable(input: String) {
+    val tableName: String
+    val keyCol: String
+    val valCol: String
+
+    init {
+        val parts = input.split(",")
+        if (parts.size != 3) {
+            tableName = ""
+            keyCol = ""
+            valCol = ""
+        } else {
+            tableName = parts[0]
+            keyCol = parts[1]
+            valCol = parts[2]
+        }
+    }
+
+    override fun toString() = "ValueSetTable(table=$tableName, key column=$keyCol, value column=$valCol)"
+}
+
 /**
  * An element within a Schema.
  * @property name the name of the element
@@ -176,18 +197,21 @@ data class ConfigSchema(
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
-    var name: String? = null,
-    var condition: String? = null,
-    var required: Boolean? = null,
-    var schema: String? = null,
-    var schemaRef: ConfigSchema? = null,
-    var resource: String? = null,
-    var value: List<String> = emptyList(),
-    var hl7Spec: List<String> = emptyList(),
-    var resourceIndex: String? = null,
-    var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: SortedMap<String, String> = sortedMapOf(),
-    var debug: Boolean = false
+    var name: String? = null, // Both
+    var condition: String? = null, // Both
+    var required: Boolean? = null, // HL7
+    var schema: String? = null, // Both
+    var schemaRef: ConfigSchema? = null, // Both
+    var resource: String? = null, // Both
+    var value: List<String> = emptyList(), // Both
+    var hl7Spec: List<String> = emptyList(), // HL7
+    var resourceIndex: String? = null, // Both
+    var constants: SortedMap<String, String> = sortedMapOf(), // Both
+    var valueSet: SortedMap<String, String> = sortedMapOf(), // Both
+    var debug: Boolean = false, // HL7
+    var bundleProperty: String? = null, // FHIR
+    var valueSetTable: ValueSetTable? = null, // FHIR
+    val isFHIRTransformElement: Boolean = false // FHIR
 ) {
     /**
      * Validate the element.
@@ -203,27 +227,63 @@ data class ConfigSchemaElement(
             validationErrors.add("[$name]: $msg")
         }
 
-        when {
-            resource.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
-                addError("Resource property is required to use the resourceIndex property")
-            schema.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
-                addError("Schema property is required to use the resourceIndex property")
+        if (isFHIRTransformElement) {
+            when {
+                hl7Spec.isNotEmpty() ->
+                    addError("FHIR Transform schemas cannot use the hl7Spec property")
+                required != null ->
+                    addError("FHIR Transform schemas cannot use the required property")
+                debug ->
+                    addError("FHIR Transform schemas cannot use the debug property")
+                valueSetTable != null && valueSet.isNotEmpty() ->
+                    addError("ValueSet property cannot be used with the valueSetTable property")
+            }
+        } else {
+            when {
+                bundleProperty != null ->
+                    addError("HL7V2 config schemas cannot use the bundleProperty property")
+                valueSetTable != null ->
+                    addError("HL7V2 config schemas cannot use the valueSetTable property")
+            }
         }
 
-        // Hl7spec, value and valueSet cannot be used with schema.
-        when {
-            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty() || valueSet.isNotEmpty()) ->
-                addError("Schema property cannot be used with hl7Spec, value or valueSet properties")
-            schema.isNullOrBlank() && hl7Spec.isEmpty() ->
-                addError("Hl7Spec property is required when not using a schema")
-            schema.isNullOrBlank() && value.isEmpty() ->
-                addError("Value property is required when not using a schema")
+        if (!resourceIndex.isNullOrBlank()) {
+            when {
+                resource.isNullOrBlank() ->
+                    addError("Resource property is required to use the resourceIndex property")
+                schema.isNullOrBlank() ->
+                    addError("Schema property is required to use the resourceIndex property")
+            }
+        }
+
+        if (!schema.isNullOrBlank()) {
+            when {
+                hl7Spec.isNotEmpty() ->
+                    addError("Schema property cannot be used with the hl7Spec property")
+                bundleProperty != null ->
+                    addError("Schema property cannot be used with the bundleProperty property")
+                value.isNotEmpty() ->
+                    addError("Schema property cannot be used with the value property")
+                valueSet.isNotEmpty() ->
+                    addError("Schema property cannot be used with the valueSet property")
+                valueSetTable != null ->
+                    addError("Schema property cannot be used with the valueSetTable property")
+            }
+        } else {
+            when {
+                hl7Spec.isEmpty() && !isFHIRTransformElement ->
+                    addError("Hl7Spec property is required when not using a schema")
+                value.isEmpty() ->
+                    addError("Value property is required when not using a schema")
+            }
         }
 
         // value sets need a value to be...set
         when {
             valueSet.isNotEmpty() && value.isEmpty() ->
                 addError("Value property is required when using a value set")
+            valueSetTable != null && value.isEmpty() ->
+                addError("Value property is required when using a value set table")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
@@ -252,6 +312,8 @@ data class ConfigSchemaElement(
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
+        overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
+        overwritingElement.valueSetTable?.let { this.valueSetTable = overwritingElement.valueSetTable }
         if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
