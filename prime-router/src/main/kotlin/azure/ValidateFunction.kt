@@ -12,10 +12,8 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction

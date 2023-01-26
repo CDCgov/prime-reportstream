@@ -7,7 +7,6 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
