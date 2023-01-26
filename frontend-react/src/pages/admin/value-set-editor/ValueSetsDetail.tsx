@@ -20,7 +20,7 @@ import {
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
-import { StaticAlert } from "../../../components/StaticAlert";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,
     ReportStreamAlert,
@@ -230,7 +230,7 @@ const ValueSetsDetailContent = () => {
                 {/* ONLY handles success messaging now */}
                 {alert && (
                     <StaticAlert
-                        type={alert.type}
+                        type={alert.type as StaticAlertType}
                         heading={alert.type.toUpperCase()}
                         message={alert.message}
                     />

@@ -67,6 +67,7 @@ describe("DeliveriesTable", () => {
                 loadingServices: false,
                 services: [],
                 setActiveService: () => {},
+                isDisabled: false,
             });
 
             // Mock our SessionProvider's data
@@ -107,106 +108,168 @@ describe("DeliveriesTable", () => {
     });
 });
 
-describe("DeliveriesTableWithNumberedPagination - with data", () => {
-    beforeEach(async () => {
-        // Mock our receivers feed data
-        mockUseOrganizationReceiversFeed.mockReturnValue({
-            activeService: mockActiveReceiver,
-            loadingServices: false,
-            services: mockReceivers,
-            setActiveService: () => {},
+describe("DeliveriesTableWithNumbered", () => {
+    describe("when enabled", () => {
+        describe("with services and data", () => {
+            beforeEach(() => {
+                mockUseOrganizationReceiversFeed.mockReturnValue({
+                    activeService: mockActiveReceiver,
+                    loadingServices: false,
+                    services: mockReceivers,
+                    setActiveService: () => {},
+                    isDisabled: false,
+                });
+
+                const mockUseOrgDeliveriesCallback = {
+                    fetchResults: () =>
+                        Promise.resolve(makeDeliveryFixtureArray(101)),
+                    filterManager: mockFilterManager,
+                };
+                mockUseOrgDeliveries.mockReturnValue(
+                    mockUseOrgDeliveriesCallback
+                );
+
+                // Render the component
+                renderWithFullAppContext(<DeliveriesTable />);
+            });
+
+            test("renders with no error", async () => {
+                const pagination = await screen.findByLabelText(
+                    /Deliveries pagination/i
+                );
+                expect(pagination).toBeInTheDocument();
+                // Column headers render
+                expect(screen.getByText("Report ID")).toBeInTheDocument();
+                expect(screen.getByText("Available")).toBeInTheDocument();
+                expect(screen.getByText("Expires")).toBeInTheDocument();
+                expect(screen.getByText("Items")).toBeInTheDocument();
+                expect(screen.getByText("File")).toBeInTheDocument();
+            });
+
+            test("renders 10 results per page + 1 header row", () => {
+                // renders 10 results per page + 1 header row regardless of the total number of records
+                // since our pagination limit is set to 10
+                const rows = screen.getAllByRole("row");
+                expect(rows).toHaveLength(10 + 1);
+            });
+
+            describe("TableFilter", () => {
+                test("Clicking on filter invokes the trackAppInsightEvent", () => {
+                    fireEvent.click(screen.getByText("Filter"));
+
+                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                        name: "Daily Data | Table Filter",
+                        properties: {
+                            tableFilter: {
+                                endRange: "3000-01-01T23:59:59.999Z",
+                                startRange: "2000-01-01T00:00:00.000Z",
+                            },
+                        },
+                    });
+                });
+            });
         });
 
-        // Mock the response from the Deliveries hook
-        const mockUseOrgDeliveriesCallback = {
-            fetchResults: () => Promise.resolve(makeDeliveryFixtureArray(101)),
-            filterManager: mockFilterManager,
-        };
-        mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
+        describe("with no services", () => {
+            beforeEach(() => {
+                // Mock our receivers feed data
+                mockUseOrganizationReceiversFeed.mockReturnValue({
+                    activeService: undefined,
+                    loadingServices: false,
+                    services: [],
+                    setActiveService: () => {},
+                    isDisabled: false,
+                });
 
-        // Render the component
-        renderWithFullAppContext(<DeliveriesTable />);
-    });
-
-    test("renders with no error", async () => {
-        const pagination = await screen.findByLabelText(
-            /Deliveries pagination/i
-        );
-        expect(pagination).toBeInTheDocument();
-        // Column headers render
-        expect(screen.getByText("Report ID")).toBeInTheDocument();
-        expect(screen.getByText("Available")).toBeInTheDocument();
-        expect(screen.getByText("Expires")).toBeInTheDocument();
-        expect(screen.getByText("Items")).toBeInTheDocument();
-        expect(screen.getByText("File")).toBeInTheDocument();
-    });
-
-    test("renders 10 results per page + 1 header row", () => {
-        // renders 10 results per page + 1 header row regardless of the total number of records
-        // since our pagination limit is set to 10
-        const rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(10 + 1);
-    });
-
-    describe("TableFilter", () => {
-        test("Clicking on filter invokes the trackAppInsightEvent", () => {
-            fireEvent.click(screen.getByText("Filter"));
-
-            expect(mockAppInsights.trackEvent).toBeCalledWith({
-                name: "Daily Data | Table Filter",
-                properties: {
-                    tableFilter: {
-                        endRange: "3000-01-01T23:59:59.999Z",
-                        startRange: "2000-01-01T00:00:00.000Z",
+                // Mock our SessionProvider's data
+                mockSessionContext.mockReturnValue({
+                    oktaToken: {
+                        accessToken: "TOKEN",
                     },
-                },
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrgNoReceivers",
+                        service: "testReceiver",
+                    },
+                    dispatch: () => {},
+                    initialized: true,
+                });
+
+                // Mock the response from the Deliveries hook
+                const mockUseOrgDeliveriesCallback = {
+                    fetchResults: () =>
+                        Promise.resolve(makeDeliveryFixtureArray(0)),
+                    filterManager: mockFilterManager,
+                };
+                mockUseOrgDeliveries.mockReturnValue(
+                    mockUseOrgDeliveriesCallback
+                );
+
+                // Render the component
+                renderWithFullAppContext(<DeliveriesTable />);
+            });
+
+            test("renders the NoServicesBanner message", async () => {
+                const heading = await screen.findByText(
+                    "Active Services unavailable"
+                );
+                expect(heading).toBeInTheDocument();
+
+                const message = await screen.findByText(
+                    "No valid receiver found for your organization"
+                );
+                expect(message).toBeInTheDocument();
             });
         });
     });
-});
 
-describe("DeliveriesTableWithNumberedPagination - with no data", () => {
-    beforeEach(() => {
-        // Mock our receivers feed data
-        mockUseOrganizationReceiversFeed.mockReturnValue({
-            activeService: undefined,
-            loadingServices: false,
-            services: [],
-            setActiveService: () => {},
+    describe("when disabled", () => {
+        beforeEach(() => {
+            // Mock our receivers feed data
+            mockUseOrganizationReceiversFeed.mockReturnValue({
+                activeService: undefined,
+                loadingServices: false,
+                services: [],
+                setActiveService: () => {},
+                isDisabled: true,
+            });
+
+            // Mock our SessionProvider's data
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+                dispatch: () => {},
+                initialized: true,
+            });
+
+            // Mock the response from the Deliveries hook
+            const mockUseOrgDeliveriesCallback = {
+                fetchResults: () =>
+                    Promise.resolve(makeDeliveryFixtureArray(0)),
+                filterManager: mockFilterManager,
+            };
+            mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
+
+            // Render the component
+            renderWithFullAppContext(<DeliveriesTable />);
         });
 
-        // Mock our SessionProvider's data
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrgNoReceivers",
-                service: "testReceiver",
-            },
-            dispatch: () => {},
-            initialized: true,
+        test("renders an error saying admins shouldn't fetch organization data", async () => {
+            expect(
+                await screen.findByText(
+                    "Cannot fetch Organization data as admin"
+                )
+            ).toBeVisible();
+
+            expect(
+                await screen.findByText("Please try again as an Organization")
+            ).toBeVisible();
         });
-
-        // Mock the response from the Deliveries hook
-        const mockUseOrgDeliveriesCallback = {
-            fetchResults: () => Promise.resolve(makeDeliveryFixtureArray(0)),
-            filterManager: mockFilterManager,
-        };
-        mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
-
-        // Render the component
-        renderWithFullAppContext(<DeliveriesTable />);
-    });
-
-    test("renders the NoServicesBanner message", async () => {
-        const heading = await screen.findByText("Active Services unavailable");
-        expect(heading).toBeInTheDocument();
-
-        const message = await screen.findByText(
-            "No valid receiver found for your organization"
-        );
-        expect(message).toBeInTheDocument();
     });
 });
