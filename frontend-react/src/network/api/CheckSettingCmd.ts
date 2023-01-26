@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { RSNetworkError } from "../../utils/RSNetworkError";
-import { HTTPMethods, RSEndpoint } from "../../config/endpoints";
+import { checkSettingsCmdEndpoints } from "../../config/api/check";
 
 /**
  * See prime-router/docs/api/check.yml for documentation
@@ -20,15 +20,14 @@ export type CheckSettingParams = {
 
 export const useCheckSettingsCmd = () => {
     const { authorizedFetch } = useAuthorizedFetch<CheckSettingResult>();
-    const checkSettingsCmd = new RSEndpoint({
-        path: "/checkreceiver/org/:orgName/receiver/:receiverName",
-        method: HTTPMethods.POST,
-    });
 
     const updateValueSet = (params: CheckSettingParams) => {
-        return authorizedFetch(checkSettingsCmd, {
-            segments: { ...params },
-        });
+        return authorizedFetch(
+            checkSettingsCmdEndpoints.checkOrganizationReceiver,
+            {
+                segments: { ...params },
+            }
+        );
     };
     const mutation = useMutation<
         CheckSettingResult,

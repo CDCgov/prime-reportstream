@@ -9,12 +9,11 @@ import {
 
 import Spinner from "../Spinner";
 import Table, { TableConfig } from "../../components/Table/Table";
-import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 
 interface MessageListTableContentProps {
     isLoading: boolean;
-    messagesData: MessageListResource[];
+    messagesData: MessagesItem[];
     hasSearched: boolean;
 }
 
@@ -76,15 +75,13 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
 // Main component.
 export function MessageTracker() {
     const [searchFilter, setSearchFilter] = useState("");
-    const [messagesData, setMessagesData] = useState<MessageListResource[]>([]);
+    const [messagesData, setMessagesData] = useState<MessagesItem[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
     const { search, isLoading } = useMessageSearch();
 
     const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const senderResponse: MessageListResource[] = await search(
-            searchFilter
-        );
+        const senderResponse: MessagesItem[] = await search(searchFilter);
 
         setHasSearched(true);
 

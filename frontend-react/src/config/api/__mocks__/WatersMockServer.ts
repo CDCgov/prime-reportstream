@@ -1,12 +1,9 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import {
-    WatersResponse,
-    OverallStatus,
-    WatersUrls,
-} from "../config/endpoints/waters";
-import config from "../config";
+import config from "../../";
+import { OverallStatus } from "../types";
+import { watersEndpoints } from "../waters";
 
 const { RS_API_URL } = config;
 
@@ -82,34 +79,40 @@ export enum WatersTestHeaderValue {
 }
 
 const handlers = [
-    rest.post(`${RS_API_URL}/api${WatersUrls.UPLOAD}`, (req, res, ctx) => {
-        if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
-            WatersTestHeaderValue.TEST_NAME
-        )
-            return res(ctx.status(200), ctx.json({ endpoint: "upload" }));
-        if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
-            WatersTestHeaderValue.TEST_BAD_CLIENT
-        ) {
-            return res(ctx.json(watersResponseError), ctx.status(400));
+    rest.post(
+        `${RS_API_URL}/api${watersEndpoints.upload.meta.path}`,
+        (req, res, ctx) => {
+            if (
+                req.headers["_headers"][WatersTestHeader.CLIENT] ===
+                WatersTestHeaderValue.TEST_NAME
+            )
+                return res(ctx.status(200), ctx.json({ endpoint: "upload" }));
+            if (
+                req.headers["_headers"][WatersTestHeader.CLIENT] ===
+                WatersTestHeaderValue.TEST_BAD_CLIENT
+            ) {
+                return res(ctx.json(watersResponseError), ctx.status(400));
+            }
+            return res(ctx.json(watersResponseSuccess), ctx.status(201));
         }
-        return res(ctx.json(watersResponseSuccess), ctx.status(201));
-    }),
-    rest.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, (req, res, ctx) => {
-        if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
-            WatersTestHeaderValue.FAIL
-        )
-            return res(ctx.status(400));
-        if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
-            WatersTestHeaderValue.TEST_NAME
-        ) {
-            return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
+    ),
+    rest.post(
+        `${RS_API_URL}/api${watersEndpoints.validate.meta.path}`,
+        (req, res, ctx) => {
+            if (
+                req.headers["_headers"][WatersTestHeader.CLIENT] ===
+                WatersTestHeaderValue.FAIL
+            )
+                return res(ctx.status(400));
+            if (
+                req.headers["_headers"][WatersTestHeader.CLIENT] ===
+                WatersTestHeaderValue.TEST_NAME
+            ) {
+                return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
+            }
+            return res(ctx.status(200));
         }
-        return res(ctx.status(200));
-    }),
+    ),
 ];
 
 export const watersServer = setupServer(...handlers);

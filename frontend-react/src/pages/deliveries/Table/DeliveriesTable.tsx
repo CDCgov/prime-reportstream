@@ -13,10 +13,8 @@ import {
 import Spinner from "../../../components/Spinner";
 import TableFilters from "../../../components/Table/TableFilters";
 import { PaginationProps } from "../../../components/Table/Pagination";
-import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
-import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../AppRouter";

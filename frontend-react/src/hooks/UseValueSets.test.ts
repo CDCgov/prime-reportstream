@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 
-import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
+import { LookupTables } from "../config/api/types";
+import { lookupTableServer } from "../config/api/__mocks__/LookupTableMockServer";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
 import {

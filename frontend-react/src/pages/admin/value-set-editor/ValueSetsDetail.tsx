@@ -20,10 +20,6 @@ import {
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
-import {
-    LookupTable,
-    ValueSetRow,
-} from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     handleErrorWithAlert,

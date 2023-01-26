@@ -1,6 +1,5 @@
 import React from "react";
 
-import { WarningErrorDetail } from "../../config/endpoints/messageTracker";
 import Table, { TableConfig } from "../Table/Table";
 
 type WarningsErrorsDisplayProps = {

@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
-} from "../../../__mocks__/MessageTrackerMockServer";
+} from "../../../config/api/__mocks__/MessageTrackerMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { QueryWrapper } from "../../../utils/CustomRenderUtils";

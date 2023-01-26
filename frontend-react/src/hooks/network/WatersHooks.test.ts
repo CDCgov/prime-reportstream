@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import {
     watersServer,
     WatersTestHeaderValue,
-} from "../../__mocks__/WatersMockServer";
+} from "../../config/api/__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
 import { ContentType } from "../UseFileHandler";
 

@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { render } from "../../utils/CustomRenderUtils";
-import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import { settingsServer } from "../../config/api/__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
 

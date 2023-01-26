@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
-import { RSMessageDetail } from "../../config/endpoints/messageTracker";
 
 import { MessageDetails } from "./MessageDetails";
 
@@ -167,7 +166,7 @@ jest.mock("react-router-dom", () => ({
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as RSMessageDetail,
+            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as Message,
         });
         render(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
@@ -175,7 +174,7 @@ describe("RSMessageDetail component", () => {
 
     test("renders expected content", async () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
+            messageDetails: MOCK_MESSAGE_DETAIL as Message,
         });
         render(<MessageDetails />);
 

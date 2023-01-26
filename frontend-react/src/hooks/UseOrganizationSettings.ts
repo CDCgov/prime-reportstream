@@ -1,13 +1,8 @@
 import { useCallback } from "react";
 
-import {
-    RSOrganizationSettings,
-    servicesEndpoints,
-} from "../config/endpoints/settings";
+import { settingsEndpoints } from "../config/api/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../contexts/SessionContext";
-
-const { settings } = servicesEndpoints;
 
 export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();
@@ -15,7 +10,7 @@ export const useOrganizationSettings = () => {
         useAuthorizedFetch<RSOrganizationSettings>();
     const memoizedDataFetch = useCallback(
         () =>
-            authorizedFetch(settings, {
+            authorizedFetch(settingsEndpoints.organization, {
                 segments: {
                     orgName: activeMembership?.parsedName!!,
                 },
@@ -23,7 +18,7 @@ export const useOrganizationSettings = () => {
         [activeMembership?.parsedName, authorizedFetch]
     );
     return rsUseQuery(
-        [settings.queryKey, activeMembership],
+        [settingsEndpoints.organization.meta.queryKey, activeMembership],
         memoizedDataFetch,
         {
             enabled: !!activeMembership?.parsedName,

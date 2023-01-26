@@ -3,20 +3,13 @@ import { AccessToken } from "@okta/okta-auth-js";
 
 import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
-import {
-    deliveriesEndpoints,
-    RSDelivery,
-    RSFacility,
-} from "../../../config/endpoints/deliveries";
+import { deliveriesEndpoints } from "../../../config/api/deliveries";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useCreateFetch } from "../../UseCreateFetch";
 import { MembershipSettings } from "../../UseOktaMemberships";
-
-const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
-    deliveriesEndpoints;
 
 export enum DeliveriesDataAttr {
     REPORT_ID = "reportId",
@@ -66,7 +59,7 @@ const useOrgDeliveries = (service?: string) => {
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
             const fetcher = generateFetcher();
-            return fetcher(getOrgDeliveries, {
+            return fetcher(deliveriesEndpoints.orgAndServiceDeliveries, {
                 segments: {
                     orgAndService,
                 },
@@ -93,7 +86,7 @@ const useReportsDetail = (id: string) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery>();
     const memoizedDataFetch = useCallback(
         () =>
-            authorizedFetch(getDeliveryDetails, {
+            authorizedFetch(deliveriesEndpoints.reportDelivery, {
                 segments: {
                     id: id,
                 },
@@ -103,7 +96,7 @@ const useReportsDetail = (id: string) => {
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
-        [getDeliveryDetails.queryKey, id],
+        [deliveriesEndpoints.reportDelivery.meta.queryKey, id],
         memoizedDataFetch,
         { enabled: !!id }
     );
@@ -118,7 +111,7 @@ const useReportsFacilities = (id: string) => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSFacility[]>();
     const memoizedDataFetch = useCallback(
         () =>
-            authorizedFetch(getDeliveryFacilities, {
+            authorizedFetch(deliveriesEndpoints.reportFacilities, {
                 segments: {
                     id: id,
                 },
@@ -128,7 +121,7 @@ const useReportsFacilities = (id: string) => {
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
-        [getDeliveryFacilities.queryKey, id],
+        [deliveriesEndpoints.reportFacilities.meta.queryKey, id],
         memoizedDataFetch,
         { enabled: !!id }
     );

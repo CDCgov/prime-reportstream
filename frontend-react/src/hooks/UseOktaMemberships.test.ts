@@ -6,7 +6,7 @@ import { mockToken } from "../utils/TestUtils";
 import {
     MemberType,
     MembershipActionType,
-    membershipsFromToken,
+    getMembershipsFromToken,
     useOktaMemberships,
     calculateMembershipsWithOverride,
     membershipReducer,
@@ -214,13 +214,13 @@ describe("useOktaMemberships", () => {
 describe("helper functions", () => {
     describe("membershipsFromToken", () => {
         test("can handle token with undefined claims", () => {
-            const state = membershipsFromToken(mockToken());
+            const state = getMembershipsFromToken(mockToken());
             expect(state).toEqual({
                 activeMembership: null,
             });
         });
         test("can handle token with empty claims", () => {
-            const state = membershipsFromToken(
+            const state = getMembershipsFromToken(
                 mockToken({
                     claims: {
                         sub: "",
@@ -233,7 +233,7 @@ describe("helper functions", () => {
             });
         });
         test("returns processed membership", () => {
-            const state = membershipsFromToken(
+            const state = getMembershipsFromToken(
                 mockToken({
                     claims: {
                         sub: "",
@@ -250,7 +250,7 @@ describe("helper functions", () => {
         });
 
         test("returns active as first element of processed memberships", () => {
-            const state = membershipsFromToken(
+            const state = getMembershipsFromToken(
                 mockToken({
                     claims: {
                         sub: "",
@@ -270,7 +270,7 @@ describe("helper functions", () => {
         });
         // This is to protect our admins from messy Okta claims!
         test("return admin membership if present, even when not first", () => {
-            const state = membershipsFromToken(
+            const state = getMembershipsFromToken(
                 mockToken({
                     claims: {
                         sub: "",

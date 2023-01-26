@@ -1,7 +1,5 @@
 import React from "react";
 
-import { QualityFilter } from "../../config/endpoints/messageTracker";
-
 type QualityFiltersDisplayProps = {
     qualityFilters: QualityFilter[] | undefined;
 };

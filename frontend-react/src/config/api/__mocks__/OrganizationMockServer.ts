@@ -1,8 +1,6 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { RSReceiver } from "../config/endpoints/settings";
-
 const base = "https://test.prime.cdc.gov/api/settings/organizations";
 const getSender = (org: string, sender: string) =>
     `${base}/${org}/senders/${sender}`;
@@ -36,7 +34,10 @@ export const fakeOrg = {
 export const receiversGenerator = (count: number) => {
     const receivers: RSReceiver[] = [];
     for (let i = 0; i < count; i++) {
-        receivers.push({ name: `elr-${i}`, organizationName: "testOrg" });
+        receivers.push({
+            name: `elr-${i}`,
+            organizationName: "testOrg",
+        } as any); // TODO: create full mock
     }
     return receivers;
 };

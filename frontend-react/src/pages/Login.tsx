@@ -4,7 +4,7 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { oktaSignInConfig } from "../oktaConfig";
+import { oktaSignInConfig } from "../okta";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
 import { USLink } from "../components/USLink";

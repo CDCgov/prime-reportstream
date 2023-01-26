@@ -1,7 +1,10 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
-import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
+import {
+    dummySender,
+    orgServer,
+} from "../config/api/__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { useSenderResource } from "./UseSenderResource";

@@ -1,7 +1,10 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
-import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
+import {
+    fakeOrg,
+    orgServer,
+} from "../config/api/__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";

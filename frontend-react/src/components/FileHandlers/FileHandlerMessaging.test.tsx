@@ -6,7 +6,6 @@ import {
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { ResponseError } from "../../config/endpoints/waters";
 
 import {
     RequestLevel,

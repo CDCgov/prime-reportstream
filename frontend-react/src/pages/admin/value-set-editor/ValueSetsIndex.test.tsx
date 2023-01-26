@@ -2,7 +2,6 @@ import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosResponse } from "axios";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
-import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
     ValueSetsMetaResponse,

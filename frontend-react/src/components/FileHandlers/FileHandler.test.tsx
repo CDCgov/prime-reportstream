@@ -4,7 +4,6 @@ import {
     renderWithFullAppContext,
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/endpoints/waters";
 import {
     INITIAL_STATE,
     FileType,
@@ -13,13 +12,12 @@ import {
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
-import { RSSender } from "../../config/endpoints/settings";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
 let fakeState = {};
 
-const hl7Sender: RSSender = {
+const hl7Sender: Partial<RSSender> = {
     name: "default",
     organizationName: "hcintegrations",
     format: "HL7",
@@ -117,7 +115,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockUseWatersUploader.mockReturnValue({
                 isWorking: false,
                 uploaderError: null,
@@ -156,7 +154,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({ ...INITIAL_STATE });
             mockUseWatersUploader.mockReturnValue({
                 isWorking: true,
@@ -188,7 +186,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 errors: [{ message: "Error" } as ResponseError],
@@ -235,7 +233,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -298,7 +296,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 fileType: FileType.HL7,
@@ -354,7 +352,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 warnings: [{ message: "error" } as ResponseError],
@@ -397,7 +395,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
             });
@@ -429,7 +427,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
             });
@@ -476,7 +474,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             const fetchSpy = jest.fn(() => Promise.resolve({}));
             mockState({
                 ...INITIAL_STATE,
@@ -546,7 +544,7 @@ describe("FileHandler", () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
-            });
+            } as any);
             mockState({
                 ...INITIAL_STATE,
                 cancellable: true,

@@ -1,26 +1,25 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import {
-    lookupTablesEndpoints,
-    LookupTable,
-    ApiValueSet,
-} from "../config/endpoints/lookupTables";
+import { lookupTablesEndpoints } from "../lookupTables";
 
-const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();
-const tableDataUrl = lookupTablesEndpoints.getTableData.toDynamicUrl({
+const tableListUrl = lookupTablesEndpoints.lookupTables.toDynamicUrl();
+const tableDataUrl = lookupTablesEndpoints.lookupTableContent.toDynamicUrl({
     tableName: "sender_automation_value_set",
 });
-const tableDataUrlAlt = lookupTablesEndpoints.getTableData.toDynamicUrl({
+const tableDataUrlAlt = lookupTablesEndpoints.lookupTableContent.toDynamicUrl({
     tableName: "sender_automation_value_set_row",
 });
-const updateTableDataUrl = lookupTablesEndpoints.updateTable.toDynamicUrl({
-    tableName: "any",
-});
-const activateTableDataUrl = lookupTablesEndpoints.activateTable.toDynamicUrl({
-    version: "1",
-    tableName: "any",
-});
+const updateTableDataUrl = lookupTablesEndpoints.updateLookupTable.toDynamicUrl(
+    {
+        tableName: "any",
+    }
+);
+const activateTableDataUrl =
+    lookupTablesEndpoints.activateLookupTableVersion.toDynamicUrl({
+        version: "1",
+        tableName: "any",
+    });
 
 const lookupTables: LookupTable[] = [
     {

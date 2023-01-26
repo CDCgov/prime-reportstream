@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import {
-    SettingRevision,
     SettingRevisionParams,
     useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";

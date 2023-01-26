@@ -2,17 +2,9 @@ import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
-import {
-    lookupTablesEndpoints,
-    LookupTable,
-    ValueSet,
-    ValueSetRow,
-    LookupTables,
-} from "../config/endpoints/lookupTables";
 import { RSNetworkError } from "../utils/RSNetworkError";
-
-const { getTableData, getTableList, updateTable, activateTable } =
-    lookupTablesEndpoints;
+import { lookupTablesEndpoints } from "../config/api/lookupTables";
+import { LookupTables } from "../config/api/types";
 
 /*
 
@@ -59,7 +51,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // create the function to use for fetching table data from the API
     const memoizedDataFetch = useCallback(
         () =>
-            authorizedFetch(getTableData, {
+            authorizedFetch(lookupTablesEndpoints.lookupTableContent, {
                 segments: {
                     tableName: dataTableName,
                 },
@@ -71,7 +63,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { data: valueSetData } = rsUseQuery(
-        [getTableData.queryKey, dataTableName],
+        [lookupTablesEndpoints.lookupTableContent.meta.queryKey, dataTableName],
         memoizedDataFetch
     );
 
@@ -94,8 +86,9 @@ export const useValueSetsMeta = (
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
-    const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
-        authorizedFetch(getTableList)
+    const { data: tableData } = rsUseQuery(
+        [lookupTablesEndpoints.lookupTables.meta.queryKey],
+        () => authorizedFetch(lookupTablesEndpoints.lookupTables)
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);
@@ -123,9 +116,10 @@ export const useValueSetUpdate = () => {
     const { authorizedFetch } = useAuthorizedFetch<LookupTable>();
 
     const updateValueSet = ({ data, tableName }: UpdateValueSetOptions) => {
-        return authorizedFetch(updateTable, {
+        return authorizedFetch(lookupTablesEndpoints.updateLookupTable, {
             segments: { tableName: tableName },
             data,
+            method: "POST",
         });
     };
 
@@ -149,12 +143,16 @@ export const useValueSetActivation = () => {
         tableVersion,
         tableName,
     }: ActivateValueSetOptions) => {
-        return authorizedFetch(activateTable, {
-            segments: {
-                tableName,
-                version: `${tableVersion}`,
-            },
-        });
+        return authorizedFetch(
+            lookupTablesEndpoints.activateLookupTableVersion,
+            {
+                segments: {
+                    tableName,
+                    version: `${tableVersion}`,
+                },
+                method: "PUT",
+            }
+        );
     };
     const mutation = useMutation<
         LookupTable,

@@ -8,7 +8,6 @@ import React, {
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { StringIndexed } from "../../utils/UsefulTypes";
 
 import { RowSideEffect, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";

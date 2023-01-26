@@ -10,7 +10,6 @@ import {
     getOrganizationOverride,
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
-import { RSService } from "../config/endpoints/settings";
 
 const PRIME_ADMINS = "DHPrimeAdmins";
 const PREFIX_SENDER = "DHSender_";
@@ -105,7 +104,7 @@ const defaultState: MembershipState = {
     initialized: false,
 };
 
-export const membershipsFromToken = (
+export const getMembershipsFromToken = (
     token: AccessToken | undefined
 ): Partial<MembershipState> => {
     // Check if we even have claims
@@ -146,7 +145,7 @@ const calculateNewState = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
-            const parsedMemberships = membershipsFromToken(
+            const parsedMemberships = getMembershipsFromToken(
                 payload as AccessToken
             );
             return {

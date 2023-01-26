@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
-import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
+import { watersEndpoints } from "../../config/api/waters";
 import { ContentType } from "../UseFileHandler";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
@@ -33,6 +33,7 @@ export const useWatersUploader = (
         fileName,
     }: WatersPostArgs) => {
         return authorizedFetch(memoizedEndpoint, {
+            method: "POST",
             headers: {
                 "Content-Type": contentType || ContentType.CSV,
                 payloadName: fileName,

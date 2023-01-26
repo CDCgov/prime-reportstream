@@ -1,18 +1,14 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import config from "../config";
-import {
-    RSMessageDetail,
-    MessageListResource,
-    messageTrackerEndpoints,
-} from "../config/endpoints/messageTracker";
+import config from "../../";
+import { messageTrackerEndpoints } from "../messageTracker";
 
 const { RS_API_URL } = config;
 export const makeMessageDetailsFixture = (
     id: number,
-    overrides?: Partial<RSMessageDetail>
-): RSMessageDetail => ({
+    overrides?: Partial<Message>
+): Message => ({
     id: id || 1,
     messageId: overrides?.messageId || "",
     sender: overrides?.sender || "",
@@ -50,8 +46,7 @@ const messageSearch = messageTrackerEndpoints.search.toDynamicUrl({
     messageId: "alaska1",
 });
 
-const messagesSearchResultList: MessageListResource[] =
-    MOCK_MESSAGE_SENDER_DATA;
+const messagesSearchResultList: MessagesItem[] = MOCK_MESSAGE_SENDER_DATA;
 
 const handlers = [
     rest.get(messageSearch, (_req, res, ctx) => {

@@ -9,15 +9,11 @@ import {
     useValueSetsMeta,
     useValueSetsTable,
 } from "../../../hooks/UseValueSets";
-import {
-    LookupTable,
-    LookupTables,
-    ValueSet,
-} from "../../../config/endpoints/lookupTables";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { LookupTables } from "../../../config/api/types";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (

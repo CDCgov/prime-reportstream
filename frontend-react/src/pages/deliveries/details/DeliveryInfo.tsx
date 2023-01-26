@@ -1,7 +1,5 @@
 import moment from "moment";
 
-import { RSDelivery } from "../../../config/endpoints/deliveries";
-
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (type, sent,

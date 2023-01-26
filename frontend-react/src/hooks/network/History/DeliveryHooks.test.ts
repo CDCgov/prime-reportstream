@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
-import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
+import { deliveryServer } from "../../../config/api/__mocks__/DeliveriesMockServer";
 import { QueryWrapper } from "../../../utils/CustomRenderUtils";
 
 import {

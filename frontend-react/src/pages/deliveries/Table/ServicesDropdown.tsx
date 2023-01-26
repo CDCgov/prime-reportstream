@@ -1,5 +1,3 @@
-import { RSReceiver } from "../../../config/endpoints/settings";
-
 interface Props {
     /* REQUIRED
     A list of senders gathered by calling getListOfSenders() */
