@@ -80,6 +80,26 @@ UNK|maybe|LOCAL
 Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
+**Name**: equipment_model_id
+
+**ReportStream Internal Name**: equipment_model_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Equipment UID
+
+---
+
 **Name**: equipment_model_name
 
 **ReportStream Internal Name**: equipment_model_name
@@ -3083,6 +3103,28 @@ UNK|maybe|LOCAL
 Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
+**Name**: test_kit_name_id
+
+**ReportStream Internal Name**: test_kit_name_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Testkit Name ID
+
+**Documentation**:
+Follows guidence for OBX-17 as defined in the HL7 Confluence page
+---
+
 **Name**: test_performed_code
 
 **ReportStream Internal Name**: test_performed_code
@@ -3099,6 +3141,24 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Documentation**:
 The LOINC code of the test performed. This is a standardized coded value describing the test
+---
+
+**Name**: test_performed_name
+
+**ReportStream Internal Name**: test_performed_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Test Performed LOINC Long Name
+
+**Documentation**:
+The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_result

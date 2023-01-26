@@ -4,6 +4,7 @@ import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { Organizations } from "../../UseAdminSafeOrganizationName";
 
 import {
     useReportsDetail,
@@ -80,5 +81,57 @@ describe("DeliveryHooks", () => {
         );
         await waitForNextUpdate();
         expect(result.current.reportFacilities?.length).toEqual(2);
+    });
+
+    describe("useOrgDeliveries", () => {
+        describe("when requesting as a receiver", () => {
+            beforeEach(() => {
+                mockSessionContext.mockReturnValue({
+                    oktaToken: {
+                        accessToken: "TOKEN",
+                    },
+                    activeMembership: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                    },
+                    dispatch: () => {},
+                    initialized: true,
+                });
+            });
+
+            test("fetchResults returns an array of deliveries", async () => {
+                const { result } = renderHook(() =>
+                    useOrgDeliveries("testService")
+                );
+                const results = await result.current.fetchResults(" ", 10);
+
+                expect(results).toHaveLength(3);
+            });
+        });
+
+        describe("when requesting as an admin", () => {
+            beforeEach(() => {
+                mockSessionContext.mockReturnValue({
+                    oktaToken: {
+                        accessToken: "TOKEN",
+                    },
+                    activeMembership: {
+                        memberType: MemberType.PRIME_ADMIN,
+                        parsedName: Organizations.PRIMEADMINS,
+                    },
+                    dispatch: () => {},
+                    initialized: true,
+                });
+            });
+
+            test("fetchResults returns an empty array", async () => {
+                const { result } = renderHook(() =>
+                    useOrgDeliveries("testService")
+                );
+                const results = await result.current.fetchResults(" ", 10);
+
+                expect(results).toHaveLength(0);
+            });
+        });
     });
 });
