@@ -313,6 +313,18 @@ class ActionHistory(
     }
 
     /**
+     * Adds information to the Action object about the organization and receiver channel affected by this action.
+     * Typically, this would be called when a report is batched for that receiver, sent to that receiver,
+     * downloaded by that receiver, or any other action taken by that receiver or on behalf of that receiver.
+     * @param organizationName  The name of the receiving organization to associate with this action.
+     * @param receiverName  The name of the receiver channel to associate with this action.
+     */
+    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+        action.receivingOrg = organizationName
+        action.receivingOrgSvc = receiverName
+    }
+
+    /**
      * Sanity check: No report can be tracked twice, either as an input or output.
      * Prevents at least tight loops, and other shenanigans.
      */
@@ -391,8 +403,6 @@ class ActionHistory(
         reportFile.nextAction = TaskAction.send
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        action.receivingOrg = receiver.organizationName
-        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
@@ -424,8 +434,6 @@ class ActionHistory(
         reportFile.reportId = report.id
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        action.receivingOrg = receiver.organizationName
-        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.itemCount = report.itemCount
@@ -456,8 +464,6 @@ class ActionHistory(
         reportFile.nextActionAt = event.at
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        action.receivingOrg = receiver.organizationName
-        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
         reportFile.bodyUrl = blobInfo.blobUrl
@@ -503,8 +509,6 @@ class ActionHistory(
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
             reportFile.receivingOrgSvc = report.destination.name
-            action.receivingOrg = report.destination.organizationName
-            action.receivingOrgSvc = report.destination.name
         }
         reportsOut[reportFile.reportId] = reportFile
         trackItemLineages(report)
@@ -539,8 +543,6 @@ class ActionHistory(
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        action.receivingOrg = receiver.organizationName
-        action.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic.json_val
         reportFile.externalName = filename
@@ -577,8 +579,6 @@ class ActionHistory(
         reportFile.reportId = externalReportId // child report
         reportFile.receivingOrg = parentReportFile.receivingOrg
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
-        action.receivingOrg = parentReportFile.receivingOrg
-        action.receivingOrgSvc = parentReportFile.receivingOrgSvc
         reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename

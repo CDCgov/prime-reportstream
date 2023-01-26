@@ -343,6 +343,7 @@ open class BaseHistoryFunction : Logging {
 
                 val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
+                actionHistory.trackActionReceiverInfo(header.reportFile.receivingOrg, header.reportFile.receivingOrgSvc)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()

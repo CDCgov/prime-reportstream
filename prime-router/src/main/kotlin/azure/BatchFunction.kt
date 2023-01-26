@@ -68,6 +68,7 @@ class BatchFunction(
         try {
             val receiver = workflowEngine.settings.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
+            actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
 
             actionHistory.trackActionParams(message)
