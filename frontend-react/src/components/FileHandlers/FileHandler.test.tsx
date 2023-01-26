@@ -4,7 +4,11 @@ import {
     renderWithFullAppContext,
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/endpoints/waters";
+import {
+    OverallStatus,
+    ResponseError,
+    WatersResponse,
+} from "../../config/endpoints/waters";
 import {
     INITIAL_STATE,
     FileType,
@@ -30,6 +34,38 @@ const hl7Sender: RSSender = {
     processingType: "sync",
     allowDuplicates: true,
     topic: "covid-19",
+};
+const mockSendFile: WatersResponse = {
+    id: "",
+    submissionId: 1,
+    overallStatus: OverallStatus.VALID,
+    sender: "",
+    errorCount: 0,
+    warningCount: 4,
+    httpStatus: 200,
+    errors: [],
+    warnings: [
+        {
+            details: "",
+            scope: "item",
+            indices: [1, 2],
+            trackingIds: ["371784", "612092"],
+            field: "MSH-7 (file_created_date)",
+            message:
+                "Timestamp for file_created_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
+            errorCode: "INVALID_MSG_PARSE_DATE",
+        },
+        {
+            details: "",
+            scope: "item",
+            indices: [1, 2],
+            trackingIds: ["371784", "612092"],
+            field: "ORC-15 (order_test_date)",
+            message:
+                "Timestamp for order_test_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
+            errorCode: "INVALID_MSG_PARSE_DATE",
+        },
+    ],
 };
 
 const mockState = (state: any) => (fakeState = state);
@@ -307,19 +343,6 @@ describe("FileHandler", () => {
                 )
             );
             expect(timestampDate).toHaveClass("margin-top-05");
-
-            expect(mockAppInsights.trackEvent).toBeCalledWith({
-                name: EventName.FILE_VALIDATOR,
-                properties: {
-                    fileValidator: {
-                        warningCount: 0,
-                        errorCount: 0,
-                        schema: "hl7/hcintegrations-covid-19",
-                        fileType: "HL7",
-                        sender: "aegis",
-                    },
-                },
-            });
         });
 
         test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
@@ -506,9 +529,10 @@ describe("FileHandler", () => {
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
             });
-            const fetchSpy = jest.fn(() => Promise.resolve({}));
+            const fetchSpy = jest.fn(() => Promise.resolve(mockSendFile));
             mockState({
                 ...INITIAL_STATE,
+                fileType: FileType.HL7,
                 fileName: "anything",
             });
             mockUseWatersUploader.mockReturnValue({
@@ -557,18 +581,30 @@ describe("FileHandler", () => {
                 fileContent: "some file content",
                 fileName: "anything",
             });
-            // await waitFor(
-            //     () => {
-            //         // expect(mockDispatch).toHaveBeenCalledTimes(2);
-            //
-            //     },
-            //     {
-            //         onTimeout: (e) => {
-            //             console.error("dispatch not called on submit handler");
-            //             return e;
-            //         },
-            //     }
-            // );
+            await waitFor(
+                () => {
+                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                        name: EventName.FILE_VALIDATOR,
+                        properties: {
+                            fileValidator: {
+                                warningCount: 2,
+                                errorCount: 0,
+                                schema: "hl7/hcintegrations-covid-19",
+                                fileType: "HL7",
+                                sender: "aegis",
+                            },
+                        },
+                    });
+                },
+                {
+                    onTimeout: (e) => {
+                        console.error(
+                            "dispatch not called on file select handler"
+                        );
+                        return e;
+                    },
+                }
+            );
         });
 
         test("calls dispatch as expected on reset", async () => {

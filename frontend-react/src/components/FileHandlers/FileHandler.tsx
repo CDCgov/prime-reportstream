@@ -137,18 +137,6 @@ const FileHandler = ({
         validateOnly
     );
 
-    if ((reportId || errors.length || overallStatus) && !isWorking) {
-        trackAppInsightEvent(EventName.FILE_VALIDATOR, {
-            fileValidator: {
-                warningCount: warnings.length,
-                errorCount: errors.length,
-                schema: sender?.schemaName,
-                fileType: fileType,
-                sender: organization?.name,
-            },
-        });
-    }
-
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -191,19 +179,39 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
+
+        let eventData;
+
         try {
-            await sendFile({
+            const response = await sendFile({
                 contentType: contentType,
                 fileContent: fileContent,
                 fileName: fileName,
                 client: client,
             });
-        } catch (e: any) {
-            console.warn(e);
-            return {
-                ...state,
-                localError: `An error happened in useWatersUploader: '${e.toString()}'`,
+
+            eventData = {
+                warningCount: response?.warnings?.length,
+                errorCount: response?.errors?.length,
             };
+        } catch (e: any) {
+            if (e.data) {
+                eventData = {
+                    warningCount: e.data.warningCount,
+                    errorCount: e.data.errorCount,
+                };
+            }
+        }
+
+        if (eventData) {
+            trackAppInsightEvent(EventName.FILE_VALIDATOR, {
+                fileValidator: {
+                    schema: sender?.schemaName,
+                    fileType: fileType,
+                    sender: organization?.name,
+                    ...eventData,
+                },
+            });
         }
     };
 
