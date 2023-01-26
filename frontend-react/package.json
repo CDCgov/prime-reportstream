@@ -246,7 +246,7 @@
         "prettier": "^2.5.0",
         "react-scripts": "^5.0.0",
         "sass": "^1.57.1",
-        "typescript": "^4.5.4"
+        "typescript": "^4.9.4"
     },
     "peerDependencies": {
         "minimist": "^1.2.6",
