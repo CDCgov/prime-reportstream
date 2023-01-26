@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -25,6 +26,9 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.security.InvalidParameterException
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ValidateFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -310,5 +314,60 @@ class ValidateFunctionTests {
         // assert
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test RequestFunction getDummySender`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        // act
+        val expectedSender = TopicSender(
+            "ValidationSender",
+            "Internal",
+            Sender.Format.CSV,
+            CustomerStatus.TESTING,
+            "One",
+            Topic.TEST
+        )
+        val sender = validateFunc.getDummySender("One", "CSV")
+
+        // assert
+        assertEquals(expectedSender.name, sender.name)
+        assertEquals(expectedSender.organizationName, sender.organizationName)
+        assertEquals(expectedSender.format, sender.format)
+        assertEquals(expectedSender.customerStatus, sender.customerStatus)
+        assertEquals(expectedSender.schemaName, sender.schemaName)
+        assertEquals(expectedSender.topic, sender.topic)
+    }
+
+    @Test
+    fun `test RequestFunction getDummySender bad params`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        // act
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender(null, "CSV")
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("One", null)
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("DoesNotExist", "CSV")
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("One", "DoesNotExist")
+        }
     }
 }

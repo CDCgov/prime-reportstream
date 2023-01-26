@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
@@ -10,6 +11,9 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.TopicSender
+import java.lang.IllegalArgumentException
+import java.security.InvalidParameterException
 
 const val CLIENT_PARAMETER = "client"
 const val PAYLOAD_NAME_PARAMETER = "payloadname"
@@ -74,19 +78,18 @@ abstract class RequestFunction(
             .forEach { actionLogs.error(InvalidParamMessage("Invalid receiver name: $it")) }
 
         var sender: Sender? = null
-        var schema: Schema? = null
         val clientName = extractClient(request)
         if (clientName.isBlank()) {
             // Find schema via SCHEMA_PARAMETER parameter
-            val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
-            if (schemaName == null) {
-                actionLogs.error(
-                    InvalidParamMessage("Expected a '$CLIENT_PARAMETER' or '$SCHEMA_PARAMETER' query parameter")
+            try {
+                sender = getDummySender(
+                    request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null),
+                    request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
                 )
-            }
-            schema = Metadata.getInstance().findSchema(schemaName)
-            if (schema == null) {
-                actionLogs.error(InvalidParamMessage("Failed to find schema with name '$schemaName'"))
+            } catch (e: InvalidParameterException) {
+                actionLogs.error(
+                    InvalidParamMessage(e.message.toString())
+                )
             }
         } else {
             // Find schema via CLIENT_PARAMETER parameter
@@ -94,15 +97,16 @@ abstract class RequestFunction(
             if (sender == null) {
                 actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
             }
+        }
 
-            // verify schema if the sender is a topic sender
-            if (sender != null && sender is HasSchema) {
-                schema = workflowEngine.metadata.findSchema(sender.schemaName)
-                if (schema == null) {
-                    actionLogs.error(
-                        InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-                    )
-                }
+        // verify schema if the sender is a topic sender
+        var schema: Schema? = null
+        if (sender != null && sender is HasSchema) {
+            schema = workflowEngine.metadata.findSchema(sender.schemaName)
+            if (schema == null) {
+                actionLogs.error(
+                    InvalidParamMessage("unknown schema '${sender.schemaName}'")
+                )
             }
         }
 
@@ -127,7 +131,7 @@ abstract class RequestFunction(
             }
         }
 
-        if (content.isEmpty() || actionLogs.hasErrors()) {
+        if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
@@ -141,7 +145,7 @@ abstract class RequestFunction(
                 }
 
                 // only non full ELR senders will have a schema
-                if (schema != null) {
+                if (sender is HasSchema && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
@@ -166,5 +170,38 @@ abstract class RequestFunction(
             sender,
             topic
         )
+    }
+
+    /**
+     * Return [TopicSender] for a given schema if that schema exists. This lets us wrap the data needed by
+     * processRequest without making changes to the method
+     * @param schemaName the name or path of the schema
+     * @param format the message format that the schema supports
+     * @return TopicSender if schema exists, null otherwise
+     * @throws InvalidParameterException if [schemaName] or [formatName] is not valid
+     */
+    @Throws(InvalidParameterException::class)
+    internal fun getDummySender(schemaName: String?, formatName: String?): TopicSender {
+        val errMsgPrefix = "No client found in header so expected valid " +
+            "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters but found error: "
+        if (schemaName != null && formatName != null) {
+            val schema = workflowEngine.metadata.findSchema(schemaName)
+                ?: throw InvalidParameterException("$errMsgPrefix The schema with name '$schemaName' does not exist")
+            val format = try {
+                Sender.Format.valueOf(formatName)
+            } catch (e: IllegalArgumentException) {
+                throw InvalidParameterException("$errMsgPrefix The format '$formatName' is not supported")
+            }
+            return TopicSender(
+                "ValidationSender",
+                "Internal",
+                format,
+                CustomerStatus.TESTING,
+                schemaName,
+                schema.topic
+            )
+        } else {
+            throw InvalidParameterException("$errMsgPrefix 'SchemaName' and 'format' parameters must not be null")
+        }
     }
 }

@@ -26,6 +26,7 @@ import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.ReportStreamFilterResultForResponse
 import org.apache.logging.log4j.kotlin.Logging
+import java.security.InvalidParameterException
 import java.time.OffsetDateTime
 
 /**
@@ -53,25 +54,17 @@ class ValidateFunction(
         return try {
             val sender: Sender?
             val senderName = extractClient(request)
-            if (senderName.isNotBlank()) {
-                sender = workflowEngine.settings.findSender(senderName)
+            sender = if (senderName.isNotBlank()) {
+                workflowEngine.settings.findSender(senderName)
                     ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
             } else {
-                val schemaName = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
-                val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
-                if (schemaName != null && format != null) {
-                    sender = getDummySender(schemaName, format)
-                    if (sender == null) {
-                        return HttpUtilities.bad(
-                            request, "Could not find schema named '$schemaName"
-                        )
-                    }
-                } else {
-                    return HttpUtilities.bad(
-                        request,
-                        "No client found in header so expected " +
-                            "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters"
+                try {
+                    getDummySender(
+                        request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null),
+                        request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
                     )
+                } catch (e: InvalidParameterException) {
+                    return HttpUtilities.bad(request, e.message.toString())
                 }
             }
             actionHistory.trackActionParams(request)
@@ -182,29 +175,5 @@ class ValidateFunction(
                     .writeValueAsString(submission)
             )
             .build()
-    }
-
-    /**
-     * Return [TopicSender] for a given schema if that schema exists. This lets us wrap the data needed by
-     * processRequest without making changes to the method
-     * @param schemaName the name or path of the schema
-     * @param format the message format that the schema supports
-     * @return TopicSender if schema exists, null otherwise
-     */
-    internal fun getDummySender(schemaName: String, format: String): TopicSender? {
-        val schema = workflowEngine.metadata.findSchema(schemaName)
-        return if (schema != null) {
-            TopicSender(
-                "ValidationSender",
-                "Internal",
-                Sender.Format.valueOf(format),
-                CustomerStatus.TESTING,
-                schemaName,
-                schema.topic
-            )
-        } else {
-            // error schema not found
-            null
-        }
     }
 }
