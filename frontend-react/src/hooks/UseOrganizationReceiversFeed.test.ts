@@ -10,6 +10,7 @@ import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
 import { useOrganizationReceiversFeed } from "./UseOrganizationReceiversFeed";
+import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => {
@@ -17,45 +18,90 @@ describe("useOrganizationReceiversFeed", () => {
     });
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
-    test("returns empty array if no active membership parsed name", () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: undefined,
-            dispatch: () => {},
-            initialized: true,
+    describe("with no active membership parsed name", () => {
+        beforeEach(() => {
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: undefined,
+                dispatch: () => {},
+                initialized: true,
+            });
         });
-        const { result } = renderHook(() => useOrganizationReceiversFeed(), {
-            wrapper: QueryWrapper(),
+
+        test("is disabled and returns an empty array", () => {
+            const { result } = renderHook(
+                () => useOrganizationReceiversFeed(),
+                {
+                    wrapper: QueryWrapper(),
+                }
+            );
+            expect(result.current.services).toEqual([]);
+            expect(result.current.setActiveService).toBeDefined();
+            expect(result.current.activeService).toEqual(undefined);
+            expect(result.current.loadingServices).toEqual(false);
+            expect(result.current.isDisabled).toEqual(true);
         });
-        expect(result.current.services).toEqual([]);
-        expect(result.current.setActiveService).toBeDefined();
-        expect(result.current.activeService).toEqual(undefined);
-        expect(result.current.loadingServices).toEqual(true);
     });
-    test("returns correct organization receivers feed", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
-                service: "testReceiver",
-            },
-            dispatch: () => {},
-            initialized: true,
+
+    describe("with an admin parsed name", () => {
+        beforeEach(() => {
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: Organizations.PRIMEADMINS,
+                },
+                dispatch: () => {},
+                initialized: true,
+            });
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useOrganizationReceiversFeed(),
-            { wrapper: QueryWrapper() }
-        );
-        await waitForNextUpdate();
-        expect(result.current.services).toEqual(dummyReceivers);
-        expect(result.current.setActiveService).toBeDefined();
-        expect(result.current.activeService).toEqual(dummyActiveReceiver);
-        expect(result.current.loadingServices).toEqual(false);
+
+        test("is disabled and returns an empty array", () => {
+            const { result } = renderHook(
+                () => useOrganizationReceiversFeed(),
+                {
+                    wrapper: QueryWrapper(),
+                }
+            );
+            expect(result.current.services).toEqual([]);
+            expect(result.current.setActiveService).toBeDefined();
+            expect(result.current.activeService).toEqual(undefined);
+            expect(result.current.loadingServices).toEqual(false);
+            expect(result.current.isDisabled).toEqual(true);
+        });
+    });
+
+    describe("with a non-admin parsed name", () => {
+        beforeEach(() => {
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrg",
+                    service: "testReceiver",
+                },
+                dispatch: () => {},
+                initialized: true,
+            });
+        });
+
+        test("returns correct organization receivers feed", async () => {
+            const { result, waitForNextUpdate } = renderHook(
+                () => useOrganizationReceiversFeed(),
+                { wrapper: QueryWrapper() }
+            );
+            await waitForNextUpdate();
+            expect(result.current.services).toEqual(dummyReceivers);
+            expect(result.current.setActiveService).toBeDefined();
+            expect(result.current.activeService).toEqual(dummyActiveReceiver);
+            expect(result.current.loadingServices).toEqual(false);
+        });
     });
 
     test("setActiveService sets an active receiver", async () => {
