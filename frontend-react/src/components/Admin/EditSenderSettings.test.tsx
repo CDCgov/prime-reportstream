@@ -72,7 +72,13 @@ describe("EditSenderSettings", () => {
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });
-
+    test("toggle allowDuplicates", () => {
+        const checkbox = screen.getByTestId("allowDuplicates");
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).not.toBeChecked();
+        fireEvent.click(checkbox);
+        expect(checkbox).toBeChecked();
+    });
     test("should be able to edit keys field", () => {
         const keysField = screen.getByTestId("keys");
 

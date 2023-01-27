@@ -50,11 +50,12 @@ identifier_2b:
   vars:
     valueIn: OBR.3.1
     systemCX: OBR.3.2
+    universalId: OBR.3.3
+    universalIdType: OBR.3.4
     valueInORC: ORC.3.1
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "FILL"
-    display: "Filler Identifier"
 
 identifier_3a:
   condition: $valueIn NOT_NULL
@@ -81,13 +82,12 @@ identifier_3b:
   vars:
     valueIn: OBR.2.1
     systemCX: OBR.2.2
+    universalId: OBR.2.3
+    universalIdType: OBR.2.4
     valueInORC: ORC.2.1
-    universalId: ORC.2.3
-    universalIdType: ORC.2.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
-    display: "Placer Identifier"
 
 identifier_4:
   condition: $valueIn NOT_NULL
