@@ -6,6 +6,17 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## January 31, 2023
+
+### Make validation endpoint public
+
+This release removes authentication/authorization from the `/api/validate` endpoint.
+
+Previously, the `client` parameter had to be set in the header. This is still an option, but now, the client
+can pass `schema` and `format` as query parameters and a schema matching those values will be used to 
+validate the message. Additional information can be found in the API documentation.
+
+
 ## November 29, 2022
 
 ### Change to the api/token endpoint
