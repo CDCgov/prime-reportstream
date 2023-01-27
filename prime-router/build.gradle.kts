@@ -38,7 +38,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.20"
-    id("com.avast.gradle.docker-compose") version "0.16.9"
+    id("com.avast.gradle.docker-compose") version "0.16.11"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
@@ -720,7 +720,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.20.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.1") {
+    implementation("com.azure:azure-storage-queue:12.15.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
