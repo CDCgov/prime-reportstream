@@ -15,6 +15,7 @@
 ## Decision Drivers
 
 - Recent experience adding a simple addition to USWDS showed that we can't rely on them to update their library according to our needs.
+- Trussworks React components provide extremely thin wrappers around basic USWDS markup, which makes them lightweight, but is also a roadblock for developers (like us) who want to make more complicated extensions to the USWDS library.
 - Our `<Table />` component is becoming increasing complex and to be realized fully, requires us to deviate significantly from the USWDS base `<Table />` component.
 
 ## Considered Options
@@ -39,14 +40,14 @@ Wrapping their components provides all of their underlying work (latest USWDS ve
 - Trussworks handles turning the USWDS base library into exposed React components.
 - Extremely actively maintained with an associated [Trussworks Storybook](https://trussworks.github.io/react-uswds/) which would make diffing our extended components very easy.
 - Follows our currently implemented solutions of extending components, so least overhead in terms of code changes.
-- Ideal for stylistic changes to Trussworks React components. Can simply use the scoped `.module` syntax to create new dynamic styles.
+- Ideal for stylistic changes to Trussworks React components. Can simply use the scoped `.module` syntax to create new dynamic styles and more specific CSS rules.
 - No need to add styles to our convoluted overrides file `_uswds_overrides.scss` anymore.
 
 #### Cons
 - Not ideal for complex functional extensions of React components.
 - Can get convoluted quickly since we're essentially wrapping a wrapper.
 - Potentially easy breaking changes as we'd be two levels from USWDS.
-- Still need to manually override USWDS styles on occasion using `!important`.
+- May *potentially* need to use `!important` in our CSS rules to override some USWDS styling.
 
 Sample `<RSTable/>` component with a `stickyHeader` feature:
 
@@ -101,18 +102,22 @@ Utilize the raw [USWDS library](https://github.com/uswds/uswds) which would remo
 import styles from "./RSTable.module.css";
 import classnames from "classnames";
 
-export const RSTable = ({ props, children }) => {
+export const RSTable = ({ ...props, children }) => {
     // We could easily make a master hash file
     // with all USWDS CSS classes instead
     const USWDSTableClasses = {
-      borderless: 'usa-table--borderless',
-      compact: 'usa-table--compact',
-      striped: 'usa-table--striped',
+      Borderless: 'usa-table--borderless',
+      Compact: 'usa-table--compact',
+      Striped: 'usa-table--striped',
       stickyHeader: 'rs-table--sticky-header',
     }
     
-    // The classnames library recursively flattens arrays
-    const classes = classnames("usa-table", Object.keys(props).map((class) => USWDSTableClasses[class]));
+    // If the value of the key is falsy, 
+    // it won't be included in the classnames output
+    const classes = classnames("usa-table", {
+      [USWDSTableClasses.Borderless]: borderless,
+      [USWDSTableClasses.Compact]: compact,
+    });
 
     return (
       <table className={classes}>
@@ -138,7 +143,7 @@ export const RSTable = ({ props, children }) => {
 
 #### Description
 
-Many of the USWDS components are not very complicated from a Design, animation and overall front-end point of view. Re-creating them from the ground up, especially potentially very complicated components like ReportStream's proposed new tables, would give us granular control and better testing.
+Many of the USWDS components are not very complicated from a Design, animation and overall front-end point of view. Re-creating them from the ground up, especially potentially very complicated components like ReportStream's proposed new tables, would give us granular control and better testing. Engineers would have to make the case for how their markup is structured taking into considering responsiveness, web-browsers and accessibility.
 
 #### Pros
 
@@ -147,7 +152,7 @@ Many of the USWDS components are not very complicated from a Design, animation a
 - Zero dependencies on external teams to fix broken code or add certain features.
 
 #### Cons
-- Have to maintain, top-to-bottom, the codebase including: testing, accessibility, optimization and everything else that comes with maintaining a library of sorts.
+- Have to maintain, top-to-bottom, the codebase including: testing, accessibility, optimization, maintaining documentation and everything else that comes with creating a library.
 - Removing ourselves from the USWDS ecosystem.
 - Massive lift to recode and recreate entire components in our codebase.
 
@@ -161,9 +166,10 @@ import classnames from "classnames";
 export const RSTable = ({ styles, dataHeader, dataBody }) => {
     // The classnames library recursively flattens arrays
     const classes = classnames("rs-table", styles);
-
+    // Engineers would have to make the case of what their markup would look like,
+    // ie using <table> vs aria-role
     return (
-      <div className={classes}>
+      <div className={classes} aria-role="table">
         <div className="rs-table-header">
           {dataHeader.map((headerItem) => {
             return (
