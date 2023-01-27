@@ -203,7 +203,7 @@ const FileHandler = ({
             }
         }
 
-        if (eventData) {
+        if (eventData && validateOnly) {
             trackAppInsightEvent(EventName.FILE_VALIDATOR, {
                 fileValidator: {
                     schema: sender?.schemaName,

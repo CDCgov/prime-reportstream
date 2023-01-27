@@ -581,30 +581,6 @@ describe("FileHandler", () => {
                 fileContent: "some file content",
                 fileName: "anything",
             });
-            await waitFor(
-                () => {
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
-                        name: EventName.FILE_VALIDATOR,
-                        properties: {
-                            fileValidator: {
-                                warningCount: 2,
-                                errorCount: 0,
-                                schema: "hl7/hcintegrations-covid-19",
-                                fileType: "HL7",
-                                sender: "aegis",
-                            },
-                        },
-                    });
-                },
-                {
-                    onTimeout: (e) => {
-                        console.error(
-                            "dispatch not called on file select handler"
-                        );
-                        return e;
-                    },
-                }
-            );
         });
 
         test("calls dispatch as expected on reset", async () => {
@@ -640,6 +616,131 @@ describe("FileHandler", () => {
             fireEvent.click(cancelButton);
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.RESET,
+            });
+        });
+
+        describe("trackEvent", () => {
+            test("gets called on submit if FileHandlerType is type VALIDATION", async () => {
+                mockUseSenderResource.mockReturnValue({
+                    senderDetail: hl7Sender,
+                    senderIsLoading: false,
+                });
+                const fetchSpy = jest.fn(() => Promise.resolve(mockSendFile));
+                mockState({
+                    ...INITIAL_STATE,
+                    fileType: FileType.HL7,
+                    fileName: "anything",
+                });
+                mockUseWatersUploader.mockReturnValue({
+                    isWorking: false,
+                    uploaderError: null,
+                    sendFile: fetchSpy,
+                });
+
+                renderWithFullAppContext(
+                    <FileHandler
+                        headingText="handler heading"
+                        handlerType={FileHandlerType.VALIDATION}
+                        successMessage=""
+                        resetText=""
+                        submitText="SUBMIT ME"
+                        showSuccessMetadata={false}
+                        showWarningBanner={false}
+                        warningText=""
+                    />
+                );
+
+                const input = await screen.findByTestId("file-input-input");
+                const submitButton = await screen.findByText("SUBMIT ME");
+
+                // set file to be uploaded
+                fireEvent.change(input, fileChangeEvent);
+                await waitFor(
+                    () => {
+                        expect(mockDispatch).toHaveBeenCalledTimes(1);
+                    },
+                    {
+                        onTimeout: (e) => {
+                            console.error(
+                                "dispatch not called on file select handler"
+                            );
+                            return e;
+                        },
+                    }
+                );
+
+                expect(submitButton).toBeEnabled();
+                fireEvent.click(submitButton);
+                await waitFor(() => {
+                    expect(mockAppInsights.trackEvent).toBeCalledWith({
+                        name: EventName.FILE_VALIDATOR,
+                        properties: {
+                            fileValidator: {
+                                warningCount: 2,
+                                errorCount: 0,
+                                schema: "hl7/hcintegrations-covid-19",
+                                fileType: "HL7",
+                                sender: "aegis",
+                            },
+                        },
+                    });
+                }, {});
+            });
+
+            test("does not get called on submit if FileHandlerType is type UPLOAD", async () => {
+                mockUseSenderResource.mockReturnValue({
+                    senderDetail: hl7Sender,
+                    senderIsLoading: false,
+                });
+                const fetchSpy = jest.fn(() => Promise.resolve(mockSendFile));
+                mockState({
+                    ...INITIAL_STATE,
+                    fileType: FileType.HL7,
+                    fileName: "anything",
+                });
+                mockUseWatersUploader.mockReturnValue({
+                    isWorking: false,
+                    uploaderError: null,
+                    sendFile: fetchSpy,
+                });
+
+                renderWithFullAppContext(
+                    <FileHandler
+                        headingText="handler heading"
+                        handlerType={FileHandlerType.UPLOAD}
+                        successMessage=""
+                        resetText=""
+                        submitText="SUBMIT ME"
+                        showSuccessMetadata={false}
+                        showWarningBanner={false}
+                        warningText=""
+                    />
+                );
+
+                const input = await screen.findByTestId("file-input-input");
+                const submitButton = await screen.findByText("SUBMIT ME");
+
+                // set file to be uploaded
+                fireEvent.change(input, fileChangeEvent);
+                await waitFor(
+                    () => {
+                        expect(mockDispatch).toHaveBeenCalledTimes(1);
+                    },
+                    {
+                        onTimeout: (e) => {
+                            console.error(
+                                "dispatch not called on file select handler"
+                            );
+                            return e;
+                        },
+                    }
+                );
+
+                expect(submitButton).toBeEnabled();
+                fireEvent.click(submitButton);
+                await waitFor(() => {
+                    expect(mockAppInsights.trackEvent).not.toBeCalled();
+                }, {});
             });
         });
     });
