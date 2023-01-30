@@ -119,7 +119,7 @@ class ValidateFunctionTests {
     /** basic /validate endpoint tests **/
 
     @Test
-    fun `test validate endpoint with missing client`() {
+    fun `test validate endpoint with missing client, schemaName, and format`() {
         val (validateFunc, req) = setupForDotNotationTests()
         req.httpHeaders += mapOf(
             "content-length" to "4"
@@ -128,6 +128,20 @@ class ValidateFunctionTests {
         validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
+    }
+
+    @Test
+    fun `test validate endpoint with client`() {
+        val (validateFunc, req) = setupForDotNotationTests()
+        req.httpHeaders += mapOf(
+            "content-length" to "4",
+            "client" to "Test Sender"
+        )
+
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // processRequest should be called
+        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
@@ -190,6 +204,155 @@ class ValidateFunctionTests {
         validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
+    }
+
+    @Test
+    fun `test validate endpoint only client`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        val req = MockHttpRequestMessage("test")
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one"
+        )
+        every { engine.settings.findSender(any()) } returns sender
+
+        req.httpHeaders += mapOf(
+            "content-length" to "4",
+            "client" to "Test Sender",
+        )
+
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // validation should be run against sender
+        verify(exactly = 1) { validateFunc.processRequest(any(), sender) }
+    }
+
+    @Test
+    fun `test validate endpoint with mismatched client and schema`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        val req = MockHttpRequestMessage("test")
+
+        val mismatchedSchemaSender = CovidSender(
+            "Mismatched Schema Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "two"
+        )
+        every { engine.settings.findSender(any()) } returns mismatchedSchemaSender
+        val dummySender = TopicSender(
+            "DummySender",
+            "Dummy",
+            Sender.Format.CSV,
+            CustomerStatus.TESTING,
+            "dummy",
+            Topic.TEST
+        )
+        every { validateFunc.getDummySender(any(), any()) } returns dummySender
+
+        req.httpHeaders += mapOf(
+            "content-length" to "4",
+            "client" to "Mismatched Schema Sender",
+        )
+        req.parameters += mapOf(
+            "schema" to "one",
+            "format" to "CSV"
+        )
+
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // validation should be run against DummySender
+        verify(exactly = 1) { validateFunc.processRequest(any(), dummySender) }
+    }
+
+    @Test
+    fun `test validate endpoint with mismatched client and format`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        val req = MockHttpRequestMessage("test")
+
+        val mismatchedSchemaSender = CovidSender(
+            "Mismatched Format Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one"
+        )
+        every { engine.settings.findSender(any()) } returns mismatchedSchemaSender
+        val dummySender = TopicSender(
+            "DummySender",
+            "Dummy",
+            Sender.Format.CSV,
+            CustomerStatus.TESTING,
+            "dummy",
+            Topic.TEST
+        )
+        every { validateFunc.getDummySender(any(), any()) } returns dummySender
+
+        req.httpHeaders += mapOf(
+            "content-length" to "4",
+            "client" to "Mismatched Format Sender",
+        )
+        req.parameters += mapOf(
+            "schema" to "one",
+            "format" to "HL7"
+        )
+
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // validation should be run against DummySender
+        verify(exactly = 1) { validateFunc.processRequest(any(), dummySender) }
+    }
+
+    @Test
+    fun `test validate endpoint with matching client, schema, and format`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        val req = MockHttpRequestMessage("test")
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one"
+        )
+        every { engine.settings.findSender(any()) } returns sender
+
+        req.httpHeaders += mapOf(
+            "content-length" to "4",
+            "client" to "Test Sender"
+        )
+        req.parameters += mapOf(
+            "schema" to "one",
+            "format" to "CSV"
+        )
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // processFunction should never be called
+        verify(exactly = 1) { validateFunc.processRequest(any(), sender) }
     }
 
     // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)

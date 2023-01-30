@@ -181,7 +181,7 @@ abstract class RequestFunction(
      */
     @Throws(InvalidParameterException::class)
     internal fun getDummySender(schemaName: String?, formatName: String?): TopicSender {
-        val errMsgPrefix = "No client found in header so expected valid " +
+        val errMsgPrefix = "Expected valid " +
             "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters but found error: "
         if (schemaName != null && formatName != null) {
             val schema = workflowEngine.metadata.findSchema(schemaName)
@@ -200,7 +200,7 @@ abstract class RequestFunction(
                 schema.topic
             )
         } else {
-            throw InvalidParameterException("$errMsgPrefix 'SchemaName' and 'format' parameters must not be null")
+            throw InvalidParameterException("$errMsgPrefix 'schema' and 'format' parameters must not be null")
         }
     }
 }

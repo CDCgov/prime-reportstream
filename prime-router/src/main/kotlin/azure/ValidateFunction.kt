@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -50,23 +51,40 @@ class ValidateFunction(
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         return try {
-            val sender: Sender?
+            val schema = request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null)
+            val format = request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
             val senderName = extractClient(request)
-            sender = if (senderName.isNotBlank()) {
-                workflowEngine.settings.findSender(senderName)
+            var sender: Sender? = null
+
+            if (senderName.isNotBlank()) {
+                val clientSender = workflowEngine.settings.findSender(senderName)
                     ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-            } else {
-                try {
-                    getDummySender(
-                        request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null),
-                        request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
-                    )
-                } catch (e: InvalidParameterException) {
-                    return HttpUtilities.bad(request, e.message.toString())
+
+                // only use client Sender in two cases
+                // 1) only client is sent (not schema or format) - backwards compatibility
+                // 2) client is sent and matches up with provided schema and format to use Sender settings
+                if (
+                    (schema.isNullOrEmpty() && format.isNullOrEmpty()) ||
+                    (
+                        (clientSender as TopicSender).schemaName == schema &&
+                            Sender.Format.valueOf(format) == clientSender.format
+                        )
+                ) {
+                    sender = clientSender
                 }
             }
+
+            if (sender == null) {
+                sender =
+                    try {
+                        getDummySender(schema, format)
+                    } catch (e: InvalidParameterException) {
+                        return HttpUtilities.bad(request, e.message.toString())
+                    }
+            }
+
             actionHistory.trackActionParams(request)
-            processRequest(request, sender)
+            processRequest(request, sender as Sender)
         } catch (ex: Exception) {
             if (ex.message != null) {
                 logger.error(ex.message!!, ex)
