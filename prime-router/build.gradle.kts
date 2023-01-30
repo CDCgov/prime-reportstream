@@ -39,7 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.20"
     id("com.avast.gradle.docker-compose") version "0.16.11"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
 
