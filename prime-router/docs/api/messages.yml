@@ -16,6 +16,8 @@ paths:
         - name: messageId
           in: query
           description: the exact message/tracking id of a message processed by ReportStream
+          schema:
+            type: string
       responses:
         '200':
           description: a list of message objects
