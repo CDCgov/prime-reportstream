@@ -23,7 +23,6 @@ const { DEFAULT_FEATURE_FLAGS } = config;
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
-    USER_UPLOAD = "user-upload",
     MESSAGE_TRACKER = "message-tracker",
 }
 

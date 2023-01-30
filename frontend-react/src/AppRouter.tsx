@@ -25,7 +25,6 @@ import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
-import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import Home from "./pages/home/Home";
 import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
@@ -108,11 +107,6 @@ export const AppRouter = () => (
         <Route
             path="/admin/revisionhistory/org/:org/settingtype/:settingType"
             element={<AdminRevHistoryWithAuth />}
-        />
-        {/* Feature-flagged pages */}
-        <Route
-            path={"/file-handler/user-upload"}
-            element={<UploadToPipelineWithAuth />}
         />
         <Route path="/file-handler/validate" element={<ValidateWithAuth />} />
         {/* Handles any undefined route */}
