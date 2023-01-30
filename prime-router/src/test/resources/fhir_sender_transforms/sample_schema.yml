@@ -1,16 +1,23 @@
+# This is going to be DiagnosticReport
 elements:
-  - name: patient-country
+  - name: status
     constants:
       someString: blah blah
-    resource: ‘Bundle.entry.resource.ofType(Patient)’
-    condition: ‘%resource.address.country.exists().not()’
-    bundleProperty: ‘%resource.address.country’
-    value: [ ‘“USA”’ ]
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.status.exists()'
+    bundleProperty: '%resource.status'
+    value: [ '"final"' ]
+  - name: issued
+    constants:
+      anotherString: hello
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.issued.exists()'
+    bundleProperty: '%resource.issued'
+    value: [ '"CO"' ]
     valueSet:
       key: value
       key2: value
-    valueSetTable: <lookup table name>,<key column>,<value column>
-  - name: report-index
-    resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
-    resourceIndex: orderIndex
-    schema: order
+  - name: observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
+    resourceIndex: observationIndex
+    schema: observation

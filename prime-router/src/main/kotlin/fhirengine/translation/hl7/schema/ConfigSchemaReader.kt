@@ -69,7 +69,7 @@ object ConfigSchemaReader : Logging {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
-            readOneYamlSchema(file.inputStream())
+            readOneYamlSchema(file.inputStream(), isFHIRTransform)
         } catch (e: Exception) {
             val msg = "Error while reading schema configuration from file ${file.absolutePath}"
             logger.error(msg, e)
@@ -90,9 +90,6 @@ object ConfigSchemaReader : Logging {
             element.schemaRef =
                 readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, isFHIRTransform)
         }
-        if (isFHIRTransform) {
-            rawSchema.elements.forEach { element -> element.markFHIRTransformElement() }
-        }
         return rawSchema
     }
 
@@ -100,12 +97,16 @@ object ConfigSchemaReader : Logging {
      * Read one YAML formatted schema from the given [inputStream].
      * @return the schema
      */
-    internal fun readOneYamlSchema(inputStream: InputStream): ConfigSchema {
+    internal fun readOneYamlSchema(inputStream: InputStream, isFHIRTransform: Boolean = false): ConfigSchema {
         val mapper = ObjectMapper(YAMLFactory())
         val rawSchema = mapper.readValue(inputStream, ConfigSchema::class.java)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")
+        }
+        if (isFHIRTransform) {
+            rawSchema.markFHIRTransformSchema()
+            rawSchema.elements.forEach { element -> element.markFHIRTransformElement() }
         }
         return rawSchema
     }

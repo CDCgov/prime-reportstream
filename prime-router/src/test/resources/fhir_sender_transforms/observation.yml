@@ -1,13 +1,6 @@
 elements:
-  - name: observation-set-id
+  - name: observation-status
+    bundleProperty: '%resource.status'
+    condition: '%observationIndex = 0'
     value:
-      - '%observationIndex  + 1'
-    hl7Spec:
-      - '%{hl7Order}/OBSERVATION(%{observationIndex})/OBX-1'
-
-  - name: observation-identifier-code
-    value:
-      - '%resource.code.coding.code'
-    hl7Spec:
-      - '%{hl7Order}/OBSERVATION(%{observationIndex})/OBX-3-1'
-
+      - 'final'

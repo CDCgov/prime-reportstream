@@ -21,6 +21,12 @@ data class ConfigSchema(
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
+    private var isFHIRTransformSchema: Boolean = false
+
+    fun markFHIRTransformSchema() {
+        isFHIRTransformSchema = true
+    }
+
     /**
      * Name used to identify this schema.
      * Can be set from outside this class to make it useful in context.
@@ -71,7 +77,14 @@ data class ConfigSchema(
         }
 
         // hl7Type or hl7Version is only allowed at the top level.
-        if (isChildSchema) {
+        if (isFHIRTransformSchema) {
+            if (!hl7Type.isNullOrBlank()) {
+                addError("Schema hl7Type cannot be specified in FHIR transform schema")
+            }
+            if (!hl7Version.isNullOrBlank()) {
+                addError("Schema hl7Version cannot be specified in FHIR transform schema")
+            }
+        } else if (isChildSchema) {
             if (!hl7Type.isNullOrBlank()) {
                 addError("Schema hl7Type can only be specified in top level schema")
             }
@@ -164,6 +177,10 @@ class ValueSetTable(input: String) {
     val tableName: String
     val keyCol: String
     val valCol: String
+    val isValid: Boolean
+        get() {
+            return tableName != "" && keyCol != "" && valCol != ""
+        }
 
     init {
         val parts = input.split(",")
@@ -177,8 +194,6 @@ class ValueSetTable(input: String) {
             valCol = parts[2]
         }
     }
-
-    override fun toString() = "ValueSetTable(table=$tableName, key column=$keyCol, value column=$valCol)"
 }
 
 /**
@@ -193,7 +208,10 @@ class ValueSetTable(input: String) {
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
+ * @property valueSet a list of key-value pairs used to convert the value property
  * @property debug log debug information for the element
+ * @property bundleProperty a FHIR path denoting where to store the value
+ * @property valueSetTable database location of key-value pairs to convert the value property
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
@@ -242,6 +260,11 @@ data class ConfigSchemaElement(
                     addError("FHIR Transform schemas cannot use the debug property")
                 valueSetTable != null && valueSet.isNotEmpty() ->
                     addError("ValueSet property cannot be used with the valueSetTable property")
+                valueSetTable != null ->
+                    addError("ValueSetTable property is not yet supported")
+                // When valueSetTable is supported, the following lines can be uncommented
+//                valueSetTable?.isValid == false ->
+//                    addError("Invalid valueSetTable property value")
             }
         } else {
             when {
@@ -278,6 +301,8 @@ data class ConfigSchemaElement(
             when {
                 hl7Spec.isEmpty() && !isFHIRTransformElement ->
                     addError("Hl7Spec property is required when not using a schema")
+                bundleProperty == null && isFHIRTransformElement ->
+                    addError("BundleProperty property is required when not using a schema")
                 value.isEmpty() ->
                     addError("Value property is required when not using a schema")
             }

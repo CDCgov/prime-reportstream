@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -116,11 +117,51 @@ class ConfigSchemaReaderTests {
     }
 
     @Test
+    fun `test isValid hl7v2 vs fhir transform`() {
+        // This is a valid fhir transform schema
+        assertThat(
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "sample_schema",
+                "src/test/resources/fhir_sender_transforms",
+                isFHIRTransform = true
+            ).isValid()
+        ).isTrue()
+
+        // This is an invalid hl7v2 schema
+        assertThat(
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "sample_schema",
+                "src/test/resources/fhir_sender_transforms",
+                isFHIRTransform = false
+            ).isValid()
+        ).isFalse()
+
+        // This is a valid hl7v2 schema
+        assertThat(
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+                isFHIRTransform = false
+            ).isValid()
+        ).isTrue()
+
+        // This is an invalid fhir transform schema
+        assertThat(
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+                isFHIRTransform = true
+            ).isValid()
+        ).isFalse()
+    }
+
+    @Test
     fun `test read UP FHIR schema tree from file`() {
         // This is a good schema
         val schema = ConfigSchemaReader.readSchemaTreeFromFile(
             "sample_schema",
-            "src/test/resources/fhir_sender_transforms"
+            "src/test/resources/fhir_sender_transforms",
+            isFHIRTransform = true
         )
 
         assertThat(schema.errors).isEmpty()
@@ -129,27 +170,27 @@ class ConfigSchemaReaderTests {
         assertThat(schema.hl7Version).isNull()
         assertThat(schema.elements).isNotEmpty()
 
-        val patientCountryElement = schema.elements.single { it.name == "patient-country" }
-        assertThat(patientCountryElement.schema).isNull()
-        assertThat(patientCountryElement.constants).isNotNull()
-        assertThat(patientCountryElement.condition).isNotNull()
-        assertThat(patientCountryElement.valueSetTable).isNotNull()
-        assertThat(patientCountryElement.valueSetTable!!.tableName).isEqualTo("<lookup table name>")
-        assertThat(patientCountryElement.valueSetTable!!.keyCol).isEqualTo("<key column>")
-        assertThat(patientCountryElement.valueSetTable!!.valCol).isEqualTo("<value column>")
+        val statusElement = schema.elements.single { it.name == "status" }
+        assertThat(statusElement.schema).isNull()
+        assertThat(statusElement.constants).isNotNull()
+        assertThat(statusElement.condition).isNotNull()
+        assertThat(statusElement.valueSetTable).isNull()
+        assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
 
         // This is a bad schema.
         assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "invalid_schema",
-                "src/test/resources/fhir_sender_transforms"
+                "src/test/resources/fhir_sender_transforms",
+                isFHIRTransform = true
             )
         }.isFailure()
 
         assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "incomplete_schema",
-                "src/test/resources/fhir_sender_transforms"
+                "src/test/resources/fhir_sender_transforms",
+                isFHIRTransform = true
             )
         }.isFailure()
     }
