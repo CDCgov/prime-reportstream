@@ -111,6 +111,7 @@ export class TestResponse {
         schemaName: "direct/hca-covid-19",
         customerStatus: "active",
         processingType: "sync",
+        allowDuplicates: false,
         organizationName: "hca",
         pk: function (): string {
             throw new Error("Function not implemented.");

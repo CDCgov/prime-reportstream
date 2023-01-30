@@ -19,6 +19,8 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     timing: object = [];
     transport: object = [];
     externalName: string = "";
+    timeZone: string = "";
+    dateTimeFormat: string = "";
 
     pk() {
         return this.name;

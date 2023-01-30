@@ -2,7 +2,14 @@ import { QueryClient } from "@tanstack/react-query";
 
 export const appQueryClient = new QueryClient({
     defaultOptions: {
-        queries: { suspense: true, useErrorBoundary: true },
+        queries: {
+            suspense: true,
+            useErrorBoundary: true,
+            retry: false,
+            staleTime: Infinity,
+            cacheTime: Infinity,
+            refetchOnWindowFocus: false,
+        },
     },
 });
 export const testQueryClient = new QueryClient({

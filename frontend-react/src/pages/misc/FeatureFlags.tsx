@@ -88,7 +88,6 @@ export function FeatureFlagUIComponent() {
                             key="add-feature-flag"
                             type="button"
                             outline
-                            size="small"
                             className="padding-bottom-1 padding-top-1"
                             onClick={() => addFlagClick()}
                         >
@@ -103,13 +102,18 @@ export function FeatureFlagUIComponent() {
                                 className="margin-top-3"
                                 key={`feature-flag-${i}`}
                             >
-                                <Alert type="success" slim noIcon className="">
+                                <Alert
+                                    headingLevel="h4"
+                                    type="success"
+                                    slim
+                                    noIcon
+                                    className=""
+                                >
                                     <b>{flagname}</b>
                                     {DEFAULT_FEATURE_FLAGS.indexOf(flagname) ===
                                         -1 && (
                                         <Button
                                             key={flagname}
-                                            size="small"
                                             className="padding-bottom-1 padding-top-1 float-right"
                                             type="button"
                                             outline
