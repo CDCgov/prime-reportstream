@@ -1156,18 +1156,6 @@ An example of the ID is 03D2159846
 The name of the laboratory which performed the test, can be the same as the sending facility name
 ---
 
-**Name**: testing_lab_name_type_code
-
-**ReportStream Internal Name**: testing_lab_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: testing_lab_state
 
 **ReportStream Internal Name**: testing_lab_state

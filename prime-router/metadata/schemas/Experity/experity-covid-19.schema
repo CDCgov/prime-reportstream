@@ -165,8 +165,6 @@ elements:
       type: TEXT
       mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
 
-    - name: ordering_provider_name_type_code
-
     - name: ordering_provider_street
       cardinality: ONE 
       csvFields: [{name: Ordering_provider_street}]
@@ -230,8 +228,6 @@ elements:
     - name: testing_lab_name
       cardinality: ONE 
       mapper: concat(testing_lab_name_temp, ordering_facility_name_temp)
-
-    - name: testing_lab_name_type_code
 
     - name: testing_lab_street
       cardinality: ONE 

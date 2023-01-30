@@ -270,8 +270,6 @@ elements:
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:literal, $string:SA.OverTheCounter, ordering_provider_first_name_fromCSV)
 
-    - name: ordering_provider_name_type_code
-
     - name: ordering_provider_street
       csvFields: [{name: orderingProviderAddress}]
 
@@ -329,8 +327,6 @@ elements:
           display: "00Z0000014"
         - code: "SA.Prescription"
           display: "00Z0000015"
-
-    - name: testing_lab_name_type_code
 
     - name: testing_lab_street
       cardinality: ONE 

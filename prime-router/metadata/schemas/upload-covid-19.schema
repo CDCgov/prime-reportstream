@@ -345,8 +345,6 @@ elements:
       cardinality: ONE
       csvFields: [{name: ordering_provider_phone_number}]
 
-    - name: ordering_provider_name_type_code
-
 ############### Testing lab info
     - name: testing_lab_clia
       cardinality: ONE 
@@ -358,8 +356,6 @@ elements:
     - name: testing_lab_name
       cardinality: ONE 
       csvFields: [{name: testing_lab_name}]
-
-    - name: testing_lab_name_type_code
 
     - name: testing_lab_street
       cardinality: ONE 

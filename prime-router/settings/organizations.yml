@@ -810,3 +810,110 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+
+
+- name: "pa-phd"
+  description: "Pennsylvania Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "PA"
+  countyName: null
+  filters: []
+  featureFlags: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "pa-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "PA-ELR"
+        receivingApplicationOID: null
+        receivingFacilityName: "PADOH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue:
+          ORC-21-2: "L"
+          MSH-4-1: "Report Stream"
+          MSH-4-2: "10DRPTSTRM"
+        replaceValueAwithB: {}
+        reportingFacilityName: ""
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "PID-13-1,ORC-23-1,OBR-17-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides:
+          hl70189:
+            name: "hl70189"
+            system: "HL7"
+            reference: "HL7 guidance for ethnicity, modified for PA standards"
+            referenceUrl: null
+            values:
+              - code: "H"
+                display: "Hispanic or Latino"
+                version: null
+                replaces: null
+                system: null
+              - code: "NH"
+                display: "Non Hispanic or Latino"
+                version: null
+                replaces: "N"
+                system: null
+              - code: "U"
+                display: "Unknown"
+                version: null
+                replaces: null
+                system: null
+            version: "2.9"
+        nameFormat: ""
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: "\\u0019"
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "matches(patient_state, PA)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"

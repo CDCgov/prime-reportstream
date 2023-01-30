@@ -1740,23 +1740,6 @@ unique id to track the usage of the message
 The name of the facility which the test was ordered from
 ---
 
-**Name**: ordering_provider_name_type_code
-
-**ReportStream Internal Name**: ordering_provider_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
-- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_provider_state
 
 **ReportStream Internal Name**: ordering_provider_state
@@ -2014,18 +1997,6 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 **Documentation**:
 This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
----
-
-**Name**: testing_lab_name_type_code
-
-**ReportStream Internal Name**: testing_lab_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
 ---
 
 **Name**: testing_lab_specimen_id

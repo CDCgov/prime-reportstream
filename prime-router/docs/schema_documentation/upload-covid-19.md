@@ -3718,23 +3718,6 @@ The state of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_provider_name_type_code
-
-**ReportStream Internal Name**: ordering_provider_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
-- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_provider_state
 
 **ReportStream Internal Name**: ordering_provider_state
@@ -3873,18 +3856,6 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: TestType
-
----
-
-**Name**: testing_lab_name_type_code
-
-**ReportStream Internal Name**: testing_lab_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 

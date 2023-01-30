@@ -3020,23 +3020,6 @@ The postal code for the testing lab
 Accension number
 ---
 
-**Name**: ordering_provider_name_type_code
-
-**ReportStream Internal Name**: ordering_provider_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
-- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: patient_id_type
 
 **ReportStream Internal Name**: patient_id_type
@@ -3155,17 +3138,5 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: TestType
-
----
-
-**Name**: testing_lab_name_type_code
-
-**ReportStream Internal Name**: testing_lab_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---

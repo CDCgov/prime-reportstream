@@ -2428,23 +2428,6 @@ The name of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_provider_name_type_code
-
-**ReportStream Internal Name**: ordering_provider_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
-- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: patient_county
 
 **ReportStream Internal Name**: patient_county
@@ -2590,16 +2573,4 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 **Documentation**:
 The name of the laboratory which performed the test, can be the same as the sending facility name
----
-
-**Name**: testing_lab_name_type_code
-
-**ReportStream Internal Name**: testing_lab_name_type_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
 ---

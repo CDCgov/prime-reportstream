@@ -202,8 +202,6 @@ elements:
   - name: testing_lab_name
     mapper: use(ordering_facility_name)
 
-  - name: testing_lab_name_type_code
-
   - name: testing_lab_street
     mapper: use(ordering_facility_street)
 
