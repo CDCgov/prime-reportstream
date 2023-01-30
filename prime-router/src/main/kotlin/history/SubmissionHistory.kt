@@ -336,9 +336,19 @@ class DetailedSubmissionHistory(
         }
 
         // Grab destinations from the "translate" action, if the submission made it that far
-        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+        descendants.filter { it.actionName == TaskAction.translate }.distinct().forEach { descendant ->
             descendant.destinations.forEach { dest ->
-                destinations += dest
+                // Check if destination has already been added
+                // if it is increase item counts
+                // otherwise add it to destinations
+                val index = destinations.indexOf(dest)
+                if (index >= 0) {
+                    destinations[index].itemCount += dest.itemCount
+                    destinations[index].itemCountBeforeQualFilter =
+                        destinations[index].itemCountBeforeQualFilter?.plus(dest.itemCountBeforeQualFilter ?: 0)
+                } else {
+                    destinations += dest
+                }
             }
         }
 
@@ -586,9 +596,9 @@ data class Destination(
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,
-    val itemCount: Int,
+    var itemCount: Int,
     @JsonProperty("itemCountBeforeQualityFiltering")
-    val itemCountBeforeQualFilter: Int?,
+    var itemCountBeforeQualFilter: Int?,
     var sentReports: MutableList<DetailedReport> = mutableListOf(),
     var downloadedReports: MutableList<DetailedReport> = mutableListOf(),
 ) {

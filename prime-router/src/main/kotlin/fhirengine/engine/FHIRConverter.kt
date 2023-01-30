@@ -62,6 +62,7 @@ class FHIRConverter(
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
             // operate on each fhir bundle
+            var bundleIndex = 1
             for (bundle in fhirBundles) {
                 // make a 'report'
                 val report = Report(
@@ -79,7 +80,7 @@ class FHIRConverter(
                     ItemLineage(
                         null,
                         message.reportId,
-                        1,
+                        bundleIndex++,
                         report.id,
                         1,
                         null,
