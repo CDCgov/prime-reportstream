@@ -1,6 +1,6 @@
 import React from "react";
 
-import { StaticAlert } from "../StaticAlert";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { capitalizeFirst } from "../../utils/misc";
 
 interface NoServicesBannerProps {
@@ -16,7 +16,7 @@ export const NoServicesBanner = ({
 }: NoServicesBannerProps) => {
     return (
         <StaticAlert
-            type={"error"}
+            type={StaticAlertType.Error}
             heading={`${capitalizeFirst(featureName || "feature")} unavailable`}
             message={`No valid ${serviceType || "service"} found for ${
                 organization || "your organization"
