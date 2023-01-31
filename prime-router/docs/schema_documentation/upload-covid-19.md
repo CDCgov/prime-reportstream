@@ -53,7 +53,7 @@
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 95418-0
 
@@ -80,6 +80,26 @@ UNK|maybe|LOCAL
 Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
+**Name**: equipment_model_id
+
+**ReportStream Internal Name**: equipment_model_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Equipment UID
+
+---
+
 **Name**: equipment_model_name
 
 **ReportStream Internal Name**: equipment_model_name
@@ -92,8 +112,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 
 **Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-                
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
+
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -142,7 +162,7 @@ Accension number
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 95417-2
 
@@ -179,7 +199,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 77974-4
 
@@ -216,7 +236,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 95420-6
 
@@ -253,7 +273,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: yyyyMMdd
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 65222-2
 
@@ -2616,7 +2636,7 @@ The patient's zip code
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 82810-3
 
@@ -2745,7 +2765,7 @@ The reporting facility's name
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 75617-1
 
@@ -2812,7 +2832,7 @@ Translate multiple inbound values into Residence Type SNOMED codes.
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 95421-4
 
@@ -3056,7 +3076,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Default Value**: 
+**Default Value**:
 
 **LOINC Code**: 95419-8
 
@@ -3083,6 +3103,28 @@ UNK|maybe|LOCAL
 Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
+**Name**: test_kit_name_id
+
+**ReportStream Internal Name**: test_kit_name_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Testkit Name ID
+
+**Documentation**:
+Follows guidence for OBX-17 as defined in the HL7 Confluence page
+---
+
 **Name**: test_performed_code
 
 **ReportStream Internal Name**: test_performed_code
@@ -3099,6 +3141,24 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Documentation**:
 The LOINC code of the test performed. This is a standardized coded value describing the test
+---
+
+**Name**: test_performed_name
+
+**ReportStream Internal Name**: test_performed_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Test Performed LOINC Long Name
+
+**Documentation**:
+The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_result
