@@ -38,10 +38,7 @@ const oktaSignInConfig: WidgetOptions = {
     useClassicEngine: true,
 };
 
-export function getOktaAuth(config: OktaAuthOptions = oktaAuthConfig) {
-    const OKTA_AUTH = new OktaAuth(config);
-    OKTA_AUTH.start();
-    return OKTA_AUTH;
-}
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+OKTA_AUTH.start();
 
-export { oktaAuthConfig, oktaSignInConfig };
+export { oktaAuthConfig, oktaSignInConfig, OKTA_AUTH };
