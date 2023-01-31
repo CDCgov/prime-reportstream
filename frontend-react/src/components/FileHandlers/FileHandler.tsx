@@ -14,6 +14,7 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 
 import {
     RequestLevel,
@@ -178,12 +179,40 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-        await sendFile({
-            contentType: contentType,
-            fileContent: fileContent,
-            fileName: fileName,
-            client: client,
-        });
+
+        let eventData;
+
+        try {
+            const response = await sendFile({
+                contentType: contentType,
+                fileContent: fileContent,
+                fileName: fileName,
+                client: client,
+            });
+
+            eventData = {
+                warningCount: response?.warnings?.length,
+                errorCount: response?.errors?.length,
+            };
+        } catch (e: any) {
+            if (e.data) {
+                eventData = {
+                    warningCount: e.data.warningCount,
+                    errorCount: e.data.errorCount,
+                };
+            }
+        }
+
+        if (eventData && validateOnly) {
+            trackAppInsightEvent(EventName.FILE_VALIDATOR, {
+                fileValidator: {
+                    schema: sender?.schemaName,
+                    fileType: fileType,
+                    sender: organization?.name,
+                    ...eventData,
+                },
+            });
+        }
     };
 
     const resetState = () => {
