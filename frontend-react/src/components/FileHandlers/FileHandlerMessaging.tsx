@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo } from "react";
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { StaticAlert } from "../StaticAlert";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import {
-    ResponseError,
     ErrorCodeTranslation,
+    ResponseError,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USExtLink, USLink } from "../USLink";
@@ -38,7 +38,7 @@ export const FileSuccessDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"success slim"}
+                type={[StaticAlertType.Success, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />
@@ -108,7 +108,7 @@ const TrackingIDTooltip = () => {
             position="right"
             label={"Defaults to MSH-10"}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
@@ -118,7 +118,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -126,10 +125,12 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
-        () => (title === RequestLevel.WARNING ? "warning" : "error"),
+        () =>
+            title === RequestLevel.WARNING
+                ? StaticAlertType.Warning
+                : StaticAlertType.Error,
         [title]
     );
     const showTable =
@@ -140,10 +141,10 @@ export const RequestedChangesDisplay = ({
     useEffect(() => {
         data.forEach((error: ResponseError) => {
             if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
+                console.error(`failure: ${error.details}`);
             }
         });
-    }, [data, handlerType, title]);
+    }, [data, title]);
 
     return (
         <>
@@ -208,7 +209,13 @@ interface FileWarningBannerProps {
 }
 
 export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+    return (
+        <StaticAlert
+            type={StaticAlertType.Warning}
+            heading="Warning"
+            message={message}
+        />
+    );
 };
 
 interface ErrorRowProps {
@@ -251,7 +258,7 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"error slim"}
+                type={[StaticAlertType.Error, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />

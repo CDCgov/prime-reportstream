@@ -102,5 +102,6 @@ class HL7toFhirTranslator internal constructor(
         // The HL7 message ID
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
+        bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
     }
 }

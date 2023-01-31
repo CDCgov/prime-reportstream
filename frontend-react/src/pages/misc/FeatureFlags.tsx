@@ -23,7 +23,6 @@ const { DEFAULT_FEATURE_FLAGS } = config;
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
-    USER_UPLOAD = "user-upload",
     MESSAGE_TRACKER = "message-tracker",
 }
 
@@ -88,7 +87,6 @@ export function FeatureFlagUIComponent() {
                             key="add-feature-flag"
                             type="button"
                             outline
-                            size="small"
                             className="padding-bottom-1 padding-top-1"
                             onClick={() => addFlagClick()}
                         >
@@ -103,13 +101,18 @@ export function FeatureFlagUIComponent() {
                                 className="margin-top-3"
                                 key={`feature-flag-${i}`}
                             >
-                                <Alert type="success" slim noIcon className="">
+                                <Alert
+                                    headingLevel="h4"
+                                    type="success"
+                                    slim
+                                    noIcon
+                                    className=""
+                                >
                                     <b>{flagname}</b>
                                     {DEFAULT_FEATURE_FLAGS.indexOf(flagname) ===
                                         -1 && (
                                         <Button
                                             key={flagname}
-                                            size="small"
                                             className="padding-bottom-1 padding-top-1 float-right"
                                             type="button"
                                             outline
