@@ -53,7 +53,7 @@
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 95418-0
 
@@ -92,8 +92,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 
 **Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
-
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Equipment UID
@@ -112,8 +112,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 
 **Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
-
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -162,7 +162,7 @@ Accension number
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 95417-2
 
@@ -199,7 +199,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 77974-4
 
@@ -236,7 +236,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 95420-6
 
@@ -273,7 +273,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: yyyyMMdd
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 65222-2
 
@@ -2636,7 +2636,7 @@ The patient's zip code
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 82810-3
 
@@ -2765,7 +2765,7 @@ The reporting facility's name
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 75617-1
 
@@ -2832,7 +2832,7 @@ Translate multiple inbound values into Residence Type SNOMED codes.
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 95421-4
 
@@ -3076,7 +3076,7 @@ Translate inbound text to outbound SNOMED Codes
 
 **Format**: use value found in the Display column
 
-**Default Value**:
+**Default Value**: 
 
 **LOINC Code**: 95419-8
 
@@ -3115,8 +3115,8 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 
 **Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification)
-
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
