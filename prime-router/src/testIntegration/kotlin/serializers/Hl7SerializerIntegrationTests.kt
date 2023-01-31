@@ -37,7 +37,6 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -169,14 +168,17 @@ NTE|1|L|This is a final comment|RE
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
-        assertThat(output.contains(
-            "FHS|^~\\&|||||"
-        )).isTrue()
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|||||"
+            )
+        ).isTrue()
 
-        assertThat(output.contains(
-            "BHS|^~\\&|||||"
-        )).isTrue()
-
+        assertThat(
+            output.contains(
+                "BHS|^~\\&|||||"
+            )
+        ).isTrue()
     }
 
     @Test
@@ -202,17 +204,23 @@ NTE|1|L|This is a final comment|RE
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
-        assertThat(output.contains(
-            "FHS|^~\\&|New Sendign App^2.16.840.1.114222.4.1.237821^ISO|"
-        )).isTrue()
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|New Sendign App^2.16.840.1.114222.4.1.237821^ISO|"
+            )
+        ).isTrue()
 
-        assertThat(output.contains(
-            "|New Receiving Application^1234^ISO|"
-        )).isTrue()
+        assertThat(
+            output.contains(
+                "|New Receiving Application^1234^ISO|"
+            )
+        ).isTrue()
 
-        assertThat(output.contains(
-            "|New Receiving Facility|"
-        )).isTrue()
+        assertThat(
+            output.contains(
+                "|New Receiving Facility|"
+            )
+        ).isTrue()
     }
 
     @Test
@@ -431,15 +439,21 @@ NTE|1|L|This is a final comment|RE
         main(args)
 
         val messageWithHeader = File(testOutputFile).readLines().joinToString("\r")
-        assertThat(messageWithHeader.contains(
-            "FHS|^~\\&|CDC TESTING SENDING APP^12345^ISO|"
-        )).isTrue()
-        assertThat(messageWithHeader.contains(
-            "|CDC TESTING RECEIVING APP^12345^ISO|"
-        )).isTrue()
-        assertThat(messageWithHeader.contains(
-            "|CDC TESTING RECEIVING FACILITY|"
-        )).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "FHS|^~\\&|CDC TESTING SENDING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING FACILITY|"
+            )
+        ).isTrue()
 
         val message = File(testOutputFile).readLines().drop(2).joinToString("\r")
         val mcf = CanonicalModelClassFactory("2.5.1")

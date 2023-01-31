@@ -1825,7 +1825,7 @@ class Hl7Serializer(
             @Suppress("UNCHECKED_CAST")
             (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
                 val fields = pairs.values.first().trim()
-                if  (segment.key == "FHS-3")
+                if (segment.key == "FHS-3")
                     sendingApplicationReportInReplace = fields
                 else if (segment.key == "FHS-5")
                     receivingApplicationReportInReplace = fields

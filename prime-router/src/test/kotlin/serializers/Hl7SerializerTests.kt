@@ -1023,8 +1023,8 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val replaceFHSReceivingFacility = arrayListOf(mapOf("*" to "New Receiving Facility"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
-            "FHS-3" to replaceFHSSendingApp,    // Make sure the replaceValueAwithB is not fail
-            "FHS-5" to replaceFHSReceivingApp,  // Make sure the replaceValueAwithB is not fail
+            "FHS-3" to replaceFHSSendingApp, // Make sure the replaceValueAwithB is not fail
+            "FHS-5" to replaceFHSReceivingApp, // Make sure the replaceValueAwithB is not fail
             "FHS-6" to replaceFHSReceivingFacility, // Make sure the replaceValueAwithB is not fail
             "ORC-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
