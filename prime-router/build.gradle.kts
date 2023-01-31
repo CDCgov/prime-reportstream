@@ -39,7 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.20"
     id("com.avast.gradle.docker-compose") version "0.16.11"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
 
@@ -715,7 +715,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
-    implementation("com.azure:azure-core:1.34.0")
+    implementation("com.azure:azure-core:1.35.0")
     implementation("com.azure:azure-core-http-netty:1.12.8")
     implementation("com.azure:azure-storage-blob:12.20.1") {
         exclude(group = "com.azure", module = "azure-core")
@@ -816,7 +816,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.1")
+    testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

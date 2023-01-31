@@ -90,50 +90,6 @@ describe("AdminDropdownNav - value-sets", () => {
     });
 });
 
-describe("AdminDropdownNav - user-upload", () => {
-    beforeEach(() => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag === "user-upload"),
-        });
-    });
-
-    test("Flagged user-upload page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "user-upload"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const userUpload = screen.queryByText("User Upload");
-
-        // Assert they're hidden without flag
-        expect(userUpload).not.toBeInTheDocument();
-    });
-
-    test("Flagged user-upload page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "user-upload"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const userUpload = screen.queryByText("User Upload");
-
-        // Assert they're hidden without flag
-        expect(userUpload).not.toBeInTheDocument();
-    });
-
-    test("Flagged user-upload is shown when flag is set", () => {
-        renderWithRouter(<AdminDropdown />);
-        const userUpload = screen.queryByText("User Upload");
-
-        // Assert not hidden
-        expect(userUpload).toBeInTheDocument();
-    });
-});
-
 describe("AdminDropdownNav - message-tracker", () => {
     beforeEach(() => {
         mockFeatureFlagContext.mockReturnValue({
