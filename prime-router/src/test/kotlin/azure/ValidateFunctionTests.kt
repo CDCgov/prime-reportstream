@@ -11,9 +11,9 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -26,6 +26,9 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.security.InvalidParameterException
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ValidateFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -118,99 +121,75 @@ class ValidateFunctionTests {
     @Test
     fun `test validate endpoint with missing client`() {
         val (validateFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Server2Server)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "content-length" to "4"
         )
         // Invoke the waters function run
-        validateFunc.run(req)
+        validateFunc.validate(req)
         // processFunction should never be called
         verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
-    fun `test validate endpoint with server2server auth - basic happy path`() {
-        val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Server2Server)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+    fun `test validate endpoint with schemaName and format`() {
+        val (validateFunc, req) = setupForDotNotationTests()
         req.httpHeaders += mapOf(
-            "client" to "simple_report",
             "content-length" to "4"
         )
-        // Invoke the waters function run
-        reportFunc.run(req)
-        // processFunction should be called
-        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
-    }
-
-    @Test
-    fun `test validate endpoint with server2server auth - claim does not match`() {
-        val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("scope" to "bogus_org.default.report", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Server2Server)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-        req.httpHeaders += mapOf(
-            "client" to "simple_report",
-            "content-length" to "4"
+        req.parameters += mapOf(
+            "schema" to "one",
+            "format" to "CSV"
         )
         // Invoke the waters function run
-        reportFunc.run(req)
+        validateFunc.validate(req)
         // processFunction should never be called
-        verify(exactly = 0) { reportFunc.processRequest(any(), any()) }
+        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
     }
 
-    /**
-     * Test that header of the form client:simple_report.default works with the auth code.
-     */
     @Test
-    fun `test validate endpoint with okta dot-notation client header - basic happy path`() {
+    fun `test validate endpoint with schemaName but missing format`() {
         val (validateFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-        // This is the most common way our customers use the client string
         req.httpHeaders += mapOf(
-            "client" to "simple_report",
             "content-length" to "4"
+        )
+        req.parameters += mapOf(
+            "schema" to "one"
         )
         // Invoke the waters function run
-        validateFunc.run(req)
-        // processFunction should be called
-        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
+        validateFunc.validate(req)
+        // processFunction should never be called
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
-    fun `test validate endpoint with okta dot-notation client header - full dotted name`() {
+    fun `test validate endpoint with format but missing schemaName`() {
         val (validateFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-        // Now try it with a full client name
         req.httpHeaders += mapOf(
-            "client" to "simple_report.default",
             "content-length" to "4"
         )
-        validateFunc.run(req)
-        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
+        req.parameters += mapOf(
+            "format" to "CSV"
+        )
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // processFunction should never be called
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     @Test
-    fun `test validate endpoint with okta dot-notation client header - dotted but not default`() {
+    fun `test validate endpoint with schemaName but schema not found`() {
         val (validateFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-        // Now try it with a full client name but not with "default"
-        // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
         req.httpHeaders += mapOf(
-            "client" to "simple_report.foobar",
             "content-length" to "4"
         )
-        validateFunc.run(req)
-        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
+        req.parameters += mapOf(
+            "schema" to "does-not-exist",
+            "format" to "CSV"
+        )
+        // Invoke the waters function run
+        validateFunc.validate(req)
+        // processFunction should never be called
+        verify(exactly = 0) { validateFunc.processRequest(any(), any()) }
     }
 
     // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
@@ -232,17 +211,13 @@ class ValidateFunctionTests {
         every { validateFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
-        val testClaims = AuthenticatedClaims.generateTestClaims(null)
-        mockkObject(AuthenticatedClaims.Companion)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns testClaims
-
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
             "content-length" to "4"
         )
 
         // Invoke function run
-        validateFunc.run(req)
+        validateFunc.validate(req)
 
         // processFunction should be called
         verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
@@ -271,7 +246,7 @@ class ValidateFunctionTests {
         )
 
         // Invoke function run
-        val res = validateFunc.run(req)
+        val res = validateFunc.validate(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -294,17 +269,13 @@ class ValidateFunctionTests {
         every { validateFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns null
 
-        val testClaims = AuthenticatedClaims.generateTestClaims(null)
-        mockkObject(AuthenticatedClaims.Companion)
-        every { AuthenticatedClaims.Companion.authenticate(any()) } returns testClaims
-
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
             "content-length" to "4"
         )
 
         // Invoke function run
-        val res = validateFunc.run(req)
+        val res = validateFunc.validate(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -343,5 +314,60 @@ class ValidateFunctionTests {
         // assert
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test RequestFunction getDummySender`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        // act
+        val expectedSender = TopicSender(
+            "ValidationSender",
+            "Internal",
+            Sender.Format.CSV,
+            CustomerStatus.TESTING,
+            "One",
+            Topic.TEST
+        )
+        val sender = validateFunc.getDummySender("One", "CSV")
+
+        // assert
+        assertEquals(expectedSender.name, sender.name)
+        assertEquals(expectedSender.organizationName, sender.organizationName)
+        assertEquals(expectedSender.format, sender.format)
+        assertEquals(expectedSender.customerStatus, sender.customerStatus)
+        assertEquals(expectedSender.schemaName, sender.schemaName)
+        assertEquals(expectedSender.topic, sender.topic)
+    }
+
+    @Test
+    fun `test RequestFunction getDummySender bad params`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+
+        // act
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender(null, "CSV")
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("One", null)
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("DoesNotExist", "CSV")
+        }
+        assertFailsWith<InvalidParameterException> {
+            validateFunc.getDummySender("One", "DoesNotExist")
+        }
     }
 }

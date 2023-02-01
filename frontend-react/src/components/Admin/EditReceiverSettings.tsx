@@ -241,6 +241,20 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
                     valuesFrom={"customerStatus"}
                 />
+                <DropdownComponent
+                    fieldname={"timeZone"}
+                    label={"Time Zone"}
+                    defaultvalue={orgReceiverSettings.timeZone}
+                    savefunc={(v) => (orgReceiverSettings.timeZone = v)}
+                    valuesFrom={"timeZone"}
+                />
+                <DropdownComponent
+                    fieldname={"dateTimeFormat"}
+                    label={"Date Time Format"}
+                    defaultvalue={orgReceiverSettings.dateTimeFormat}
+                    savefunc={(v) => (orgReceiverSettings.dateTimeFormat = v)}
+                    valuesFrom={"dateTimeFormat"}
+                />
                 <TextInputComponent
                     fieldname={"description"}
                     label={"Description"}

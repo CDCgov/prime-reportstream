@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { useMemo } from "react";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
@@ -13,26 +12,21 @@ export interface WatersPostArgs {
     contentType?: ContentType;
 }
 
-const { upload, validate } = watersEndpoints;
+const { validate } = watersEndpoints;
 
 /** Uploads a file to ReportStream */
 export const useWatersUploader = (
-    callback: (data?: WatersResponse) => void,
-    validateOnly: boolean = false
+    callback: (data?: WatersResponse) => void
 ) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
-    /* Conditionally set the endpoint */
-    const memoizedEndpoint = useMemo(
-        () => (validateOnly ? validate : upload),
-        [validateOnly]
-    );
+
     const mutationFunction = ({
         contentType,
         fileContent,
         client,
         fileName,
     }: WatersPostArgs) => {
-        return authorizedFetch(memoizedEndpoint, {
+        return authorizedFetch(validate, {
             headers: {
                 "Content-Type": contentType || ContentType.CSV,
                 payloadName: fileName,

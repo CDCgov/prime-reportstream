@@ -63,9 +63,9 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{hl7Order}-14(%{callbackIndex})'
+      hl7TelecomField: '%{hl7Order}-14'
     schema: datatype/xtn-telecom
-    resourceIndex: callbackIndex
+    resourceIndex: telecomIndex
 
   - name: order-effective-date
     condition: '%service.extension(%`rsext-order-effective-date`).exists()'
@@ -95,6 +95,7 @@ elements:
     schema: datatype/xtn-telecom
     constants:
       hl7TelecomField: '%{hl7Order}-23'
+    resourceIndex: telecomIndex
 
   - name: ordering-facility-practitioner-address
     resource: '%service.requester.resolve().practitioner.resolve().address'

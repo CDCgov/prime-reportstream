@@ -77,17 +77,20 @@ elements:
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
-  - name: phone-number-home
-    resource: '%resource.telecom.where(use = "home")'
+  # We have to check for system equals "email" because we're not receiving use for email
+  - name: phone-number-home-mobile-email
+    resource: '%resource.telecom.where(use != "work" or system = "email")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
     schema: datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: patient-marital-status
     value: [ '%resource.maritalStatus.where(coding.system = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus").coding.code' ]
