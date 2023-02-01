@@ -68,7 +68,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
-                handlerType={""}
             />
         );
 
@@ -121,7 +120,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
-                handlerType={""}
             />
         );
 
