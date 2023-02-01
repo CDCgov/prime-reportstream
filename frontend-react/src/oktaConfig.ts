@@ -15,6 +15,9 @@ const oktaAuthConfig: OktaAuthOptions = {
         storage: "localStorage",
     },
     scopes: ["openid", "email"],
+    services: {
+        autoRenew: false,
+    },
 };
 
 const oktaSignInConfig: WidgetOptions = {
