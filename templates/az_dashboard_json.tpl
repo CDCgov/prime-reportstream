@@ -1,4 +1,4 @@
-  {
+{
     "lenses": {
       "0": {
         "order": 0,
@@ -562,7 +562,7 @@
               "x": 0,
               "y": 6,
               "colSpan": 9,
-              "rowSpan": 4
+              "rowSpan": 5
             },
             "metadata": {
               "inputs": [
@@ -657,7 +657,7 @@
               "x": 9,
               "y": 6,
               "colSpan": 9,
-              "rowSpan": 7
+              "rowSpan": 5
             },
             "metadata": {
               "inputs": [
@@ -752,7 +752,7 @@
           "8": {
             "position": {
               "x": 0,
-              "y": 10,
+              "y": 11,
               "colSpan": 9,
               "rowSpan": 5
             },
@@ -843,6 +843,194 @@
                 }
               }
             }
+          },
+          "9": {
+            "position": {
+              "x": 9,
+              "y": 11,
+              "colSpan": 9,
+              "rowSpan": 5
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "PartId",
+                  "value": "1071a5f0-114e-4c2f-bb11-5362584215c3",
+                  "isOptional": true
+                },
+                {
+                  "name": "Version",
+                  "value": "2.0",
+                  "isOptional": true
+                },
+                {
+                  "name": "TimeRange",
+                  "isOptional": true
+                },
+                {
+                  "name": "DashboardId",
+                  "isOptional": true
+                },
+                {
+                  "name": "DraftRequestParameters",
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "let usg_events = dynamic([\"File Validator\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | extend fileValidatorProps = tostring(customDimensions[\"fileValidator\"]);\nlet queryTable = mainTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    // | summarize ['Count'] = count() by bin(timestamp, 1d), session_Id, fileValidatorProps\n    | extend dimension = todynamic(fileValidatorProps)\n    | evaluate bag_unpack(dimension)\n    | extend ['Pass/Fail'] = iif(errorCount == 0, \"Pass\", \"Fail\")\n    | order by timestamp desc \n    | project\n        [\"Date\"] = format_datetime(timestamp, 'MM/dd/yyyy'),\n        [\"Session Id\"] = session_Id,\n        // [\"Count\"],\n        ['Pass/Fail'],\n        [\"Error Count\"] = errorCount,\n        [\"Warning Count\"] = warningCount,\n        [\"Sender\"] = sender,\n        [\"Schema\"] = schema,\n        [\"File Type\"] = fileType; \nqueryTable\n\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "ControlType",
+                  "value": "AnalyticsGrid",
+                  "isOptional": true
+                },
+                {
+                  "name": "SpecificChart",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Analytics",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartSubTitle",
+                  "value": "${appinsights_name}",
+                  "isOptional": true
+                },
+                {
+                  "name": "Dimensions",
+                  "isOptional": true
+                },
+                {
+                  "name": "LegendOptions",
+                  "isOptional": true
+                },
+                {
+                  "name": "IsQueryContainTimeRange",
+                  "value": true,
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "PartTitle": "File Validator Statistics"
+                }
+              }
+            }
+          },
+          "10": {
+            "position": {
+              "x": 0,
+              "y": 16,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "PartId",
+                  "value": "5fc74968-4b70-41a1-862f-9726e124425e",
+                  "isOptional": true
+                },
+                {
+                  "name": "Version",
+                  "value": "2.0",
+                  "isOptional": true
+                },
+                {
+                  "name": "TimeRange",
+                  "isOptional": true
+                },
+                {
+                  "name": "DashboardId",
+                  "isOptional": true
+                },
+                {
+                  "name": "DraftRequestParameters",
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(200h)\n    | where isempty(operation_SyntheticSource) //filtering out HTTP requests made by bots\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable =  () {\n    queryTable\n    | extend timeInSeconds = todynamic(tostring(customDimensions[\"sessionLength\"]))\n    | evaluate bag_unpack(timeInSeconds)\n    | order by timestamp desc\n};\nsplitTable\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "ControlType",
+                  "value": "AnalyticsGrid",
+                  "isOptional": true
+                },
+                {
+                  "name": "SpecificChart",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Analytics",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartSubTitle",
+                  "value": "${appinsights_name}",
+                  "isOptional": true
+                },
+                {
+                  "name": "Dimensions",
+                  "isOptional": true
+                },
+                {
+                  "name": "LegendOptions",
+                  "isOptional": true
+                },
+                {
+                  "name": "IsQueryContainTimeRange",
+                  "value": true,
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "PartTitle": "Session Duration with Membership Metadata"
+                }
+              }
+            }
           }
         }
       }
@@ -880,11 +1068,14 @@
                 "StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269e85",
                 "StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269fe7",
                 "StartboardPart-LogsDashboardPart-4f1ca6dd-eee2-4ea3-8c92-97fa8b6702a5",
-                "StartboardPart-LogsDashboardPart-0e6386ee-24a5-46d1-96b6-80a0ae9fd14f"
+                "StartboardPart-LogsDashboardPart-0e6386ee-24a5-46d1-96b6-80a0ae9fd14f",
+                "StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5713c5",
+                "StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5712d7"
               ]
             }
           }
         }
       }
     }
-  }
+  
+}
