@@ -91,7 +91,7 @@ class ConstantSubstitutor {
  * Custom resolver for the FHIR path engine.
  */
 class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): Base? {
+    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base>? {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
@@ -130,12 +130,13 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         }
 
         // Evaluate the constant before it is used.
-        return if (constantValue.isNullOrBlank()) null
+        val value = if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
                 null
             } else if (values.size != 1) {
+                // TODO: Support multiple values with the updated function return type and remove our custom solution
                 throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             } else {
                 logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
@@ -145,6 +146,8 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
                 } else values[0]
             }
         }
+        return if (value == null) null
+        else listOf(value)
     }
 
     override fun resolveConstantType(appContext: Any?, name: String?): TypeDetails {

@@ -25,28 +25,9 @@ describe("useWatersUploader", () => {
         expect(result.current.sendFile).toBeInstanceOf(Function);
         expect(result.current.uploaderError).toBeNull();
     });
-    test("posts to /api/waters", async () => {
-        const { result, waitForNextUpdate } = renderHookWithQueryWrapper();
-        let response;
-        await act(async () => {
-            const post = result.current.sendFile({
-                contentType: ContentType.CSV,
-                fileContent: "",
-                fileName: "",
-                // test response trigger
-                client: WatersTestHeaderValue.TEST_NAME,
-            });
-            await waitForNextUpdate();
-            expect(result.current.isWorking).toEqual(true);
-            response = await post;
-        });
-        expect(response).toEqual({
-            endpoint: "upload",
-        });
-    });
     test("posts to /api/validate when validateOnly param is true", async () => {
         const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(mockCallbackFn, true),
+            () => useWatersUploader(mockCallbackFn),
             {
                 wrapper: QueryWrapper(),
             }

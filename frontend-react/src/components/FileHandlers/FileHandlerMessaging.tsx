@@ -118,7 +118,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -126,7 +125,6 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
         () =>
@@ -143,10 +141,10 @@ export const RequestedChangesDisplay = ({
     useEffect(() => {
         data.forEach((error: ResponseError) => {
             if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
+                console.error(`failure: ${error.details}`);
             }
         });
-    }, [data, handlerType, title]);
+    }, [data, title]);
 
     return (
         <>
