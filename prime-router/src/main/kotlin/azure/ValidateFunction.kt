@@ -74,24 +74,22 @@ class ValidateFunction(
                 }
             }
 
-            if (sender == null) {
-                sender =
-                    try {
-                        getDummySender(schema, format)
-                    } catch (e: InvalidParameterException) {
-                        return HttpUtilities.bad(request, e.message.toString())
-                    }
-            }
+            sender = sender ?: getDummySender(schema, format)
 
             actionHistory.trackActionParams(request)
-            processRequest(request, sender as Sender)
+            processRequest(request, sender)
         } catch (ex: Exception) {
-            if (ex.message != null) {
-                logger.error(ex.message!!, ex)
-            } else {
-                logger.error(ex)
+            when (ex) {
+                is InvalidParameterException -> HttpUtilities.bad(request, ex.message.toString())
+                else -> {
+                    if (ex.message != null) {
+                        logger.error(ex.message!!, ex)
+                    } else {
+                        logger.error(ex)
+                    }
+                    HttpUtilities.internalErrorResponse(request)
+                }
             }
-            HttpUtilities.internalErrorResponse(request)
         }
     }
 
