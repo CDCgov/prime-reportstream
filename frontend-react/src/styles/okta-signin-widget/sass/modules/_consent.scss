@@ -1,0 +1,138 @@
+@use '../common/shared/helpers/mixins';
+
+$space-between-container: 25px;
+$space-of-last-container: $space-between-container - 14px; // 14px is margin between form body and form toolbar
+$image-size: 30px;
+// Consent theme colors, special case for accessibility
+$consent-text-color: #1d1d21; // Gray 900 in Odyssey
+$consent-light-text-color: #6e6e78; // Gray 600 in Odyssey
+
+.granular-consent,
+.consent-required {
+  .title-text,
+  .scope-list {
+    color: $consent-text-color;
+  }
+
+  .default-logo,
+  .custom-logo {
+    width: $image-size;
+    height: $image-size;
+    vertical-align: middle;
+  }
+
+  .detail-row {
+    padding-bottom: $space-between-container;
+
+    &:last-child {
+      padding-bottom: $space-of-last-container;
+    }
+  }
+
+  .consent-title {
+    text-align: center;
+    word-wrap: break-word;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span {
+      padding-left: 10px;
+    }
+
+    b {
+      font-weight: bold;
+    }
+  }
+
+  .scope-item {
+    display: inline-block;
+    width: 100%;
+    padding-bottom: 5px;
+
+    .scope-item-text {
+      float: left;
+      width: 85%;
+      word-wrap: break-word;
+    }
+
+    .scope-item-tooltip {
+      float: right;
+      margin-right: 16px;
+    }
+  }
+
+  .consent-description {
+    p {
+      color: $consent-light-text-color;
+    }
+  }
+
+  .consent-footer {
+    text-align: center;
+    a {
+      color: $primary-color;
+    }
+  }
+
+  .o-form-button-bar {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: $space-between-container;
+
+    input {
+      width: 140px;
+    }
+
+
+    .button-primary {
+      /** Consent wants both CTA buttons to look the same so user does not immediately click 'Allow' */
+      @include light-button-template($button-bg-color);
+
+      &:focus {
+        box-shadow: 0 0 8px $input-shadow-color-focus;
+        border-color: $input-border-color-focus;
+      }
+    }
+  }
+}
+
+.granular-consent {
+  .consent-title {
+    font-size: 14px;
+    flex-direction: column;
+    b {
+      font-size: 16px;
+    }
+    span {
+      padding-left: 0;
+    }
+  }
+
+  b {
+    font-weight: bold;
+  }
+
+  .custom-checkbox {
+    label {
+      width: 100%;
+      box-sizing: border-box;
+      display: inline-block;
+    }
+  }
+
+  .custom-checkbox.o-form-read-mode {
+    margin-top: 0;
+  }
+
+  .o-form-input div {
+    width: 100%;
+  }
+
+  .consent-description,
+  .o-form-fieldset {
+    margin-bottom: 6px;
+  }
+}

@@ -1,9 +1,9 @@
-import OktaAuth, { OktaAuthOptions } from "@okta/okta-auth-js";
+import { OktaAuthOptions, OktaAuth } from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
 
 import config from "./config";
 
-const { OKTA_URL, OKTA_CLIENT_ID } = config;
+const { OKTA_URL, OKTA_CLIENT_ID, APP_ENV } = config;
 
 const oktaAuthConfig: OktaAuthOptions = {
     issuer: `${OKTA_URL}/oauth2/default`,
@@ -12,7 +12,7 @@ const oktaAuthConfig: OktaAuthOptions = {
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
-        storage: "localStorage",
+        storage: APP_ENV === "test" ? "memory" : "localStorage",
     },
     scopes: ["openid", "email"],
     services: {

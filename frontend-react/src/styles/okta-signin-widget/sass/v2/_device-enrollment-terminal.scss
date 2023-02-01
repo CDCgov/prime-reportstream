@@ -1,0 +1,79 @@
+.device-enrollment-terminal {
+  ol {
+    counter-reset: decimal;
+  }
+  ol,
+  ul {
+    li {
+      margin: 24px 0;
+      padding-left: 24px;
+      &::before {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        width: 20px;
+      }
+    }
+  }
+  ol li {
+    &::before {
+      content: counter(decimal) ". ";
+      counter-increment: decimal;
+    }
+  }
+  ul li {
+    &::before {
+      content: "•";
+    }
+  }
+  .copy-clipboard-button {
+    margin-top: 8px;
+    height: 44px;
+    line-height: 44px;
+  }
+  .copy-org-clipboard-button {
+    width: 100%;
+    text-align: center;
+  }
+  .download-ov-link {
+    color: $primary-color;
+  }
+  .o-form-fieldset-container {
+    .explanation {
+      margin: 24px 0;
+    }
+    .o-form-label {
+      font-weight: normal;
+    }
+    .subtitle {
+      font-weight: bold;
+    }
+    .org-signin-link {
+      margin: 10px 0;
+      font-weight: $font-weight-labels;
+    }
+    .semi-strong {
+      word-break: break-word;
+      font-weight: $font-weight-labels;
+    }
+    .app-store-logo {
+      display: block;
+      margin: auto;
+      height: 40px;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+    .android-app-store-logo {
+      background-image: url('../img/appstore/google-play-store.svg');
+    }
+    .ios-app-store-logo {
+      background-image: url('../img/appstore/apple-app-store.svg');
+    }
+  }
+  .copy {
+    font-size: 10px;
+    font-style: italic;
+    color: #6e6e78; // odyssey cv('gray', '600');
+    margin-top: 16px;
+  }
+}
