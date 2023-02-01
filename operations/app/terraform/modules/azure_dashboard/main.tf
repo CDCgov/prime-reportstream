@@ -1,7 +1,7 @@
 data "azurerm_subscription" "current" {}
 
 resource "azurerm_dashboard" "az_dashboard" {
-  name                = "TestPennyDashboard"
+  name                = "${var.resource_prefix}-Dashboard"
   location            = var.location
   resource_group_name = var.resource_group
   tags = {
