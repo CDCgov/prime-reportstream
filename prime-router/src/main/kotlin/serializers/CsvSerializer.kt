@@ -178,45 +178,45 @@ class CsvSerializer(val metadata: Metadata) : Logging {
     fun write(report: Report, output: OutputStream) {
         val schema = report.schema
 
-        fun buildHeader(): List<String> = schema.csvFields.map { it.name }
+        fun buildHeader(): List<String> = schema.csvFields.distinctBy { it.name }.map { it.name }
 
         fun buildRows(): List<List<String>> {
             return report.itemIndices.map { row ->
                 schema
-                    .elements
+                    .elements.filterNot { it.csvFields.isNullOrEmpty() }
+                    .groupBy { it.csvFields?.map { csvField ->  csvField.name } ?: emptyList() } //this should never happen because we already filtered out nulls
+                    .map {
+                        try{it.value.first{ element: Element -> element.type != Element.Type.TEXT }}
+                        catch (e: NoSuchElementException) {it.value.first()}  }
                     .flatMap { element ->
-                        if (element.csvFields != null) {
-                            element.csvFields.map { field ->
-                                val value = report.getString(row, element.name)
-                                    ?: error("Internal Error: table is missing ${element.fieldMapping} column")
-                                try {
-                                    element.toFormatted(value, field.format)
-                                } catch (exc: AltValueNotDefinedException) {
-                                    logger.warn(
-                                        exc.toString() + "  Replacing '$value' with empty-string in" +
-                                            " generated data for element ${element.name}, and continuing to process." +
-                                            " Consider fixing by adding $value to the " +
-                                            " alt valueset in schema ${schema.name}"
-                                    )
-                                    ""
-                                } catch (e: Exception) {
-                                    // When exceptions occur in toFormatted, its hard to tell what data caused them.
-                                    // So we catch, log, and rethrow here.
-                                    val usefulTrackingElementInfo = if (schema.trackingElement != null)
-                                        "${schema.trackingElement}=" +
-                                            report.getString(row, schema.trackingElement)
-                                    else "[tracking element column missing]"
-                                    logger.error(
-                                        e.toString() +
-                                            "  Exception in row with $usefulTrackingElementInfo:" +
-                                            " schema ${schema.name} element ${element.name} = value '$value' "
-                                    )
-                                    throw e
-                                }
+                        element.csvFields?.map { field ->
+                            val value = report.getString(row, element.name)
+                                ?: error("Internal Error: table is missing ${element.fieldMapping} column")
+                            try {
+                                element.toFormatted(value, field.format)
+                            } catch (exc: AltValueNotDefinedException) {
+                                logger.warn(
+                                    exc.toString() + "  Replacing '$value' with empty-string in" +
+                                        " generated data for element ${element.name}, and continuing to process." +
+                                        " Consider fixing by adding $value to the " +
+                                        " alt valueset in schema ${schema.name}"
+                                )
+                                ""
+                            } catch (e: Exception) {
+                                // When exceptions occur in toFormatted, its hard to tell what data caused them.
+                                // So we catch, log, and rethrow here.
+                                val usefulTrackingElementInfo = if (schema.trackingElement != null)
+                                    "${schema.trackingElement}=" +
+                                        report.getString(row, schema.trackingElement)
+                                else "[tracking element column missing]"
+                                logger.error(
+                                    e.toString() +
+                                        "  Exception in row with $usefulTrackingElementInfo:" +
+                                        " schema ${schema.name} element ${element.name} = value '$value' "
+                                )
+                                throw e
                             }
-                        } else {
-                            emptyList()
-                        }
+                        } ?: emptyList() //this should never happen because we already filtered out nulls
                     }
             }
         }
