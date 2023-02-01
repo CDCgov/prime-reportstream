@@ -87,7 +87,7 @@
         ],
         "moduleNameMapper": {
             "axios": "axios/dist/node/axios.cjs",
-            "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js"
+            "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/staticAssetMock.js"
         }
     },
     "eslintConfig": {
