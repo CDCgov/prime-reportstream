@@ -4,6 +4,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidEquipmentMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
 
 /**
  * Column names in the LIVD table.
@@ -80,39 +81,25 @@ class LIVDLookupMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        val lookupTable = element.tableRef
-            ?: error("Schema Error: could not find table '${element.table}'")
-        val filters = lookupTable.FilterBuilder()
-        // get the test performed code for additional filtering of the test information in case we are
-        // dealing with tests that check for more than one type of disease, for example COVID + influenza
-        values.firstOrNull { it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName }?.value
-            ?.also { testPerformedCode ->
-                filters.equalsIgnoreCase(LivdTableColumns.TEST_PERFORMED_CODE.colName, testPerformedCode)
-            }
-
-        // If the data is NOT flagged as test data then ignore any test devices in the LIVD table
+        val testPerformedCode = values.firstOrNull {
+            it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName
+        }?.value
         val processingModeCode = values.firstOrNull {
             it.element.name == ElementNames.PROCESSING_MODE_CODE.elementName
         }?.value
-        if (processingModeCode == null || processingModeCode.uppercase() != testProcessingModeCode) {
-            filters.notEqualsIgnoreCase(LivdTableColumns.PROCESSING_MODE_CODE.colName, testProcessingModeCode)
-        }
 
         // carry on as usual
         values.forEach {
-            val filtersCopy = filters.copy() // Filters are not reusable
-            val result = when (it.element.name) {
-                ElementNames.DEVICE_ID.elementName -> lookupByDeviceId(element, it.value, filtersCopy)
-                ElementNames.EQUIPMENT_MODEL_ID.elementName -> lookupByEquipmentUid(element, it.value, filtersCopy)
-                ElementNames.TEST_KIT_NAME_ID.elementName -> lookupByTestkitId(element, it.value, filtersCopy)
-                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> lookupByEquipmentModelName(
-                    element, it.value,
-                    filtersCopy
-                )
-                else -> null
-            }
+            val result = CustomFHIRFunctions.lookupLoincCode(
+                testPerformedCode,
+                processingModeCode,
+                it.element.name,
+                it.value,
+                element.tableColumn!!
+            )
             if (result != null) return ElementResult(result)
         }
+
         return ElementResult(null).also {
             // Hide any warnings to fields the user does not send to us
             if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
@@ -137,8 +124,9 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByDeviceId(
-            element: Element,
+        fun lookupByDeviceId(
+            tableColumn: String?,
+            elementName: String,
             deviceId: String,
             filters: LookupTable.FilterBuilder
         ): String? {
@@ -160,20 +148,20 @@ class LIVDLookupMapper : Mapper {
             val suffix = deviceId.substringAfterLast('_', "")
             if (standard99ELRTypes.contains(suffix)) {
                 val value = deviceId.substringBeforeLast('_', "")
-                return lookup(element, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                    ?: lookup(element, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
+                return lookup(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
+                    ?: lookup(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
             }
 
             // truncated 99ELR type
             if (deviceId.endsWith("#")) {
                 val value = deviceId.substringBeforeLast('#', "")
-                return lookupPrefix(element, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                    ?: lookupPrefix(element, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
+                return lookupPrefix(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
+                    ?: lookupPrefix(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
             }
 
             // May be the DI from a GUDID either test-kit or equipment
-            return lookup(element, deviceId, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                ?: lookup(element, deviceId, LivdTableColumns.EQUIPMENT_UID.colName, filters)
+            return lookup(tableColumn, elementName, deviceId, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
+                ?: lookup(tableColumn, elementName, deviceId, LivdTableColumns.EQUIPMENT_UID.colName, filters)
         }
 
         /**
@@ -183,13 +171,14 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByEquipmentUid(
-            element: Element,
+        fun lookupByEquipmentUid(
+            tableColumn: String?,
+            elementName: String,
             value: String,
             filters: LookupTable.FilterBuilder
         ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
+            return lookup(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
         }
 
         /**
@@ -199,13 +188,14 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        private fun lookupByTestkitId(
-            element: Element,
+        fun lookupByTestkitId(
+            tableColumn: String?,
+            elementName: String,
             value: String,
             filters: LookupTable.FilterBuilder
         ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
+            return lookup(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
         }
 
         /**
@@ -215,14 +205,18 @@ class LIVDLookupMapper : Mapper {
          * @param filters an optional list of additional filters to limit our search by
          * @return a possible String? value based on the lookup
          */
-        internal fun lookupByEquipmentModelName(
-            element: Element,
+        fun lookupByEquipmentModelName(
+            tableColumn: String?,
+            elementName: String,
             value: String,
             filters: LookupTable.FilterBuilder
         ): String? {
             if (value.isBlank()) return null
             return lookup(
-                element, LivdLookupUtilities.getCleanedModelName(value), LivdTableColumns.MODEL.colName,
+                tableColumn,
+                elementName,
+                LivdLookupUtilities.getCleanedModelName(value),
+                LivdTableColumns.MODEL.colName,
                 filters
             )
         }
@@ -236,13 +230,13 @@ class LIVDLookupMapper : Mapper {
          * @return a possible String? value based on the lookup
          */
         private fun lookup(
-            element: Element,
+            lookupColumn: String?,
+            elementName: String,
             lookup: String,
             onColumn: String,
             filters: LookupTable.FilterBuilder
         ): String? {
-            val lookupColumn = element.tableColumn
-                ?: error("Schema Error: no tableColumn for element '${element.name}'")
+            lookupColumn ?: error("Schema Error: no tableColumn for element '$elementName'")
             return filters.equalsIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
         }
 
@@ -256,13 +250,13 @@ class LIVDLookupMapper : Mapper {
          * @return a possible String? value based on the lookup
          */
         private fun lookupPrefix(
-            element: Element,
+            lookupColumn: String?,
+            elementName: String,
             lookup: String,
             onColumn: String,
             filters: LookupTable.FilterBuilder
         ): String? {
-            val lookupColumn = element.tableColumn
-                ?: error("Schema Error: no tableColumn for element '${element.name}'")
+            lookupColumn ?: error("Schema Error: no tableColumn for element '$elementName'")
             return filters.startsWithIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
         }
     }

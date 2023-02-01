@@ -157,6 +157,10 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     }
 
     override fun resolveFunction(functionName: String?): FunctionDetails? {
+        val globalFunctionDetails = GlobalCustomFHIRFunctions.resolveFunction(functionName)
+        if (globalFunctionDetails != null) {
+            return globalFunctionDetails
+        }
         return CustomFHIRFunctions.resolveFunction(functionName)
     }
 
@@ -176,6 +180,10 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     ): MutableList<Base> {
         check(focus != null)
         return when {
+            GlobalCustomFHIRFunctions.resolveFunction(functionName) != null -> {
+                GlobalCustomFHIRFunctions.executeFunction(focus, functionName, parameters)
+            }
+
             CustomFHIRFunctions.resolveFunction(functionName) != null -> {
                 CustomFHIRFunctions.executeFunction(focus, functionName, parameters)
             }
