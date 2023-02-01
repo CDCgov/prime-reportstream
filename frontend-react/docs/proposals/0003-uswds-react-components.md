@@ -1,6 +1,6 @@
 # [0003: Creating New React Components]
 
-* Status: [proposed | rejected | accepted | deprecated | superseded by [0005](0005-example.md)]
+* Status: accepted
 * Authors: @etanb
 * Deciders: TBD
 * Proposal date: 2023-01-24
