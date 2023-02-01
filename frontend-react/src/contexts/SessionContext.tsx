@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken } from "@okta/okta-auth-js";
+import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 import {
     MembershipSettings,
@@ -15,6 +21,7 @@ export interface RSSessionContext {
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
     isAdminStrictCheck?: boolean;
+    user?: UserClaims<CustomUserClaims>;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -38,7 +45,7 @@ const SessionProvider = ({
     children,
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
-    const { authState } = oktaHook();
+    const { authState, oktaAuth } = oktaHook();
     const {
         state: { activeMembership, initialized },
         dispatch,
@@ -48,17 +55,40 @@ const SessionProvider = ({
     const isAdminStrictCheck = useMemo(() => {
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
+    const [user, setUser] = useState<UserClaims<CustomUserClaims>>();
+
+    useEffect(() => {
+        if (authState?.isAuthenticated) {
+            const getUser = async () => {
+                setUser(await oktaAuth.getUser());
+            };
+            getUser();
+        } else {
+            setUser(undefined);
+        }
+    }, [authState?.isAuthenticated, oktaAuth]);
+
+    const context = useMemo(
+        () => ({
+            oktaToken: authState?.accessToken,
+            activeMembership,
+            isAdminStrictCheck,
+            dispatch,
+            initialized: authState !== null && !!initialized,
+            user,
+        }),
+        [
+            activeMembership,
+            authState,
+            dispatch,
+            initialized,
+            isAdminStrictCheck,
+            user,
+        ]
+    );
 
     return (
-        <SessionContext.Provider
-            value={{
-                oktaToken: authState?.accessToken,
-                activeMembership,
-                isAdminStrictCheck,
-                dispatch,
-                initialized: authState !== null && !!initialized,
-            }}
-        >
+        <SessionContext.Provider value={context}>
             {children}
         </SessionContext.Provider>
     );

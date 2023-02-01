@@ -15,15 +15,18 @@ import { mockToken } from "./TestUtils";
 /* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
  * This serves as our way of mocking different token, auth, and claims values */
 export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
-    return () => ({
+    const result = {
         authState: {
             accessToken: mockToken(),
             ..._init?.authState,
         },
         oktaAuth: {
             ..._init?.oktaAuth,
+            getUser:
+                _init?.oktaAuth?.getUser ?? (() => ({ email: "test@abc.com" })),
         } as OktaAuth,
-    });
+    };
+    return () => result;
 };
 
 /*
