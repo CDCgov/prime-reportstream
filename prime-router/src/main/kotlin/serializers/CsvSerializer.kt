@@ -184,10 +184,17 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             return report.itemIndices.map { row ->
                 schema
                     .elements.filterNot { it.csvFields.isNullOrEmpty() }
-                    .groupBy { it.csvFields?.map { csvField ->  csvField.name } ?: emptyList() } //this should never happen because we already filtered out nulls
+                    .groupBy {
+                        // This should never happen because we already filtered out nulls.
+                        it.csvFields?.map { csvField -> csvField.name } ?: emptyList()
+                    }
                     .map {
-                        try{it.value.first{ element: Element -> element.type != Element.Type.TEXT }}
-                        catch (e: NoSuchElementException) {it.value.first()}  }
+                        try {
+                            it.value.first { element: Element -> element.type != Element.Type.TEXT }
+                        } catch (e: NoSuchElementException) {
+                            it.value.first()
+                        }
+                    }
                     .flatMap { element ->
                         element.csvFields?.map { field ->
                             val value = report.getString(row, element.name)
@@ -216,7 +223,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                                 )
                                 throw e
                             }
-                        } ?: emptyList() //this should never happen because we already filtered out nulls
+                        } ?: emptyList() // This should never happen because we already filtered out nulls.
                     }
             }
         }
