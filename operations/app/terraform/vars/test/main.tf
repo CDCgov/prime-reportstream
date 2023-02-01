@@ -173,7 +173,6 @@ module "azure_dashboard" {
   resource_group  = local.init.resource_group_name
   resource_prefix = local.init.resource_prefix
   location        = local.init.location
-  #dashboard_id    = module.azure_dashboard.dashboard_id
 }
 module "ssh" {
   source          = "../../modules/ssh"
