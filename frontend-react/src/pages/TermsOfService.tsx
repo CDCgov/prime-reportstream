@@ -235,10 +235,11 @@ export const TermsOfService = () => {
                         <p>
                             Where HHS or CDC are direct recipients as agreed
                             upon with the relevant User(s), such Public Health
-                            Data in HHS’s or CDC’s custody and control will be
-                            managed in compliance with applicable federal laws
-                            regarding the receipt, transmission, use, storage
-                            and disposition of covered Public Health Data.
+                            Data in HHS&apos;s or CDC&apos;s custody and control
+                            will be managed in compliance with applicable
+                            federal laws regarding the receipt, transmission,
+                            use, storage and disposition of covered Public
+                            Health Data.
                         </p>
 
                         <p>
@@ -387,23 +388,24 @@ export const TermsOfService = () => {
                         <p>
                             CDC reserves the right (though not the obligation)
                             to: (1) refuse to provide PRIME ReportStream to you,
-                            if it is CDC’s opinion that use violates any federal
-                            law or CDC policy; or (2) terminate or deny you
-                            access to and use of all or part of PRIME
+                            if it is CDC&apos;s opinion that use violates any
+                            federal law or CDC policy; or (2) terminate or deny
+                            you access to and use of all or part of PRIME
                             ReportStream at any time for any reason which in
-                            CDC’s sole discretion it deems necessary, including
-                            to prevent violation of federal law or CDC policy.
-                            You may submit a request to CDC to regain access to
-                            PRIME ReportStream through the support email address
-                            provided by CDC for PRIME ReportStream. If CDC
-                            determines in its sole discretion that the
-                            circumstances which led to the refusal to provide
-                            PRIME ReportStream or terminate access to PRIME
-                            ReportStream no longer exist, then CDC may restore
-                            your access. All provisions of these Terms, which by
-                            their nature should survive termination, shall
-                            survive termination including, without limitation,
-                            warranty disclaimers, and limitations of liability.
+                            CDC&apos;s sole discretion it deems necessary,
+                            including to prevent violation of federal law or CDC
+                            policy. You may submit a request to CDC to regain
+                            access to PRIME ReportStream through the support
+                            email address provided by CDC for PRIME
+                            ReportStream. If CDC determines in its sole
+                            discretion that the circumstances which led to the
+                            refusal to provide PRIME ReportStream or terminate
+                            access to PRIME ReportStream no longer exist, then
+                            CDC may restore your access. All provisions of these
+                            Terms, which by their nature should survive
+                            termination, shall survive termination including,
+                            without limitation, warranty disclaimers, and
+                            limitations of liability.
                         </p>
 
                         <h3>
@@ -412,19 +414,19 @@ export const TermsOfService = () => {
                         </h3>
 
                         <p>
-                            PRIME ReportStream is provided to User for User’s
-                            use. User may not modify, copy, distribute,
-                            transmit, display, perform, reproduce, publish,
-                            license, create derivative works from, transfer, or
-                            sell any information, software, products, or
-                            services obtained from CDC. Material provided by CDC
-                            are either owned by or the licensed property of the
-                            United States Department of Health and Human
-                            Services (“HHS”) and the Centers for Disease Control
-                            and Prevention (CDC). HHS/CDC grants to you a
-                            limited, non-exclusive, non-transferable license to
-                            access PRIME ReportStream in the United States for
-                            the uses set forth in these Terms.
+                            PRIME ReportStream is provided to User for
+                            User&apos;s use. User may not modify, copy,
+                            distribute, transmit, display, perform, reproduce,
+                            publish, license, create derivative works from,
+                            transfer, or sell any information, software,
+                            products, or services obtained from CDC. Material
+                            provided by CDC are either owned by or the licensed
+                            property of the United States Department of Health
+                            and Human Services (“HHS”) and the Centers for
+                            Disease Control and Prevention (CDC). HHS/CDC grants
+                            to you a limited, non-exclusive, non-transferable
+                            license to access PRIME ReportStream in the United
+                            States for the uses set forth in these Terms.
                         </p>
 
                         <h3>Disclaimer of warranties</h3>
@@ -476,8 +478,8 @@ export const TermsOfService = () => {
                             to indemnify and hold harmless HHS, including CDC,
                             its contractors, employees, agents, and the like,
                             from and against any and all claims and expenses,
-                            including attorney’s fees, arising out of your use
-                            of ReportStream, including but not limited to
+                            including attorney&apos;s fees, arising out of your
+                            use of ReportStream, including but not limited to
                             violation of these Terms.
                         </p>
 
@@ -497,13 +499,14 @@ export const TermsOfService = () => {
                             determine general usage patterns and performance of
                             ReportStream to assist with design and development
                             of PRIME ReportStream. This transactional and usage
-                            characteristic data is not linked to an individual’s
-                            identity, but IP address and device information may
-                            be included. Transactional data are audited and
-                            stored for system monitoring, performance, and
-                            troubleshooting purposes and may be tied to the user
-                            performing an activity. Any such data will be
-                            maintained consistent with applicable federal laws.
+                            characteristic data is not linked to an
+                            individual&apos;s identity, but IP address and
+                            device information may be included. Transactional
+                            data are audited and stored for system monitoring,
+                            performance, and troubleshooting purposes and may be
+                            tied to the user performing an activity. Any such
+                            data will be maintained consistent with applicable
+                            federal laws.
                         </p>
 
                         <p className="margin-top-8">
