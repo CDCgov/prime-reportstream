@@ -8,13 +8,17 @@ import {
     MembershipAction,
     MemberType,
 } from "../hooks/UseOktaMemberships";
+import { RSUserPermissions } from "../utils/PermissionsUtils";
 
-export interface RSSessionContext {
+export interface RSSessionContext extends RSUserPermissions {
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
     initialized: boolean;
     isAdminStrictCheck?: boolean;
+    isUserAdmin: boolean;
+    isUserSender: boolean;
+    isUserReceiver: boolean;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -29,6 +33,9 @@ export const SessionContext = createContext<RSSessionContext>({
     dispatch: () => {},
     initialized: false,
     isAdminStrictCheck: false,
+    isUserAdmin: false,
+    isUserSender: false,
+    isUserReceiver: false,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -49,16 +56,22 @@ const SessionProvider = ({
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
 
+    const context = useMemo(
+        () => ({
+            oktaToken: authState?.accessToken,
+            activeMembership,
+            isAdminStrictCheck,
+            dispatch,
+            initialized: authState !== null && !!initialized,
+            isUserAdmin: false,
+            isUserSender: false,
+            isUserReceiver: false,
+        }),
+        [activeMembership, authState, dispatch, initialized, isAdminStrictCheck]
+    );
+
     return (
-        <SessionContext.Provider
-            value={{
-                oktaToken: authState?.accessToken,
-                activeMembership,
-                isAdminStrictCheck,
-                dispatch,
-                initialized: authState !== null && !!initialized,
-            }}
-        >
+        <SessionContext.Provider value={context}>
             {children}
         </SessionContext.Provider>
     );
