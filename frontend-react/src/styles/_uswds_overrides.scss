@@ -116,6 +116,11 @@ main {
 .usa-accordion__button {
     color: white;
     background-color: $bg-primary;
+    @include add-background-svg("usa-icons-bg/remove--white");
+
+    &[aria-expanded=false] {
+        @include add-background-svg("usa-icons-bg/add--white");
+    }
 }
 .usa-accordion__button:hover,  .usa-accordion__button:focus{
     color: white;
