@@ -43,6 +43,8 @@ export const FileSuccessDisplay = ({
                 message={message}
             />
             <div>
+                {/* TODO: can probably remove since it's not being used now */}
+
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
