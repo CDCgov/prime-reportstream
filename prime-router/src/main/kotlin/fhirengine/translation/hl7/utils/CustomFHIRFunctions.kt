@@ -1,8 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import gov.cdc.prime.router.metadata.ElementNames
-import gov.cdc.prime.router.metadata.LIVDLookupMapper
-import gov.cdc.prime.router.metadata.LivdTableColumns
+import gov.cdc.prime.router.metadata.LivdLookup.lookupLoincCode
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
@@ -10,8 +9,6 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
 object CustomFHIRFunctions {
-    private val lookupTable = gov.cdc.prime.router.Metadata.getInstance().findLookupTable(name = "LIVD-SARS-CoV-2")
-
     enum class CustomFHIRFunctionNames {
         LookupLivdTableLoincCodes;
 
@@ -88,58 +85,5 @@ object CustomFHIRFunctions {
         }
 
         return mutableListOf()
-    }
-
-    fun lookupLoincCode(
-        testPerformedCode: String?,
-        processingModeCode: String?,
-        elementName: String,
-        valueToSearch: String,
-        tableColumn: String
-    ): String? {
-        val filters = lookupTable!!.FilterBuilder()
-        // get the test performed code for additional filtering of the test information in case we are
-        // dealing with tests that check for more than one type of disease, for example COVID + influenza
-        if (testPerformedCode != null) {
-            filters.equalsIgnoreCase(LivdTableColumns.TEST_PERFORMED_CODE.colName, testPerformedCode)
-        }
-
-        // If the data is NOT flagged as test data then ignore any test devices in the LIVD table
-        if (processingModeCode == null ||
-            processingModeCode.uppercase() != LIVDLookupMapper.testProcessingModeCode.uppercase()
-        ) {
-            filters.notEqualsIgnoreCase(
-                LivdTableColumns.PROCESSING_MODE_CODE.colName,
-                LIVDLookupMapper.testProcessingModeCode
-            )
-        }
-
-        // carry on as usual
-        val filtersCopy = filters.copy() // Filters are not reusable
-        return when (elementName) {
-            ElementNames.DEVICE_ID.elementName -> LIVDLookupMapper.lookupByDeviceId(
-                tableColumn,
-                elementName,
-                valueToSearch,
-                filtersCopy
-            )
-            ElementNames.EQUIPMENT_MODEL_ID.elementName -> LIVDLookupMapper.lookupByEquipmentUid(
-                tableColumn,
-                elementName,
-                valueToSearch,
-                filtersCopy
-            )
-            ElementNames.TEST_KIT_NAME_ID.elementName -> LIVDLookupMapper.lookupByTestkitId(
-                tableColumn,
-                elementName,
-                valueToSearch,
-                filtersCopy
-            )
-            ElementNames.EQUIPMENT_MODEL_NAME.elementName -> LIVDLookupMapper.lookupByEquipmentModelName(
-                tableColumn, elementName, valueToSearch, filtersCopy
-            )
-
-            else -> null
-        }
     }
 }

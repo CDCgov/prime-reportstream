@@ -4,7 +4,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidEquipmentMessage
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
+import gov.cdc.prime.router.metadata.LivdLookup.lookupLoincCode
 
 /**
  * Column names in the LIVD table.
@@ -90,7 +90,7 @@ class LIVDLookupMapper : Mapper {
 
         // carry on as usual
         values.forEach {
-            val result = CustomFHIRFunctions.lookupLoincCode(
+            val result = lookupLoincCode(
                 testPerformedCode,
                 processingModeCode,
                 it.element.name,
@@ -106,158 +106,6 @@ class LIVDLookupMapper : Mapper {
                 !element.hl7OutputFields.isNullOrEmpty()
             )
                 it.warning(InvalidEquipmentMessage(element.fieldMapping))
-        }
-    }
-
-    companion object {
-        private val standard99ELRTypes = listOf("EUA", "DII", "DIT", "DIM", "MNT", "MNI", "MNM")
-
-        /**
-         * The value for the processing mode code for test data.
-         */
-        internal const val testProcessingModeCode = "T"
-
-        /**
-         * Does a lookup in the LIVD table based on the element Id
-         * @param element the schema element to use for lookups
-         * @param deviceId the ID of the test device to lookup LIVD information by
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        fun lookupByDeviceId(
-            tableColumn: String?,
-            elementName: String,
-            deviceId: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            /*
-             Dev Note:
-
-             From the LIVD implementation notes says that device_id is not well defined:
-              "The Device Identifier (DI) may be a Test Kit Name Identifier or the Equipment (IVD) Identifier
-               or a combination of the two. "
-
-             This note discusses many of the forms for the device_id
-               https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#
-               ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-             */
-
-            if (deviceId.isBlank()) return null
-
-            // Device Id may be 99ELR type
-            val suffix = deviceId.substringAfterLast('_', "")
-            if (standard99ELRTypes.contains(suffix)) {
-                val value = deviceId.substringBeforeLast('_', "")
-                return lookup(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                    ?: lookup(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
-            }
-
-            // truncated 99ELR type
-            if (deviceId.endsWith("#")) {
-                val value = deviceId.substringBeforeLast('#', "")
-                return lookupPrefix(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                    ?: lookupPrefix(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
-            }
-
-            // May be the DI from a GUDID either test-kit or equipment
-            return lookup(tableColumn, elementName, deviceId, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-                ?: lookup(tableColumn, elementName, deviceId, LivdTableColumns.EQUIPMENT_UID.colName, filters)
-        }
-
-        /**
-         * Does a lookup in the LIVD table based on the element unique identifier
-         * @param element the schema element to use for lookups
-         * @param value the unique ID of the test device to lookup LIVD information by
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        fun lookupByEquipmentUid(
-            tableColumn: String?,
-            elementName: String,
-            value: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            if (value.isBlank()) return null
-            return lookup(tableColumn, elementName, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
-        }
-
-        /**
-         * Does a lookup in the LIVD table based on the test kit Id
-         * @param element the schema element to use for lookups
-         * @param value the test kit ID of the test device to lookup LIVD information by
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        fun lookupByTestkitId(
-            tableColumn: String?,
-            elementName: String,
-            value: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            if (value.isBlank()) return null
-            return lookup(tableColumn, elementName, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
-        }
-
-        /**
-         * Does a lookup in the LIVD table based on the equipment model name
-         * @param element the schema element to use for lookups
-         * @param value the model name of the test device to lookup LIVD information by
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        fun lookupByEquipmentModelName(
-            tableColumn: String?,
-            elementName: String,
-            value: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            if (value.isBlank()) return null
-            return lookup(
-                tableColumn,
-                elementName,
-                LivdLookupUtilities.getCleanedModelName(value),
-                LivdTableColumns.MODEL.colName,
-                filters
-            )
-        }
-
-        /**
-         * Does the lookup in the LIVD table based on the lookup type and the values passed in
-         * @param element the schema element to use for lookups
-         * @param onColumn the name of the index column to do the lookup in
-         * @param lookup the value to search the index column for
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        private fun lookup(
-            lookupColumn: String?,
-            elementName: String,
-            lookup: String,
-            onColumn: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            lookupColumn ?: error("Schema Error: no tableColumn for element '$elementName'")
-            return filters.equalsIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
-        }
-
-        /**
-         * Does the lookup in the LIVD table based on the lookup type and the values passed in,
-         * by seeing if any values in the index column starts with the index value
-         * @param element the schema element to use for lookups
-         * @param onColumn the name of the index column to do the lookup in
-         * @param lookup the value to search the index column for
-         * @param filters an optional list of additional filters to limit our search by
-         * @return a possible String? value based on the lookup
-         */
-        private fun lookupPrefix(
-            lookupColumn: String?,
-            elementName: String,
-            lookup: String,
-            onColumn: String,
-            filters: LookupTable.FilterBuilder
-        ): String? {
-            lookupColumn ?: error("Schema Error: no tableColumn for element '$elementName'")
-            return filters.startsWithIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
         }
     }
 }
