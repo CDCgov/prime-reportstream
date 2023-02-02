@@ -65,6 +65,7 @@ export interface TableProps {
     enableEditableRows?: boolean;
     editableCallback?: RowSideEffect;
     classes?: string;
+    striped?: boolean;
 }
 
 export interface LegendItem {
@@ -87,6 +88,7 @@ const Table = ({
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
     classes,
+    striped,
 }: TableProps) => {
     const [rowToEdit, setRowToEdit] = useState<number | undefined>();
 
@@ -156,7 +158,9 @@ const Table = ({
             />
             <div className="grid-col-12">
                 <table
-                    className="usa-table usa-table--borderless usa-table--striped prime-table"
+                    className={`${
+                        striped ?? "usa-table--striped "
+                    }usa-table usa-table--borderless prime-table`}
                     aria-label="Submission history from the last 30 days"
                 >
                     <TableHeaders
