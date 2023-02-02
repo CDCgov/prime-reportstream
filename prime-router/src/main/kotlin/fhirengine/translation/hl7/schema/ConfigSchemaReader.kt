@@ -18,10 +18,14 @@ object ConfigSchemaReader : Logging {
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
-    fun fromFile(schemaName: String, folder: String? = null, isFHIRTransform: Boolean = false): ConfigSchema {
+    fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = mutableListOf<ConfigSchema>()
-        schemaList.add(readSchemaTreeFromFile(schemaName, folder))
+        val schemaList = mutableListOf<ConverterSchema>()
+        var schema = readSchemaTreeFromFile(schemaName, folder)
+        if (schema !is ConverterSchema) {
+            throw SchemaException("Schema $schemaName is not of the correct type")
+        }
+        schemaList.add(schema)
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
@@ -30,11 +34,52 @@ object ConfigSchemaReader : Logging {
             }
             val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
             val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = isFHIRTransform))
+            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder)
+            if (schema !is ConverterSchema) {
+                throw SchemaException("Schema $schemaName is not of the correct type")
+            }
+            schemaList.add(schema)
         }
 
         // Now merge the parent with all the child schemas
-        val mergedSchema = mergeSchemas(schemaList)
+        val mergedSchema = mergeConverterSchemas(schemaList)
+
+        if (!mergedSchema.isValid()) {
+            throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
+        }
+        return mergedSchema
+    }
+
+    /**
+     * Read a schema [schemaName] from a file given the root [folder].
+     * @return the validated schema
+     * @throws Exception if the schema is invalid
+     */
+    fun transformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
+        // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
+        val schemaList = mutableListOf<FHIRTransformSchema>()
+        var schema = readSchemaTreeFromFile(schemaName, folder, isFHIRTransform = true)
+        if (schema !is FHIRTransformSchema) {
+            throw SchemaException("Schema $schemaName is not of the correct type")
+        }
+        schemaList.add(schema)
+        while (!schemaList.last().extends.isNullOrBlank()) {
+            // Make sure there are no circular dependencies
+            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            ) {
+                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
+            }
+            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
+            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
+            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = true)
+            if (schema !is FHIRTransformSchema) {
+                throw SchemaException("Schema $schemaName is not of the correct type")
+            }
+            schemaList.add(schema)
+        }
+
+        // Now merge the parent with all the child schemas
+        val mergedSchema = mergeTransformSchemas(schemaList)
 
         if (!mergedSchema.isValid()) {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
@@ -47,7 +92,20 @@ object ConfigSchemaReader : Logging {
      * from the lowest child to parent.
      * @return a merged schema
      */
-    private fun mergeSchemas(schemaList: List<ConfigSchema>): ConfigSchema {
+    private fun mergeConverterSchemas(schemaList: List<ConverterSchema>): ConverterSchema {
+        val parentSchema = schemaList.last()
+        for (i in (schemaList.size - 2) downTo 0) {
+            parentSchema.merge(schemaList[i])
+        }
+        return parentSchema
+    }
+
+    /**
+     * Merge the parent and child schemas provided in the [schemaList].  Note that [schemaList] MUST be ordered
+     * from the lowest child to parent.
+     * @return a merged schema
+     */
+    private fun mergeTransformSchemas(schemaList: List<FHIRTransformSchema>): FHIRTransformSchema {
         val parentSchema = schemaList.last()
         for (i in (schemaList.size - 2) downTo 0) {
             parentSchema.merge(schemaList[i])
@@ -65,7 +123,7 @@ object ConfigSchemaReader : Logging {
         folder: String? = null,
         ancestry: List<String> = listOf(),
         isFHIRTransform: Boolean = false
-    ): ConfigSchema {
+    ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
@@ -97,16 +155,15 @@ object ConfigSchemaReader : Logging {
      * Read one YAML formatted schema from the given [inputStream].
      * @return the schema
      */
-    internal fun readOneYamlSchema(inputStream: InputStream, isFHIRTransform: Boolean = false): ConfigSchema {
+    internal fun readOneYamlSchema(inputStream: InputStream, isFHIRTransform: Boolean = false): ConfigSchema<*> {
         val mapper = ObjectMapper(YAMLFactory())
-        val rawSchema = mapper.readValue(inputStream, ConfigSchema::class.java)
+        val rawSchema = if (isFHIRTransform)
+            mapper.readValue(inputStream, FHIRTransformSchema::class.java)
+        else
+            mapper.readValue(inputStream, ConverterSchema::class.java)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")
-        }
-        if (isFHIRTransform) {
-            rawSchema.markFHIRTransformSchema()
-            rawSchema.elements.forEach { element -> element.markFHIRTransformElement() }
         }
         return rawSchema
     }

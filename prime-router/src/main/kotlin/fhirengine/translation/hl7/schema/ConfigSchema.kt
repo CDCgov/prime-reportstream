@@ -8,25 +8,15 @@ import java.util.SortedMap
 /**
  * A schema.
  * @property name the schema name
- * @property hl7Type the HL7 message type for the output.  Only allowed at the top level schema
- * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
  * @property elements the elements for the schema
  * @property constants schema level constants
  */
 @JsonIgnoreProperties
-data class ConfigSchema(
-    var hl7Type: String? = null,
-    var hl7Version: String? = null,
-    var elements: MutableList<ConfigSchemaElement> = mutableListOf(),
+sealed class ConfigSchema<T : ConfigSchemaElement>(
+    var elements: MutableList<T> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
-    private var isFHIRTransformSchema: Boolean = false
-
-    fun markFHIRTransformSchema() {
-        isFHIRTransformSchema = true
-    }
-
     /**
      * Name used to identify this schema.
      * Can be set from outside this class to make it useful in context.
@@ -66,48 +56,15 @@ data class ConfigSchema(
      * Validate the top level schema if [isChildSchema] is false, or a child schema if [isChildSchema] is true.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal fun validate(isChildSchema: Boolean = false): List<String> {
-        val validationErrors = mutableListOf<String>()
-
+    internal open fun validate(
+        isChildSchema: Boolean = false,
+        validationErrors: MutableList<String> = mutableListOf()
+    ): List<String> {
         /**
          * Add an error [msg] to the list of errors.
          */
         fun addError(msg: String) {
             validationErrors.add("Schema $name: $msg")
-        }
-
-        // hl7Type or hl7Version is only allowed at the top level.
-        if (isFHIRTransformSchema) {
-            if (!hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type cannot be specified in FHIR transform schema")
-            }
-            if (!hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version cannot be specified in FHIR transform schema")
-            }
-        } else if (isChildSchema) {
-            if (!hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type can only be specified in top level schema")
-            }
-            if (!hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version can only be specified in top level schema")
-            }
-        } else {
-            if (hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type cannot be blank")
-            }
-            if (hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version cannot be blank")
-            }
-
-            // Do we support the provided HL7 type and version?
-            if (hl7Version != null && hl7Type != null) {
-                if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!)) {
-                    addError(
-                        "Schema unsupported hl7 type and version. Must be one of: " +
-                            HL7Utils.SupportedMessages.getSupportedListAsString()
-                    )
-                }
-            }
         }
 
         // Check that all constants have a string
@@ -131,9 +88,7 @@ data class ConfigSchema(
      * Merge a [childSchema] into this one.
      * @return the reference to the schema
      */
-    fun merge(childSchema: ConfigSchema) = apply {
-        childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
-        childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
+    open fun merge(childSchema: ConfigSchema<T>) = apply {
         childSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
@@ -155,7 +110,7 @@ data class ConfigSchema(
      */
     internal fun findElement(elementName: String): ConfigSchemaElement? {
         // First try to find the element at this level in the schema.
-        var elementsInSchema = elements.filter { elementName == it.name }
+        var elementsInSchema: List<ConfigSchemaElement> = elements.filter { elementName == it.name }
 
         // If the element was not found in this schema level, then traverse any elements that reference a schema
         if (elementsInSchema.isEmpty()) {
@@ -170,6 +125,125 @@ data class ConfigSchema(
         // Sanity check
         check(elementsInSchema.size <= 1)
         return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is ConfigSchema<*>)
+            return false
+        return elements == other.elements &&
+            constants == other.constants &&
+            extends == other.extends
+    }
+
+    override fun hashCode(): Int {
+        return elements.hashCode() * 31 + constants.hashCode() * 30 + extends.hashCode() * 29
+    }
+}
+
+/**
+ * A converter schema.
+ * @property name the schema name
+ * @property hl7Type the HL7 message type for the output.  Only allowed at the top level schema
+ * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
+ * @property elements the elements for the schema
+ * @property constants schema level constants
+ */
+@JsonIgnoreProperties
+class ConverterSchema(
+    var hl7Type: String? = null,
+    var hl7Version: String? = null,
+    elements: MutableList<ConverterSchemaElement> = mutableListOf(),
+    constants: SortedMap<String, String> = sortedMapOf(),
+    extends: String? = null
+) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
+    override fun validate(
+        isChildSchema: Boolean,
+        validationErrors: MutableList<String>
+    ): List<String> {
+        /**
+         * Add an error [msg] to the list of errors.
+         */
+        fun addError(msg: String) {
+            validationErrors.add("Schema $name: $msg")
+        }
+
+        if (isChildSchema) {
+            if (!hl7Type.isNullOrBlank()) {
+                addError("Schema hl7Type can only be specified in top level schema")
+            }
+            if (!hl7Version.isNullOrBlank()) {
+                addError("Schema hl7Version can only be specified in top level schema")
+            }
+        } else {
+            if (hl7Type.isNullOrBlank()) {
+                addError("Schema hl7Type cannot be blank")
+            }
+            if (hl7Version.isNullOrBlank()) {
+                addError("Schema hl7Version cannot be blank")
+            }
+        }
+
+        // Do we support the provided HL7 type and version?
+        if (hl7Version != null && hl7Type != null) {
+            if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!)) {
+                addError(
+                    "Schema unsupported hl7 type and version. Must be one of: " +
+                        HL7Utils.SupportedMessages.getSupportedListAsString()
+                )
+            }
+        }
+
+        return super.validate(isChildSchema, validationErrors)
+    }
+
+    override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
+        apply {
+            if (childSchema !is ConverterSchema) {
+                throw SchemaException("Child schema ${childSchema.name} was not a ConverterSchema.")
+            }
+            childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
+            childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
+            super.merge(childSchema)
+        }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is ConverterSchema)
+            return false
+        return hl7Type == other.hl7Type &&
+            hl7Version == other.hl7Version &&
+            super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode() + hl7Type.hashCode() * 28 + hl7Version.hashCode() * 27
+    }
+}
+
+/**
+ * A FHIR transform schema.
+ * @property name the schema name
+ * @property elements the elements for the schema
+ * @property constants schema level constants
+ */
+@JsonIgnoreProperties
+class FHIRTransformSchema(
+    elements: MutableList<FHIRTransformSchemaElement> = mutableListOf(),
+    constants: SortedMap<String, String> = sortedMapOf(),
+    extends: String? = null
+) : ConfigSchema<FHIRTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
+    override fun merge(childSchema: ConfigSchema<FHIRTransformSchemaElement>):
+        ConfigSchema<FHIRTransformSchemaElement> =
+        apply {
+            if (childSchema !is FHIRTransformSchema) {
+                throw SchemaException("Child schema ${childSchema.name} was not a FHIRTransformSchema.")
+            }
+            super.merge(childSchema)
+        }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is FHIRTransformSchema)
+            return false
+        return super.equals(other)
     }
 }
 
@@ -200,79 +274,36 @@ class ValueSetTable(input: String) {
  * An element within a Schema.
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
- * @property required true if the element must have a value
  * @property schema the name of a child schema
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
- * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
  * @property valueSet a list of key-value pairs used to convert the value property
- * @property debug log debug information for the element
- * @property bundleProperty a FHIR path denoting where to store the value
- * @property valueSetTable database location of key-value pairs to convert the value property
  */
 @JsonIgnoreProperties
-data class ConfigSchemaElement(
+sealed class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
-    var required: Boolean? = null,
     var schema: String? = null,
-    var schemaRef: ConfigSchema? = null,
+    var schemaRef: ConfigSchema<*>? = null,
     var resource: String? = null,
     var value: List<String> = emptyList(),
-    var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: SortedMap<String, String> = sortedMapOf(),
-    var debug: Boolean = false,
-    var bundleProperty: String? = null,
-    var valueSetTable: ValueSetTable? = null
+    var valueSet: SortedMap<String, String> = sortedMapOf()
 ) {
-    private var isFHIRTransformElement: Boolean = false
-
-    fun markFHIRTransformElement() {
-        isFHIRTransformElement = true
-    }
-
     /**
      * Validate the element.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal fun validate(): List<String> {
-        val validationErrors = mutableListOf<String>()
-
+    internal open fun validate(validationErrors: MutableList<String> = mutableListOf()): List<String> {
         /**
          * Add an error [msg] to the list of errors.
          */
         fun addError(msg: String) {
             validationErrors.add("[$name]: $msg")
-        }
-
-        if (isFHIRTransformElement) {
-            when {
-                hl7Spec.isNotEmpty() ->
-                    addError("FHIR Transform schemas cannot use the hl7Spec property")
-                required != null ->
-                    addError("FHIR Transform schemas cannot use the required property")
-                debug ->
-                    addError("FHIR Transform schemas cannot use the debug property")
-                valueSetTable != null && valueSet.isNotEmpty() ->
-                    addError("ValueSet property cannot be used with the valueSetTable property")
-                valueSetTable != null ->
-                    addError("ValueSetTable property is not yet supported")
-                // When valueSetTable is supported, the following lines can be uncommented
-//                valueSetTable?.isValid == false ->
-//                    addError("Invalid valueSetTable property value")
-            }
-        } else {
-            when {
-                bundleProperty != null ->
-                    addError("HL7V2 config schemas cannot use the bundleProperty property")
-                valueSetTable != null ->
-                    addError("HL7V2 config schemas cannot use the valueSetTable property")
-            }
         }
 
         if (!resourceIndex.isNullOrBlank()) {
@@ -284,36 +315,18 @@ data class ConfigSchemaElement(
             }
         }
 
-        if (!schema.isNullOrBlank()) {
-            when {
-                hl7Spec.isNotEmpty() ->
-                    addError("Schema property cannot be used with the hl7Spec property")
-                bundleProperty != null ->
-                    addError("Schema property cannot be used with the bundleProperty property")
-                value.isNotEmpty() ->
-                    addError("Schema property cannot be used with the value property")
-                valueSet.isNotEmpty() ->
-                    addError("Schema property cannot be used with the valueSet property")
-                valueSetTable != null ->
-                    addError("Schema property cannot be used with the valueSetTable property")
-            }
-        } else {
-            when {
-                hl7Spec.isEmpty() && !isFHIRTransformElement ->
-                    addError("Hl7Spec property is required when not using a schema")
-                bundleProperty == null && isFHIRTransformElement ->
-                    addError("BundleProperty property is required when not using a schema")
-                value.isEmpty() ->
-                    addError("Value property is required when not using a schema")
-            }
+        when {
+            !schema.isNullOrBlank() && value.isNotEmpty() ->
+                addError("Schema property cannot be used with the value property")
+            !schema.isNullOrBlank() && valueSet.isNotEmpty() ->
+                addError("Schema property cannot be used with the valueSet property")
+            schema.isNullOrBlank() && value.isEmpty() ->
+                addError("Value property is required when not using a schema")
         }
 
         // value sets need a value to be...set
-        when {
-            valueSet.isNotEmpty() && value.isEmpty() ->
-                addError("Value property is required when using a value set")
-            valueSetTable != null && value.isEmpty() ->
-                addError("Value property is required when using a value set table")
+        if (valueSet.isNotEmpty() && value.isEmpty()) {
+            addError("Value property is required when using a value set")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
@@ -335,17 +348,167 @@ data class ConfigSchemaElement(
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
      * @return the reference to the element
      */
-    fun merge(overwritingElement: ConfigSchemaElement) = apply {
+    open fun merge(overwritingElement: ConfigSchemaElement) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
-        overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
-        overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
-        overwritingElement.valueSetTable?.let { this.valueSetTable = overwritingElement.valueSetTable }
         if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
+    }
+}
+
+/**
+ * An element within a Schema.
+ * @property name the name of the element
+ * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
+ * @property required true if the element must have a value
+ * @property schema the name of a child schema
+ * @property schemaRef the reference to the loaded child schema
+ * @property resource a FHIR path that points to a FHIR resource
+ * @property value a list of FHIR paths each pointing to a FHIR primitive value
+ * @property hl7Spec a list of hl7Specs that denote the field to place a value into
+ * @property resourceIndex the variable name to store a FHIR collection's index number
+ * @property constants element level constants
+ * @property valueSet a list of key-value pairs used to convert the value property
+ * @property debug log debug information for the element
+ */
+@JsonIgnoreProperties
+class ConverterSchemaElement(
+    name: String? = null,
+    condition: String? = null,
+    var required: Boolean? = null,
+    schema: String? = null,
+    schemaRef: ConfigSchema<ConverterSchemaElement>? = null,
+    resource: String? = null,
+    value: List<String> = emptyList(),
+    var hl7Spec: List<String> = emptyList(),
+    resourceIndex: String? = null,
+    constants: SortedMap<String, String> = sortedMapOf(),
+    valueSet: SortedMap<String, String> = sortedMapOf(),
+    var debug: Boolean = false
+) : ConfigSchemaElement(
+    name = name,
+    condition = condition,
+    schema = schema,
+    schemaRef = schemaRef,
+    resource = resource,
+    value = value,
+    resourceIndex = resourceIndex,
+    constants = constants,
+    valueSet = valueSet,
+) {
+    override fun validate(validationErrors: MutableList<String>): List<String> {
+        /**
+         * Add an error [msg] to the list of errors.
+         */
+        fun addError(msg: String) {
+            validationErrors.add("[$name]: $msg")
+        }
+
+        when {
+            !schema.isNullOrBlank() && hl7Spec.isNotEmpty() ->
+                addError("Schema property cannot be used with the hl7Spec property")
+            schema.isNullOrBlank() && hl7Spec.isEmpty() ->
+                addError("Hl7Spec property is required when not using a schema")
+        }
+
+        return super.validate(validationErrors)
+    }
+
+    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
+        if (overwritingElement !is ConverterSchemaElement) {
+            throw SchemaException("Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement.")
+        }
+        overwritingElement.required?.let { this.required = overwritingElement.required }
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
+        super.merge(overwritingElement)
+    }
+}
+
+/**
+ * An element within a Schema.
+ * @property name the name of the element
+ * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
+ * @property schema the name of a child schema
+ * @property schemaRef the reference to the loaded child schema
+ * @property resource a FHIR path that points to a FHIR resource
+ * @property value a list of FHIR paths each pointing to a FHIR primitive value
+ * @property resourceIndex the variable name to store a FHIR collection's index number
+ * @property constants element level constants
+ * @property valueSet a list of key-value pairs used to convert the value property
+ * @property bundleProperty a FHIR path denoting where to store the value
+ * @property valueSetTable database location of key-value pairs to convert the value property
+ */
+@JsonIgnoreProperties
+class FHIRTransformSchemaElement(
+    name: String? = null,
+    condition: String? = null,
+    schema: String? = null,
+    schemaRef: FHIRTransformSchema? = null,
+    resource: String? = null,
+    value: List<String> = emptyList(),
+    resourceIndex: String? = null,
+    constants: SortedMap<String, String> = sortedMapOf(),
+    valueSet: SortedMap<String, String> = sortedMapOf(),
+    var bundleProperty: String? = null,
+    var valueSetTable: ValueSetTable? = null
+) : ConfigSchemaElement(
+    name = name,
+    condition = condition,
+    schema = schema,
+    schemaRef = schemaRef,
+    resource = resource,
+    value = value,
+    resourceIndex = resourceIndex,
+    constants = constants,
+    valueSet = valueSet,
+) {
+    /**
+     * Validate the element.
+     * @return a list of validation errors, or an empty list if no errors
+     */
+    override fun validate(validationErrors: MutableList<String>): List<String> {
+        /**
+         * Add an error [msg] to the list of errors.
+         */
+        fun addError(msg: String) {
+            validationErrors.add("[$name]: $msg")
+        }
+
+        when {
+            valueSetTable != null ->
+                addError("ValueSetTable property is not yet supported")
+            valueSetTable != null && valueSet.isNotEmpty() ->
+                addError("ValueSet property cannot be used with the valueSetTable property")
+            valueSetTable != null && value.isEmpty() ->
+                addError("Value property is required when using a value set table")
+            valueSetTable?.isValid == false ->
+                addError("Invalid valueSetTable property value")
+            valueSetTable != null && !schema.isNullOrBlank() ->
+                addError("Schema property cannot be used with the bundleProperty property")
+        }
+
+        when {
+            !schema.isNullOrBlank() && bundleProperty != null ->
+                addError("Schema property cannot be used with the bundleProperty property")
+            schema.isNullOrBlank() && bundleProperty == null ->
+                addError("BundleProperty property is required when not using a schema")
+        }
+
+        return super.validate(validationErrors)
+    }
+
+    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
+        if (overwritingElement !is FHIRTransformSchemaElement) {
+            throw SchemaException(
+                "Overwriting element ${overwritingElement.name} was " +
+                    "not a FHIRTranslatorSchemaElement."
+            )
+        }
+        overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
+        overwritingElement.valueSetTable?.let { this.valueSetTable = overwritingElement.valueSetTable }
+        super.merge(overwritingElement)
     }
 }

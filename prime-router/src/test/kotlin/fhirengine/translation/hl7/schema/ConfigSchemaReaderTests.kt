@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
-import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import kotlin.test.Test
 
@@ -85,20 +85,28 @@ class ConfigSchemaReaderTests {
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
         )
 
-        assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU_R01") // match filename
-        assertThat(schema.hl7Type).isEqualTo("ORU_R01")
-        assertThat(schema.hl7Version).isEqualTo("2.5.1")
-        assertThat(schema.elements).isNotEmpty()
+        assertThat(schema is ConverterSchema).isTrue()
+        if (schema is ConverterSchema) {
+            assertThat(schema.name).isEqualTo("ORU_R01") // match filename
+            assertThat(schema.hl7Type).isEqualTo("ORU_R01")
+            assertThat(schema.hl7Version).isEqualTo("2.5.1")
+            assertThat(schema.elements).isNotEmpty()
+        }
 
         val patientInfoElement = schema.elements.single { it.name == "patient-information" }
-        assertThat(patientInfoElement.schema).isNotNull()
-        assertThat(patientInfoElement.schema!!).isNotEmpty()
-        assertThat(patientInfoElement.schemaRef).isNotNull()
+        assertThat(patientInfoElement is ConverterSchemaElement).isTrue()
+        if (patientInfoElement is ConverterSchemaElement) {
+            assertThat(patientInfoElement.schema).isNotNull()
+            assertThat(patientInfoElement.schema!!).isNotEmpty()
+            assertThat(patientInfoElement.schemaRef).isNotNull()
+        }
 
         assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU_R01/patient") // match filename
         val patientNameElement = patientInfoElement.schemaRef!!.elements.single { it.name == "patient-last-name" }
-        assertThat(patientNameElement.hl7Spec).isNotEmpty()
+        assertThat(patientNameElement is ConverterSchemaElement).isTrue()
+        if (patientNameElement is ConverterSchemaElement) {
+            assertThat(patientNameElement.hl7Spec).isNotEmpty()
+        }
 
         // This is a bad schema.
         assertThat {
@@ -117,42 +125,42 @@ class ConfigSchemaReaderTests {
     }
 
     @Test
-    fun `test isValid hl7v2 vs fhir transform`() {
+    fun `test read converter vs fhir transform`() {
         // This is a valid fhir transform schema
-        assertThat(
+        assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
                 isFHIRTransform = true
-            ).isValid()
-        ).isTrue()
+            )
+        }.isSuccess()
 
         // This is an invalid hl7v2 schema
-        assertThat(
+        assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
                 isFHIRTransform = false
-            ).isValid()
-        ).isFalse()
+            )
+        }.isFailure()
 
         // This is a valid hl7v2 schema
-        assertThat(
+        assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
                 isFHIRTransform = false
-            ).isValid()
-        ).isTrue()
+            )
+        }.isSuccess()
 
         // This is an invalid fhir transform schema
-        assertThat(
+        assertThat {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
                 isFHIRTransform = true
-            ).isValid()
-        ).isFalse()
+            )
+        }.isFailure()
     }
 
     @Test
@@ -166,16 +174,18 @@ class ConfigSchemaReaderTests {
 
         assertThat(schema.errors).isEmpty()
         assertThat(schema.name).isEqualTo("sample_schema") // match filename
-        assertThat(schema.hl7Type).isNull()
-        assertThat(schema.hl7Version).isNull()
         assertThat(schema.elements).isNotEmpty()
 
         val statusElement = schema.elements.single { it.name == "status" }
-        assertThat(statusElement.schema).isNull()
-        assertThat(statusElement.constants).isNotNull()
-        assertThat(statusElement.condition).isNotNull()
-        assertThat(statusElement.valueSetTable).isNull()
-        assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
+
+        assertThat(statusElement is FHIRTransformSchemaElement).isTrue()
+        if (statusElement is FHIRTransformSchemaElement) {
+            assertThat(statusElement.schema).isNull()
+            assertThat(statusElement.constants).isNotNull()
+            assertThat(statusElement.condition).isNotNull()
+            assertThat(statusElement.valueSetTable).isNull()
+            assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
+        }
 
         // This is a bad schema.
         assertThat {
@@ -198,14 +208,14 @@ class ConfigSchemaReaderTests {
     @Test
     fun `test read from file`() {
         assertThat(
-            ConfigSchemaReader.fromFile(
+            ConfigSchemaReader.converterSchemaFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).isValid()
         ).isTrue()
 
         assertThat {
-            ConfigSchemaReader.fromFile(
+            ConfigSchemaReader.converterSchemaFromFile(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
             )
@@ -220,11 +230,14 @@ class ConfigSchemaReaderTests {
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
         )
 
-        assertThat(schema.errors).isEmpty()
-        assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
-        assertThat(schema.hl7Type).isEqualTo("ORU_R01")
-        assertThat(schema.hl7Version).isEqualTo("2.7")
-        assertThat(schema.elements).isNotEmpty()
+        assertThat(schema is ConverterSchema).isTrue()
+        if (schema is ConverterSchema) {
+            assertThat(schema.errors).isEmpty()
+            assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
+            assertThat(schema.hl7Type).isEqualTo("ORU_R01")
+            assertThat(schema.hl7Version).isEqualTo("2.7")
+            assertThat(schema.elements).isNotEmpty()
+        }
 
         val patientLastNameElement = schema.findElement("patient-last-name")
         assertThat(patientLastNameElement).isNotNull()

@@ -13,47 +13,43 @@ import kotlin.test.Test
 class ConfigSchemaTests {
     @Test
     fun `test validate schema`() {
-        var schema = ConfigSchema()
+        var schema = ConverterSchema()
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema()
+        schema = ConverterSchema("ORU_R01")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("ORU_R01")
+        schema = ConverterSchema("ORU_R01", "2.5.1")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("ORU_R01", "2.5.1")
-        assertThat(schema.isValid()).isFalse()
-        assertThat(schema.errors).isNotEmpty()
-
-        val goodElement = ConfigSchemaElement(value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
-        schema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
+        val goodElement = ConverterSchemaElement(value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
+        schema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
 
         // A child schema
-        schema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.validate(true)).isNotEmpty()
 
         // A bad type
-        schema = ConfigSchema("VAT", "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema("VAT", "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema(null, "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema(null, "2.5.1", mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConfigSchema("ORU_R01", null, mutableListOf(goodElement))
+        schema = ConverterSchema("ORU_R01", null, mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.isValid()).isFalse() // We check again to make sure we get the same value
         assertThat(schema.errors).isNotEmpty()
 
         // Check on constants
-        schema = ConfigSchema(
+        schema = ConverterSchema(
             "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "")
         )
         assertThat(schema.isValid()).isFalse()
@@ -61,7 +57,7 @@ class ConfigSchemaTests {
         assertThat(schema.errors.size).isEqualTo(1)
         assertThat(schema.errors[0]).contains(schema.constants.firstKey())
 
-        schema = ConfigSchema(
+        schema = ConverterSchema(
             "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "value")
         )
         assertThat(schema.isValid()).isTrue()
@@ -70,88 +66,184 @@ class ConfigSchemaTests {
 
     @Test
     fun `test validate schema element`() {
-        var element = ConfigSchemaElement()
+        var element = ConverterSchemaElement()
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name")
+        element = ConverterSchemaElement("name")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = listOf("Bundle"))
+        element = ConverterSchemaElement("name", value = listOf("Bundle"))
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", hl7Spec = listOf("MSH-7"))
+        element = ConverterSchemaElement("name", hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
+        element = ConverterSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isEmpty()
 
-        element = ConfigSchemaElement("name", value = listOf("Bundle", "Bundle.id"), hl7Spec = listOf("MSH-7"))
+        element = ConverterSchemaElement("name", value = listOf("Bundle", "Bundle.id"), hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isEmpty()
 
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"), schema = "schema"
         )
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", hl7Spec = listOf("MSH-7"), schema = "schema")
+        element = ConverterSchemaElement("name", hl7Spec = listOf("MSH-7"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = listOf("Bundle"), schema = "schema")
+        element = ConverterSchemaElement("name", value = listOf("Bundle"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", schema = "schema")
+        element = ConverterSchemaElement("name", schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle",
             hl7Spec = listOf("MSH-7")
         )
         assertThat(element.validate()).isEmpty()
 
         // FHIR Path errors
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("Bundle..."), resource = "Bundle", condition = "Bundle",
         )
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("Bundle"), resource = "Bundle...", condition = "Bundle",
         )
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
         )
         assertThat(element.validate()).isNotEmpty()
 
         // Check on resource index
-        val aSchema = ConfigSchema(
-            elements = mutableListOf(ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7")))
+        val aSchema = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement(
+                    "name",
+                    value = listOf("Bundle"),
+                    hl7Spec = listOf("MSH-7")
+                )
+            )
         )
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex"
         )
         assertThat(element.validate()).isNotEmpty()
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex",
             resource = "someresource"
         )
         assertThat(element.validate()).isEmpty()
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), resourceIndex = "someindex",
             resource = "someresource"
         )
         assertThat(element.validate()).isNotEmpty()
 
         // Check on constants
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
             "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), constants = sortedMapOf("const1" to "")
         )
         val errors = element.validate()
         assertThat(errors).isNotEmpty()
         assertThat(errors.size).isEqualTo(1)
         assertThat(errors[0]).contains(element.constants.firstKey())
-        element = ConfigSchemaElement(
+        element = ConverterSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"),
+            constants = sortedMapOf("const1" to "value")
+        )
+        assertThat(element.validate()).isEmpty()
+    }
+
+    @Test
+    fun `test validate FHIR transform schema element`() {
+        var element: ConfigSchemaElement = FHIRTransformSchemaElement()
+        assertThat(element.validate()).isNotEmpty()
+
+        element = FHIRTransformSchemaElement("name")
+        assertThat(element.validate()).isNotEmpty()
+
+        element = FHIRTransformSchemaElement("name", value = listOf("someValue"))
+        assertThat(element.validate()).isNotEmpty()
+
+        element = FHIRTransformSchemaElement("name", value = listOf("final"), bundleProperty = "%resource.status")
+        assertThat(element.validate()).isEmpty()
+
+        element = FHIRTransformSchemaElement(
+            "name", value = listOf("Bundle"), bundleProperty = "%resource.status", schema = "schema"
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement("name", hl7Spec = listOf("MSH-7"), schema = "schema")
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement("name", value = listOf("Bundle"), schema = "schema")
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement("name", schema = "schema")
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement(
+            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle",
+            hl7Spec = listOf("MSH-7")
+        )
+        assertThat(element.validate()).isEmpty()
+
+        // FHIR Path errors
+        element = ConverterSchemaElement(
+            "name", value = listOf("Bundle..."), resource = "Bundle", condition = "Bundle",
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement(
+            "name", value = listOf("Bundle"), resource = "Bundle...", condition = "Bundle",
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        element = ConverterSchemaElement(
+            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        // Check on resource index
+        val aSchema = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement(
+                    "name",
+                    value = listOf("Bundle"),
+                    hl7Spec = listOf("MSH-7")
+                )
+            )
+        )
+        element = ConverterSchemaElement(
+            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex"
+        )
+        assertThat(element.validate()).isNotEmpty()
+        element = ConverterSchemaElement(
+            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex",
+            resource = "someresource"
+        )
+        assertThat(element.validate()).isEmpty()
+        element = ConverterSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), resourceIndex = "someindex",
+            resource = "someresource"
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        // Check on constants
+        element = ConverterSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), constants = sortedMapOf("const1" to "")
+        )
+        val errors = element.validate()
+        assertThat(errors).isNotEmpty()
+        assertThat(errors.size).isEqualTo(1)
+        assertThat(errors[0]).contains(element.constants.firstKey())
+        element = ConverterSchemaElement(
             "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"),
             constants = sortedMapOf("const1" to "value")
         )
@@ -160,127 +252,137 @@ class ConfigSchemaTests {
 
     @Test
     fun `test validate schema with schemas`() {
-        var goodElement = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
-        var childSchema = ConfigSchema(elements = mutableListOf(goodElement))
-        var elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        var topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        var goodElement = ConverterSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
+        var childSchema = ConverterSchema(elements = mutableListOf(goodElement))
+        var elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        var topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
-        goodElement = ConfigSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
-        childSchema = ConfigSchema(elements = mutableListOf(goodElement))
-        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        goodElement = ConverterSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
+        childSchema = ConverterSchema(elements = mutableListOf(goodElement))
+        elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
 
-        childSchema = ConfigSchema(hl7Version = "2.5.1", elements = mutableListOf(goodElement))
-        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        childSchema = ConverterSchema(hl7Version = "2.5.1", elements = mutableListOf(goodElement))
+        elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
 
-        childSchema = ConfigSchema(hl7Type = "ORU_R01", elements = mutableListOf(goodElement))
-        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConfigSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        childSchema = ConverterSchema(hl7Type = "ORU_R01", elements = mutableListOf(goodElement))
+        elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
     }
 
     @Test
     fun `test merge of element`() {
-        fun newParent(): ConfigSchemaElement {
-            return ConfigSchemaElement(
+        fun newParent(): ConverterSchemaElement {
+            return ConverterSchemaElement(
                 "name", condition = "condition1", required = true,
-                schema = "schema1", schemaRef = ConfigSchema(), resource = "resource1", resourceIndex = "index1",
+                schema = "schema1", schemaRef = ConverterSchema(), resource = "resource1", resourceIndex = "index1",
                 value = listOf("value1"), hl7Spec = listOf("hl7spec1"), constants = sortedMapOf("k1" to "v1")
             )
         }
 
         val originalElement = newParent()
-        val elementA = ConfigSchemaElement("name")
-        var parentElement = newParent().merge(elementA)
-        assertAll {
-            assertThat(parentElement.condition).isEqualTo(originalElement.condition)
-            assertThat(parentElement.required).isEqualTo(originalElement.required)
-            assertThat(parentElement.schema).isEqualTo(originalElement.schema)
-            assertThat(parentElement.schemaRef).isEqualTo(originalElement.schemaRef)
-            assertThat(parentElement.resource).isEqualTo(originalElement.resource)
-            assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
-            assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
-            assertThat(parentElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-            assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
-            parentElement.value
-                .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-            parentElement.hl7Spec
-                .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-            parentElement.constants
-                .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+        val elementA = ConverterSchemaElement("name")
+        val parentElement = newParent().merge(elementA)
+        assertThat(parentElement is ConverterSchemaElement)
+        if (parentElement is ConverterSchemaElement) {
+            assertAll {
+                assertThat(parentElement.condition).isEqualTo(originalElement.condition)
+                assertThat(parentElement.required).isEqualTo(originalElement.required)
+                assertThat(parentElement.schema).isEqualTo(originalElement.schema)
+                assertThat(parentElement.schemaRef).isEqualTo(originalElement.schemaRef)
+                assertThat(parentElement.resource).isEqualTo(originalElement.resource)
+                assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
+                assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
+                assertThat(parentElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
+                assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
+                parentElement.value
+                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
+                parentElement.hl7Spec
+                    .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
+                parentElement.constants
+                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+            }
         }
 
-        val elementB = ConfigSchemaElement(
+        val elementB = ConverterSchemaElement(
             "name", condition = "condition2", required = false,
-            schema = "schema2", schemaRef = ConfigSchema(), resource = "resource2", resourceIndex = "index2"
+            schema = "schema2", schemaRef = ConverterSchema(), resource = "resource2", resourceIndex = "index2"
         )
-        parentElement = newParent().merge(elementB)
-        assertAll {
-            assertThat(parentElement.condition).isEqualTo(elementB.condition)
-            assertThat(parentElement.required).isEqualTo(elementB.required)
-            assertThat(parentElement.schema).isEqualTo(elementB.schema)
-            assertThat(parentElement.schemaRef).isEqualTo(elementB.schemaRef)
-            assertThat(parentElement.resource).isEqualTo(elementB.resource)
-            assertThat(parentElement.resourceIndex).isEqualTo(elementB.resourceIndex)
-            assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
-            assertThat(parentElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-            assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
-            parentElement.value
-                .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-            parentElement.hl7Spec
-                .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-            parentElement.constants
-                .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+        val parentElementB = newParent().merge(elementB)
+        assertThat(parentElementB is ConverterSchemaElement)
+        if (parentElementB is ConverterSchemaElement) {
+            assertAll {
+                assertThat(parentElementB.condition).isEqualTo(elementB.condition)
+                assertThat(parentElementB.required).isEqualTo(elementB.required)
+                assertThat(parentElementB.schema).isEqualTo(elementB.schema)
+                assertThat(parentElementB.schemaRef).isEqualTo(elementB.schemaRef)
+                assertThat(parentElementB.resource).isEqualTo(elementB.resource)
+                assertThat(parentElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
+                assertThat(parentElementB.value.size).isEqualTo(originalElement.value.size)
+                assertThat(parentElementB.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
+                assertThat(parentElementB.constants.size).isEqualTo(originalElement.constants.size)
+                parentElementB.value
+                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
+                parentElementB.hl7Spec
+                    .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
+                parentElementB.constants
+                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+            }
         }
 
-        val elementC = ConfigSchemaElement(
+        val elementC = ConverterSchemaElement(
             "name", condition = "condition3", required = null,
-            schema = "schema3", schemaRef = ConfigSchema(), resource = "resource3", resourceIndex = "index3",
+            schema = "schema3", schemaRef = ConverterSchema(), resource = "resource3", resourceIndex = "index3",
             value = listOf("value3"), hl7Spec = listOf("hl7spec3"), constants = sortedMapOf("k3" to "v3")
         )
-        parentElement = newParent().merge(elementC)
-        assertAll {
-            assertThat(parentElement.condition).isEqualTo(elementC.condition)
-            assertThat(parentElement.required).isEqualTo(originalElement.required)
-            assertThat(parentElement.schema).isEqualTo(elementC.schema)
-            assertThat(parentElement.schemaRef).isEqualTo(elementC.schemaRef)
-            assertThat(parentElement.resource).isEqualTo(elementC.resource)
-            assertThat(parentElement.resourceIndex).isEqualTo(elementC.resourceIndex)
-            assertThat(parentElement.value.size).isEqualTo(elementC.value.size)
-            assertThat(parentElement.hl7Spec.size).isEqualTo(elementC.hl7Spec.size)
-            assertThat(parentElement.constants.size).isEqualTo(elementC.constants.size)
-            parentElement.value
-                .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
-            parentElement.hl7Spec
-                .forEachIndexed { index, hl7Spec -> assertThat(elementC.hl7Spec[index]).isEqualTo(hl7Spec) }
-            parentElement.constants
-                .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
+        val parentElementC = newParent().merge(elementC)
+
+        assertThat(parentElementC is ConverterSchemaElement)
+        if (parentElementC is ConverterSchemaElement) {
+            assertAll {
+                assertThat(parentElementC.condition).isEqualTo(elementC.condition)
+                assertThat(parentElementC.required).isEqualTo(originalElement.required)
+                assertThat(parentElementC.schema).isEqualTo(elementC.schema)
+                assertThat(parentElementC.schemaRef).isEqualTo(elementC.schemaRef)
+                assertThat(parentElementC.resource).isEqualTo(elementC.resource)
+                assertThat(parentElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
+                assertThat(parentElementC.value.size).isEqualTo(elementC.value.size)
+                assertThat(parentElementC.hl7Spec.size).isEqualTo(elementC.hl7Spec.size)
+                assertThat(parentElementC.constants.size).isEqualTo(elementC.constants.size)
+                parentElementC.value
+                    .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
+                parentElementC.hl7Spec
+                    .forEachIndexed { index, hl7Spec -> assertThat(elementC.hl7Spec[index]).isEqualTo(hl7Spec) }
+                parentElementC.constants
+                    .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
+            }
         }
     }
 
     @Test
     fun `test find element`() {
-        val childSchema = ConfigSchema(
+        val childSchema = ConverterSchema(
             elements = mutableListOf(
-                ConfigSchemaElement("child1"),
-                ConfigSchemaElement("child2"),
-                ConfigSchemaElement("child3")
+                ConverterSchemaElement("child1"),
+                ConverterSchemaElement("child2"),
+                ConverterSchemaElement("child3")
             )
         )
-        val schema = ConfigSchema(
+        val schema = ConverterSchema(
             elements = mutableListOf(
-                ConfigSchemaElement("parent1"),
-                ConfigSchemaElement("parent2"),
-                ConfigSchemaElement("parent3"),
-                ConfigSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
+                ConverterSchemaElement("parent1"),
+                ConverterSchemaElement("parent2"),
+                ConverterSchemaElement("parent3"),
+                ConverterSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
             )
         )
 
@@ -290,36 +392,36 @@ class ConfigSchemaTests {
 
     @Test
     fun `test merge of schemas`() {
-        val childSchema = ConfigSchema(
+        val childSchema = ConverterSchema(
             elements = mutableListOf(
-                ConfigSchemaElement("child1"),
-                ConfigSchemaElement("child2"),
-                ConfigSchemaElement("child3")
+                ConverterSchemaElement("child1"),
+                ConverterSchemaElement("child2"),
+                ConverterSchemaElement("child3")
             )
         )
-        val schema = ConfigSchema(
+        val schema = ConverterSchema(
             hl7Type = "ORU_R01",
             hl7Version = "2.5.1",
             elements = mutableListOf(
-                ConfigSchemaElement("parent1"),
-                ConfigSchemaElement("parent2"),
-                ConfigSchemaElement("parent3"),
-                ConfigSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
+                ConverterSchemaElement("parent1"),
+                ConverterSchemaElement("parent2"),
+                ConverterSchemaElement("parent3"),
+                ConverterSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
             )
         )
 
-        val extendedSchema = ConfigSchema(
+        val extendedSchema = ConverterSchema(
             hl7Type = "ORU_R01",
             hl7Version = "2.7",
             elements = mutableListOf(
-                ConfigSchemaElement("parent1", required = true),
-                ConfigSchemaElement("child2", condition = "condition1"),
-                ConfigSchemaElement("newElement1"),
+                ConverterSchemaElement("parent1", required = true),
+                ConverterSchemaElement("child2", condition = "condition1"),
+                ConverterSchemaElement("newElement1"),
             )
         )
 
         schema.merge(extendedSchema)
-        assertThat(schema.elements[0].required).isEqualTo(extendedSchema.elements[0].required)
+        assertThat((schema.elements[0]).required).isEqualTo((extendedSchema.elements[0]).required)
         assertThat(childSchema.elements[1].condition).isEqualTo(extendedSchema.elements[1].condition)
         assertThat(schema.elements.last().name).isEqualTo(extendedSchema.elements[2].name)
         assertThat(schema.hl7Version).isEqualTo("2.7")
