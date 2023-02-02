@@ -19,6 +19,8 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
+$bg-primary: #005ea2;
+
 html, body {
   height: 100%;
 }
@@ -72,7 +74,7 @@ main {
 }
 
 .usa-nav__primary-item a.usa-button {
-  color: #005ea2;
+  color: $bg-primary;
 }
 
 // Breadcrumb
@@ -108,6 +110,20 @@ main {
 .usa-table {
   display: block;
   overflow-x: auto;
+}
+
+// We are currently using accordions in RS (Message Tracker and Admin Revision History)
+.usa-accordion__button {
+    color: white;
+    background-color: $bg-primary;
+}
+.usa-accordion__button:hover,  .usa-accordion__button:focus{
+    color: white;
+    background-color: $bg-primary;
+}
+.usa-accordion--bordered .usa-accordion__content {
+    border-color: $bg-primary;
+    border-width: medium;
 }
 
 // MEDIA: DESKTOP
@@ -174,7 +190,7 @@ main {
   }
 
   .usa-nav__primary > .usa-current > a::after {
-    background-color: #005ea2;
+    background-color: $bg-primary;
     border-radius: 0;
     content: "";
     display: block;
