@@ -1,5 +1,4 @@
 import { Alert } from "@trussworks/react-uswds";
-import DOMPurify from "dompurify";
 import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
@@ -29,12 +28,7 @@ const TransitionBanner = () => {
                     (you can use your existing username and password). If you
                     need assistance or have questions, please email the
                     SimpleReport team at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize("support@simplereport.gov")
-                        }
-                    >
+                    <USExtLink href={`mailto: support@simplereport.gov`}>
                         support@simplereport.gov
                     </USExtLink>
                     .

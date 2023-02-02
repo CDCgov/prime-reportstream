@@ -1,6 +1,7 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
+import DOMPurify from "dompurify";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -32,7 +33,7 @@ export const USLink = ({
 }: USLinkProps) => {
     return !anchor ? (
         <Link
-            to={href || ""}
+            to={href ? DOMPurify.sanitize(href) : ""}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
