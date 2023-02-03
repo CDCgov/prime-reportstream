@@ -14,40 +14,29 @@ import java.io.InputStream
  */
 object ConfigSchemaReader : Logging {
     /**
-     * Read a schema [schemaName] from a file given the root [folder].
+     * Read a converter schema [schemaName] from a file given the root [folder].
      * @return the validated schema
-     * @throws Exception if the schema is invalid
+     * @throws Exception if the schema is invalid or is of the wrong type
      */
     fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
-        // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = mutableListOf<ConverterSchema>()
-        var schema = readSchemaTreeFromFile(schemaName, folder)
-        if (schema !is ConverterSchema) {
-            throw SchemaException("Schema $schemaName is not of the correct type")
-        }
-        schemaList.add(schema)
-        while (!schemaList.last().extends.isNullOrBlank()) {
-            // Make sure there are no circular dependencies
-            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
-            ) {
-                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
-            }
-            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
-            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder)
-            if (schema !is ConverterSchema) {
-                throw SchemaException("Schema $schemaName is not of the correct type")
-            }
-            schemaList.add(schema)
-        }
+        val schema = fromFile(schemaName, folder)
+        if (schema is ConverterSchema)
+            return schema
+        else
+            throw SchemaException("Schema ${schema.name} is not a ConverterSchema")
+    }
 
-        // Now merge the parent with all the child schemas
-        val mergedSchema = mergeConverterSchemas(schemaList)
-
-        if (!mergedSchema.isValid()) {
-            throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
-        }
-        return mergedSchema
+    /**
+     * Read a fhirTransform schema [schemaName] from a file given the root [folder].
+     * @return the validated schema
+     * @throws Exception if the schema is invalid or is of the wrong type
+     */
+    fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
+        val schema = fromFile(schemaName, folder, isFHIRTransform = true)
+        if (schema is FHIRTransformSchema)
+            return schema
+        else
+            throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
     }
 
     /**
@@ -55,11 +44,11 @@ object ConfigSchemaReader : Logging {
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
-    fun transformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
+    fun fromFile(schemaName: String, folder: String? = null, isFHIRTransform: Boolean = false): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = mutableListOf<FHIRTransformSchema>()
-        var schema = readSchemaTreeFromFile(schemaName, folder, isFHIRTransform = true)
-        if (schema !is FHIRTransformSchema) {
+        val schemaList = mutableListOf<ConfigSchema<*>>()
+        var schema = readSchemaTreeFromFile(schemaName, folder, isFHIRTransform = isFHIRTransform)
+        if ((isFHIRTransform && schema !is FHIRTransformSchema) || (!isFHIRTransform && schema !is ConverterSchema)) {
             throw SchemaException("Schema $schemaName is not of the correct type")
         }
         schemaList.add(schema)
@@ -71,15 +60,22 @@ object ConfigSchemaReader : Logging {
             }
             val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
             val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = true)
-            if (schema !is FHIRTransformSchema) {
+            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = isFHIRTransform)
+            if ((isFHIRTransform && schema !is FHIRTransformSchema) ||
+                (!isFHIRTransform && schema !is ConverterSchema)
+            ) {
                 throw SchemaException("Schema $schemaName is not of the correct type")
             }
             schemaList.add(schema)
         }
 
         // Now merge the parent with all the child schemas
-        val mergedSchema = mergeTransformSchemas(schemaList)
+        val mergedSchema = mergeSchemas(
+            if (isFHIRTransform)
+                schemaList.filterIsInstance<FHIRTransformSchema>()
+            else
+                schemaList.filterIsInstance<ConverterSchema>()
+        )
 
         if (!mergedSchema.isValid()) {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
@@ -92,23 +88,21 @@ object ConfigSchemaReader : Logging {
      * from the lowest child to parent.
      * @return a merged schema
      */
-    private fun mergeConverterSchemas(schemaList: List<ConverterSchema>): ConverterSchema {
+    private fun mergeSchemas(schemaList: List<ConfigSchema<*>>): ConfigSchema<*> {
         val parentSchema = schemaList.last()
         for (i in (schemaList.size - 2) downTo 0) {
-            parentSchema.merge(schemaList[i])
-        }
-        return parentSchema
-    }
-
-    /**
-     * Merge the parent and child schemas provided in the [schemaList].  Note that [schemaList] MUST be ordered
-     * from the lowest child to parent.
-     * @return a merged schema
-     */
-    private fun mergeTransformSchemas(schemaList: List<FHIRTransformSchema>): FHIRTransformSchema {
-        val parentSchema = schemaList.last()
-        for (i in (schemaList.size - 2) downTo 0) {
-            parentSchema.merge(schemaList[i])
+            val childSchema = schemaList[i]
+            when {
+                // Need to smart cast so the compiler knows which merge is being called
+                parentSchema is ConverterSchema && childSchema is ConverterSchema ->
+                    parentSchema.merge(childSchema)
+                parentSchema is FHIRTransformSchema && childSchema is FHIRTransformSchema ->
+                    parentSchema.merge(childSchema)
+                else ->
+                    throw SchemaException(
+                        "Parent schema ${parentSchema.name} and child schema ${childSchema.name} of incompatible types"
+                    )
+            }
         }
         return parentSchema
     }
