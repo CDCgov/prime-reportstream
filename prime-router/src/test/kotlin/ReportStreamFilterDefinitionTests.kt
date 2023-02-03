@@ -220,14 +220,22 @@ class ReportStreamFilterDefinitionTests {
         assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B1")
         assertThat(filteredTable1.getString(1, "colB")).isEqualTo("B3")
 
-        val args2 = listOf("colC", "(?i)NJ", "colC", "(?i)NY") // test a regex
+        val args2 = listOf("colA", "(?i)A.*", "colB", ".*4") // test a regex
         val selection2 = filter.getSelection(args2, table, rcvr)
         val filteredTable2 = table.where(selection2)
-        assertThat(filteredTable2).hasRowCount(4)
-        assertThat(filteredTable2.getString(0, "colC")).isEqualTo("NJ")
-        assertThat(filteredTable2.getString(1, "colC")).isEqualTo("Nj")
-        assertThat(filteredTable2.getString(2, "colC")).isEqualTo("nj")
-        assertThat(filteredTable2.getString(3, "colC")).isEqualTo("Ny")
+        assertThat(filteredTable2).hasRowCount(3)
+        assertThat(filteredTable2.getString(0, "colB")).isEqualTo("B1")
+        assertThat(filteredTable2.getString(1, "colB")).isEqualTo("B2")
+        assertThat(filteredTable2.getString(2, "colB")).isEqualTo("B4")
+
+        val args3 = listOf("colC", "(?i)NJ", "colC", "(?i)NY") // Check for case-insensitive
+        val selection3 = filter.getSelection(args3, table, rcvr)
+        val filteredTable3 = table.where(selection3)
+        assertThat(filteredTable3).hasRowCount(4)
+        assertThat(filteredTable3.getString(0, "colC")).isEqualTo("NJ")
+        assertThat(filteredTable3.getString(1, "colC")).isEqualTo("Nj")
+        assertThat(filteredTable3.getString(2, "colC")).isEqualTo("nj")
+        assertThat(filteredTable3.getString(3, "colC")).isEqualTo("Ny")
 
         val args4 = listOf("colA", "([?:|") // malformed regex
         assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
