@@ -17,6 +17,7 @@ import { MessageReceivers } from "./MessageReceivers";
 type MessageDetailsProps = {
     id: string | undefined;
 };
+
 const parseFileLocation = (
     fileLocation: string
 ): {
@@ -29,7 +30,7 @@ const parseFileLocation = (
     let fileNameFromStr = "";
 
     let fileReportsLocation = fileLocation.split("reports/").pop();
-    if (fileReportsLocation) {
+    if (fileLocation.includes("reports/") && fileReportsLocation) {
         fileLocationFromStr = fileReportsLocation.split("%2F")[0].toUpperCase();
         sendingOrgFromStr = fileReportsLocation.split("%2F")[1];
         fileNameFromStr = fileReportsLocation.split("%2F")[2];
@@ -67,33 +68,13 @@ const dataToAccordionItems = (props: {
 };
 
 export function MessageDetails() {
-    const MOCK_MESSAGE_WARNINGS = [
-        {
-            detail: {
-                class: "gov.cdc.prime.router.InvalidCodeMessage",
-                fieldMapping: "Specimen_type_code (specimen_type)",
-                scope: "item",
-                message:
-                    "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
-            },
-        },
-        {
-            detail: {
-                class: "gov.cdc.prime.router.InvalidEquipmentMessage",
-                fieldMapping: "Equipment_Model_ID (equipment_model_id)",
-                scope: "item",
-                message:
-                    "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
-            },
-        },
-    ];
     const navigate = useNavigate();
     const { id } = useParams<MessageDetailsProps>();
     const { messageDetails } = useMessageDetails(id!!);
-    // const warnings: WarningError[] = messageDetails
-    //     ? messageDetails.warnings
-    //     : [];
-    const warnings: WarningError[] = MOCK_MESSAGE_WARNINGS;
+    const warnings: WarningError[] = messageDetails
+        ? messageDetails.warnings
+        : [];
+    const errors: WarningError[] = messageDetails ? messageDetails.errors : [];
 
     const fileUrl = messageDetails?.fileUrl ? messageDetails.fileUrl : "";
     const { fileLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
@@ -175,7 +156,7 @@ export function MessageDetails() {
                                     title: `Errors (${
                                         messageDetails!.errors.length
                                     })`,
-                                    data: warnings,
+                                    data: errors,
                                 })}
                             />
                         </div>
