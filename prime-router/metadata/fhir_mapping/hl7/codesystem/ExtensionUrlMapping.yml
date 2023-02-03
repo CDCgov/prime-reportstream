@@ -206,3 +206,6 @@
 # Order effective date
 - id: "order-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
+# Business Event In Progress - https://docs.google.com/spreadsheets/d/11VBF5TIRJTfRwkRIK1XH-k40dZqCd3g3a0sBY-zJU4Q/edit#gid=0
+- id: "business-event"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
