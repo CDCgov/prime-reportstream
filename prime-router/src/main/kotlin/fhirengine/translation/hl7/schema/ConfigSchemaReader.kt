@@ -51,11 +51,7 @@ object ConfigSchemaReader : Logging {
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = mutableListOf<ConfigSchema<*>>()
-        var schema = readSchemaTreeFromFile(schemaName, folder, schemaClass = schemaClass)
-        if (schema.javaClass != schemaClass) {
-            throw SchemaException("Schema $schemaName is not of the correct type")
-        }
-        schemaList.add(schema)
+        schemaList.add(readSchemaTreeFromFile(schemaName, folder, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
@@ -64,11 +60,7 @@ object ConfigSchemaReader : Logging {
             }
             val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
             val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, schemaClass = schemaClass)
-            if (schema.javaClass != schemaClass) {
-                throw SchemaException("Schema $schemaName is not of the correct type")
-            }
-            schemaList.add(schema)
+            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder, schemaClass = schemaClass))
         }
 
         // Now merge the parent with all the child schemas
