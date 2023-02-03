@@ -4,7 +4,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidEquipmentMessage
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.metadata.LivdLookup.lookupLoincCode
+import gov.cdc.prime.router.metadata.LivdLookup.find
 
 /**
  * Column names in the LIVD table.
@@ -79,7 +79,7 @@ class LIVDLookupMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         val testPerformedCode = values.firstOrNull {
             it.element.name == ElementNames.TEST_PERFORMED_CODE.elementName
@@ -90,13 +90,50 @@ class LIVDLookupMapper : Mapper {
 
         // carry on as usual
         values.forEach {
-            val result = lookupLoincCode(
-                testPerformedCode,
-                processingModeCode,
-                it.element.name,
-                it.value,
-                element.tableColumn!!
-            )
+            val result = when (it.element.name) {
+                ElementNames.EQUIPMENT_MODEL_NAME.elementName -> find(
+                    testPerformedCode = testPerformedCode,
+                    processingModeCode = processingModeCode,
+                    deviceId = null,
+                    equipmentModelId = null,
+                    testKitNameId = null,
+                    equipmentModelName = it.value,
+                    tableColumn = element.tableColumn!!,
+                    tableRef = element.tableRef
+                )
+                ElementNames.DEVICE_ID.elementName -> find(
+                    testPerformedCode = testPerformedCode,
+                    processingModeCode = processingModeCode,
+                    deviceId = it.value,
+                    equipmentModelId = null,
+                    testKitNameId = null,
+                    equipmentModelName = null,
+                    tableColumn = element.tableColumn!!,
+                    tableRef = element.tableRef
+                )
+                ElementNames.EQUIPMENT_MODEL_ID.elementName -> find(
+                    testPerformedCode = testPerformedCode,
+                    processingModeCode = processingModeCode,
+                    deviceId = null,
+                    equipmentModelId = it.value,
+                    testKitNameId = null,
+                    equipmentModelName = null,
+                    tableColumn = element.tableColumn!!,
+                    tableRef = element.tableRef
+                )
+                ElementNames.TEST_KIT_NAME_ID.elementName -> find(
+                    testPerformedCode = testPerformedCode,
+                    processingModeCode = processingModeCode,
+                    deviceId = null,
+                    equipmentModelId = null,
+                    testKitNameId = it.value,
+                    equipmentModelName = null,
+                    tableColumn = element.tableColumn!!,
+                    tableRef = element.tableRef
+                )
+                else -> null
+            }
+
             if (result != null) return ElementResult(result)
         }
 

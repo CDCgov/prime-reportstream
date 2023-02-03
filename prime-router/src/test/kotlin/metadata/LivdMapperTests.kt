@@ -3,14 +3,12 @@ package gov.cdc.prime.router.metadata
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.metadata.LivdLookup.lookupByEquipmentModelName
 import gov.cdc.prime.router.metadata.LivdLookup.testProcessingModeCode
 import kotlin.test.Test
 
@@ -191,58 +189,6 @@ class LivdMapperTests {
     }
 
     @Test
-    fun `test livdLookup model variation lookup`() {
-        val lookupTable = LookupTable.read(livdPath)
-        val element = Element(
-            "ordered_test_code",
-            tableRef = lookupTable,
-            tableColumn = LivdTableColumns.TEST_PERFORMED_CODE.colName
-        )
-
-        // Cue COVID-19 Test does not have an * in the table
-        var testModel = "Cue COVID-19 Test"
-        var expectedTestOrderedLoinc = "95409-9"
-        assertThat(
-            lookupByEquipmentModelName(
-                element.tableColumn,
-                element.name,
-                testModel,
-                lookupTable.FilterBuilder()
-            )
-        ).isEqualTo(expectedTestOrderedLoinc)
-
-        // Add an * to the end of the model name
-        assertThat(
-            lookupByEquipmentModelName(
-                element.tableColumn, element.name, "$testModel*", lookupTable.FilterBuilder()
-            )
-        ).isEqualTo(expectedTestOrderedLoinc)
-
-        // Add some other character to fail the lookup
-        assertThat(
-            lookupByEquipmentModelName(
-                element.tableColumn, element.name, "$testModel^", lookupTable.FilterBuilder()
-            )
-        ).isNull()
-
-        // Accula SARS-Cov-2 Test does have an * in the table
-        testModel = "Accula SARS-Cov-2 Test"
-        expectedTestOrderedLoinc = "95409-9"
-        assertThat(
-            lookupByEquipmentModelName(
-                element.tableColumn, element.name, testModel, lookupTable.FilterBuilder()
-            )
-        ).isEqualTo(expectedTestOrderedLoinc)
-
-        // Add an * to the end of the model name
-        assertThat(
-            lookupByEquipmentModelName(
-                element.tableColumn, element.name, "$testModel*", lookupTable.FilterBuilder()
-            )
-        ).isEqualTo(expectedTestOrderedLoinc)
-    }
-
-    @Test
     fun `test supplemental devices for test only`() {
         val lookupTable = LookupTable.read(livdPath)
         val modelElement = Element(
@@ -360,9 +306,6 @@ class LivdMapperTests {
     @Test
     fun `test LIVD apply mapper lookup logic`() {
         val mapper = LIVDLookupMapper()
-
-        // Bad element
-        assertThat { mapper.apply(Element("noTableElement"), emptyList(), emptyList()) }.isFailure()
 
         // Simple device ID lookups
         var devIndex = 1

@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
-import gov.cdc.prime.router.metadata.ElementNames
-import gov.cdc.prime.router.metadata.LivdLookup.lookupLoincCode
+import gov.cdc.prime.router.metadata.LivdLookup.find
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
@@ -9,6 +8,8 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
 object CustomFHIRFunctions {
+    val lookupTable = gov.cdc.prime.router.Metadata.getInstance().findLookupTable(name = "LIVD-SARS-CoV-2")
+
     enum class CustomFHIRFunctionNames {
         LookupLivdTableLoincCodes;
 
@@ -72,12 +73,15 @@ object CustomFHIRFunctions {
             if (!deviceName.isNullOrBlank()) {
                 return mutableListOf(
                     StringType(
-                        lookupLoincCode(
-                            null,
-                            null,
-                            ElementNames.EQUIPMENT_MODEL_NAME.elementName,
-                            deviceName,
-                            parameters!!.first().first().primitiveValue()
+                        find(
+                            testPerformedCode = null,
+                            processingModeCode = null,
+                            deviceId = null,
+                            equipmentModelId = null,
+                            testKitNameId = null,
+                            equipmentModelName = deviceName,
+                            tableRef = lookupTable,
+                            tableColumn = parameters!!.first().first().primitiveValue()
                         )
                     )
                 )
