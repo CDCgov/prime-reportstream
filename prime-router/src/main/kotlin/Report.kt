@@ -1422,7 +1422,8 @@ class Report : Logging {
                     grandParentTrackingValue,
                     null,
                     null,
-                    itemHash
+                    itemHash,
+                    null
                 )
             } else {
                 val trackingElementValue =
@@ -1436,7 +1437,8 @@ class Report : Logging {
                     trackingElementValue,
                     null,
                     null,
-                    itemHash
+                    itemHash,
+                    null
                 )
             }
         }
@@ -1467,7 +1469,8 @@ class Report : Logging {
                         it.trackingId,
                         it.transportResult,
                         null,
-                        it.itemHash
+                        it.itemHash,
+                        null
                     )
             }
             val retval = mutableListOf<ItemLineage>()
