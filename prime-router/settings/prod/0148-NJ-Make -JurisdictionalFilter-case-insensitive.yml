@@ -58,4 +58,262 @@
         cliaForOutOfStateTesting: null
         cliaForSender: {}
         phoneNumberFormatting: "STANDARD"
-
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD_SECONDARY"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: true
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:40"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "njgov.moveitcloud.com"
+        port: "22"
+        filePath: "./TEST"
+        credentialName: "NJ-DOH--ELR"
+        type: "SFTP"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+    - name: "elr"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "NJDOH^2.16.840.1.113883.3.1299^ISO"
+          MSH-5:
+            - '*': "ELRS^2.16.840.1.113883.3.1299.5.1.6.1^ISO"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3,OBX-17-1,ORC-12-1,OBR-16-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:40"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "njgov.moveitcloud.com"
+        port: "22"
+        filePath: "./PROD"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+    - name: "elr-test-secondary"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "inactive"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "NJDOH^2.16.840.1.113883.3.1299^ISO"
+          MSH-5:
+            - '*': "ELRS^2.16.840.1.113883.3.1299.5.1.6.1^ISO"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3,OBX-17-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD_SECONDARY"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter:
+        - "allowNone()"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: true
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:40"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: null
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+    - name: "elr-test"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "inactive"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "NJDOH^2.16.840.1.113883.3.1299^ISO"
+          MSH-5:
+            - '*': "ELRS^2.16.840.1.113883.3.1299.5.1.6.1^ISO"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3,OBX-17-1"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter:
+        - "allowNone()"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:40"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: null
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
