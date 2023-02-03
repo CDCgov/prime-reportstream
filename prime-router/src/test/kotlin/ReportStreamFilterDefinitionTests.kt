@@ -203,7 +203,8 @@ class ReportStreamFilterDefinitionTests {
         val filter = OrEquals()
         val table = Table.create(
             StringColumn.create("colA", listOf("A1", "a2", "X3", "X4")),
-            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4")),
+            StringColumn.create("colC", listOf("NJ", "Nj", "nj", "Ny"))
         )
 
         val emptyArgs = listOf<String>()
@@ -219,13 +220,14 @@ class ReportStreamFilterDefinitionTests {
         assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B1")
         assertThat(filteredTable1.getString(1, "colB")).isEqualTo("B3")
 
-        val args2 = listOf("colA", "(?i)A.*", "colB", ".*4") // test a regex
+        val args2 = listOf("colC", "(?i)NJ", "colC", "(?i)NY") // test a regex
         val selection2 = filter.getSelection(args2, table, rcvr)
         val filteredTable2 = table.where(selection2)
-        assertThat(filteredTable2).hasRowCount(3)
-        assertThat(filteredTable2.getString(0, "colB")).isEqualTo("B1")
-        assertThat(filteredTable2.getString(1, "colB")).isEqualTo("B2")
-        assertThat(filteredTable2.getString(2, "colB")).isEqualTo("B4")
+        assertThat(filteredTable2).hasRowCount(4)
+        assertThat(filteredTable2.getString(0, "colC")).isEqualTo("NJ")
+        assertThat(filteredTable2.getString(1, "colC")).isEqualTo("Nj")
+        assertThat(filteredTable2.getString(2, "colC")).isEqualTo("nj")
+        assertThat(filteredTable2.getString(3, "colC")).isEqualTo("Ny")
 
         val args4 = listOf("colA", "([?:|") // malformed regex
         assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
