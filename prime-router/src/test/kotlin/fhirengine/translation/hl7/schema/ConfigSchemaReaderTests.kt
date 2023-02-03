@@ -9,6 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
+import assertk.assertions.messageContains
 import kotlin.test.Test
 
 class ConfigSchemaReaderTests {
@@ -164,7 +165,41 @@ class ConfigSchemaReaderTests {
     }
 
     @Test
-    fun `test read UP FHIR schema tree from file`() {
+    fun `test read from file`() {
+        assertThat(
+            ConfigSchemaReader.converterSchemaFromFile(
+                "ORU_R01",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+            ).isValid()
+        ).isTrue()
+
+        assertThat {
+            ConfigSchemaReader.converterSchemaFromFile(
+                "ORU_R01_incomplete",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
+            )
+        }.isFailure()
+    }
+
+    @Test
+    fun `test read from file with extends`() {
+        assertThat {
+            ConfigSchemaReader.converterSchemaFromFile(
+                "ORU_R01_circular",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06"
+            )
+        }.isFailure().messageContains("Schema circular dependency")
+
+        assertThat(
+            ConfigSchemaReader.converterSchemaFromFile(
+                "ORU_R01_extends",
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06"
+            ).isValid()
+        ).isTrue()
+    }
+
+    @Test
+    fun `test read FHIR Transform schema tree from file`() {
         // This is a good schema
         val schema = ConfigSchemaReader.readSchemaTreeFromFile(
             "sample_schema",
@@ -206,20 +241,37 @@ class ConfigSchemaReaderTests {
     }
 
     @Test
-    fun `test read from file`() {
+    fun `test read FHIR Transform from file`() {
         assertThat(
-            ConfigSchemaReader.converterSchemaFromFile(
-                "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+            ConfigSchemaReader.transformSchemaFromFile(
+                "sample_schema",
+                "src/test/resources/fhir_sender_transforms",
             ).isValid()
         ).isTrue()
 
         assertThat {
-            ConfigSchemaReader.converterSchemaFromFile(
-                "ORU_R01_incomplete",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
+            ConfigSchemaReader.transformSchemaFromFile(
+                "incomplete_schema",
+                "src/test/resources/fhir_sender_transforms",
             )
         }.isFailure()
+    }
+
+    @Test
+    fun `test read FHIR Transform from file with extends`() {
+        assertThat {
+            ConfigSchemaReader.transformSchemaFromFile(
+                "circular_schema",
+                "src/test/resources/fhir_sender_transforms",
+            )
+        }.isFailure().messageContains("Schema circular dependency")
+
+        assertThat(
+            ConfigSchemaReader.transformSchemaFromFile(
+                "extends_schema",
+                "src/test/resources/fhir_sender_transforms",
+            ).isValid()
+        ).isTrue()
     }
 
     @Test
