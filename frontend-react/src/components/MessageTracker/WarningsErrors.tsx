@@ -32,9 +32,7 @@ export const WarningsErrors = ({ title, data }: WarningsErrorsDisplayProps) => {
             <section>
                 <Table
                     title={title}
-                    classes={
-                        "font-sans-2xs padding-0 max-width:100%; overflow-x: hidden"
-                    }
+                    classes={"font-sans-2xs padding-0 margin-bottom-0"}
                     tableRowsClassName={"font-body-xs text-top"}
                     config={tableConfig}
                 />

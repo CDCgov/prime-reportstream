@@ -145,10 +145,11 @@ const MOCK_MESSAGE_DETAIL = {
     id: TEST_ID,
     messageId: "12-234567",
     sender: "somebody 1",
-    submittedDate: "09/28/2022",
+    submittedDate: "2022-09-28",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
     fileName: "simple_report_example.csv",
-    fileUrl: "https://someurl",
+    fileUrl:
+        "http://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
     warnings: MOCK_MESSAGE_WARNINGS,
     errors: MOCK_MESSAGE_ERRORS,
     receiverData: MOCK_RECEIVER_DATA,
@@ -179,15 +180,31 @@ describe("RSMessageDetail component", () => {
         });
         render(<MessageDetails />);
 
-        expect(screen.getByText(/Message ID/)).toBeInTheDocument();
+        expect(screen.getByText("Message ID")).toBeInTheDocument();
         expect(screen.getByText(/12-234567/)).toBeInTheDocument();
+        expect(screen.getByText(/Submitter/)).toBeInTheDocument();
         expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
+        expect(screen.getByText(/Incoming Report ID/)).toBeInTheDocument();
         expect(
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
         ).toBeInTheDocument();
         expect(
-            screen.getByText("simple_report_example.csv")
+            screen.getAllByText("Date/Time Submitted")[0]
         ).toBeInTheDocument();
-        expect(screen.getByText("https://someurl")).toBeInTheDocument();
+        expect(screen.getByText("9/28/2022, 12:00:00 am")).toBeInTheDocument();
+        expect(screen.getByText("File Location")).toBeInTheDocument();
+        expect(screen.getByText("RECEIVE")).toBeInTheDocument();
+        expect(
+            screen.getByText("/ simple_report.csvuploader")
+        ).toBeInTheDocument();
+        expect(
+            screen.getAllByText(/Incoming File Name/)[0]
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+            )
+        ).toBeInTheDocument();
+        expect(screen.getByText("Warnings (2)")).toBeInTheDocument();
     });
 });

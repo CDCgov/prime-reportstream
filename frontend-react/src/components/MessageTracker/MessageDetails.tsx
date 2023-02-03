@@ -105,22 +105,22 @@ export function MessageDetails() {
                 data-testid="container"
             >
                 <div>
-                    <h1>Message ID Search</h1>
+                    <h2>Message ID Search</h2>
                     <Button onClick={() => navigate(-1)} type="button">
                         Back
                     </Button>
                 </div>
-                <hr className="margin-top-3 margin-bottom-3" />
+                <hr className="margin-top-4 margin-bottom-4" />
                 <div className="display-flex flex-column">
-                    <span className="text-base">Message ID</span>
-                    <h2 className="margin-top-1">
+                    <span className="text-base font-sans-sm">Message ID</span>
+                    <h1 className="margin-top-1">
                         {messageDetails!.messageId}
-                    </h2>
+                    </h1>
                 </div>
-                <hr className="margin-top-2 margin-bottom-4" />
+                <hr />
                 <div className="display-flex flex-column margin-bottom-5">
                     <h2 className="font-sans-lg margin-bottom-4">Sender:</h2>
-                    <div className="font-sans-2xs bg-gray-5 radius-md padding-top-3 padding-bottom-4 padding-left-2">
+                    <div className="font-sans-sm bg-gray-5 radius-lg padding-top-3 padding-bottom-4 padding-left-3 padding-right-3">
                         <DetailItem
                             item={"Submitter"}
                             content={messageDetails!.sender}
@@ -140,7 +140,7 @@ export function MessageDetails() {
                                 {"File Location"}
                             </span>
                             <div>
-                                <span className="border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
+                                <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
                                     {fileLocation}
                                 </span>
                                 <span>{` / ${sendingOrg}`}</span>
@@ -151,7 +151,7 @@ export function MessageDetails() {
                             content={fileName}
                         ></DetailItem>
 
-                        <div className="display-flex flex-column margin-right-2 margin-bottom-1">
+                        <div className="message-tracker display-flex flex-column margin-top-4 margin-bottom-1">
                             <Accordion
                                 bordered={true}
                                 multiselectable={true}
@@ -166,7 +166,7 @@ export function MessageDetails() {
                             />
                         </div>
 
-                        <div className="display-flex flex-column margin-right-2">
+                        <div className="message-tracker display-flex flex-column">
                             <Accordion
                                 bordered={true}
                                 multiselectable={true}

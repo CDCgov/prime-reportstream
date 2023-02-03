@@ -112,18 +112,25 @@ main {
   overflow-x: auto;
 }
 
-// We are currently using accordions in RS (Message Tracker and Admin Revision History)
-.usa-accordion__button {
-    color: white;
-    background-color: $bg-primary;
-}
-.usa-accordion__button:hover,  .usa-accordion__button:focus{
-    color: white;
-    background-color: $bg-primary;
-}
-.usa-accordion--bordered .usa-accordion__content {
-    border-color: $bg-primary;
-    border-width: medium;
+// Message Tracker specific styles for Accordion component
+.message-tracker {
+    .usa-accordion__button {
+        color: white;
+        background-color: $bg-primary;
+        @include add-background-svg("usa-icons-bg/remove--white");
+
+        &[aria-expanded=false] {
+            @include add-background-svg("usa-icons-bg/add--white");
+        }
+    }
+    .usa-accordion__button:hover,  .usa-accordion__button:focus{
+        color: white;
+        background-color: $bg-primary;
+    }
+    .usa-accordion--bordered .usa-accordion__content {
+        border-color: $bg-primary;
+        border-width: medium;
+    }
 }
 
 // MEDIA: DESKTOP
