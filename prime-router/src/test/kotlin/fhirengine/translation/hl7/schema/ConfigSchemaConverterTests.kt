@@ -5,12 +5,13 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import kotlin.test.Test
 
-class ConfigSchemaTests {
+class ConfigSchemaConverterTests {
     @Test
     fun `test validate schema`() {
         var schema = ConverterSchema()
@@ -103,112 +104,6 @@ class ConfigSchemaTests {
             hl7Spec = listOf("MSH-7")
         )
         assertThat(element.validate()).isEmpty()
-
-        // FHIR Path errors
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle..."), resource = "Bundle", condition = "Bundle",
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle"), resource = "Bundle...", condition = "Bundle",
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        // Check on resource index
-        val aSchema = ConverterSchema(
-            elements = mutableListOf(
-                ConverterSchemaElement(
-                    "name",
-                    value = listOf("Bundle"),
-                    hl7Spec = listOf("MSH-7")
-                )
-            )
-        )
-        element = ConverterSchemaElement(
-            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex"
-        )
-        assertThat(element.validate()).isNotEmpty()
-        element = ConverterSchemaElement(
-            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex",
-            resource = "someresource"
-        )
-        assertThat(element.validate()).isEmpty()
-        element = ConverterSchemaElement(
-            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), resourceIndex = "someindex",
-            resource = "someresource"
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        // Check on constants
-        element = ConverterSchemaElement(
-            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), constants = sortedMapOf("const1" to "")
-        )
-        val errors = element.validate()
-        assertThat(errors).isNotEmpty()
-        assertThat(errors.size).isEqualTo(1)
-        assertThat(errors[0]).contains(element.constants.firstKey())
-        element = ConverterSchemaElement(
-            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"),
-            constants = sortedMapOf("const1" to "value")
-        )
-        assertThat(element.validate()).isEmpty()
-    }
-
-    @Test
-    fun `test validate FHIR transform schema element`() {
-        var element: ConfigSchemaElement = FHIRTransformSchemaElement()
-        assertThat(element.validate()).isNotEmpty()
-
-        element = FHIRTransformSchemaElement("name")
-        assertThat(element.validate()).isNotEmpty()
-
-        element = FHIRTransformSchemaElement("name", value = listOf("someValue"))
-        assertThat(element.validate()).isNotEmpty()
-
-        element = FHIRTransformSchemaElement("name", value = listOf("final"), bundleProperty = "%resource.status")
-        assertThat(element.validate()).isEmpty()
-
-        element = FHIRTransformSchemaElement(
-            "name", value = listOf("Bundle"), bundleProperty = "%resource.status", schema = "schema"
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement("name", hl7Spec = listOf("MSH-7"), schema = "schema")
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement("name", value = listOf("Bundle"), schema = "schema")
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement("name", schema = "schema")
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle",
-            hl7Spec = listOf("MSH-7")
-        )
-        assertThat(element.validate()).isEmpty()
-
-        // FHIR Path errors
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle..."), resource = "Bundle", condition = "Bundle",
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle"), resource = "Bundle...", condition = "Bundle",
-        )
-        assertThat(element.validate()).isNotEmpty()
-
-        element = ConverterSchemaElement(
-            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
-        )
-        assertThat(element.validate()).isNotEmpty()
 
         // Check on resource index
         val aSchema = ConverterSchema(
@@ -366,6 +261,13 @@ class ConfigSchemaTests {
                     .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
             }
         }
+    }
+
+    @Test
+    fun `test invalid merge of element`() {
+        val elementA = ConverterSchemaElement("name")
+        val elementB = FHIRTransformSchemaElement("name")
+        assertThat { elementA.merge(elementB) }.isFailure()
     }
 
     @Test

@@ -128,9 +128,9 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null || other !is ConfigSchema<*>)
-            return false
-        return elements == other.elements &&
+        return other != null &&
+            other is ConfigSchema<*> &&
+            elements == other.elements &&
             constants == other.constants &&
             extends == other.extends
     }
@@ -198,18 +198,17 @@ class ConverterSchema(
 
     override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
         apply {
-            if (childSchema !is ConverterSchema) {
-                throw SchemaException("Child schema ${childSchema.name} was not a ConverterSchema.")
+            if (childSchema is ConverterSchema) {
+                childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
+                childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
             }
-            childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
-            childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
             super.merge(childSchema)
         }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null || other !is ConverterSchema)
-            return false
-        return hl7Type == other.hl7Type &&
+        return other != null &&
+            other is ConverterSchema &&
+            hl7Type == other.hl7Type &&
             hl7Version == other.hl7Version &&
             super.equals(other)
     }
@@ -241,9 +240,13 @@ class FHIRTransformSchema(
         }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null || other !is FHIRTransformSchema)
-            return false
-        return super.equals(other)
+        return other != null &&
+            other is FHIRTransformSchema &&
+            super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
     }
 }
 
@@ -480,14 +483,14 @@ class FHIRTransformSchemaElement(
         when {
             valueSetTable != null ->
                 addError("ValueSetTable property is not yet supported")
-            valueSetTable != null && valueSet.isNotEmpty() ->
-                addError("ValueSet property cannot be used with the valueSetTable property")
-            valueSetTable != null && value.isEmpty() ->
-                addError("Value property is required when using a value set table")
-            valueSetTable?.isValid == false ->
-                addError("Invalid valueSetTable property value")
-            valueSetTable != null && !schema.isNullOrBlank() ->
-                addError("Schema property cannot be used with the bundleProperty property")
+//            valueSetTable != null && valueSet.isNotEmpty() ->
+//                addError("ValueSet property cannot be used with the valueSetTable property")
+//            valueSetTable != null && value.isEmpty() ->
+//                addError("Value property is required when using a value set table")
+//            valueSetTable?.isValid == false ->
+//                addError("Invalid valueSetTable property value")
+//            valueSetTable != null && !schema.isNullOrBlank() ->
+//                addError("Schema property cannot be used with the bundleProperty property")
         }
 
         when {
