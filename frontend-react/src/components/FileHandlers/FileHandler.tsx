@@ -14,6 +14,7 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { NoServicesBanner } from "../alerts/NoServicesAlert";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 
 import {
     RequestLevel,
@@ -39,31 +40,15 @@ const SERVER_ERROR_MESSAGING = {
 };
 
 const errorMessagingMap = {
-    validation: {
-        server: SERVER_ERROR_MESSAGING,
-        file: {
-            heading: "Your file has not passed validation",
-            message: "Please review the errors below.",
-        },
-    },
-    upload: {
-        server: SERVER_ERROR_MESSAGING,
-        file: {
-            heading: "We found errors in your file",
-            message:
-                "Please resolve the errors below and upload your edited file. Your file has not been accepted.",
-        },
+    server: SERVER_ERROR_MESSAGING,
+    file: {
+        heading: "Your file has not passed validation",
+        message: "Please review the errors below.",
     },
 };
 
-export enum FileHandlerType {
-    UPLOAD = "upload",
-    VALIDATION = "validation",
-}
-
 interface FileHandlerProps {
     headingText: string;
-    handlerType: FileHandlerType;
     successMessage: string;
     resetText: string;
     submitText: string;
@@ -74,7 +59,6 @@ interface FileHandlerProps {
 
 const FileHandler = ({
     headingText,
-    handlerType,
     successMessage,
     resetText,
     submitText,
@@ -118,10 +102,6 @@ const FileHandler = ({
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.service;
     const client = `${parsedName}.${senderName}`;
-    const validateOnly = useMemo(
-        () => handlerType !== FileHandlerType.UPLOAD,
-        [handlerType]
-    );
     const uploaderCallback = useCallback(
         (data?: WatersResponse) => {
             dispatch({
@@ -131,10 +111,7 @@ const FileHandler = ({
         },
         [dispatch]
     );
-    const { sendFile, isWorking } = useWatersUploader(
-        uploaderCallback,
-        validateOnly
-    );
+    const { sendFile, isWorking } = useWatersUploader(uploaderCallback);
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -178,12 +155,40 @@ const FileHandler = ({
 
         // initializes necessary state and sets `isSubmitting`
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
-        await sendFile({
-            contentType: contentType,
-            fileContent: fileContent,
-            fileName: fileName,
-            client: client,
-        });
+
+        let eventData;
+
+        try {
+            const response = await sendFile({
+                contentType: contentType,
+                fileContent: fileContent,
+                fileName: fileName,
+                client: client,
+            });
+
+            eventData = {
+                warningCount: response?.warnings?.length,
+                errorCount: response?.errors?.length,
+            };
+        } catch (e: any) {
+            if (e.data) {
+                eventData = {
+                    warningCount: e.data.warningCount,
+                    errorCount: e.data.errorCount,
+                };
+            }
+        }
+
+        if (eventData) {
+            trackAppInsightEvent(EventName.FILE_VALIDATOR, {
+                fileValidator: {
+                    schema: sender?.schemaName,
+                    fileType: fileType,
+                    sender: organization?.name,
+                    ...eventData,
+                },
+            });
+        }
     };
 
     const resetState = () => {
@@ -196,34 +201,20 @@ const FileHandler = ({
         [reportId, errors.length, overallStatus]
     );
 
-    const successDescription = useMemo(() => {
-        let suffix = "";
-        if (handlerType === FileHandlerType.UPLOAD) {
-            suffix = " and will be transmitted";
-        }
-        const schemaDescription =
-            fileType === FileType.HL7
-                ? "ReportStream standard HL7 v2.5.1"
-                : "standard CSV";
-        return `The file meets the ${schemaDescription} schema${suffix}.`;
-    }, [fileType, handlerType]);
+    const successDescription =
+        fileType === FileType.HL7
+            ? "The file meets the ReportStream standard HL7 v2.5.1 schema."
+            : "The file meets the standard CSV schema.";
 
-    const warningHeading = useMemo(() => {
-        return handlerType === FileHandlerType.VALIDATION
-            ? `${successMessage} with recommended edits`
-            : "";
-    }, [handlerType, successMessage]);
+    const warningHeading = `${successMessage} with recommended edits`;
 
-    const warningDescription = useMemo(() => {
-        return handlerType === FileHandlerType.UPLOAD
-            ? "Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
-            : "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity.";
-    }, [handlerType]);
+    const warningDescription =
+        "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity.";
 
     // default to FILE messaging here, partly to simplify typecheck
     const errorMessaging = useMemo(
-        () => errorMessagingMap[handlerType][errorType || ErrorType.FILE],
-        [errorType, handlerType]
+        () => errorMessagingMap[errorType || ErrorType.FILE],
+        [errorType]
     );
 
     const formLabel = useMemo(() => {
@@ -260,7 +251,6 @@ const FileHandler = ({
                 <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
                 <h2 className="font-sans-lg">{organization?.description}</h2>
                 <NoServicesBanner
-                    featureName={handlerType}
                     organization={organization?.description}
                     serviceType={"sender"}
                 />
@@ -304,7 +294,6 @@ const FileHandler = ({
                     data={warnings}
                     message={warningDescription}
                     heading={warningHeading}
-                    handlerType={handlerType}
                 />
             )}
             {errors.length > 0 && (
@@ -313,7 +302,6 @@ const FileHandler = ({
                     data={errors}
                     message={errorMessaging.message}
                     heading={errorMessaging.heading}
-                    handlerType={handlerType}
                 />
             )}
             {hasQualityFilterMessages && (

@@ -7,6 +7,7 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -72,5 +73,32 @@ describe("SubmissionTable", () => {
         const tBody = rowGroups[1];
         const rows = within(tBody).getAllByRole("row");
         expect(rows).toHaveLength(2);
+    });
+
+    describe("when rendering as an admin", () => {
+        beforeEach(() => {
+            mockSessionContext.mockReturnValue({
+                activeMembership: {
+                    memberType: MemberType.PRIME_ADMIN,
+                    parsedName: Organizations.PRIMEADMINS,
+                    service: "",
+                },
+                dispatch: () => {},
+                initialized: true,
+            });
+
+            renderWithResolver(<SubmissionTable />, []);
+        });
+
+        test("renders a warning about not being able to request submission history", async () => {
+            expect(
+                await screen.findByText(
+                    "Cannot fetch Organization data as admin"
+                )
+            ).toBeVisible();
+            expect(
+                await screen.findByText("Please try again as an Organization")
+            ).toBeVisible();
+        });
     });
 });
