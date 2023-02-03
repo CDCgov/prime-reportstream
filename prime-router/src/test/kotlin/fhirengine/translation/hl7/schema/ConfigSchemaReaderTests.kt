@@ -232,7 +232,6 @@ class ConfigSchemaReaderTests {
             assertThat(statusElement.schema).isNull()
             assertThat(statusElement.constants).isNotNull()
             assertThat(statusElement.condition).isNotNull()
-            assertThat(statusElement.valueSetTable).isNull()
             assertThat(statusElement.bundleProperty).isEqualTo("%resource.status")
         }
 

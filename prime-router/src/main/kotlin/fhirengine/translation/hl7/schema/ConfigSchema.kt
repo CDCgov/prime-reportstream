@@ -250,33 +250,11 @@ class FHIRTransformSchema(
     }
 }
 
-class ValueSetTable(input: String) {
-    val tableName: String
-    val keyCol: String
-    val valCol: String
-    val isValid: Boolean
-        get() {
-            return tableName != "" && keyCol != "" && valCol != ""
-        }
-
-    init {
-        val parts = input.split(",")
-        if (parts.size != 3) {
-            tableName = ""
-            keyCol = ""
-            valCol = ""
-        } else {
-            tableName = parts[0]
-            keyCol = parts[1]
-            valCol = parts[2]
-        }
-    }
-}
-
 /**
  * An element within a Schema.
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
+ * @property required true if the element must have a value
  * @property schema the name of a child schema
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
@@ -284,18 +262,21 @@ class ValueSetTable(input: String) {
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
  * @property valueSet a list of key-value pairs used to convert the value property
+ * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
 sealed class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
+    var required: Boolean? = null,
     var schema: String? = null,
     var schemaRef: ConfigSchema<*>? = null,
     var resource: String? = null,
     var value: List<String> = emptyList(),
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: SortedMap<String, String> = sortedMapOf()
+    var valueSet: SortedMap<String, String> = sortedMapOf(),
+    var debug: Boolean = false
 ) {
     /**
      * Validate the element.
@@ -353,6 +334,7 @@ sealed class ConfigSchemaElement(
      */
     open fun merge(overwritingElement: ConfigSchemaElement) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
+        overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
@@ -381,7 +363,7 @@ sealed class ConfigSchemaElement(
 class ConverterSchemaElement(
     name: String? = null,
     condition: String? = null,
-    var required: Boolean? = null,
+    required: Boolean? = null,
     schema: String? = null,
     schemaRef: ConfigSchema<ConverterSchemaElement>? = null,
     resource: String? = null,
@@ -390,10 +372,11 @@ class ConverterSchemaElement(
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
     valueSet: SortedMap<String, String> = sortedMapOf(),
-    var debug: Boolean = false
+    debug: Boolean = false
 ) : ConfigSchemaElement(
     name = name,
     condition = condition,
+    required = required,
     schema = schema,
     schemaRef = schemaRef,
     resource = resource,
@@ -401,6 +384,7 @@ class ConverterSchemaElement(
     resourceIndex = resourceIndex,
     constants = constants,
     valueSet = valueSet,
+    debug = debug
 ) {
     override fun validate(validationErrors: MutableList<String>): List<String> {
         /**
@@ -424,7 +408,6 @@ class ConverterSchemaElement(
         if (overwritingElement !is ConverterSchemaElement) {
             throw SchemaException("Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement.")
         }
-        overwritingElement.required?.let { this.required = overwritingElement.required }
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
         super.merge(overwritingElement)
     }
@@ -434,6 +417,7 @@ class ConverterSchemaElement(
  * An element within a Schema.
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
+ * @property required true if the element must have a value
  * @property schema the name of a child schema
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
@@ -441,13 +425,14 @@ class ConverterSchemaElement(
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
  * @property valueSet a list of key-value pairs used to convert the value property
+ * @property debug log debug information for the element
  * @property bundleProperty a FHIR path denoting where to store the value
- * @property valueSetTable database location of key-value pairs to convert the value property
  */
 @JsonIgnoreProperties
 class FHIRTransformSchemaElement(
     name: String? = null,
     condition: String? = null,
+    required: Boolean? = null,
     schema: String? = null,
     schemaRef: FHIRTransformSchema? = null,
     resource: String? = null,
@@ -455,11 +440,12 @@ class FHIRTransformSchemaElement(
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
     valueSet: SortedMap<String, String> = sortedMapOf(),
+    debug: Boolean = false,
     var bundleProperty: String? = null,
-    var valueSetTable: ValueSetTable? = null
 ) : ConfigSchemaElement(
     name = name,
     condition = condition,
+    required = required,
     schema = schema,
     schemaRef = schemaRef,
     resource = resource,
@@ -467,6 +453,7 @@ class FHIRTransformSchemaElement(
     resourceIndex = resourceIndex,
     constants = constants,
     valueSet = valueSet,
+    debug = debug
 ) {
     /**
      * Validate the element.
@@ -478,19 +465,6 @@ class FHIRTransformSchemaElement(
          */
         fun addError(msg: String) {
             validationErrors.add("[$name]: $msg")
-        }
-
-        when {
-            valueSetTable != null ->
-                addError("ValueSetTable property is not yet supported")
-//            valueSetTable != null && valueSet.isNotEmpty() ->
-//                addError("ValueSet property cannot be used with the valueSetTable property")
-//            valueSetTable != null && value.isEmpty() ->
-//                addError("Value property is required when using a value set table")
-//            valueSetTable?.isValid == false ->
-//                addError("Invalid valueSetTable property value")
-//            valueSetTable != null && !schema.isNullOrBlank() ->
-//                addError("Schema property cannot be used with the bundleProperty property")
         }
 
         when {
@@ -511,7 +485,6 @@ class FHIRTransformSchemaElement(
             )
         }
         overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
-        overwritingElement.valueSetTable?.let { this.valueSetTable = overwritingElement.valueSetTable }
         super.merge(overwritingElement)
     }
 }

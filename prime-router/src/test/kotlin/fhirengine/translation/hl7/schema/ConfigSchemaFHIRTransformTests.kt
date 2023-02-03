@@ -58,14 +58,6 @@ class ConfigSchemaFHIRTransformTests {
         element = FHIRTransformSchemaElement("name", value = listOf("final"), bundleProperty = "%resource.status")
         assertThat(element.validate()).isEmpty()
 
-        element = FHIRTransformSchemaElement(
-            "name",
-            value = listOf("final"),
-            bundleProperty = "%resource.status",
-            valueSetTable = ValueSetTable("table,col,row")
-        )
-        assertThat(element.validate()).isNotEmpty()
-
         element =
             FHIRTransformSchemaElement("name", value = listOf("final", "partial"), bundleProperty = "%resource.status")
         assertThat(element.validate()).isEmpty()

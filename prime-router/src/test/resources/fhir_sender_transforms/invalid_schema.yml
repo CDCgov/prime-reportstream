@@ -9,8 +9,7 @@
   valueSet:
     key: value
     key2: value
-  valueSetTable: <lookup table name>,<key column>,<value column>
-  - name: report-index
-    resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
-    resourceIndex: orderIndex
-    schema: order
+    - name: report-index
+      resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
+      resourceIndex: orderIndex
+      schema: order
