@@ -4,7 +4,11 @@ import {
     renderWithFullAppContext,
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/endpoints/waters";
+import {
+    OverallStatus,
+    ResponseError,
+    WatersResponse,
+} from "../../config/endpoints/waters";
 import {
     INITIAL_STATE,
     FileType,
@@ -14,8 +18,10 @@ import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
 import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
 import { RSSender } from "../../config/endpoints/settings";
+import { mockAppInsights } from "../../utils/__mocks__/ApplicationInsights";
+import { EventName } from "../../utils/Analytics";
 
-import FileHandler, { FileHandlerType } from "./FileHandler";
+import FileHandler from "./FileHandler";
 
 let fakeState = {};
 
@@ -28,6 +34,38 @@ const hl7Sender: RSSender = {
     processingType: "sync",
     allowDuplicates: true,
     topic: "covid-19",
+};
+const mockSendFile: WatersResponse = {
+    id: "",
+    submissionId: 1,
+    overallStatus: OverallStatus.VALID,
+    sender: "",
+    errorCount: 0,
+    warningCount: 4,
+    httpStatus: 200,
+    errors: [],
+    warnings: [
+        {
+            details: "",
+            scope: "item",
+            indices: [1, 2],
+            trackingIds: ["371784", "612092"],
+            field: "MSH-7 (file_created_date)",
+            message:
+                "Timestamp for file_created_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
+            errorCode: "INVALID_MSG_PARSE_DATE",
+        },
+        {
+            details: "",
+            scope: "item",
+            indices: [1, 2],
+            trackingIds: ["371784", "612092"],
+            field: "ORC-15 (order_test_date)",
+            message:
+                "Timestamp for order_test_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
+            errorCode: "INVALID_MSG_PARSE_DATE",
+        },
+    ],
 };
 
 const mockState = (state: any) => (fakeState = state);
@@ -48,10 +86,23 @@ jest.mock("../../hooks/UseFileHandler", () => ({
 jest.mock("../../hooks/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
         return {
-            data: { description: "wow, cool organization" },
+            data: {
+                description: "wow, cool organization",
+                createdAt: "2023-01-10T21:23:14.467Z",
+                createdBy: "local@test.com",
+                filters: [],
+                jurisdiction: "FEDERAL",
+                name: "aegis",
+                version: 0,
+            },
             isLoading: false,
         };
     },
+}));
+
+jest.mock("../../TelemetryService", () => ({
+    ...jest.requireActual("../../TelemetryService"),
+    getAppInsights: () => mockAppInsights,
 }));
 
 /*
@@ -96,7 +147,6 @@ describe("FileHandler", () => {
         renderWithFullAppContext(
             <FileHandler
                 headingText="handler heading"
-                handlerType={FileHandlerType.VALIDATION}
                 successMessage=""
                 resetText=""
                 submitText=""
@@ -126,7 +176,6 @@ describe("FileHandler", () => {
             renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
                     successMessage=""
                     resetText=""
                     submitText="SEND SOMEWHERE"
@@ -166,7 +215,6 @@ describe("FileHandler", () => {
             renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
                     successMessage=""
                     resetText=""
                     submitText=""
@@ -201,7 +249,6 @@ describe("FileHandler", () => {
             renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
                     successMessage=""
                     resetText=""
                     submitText=""
@@ -251,7 +298,6 @@ describe("FileHandler", () => {
             renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
@@ -271,7 +317,7 @@ describe("FileHandler", () => {
             // testing creation of success messaging for upload + hl7
             // for now, assuming that if this works, it will work for the other 3 combinations as well
             const message = await screen.findByText(
-                "The file meets the ReportStream standard HL7 v2.5.1 schema and will be transmitted."
+                "The file meets the ReportStream standard HL7 v2.5.1 schema."
             );
             expect(message).toHaveClass("usa-alert__text");
 
@@ -294,7 +340,7 @@ describe("FileHandler", () => {
             expect(timestampDate).toHaveClass("margin-top-05");
         });
 
-        test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
+        test("renders as expected (success)", async () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
@@ -315,7 +361,6 @@ describe("FileHandler", () => {
             renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
@@ -368,7 +413,6 @@ describe("FileHandler", () => {
             renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
@@ -409,7 +453,6 @@ describe("FileHandler", () => {
             renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
                     successMessage="it was a success"
                     resetText=""
                     submitText=""
@@ -441,7 +484,6 @@ describe("FileHandler", () => {
             renderWithQueryProvider(
                 <FileHandler
                     headingText=""
-                    handlerType={FileHandlerType.UPLOAD}
                     successMessage=""
                     resetText=""
                     submitText=""
@@ -472,14 +514,16 @@ describe("FileHandler", () => {
                 payload: { file: fakeFile },
             });
         });
+
         test("calls fetch and dispatch as expected on submit", async () => {
             mockUseSenderResource.mockReturnValue({
                 senderDetail: hl7Sender,
                 senderIsLoading: false,
             });
-            const fetchSpy = jest.fn(() => Promise.resolve({}));
+            const fetchSpy = jest.fn(() => Promise.resolve(mockSendFile));
             mockState({
                 ...INITIAL_STATE,
+                fileType: FileType.HL7,
                 fileName: "anything",
             });
             mockUseWatersUploader.mockReturnValue({
@@ -490,7 +534,6 @@ describe("FileHandler", () => {
             renderWithFullAppContext(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
@@ -528,18 +571,6 @@ describe("FileHandler", () => {
                 fileContent: "some file content",
                 fileName: "anything",
             });
-            // await waitFor(
-            //     () => {
-            //         // expect(mockDispatch).toHaveBeenCalledTimes(2);
-            //
-            //     },
-            //     {
-            //         onTimeout: (e) => {
-            //             console.error("dispatch not called on submit handler");
-            //             return e;
-            //         },
-            //     }
-            // );
         });
 
         test("calls dispatch as expected on reset", async () => {
@@ -559,7 +590,6 @@ describe("FileHandler", () => {
             renderWithQueryProvider(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
                     successMessage=""
                     resetText=""
                     submitText="SUBMIT ME"
@@ -576,6 +606,72 @@ describe("FileHandler", () => {
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.RESET,
             });
+        });
+
+        test("trackEvent gets called on submit", async () => {
+            mockUseSenderResource.mockReturnValue({
+                senderDetail: hl7Sender,
+                senderIsLoading: false,
+            });
+            const fetchSpy = jest.fn(() => Promise.resolve(mockSendFile));
+            mockState({
+                ...INITIAL_STATE,
+                fileType: FileType.HL7,
+                fileName: "anything",
+            });
+            mockUseWatersUploader.mockReturnValue({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: fetchSpy,
+            });
+
+            renderWithFullAppContext(
+                <FileHandler
+                    headingText="handler heading"
+                    successMessage=""
+                    resetText=""
+                    submitText="SUBMIT ME"
+                    showSuccessMetadata={false}
+                    showWarningBanner={false}
+                    warningText=""
+                />
+            );
+
+            const input = await screen.findByTestId("file-input-input");
+            const submitButton = await screen.findByText("SUBMIT ME");
+
+            // set file to be uploaded
+            fireEvent.change(input, fileChangeEvent);
+            await waitFor(
+                () => {
+                    expect(mockDispatch).toHaveBeenCalledTimes(1);
+                },
+                {
+                    onTimeout: (e) => {
+                        console.error(
+                            "dispatch not called on file select handler"
+                        );
+                        return e;
+                    },
+                }
+            );
+
+            expect(submitButton).toBeEnabled();
+            fireEvent.click(submitButton);
+            await waitFor(() => {
+                expect(mockAppInsights.trackEvent).toBeCalledWith({
+                    name: EventName.FILE_VALIDATOR,
+                    properties: {
+                        fileValidator: {
+                            warningCount: 2,
+                            errorCount: 0,
+                            schema: "hl7/hcintegrations-covid-19",
+                            fileType: "HL7",
+                            sender: "aegis",
+                        },
+                    },
+                });
+            }, {});
         });
     });
 });

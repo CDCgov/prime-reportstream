@@ -66,9 +66,9 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{fieldPath}-17(%{callbackIndex})'
+      hl7TelecomField: '%{fieldPath}-17'
     schema: datatype/xtn-telecom
-    resourceIndex: callbackIndex
+    resourceIndex: telecomIndex
 
   - name: placer-field
     resource: '%service.extension(%`rsext-placer-field-1`)'
