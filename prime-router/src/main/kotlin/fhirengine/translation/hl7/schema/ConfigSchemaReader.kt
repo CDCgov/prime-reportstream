@@ -10,45 +10,49 @@ import java.io.File
 import java.io.InputStream
 
 /**
+ * Read a converter schema [schemaName] from a file given the root [folder].
+ * @return the validated schema
+ * @throws Exception if the schema is invalid or is of the wrong type
+ */
+fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
+    val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = ConverterSchema::class.java)
+    if (schema is ConverterSchema)
+        return schema
+    else
+        throw SchemaException("Schema ${schema.name} is not a ConverterSchema")
+}
+
+/**
+ * Read a fhirTransform schema [schemaName] from a file given the root [folder].
+ * @return the validated schema
+ * @throws Exception if the schema is invalid or is of the wrong type
+ */
+fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
+    val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = FHIRTransformSchema::class.java)
+    if (schema is FHIRTransformSchema)
+        return schema
+    else
+        throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
+}
+
+/**
  * Read schema configuration.
  */
 object ConfigSchemaReader : Logging {
-    /**
-     * Read a converter schema [schemaName] from a file given the root [folder].
-     * @return the validated schema
-     * @throws Exception if the schema is invalid or is of the wrong type
-     */
-    fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
-        val schema = fromFile(schemaName, folder)
-        if (schema is ConverterSchema)
-            return schema
-        else
-            throw SchemaException("Schema ${schema.name} is not a ConverterSchema")
-    }
-
-    /**
-     * Read a fhirTransform schema [schemaName] from a file given the root [folder].
-     * @return the validated schema
-     * @throws Exception if the schema is invalid or is of the wrong type
-     */
-    fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
-        val schema = fromFile(schemaName, folder, isFHIRTransform = true)
-        if (schema is FHIRTransformSchema)
-            return schema
-        else
-            throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
-    }
-
     /**
      * Read a schema [schemaName] from a file given the root [folder].
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
-    fun fromFile(schemaName: String, folder: String? = null, isFHIRTransform: Boolean = false): ConfigSchema<*> {
+    fun fromFile(
+        schemaName: String,
+        folder: String? = null,
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+    ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = mutableListOf<ConfigSchema<*>>()
-        var schema = readSchemaTreeFromFile(schemaName, folder, isFHIRTransform = isFHIRTransform)
-        if ((isFHIRTransform && schema !is FHIRTransformSchema) || (!isFHIRTransform && schema !is ConverterSchema)) {
+        var schema = readSchemaTreeFromFile(schemaName, folder, schemaClass = schemaClass)
+        if (schema.javaClass != schemaClass) {
             throw SchemaException("Schema $schemaName is not of the correct type")
         }
         schemaList.add(schema)
@@ -60,22 +64,15 @@ object ConfigSchemaReader : Logging {
             }
             val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
             val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, isFHIRTransform = isFHIRTransform)
-            if ((isFHIRTransform && schema !is FHIRTransformSchema) ||
-                (!isFHIRTransform && schema !is ConverterSchema)
-            ) {
+            schema = readSchemaTreeFromFile(depSchemaName, depSchemaFolder, schemaClass = schemaClass)
+            if (schema.javaClass != schemaClass) {
                 throw SchemaException("Schema $schemaName is not of the correct type")
             }
             schemaList.add(schema)
         }
 
         // Now merge the parent with all the child schemas
-        val mergedSchema = mergeSchemas(
-            if (isFHIRTransform)
-                schemaList.filterIsInstance<FHIRTransformSchema>()
-            else
-                schemaList.filterIsInstance<ConverterSchema>()
-        )
+        val mergedSchema = mergeSchemas(schemaList)
 
         if (!mergedSchema.isValid()) {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
@@ -116,12 +113,12 @@ object ConfigSchemaReader : Logging {
         schemaName: String,
         folder: String? = null,
         ancestry: List<String> = listOf(),
-        isFHIRTransform: Boolean = false
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
     ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
-            readOneYamlSchema(file.inputStream(), isFHIRTransform)
+            readOneYamlSchema(file.inputStream(), schemaClass)
         } catch (e: Exception) {
             val msg = "Error while reading schema configuration from file ${file.absolutePath}"
             logger.error(msg, e)
@@ -140,21 +137,21 @@ object ConfigSchemaReader : Logging {
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
             element.schemaRef =
-                readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, isFHIRTransform)
+                readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
         }
         return rawSchema
     }
 
     /**
-     * Read one YAML formatted schema from the given [inputStream].
+     * Read one YAML formatted schema of type [schemaClass] from the given [inputStream].
      * @return the schema
      */
-    internal fun readOneYamlSchema(inputStream: InputStream, isFHIRTransform: Boolean = false): ConfigSchema<*> {
+    internal fun readOneYamlSchema(
+        inputStream: InputStream,
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+    ): ConfigSchema<*> {
         val mapper = ObjectMapper(YAMLFactory())
-        val rawSchema = if (isFHIRTransform)
-            mapper.readValue(inputStream, FHIRTransformSchema::class.java)
-        else
-            mapper.readValue(inputStream, ConverterSchema::class.java)
+        val rawSchema = mapper.readValue(inputStream, schemaClass)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {
             throw SchemaException("Invalid empty element found in schema. Check that all array items are elements.")

@@ -4,9 +4,9 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -45,7 +45,7 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null
     ) : this(
-        schemaRef = ConfigSchemaReader.converterSchemaFromFile(schema, schemaFolder),
+        schemaRef = converterSchemaFromFile(schema, schemaFolder),
         strict = strict,
         terser = terser
     )
@@ -62,7 +62,7 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null
     ) : this(
-        schemaRef = ConfigSchemaReader.converterSchemaFromFile(
+        schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),

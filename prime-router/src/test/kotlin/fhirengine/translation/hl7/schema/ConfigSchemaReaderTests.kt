@@ -132,7 +132,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isSuccess()
 
@@ -141,7 +141,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = false
+                schemaClass = ConverterSchema::class.java,
             )
         }.isFailure()
 
@@ -150,7 +150,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
-                isFHIRTransform = false
+                schemaClass = ConverterSchema::class.java,
             )
         }.isSuccess()
 
@@ -159,7 +159,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isFailure()
     }
@@ -169,26 +169,28 @@ class ConfigSchemaReaderTests {
         assertThat(
             ConfigSchemaReader.fromFile(
                 "ORU_R01",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+                schemaClass = ConverterSchema::class.java,
             ).isValid()
         ).isTrue()
 
         assertThat {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_incomplete",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02",
+                schemaClass = ConverterSchema::class.java,
             )
         }.isFailure()
 
         assertThat(
-            ConfigSchemaReader.converterSchemaFromFile(
+            converterSchemaFromFile(
                 "ORU_R01",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).isValid()
         ).isTrue()
 
         assertThat {
-            ConfigSchemaReader.converterSchemaFromFile(
+            converterSchemaFromFile(
                 "ORU_R01_incomplete",
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-02"
             )
@@ -200,14 +202,16 @@ class ConfigSchemaReaderTests {
         assertThat {
             ConfigSchemaReader.fromFile(
                 "ORU_R01_circular",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
+                schemaClass = ConverterSchema::class.java,
             )
         }.isFailure().messageContains("Schema circular dependency")
 
         assertThat(
             ConfigSchemaReader.fromFile(
                 "ORU_R01_extends",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06"
+                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
+                schemaClass = ConverterSchema::class.java,
             ).isValid()
         ).isTrue()
     }
@@ -218,7 +222,7 @@ class ConfigSchemaReaderTests {
         val schema = ConfigSchemaReader.readSchemaTreeFromFile(
             "sample_schema",
             "src/test/resources/fhir_sender_transforms",
-            isFHIRTransform = true
+            schemaClass = FHIRTransformSchema::class.java,
         )
 
         assertThat(schema.errors).isEmpty()
@@ -240,7 +244,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "invalid_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isFailure()
 
@@ -248,7 +252,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeFromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isFailure()
     }
@@ -259,7 +263,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             ).isValid()
         ).isTrue()
 
@@ -267,19 +271,19 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isFailure()
 
         assertThat(
-            ConfigSchemaReader.fhirTransformSchemaFromFile(
+            fhirTransformSchemaFromFile(
                 "sample_schema",
                 "src/test/resources/fhir_sender_transforms",
             ).isValid()
         ).isTrue()
 
         assertThat {
-            ConfigSchemaReader.fhirTransformSchemaFromFile(
+            fhirTransformSchemaFromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
             )
@@ -292,7 +296,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "circular_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             )
         }.isFailure().messageContains("Schema circular dependency")
 
@@ -300,7 +304,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "extends_schema",
                 "src/test/resources/fhir_sender_transforms",
-                isFHIRTransform = true
+                schemaClass = FHIRTransformSchema::class.java,
             ).isValid()
         ).isTrue()
     }
