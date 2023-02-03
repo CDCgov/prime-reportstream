@@ -308,3 +308,18 @@ extension_6:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
+
+extension_7:
+  generateList: true
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: ORC.9
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: business-event
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
