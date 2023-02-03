@@ -12,7 +12,7 @@ import java.io.StringReader
  */
 class FHIRReader(private val actionLogger: ActionLogger) : Logging {
     /**
-     * Returns one or more bundles read from the raw FHIR data.
+     * Returns one or more bundles read from the FHIR data in [rawMessage].
      */
     fun getBundles(rawMessage: String): List<Bundle> {
         val bundles: MutableList<Bundle> = mutableListOf()

@@ -336,18 +336,20 @@ class DetailedSubmissionHistory(
         }
 
         // Grab destinations from the "translate" action, if the submission made it that far
-        descendants.filter { it.actionName == TaskAction.translate }.distinct().forEach { descendant ->
-            descendant.destinations.forEach { dest ->
+        descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+            descendant.destinations.forEach { descendantDest ->
                 // Check if destination has already been added
                 // if it is increase item counts
                 // otherwise add it to destinations
-                val index = destinations.indexOf(dest)
+                val index = destinations.indexOf(descendantDest)
                 if (index >= 0) {
-                    destinations[index].itemCount += dest.itemCount
+                    destinations[index].itemCount += descendantDest.itemCount
                     destinations[index].itemCountBeforeQualFilter =
-                        destinations[index].itemCountBeforeQualFilter?.plus(dest.itemCountBeforeQualFilter ?: 0)
+                        destinations[index].itemCountBeforeQualFilter?.plus(
+                            descendantDest.itemCountBeforeQualFilter ?: 0
+                        )
                 } else {
-                    destinations += dest
+                    destinations += descendantDest
                 }
             }
         }
