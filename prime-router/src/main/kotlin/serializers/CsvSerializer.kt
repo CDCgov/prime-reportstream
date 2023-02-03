@@ -185,8 +185,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 schema
                     .elements.filterNot { it.csvFields.isNullOrEmpty() }
                     .groupBy {
-                        // This should never happen because we already filtered out nulls.
-                        it.csvFields?.map { csvField -> csvField.name } ?: emptyList()
+                        it.csvFields!!.map { csvField -> csvField.name }
                     }
                     .map {
                         try {
@@ -196,7 +195,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                         }
                     }
                     .flatMap { element ->
-                        element.csvFields?.map { field ->
+                        element.csvFields!!.map { field ->
                             val value = report.getString(row, element.name)
                                 ?: error("Internal Error: table is missing ${element.fieldMapping} column")
                             try {
@@ -223,7 +222,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                                 )
                                 throw e
                             }
-                        } ?: emptyList() // This should never happen because we already filtered out nulls.
+                        }
                     }
             }
         }
