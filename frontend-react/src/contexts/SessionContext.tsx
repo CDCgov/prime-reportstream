@@ -1,10 +1,4 @@
-import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
@@ -45,7 +39,7 @@ const SessionProvider = ({
     children,
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
-    const { authState, oktaAuth } = oktaHook();
+    const { authState } = oktaHook();
     const {
         state: { activeMembership, initialized },
         dispatch,
@@ -55,18 +49,6 @@ const SessionProvider = ({
     const isAdminStrictCheck = useMemo(() => {
         return activeMembership?.memberType === MemberType.PRIME_ADMIN;
     }, [activeMembership?.memberType]);
-    const [user, setUser] = useState<UserClaims<CustomUserClaims>>();
-
-    useEffect(() => {
-        if (authState?.isAuthenticated) {
-            const getUser = async () => {
-                setUser(await oktaAuth.getUser());
-            };
-            getUser();
-        } else {
-            setUser(undefined);
-        }
-    }, [authState?.isAuthenticated, oktaAuth]);
 
     const context = useMemo(
         () => ({
@@ -75,16 +57,9 @@ const SessionProvider = ({
             isAdminStrictCheck,
             dispatch,
             initialized: authState !== null && !!initialized,
-            user,
+            user: authState?.idToken?.claims,
         }),
-        [
-            activeMembership,
-            authState,
-            dispatch,
-            initialized,
-            isAdminStrictCheck,
-            user,
-        ]
+        [activeMembership, authState, dispatch, initialized, isAdminStrictCheck]
     );
 
     return (
