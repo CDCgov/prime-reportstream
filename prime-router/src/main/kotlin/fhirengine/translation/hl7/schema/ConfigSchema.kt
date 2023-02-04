@@ -10,6 +10,7 @@ import java.util.SortedMap
  * @property name the schema name
  * @property elements the elements for the schema
  * @property constants schema level constants
+ * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
 sealed class ConfigSchema<T : ConfigSchemaElement>(
@@ -54,6 +55,7 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
 
     /**
      * Validate the top level schema if [isChildSchema] is false, or a child schema if [isChildSchema] is true.
+     * [validationErrors] can optionally be specified to start with a list of errors, but defaults to an empty list.
      * @return a list of validation errors, or an empty list if no errors
      */
     internal open fun validate(
@@ -147,6 +149,7 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
  * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
  * @property elements the elements for the schema
  * @property constants schema level constants
+ * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
 class ConverterSchema(
@@ -223,6 +226,7 @@ class ConverterSchema(
  * @property name the schema name
  * @property elements the elements for the schema
  * @property constants schema level constants
+ * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
 class FHIRTransformSchema(
@@ -279,7 +283,7 @@ sealed class ConfigSchemaElement(
     var debug: Boolean = false
 ) {
     /**
-     * Validate the element.
+     * Validate the element. If specified [validationErrors] will be a starting list of errors.
      * @return a list of validation errors, or an empty list if no errors
      */
     internal open fun validate(validationErrors: MutableList<String> = mutableListOf()): List<String> {
@@ -455,10 +459,6 @@ class FHIRTransformSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
-    /**
-     * Validate the element.
-     * @return a list of validation errors, or an empty list if no errors
-     */
     override fun validate(validationErrors: MutableList<String>): List<String> {
         /**
          * Add an error [msg] to the list of errors.

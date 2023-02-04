@@ -40,7 +40,7 @@ fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FHI
  */
 object ConfigSchemaReader : Logging {
     /**
-     * Read a schema [schemaName] from a file given the root [folder].
+     * Read a schema [schemaName] of type [schemaClass] from a file given the root [folder].
      * @return the validated schema
      * @throws Exception if the schema is invalid
      */
@@ -97,7 +97,7 @@ object ConfigSchemaReader : Logging {
     }
 
     /**
-     * Read a complete schema tree from a file for [schemaName] in [folder].
+     * Read a complete schema tree of type [schemaClass] from a file for [schemaName] in [folder].
      * Note this is a recursive function used to walk through all the schemas to load.
      * @return the validated schema
      */
