@@ -79,15 +79,17 @@ class ConstantResolverTests {
         assertThat(FhirPathCustomResolver().resolveConstant(context, "const1", false)).isNotNull()
         var result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
         assertThat(result).isNotNull()
-        assertThat(result is IntegerType).isTrue()
-        assertThat((result as IntegerType).value).isEqualTo(integerValue)
+        assertThat(result!!).isNotEmpty()
+        assertThat(result[0] is IntegerType).isTrue()
+        assertThat((result[0] as IntegerType).value).isEqualTo(integerValue)
 
         // Now lets resolve a constant
         result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(
+        assertThat(result!!.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(
             constants[constants.firstKey()]!!.replace("'", "")
         )
 
@@ -95,15 +97,17 @@ class ConstantResolverTests {
         val urlSuffix = "SomeSuffix"
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext-$urlSuffix`", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
+        assertThat(result!!.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
 
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext`", false)
         assertThat(result).isNotNull()
-        assertThat(result!!.isPrimitive).isTrue()
-        assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(urlPrefix)
+        assertThat(result!!.isNotEmpty())
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(urlPrefix)
 
         result = FhirPathCustomResolver().resolveConstant(context, "unknownconst", false)
         assertThat(result).isNull()
