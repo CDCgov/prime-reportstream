@@ -149,7 +149,7 @@ let MOCK_MESSAGE_DETAIL = {
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
     fileName: "simple_report_example.csv",
     fileUrl:
-        "http://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+        "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
     warnings: MOCK_MESSAGE_WARNINGS,
     errors: MOCK_MESSAGE_ERRORS,
     receiverData: MOCK_RECEIVER_DATA,
@@ -211,7 +211,7 @@ describe("RSMessageDetail component", () => {
     describe("parseFileLocation", () => {
         test("does not return fileLocation, sendingOrg, and fileName", () => {
             MOCK_MESSAGE_DETAIL.fileUrl =
-                "http://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv";
+                "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv";
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
             });
@@ -225,7 +225,7 @@ describe("RSMessageDetail component", () => {
 
         test("does not return fileLocation, sendingOrg, and fileName", () => {
             MOCK_MESSAGE_DETAIL.fileUrl =
-                "http://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader";
+                "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader";
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
             });
