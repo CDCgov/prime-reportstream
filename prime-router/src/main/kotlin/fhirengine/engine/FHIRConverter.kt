@@ -16,7 +16,6 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
-import gov.cdc.prime.router.fhirengine.utils.FHIRReader
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -183,7 +182,7 @@ class FHIRConverter(
         message: RawSubmission,
         actionLogger: ActionLogger
     ): List<Bundle> {
-        return FHIRReader(actionLogger).getBundles(message.downloadContent())
+        return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
     }
 
     /**

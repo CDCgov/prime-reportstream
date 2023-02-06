@@ -12,7 +12,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
-import gov.cdc.prime.router.fhirengine.utils.FHIRReader
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -289,7 +289,7 @@ class ELRReceiver : SubmissionReceiver {
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
             Sender.Format.FHIR -> {
-                val bundles = FHIRReader(actionLogs).getBundles(content)
+                val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
                     Format.FHIR,
                     sources,
