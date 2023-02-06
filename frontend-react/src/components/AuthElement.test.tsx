@@ -39,6 +39,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
@@ -61,6 +64,9 @@ describe("AuthElement unit tests", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         render(
             <AuthElement
@@ -79,6 +85,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         render(
             <AuthElement
@@ -100,6 +109,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         render(
             <AuthElement
@@ -122,6 +134,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
@@ -147,6 +162,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         render(
             <AuthElement
@@ -168,6 +186,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         render(
             <AuthElement
@@ -188,6 +209,9 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: false,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         render(
             <AuthElement
@@ -222,6 +246,9 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
             isAdminStrictCheck: true,
+            isUserAdmin: true,
+            isUserReceiver: true,
+            isUserSender: false,
         } as RSSessionContext);
         render(
             <AuthElement
