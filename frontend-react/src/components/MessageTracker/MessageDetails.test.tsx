@@ -141,7 +141,7 @@ const MOCK_EMPTY_MESSAGE_DETAIL = {
     errors: [],
     receiverData: [],
 };
-let MOCK_MESSAGE_DETAIL = {
+const DEFAULT_MESSAGE_DETAIL = {
     id: TEST_ID,
     messageId: "12-234567",
     sender: "somebody 1",
@@ -176,7 +176,7 @@ describe("RSMessageDetail component", () => {
 
     test("renders expected content", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
+            messageDetails: DEFAULT_MESSAGE_DETAIL as RSMessageDetail,
         });
         render(<MessageDetails />);
 
@@ -210,10 +210,13 @@ describe("RSMessageDetail component", () => {
 
     describe("parseFileLocation", () => {
         test("does not return fileLocation, sendingOrg, and fileName", () => {
-            MOCK_MESSAGE_DETAIL.fileUrl =
-                "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv";
+            const mockMessageDetails = {
+                ...DEFAULT_MESSAGE_DETAIL,
+                fileUrl:
+                    "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+            };
             mockUseMessageDetails.mockReturnValueOnce({
-                messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
+                messageDetails: mockMessageDetails as RSMessageDetail,
             });
             render(<MessageDetails />);
             expect(
@@ -224,10 +227,13 @@ describe("RSMessageDetail component", () => {
         });
 
         test("does not return fileLocation, sendingOrg, and fileName", () => {
-            MOCK_MESSAGE_DETAIL.fileUrl =
-                "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader";
+            const mockMessageDetails = {
+                ...DEFAULT_MESSAGE_DETAIL,
+                fileUrl:
+                    "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+            };
             mockUseMessageDetails.mockReturnValueOnce({
-                messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
+                messageDetails: mockMessageDetails as RSMessageDetail,
             });
             render(<MessageDetails />);
             expect(screen.getByText("RECEIVE")).toBeInTheDocument();
