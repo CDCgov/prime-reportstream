@@ -180,32 +180,26 @@ describe("RSMessageDetail component", () => {
         });
         render(<MessageDetails />);
 
-        expect(screen.getByText("Message ID")).toBeInTheDocument();
-        expect(screen.getByText(/12-234567/)).toBeInTheDocument();
-        expect(screen.getByText(/Submitter/)).toBeInTheDocument();
-        expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
-        expect(screen.getByText(/Incoming Report ID/)).toBeInTheDocument();
+        expect(screen.getByText("Message ID")).toBeVisible();
+        expect(screen.getByText(/12-234567/)).toBeVisible();
+        expect(screen.getByText(/Submitter/)).toBeVisible();
+        expect(screen.getByText(/somebody 1/)).toBeVisible();
+        expect(screen.getByText(/Incoming Report ID/)).toBeVisible();
         expect(
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
-        ).toBeInTheDocument();
-        expect(
-            screen.getAllByText("Date/Time Submitted")[0]
-        ).toBeInTheDocument();
-        expect(screen.getByText("9/28/2022, 12:00:00 am")).toBeInTheDocument();
-        expect(screen.getByText("File Location")).toBeInTheDocument();
-        expect(screen.getByText("RECEIVE")).toBeInTheDocument();
-        expect(
-            screen.getByText("/ simple_report.csvuploader")
-        ).toBeInTheDocument();
-        expect(
-            screen.getAllByText(/Incoming File Name/)[0]
-        ).toBeInTheDocument();
+        ).toBeVisible();
+        expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
+        expect(screen.getByText("9/28/2022, 12:00:00 am")).toBeVisible();
+        expect(screen.getByText("File Location")).toBeVisible();
+        expect(screen.getByText("RECEIVE")).toBeVisible();
+        expect(screen.getByText("/ simple_report.csvuploader")).toBeVisible();
+        expect(screen.getAllByText(/Incoming File Name/)[0]).toBeVisible();
         expect(
             screen.getByText(
                 "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
             )
-        ).toBeInTheDocument();
-        expect(screen.getByText("Warnings (2)")).toBeInTheDocument();
+        ).toBeVisible();
+        expect(screen.getByText("Warnings (2)")).toBeVisible();
     });
 
     describe("parseFileLocation", () => {
@@ -236,10 +230,10 @@ describe("RSMessageDetail component", () => {
                 messageDetails: mockMessageDetails as RSMessageDetail,
             });
             render(<MessageDetails />);
-            expect(screen.getByText("RECEIVE")).toBeInTheDocument();
+            expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(
                 screen.getByText("/ simple_report.csvuploader")
-            ).toBeInTheDocument();
+            ).toBeVisible();
         });
     });
 });
