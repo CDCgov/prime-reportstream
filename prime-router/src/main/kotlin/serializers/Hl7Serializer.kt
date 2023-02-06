@@ -1820,6 +1820,7 @@ class Hl7Serializer(
         var sendingApplicationReportInReplace: String? = null
         var receivingApplicationReportInReplace: String? = null
         var receivingFacilityReportInReplace: String? = null
+        // Following allows replaceValueAandB to replace FHS and BHS 3, 5, 6 only
         replaceValueAwithB.forEach { segment ->
             // Scan through segment(s)
             @Suppress("UNCHECKED_CAST")
