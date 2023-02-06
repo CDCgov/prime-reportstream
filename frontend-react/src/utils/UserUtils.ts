@@ -1,5 +1,7 @@
 import { OktaAuth } from "@okta/okta-auth-js";
 
+import { OKTA_AUTH } from "../oktaConfig";
+
 let sessionBroadcastChannel: BroadcastChannel | null = null;
 
 const SESSION_CHANNEL_NAME = "session";
@@ -9,16 +11,13 @@ export enum SessionEvent {
     LOGOUT = "logout",
 }
 
-function logout(oktaAuth: OktaAuth): void {
-    if (oktaAuth?.signOut) {
-        try {
-            oktaAuth.signOut().finally(() => {
-                getSessionBroadcastChannel()?.postMessage(SessionEvent.LOGOUT);
-            });
-        } catch (e) {
-            console.trace(e);
-        }
+async function logout(): Promise<void> {
+    try {
+        await OKTA_AUTH.signOut();
+    } catch (e) {
+        console.trace(e);
     }
+    getSessionBroadcastChannel()?.postMessage(SessionEvent.LOGOUT);
     localStorage.clear();
 }
 
