@@ -24,6 +24,7 @@ import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
+import { logout } from "./utils/UserUtils";
 
 const { APP_ENV } = config;
 
