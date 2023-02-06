@@ -12,7 +12,6 @@ import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -25,10 +24,9 @@ import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
+import { logout } from "./utils/UserUtils";
 
 const { APP_ENV } = config;
-
-initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
     const sessionStartTime = useRef<number>(new Date().getTime());
@@ -71,7 +69,7 @@ const App = () => {
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
-        const authState = OKTA_AUTH.authStateManager._authState;
+        const authState = OKTA_AUTH.authStateManager.getAuthState();
         /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
         if (
             authState?.accessToken &&
