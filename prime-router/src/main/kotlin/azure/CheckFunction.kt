@@ -217,10 +217,10 @@ class CheckFunction : Logging {
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
             if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
                 return false
-            // note: right now ONLY SFTP is supported, but we should expand!
+            // note: SFTP and REST are supports, but we should still expand!
             return when (receiverSetting.transport) {
                 is SFTPTransportType -> true
-                // TODO: add REST as a type
+                is RESTTransportType -> true
                 else -> false
             }
         }
