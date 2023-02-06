@@ -1857,10 +1857,10 @@
     webcrypto-shim "^0.1.5"
     xhr2 "0.1.3"
 
-"@okta/okta-react@^6.4.1":
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/@okta/okta-react/-/okta-react-6.5.0.tgz#bf22561a57c631717daa201b6f323823ba0bc08a"
-  integrity sha512-hDt4dswFIPp/JVyrbgrwxM3J9QzqJrd5ml28FKh2BvPZSqowRnAg7xdbMiaP6omLbLiygbnnKvkdVrrtB+5n0g==
+"@okta/okta-react@^6.7.0":
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/@okta/okta-react/-/okta-react-6.7.0.tgz#6d57de781b163cbe8ed31a3bece4fed136d37b54"
+  integrity sha512-jIx1dsPBsxYBqVcfW08dc/U1mPWG1Nswj6puRzykTBBIp3gEqLps/4dOuLx4aoWkMPkwx+fF1eXfzJvhq87NcA==
   dependencies:
     "@babel/runtime" "^7.11.2"
     compare-versions "^4.1.2"
