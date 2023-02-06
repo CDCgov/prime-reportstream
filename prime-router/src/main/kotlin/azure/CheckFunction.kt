@@ -17,6 +17,8 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.credentials.RestCredential
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import kotlinx.coroutines.launch
@@ -155,14 +157,14 @@ class CheckFunction : Logging {
         @BindingName("orgName") orgName: String,
         @BindingName("receiverName") receiverName: String
     ): HttpResponseMessage {
-        // val claims = AuthenticatedClaims.authenticate(request)
-        //
-        // if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
-        //     logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
-        //     return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-        // }
-        //
-        // logger.info("User ${claims.userName} authorized for endpoint ${request.uri}")
+        val claims = AuthenticatedClaims.authenticate(request)
+
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+
+        logger.info("User ${claims.userName} authorized for endpoint ${request.uri}")
 
         /** Data structure to build json response */
         data class JsonResponse(val result: CheckResultsEnum, val message: String)
