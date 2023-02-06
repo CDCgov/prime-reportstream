@@ -1,5 +1,5 @@
 import { GovBanner } from "@trussworks/react-uswds";
-import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
+import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
@@ -10,9 +10,8 @@ import { useNavigate } from "react-router-dom";
 
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaAuthConfig } from "./oktaConfig";
+import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout, initializeSessionBroadcastChannel } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import SenderModeBanner from "./components/SenderModeBanner";
@@ -25,12 +24,9 @@ import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
-
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+import { logout } from "./utils/UserUtils";
 
 const { APP_ENV } = config;
-
-initializeSessionBroadcastChannel(OKTA_AUTH); // for cross-tab login/logout
 
 const App = () => {
     const sessionStartTime = useRef<number>(new Date().getTime());
@@ -68,12 +64,12 @@ const App = () => {
         trackAppInsightEvent(EventName.SESSION_DURATION, {
             sessionLength: sessionTimeAggregate.current / 1000,
         });
-        logout(OKTA_AUTH);
+        logout();
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
-        const authState = OKTA_AUTH.authStateManager._authState;
+        const authState = OKTA_AUTH.authStateManager.getAuthState();
         /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
         if (
             authState?.accessToken &&

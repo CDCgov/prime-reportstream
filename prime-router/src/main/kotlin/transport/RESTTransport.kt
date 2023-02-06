@@ -54,6 +54,7 @@ import net.schmizz.sshj.common.Base64
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
+import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
@@ -79,11 +80,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
+        val logger: java.util.logging.Logger = context.logger
+
         val restTransportInfo = transportType as RESTTransportType
-        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-        val reportContent: ByteArray = header.content ?: error("No content for report ${header.reportFile.reportId}")
+        val reportId = "${header.reportFile.reportId}"
+        val receiver = header.receiver ?: error("No receiver defined for report $reportId")
+        val reportContent: ByteArray = header.content ?: error("No content for report $reportId")
         // get the file name, or create one from the report ID, NY requires a file name in the POST
-        val fileName = header.reportFile.externalName ?: "${header.reportFile.reportId}.hl7"
+        val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
         val credential: RestCredential = lookupDefaultCredential(receiver)
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
@@ -94,53 +98,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             runBlocking {
                 launch {
                     // parse headers for any dynamic values, OK needs the report ID
-                    var httpHeaders = restTransportInfo.headers.mapValues {
-                        if (it.value == "header.reportFile.reportId") {
-                            "${header.reportFile.reportId}"
-                        } else {
-                            it.value
-                        }
-                    }
-                    val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
-                    // get the credential and use it to request an OAuth token
-                    // Usually credential is a UserApiKey, with an apiKey field (NY)
-                    // if not, try as UserPass with pass field (OK)
-                    val tokenInfo: TokenInfo
-                    var bearerTokens: BearerTokens? = null
-                    when (credential) {
-                        is UserApiKeyCredential -> {
-                            tokenInfo = getAuthTokenWithUserApiKey(
-                                restTransportInfo.authTokenUrl,
-                                credential,
-                                context,
-                                tokenClient
-                            )
-                            // if successful, add the token returned to the token storage
-                            bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
-                        }
-                        is UserPassCredential -> {
-                            tokenInfo = getAuthTokenWithUserPass(
-                                restTransportInfo.authTokenUrl,
-                                credential,
-                                context,
-                                tokenClient
-                            )
-                            // if successful, add token as "Authorization:" header
-                            httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
-                        }
-                        is UserAssertionCredential -> {
-                            tokenInfo = getAuthTokenWithAssertion(
-                                restTransportInfo.authTokenUrl,
-                                credential,
-                                context,
-                                tokenClient
-                            )
-                            // if successful, add token as "Authorization:" header
-                            bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
-                        }
-                        else -> error("UserApiKey or UserPass credential required for ${receiver.fullName}")
-                    }
-                    context.logger.info("Token successfully added!")
+                    var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
+                        restTransportInfo,
+                        reportId,
+                        jksCredential,
+                        credential,
+                        logger
+                    )
+                    logger.info("Token successfully added!")
 
                     // post the report
                     val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
@@ -149,12 +114,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         fileName,
                         restTransportInfo.reportUrl,
                         httpHeaders,
-                        context,
+                        logger,
                         reportClient
                     )
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
-                    context.logger.info("Message successfully sent!")
+                    logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(msg)
                     actionHistory.trackSentReport(
                         receiver,
@@ -177,15 +142,15 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val msg = "FAILED POST of inputReportId ${header.reportFile.reportId} to " +
                 "$restTransportInfo (orgService = ${header.receiver.fullName})" +
                 ", Exception: ${t.localizedMessage}"
-            context.logger.severe(msg)
-            context.logger.severe(t.stackTraceToString())
+            logger.severe(msg)
+            logger.severe(t.stackTraceToString())
             // do some additional handling of the error here. if we are dealing with a 400 error, we
             // probably don't want to retry, and we need to stop now
             // if the error is a 500 we can do a retry, but both should probably throw a pager duty notification
             when (t) {
                 is ClientRequestException -> {
                     (t).let {
-                        context.logger.severe(
+                        logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
                         )
@@ -200,7 +165,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // we can use now is getting the specific response information from the
                     // ServerResponseException
                     (t).let {
-                        context.logger.severe(
+                        logger.severe(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "from the server ${it.response.request.url}, ${it.response.version}." +
                                 " This may be recoverable. Will retry."
@@ -242,12 +207,76 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a JKS from the credential service
      * @param [tlsKeystore] is the label of the credential
      */
-    private fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
+    fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(tlsKeystore)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "RESTTransport", CredentialRequestReason.REST_UPLOAD
         ) as? UserJksCredential?
             ?: error("Unable to find JKS credentials for $tlsKeystore connectionId($credentialLabel)")
+    }
+
+    /**
+     * Get the OAuth token based on credential type
+     *
+     * @param restTransportInfo The URL to post to get the OAuth token
+     * @param reportId The Assertion credential
+     * @param jksCredential The jks credential
+     * @param context Really just here to get logging injected
+     */
+    suspend fun getOAuthToken(
+        restTransportInfo: RESTTransportType,
+        reportId: String,
+        jksCredential: UserJksCredential?,
+        credential: RestCredential,
+        logger: Logger
+    ): Pair<Map<String, String>, BearerTokens?> {
+        var httpHeaders = restTransportInfo.headers.mapValues {
+            if (it.value == "header.reportFile.reportId") {
+                reportId
+            } else {
+                it.value
+            }
+        }
+        val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
+        // get the credential and use it to request an OAuth token
+        // Usually credential is a UserApiKey, with an apiKey field (NY)
+        // if not, try as UserPass with pass field (OK)
+        val tokenInfo: TokenInfo
+        var bearerTokens: BearerTokens? = null
+        when (credential) {
+            is UserApiKeyCredential -> {
+                tokenInfo = getAuthTokenWithUserApiKey(
+                    restTransportInfo.authTokenUrl,
+                    credential,
+                    logger,
+                    tokenClient
+                )
+                // if successful, add the token returned to the token storage
+                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
+            }
+            is UserPassCredential -> {
+                tokenInfo = getAuthTokenWithUserPass(
+                    restTransportInfo.authTokenUrl,
+                    credential,
+                    logger,
+                    tokenClient
+                )
+                // if successful, add token as "Authorization:" header
+                httpHeaders = httpHeaders + Pair("Authorization", tokenInfo.accessToken)
+            }
+            is UserAssertionCredential -> {
+                tokenInfo = getAuthTokenWithAssertion(
+                    restTransportInfo.authTokenUrl,
+                    credential,
+                    logger,
+                    tokenClient
+                )
+                // if successful, add token as "Authorization:" header
+                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
+            }
+            else -> error("UserApiKey or UserPass credential required")
+        }
+        return Pair(httpHeaders, bearerTokens)
     }
 
     /**
@@ -262,7 +291,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithAssertion(
         restUrl: String,
         credential: UserAssertionCredential,
-        context: ExecutionContext,
+        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -276,7 +305,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             ) {
                 expectSuccess = true // throw an exception if not successful
             }.body()
-            context.logger.info("Got Token with UserAssertion")
+            logger.info("Got Token with UserAssertion")
             return tokenInfo
         }
     }
@@ -293,7 +322,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithUserApiKey(
         restUrl: String,
         credential: UserApiKeyCredential,
-        context: ExecutionContext,
+        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -309,7 +338,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
             }.body()
-            context.logger.info("Got Token with UserApiKey")
+            logger.info("Got Token with UserApiKey")
             return tokenInfo
         }
     }
@@ -326,7 +355,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithUserPass(
         restUrl: String,
         credential: UserPassCredential,
-        context: ExecutionContext,
+        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -335,7 +364,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("email" to credential.user, "password" to credential.pass))
             }.body()
-            context.logger.info("Got Token with UserPass")
+            logger.info("Got Token with UserPass")
             val idTokenInfo = Json.decodeFromString<IdToken>(idTokenInfoString)
             return TokenInfo(accessToken = idTokenInfo.idToken, expiresIn = 3600)
         }
@@ -355,14 +384,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         fileName: String,
         restUrl: String,
         headers: Map<String, String>,
-        context: ExecutionContext,
+        logger: Logger,
         httpClient: HttpClient
     ): String {
-        context.logger.info(fileName)
+        logger.info(fileName)
         val boundary = "WebAppBoundary"
         httpClient.use { client ->
             val theResponse: String = client.post(restUrl) {
-                context.logger.info("posting report to rest API")
+                logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
                 postHeaders(
                     headers
@@ -412,7 +441,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
-                    level = LogLevel.ALL // LogLevel.INFO for prod, LogLevel.ALL to view full request
+                    level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
                 }
                 // if we have a token, install it
                 bearerTokens?.let {
