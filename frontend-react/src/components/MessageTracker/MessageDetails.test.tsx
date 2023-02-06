@@ -224,7 +224,7 @@ describe("RSMessageDetail component", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
                 fileUrl:
-                    "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+                    "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader",
             };
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails as RSMessageDetail,
