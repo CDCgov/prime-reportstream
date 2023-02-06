@@ -22,8 +22,6 @@ export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
         },
         oktaAuth: {
             ..._init?.oktaAuth,
-            getUser:
-                _init?.oktaAuth?.getUser ?? (() => ({ email: "test@abc.com" })),
         } as OktaAuth,
     };
     return () => result;

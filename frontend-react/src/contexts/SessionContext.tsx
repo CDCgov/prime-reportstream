@@ -44,22 +44,20 @@ const SessionProvider = ({
         state: { activeMembership, initialized },
         dispatch,
     } = useOktaMemberships(authState);
-    /* This logic is a for when admins have other orgs present on their Okta claims
-     * that interfere with the activeMembership.memberType "soft" check */
-    const isAdminStrictCheck = useMemo(() => {
-        return activeMembership?.memberType === MemberType.PRIME_ADMIN;
-    }, [activeMembership?.memberType]);
 
     const context = useMemo(
         () => ({
             oktaToken: authState?.accessToken,
             activeMembership,
-            isAdminStrictCheck,
+            /* This logic is a for when admins have other orgs present on their Okta claims
+             * that interfere with the activeMembership.memberType "soft" check */
+            isAdminStrictCheck:
+                activeMembership?.memberType === MemberType.PRIME_ADMIN,
             dispatch,
             initialized: authState !== null && !!initialized,
             user: authState?.idToken?.claims,
         }),
-        [activeMembership, authState, dispatch, initialized, isAdminStrictCheck]
+        [activeMembership, authState, dispatch, initialized]
     );
 
     return (
