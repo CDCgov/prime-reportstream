@@ -16,7 +16,7 @@ describe("SignInOrUser", () => {
             },
         } as RSSessionContext);
         renderWithSession(<SignInOrUser />);
-        expect(screen.getByText(mockEmail));
+        expect(screen.getByText(mockEmail)).toBeVisible();
     });
 
     test("renders without email", () => {
@@ -24,12 +24,12 @@ describe("SignInOrUser", () => {
             user: {},
         } as RSSessionContext);
         renderWithSession(<SignInOrUser />);
-        expect(screen.getByText("unknown user"));
+        expect(screen.getByText("unknown user")).toBeVisible();
     });
 
     test("renders without user", () => {
         mockSessionContext.mockReturnValueOnce({} as RSSessionContext);
         renderWithSession(<SignInOrUser />);
-        expect(screen.getByText("Log in via OktaPreview"));
+        expect(screen.getByText("Log in via OktaPreview")).toBeVisible();
     });
 });
