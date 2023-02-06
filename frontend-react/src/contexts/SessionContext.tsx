@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from "react";
+import { AccessToken } from "@okta/okta-auth-js";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 import {
     MembershipSettings,
@@ -8,7 +8,11 @@ import {
     MembershipAction,
     MemberType,
 } from "../hooks/UseOktaMemberships";
-import { RSUserPermissions } from "../utils/PermissionsUtils";
+import {
+    getUserPermissions,
+    RSUserPermissions,
+} from "../utils/PermissionsUtils";
+import { RSUserClaims } from "../utils/OrganizationUtils";
 
 export interface RSSessionContext extends RSUserPermissions {
     activeMembership?: MembershipSettings | null;
@@ -19,7 +23,7 @@ export interface RSSessionContext extends RSUserPermissions {
     isUserAdmin: boolean;
     isUserSender: boolean;
     isUserReceiver: boolean;
-    user?: UserClaims<CustomUserClaims>;
+    user?: RSUserClaims;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -52,8 +56,9 @@ const SessionProvider = ({
         dispatch,
     } = useOktaMemberships(authState);
 
-    const context = useMemo(
-        () => ({
+    const context = useMemo(() => {
+        const user = authState?.idToken?.claims as RSUserClaims;
+        return {
             oktaToken: authState?.accessToken,
             activeMembership,
             /* This logic is a for when admins have other orgs present on their Okta claims
@@ -62,24 +67,10 @@ const SessionProvider = ({
                 activeMembership?.memberType === MemberType.PRIME_ADMIN,
             dispatch,
             initialized: authState !== null && !!initialized,
-            user: authState?.idToken?.claims,
-        }),
-        [activeMembership, authState, dispatch, initialized]
-    );
-
-    const context = useMemo(
-        () => ({
-            oktaToken: authState?.accessToken,
-            activeMembership,
-            isAdminStrictCheck,
-            dispatch,
-            initialized: authState !== null && !!initialized,
-            isUserAdmin: false,
-            isUserSender: false,
-            isUserReceiver: false,
-        }),
-        [activeMembership, authState, dispatch, initialized, isAdminStrictCheck]
-    );
+            user,
+            ...getUserPermissions(user),
+        };
+    }, [activeMembership, authState, dispatch, initialized]);
 
     return (
         <SessionContext.Provider value={context}>

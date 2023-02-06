@@ -41,11 +41,11 @@ export interface RSUserPermissions {
     isUserReceiver: boolean;
 }
 
-export function getUserPermissions(user: RSUserClaims): RSUserPermissions {
+export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
     return {
-        isUserAdmin: !!user.organization.find((o) => isAdmin(o)),
-        isUserReceiver: !!user.organization.find((o) => isReceiver(o)),
-        isUserSender: !!user.organization.find((o) => isSender(o)),
+        isUserAdmin: !!user?.organization.find((o) => isAdmin(o)),
+        isUserReceiver: !!user?.organization.find((o) => isReceiver(o)),
+        isUserSender: !!user?.organization.find((o) => isSender(o)),
     };
 }
 
