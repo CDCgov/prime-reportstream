@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
+import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,9 +23,7 @@ import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
 import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
-import { trackAppInsightEvent, EventName } from "./utils/Analytics";
-import { OKTA_AUTH } from "./oktaConfig";
-import { logout } from "./utils/UserUtils";
+import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 
 const { APP_ENV } = config;
 
@@ -64,7 +63,7 @@ const App = () => {
         trackAppInsightEvent(EventName.SESSION_DURATION, {
             sessionLength: sessionTimeAggregate.current / 1000,
         });
-        logout(OKTA_AUTH);
+        logout();
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
