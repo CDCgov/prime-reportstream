@@ -4,36 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchema
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.InputStream
-
-/**
- * Read a converter schema [schemaName] from a file given the root [folder].
- * @return the validated schema
- * @throws Exception if the schema is invalid or is of the wrong type
- */
-fun converterSchemaFromFile(schemaName: String, folder: String? = null): ConverterSchema {
-    val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = ConverterSchema::class.java)
-    if (schema is ConverterSchema)
-        return schema
-    else
-        throw SchemaException("Schema ${schema.name} is not a ConverterSchema")
-}
-
-/**
- * Read a fhirTransform schema [schemaName] from a file given the root [folder].
- * @return the validated schema
- * @throws Exception if the schema is invalid or is of the wrong type
- */
-fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FHIRTransformSchema {
-    val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = FHIRTransformSchema::class.java)
-    if (schema is FHIRTransformSchema)
-        return schema
-    else
-        throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
-}
 
 /**
  * Read schema configuration.

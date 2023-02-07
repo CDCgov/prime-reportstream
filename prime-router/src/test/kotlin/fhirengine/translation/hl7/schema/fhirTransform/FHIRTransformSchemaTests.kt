@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.translation.hl7.schema
+package gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform
 
 import assertk.assertAll
 import assertk.assertThat
@@ -9,9 +9,10 @@ import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import kotlin.test.Test
 
-class ConfigSchemaFHIRTransformTests {
+class FHIRTransformSchemaTests {
     @Test
     fun `test validate schema`() {
         var schema = FHIRTransformSchema()

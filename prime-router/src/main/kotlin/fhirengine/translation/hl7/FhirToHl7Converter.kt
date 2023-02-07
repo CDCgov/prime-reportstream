@@ -4,9 +4,9 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converterSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils

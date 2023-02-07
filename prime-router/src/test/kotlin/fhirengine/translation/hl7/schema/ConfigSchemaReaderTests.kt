@@ -10,6 +10,12 @@ import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import kotlin.test.Test
 
 class ConfigSchemaReaderTests {

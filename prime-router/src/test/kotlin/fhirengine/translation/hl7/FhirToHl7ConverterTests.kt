@@ -11,8 +11,8 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import io.mockk.clearAllMocks
 import io.mockk.every
