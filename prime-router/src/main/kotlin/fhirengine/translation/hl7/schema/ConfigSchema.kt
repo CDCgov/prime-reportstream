@@ -181,10 +181,9 @@ class ConverterSchema(
 
     override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
         apply {
-            if (childSchema is ConverterSchema) {
-                childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
-                childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
-            }
+            check(childSchema is ConverterSchema) { "Child schema ${childSchema.name} not a ConverterSchema." }
+            childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
+            childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
             super.merge(childSchema)
         }
 }
@@ -205,9 +204,7 @@ class FHIRTransformSchema(
     override fun merge(childSchema: ConfigSchema<FHIRTransformSchemaElement>):
         ConfigSchema<FHIRTransformSchemaElement> =
         apply {
-            if (childSchema !is FHIRTransformSchema) {
-                throw SchemaException("Child schema ${childSchema.name} was not a FHIRTransformSchema.")
-            }
+            check(childSchema is FHIRTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
             super.merge(childSchema)
         }
 }
@@ -362,8 +359,8 @@ class ConverterSchemaElement(
     }
 
     override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        if (overwritingElement !is ConverterSchemaElement) {
-            throw SchemaException("Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement.")
+        check(overwritingElement is ConverterSchemaElement) {
+            "Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement."
         }
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
         super.merge(overwritingElement)
@@ -424,11 +421,8 @@ class FHIRTransformSchemaElement(
     }
 
     override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        if (overwritingElement !is FHIRTransformSchemaElement) {
-            throw SchemaException(
-                "Overwriting element ${overwritingElement.name} was " +
-                    "not a FHIRTranslatorSchemaElement."
-            )
+        check(overwritingElement is FHIRTransformSchemaElement) {
+            "Overwriting element ${overwritingElement.name} was not a FHIRTransformSchemaElement."
         }
         overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
         super.merge(overwritingElement)
