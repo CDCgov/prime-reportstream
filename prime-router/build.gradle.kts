@@ -106,7 +106,7 @@ defaultTasks("package")
 val ktorVersion = "2.2.2"
 val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
-jacoco.toolVersion = "0.8.7"
+jacoco.toolVersion = "0.8.8"
 
 // Set the compiler JVM target
 java {
@@ -746,7 +746,7 @@ dependencies {
     // Pin snakeyaml since it is getting included regardless of exclude attempts
     implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.3")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.2.5")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.5")
@@ -816,7 +816,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.1")
+    testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

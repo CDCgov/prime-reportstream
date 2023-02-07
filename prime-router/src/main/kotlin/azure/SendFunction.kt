@@ -103,7 +103,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
-            val msg = "Send function unrecoverable exception for event. Mo intervention required: $message"
+            val msg = "Send function unrecoverable exception: ${t.message} Event: $message"
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             if (receiverStatus == CustomerStatus.ACTIVE) {
