@@ -967,6 +967,75 @@ class SubmissionReceiverTests {
     }
 
     @Test
+    fun `test ELR receiver validateAndMoveToProcessing with Bulk FHIR, inactive sender`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ELRReceiver(
+                engine,
+                actionHistory
+            )
+        )
+        val sender = FullELRSender(
+            "Test Sender",
+            "test",
+            Sender.Format.FHIR,
+            allowDuplicates = true,
+            customerStatus = CustomerStatus.INACTIVE
+        )
+
+        val actionLogs = ActionLogger()
+        val readResult = ReadResult(report, actionLogs)
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.FHIR, "test", ByteArray(0))
+        val routeResult = emptyList<ActionLog>()
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
+        every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
+
+        // act
+        receiver.validateAndMoveToProcessing(
+            sender,
+            File("src/test/resources/fhirengine/engine/bulk_valid_data.fhir").readText(),
+            emptyMap(),
+            Options.None,
+            emptyList(),
+            true,
+            false,
+            ByteArray(0),
+            "test.csv",
+            metadata = metadata
+        )
+
+        // assert
+        verify(exactly = 1) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+        }
+        verify(exactly = 0) {
+            queueMock.sendMessage(elrConvertQueueName, any())
+            SubmissionReceiver.doDuplicateDetection(any(), any(), any())
+        }
+    }
+
+    @Test
     fun `test ELR receiver validateAndMoveToProcessing, invalid hl7`() {
         // setup
         mockkObject(SubmissionReceiver.Companion)
