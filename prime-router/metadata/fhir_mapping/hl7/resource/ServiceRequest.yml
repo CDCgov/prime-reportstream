@@ -107,7 +107,7 @@ identifier_4:
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
-  valueOf: ORC.5
+  valueOf: ORC.5 | ORC.1
   expressionType: HL7Spec
 
 intent:
@@ -126,11 +126,13 @@ subject:
 # The only known possible alternative system: http://terminology.hl7.org/2.1.0/CodeSystem/v2-0203 fails to validate with HAPI FHIR validator.
 
 authoredOn:
+  condition: $orderControl EQUALS NW
   type: STRING
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: ORC.9 | OBR.6
+    dateTimeIn: ORC.9
+    orderControl: ORC.1
 
 occurrenceDateTime:
   condition: $startTiming NULL && $endTiming NULL
@@ -248,7 +250,7 @@ extension_2:
       value: entering-organization
     valueString:
       type: STRING
-      valueOf: ORC.17.1 | ORC.17.9 | ORC.17.2
+      valueOf: ORC.17.1 | ORC.17.2
       expressionType: HL7Spec
 
 extension_3:
