@@ -1815,18 +1815,37 @@ class Hl7Serializer(
         receivingApplicationReportIn: String? = null,
         receivingFacilityReportIn: String? = null
     ): String {
-        val sendingApplicationReport = sendingApplicationReportIn
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
+        var sendingApplicationReportInReplace: String? = null
+        var receivingApplicationReportInReplace: String? = null
+        var receivingFacilityReportInReplace: String? = null
+        // Following allows replaceValueAandB to replace FHS and BHS 3, 5, 6 only
+        replaceValueAwithB.forEach { segment ->
+            // Scan through segment(s)
+            @Suppress("UNCHECKED_CAST")
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val fields = pairs.values.first().trim()
+                if (segment.key == "FHS-3")
+                    sendingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-5")
+                    receivingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-6")
+                    receivingFacilityReportInReplace = fields
+            }
+        }
+
+        val sendingApplicationReport = sendingApplicationReportIn ?: sendingApplicationReportInReplace
             ?: (report.getString(0, "sending_application") ?: "")
-        val receivingApplicationReport = receivingApplicationReportIn
+        val receivingApplicationReport = receivingApplicationReportIn ?: receivingApplicationReportInReplace
             ?: (report.getString(0, "receiving_application") ?: "")
-        val receivingFacilityReport = receivingFacilityReportIn
+        val receivingFacilityReport = receivingFacilityReportIn ?: receivingFacilityReportInReplace
             ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
         var receivingFacilityTruncationLimit: Int? = null
 
-        val hl7Config = report.destination?.translation as? Hl7Configuration?
         if (hl7Config?.truncateHDNamespaceIds == true) {
             sendingAppTruncationLimit = getTruncationLimitWithEncoding(sendingApplicationReport, HD_TRUNCATION_LIMIT)
             receivingAppTruncationLimit = getTruncationLimitWithEncoding(
