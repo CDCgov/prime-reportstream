@@ -141,7 +141,7 @@ const MOCK_EMPTY_MESSAGE_DETAIL = {
     errors: [],
     receiverData: [],
 };
-const DEFAULT_MESSAGE_DETAIL = {
+const DEFAULT_MESSAGE_DETAIL: RSMessageDetail = {
     id: TEST_ID,
     messageId: "12-234567",
     sender: "somebody 1",
@@ -168,7 +168,7 @@ jest.mock("react-router-dom", () => ({
 describe("RSMessageDetail component", () => {
     test("url param (messageId) feeds into network hook", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as RSMessageDetail,
+            messageDetails: MOCK_EMPTY_MESSAGE_DETAIL,
         });
         render(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
@@ -176,7 +176,7 @@ describe("RSMessageDetail component", () => {
 
     test("renders expected content", () => {
         mockUseMessageDetails.mockReturnValueOnce({
-            messageDetails: DEFAULT_MESSAGE_DETAIL as RSMessageDetail,
+            messageDetails: DEFAULT_MESSAGE_DETAIL,
         });
         render(<MessageDetails />);
 
@@ -210,7 +210,7 @@ describe("RSMessageDetail component", () => {
                     "https://azurite:10000/devstoreaccount1/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
             };
             mockUseMessageDetails.mockReturnValueOnce({
-                messageDetails: mockMessageDetails as RSMessageDetail,
+                messageDetails: mockMessageDetails,
             });
             render(<MessageDetails />);
             expect(
@@ -227,7 +227,7 @@ describe("RSMessageDetail component", () => {
                     "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader",
             };
             mockUseMessageDetails.mockReturnValueOnce({
-                messageDetails: mockMessageDetails as RSMessageDetail,
+                messageDetails: mockMessageDetails,
             });
             render(<MessageDetails />);
             expect(screen.getByText("RECEIVE")).toBeVisible();
