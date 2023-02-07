@@ -42,6 +42,18 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
         private set
 
     /**
+     * Private property used to build list of validation errors
+     */
+    private var validationErrors: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Add an error [msg] to the list of errors.
+     */
+    protected fun addError(msg: String) {
+        validationErrors.add("Schema $name: $msg")
+    }
+
+    /**
      * Test if the schema and its elements (including other schema) is valid.  See [errors] property for validation
      * error messages.
      * @return true if the schema is valid, false otherwise
@@ -58,17 +70,7 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
      * [validationErrors] can optionally be specified to start with a list of errors, but defaults to an empty list.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal open fun validate(
-        isChildSchema: Boolean = false,
-        validationErrors: MutableList<String> = mutableListOf()
-    ): List<String> {
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("Schema $name: $msg")
-        }
-
+    internal open fun validate(isChildSchema: Boolean = false): List<String> {
         // Check that all constants have a string
         constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
             addError("Constant '$key' does not have a value")
@@ -147,17 +149,7 @@ class ConverterSchema(
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
 ) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
-    override fun validate(
-        isChildSchema: Boolean,
-        validationErrors: MutableList<String>
-    ): List<String> {
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("Schema $name: $msg")
-        }
-
+    override fun validate(isChildSchema: Boolean): List<String> {
         if (isChildSchema) {
             if (!hl7Type.isNullOrBlank()) {
                 addError("Schema hl7Type can only be specified in top level schema")
@@ -184,7 +176,7 @@ class ConverterSchema(
             }
         }
 
-        return super.validate(isChildSchema, validationErrors)
+        return super.validate(isChildSchema)
     }
 
     override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
@@ -248,18 +240,20 @@ sealed class ConfigSchemaElement(
     var valueSet: SortedMap<String, String> = sortedMapOf(),
     var debug: Boolean = false
 ) {
+    private var validationErrors: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Add an error [msg] to the list of errors.
+     */
+    protected fun addError(msg: String) {
+        validationErrors.add("[$name]: $msg")
+    }
+
     /**
      * Validate the element. If specified [validationErrors] will be a starting list of errors.
      * @return a list of validation errors, or an empty list if no errors
      */
-    internal open fun validate(validationErrors: MutableList<String> = mutableListOf()): List<String> {
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("[$name]: $msg")
-        }
-
+    internal open fun validate(): List<String> {
         if (!resourceIndex.isNullOrBlank()) {
             when {
                 resource.isNullOrBlank() ->
@@ -295,7 +289,7 @@ sealed class ConfigSchemaElement(
         schemaRef?.let {
             validationErrors.addAll(it.validate(true))
         }
-        return validationErrors
+        return validationErrors.toList()
     }
 
     /**
@@ -356,14 +350,7 @@ class ConverterSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
-    override fun validate(validationErrors: MutableList<String>): List<String> {
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("[$name]: $msg")
-        }
-
+    override fun validate(): List<String> {
         when {
             !schema.isNullOrBlank() && hl7Spec.isNotEmpty() ->
                 addError("Schema property cannot be used with the hl7Spec property")
@@ -371,7 +358,7 @@ class ConverterSchemaElement(
                 addError("Hl7Spec property is required when not using a schema")
         }
 
-        return super.validate(validationErrors)
+        return super.validate()
     }
 
     override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
@@ -425,14 +412,7 @@ class FHIRTransformSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
-    override fun validate(validationErrors: MutableList<String>): List<String> {
-        /**
-         * Add an error [msg] to the list of errors.
-         */
-        fun addError(msg: String) {
-            validationErrors.add("[$name]: $msg")
-        }
-
+    override fun validate(): List<String> {
         when {
             !schema.isNullOrBlank() && bundleProperty != null ->
                 addError("Schema property cannot be used with the bundleProperty property")
@@ -440,7 +420,7 @@ class FHIRTransformSchemaElement(
                 addError("BundleProperty property is required when not using a schema")
         }
 
-        return super.validate(validationErrors)
+        return super.validate()
     }
 
     override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
