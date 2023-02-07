@@ -193,7 +193,7 @@ class ConfigSchemaConverterTests {
                 assertThat(parentElement.condition).isEqualTo(originalElement.condition)
                 assertThat(parentElement.required).isEqualTo(originalElement.required)
                 assertThat(parentElement.schema).isEqualTo(originalElement.schema)
-                assertThat(parentElement.schemaRef).isEqualTo(originalElement.schemaRef)
+                assertThat(parentElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
                 assertThat(parentElement.resource).isEqualTo(originalElement.resource)
                 assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
                 assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)

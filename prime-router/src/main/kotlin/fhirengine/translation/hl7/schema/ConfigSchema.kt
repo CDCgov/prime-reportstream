@@ -128,18 +128,6 @@ sealed class ConfigSchema<T : ConfigSchemaElement>(
         check(elementsInSchema.size <= 1)
         return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
     }
-
-    override fun equals(other: Any?): Boolean {
-        return other != null &&
-            other is ConfigSchema<*> &&
-            elements == other.elements &&
-            constants == other.constants &&
-            extends == other.extends
-    }
-
-    override fun hashCode(): Int {
-        return elements.hashCode() * 31 + constants.hashCode() * 30 + extends.hashCode() * 29
-    }
 }
 
 /**
@@ -207,18 +195,6 @@ class ConverterSchema(
             }
             super.merge(childSchema)
         }
-
-    override fun equals(other: Any?): Boolean {
-        return other != null &&
-            other is ConverterSchema &&
-            hl7Type == other.hl7Type &&
-            hl7Version == other.hl7Version &&
-            super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode() + hl7Type.hashCode() * 28 + hl7Version.hashCode() * 27
-    }
 }
 
 /**
@@ -242,16 +218,6 @@ class FHIRTransformSchema(
             }
             super.merge(childSchema)
         }
-
-    override fun equals(other: Any?): Boolean {
-        return other != null &&
-            other is FHIRTransformSchema &&
-            super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
 }
 
 /**
