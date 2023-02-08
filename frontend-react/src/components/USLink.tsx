@@ -1,6 +1,7 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -45,6 +46,52 @@ export const USLink = ({
             className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >
+            {children}
+        </a>
+    );
+};
+
+export interface USLinkButtonProps
+    extends USLinkProps,
+        Omit<ButtonProps, "type"> {}
+
+export const USLinkButton = ({
+    anchor = false,
+    children,
+    className,
+    href,
+    state,
+    secondary,
+    accentStyle,
+    base,
+    outline,
+    inverse,
+    size,
+    unstyled,
+    ...anchorHTMLAttributes
+}: USLinkButtonProps) => {
+    const linkClassname = classnames(
+        "usa-button",
+        secondary ? "usa-button--secondary" : undefined,
+        accentStyle ? `usa-button--accent-${accentStyle}` : undefined,
+        base ? "usa-button--base" : undefined,
+        outline ? "usa-button--outline" : undefined,
+        inverse ? "usa-button--inverse" : undefined,
+        size ? `usa-button--${size}` : undefined,
+        unstyled ? "usa-button--unstyled" : undefined,
+        className
+    );
+    return !anchor ? (
+        <Link
+            to={href || ""}
+            className={linkClassname}
+            state={state}
+            {...anchorHTMLAttributes}
+        >
+            {children}
+        </Link>
+    ) : (
+        <a href={href} className={linkClassname} {...anchorHTMLAttributes}>
             {children}
         </a>
     );
