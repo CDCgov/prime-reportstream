@@ -174,8 +174,8 @@ class FHIRConverter(
     }
 
     /**
-     * Decodes a FHIR [message] and returns it as list of bundles
-     *
+     * Decodes a FHIR [message] into FHIR bundles and keeps track of any validation
+     * errors when reading the message into [actionLogger]
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
