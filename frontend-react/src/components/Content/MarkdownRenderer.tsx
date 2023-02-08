@@ -28,22 +28,13 @@ type MarkdownContentProps = {
     markdownUrl: string;
 };
 
-type ReactMarkdownReplacementComponentsProp = Exclude<
-    Options["components"],
-    undefined
->;
-export type ReactMarkdownComponentReplacementProps<
-    T extends string & keyof ReactMarkdownReplacementComponentsProp
-> = Extract<
-    ReactMarkdownReplacementComponentsProp[T],
-    (...args: any) => any
-> extends never
+type ReactMarkdownComponentsProp = Exclude<Options["components"], undefined>;
+export type ReactMarkdownComponentProps<
+    T extends string & keyof ReactMarkdownComponentsProp
+> = Extract<ReactMarkdownComponentsProp[T], (...args: any) => any> extends never
     ? never
     : Parameters<
-          Extract<
-              ReactMarkdownReplacementComponentsProp[T],
-              (...args: any) => any
-          >
+          Extract<ReactMarkdownComponentsProp[T], (...args: any) => any>
       >[0];
 
 // Matches relative or cdc.gov absolute urls
@@ -53,7 +44,7 @@ const ReactMarkdownLink = ({
     node: _,
     children,
     ...props
-}: ReactMarkdownComponentReplacementProps<"a">) => {
+}: ReactMarkdownComponentProps<"a">) => {
     if (!INTERNAL_LINK_REGEX.test(props.href ?? "")) {
         return <USExtLink {...props}>{children}</USExtLink>;
     }
