@@ -29,6 +29,11 @@ type MarkdownContentProps = {
 };
 
 type ReactMarkdownComponentsProp = Exclude<Options["components"], undefined>;
+/**
+ * Helper type for typing MarkdownRenderer components.
+ * Ex: ReactMarkdownComponentProps<"a"> for custom component for anchor elements.
+ * See: https://github.com/remarkjs/react-markdown#appendix-b-components
+ */
 export type ReactMarkdownComponentProps<
     T extends string & keyof ReactMarkdownComponentsProp
 > = Extract<ReactMarkdownComponentsProp[T], (...args: any) => any> extends never
@@ -41,7 +46,6 @@ export type ReactMarkdownComponentProps<
 const INTERNAL_LINK_REGEX = /^(\/\w*?|(https:\/\/)?\w*?\.cdc\.gov)\/?.*$/;
 
 const ReactMarkdownLink = ({
-    node: _,
     children,
     ...props
 }: ReactMarkdownComponentProps<"a">) => {
