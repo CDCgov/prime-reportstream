@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import Pagination, {
     PaginationProps,
@@ -61,7 +63,7 @@ describe("Pagination", () => {
                 currentPageNum,
                 setSelectedPage: jest.fn(),
             };
-            render(<Pagination {...props} />);
+            renderWithBase(<Pagination {...props} />);
 
             const list = screen.getByRole("list");
             const { getAllByRole } = within(list);
@@ -78,7 +80,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: mockSetSelectedPage,
         };
-        render(<Pagination {...props} />);
+        renderWithBase(<Pagination {...props} />);
 
         fireEvent.click(screen.getByText("Previous"));
         expect(mockSetSelectedPage).toHaveBeenLastCalledWith(1);
@@ -102,7 +104,7 @@ describe("Pagination", () => {
             currentPageNum: 7,
             setSelectedPage: jest.fn(),
         };
-        const { asFragment } = render(<Pagination {...props} />);
+        const { asFragment } = renderWithBase(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -112,7 +114,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: jest.fn(),
         };
-        const { asFragment } = render(<Pagination {...props} />);
+        const { asFragment } = renderWithBase(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

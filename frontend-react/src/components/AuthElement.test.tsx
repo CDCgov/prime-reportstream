@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { RSSessionContext } from "../contexts/SessionContext";
+import { renderWithBase } from "../utils/CustomRenderUtils";
 
 import { AuthElement } from "./AuthElement";
 
@@ -45,7 +46,7 @@ describe("AuthElement unit tests", () => {
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElementWithProp test={"Success!"} />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -62,7 +63,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -80,7 +81,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.SENDER}
@@ -101,7 +102,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -128,7 +129,7 @@ describe("AuthElement unit tests", () => {
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -148,7 +149,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -169,7 +170,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -189,7 +190,7 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: false,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -223,7 +224,7 @@ describe("AuthElement unit tests", () => {
             initialized: true,
             isAdminStrictCheck: true,
         } as RSSessionContext);
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.PRIME_ADMIN}
