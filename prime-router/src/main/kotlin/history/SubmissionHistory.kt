@@ -341,41 +341,61 @@ class DetailedSubmissionHistory(
                 // Check if destination has already been added
                 // if it is increase item counts
                 // otherwise add it to destinations
-                val index = destinations.indexOf(descendantDest)
-                if (index >= 0) {
-                    destinations[index].itemCount += descendantDest.itemCount
-                    destinations[index].itemCountBeforeQualFilter =
-                        destinations[index].itemCountBeforeQualFilter?.plus(
-                            descendantDest.itemCountBeforeQualFilter ?: 0
-                        )
-                } else {
-                    destinations += descendantDest
+                with(destinations) {
+                    val index = indexOfFirst {
+                        it.organizationId == descendantDest.organizationId && it.service == descendantDest.service
+                    }
+                    if (index >= 0) {
+                        get(index).itemCount += descendantDest.itemCount
+                        get(index).itemCountBeforeQualFilter =
+                            get(index).itemCountBeforeQualFilter?.plus(
+                                descendantDest.itemCountBeforeQualFilter ?: 0
+                            )
+                    } else {
+                        add(descendantDest)
+                    }
                 }
             }
         }
 
-        // if all the items were filtered out, no translate actions are generated (thus no destinations)
-        // to return the expected output, we create dummy destinations that are only used in enrichment
-        // these dummies are created using the receivers defined in the logs
-        if (destinations.isEmpty() && filterLogs.isNotEmpty()) {
-            val filteredReportRows = filterLogs.map { log -> log.detail.message }
-            val filteredReportItems = filterLogs.map { log ->
-                ReportStreamFilterResultForResponse(log.detail as ReportStreamFilterResult)
-            }
+        // local function to safe add elements to nullable immutable list
+        fun <T> List<T>?.add(element: T): List<T> {
+            val tempMutableList = this?.toMutableList() ?: arrayListOf()
+            tempMutableList.add(element)
+            return tempMutableList
+        }
+        // add filter logs to its respective destination otherwise add new destination
+        if (filterLogs.isNotEmpty()) {
             filterLogs.forEach { log ->
-                val filterResult = log.detail as ReportStreamFilterResult
-                val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
-                destinations.add(
-                    Destination(
-                        receiverNameSegments[0],
-                        receiverNameSegments[1],
-                        filteredReportRows,
-                        filteredReportItems,
-                        null,
-                        0,
-                        filterResult.originalCount,
-                    )
-                )
+                with(destinations) {
+                    val filterResult = log.detail as ReportStreamFilterResult
+                    val filterReport = log.detail.message
+                    val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
+                    val index = indexOfFirst {
+                        it.organizationId == receiverNameSegments[0] && it.service == receiverNameSegments[1]
+                    }
+                    if (index >= 0) {
+                        get(index).filteredReportRows =
+                            get(index).filteredReportRows.add(filterReport)
+                        get(index).filteredReportItems =
+                            get(index).filteredReportItems.add(ReportStreamFilterResultForResponse(filterResult))
+                        get(index).itemCountBeforeQualFilter = get(index).itemCountBeforeQualFilter?.plus(
+                            filterResult.originalCount
+                        )
+                    } else {
+                        add(
+                            Destination(
+                                receiverNameSegments[0],
+                                receiverNameSegments[1],
+                                mutableListOf(filterReport),
+                                mutableListOf(ReportStreamFilterResultForResponse(filterResult)),
+                                null,
+                                0,
+                                filterResult.originalCount,
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -593,8 +613,8 @@ data class Destination(
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
-    val filteredReportRows: List<String>?,
-    val filteredReportItems: List<ReportStreamFilterResultForResponse>?,
+    var filteredReportRows: List<String>?,
+    var filteredReportItems: List<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,
