@@ -189,6 +189,9 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                     }
                     .map {
                         try {
+                            // This section is mostly to help with fake data generation. In theory, multiple csvFields
+                            // with the same name would have the same value in actual data regardless of their Type, so
+                            // it wouldn't matter which was chosen, but for generated data, TEXT type will be random.
                             it.value.first { element: Element -> element.type != Element.Type.TEXT }
                         } catch (e: NoSuchElementException) {
                             it.value.first()
