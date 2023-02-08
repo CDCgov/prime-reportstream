@@ -18,7 +18,10 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
 const RS_DOMAIN_REGEX = new RegExp(
-    `^https?://(${config.RS_DOMAIN}|${window.location.origin})`
+    `^https?://(${config.RS_DOMAIN.replaceAll(
+        ".",
+        "\\."
+    )}|${window.location.origin.replaceAll(".", "\\.")})`
 );
 
 /** A single link for rendering standard links. Uses a `Link` by default
