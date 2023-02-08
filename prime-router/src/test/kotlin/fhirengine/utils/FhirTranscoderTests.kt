@@ -1,12 +1,16 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.ActionLogger
 import org.hl7.fhir.r4.model.Bundle
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.File
 import java.util.Date
 import kotlin.test.Test
 
@@ -70,5 +74,48 @@ class FhirTranscoderTests {
         // Ensure the decoded output is the same as the input pre-encode
         assertThat(decodedBundle).isNotNull()
         assertThat(decodedBundle).equals(testBundle)
+    }
+
+    @Test
+    fun `test decoding of bad FHIR messages`() {
+        val actionLogger = ActionLogger()
+
+        // Empty data
+        val badData1 = ""
+        FhirTranscoder.getBundles(badData1, actionLogger)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        actionLogger.logs.clear()
+
+        // Some CSV was sent
+        val badData2 = """
+            a,b,c
+            1,2,3
+        """.trimIndent()
+        FhirTranscoder.getBundles(badData2, actionLogger)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        actionLogger.logs.clear()
+
+        // Some truncated HL7
+        val badData3 = "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^1.2."
+        FhirTranscoder.getBundles(badData3, actionLogger)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        actionLogger.logs.clear()
+    }
+
+    @Test
+    fun `test decoding of good FHIR messages`() {
+        val actionLogger = ActionLogger()
+
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        var messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(actionLogger.hasErrors()).isFalse()
+        assertThat(messages.size).isEqualTo(1)
+        actionLogger.logs.clear()
+
+        val bulkFhirData = File("src/test/resources/fhirengine/engine/bulk_valid_data.fhir").readText()
+        messages = FhirTranscoder.getBundles(bulkFhirData, actionLogger)
+        assertThat(actionLogger.hasErrors()).isFalse()
+        assertThat(messages.size).isEqualTo(2)
+        actionLogger.logs.clear()
     }
 }

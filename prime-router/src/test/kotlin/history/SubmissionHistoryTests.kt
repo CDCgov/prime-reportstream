@@ -1029,4 +1029,200 @@ class SubmissionHistoryTests {
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
         }
     }
+
+    @Test
+    fun `test UP enrichWithDescendants reached translate multiple report same receiver`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "full-elr",
+            "externalName",
+            null,
+            null,
+            5,
+            7,
+            false
+        )
+
+        var reports = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                "full-elr",
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                1,
+                true
+            ),
+        ).toMutableList()
+
+        val testEnrich = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports
+        )
+        assertThat(testEnrich.destinations.count()).isEqualTo(0)
+        testEnrich.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    2,
+                    TaskAction.route,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                ),
+                DetailedSubmissionHistory(
+                    3,
+                    TaskAction.translate,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    mutableListOf(
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            1,
+                            true
+                        ),
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            1,
+                            true
+                        )
+                    )
+                ),
+            )
+        )
+
+        testEnrich.run {
+            assertThat(destinations.count()).isEqualTo(1)
+            assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
+            assertThat(destinations.first().service).isEqualTo("recvSvc1")
+            assertThat(destinations.first().itemCount).isEqualTo(2)
+            assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `test UP enrichWithDescendants reached translate multiple reports different receivers`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "full-elr",
+            "externalName",
+            null,
+            null,
+            5,
+            7,
+            false
+        )
+
+        var reports = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                "full-elr",
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                1,
+                true
+            ),
+        ).toMutableList()
+
+        val testEnrich = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports
+        )
+        assertThat(testEnrich.destinations.count()).isEqualTo(0)
+        testEnrich.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    2,
+                    TaskAction.route,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                ),
+                DetailedSubmissionHistory(
+                    3,
+                    TaskAction.translate,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    mutableListOf(
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            1,
+                            true
+                        ),
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg2",
+                            "recvSvc2",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            1,
+                            true
+                        )
+                    )
+                ),
+            )
+        )
+
+        testEnrich.run {
+            assertThat(destinations.count()).isEqualTo(2)
+            assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
+            assertThat(destinations.first().service).isEqualTo("recvSvc1")
+        }
+    }
 }
