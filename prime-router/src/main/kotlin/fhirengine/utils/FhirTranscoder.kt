@@ -2,16 +2,21 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.parser.IParser
+import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.InvalidReportMessage
 import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import java.io.BufferedReader
+import java.io.StringReader
 
 /**
  * A set of behaviors and defaults for FHIR encoding and decoding.
  */
 object FhirTranscoder : Logging {
+
     /**
      * Build a HL7MessageEngine for converting HL7 -> FHIR with provided [options].
      * @return the message engine
@@ -49,5 +54,40 @@ object FhirTranscoder : Logging {
      */
     fun decode(json: String, parser: IParser = defaultContext.newJsonParser()): Bundle {
         return parser.parseResource(Bundle::class.java, json)
+    }
+
+    /**
+     * Converts a FHIR [rawMessage] in ndjson format (Newline Delimited Json) into [Bundle] objects
+     * and logs any error messages in [actionLogger]
+     *
+     * @returns a list of list of [Bundle]
+     */
+    fun getBundles(rawMessage: String, actionLogger: ActionLogger): List<Bundle> {
+        val bundles: MutableList<Bundle> = mutableListOf()
+        if (rawMessage.isBlank()) {
+            actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
+        } else {
+            val bufferedReader = BufferedReader(StringReader(rawMessage))
+            val iterator = bufferedReader.lineSequence().iterator()
+            var index = 1
+            while (iterator.hasNext()) {
+                try {
+                    val line = iterator.next()
+                    val bundle = decode(line)
+                    if (bundle.isEmpty) {
+                        actionLogger.error(InvalidReportMessage("$index: Unable to find FHIR Bundle in provided data."))
+                    } else {
+                        bundles.add(bundle)
+                    }
+                } catch (e: Exception) {
+                    logger.error(e)
+                    actionLogger.error(InvalidReportMessage("$index: Unable to parse FHIR data."))
+                }
+                index++
+            }
+            bufferedReader.close()
+        }
+
+        return bundles
     }
 }
