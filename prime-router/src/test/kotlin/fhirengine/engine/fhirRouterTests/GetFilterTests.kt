@@ -85,14 +85,16 @@ class GetFilterTests {
             jurisdictionalFilter = listOf("testOrgJuris"),
             qualityFilter = listOf("testOrgQuality"),
             routingFilter = listOf("testOrgRouting"),
-            processingModeFilter = listOf("testOrgProcMode")
+            processingModeFilter = listOf("testOrgProcMode"),
+            conditionFilter = listOf("testOrgCondition")
         ),
         ReportStreamFilters(
             topic = Topic.COVID_19,
             jurisdictionalFilter = listOf("testCovidJuris"),
             qualityFilter = listOf("testCovidQuality"),
             routingFilter = listOf("testCovidRouting"),
-            processingModeFilter = listOf("testCovidProcMode")
+            processingModeFilter = listOf("testCovidProcMode"),
+            conditionFilter = listOf("testCovidCondition")
         )
     )
 
