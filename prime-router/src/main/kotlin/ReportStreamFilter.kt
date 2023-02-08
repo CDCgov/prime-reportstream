@@ -15,7 +15,8 @@ enum class ReportStreamFilterType(val field: String) {
     JURISDICTIONAL_FILTER("jurisdictionalFilter"),
     QUALITY_FILTER("qualityFilter"),
     ROUTING_FILTER("routingFilter"),
-    PROCESSING_MODE_FILTER("processingModeFilter");
+    PROCESSING_MODE_FILTER("processingModeFilter"),
+    CONDITION_FILTER("conditionFilter");
 
     // Reflection, so that we can write a single routine to handle all types of filters.
     @Suppress("UNCHECKED_CAST")
@@ -44,6 +45,7 @@ data class ReportStreamFilters(
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
+    val conditionFilter: ReportStreamFilter?
 ) {
 
     companion object {
@@ -74,6 +76,7 @@ data class ReportStreamFilters(
             qualityFilter = defaultCovid19QualityFilter,
             routingFilter = listOf("allowAll()"),
             processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // No Training/Debug data
+            conditionFilter = null
         )
 
         private val defaultMonkeypoxFilters = ReportStreamFilters(
@@ -82,6 +85,7 @@ data class ReportStreamFilters(
             qualityFilter = listOf("allowAll()"),
             routingFilter = listOf("allowAll()"),
             processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // No Training/Debug data
+            conditionFilter = null
         )
 
         private val defaultCsvFileTestFilters = ReportStreamFilters(
@@ -89,7 +93,8 @@ data class ReportStreamFilters(
             jurisdictionalFilter = listOf("allowAll()"),
             qualityFilter = listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
             routingFilter = listOf("allowAll()"),
-            processingModeFilter = listOf("allowAll()")
+            processingModeFilter = listOf("allowAll()"),
+            conditionFilter = null
         )
 
         private val defaultTestFilters = ReportStreamFilters(
@@ -97,7 +102,8 @@ data class ReportStreamFilters(
             jurisdictionalFilter = null,
             qualityFilter = listOf("matches(a, no)"),
             routingFilter = listOf("matches(b, false)"),
-            processingModeFilter = listOf("allowAll()")
+            processingModeFilter = listOf("allowAll()"),
+            conditionFilter = null
         )
 
         /**
@@ -107,7 +113,7 @@ data class ReportStreamFilters(
             defaultCovid19Filters.topic to defaultCovid19Filters,
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
             defaultCsvFileTestFilters.topic to defaultCsvFileTestFilters,
-            defaultTestFilters.topic to defaultTestFilters,
+            defaultTestFilters.topic to defaultTestFilters
         )
     }
 }
