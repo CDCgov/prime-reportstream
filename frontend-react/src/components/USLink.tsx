@@ -7,7 +7,6 @@ import classnames from "classnames";
  * One less headache when updating to React 18 in the future! */
 interface CustomLinkProps {
     children: React.ReactNode;
-    anchor?: boolean;
     className?: string;
     activeClassName?: string;
     state?: any;
@@ -20,7 +19,7 @@ type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
  * but adding `anchor` will make this a generic anchor tag.
  * @example
  * <USLink href="/page">To Page</USLink> // uses <Link> from react-router-dom
- * <USLink anchor href="#this-section-on-my-page">To Section</USLink> // uses <a>
+ * <USLink href="#this-section-on-my-page">To Section</USLink> // uses <a>
  * */
 export const USLink = ({
     children,
@@ -72,7 +71,6 @@ export const USExtLink = ({
 }: Omit<USLinkProps, "anchor" | "rel" | "target">) => {
     return (
         <USLink
-            anchor
             target="_blank"
             rel="noreferrer noopener"
             className={classnames("usa-link--external", className)}
