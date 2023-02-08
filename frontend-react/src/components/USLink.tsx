@@ -2,6 +2,8 @@ import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
 
+import config from "../config";
+
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
  * One less headache when updating to React 18 in the future! */
@@ -14,6 +16,10 @@ interface CustomLinkProps {
 type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
+
+const RS_DOMAIN_REGEX = new RegExp(
+    `^https?://(${config.RS_DOMAIN}|${window.location.origin})`
+);
 
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
@@ -28,10 +34,12 @@ export const USLink = ({
     state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
-    const isAnchor = href?.startsWith("#");
-    return !isAnchor ? (
+    const isRoute =
+        href && (href.startsWith("/") || RS_DOMAIN_REGEX.test(href));
+
+    return isRoute ? (
         <Link
-            to={href || ""}
+            to={href?.replace(RS_DOMAIN_REGEX, "") || ""}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
