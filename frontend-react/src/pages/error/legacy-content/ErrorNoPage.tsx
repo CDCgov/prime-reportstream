@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import React from "react";
 import { Button } from "@trussworks/react-uswds";
