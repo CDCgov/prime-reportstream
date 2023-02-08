@@ -33,7 +33,6 @@ const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
                 ) : null}
                 {crumbList !== undefined && crumbList.length > 0 ? (
                     <>
-                        <hr />
                         <BreadcrumbBar>
                             {crumbList?.map((crumbConfig) => (
                                 <Breadcrumb
@@ -52,7 +51,6 @@ const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
                                 </Breadcrumb>
                             ))}
                         </BreadcrumbBar>
-                        <hr />
                     </>
                 ) : null}
             </div>
