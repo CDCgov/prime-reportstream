@@ -1,6 +1,7 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
+import { escapeRegExp } from "lodash";
 
 import config from "../config";
 
@@ -18,10 +19,9 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
 const RS_DOMAIN_REGEX = new RegExp(
-    `^https?://(${config.RS_DOMAIN.replaceAll(
-        ".",
-        "\\."
-    )}|${window.location.origin.replaceAll(".", "\\.")})`
+    `^https?://(${escapeRegExp(config.RS_DOMAIN)}|${escapeRegExp(
+        window.location.origin
+    )})`
 );
 
 /** A single link for rendering standard links. Uses a `Link` by default
