@@ -369,11 +369,11 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     If you forgot your password, follow the instructions under
                     "Need help signing in?" on the login page at{" "}
-                    <USExtLink
+                    <USLink
                         href={DOMPurify.sanitize(`${site.orgs.RS.url}/login`)}
                     >
                         {`${site.orgs.RS.url}/login`}
-                    </USExtLink>
+                    </USLink>
                     .
                 </p>
                 <p>

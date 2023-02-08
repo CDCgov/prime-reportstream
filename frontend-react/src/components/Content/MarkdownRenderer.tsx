@@ -5,6 +5,8 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
 
+import { USExtLink } from "../USLink";
+
 const baseOptions: Partial<Options> = {
     remarkPlugins: [
         // Use GitHub-flavored markdown
@@ -26,6 +28,38 @@ type MarkdownContentProps = {
     markdownUrl: string;
 };
 
+type ReactMarkdownReplacementComponentsProp = Exclude<
+    Options["components"],
+    undefined
+>;
+export type ReactMarkdownComponentReplacementProps<
+    T extends string & keyof ReactMarkdownReplacementComponentsProp
+> = Extract<
+    ReactMarkdownReplacementComponentsProp[T],
+    (...args: any) => any
+> extends never
+    ? never
+    : Parameters<
+          Extract<
+              ReactMarkdownReplacementComponentsProp[T],
+              (...args: any) => any
+          >
+      >[0];
+
+// Matches relative or cdc.gov absolute urls
+const INTERNAL_LINK_REGEX = /^(\/\w*?|(https:\/\/)?\w*?\.cdc\.gov)\/?.*$/;
+
+const ReactMarkdownExternalLink = ({
+    node: _,
+    children,
+    ...props
+}: ReactMarkdownComponentReplacementProps<"a">) => {
+    if (!INTERNAL_LINK_REGEX.test(props.href ?? "")) {
+        return <USExtLink {...props}>{children}</USExtLink>;
+    }
+    return <a {...props}>{children}</a>;
+};
+
 export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
     markdownUrl,
 }) => {
@@ -41,5 +75,13 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
             });
     }, [markdownUrl]);
 
-    return <ReactMarkdown {...baseOptions} children={markdownContent} />;
+    return (
+        <ReactMarkdown
+            {...baseOptions}
+            children={markdownContent}
+            components={{
+                a: ReactMarkdownExternalLink,
+            }}
+        />
+    );
 };

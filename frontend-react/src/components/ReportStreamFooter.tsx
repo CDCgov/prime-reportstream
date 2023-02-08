@@ -53,6 +53,11 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
+                    <IdentifierLink href="https://www.cdc.gov/Other/disclaimer.html#exit-notification">
+                        External Links
+                    </IdentifierLink>
+                </IdentifierLinkItem>
+                <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/od/foia">
                         FOIA requests
                     </IdentifierLink>
@@ -63,9 +68,9 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="https://oig.hhs.gov/">
+                    <USExtLink href="https://oig.hhs.gov/">
                         Office of the Inspector General
-                    </IdentifierLink>
+                    </USExtLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/other/privacy.html">
@@ -73,9 +78,9 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">
+                    <USExtLink href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">
                         Vulnerability disclosure policy
-                    </IdentifierLink>
+                    </USExtLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
                     <IdentifierLink href="/terms-of-service">
