@@ -5,7 +5,7 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
 
-import { USExtLink } from "../USLink";
+import { USExtLink, USLink } from "../USLink";
 
 const baseOptions: Partial<Options> = {
     remarkPlugins: [
@@ -49,7 +49,7 @@ export type ReactMarkdownComponentReplacementProps<
 // Matches relative or cdc.gov absolute urls
 const INTERNAL_LINK_REGEX = /^(\/\w*?|(https:\/\/)?\w*?\.cdc\.gov)\/?.*$/;
 
-const ReactMarkdownExternalLink = ({
+const ReactMarkdownLink = ({
     node: _,
     children,
     ...props
@@ -57,7 +57,7 @@ const ReactMarkdownExternalLink = ({
     if (!INTERNAL_LINK_REGEX.test(props.href ?? "")) {
         return <USExtLink {...props}>{children}</USExtLink>;
     }
-    return <a {...props}>{children}</a>;
+    return <USLink {...props}>{children}</USLink>;
 };
 
 export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
@@ -80,7 +80,7 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
             {...baseOptions}
             children={markdownContent}
             components={{
-                a: ReactMarkdownExternalLink,
+                a: ReactMarkdownLink,
             }}
         />
     );
