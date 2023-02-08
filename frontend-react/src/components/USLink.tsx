@@ -23,14 +23,14 @@ type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
  * <USLink anchor href="#this-section-on-my-page">To Section</USLink> // uses <a>
  * */
 export const USLink = ({
-    anchor = false,
     children,
     className,
     href,
     state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
-    return !anchor ? (
+    const isAnchor = href?.startsWith("#");
+    return !isAnchor ? (
         <Link
             to={href || ""}
             className={classnames("usa-link", className)}
