@@ -252,7 +252,9 @@ data class ConfigSchemaElement(
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
+        if (overwritingElement.debug) this.debug = overwritingElement.debug
         if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
+        if (overwritingElement.valueSet.isNotEmpty()) this.valueSet = overwritingElement.valueSet
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
         if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
     }

@@ -157,14 +157,14 @@ class CheckFunction : Logging {
         @BindingName("orgName") orgName: String,
         @BindingName("receiverName") receiverName: String
     ): HttpResponseMessage {
-        // val claims = AuthenticatedClaims.authenticate(request)
-        //
-        // if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
-        //     logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
-        //     return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-        // }
-        //
-        // logger.info("User ${claims.userName} authorized for endpoint ${request.uri}")
+        val claims = AuthenticatedClaims.authenticate(request)
+
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+
+        logger.info("User ${claims.userName} authorized for endpoint ${request.uri}")
 
         /** Data structure to build json response */
         data class JsonResponse(val result: CheckResultsEnum, val message: String)
