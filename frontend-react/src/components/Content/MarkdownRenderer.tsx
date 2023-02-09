@@ -5,7 +5,7 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
 
-import { USExtLink, USLink } from "../USLink";
+import { MarkdownRSLink } from "./MarkdownRSLink";
 
 const baseOptions: Partial<Options> = {
     remarkPlugins: [
@@ -28,33 +28,6 @@ type MarkdownContentProps = {
     markdownUrl: string;
 };
 
-type ReactMarkdownComponentsProp = Exclude<Options["components"], undefined>;
-/**
- * Helper type for typing MarkdownRenderer components.
- * Ex: ReactMarkdownComponentProps<"a"> for custom component for anchor elements.
- * See: https://github.com/remarkjs/react-markdown#appendix-b-components
- */
-export type ReactMarkdownComponentProps<
-    T extends string & keyof ReactMarkdownComponentsProp
-> = Extract<ReactMarkdownComponentsProp[T], (...args: any) => any> extends never
-    ? never
-    : Parameters<
-          Extract<ReactMarkdownComponentsProp[T], (...args: any) => any>
-      >[0];
-
-// Matches relative or cdc.gov absolute urls
-const INTERNAL_LINK_REGEX = /^(\/\w*?|(https:\/\/)?\w*?\.cdc\.gov)\/?.*$/;
-
-const ReactMarkdownLink = ({
-    children,
-    ...props
-}: ReactMarkdownComponentProps<"a">) => {
-    if (!INTERNAL_LINK_REGEX.test(props.href ?? "")) {
-        return <USExtLink {...props}>{children}</USExtLink>;
-    }
-    return <USLink {...props}>{children}</USLink>;
-};
-
 export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
     markdownUrl,
 }) => {
@@ -75,7 +48,7 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
             {...baseOptions}
             children={markdownContent}
             components={{
-                a: ReactMarkdownLink,
+                a: MarkdownRSLink,
             }}
         />
     );

@@ -68,9 +68,12 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <USExtLink href="https://oig.hhs.gov/">
+                    <IdentifierLink
+                        href="https://oig.hhs.gov/"
+                        className="usa-link--external"
+                    >
                         Office of the Inspector General
-                    </USExtLink>
+                    </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/other/privacy.html">
@@ -78,9 +81,12 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <USExtLink href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">
+                    <IdentifierLink
+                        href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html"
+                        className="usa-link--external"
+                    >
                         Vulnerability disclosure policy
-                    </USExtLink>
+                    </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
                     <IdentifierLink href="/terms-of-service">
