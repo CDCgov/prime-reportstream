@@ -146,7 +146,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
         // Do processingModeFiltering on the routingFilteredReport
         val processingModeFilteredReport = filterByOneFilterType(
-            routingFilteredReport,
+            conditionFilteredReport,
             receiver,
             organization,
             ReportStreamFilterType.PROCESSING_MODE_FILTER,
@@ -218,13 +218,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 "Possible error: jurisdictionalFilter ${AllowNone().name} is eliminating ALL data " +
                     "for receiver ${receiver.fullName} in report ${input.id}, schema ${input.schema.name}"
             )
-        }
-
-        if (filterType == ReportStreamFilterType.CONDITION_FILTER && receiver.topic != Topic.FULL_ELR &&
-            filterToApply.isNotEmpty()
-        ) {
-            logger.error("Cannot filter on condition for a topic other than full ELR")
-            error("Cannot filter on condition for a topic other than full ELR")
         }
 
         // This weird obj is of type List<Pair<ReportStreamFilterDef, List<String>>>
