@@ -85,7 +85,8 @@
   jurisdiction: FEDERAL
   filters:
     - topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
+      jurisdictionalFilter:
+        - "matches(ordering_facility_state, IG)"
     - topic: monkeypox
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
@@ -186,6 +187,8 @@
       topic: full-elr
       customerStatus: active
       jurisdictionalFilter: [ "%performerState = 'IG' or %patientState = 'IG'" ]
+      conditionFilter:
+        - "fail"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
