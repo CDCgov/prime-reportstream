@@ -1,0 +1,23 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
+elements:
+  - name: order-set-id-orc
+    resource: '%resource.basedOn'
+    condition: '%resource.exists()'
+    value:
+      - '%orderIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/ORC-1'
+
+  - name: order-set-id-obr
+    value:
+      - '%orderIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/OBR-1'
+
+  - name: observations
+    resource: '%resource.result'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: observation
+    resourceIndex: observationIndex
