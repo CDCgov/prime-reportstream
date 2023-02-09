@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.common.PhonePart
 import gov.cdc.prime.router.common.PhoneUtilities
 import gov.cdc.prime.router.metadata.LivdLookup
@@ -15,8 +16,7 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
-class CustomFHIRFunctions(metadata: gov.cdc.prime.router.Metadata) {
-    val lookupTable = metadata.findLookupTable(name = "LIVD-SARS-CoV-2")
+object CustomFHIRFunctions {
 
     /**
      * Custom FHIR Function names used to map from the string used in the FHIR path
@@ -363,11 +363,13 @@ class CustomFHIRFunctions(metadata: gov.cdc.prime.router.Metadata) {
      */
     fun lookupLivdTableLoincCodes(
         focus: MutableList<Base>,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
+        metadata: Metadata = Metadata.getInstance()
     ): MutableList<Base> {
+        val lookupTable = metadata.findLookupTable(name = "LIVD-SARS-CoV-2")
         val observation = focus.first()
         if (observation is Observation) {
-            val deviceName = (observation.device.resource as Device).deviceName.first().name
+            val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
             if (!deviceName.isNullOrBlank()) {
                 return mutableListOf(
                     StringType(
@@ -384,6 +386,8 @@ class CustomFHIRFunctions(metadata: gov.cdc.prime.router.Metadata) {
                     )
                 )
             }
+        } else {
+            error("Must call the lookupLivdTableLoincCodes function on an observation")
         }
 
         return mutableListOf()

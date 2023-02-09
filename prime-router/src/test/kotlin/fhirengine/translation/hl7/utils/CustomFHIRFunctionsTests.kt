@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -11,8 +12,10 @@ import assertk.assertions.isSuccess
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
+import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
@@ -32,125 +35,128 @@ class CustomFHIRFunctionsTests {
 
     @Test
     fun `test resolve function name`() {
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).resolveFunction(null)).isNull()
+        assertThat(CustomFHIRFunctions.resolveFunction(null)).isNull()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .resolveFunction("someBadName")
         ).isNull()
         val nameFormattedFromFhirPath = CustomFHIRFunctions.CustomFHIRFunctionNames.GetId.name
             .replaceFirstChar(Char::lowercase)
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .resolveFunction(nameFormattedFromFhirPath)
         ).isNotNull()
 
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
-            assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).resolveFunction(it.name)).isNotNull()
+            assertThat(CustomFHIRFunctions.resolveFunction(it.name)).isNotNull()
         }
     }
 
     @Test
     fun `test execute function`() {
         assertThat {
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .executeFunction(null, "dummy", null)
         }.isFailure()
 
         val focus: MutableList<Base> = mutableListOf(StringType("data"))
         assertThat {
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .executeFunction(focus, "dummy", null)
         }.isFailure()
 
         // Just checking we can access all the functions.
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
-            assertThat {
-                CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
-                    .executeFunction(focus, it.name, null)
-            }.isSuccess()
+            // todo: this is temporary until this code is moved
+            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LookupLivdTableLoincCodes) {
+                assertThat {
+                    CustomFHIRFunctions
+                        .executeFunction(focus, it.name, null)
+                }.isSuccess()
+            }
         }
     }
 
     @Test
     fun `test get ID function`() {
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf())).isEmpty()
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(MessageHeader()))).isEmpty()
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(DateTimeType()))).isEmpty()
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(OidType()))).isEmpty()
+        assertThat(CustomFHIRFunctions.getId(mutableListOf())).isEmpty()
+        assertThat(CustomFHIRFunctions.getId(mutableListOf(MessageHeader()))).isEmpty()
+        assertThat(CustomFHIRFunctions.getId(mutableListOf(DateTimeType()))).isEmpty()
+        assertThat(CustomFHIRFunctions.getId(mutableListOf(OidType()))).isEmpty()
 
         // OID tests
         val oid = OidType().also { it.value = "AA" } // Bad OID
-        var id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(oid))
+        var id = CustomFHIRFunctions.getId(mutableListOf(oid))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
 
         val goodOid = "1.2.3.4.5.6.7"
         oid.value = goodOid // Not a real OID as it needs to start with urn:oid:
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(oid))
+        id = CustomFHIRFunctions.getId(mutableListOf(oid))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(oid.value)
 
         oid.value = "urn:oid:$goodOid" // Now with URN
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(oid))
+        id = CustomFHIRFunctions.getId(mutableListOf(oid))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
 
         val oidInString = StringType().also { it.value = goodOid } // As a string no URN
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(oidInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(oidInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
 
         oidInString.value = "urn:oid:$goodOid" // As a string with URN
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(oidInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(oidInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodOid)
 
         // UUID
         val goodUuid = UUID.randomUUID().toString()
         val uuidInString = StringType().also { it.value = "urn:uuid:$goodUuid" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(uuidInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(uuidInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodUuid)
 
         // DNS
         val goodDns = "someDns"
         val dnsInString = StringType().also { it.value = "urn:dns:$goodDns" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(dnsInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(dnsInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodDns)
 
         // URI
         val goodUri = "someUri"
         val uriInString = StringType().also { it.value = "urn:uri:$goodUri" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(uriInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(uriInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodUri)
 
         // CLIA
         val goodClia = "10D0999999"
         val cliaInString = StringType().also { it.value = "urn:clia:$goodClia" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(cliaInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(cliaInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodClia)
 
         // Generic ID
         val goodId = "dummy"
         val idInString = StringType().also { it.value = "urn:id:$goodId" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(idInString))
+        id = CustomFHIRFunctions.getId(mutableListOf(idInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodId)
 
         // None of the above. Format per HL7 v2 to FHIR mapping
         val idString = StringType().also { it.value = "name-type:$goodId" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(idString))
+        id = CustomFHIRFunctions.getId(mutableListOf(idString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(goodId)
 
         // Generic IDs
         val someId = "someId"
         val genId = StringType().also { it.value = someId }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getId(mutableListOf(genId))
+        id = CustomFHIRFunctions.getId(mutableListOf(genId))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(someId)
     }
@@ -163,141 +169,159 @@ class CustomFHIRFunctionsTests {
         val uuidType = "UUID"
         val uriType = "URI"
 
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf())).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf())).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .getIdType(mutableListOf(MessageHeader()))
         ).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .getIdType(mutableListOf(DateTimeType()))
         ).isEmpty()
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(OidType()))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(OidType()))).isEmpty()
 
         // OID tests
         val goodOid = "1.2.3.4.5.6.7"
         val oid = OidType().also { it.value = goodOid } // Not a real OID as it needs to start with urn:oid:
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(oid))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(oid))).isEmpty()
         oid.value = "urn:oid:$goodOid"
-        var id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(oid))
+        var id = CustomFHIRFunctions.getIdType(mutableListOf(oid))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(oidType)
 
         val oidInString = StringType().also { it.value = goodOid }
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(oidInString))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(oidInString))).isEmpty()
         oidInString.value = "urn:oid:$goodOid"
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(oidInString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(oidInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(oidType)
 
         // CLIA
         val realClia = "15D2112066"
         val cliaId = StringType().also { it.value = "urn:clia:$realClia" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(cliaId))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
 
         cliaId.value = realClia
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(cliaId))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
 
         cliaId.value = "D5D9458360" // DoD-style CLIA
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(cliaId))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(cliaId))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
 
         cliaId.value = "D5D945836K" // letter where it's not allowed
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(cliaId))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(cliaId))).isEmpty()
 
         // DNS
         val dnsInString = StringType().also { it.value = "urn:dns:someDns" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(dnsInString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(dnsInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(dnsType)
 
         // UUID
         val uuidInString = StringType().also { it.value = "urn:uuid:${UUID.randomUUID()}" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(uuidInString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(uuidInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(uuidType)
 
         // URI
         val uriInString = StringType().also { it.value = "urn:uri:${UUID.randomUUID()}" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(uriInString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(uriInString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(uriType)
 
         // Generic ID
         val idInString = StringType().also { it.value = "urn:id:dummy" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(idInString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(idInString))
         assertThat(id).isEmpty()
 
         // None of the above. Format per HL7 v2 to FHIR mapping
         val idString = StringType().also { it.value = "name-ISO:$goodOid" }
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(idString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(idString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(oidType)
 
         idString.value = "name-CLIA:$realClia"
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(idString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(idString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo(cliaType)
 
         idString.value = "name-UKN:someId"
-        id = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(idString))
+        id = CustomFHIRFunctions.getIdType(mutableListOf(idString))
         assertThat(id.size).isEqualTo(1)
         assertThat(id[0].primitiveValue()).isEqualTo("UKN")
 
         // Generic IDs don't have a type
         val someId = "someId"
         val genId = StringType().also { it.value = "urn:id:$someId" }
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(genId))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(genId))).isEmpty()
         genId.value = someId
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(genId))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(genId))).isEmpty()
 
         // Non ID types
         val badId = StringType().also { it.value = "dummy" }
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).getIdType(mutableListOf(badId))).isEmpty()
+        assertThat(CustomFHIRFunctions.getIdType(mutableListOf(badId))).isEmpty()
     }
 
     @Test
     fun `test split function`() {
         val stringToSplit = StringType().also { it.value = "part1,part2,part3" }
         val delimiter = StringType().also { it.value = "," }
-        assertThat(CustomFHIRFunctions(UnitTestUtils.simpleMetadata).split(mutableListOf(), null)).isEmpty()
+        assertThat(CustomFHIRFunctions.split(mutableListOf(), null)).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .split(mutableListOf(stringToSplit), null)
         ).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata)
+            CustomFHIRFunctions
                 .split(mutableListOf(stringToSplit), mutableListOf())
         ).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata).split(
+            CustomFHIRFunctions.split(
                 mutableListOf(stringToSplit),
                 mutableListOf(mutableListOf())
             )
         ).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata).split(
+            CustomFHIRFunctions.split(
                 mutableListOf(IntegerType()),
                 mutableListOf(mutableListOf(delimiter))
             )
         ).isEmpty()
         assertThat(
-            CustomFHIRFunctions(UnitTestUtils.simpleMetadata).split(
+            CustomFHIRFunctions.split(
                 mutableListOf(stringToSplit),
                 mutableListOf(mutableListOf(delimiter, delimiter))
             )
         ).isEmpty()
 
-        val parts = CustomFHIRFunctions(UnitTestUtils.simpleMetadata).split(
+        val parts = CustomFHIRFunctions.split(
             mutableListOf(stringToSplit),
             mutableListOf(mutableListOf(delimiter))
         )
         assertThat(parts).isNotEmpty()
         assertThat(parts.size).isEqualTo(3)
+    }
+
+    @Test
+    fun `test lookupLivdTableLoincCodes is Observation`() {
+        assertThat(
+            CustomFHIRFunctions.lookupLivdTableLoincCodes(
+                mutableListOf(Observation()), mutableListOf(), UnitTestUtils.simpleMetadata
+            )
+        ).isEqualTo(mutableListOf())
+    }
+
+    @Test
+    fun `test lookupLivdTableLoincCodes is not Observation`() {
+        assertThat {
+            CustomFHIRFunctions.lookupLivdTableLoincCodes(
+                mutableListOf(Device()), mutableListOf(), UnitTestUtils.simpleMetadata
+            )
+        }.isFailure().hasMessage("Must call the lookupLivdTableLoincCodes function on an observation")
     }
 }
