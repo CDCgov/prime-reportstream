@@ -17,6 +17,8 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.credentials.RestCredential
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import kotlinx.coroutines.launch
@@ -215,10 +217,10 @@ class CheckFunction : Logging {
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
             if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
                 return false
-            // note: right now ONLY SFTP is supported, but we should expand!
+            // note: SFTP and REST are supports, but we should still expand!
             return when (receiverSetting.transport) {
                 is SFTPTransportType -> true
-                // TODO: add REST as a type
+                is RESTTransportType -> true
                 else -> false
             }
         }
