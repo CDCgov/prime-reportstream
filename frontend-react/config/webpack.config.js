@@ -3,6 +3,8 @@ const path = require("path");
 
 const webpack = require("webpack");
 const resolve = require("resolve");
+const BundleAnalyzerPlugin =
+    require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
 const InlineChunkHtmlPlugin = require("react-dev-utils/InlineChunkHtmlPlugin");
@@ -16,17 +18,15 @@ const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-
-const paths = require("./paths");
-const modules = require("./modules");
-const getClientEnvironment = require("./env");
-
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const ForkTsCheckerWebpackPlugin =
     process.env.TSC_COMPILE_ON_ERROR === "true"
         ? require("react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
         : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
-const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
+const paths = require("./paths");
+const modules = require("./modules");
+const getClientEnvironment = require("./env");
 const createEnvironmentHash = require("./webpack/persistentCache/createEnvironmentHash");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
@@ -91,6 +91,7 @@ const hasJsxRuntime = (() => {
 module.exports = function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === "development";
     const isEnvProduction = webpackEnv === "production";
+    const isBundleAnalyzer = process.env.BUNDLE_ANALYZER ?? false;
 
     // Variable used for enabling profiling in Production
     // passed into alias object. Uses a flag if passed into the build command
@@ -584,6 +585,7 @@ module.exports = function (webpackEnv) {
             ].filter(Boolean),
         },
         plugins: [
+            isBundleAnalyzer && new BundleAnalyzerPlugin(),
             // Generates an `index.html` file with the <script> injected.
             new HtmlWebpackPlugin(
                 Object.assign(
