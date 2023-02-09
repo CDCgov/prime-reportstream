@@ -7,6 +7,18 @@ import gov.cdc.prime.router.Metadata
 // will need to move the tests to look at this as well
 // keep the library the way it was then use the context to use the library to pass in custom functions
 object LivdLookup {
+    /**
+     * @param testPerformedCode used for additional filtering of the test info in case we are dealing with tests that
+     * check for more than on type of disease
+     * @param processingModeCode will flag the data as test data which will make it ignore any test devices
+     * @param deviceId the ID of the test device to lookup LIVD information by
+     * @param equipmentModelId the ID of the equipment model to lookup LIVD information by
+     * @param testKitNameId the ID of the test kit to lookup LIVD information by
+     * @param equipmentModelName the name of the equipment model to lookup LIVD information by
+     * @param tableColumn the name of the table column to lookup LIVD information on
+     * @param tableRef allows us to pass in the reference to the table, just used for testing purposes
+     * @return a possible String? value based on the lookup
+     */
     fun find(
         testPerformedCode: String?,
         processingModeCode: String?,
@@ -18,7 +30,7 @@ object LivdLookup {
         tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = "LIVD-SARS-CoV-2")
     ): String? {
         if (tableRef == null) {
-            return null
+            error("Schema Error: could not find table '$tableRef'")
         }
 
         val filters = tableRef.FilterBuilder()
@@ -73,7 +85,7 @@ object LivdLookup {
 
     /**
      * Does a lookup in the LIVD table based on the element Id
-     * @param element the schema element to use for lookups
+     * @param tableColumn the column to lookup the value in
      * @param deviceId the ID of the test device to lookup LIVD information by
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
@@ -119,7 +131,7 @@ object LivdLookup {
 
     /**
      * Does a lookup in the LIVD table based on the element unique identifier
-     * @param element the schema element to use for lookups
+     * @param tableColumn the column to lookup the value in
      * @param value the unique ID of the test device to lookup LIVD information by
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
@@ -134,7 +146,7 @@ object LivdLookup {
 
     /**
      * Does a lookup in the LIVD table based on the test kit Id
-     * @param element the schema element to use for lookups
+     * @param tableColumn the column to lookup the value in
      * @param value the test kit ID of the test device to lookup LIVD information by
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
@@ -150,7 +162,7 @@ object LivdLookup {
 
     /**
      * Does a lookup in the LIVD table based on the equipment model name
-     * @param element the schema element to use for lookups
+     * @param tableColumn the column to lookup the value in
      * @param value the model name of the test device to lookup LIVD information by
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
@@ -171,9 +183,9 @@ object LivdLookup {
 
     /**
      * Does the lookup in the LIVD table based on the lookup type and the values passed in
-     * @param element the schema element to use for lookups
-     * @param onColumn the name of the index column to do the lookup in
+     * @param lookupColumn the column to filter the results on
      * @param lookup the value to search the index column for
+     * @param onColumn the name of the index column to do the lookup in
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
      */
@@ -189,9 +201,9 @@ object LivdLookup {
     /**
      * Does the lookup in the LIVD table based on the lookup type and the values passed in,
      * by seeing if any values in the index column starts with the index value
-     * @param element the schema element to use for lookups
-     * @param onColumn the name of the index column to do the lookup in
+     * @param lookupColumn the column to filter the results on
      * @param lookup the value to search the index column for
+     * @param onColumn the name of the index column to do the lookup in
      * @param filters an optional list of additional filters to limit our search by
      * @return a possible String? value based on the lookup
      */

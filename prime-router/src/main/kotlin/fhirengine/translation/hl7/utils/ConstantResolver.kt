@@ -157,11 +157,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     }
 
     override fun resolveFunction(functionName: String?): FunctionDetails? {
-        val globalFunctionDetails = GlobalCustomFHIRFunctions.resolveFunction(functionName)
-        if (globalFunctionDetails != null) {
-            return globalFunctionDetails
-        }
-        return CustomFHIRFunctions.resolveFunction(functionName)
+        return CustomFHIRFunctions(gov.cdc.prime.router.Metadata.getInstance()).resolveFunction(functionName)
     }
 
     override fun checkFunction(
@@ -178,14 +174,11 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?
     ): MutableList<Base> {
+        val metadata = gov.cdc.prime.router.Metadata.getInstance()
         check(focus != null)
         return when {
-            GlobalCustomFHIRFunctions.resolveFunction(functionName) != null -> {
-                GlobalCustomFHIRFunctions.executeFunction(focus, functionName, parameters)
-            }
-
-            CustomFHIRFunctions.resolveFunction(functionName) != null -> {
-                CustomFHIRFunctions.executeFunction(focus, functionName, parameters)
+            CustomFHIRFunctions(metadata).resolveFunction(functionName) != null -> {
+                CustomFHIRFunctions(metadata).executeFunction(focus, functionName, parameters)
             }
 
             else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
