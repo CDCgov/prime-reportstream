@@ -162,7 +162,7 @@ class Report : Logging {
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        FHIR("fhir", "application/fhir+json");
+        FHIR("fhir", "application/fhir+ndjson");
 
         companion object {
             // Default to CSV if weird or unknown
