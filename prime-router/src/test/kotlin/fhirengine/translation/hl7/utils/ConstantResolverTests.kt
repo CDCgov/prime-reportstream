@@ -68,8 +68,6 @@ class ConstantResolverTests {
         assertThat { FhirPathCustomResolver().resolveConstant(null, null, false) }.isFailure()
         assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
             .isFailure().hasClass(PathEngineException::class.java)
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
 
         val integerValue = 99
         val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
@@ -93,7 +91,7 @@ class ConstantResolverTests {
             constants[constants.firstKey()]!!.replace("'", "")
         )
 
-        // Text the ability to resolve constants with suffix
+        // Test the ability to resolve constants with suffix
         val urlSuffix = "SomeSuffix"
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext-$urlSuffix`", false)
         assertThat(result).isNotNull()

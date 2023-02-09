@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
@@ -130,24 +129,25 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         }
 
         // Evaluate the constant before it is used.
-        val value = if (constantValue.isNullOrBlank()) null
+        val values = if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
                 null
-            } else if (values.size != 1) {
-                // TODO: Support multiple values with the updated function return type and remove our custom solution
-                throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             } else {
-                logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
-                // Convert string constants that are whole integers to Integer type to facilitate math operations
-                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
-                    IntegerType(values[0].primitiveValue())
-                } else values[0]
+                logger.trace("Evaluated FHIR Path constant $name to: $values")
+                val cleanedValues = mutableListOf<Base>()
+                for (value in values) {
+                    if (value is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
+                        cleanedValues.add(IntegerType(value.primitiveValue()))
+                    } else {
+                        cleanedValues.add(value)
+                    }
+                }
+                cleanedValues
             }
         }
-        return if (value == null) null
-        else listOf(value)
+        return values
     }
 
     override fun resolveConstantType(appContext: Any?, name: String?): TypeDetails {
