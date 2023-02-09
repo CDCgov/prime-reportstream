@@ -220,13 +220,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             )
         }
 
-        if (filterType == ReportStreamFilterType.CONDITION_FILTER && receiver.topic != Topic.FULL_ELR &&
-            filterToApply.isNotEmpty()
-        ) {
-            logger.error("Cannot filter on condition for a topic other than full ELR")
-            error("Cannot filter on condition for a topic other than full ELR")
-        }
-
         // This weird obj is of type List<Pair<ReportStreamFilterDef, List<String>>>
         val filterAndArgs = filterToApply.map { filterSpec ->
             val (fnName, fnArgs) = ReportStreamFilterDefinition.parseReportStreamFilter(filterSpec)
