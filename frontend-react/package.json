@@ -7,9 +7,9 @@
     "dependencies": {
         "@microsoft/applicationinsights-react-js": "^3.4.0",
         "@microsoft/applicationinsights-web": "^2.8.9",
-        "@okta/okta-auth-js": "^6.9.0",
-        "@okta/okta-react": "^6.4.1",
-        "@okta/okta-signin-widget": "^6.0.1",
+        "@okta/okta-auth-js": "^7.2.0",
+        "@okta/okta-react": "^6.7.0",
+        "@okta/okta-signin-widget": "^7.2.1",
         "@rest-hooks/rest": "^3.0.3",
         "@tanstack/react-query": "^4.20.9",
         "@tanstack/react-query-devtools": "^4.20.9",
@@ -86,7 +86,8 @@
             "[/\\\\]node_modules[/\\\\](?!(react-markdown|vfile|vfile-message|markdown-table|unist-.*|unified|bail|is-plain-obj|trough|remark-.*|rehype-.*|html-void-elements|hast-util-.*|zwitch|hast-to-hyperscript|hastscript|web-namespaces|mdast-util-.*|escape-string-regexp|micromark.*|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount|mdast-util-gfm|gemoji)).+\\.(js|jsx|mjs|cjs|ts|tsx)$"
         ],
         "moduleNameMapper": {
-            "axios": "axios/dist/node/axios.cjs"
+            "axios": "axios/dist/node/axios.cjs",
+            "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/staticAssetMock.js"
         }
     },
     "eslintConfig": {
