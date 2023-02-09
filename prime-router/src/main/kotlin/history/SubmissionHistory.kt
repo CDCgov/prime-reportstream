@@ -338,10 +338,10 @@ class DetailedSubmissionHistory(
             // otherwise add it to destinations
             destinations.firstOrNull {
                 it.organizationId == descendantDest.organizationId && it.service == descendantDest.service
-            }?.let { destinationFound ->
-                destinationFound.itemCount += descendantDest.itemCount
-                destinationFound.itemCountBeforeQualFilter =
-                    destinationFound.itemCountBeforeQualFilter?.plus(
+            }?.let { existingDestination ->
+                existingDestination.itemCount += descendantDest.itemCount
+                existingDestination.itemCountBeforeQualFilter =
+                    existingDestination.itemCountBeforeQualFilter?.plus(
                         descendantDest.itemCountBeforeQualFilter ?: 0
                     )
             } ?: run {
@@ -370,20 +370,20 @@ class DetailedSubmissionHistory(
 
                 destinations.firstOrNull {
                     it.organizationId == receiverNameSegments[0] && it.service == receiverNameSegments[1]
-                }?.let { destinationFound ->
-                    if (destinationFound.filteredReportRows == null) {
-                        destinationFound.filteredReportRows = mutableListOf(filterReport)
+                }?.let { existingDestination ->
+                    if (existingDestination.filteredReportRows == null) {
+                        existingDestination.filteredReportRows = mutableListOf(filterReport)
                     } else {
-                        destinationFound.filteredReportRows!!.add(filterReport)
+                        existingDestination.filteredReportRows!!.add(filterReport)
                     }
 
-                    if (destinationFound.filteredReportItems == null) {
-                        destinationFound.filteredReportItems = mutableListOf(filterResultResponse)
+                    if (existingDestination.filteredReportItems == null) {
+                        existingDestination.filteredReportItems = mutableListOf(filterResultResponse)
                     } else {
-                        destinationFound.filteredReportItems!!.add(filterResultResponse)
+                        existingDestination.filteredReportItems!!.add(filterResultResponse)
                     }
 
-                    destinationFound.itemCountBeforeQualFilter = destinationFound.itemCountBeforeQualFilter?.plus(
+                    existingDestination.itemCountBeforeQualFilter = existingDestination.itemCountBeforeQualFilter?.plus(
                         filterResult.originalCount
                     )
                 } ?: run {
