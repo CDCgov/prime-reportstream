@@ -170,47 +170,61 @@ class FHIRRouter(
             // get the receivers that this bundle should go to
             val listOfReceivers = applyFilters(bundle, report)
 
-            // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.isNotEmpty()) {
+            // check if there are any receivers
+            val hasReceivers = listOfReceivers.isNotEmpty()
+
+            // create item lineage
+            report.itemLineages = listOf(
+                ItemLineage(
+                    null,
+                    message.reportId,
+                    1,
+                    report.id,
+                    1,
+                    null,
+                    null,
+                    null,
+                    report.getItemHashForRow(1)
+                )
+            )
+
+            // create none event
+            var translateEvent = ProcessEvent(
+                Event.EventAction.NONE,
+                message.reportId,
+                Options.None,
+                emptyMap(),
+                emptyList()
+            )
+
+            if (hasReceivers) {
+                // add the receivers to the fhir bundle
                 FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
 
-                // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        message.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
-                    )
-                )
-
-                // create translate event
-                val translateEvent = ProcessEvent(
+                // create translate event - used instead of none event
+                translateEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
                     message.reportId,
                     Options.None,
                     emptyMap(),
                     emptyList()
                 )
+            }
 
-                // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyBytes,
-                    report.name,
-                    message.blobSubFolderName,
-                    translateEvent.eventAction
-                )
+            // upload new copy to blobstore
+            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+            val blobInfo = BlobAccess.uploadBody(
+                Report.Format.FHIR,
+                bodyBytes,
+                report.name,
+                message.blobSubFolderName,
+                translateEvent.eventAction
+            )
 
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+            // ensure tracking is set
+            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
 
+            if (hasReceivers) {
                 // insert translate task into Task table
                 this.insertTranslateTask(
                     report,
@@ -218,17 +232,19 @@ class FHIRRouter(
                     blobInfo.blobUrl,
                     translateEvent
                 )
+            }
 
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.ROUTED_AT,
-                    null
-                )
+            // nullify the previous task next_action
+            db.updateTask(
+                message.reportId,
+                TaskAction.none,
+                null,
+                null,
+                finishedField = Tables.TASK.ROUTED_AT,
+                null
+            )
 
+            if (hasReceivers) {
                 // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
                 //  the destinations have been updated in the FHIR
                 this.queue.sendMessage(
@@ -239,48 +255,6 @@ class FHIRRouter(
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName
                     ).serialize()
-                )
-            } else {
-                // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        message.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
-                    )
-                )
-
-                // create none event
-                val noneEvent = ProcessEvent(
-                    Event.EventAction.NONE,
-                    message.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // encode the event body
-                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                val digest = BlobAccess.sha256Digest(bodyBytes)
-                val blobInfo = BlobAccess.BlobInfo(report.bodyFormat, report.bodyURL, digest)
-
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(noneEvent, report, blobInfo)
-
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.ROUTED_AT,
-                    null
                 )
             }
         } catch (e: IllegalArgumentException) {
