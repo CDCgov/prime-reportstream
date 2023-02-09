@@ -354,18 +354,16 @@ class DetailedSubmissionHistory(
         require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.route) {
             "Must be route action. Enrichment is only available for the Universal Pipeline"
         }
-
-        val filterLogs = mutableListOf<DetailedActionLog>()
-
         // Grab the filter logs generated during the "route" action, as well as errors and warnings
-        filterLogs += descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
+        val filterLogs = descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
         errors += descendant.errors
         warnings += descendant.warnings
 
         // add filter logs to its respective destination otherwise add new destination
         if (filterLogs.isNotEmpty()) {
             filterLogs.forEach { log ->
-                val filterResult = log.detail as ReportStreamFilterResult
+                check(log.detail is ReportStreamFilterResult) { "Filter result not of type ReportStreamFilterResult" }
+                val filterResult = log.detail
                 val filterReport = log.detail.message
                 val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
                 val filterResultResponse = ReportStreamFilterResultForResponse(filterResult)
