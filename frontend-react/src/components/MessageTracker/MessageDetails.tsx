@@ -72,46 +72,60 @@ export function MessageDetails() {
                 </div>
                 <hr className="margin-top-4 margin-bottom-4" />
                 <div className="display-flex flex-column">
-                    <span className="text-base font-sans-sm">Message ID</span>
-                    <h1 className="margin-top-1">
-                        {messageDetails!.messageId}
-                    </h1>
+                    <span className="text-base font-sans-sm margin-bottom-1">
+                        Message ID
+                    </span>
+                    <h1>{messageDetails!.messageId}</h1>
                 </div>
                 <hr />
-                <div className="display-flex flex-column margin-bottom-5">
+                <div className="display-flex flex-column margin-bottom-7">
                     <h2 className="font-sans-lg margin-bottom-4">Sender:</h2>
-                    <div className="font-sans-sm bg-gray-5 radius-lg padding-top-3 padding-bottom-4 padding-left-3 padding-right-3">
-                        <DetailItem
-                            item={"Submitter"}
-                            content={messageDetails!.sender}
-                        ></DetailItem>
-                        <DetailItem
-                            item={"Incoming Report ID"}
-                            content={messageDetails!.reportId}
-                        ></DetailItem>
-                        <DetailItem
-                            item={"Date/Time Submitted"}
-                            content={moment(
-                                messageDetails!.submittedDate
-                            ).format("M/DD/YYYY, h:mm:ss a")}
-                        ></DetailItem>
-                        <div className="display-flex flex-column margin-bottom-2">
-                            <span className="text-base line-height-body-5">
-                                {"File Location"}
-                            </span>
-                            <div>
-                                <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
-                                    {folderLocation}
+                    <div className="font-sans-sm bg-gray-5 radius-lg padding-top-3 padding-bottom-2 padding-left-3 padding-right-3">
+                        <div
+                            className={
+                                warnings.length || errors.length
+                                    ? "margin-bottom-4"
+                                    : ""
+                            }
+                        >
+                            <DetailItem
+                                item="Submitter"
+                                content={messageDetails!.sender}
+                            />
+                            <DetailItem
+                                item="Incoming Report ID"
+                                content={messageDetails!.reportId}
+                            />
+                            <DetailItem
+                                item="Date/Time Submitted"
+                                content={moment(
+                                    messageDetails!.submittedDate
+                                ).format("M/DD/YYYY, h:mm:ss a")}
+                            />
+                            <div className="display-flex flex-column margin-bottom-2">
+                                <span className="text-base line-height-body-5">
+                                    {"File Location"}
                                 </span>
-                                <span>{` / ${sendingOrg}`}</span>
+                                <div>
+                                    <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
+                                        {folderLocation}
+                                    </span>
+                                    <span>{` / ${sendingOrg}`}</span>
+                                </div>
                             </div>
+                            <DetailItem
+                                item="Incoming File Name"
+                                content={fileName}
+                            />
                         </div>
-                        <DetailItem
-                            item={"Incoming File Name"}
-                            content={fileName}
-                        ></DetailItem>
 
-                        <div className="message-tracker display-flex flex-column margin-top-4 margin-bottom-1">
+                        <div
+                            className={
+                                warnings.length
+                                    ? "message-tracker display-flex flex-column margin-bottom-2"
+                                    : ""
+                            }
+                        >
                             <Accordion
                                 bordered={true}
                                 multiselectable={true}
@@ -126,7 +140,13 @@ export function MessageDetails() {
                             />
                         </div>
 
-                        <div className="message-tracker display-flex flex-column">
+                        <div
+                            className={
+                                errors.length
+                                    ? "message-tracker display-flex flex-column margin-bottom-2"
+                                    : ""
+                            }
+                        >
                             <Accordion
                                 bordered={true}
                                 multiselectable={true}
@@ -141,7 +161,7 @@ export function MessageDetails() {
                         </div>
                     </div>
                 </div>
-                <hr className="margin-top-2 margin-bottom-4" />
+                <hr className="margin-bottom-4" />
                 <MessageReceivers
                     receiverDetails={messageDetails!.receiverData}
                 />
