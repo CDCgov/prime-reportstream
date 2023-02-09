@@ -2,7 +2,48 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../utils/CustomRenderUtils";
 
-import { USCrumbLink, USExtLink, USLink, USNavLink } from "./USLink";
+import {
+    createRSDomainRegex,
+    USCrumbLink,
+    USExtLink,
+    USLink,
+    USNavLink,
+} from "./USLink";
+
+const RS_DOMAIN_REGEX = createRSDomainRegex("localhost:3000");
+
+describe("RS_DOMAIN_REGEX", () => {
+    test("localhost", () => {
+        expect(
+            RS_DOMAIN_REGEX.test("https://localhost:3000/login")
+        ).toBeTruthy();
+        expect(
+            RS_DOMAIN_REGEX.test("http://localhost:3000/login")
+        ).toBeTruthy();
+    });
+    test("reportstream.cdc.gov/login", () => {
+        expect(
+            RS_DOMAIN_REGEX.test("https://reportstream.cdc.gov/login")
+        ).toBeTruthy();
+        expect(
+            RS_DOMAIN_REGEX.test("http://reportstream.cdc.gov/login")
+        ).toBeTruthy();
+    });
+    test("www.cdc.gov", () => {
+        expect(RS_DOMAIN_REGEX.test("https://www.cdc.gov")).toBeFalsy();
+        expect(RS_DOMAIN_REGEX.test("http://www.cdc.gov")).toBeFalsy();
+    });
+    test("google.com", () => {
+        expect(RS_DOMAIN_REGEX.test("https://www.google.com")).toBeFalsy();
+        expect(RS_DOMAIN_REGEX.test("http://www.google.com")).toBeFalsy();
+    });
+    test("mailto", () => {
+        expect(RS_DOMAIN_REGEX.test("mailto:someone@abc.com")).toBeFalsy();
+    });
+    test("#", () => {
+        expect(RS_DOMAIN_REGEX.test("#someHeader")).toBeFalsy();
+    });
+});
 
 describe("USLink", () => {
     test("renders without error", () => {

@@ -18,11 +18,17 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
-const RS_DOMAIN_REGEX = new RegExp(
-    `^https?://(${escapeRegExp(config.RS_DOMAIN)}|${escapeRegExp(
-        window.location.origin
-    )})`
-);
+/**
+ * Creates a regex that can be tested against the static ReportStream domain
+ * (set in config) and the current window.location.host (in case of dev dynamic host)
+ */
+export function createRSDomainRegex(origin: string) {
+    return new RegExp(
+        `^https?://(${escapeRegExp(config.RS_DOMAIN)}|${escapeRegExp(origin)})`
+    );
+}
+
+export const RS_DOMAIN_REGEX = createRSDomainRegex(window.location.host);
 
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
