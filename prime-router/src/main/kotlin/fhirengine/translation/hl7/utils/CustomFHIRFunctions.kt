@@ -369,20 +369,73 @@ object CustomFHIRFunctions {
         val lookupTable = metadata.findLookupTable(name = "LIVD-SARS-CoV-2")
         val observation = focus.first()
         if (observation is Observation) {
+            var result: String? = ""
+            // Maps to OBX 17 CWE.1 Which is coding[1].code
+            val coding = (observation as Observation?)?.code?.coding
+            if (!coding.isNullOrEmpty()) {
+                coding[0]?.code?.let {
+                    result = LivdLookup.find(
+                        testPerformedCode = null,
+                        processingModeCode = null,
+                        deviceId = it,
+                        equipmentModelId = null,
+                        testKitNameId = null,
+                        equipmentModelName = null,
+                        tableRef = lookupTable,
+                        tableColumn = parameters!!.first().first().primitiveValue()
+                    )
+                }
+            }
+
+            // Maps to OBX 18 which is mapped to Device.identifier
+            val equipmentModelId = observation.device.identifier.id
+            if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
+                result = LivdLookup.find(
+                    testPerformedCode = null,
+                    processingModeCode = null,
+                    deviceId = null,
+                    equipmentModelId = equipmentModelId,
+                    testKitNameId = null,
+                    equipmentModelName = null,
+                    tableRef = lookupTable,
+                    tableColumn = parameters!!.first().first().primitiveValue()
+                )
+            }
+
+            // In the covid-19 schema this also maps to OBX-17 so it is the same as the device id
+            if (!result.isNullOrBlank() && !coding.isNullOrEmpty()) {
+                coding[0]?.code?.let {
+                    result = LivdLookup.find(
+                        testPerformedCode = null,
+                        processingModeCode = null,
+                        deviceId = null,
+                        equipmentModelId = null,
+                        testKitNameId = it,
+                        equipmentModelName = null,
+                        tableRef = lookupTable,
+                        tableColumn = parameters!!.first().first().primitiveValue()
+                    )
+                }
+            }
+
             val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
             if (!deviceName.isNullOrBlank()) {
+                result = LivdLookup.find(
+                    testPerformedCode = null,
+                    processingModeCode = null,
+                    deviceId = null,
+                    equipmentModelId = null,
+                    testKitNameId = null,
+                    equipmentModelName = deviceName,
+                    tableRef = lookupTable,
+                    tableColumn = parameters!!.first().first().primitiveValue()
+                )
+            }
+
+            if (!result.isNullOrBlank()) {
                 return mutableListOf(
                     StringType(
-                        LivdLookup.find(
-                            testPerformedCode = null,
-                            processingModeCode = null,
-                            deviceId = null,
-                            equipmentModelId = null,
-                            testKitNameId = null,
-                            equipmentModelName = deviceName,
-                            tableRef = lookupTable,
-                            tableColumn = parameters!!.first().first().primitiveValue()
-                        )
+                        result
                     )
                 )
             }
