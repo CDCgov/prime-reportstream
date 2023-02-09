@@ -87,7 +87,10 @@ export function MessageDetails() {
             >
                 <div>
                     <h2>Message ID Search</h2>
-                    <Button onClick={() => navigate(-1)} type="button">
+                    <Button
+                        onClick={() => navigate("/admin/message-tracker")}
+                        type="button"
+                    >
                         Back
                     </Button>
                 </div>
