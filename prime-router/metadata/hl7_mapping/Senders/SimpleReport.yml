@@ -27,21 +27,6 @@ elements:
     resource: 'Bundle'
     value: [ '"ISO"' ]
 
-  - name: sending-facility_namespace-id
-    condition: true
-    resource: 'Bundle'
-    value: [ '%simpleReportName' ]
-
-  - name: sending-facility-universal-id
-    condition: true
-    resource: 'Bundle'
-    value: [ '%simpleReportClia' ]
-
-  - name: sending-facility-universal-id-type
-    condition: true
-    resource: 'Bundle'
-    value: [ '"CLIA"' ]
-
   ######################################################
   # Source: ReportStream CA Requirements from settings #
   # Using CA for now, but may need specific ones       #
@@ -75,6 +60,21 @@ elements:
   #####################################
   # Simple Report specific transforms #
   #####################################
+  - name: sending-facility_namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '%simpleReportName' ]
+
+  - name: sending-facility-universal-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '%simpleReportClia' ]
+
+  - name: sending-facility-universal-id-type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CLIA"' ]
+
   - name: message-date-time
     condition: true
     resource: 'Bundle'
