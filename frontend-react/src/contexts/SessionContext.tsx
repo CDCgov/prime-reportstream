@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
+import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
 import {
@@ -23,7 +23,7 @@ export interface RSSessionContext extends RSUserPermissions {
     isUserAdmin: boolean;
     isUserSender: boolean;
     isUserReceiver: boolean;
-    user?: RSUserClaims;
+    user?: UserClaims<CustomUserClaims>;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -57,7 +57,6 @@ const SessionProvider = ({
     } = useOktaMemberships(authState);
 
     const context = useMemo(() => {
-        const user = authState?.idToken?.claims as RSUserClaims;
         return {
             oktaToken: authState?.accessToken,
             activeMembership,
@@ -67,8 +66,10 @@ const SessionProvider = ({
                 activeMembership?.memberType === MemberType.PRIME_ADMIN,
             dispatch,
             initialized: authState !== null && !!initialized,
-            user,
-            ...getUserPermissions(user),
+            user: authState?.idToken?.claims,
+            ...getUserPermissions(
+                authState?.accessToken?.claims as RSUserClaims
+            ),
         };
     }, [activeMembership, authState, dispatch, initialized]);
 

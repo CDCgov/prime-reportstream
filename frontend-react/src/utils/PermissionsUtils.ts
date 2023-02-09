@@ -42,10 +42,20 @@ export interface RSUserPermissions {
 }
 
 export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
+    let isUserAdmin = false,
+        isUserReceiver = false,
+        isUserSender = false;
+
+    for (const org of user?.organization ?? []) {
+        if (isAdmin(org)) isUserAdmin = true;
+        if (isReceiver(org)) isUserReceiver = true;
+        if (isSender(org)) isUserSender = true;
+    }
+
     return {
-        isUserAdmin: !!user?.organization.find((o) => isAdmin(o)),
-        isUserReceiver: !!user?.organization.find((o) => isReceiver(o)),
-        isUserSender: !!user?.organization.find((o) => isSender(o)),
+        isUserAdmin,
+        isUserReceiver,
+        isUserSender,
     };
 }
 
