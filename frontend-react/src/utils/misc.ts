@@ -134,12 +134,12 @@ export function formatDate(date: string): string {
 }
 
 /*
-  for strings in machine readable form:
+  for strings in machine-readable form:
     * camel cased
     * inconsistent caps
-    * whitespace deliminted by - or _
+    * whitespace delimited by - or _
 
-  translate into normal human readable strings with all words capitalized
+  translate into normal human-readable strings with all words capitalized
 */
 export const toHumanReadable = (machineString: string): string => {
     const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
@@ -174,3 +174,31 @@ export const groupBy = <T>(
         (acc[predicate(value, index, array)] ||= []).push(value);
         return acc;
     }, {} as { [key: string]: T[] });
+
+/* Takes a url that contains the 'report/' location and returns
+    the folder location, sending org, and filename
+*/
+export const parseFileLocation = (
+    urlFileLocation: string
+): {
+    folderLocation: string;
+    sendingOrg: string;
+    fileName: string;
+} => {
+    let fileLocationFromStr = "";
+    let sendingOrgFromStr = "";
+    let fileNameFromStr = "";
+
+    const fileReportsLocation = urlFileLocation.split("/").pop();
+    if (fileReportsLocation?.split("%2F").length === 3) {
+        fileLocationFromStr = fileReportsLocation.split("%2F")[0].toUpperCase();
+        sendingOrgFromStr = fileReportsLocation.split("%2F")[1];
+        fileNameFromStr = fileReportsLocation.split("%2F")[2];
+    }
+
+    return {
+        folderLocation: fileLocationFromStr,
+        sendingOrg: sendingOrgFromStr,
+        fileName: fileNameFromStr,
+    };
+};

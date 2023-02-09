@@ -10,37 +10,13 @@ import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { WarningError } from "../../config/endpoints/messageTracker";
+import { parseFileLocation } from "../../utils/misc";
 
 import { WarningsErrors } from "./WarningsErrors";
 import { MessageReceivers } from "./MessageReceivers";
 
 type MessageDetailsProps = {
     id: string | undefined;
-};
-
-const parseFileLocation = (
-    fileLocation: string
-): {
-    fileLocation: string;
-    sendingOrg: string;
-    fileName: string;
-} => {
-    let fileLocationFromStr = "";
-    let sendingOrgFromStr = "";
-    let fileNameFromStr = "";
-
-    let fileReportsLocation = fileLocation.split("reports/").pop();
-    if (fileLocation.includes("reports/") && fileReportsLocation) {
-        fileLocationFromStr = fileReportsLocation.split("%2F")[0].toUpperCase();
-        sendingOrgFromStr = fileReportsLocation.split("%2F")[1];
-        fileNameFromStr = fileReportsLocation.split("%2F")[2];
-    }
-
-    return {
-        fileLocation: fileLocationFromStr,
-        sendingOrg: sendingOrgFromStr,
-        fileName: fileNameFromStr,
-    };
 };
 
 const dataToAccordionItems = (props: {
@@ -77,7 +53,7 @@ export function MessageDetails() {
     const errors: WarningError[] = messageDetails ? messageDetails.errors : [];
 
     const fileUrl = messageDetails?.fileUrl ? messageDetails.fileUrl : "";
-    const { fileLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
+    const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (
         <>
@@ -125,7 +101,7 @@ export function MessageDetails() {
                             </span>
                             <div>
                                 <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
-                                    {fileLocation}
+                                    {folderLocation}
                                 </span>
                                 <span>{` / ${sendingOrg}`}</span>
                             </div>

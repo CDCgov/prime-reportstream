@@ -203,7 +203,7 @@ describe("RSMessageDetail component", () => {
     });
 
     describe("parseFileLocation", () => {
-        test("does not return fileLocation, sendingOrg, and fileName", () => {
+        test("returns folderLocation, sendingOrg, and fileName", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
                 fileUrl:
@@ -213,14 +213,18 @@ describe("RSMessageDetail component", () => {
                 messageDetails: mockMessageDetails,
             });
             render(<MessageDetails />);
+            expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(
-                screen.queryByText(
+                screen.getByText("/ simple_report.csvuploader")
+            ).toBeVisible();
+            expect(
+                screen.getByText(
                     "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
                 )
-            ).not.toBeInTheDocument();
+            ).toBeVisible();
         });
 
-        test("does not return fileLocation, sendingOrg, and fileName", () => {
+        test("does not return folderLocation, sendingOrg, and fileName", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
                 fileUrl:
@@ -230,10 +234,10 @@ describe("RSMessageDetail component", () => {
                 messageDetails: mockMessageDetails,
             });
             render(<MessageDetails />);
-            expect(screen.getByText("RECEIVE")).toBeVisible();
+            expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
-                screen.getByText("/ simple_report.csvuploader")
-            ).toBeVisible();
+                screen.queryByText("/ simple_report.csvuploader")
+            ).not.toBeInTheDocument();
         });
     });
 });
