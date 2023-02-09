@@ -14,7 +14,7 @@ yarn_lock_check
 RC=$?
 
 if [[ ${RC?} != 0 ]]; then
-    echo "yarn-check> ERROR: Your yarn lock file is out of sync."
+    echo "yarn-check> ERROR: Your yarn lock file is out of sync. Please run yarn install and try again."
 fi
 
 exit ${RC?} 
