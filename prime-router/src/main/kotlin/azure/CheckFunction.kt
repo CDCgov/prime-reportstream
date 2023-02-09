@@ -55,7 +55,7 @@ class CheckFunction : Logging {
 
     class TestFileFilter(val fileName: String) : RemoteResourceFilter {
         override fun accept(resource: RemoteResourceInfo?): Boolean {
-            resource?. let {
+            resource?.let {
                 return resource.isRegularFile && resource.name == fileName
             }
             return false
@@ -83,6 +83,7 @@ class CheckFunction : Logging {
             }
             val receiverFullName = request.queryParameters["sftpcheck"]
                 ?: return HttpUtilities.badRequestResponse(request, "Missing option sftpcheck")
+
             /**
              * The query parameter is not added unless it has a value, treating
              * sendfile as a flag in the URI. When the sendfile flag is present,
@@ -99,7 +100,7 @@ class CheckFunction : Logging {
                 else -> SftpFile("hello-${UUID.randomUUID()}.txt", "")
             }
             // size check on the sftp file contents, fails if more than 100K chars in length
-            sftpFile?. let {
+            sftpFile?.let {
                 if (sftpFile.contents.length > 100000) {
                     return HttpUtilities.badRequestResponse(request, "Test upload file exceeds 100K size limit")
                 }

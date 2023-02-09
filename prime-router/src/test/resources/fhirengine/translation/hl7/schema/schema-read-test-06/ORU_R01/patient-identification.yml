@@ -1,0 +1,20 @@
+elements:
+  - name: patient-segment-set-id
+    value:
+      - '1'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-1
+
+  - name: patient-last-name
+    condition: '%resource is Patient and %resource.name.family.exists()'
+    required: true
+    value:
+      - '%resource.name.family'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-5-1
+
+  - name: name-type-code
+    value:
+      - 'L'
+    hl7Spec:
+      - /PATIENT_RESULT/PATIENT/PID-5-7
