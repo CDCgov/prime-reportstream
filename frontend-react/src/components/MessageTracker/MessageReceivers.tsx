@@ -6,6 +6,7 @@ import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 
 import { QualityFilters } from "./QualityFilters";
+import { parseFileLocation } from "../../utils/misc";
 
 type MessageReceiverProps = {
     receiverDetails: ReceiverData[];
@@ -83,6 +84,9 @@ const MessageReceiversColRow = ({
         colName === activeColumn && activeColumnSortOrder !== FilterOptions.None
             ? "active-col-td"
             : "";
+    const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+        receiver.fileUrl
+    );
     return (
         <tr>
             <td className={checkForActiveColumn(ColumnDataEnum.Name)}>
@@ -92,19 +96,19 @@ const MessageReceiversColRow = ({
                 {receiver.receivingOrgSvc ? receiver.receivingOrgSvc : "N/A"}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Date)}>
-                {receiver.reportId ? receiver.reportId : "N/A"}
-            </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
-                {receiver.fileName ? receiver.fileName : "N/A"}
-            </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
-                {receiver.fileUrl ? receiver.fileUrl : "N/A"}
-            </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
                 {formattedDateFromTimestamp(receiver.createdAt, "MMMM DD YYYY")}
             </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
+                {receiver.reportId ? receiver.reportId : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
+                {folderLocation ? folderLocation : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
+                {sendingOrg ? sendingOrg : "N/A"}
+            </td>
             <td className={checkForActiveColumn(ColumnDataEnum.FileName)}>
-                {receiver.transportResult ? receiver.transportResult : "N/A"}
+                {fileName ? fileName : "N/A"}
             </td>
             <td
                 className={checkForActiveColumn(
