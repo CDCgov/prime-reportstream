@@ -11,7 +11,7 @@ import {
     ResponseError,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink, USLink } from "../USLink";
+import { USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -160,9 +160,9 @@ export const RequestedChangesDisplay = ({
                         </USLink>
                     </li>
                     <li>
-                        <USExtLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
+                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </USExtLink>
+                        </USLink>
                     </li>
                 </ul>
             </StaticAlert>
