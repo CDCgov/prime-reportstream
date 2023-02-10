@@ -1,5 +1,4 @@
 import { Alert } from "@trussworks/react-uswds";
-import DOMPurify from "dompurify";
 import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
@@ -23,18 +22,13 @@ const TransitionBanner = () => {
                 </li>
                 <li className="margin-bottom-2">
                     Visit the new CSV uploader by{" "}
-                    <USExtLink href="https://www.simplereport.gov/app/results/upload">
+                    <USLink href="https://www.simplereport.gov/app/results/upload">
                         following this link
-                    </USExtLink>{" "}
+                    </USLink>{" "}
                     (you can use your existing username and password). If you
                     need assistance or have questions, please email the
                     SimpleReport team at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize("support@simplereport.gov")
-                        }
-                    >
+                    <USExtLink href={`mailto: support@simplereport.gov`}>
                         support@simplereport.gov
                     </USExtLink>
                     .

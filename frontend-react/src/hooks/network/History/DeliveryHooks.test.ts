@@ -27,6 +27,9 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
 
         const { result } = renderHook(() => useOrgDeliveries("testService"));
@@ -55,6 +58,9 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useReportsDetail("123"),
@@ -74,6 +80,9 @@ describe("DeliveryHooks", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useReportsFacilities("123"),
@@ -96,6 +105,9 @@ describe("DeliveryHooks", () => {
                     },
                     dispatch: () => {},
                     initialized: true,
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
                 });
             });
 
@@ -121,6 +133,9 @@ describe("DeliveryHooks", () => {
                     },
                     dispatch: () => {},
                     initialized: true,
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
                 });
             });
 

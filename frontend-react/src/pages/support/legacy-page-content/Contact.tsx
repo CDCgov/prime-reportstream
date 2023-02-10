@@ -1,5 +1,3 @@
-import DOMPurify from "dompurify";
-
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../../../components/USLink";
@@ -18,11 +16,7 @@ export const Contact = () => {
                 <p>
                     If you want to learn more about ReportStream or how to get
                     started, email us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .
@@ -59,11 +53,7 @@ export const Contact = () => {
                 </p>
                 <p>
                     For all other issues, contact us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .
@@ -80,11 +70,7 @@ export const Contact = () => {
                 </p>
                 <p>
                     Email us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .

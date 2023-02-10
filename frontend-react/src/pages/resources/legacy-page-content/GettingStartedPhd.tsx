@@ -1,5 +1,3 @@
-import DOMPurify from "dompurify";
-
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
@@ -36,9 +34,7 @@ export const GettingStartedPhd = () => {
                     <p className="margin-top-05">
                         Let us know you're interested by filling out and
                         submitting{" "}
-                        <USExtLink
-                            href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                        >
+                        <USExtLink href={site.forms.intakeElr.url}>
                             this form
                         </USExtLink>{" "}
                         . We'll be in touch within a week to schedule a kick-off
@@ -92,9 +88,7 @@ export const GettingStartedPhd = () => {
                 <p>
                     Ready to bring ReportStream to your jurisdiction, or just
                     have more questions? Fill out{" "}
-                    <USExtLink
-                        href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                    >
+                    <USExtLink href={site.forms.intakeElr.url}>
                         the form
                     </USExtLink>{" "}
                     and we'll be in touch!

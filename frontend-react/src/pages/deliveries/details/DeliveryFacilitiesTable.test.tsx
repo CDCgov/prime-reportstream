@@ -1,6 +1,5 @@
-import { render } from "@testing-library/react";
-
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { renderWithBase } from "../../../utils/CustomRenderUtils";
 
 import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
@@ -14,7 +13,7 @@ describe("DeliveryFacilitiesTable", () => {
         mockUseReportFacilities.mockReturnValueOnce({
             reportFacilities: [],
         });
-        render(<DeliveryFacilitiesTable reportId={TEST_ID} />);
+        renderWithBase(<DeliveryFacilitiesTable reportId={TEST_ID} />);
         expect(mockUseReportFacilities).toHaveBeenCalledWith(TEST_ID);
     });
 });
