@@ -9,6 +9,7 @@ import {
     USLink,
     USNavLink,
     USLinkButton,
+    SafeLink,
 } from "./USLink";
 
 const enumProps = {
@@ -58,6 +59,22 @@ describe("getHrefRoute", () => {
     });
 });
 
+describe("SafeLink", () => {
+    // Native react element type will be DOM element name string.
+    // Custom components will have a type.displayName of their variable
+    // name (ex: const CustomComponent = () => {} will have displayName
+    // CustomComponent).
+    test.each(routeUrls)("'%s' renders as Link", (url) => {
+        const component = SafeLink({ children: <>Test</>, href: url });
+        expect(component.type).not.toBe("a");
+        expect(component.type.displayName).toBe("Link");
+    });
+    test.each(nonRouteUrls)("'%s' renders as anchor", (url) => {
+        const component = SafeLink({ children: <>Test</>, href: url });
+        expect(component.type).toBe("a");
+    });
+});
+
 describe("USLink", () => {
     test("renders without error", () => {
         renderWithRouter(<USLink href={"/some/url"}>My Link</USLink>);
@@ -74,19 +91,6 @@ describe("USLink", () => {
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
         expect(link).toHaveClass("my-custom-class");
-    });
-    // Native react element type will be DOM element name string.
-    // Custom components will have a type.displayName of their variable
-    // name (ex: const CustomComponent = () => {} will have displayName
-    // CustomComponent).
-    test.each(routeUrls)("'%s' renders as Link", (url) => {
-        const component = USLink({ children: <>Test</>, href: url });
-        expect(component.type).not.toBe("a");
-        expect(component.type.displayName).toBe("Link");
-    });
-    test.each(nonRouteUrls)("'%s' renders as anchor", (url) => {
-        const component = USLink({ children: <>Test</>, href: url });
-        expect(component.type).toBe("a");
     });
     /** Specialization of USLink */
     describe("USExtLink", () => {
@@ -126,7 +130,7 @@ describe("USNavLink", () => {
 describe("USLinkButton", () => {
     test("boolean button styles applied", () => {
         renderWithRouter(
-            <USLinkButton secondary base outline inverse unstyled>
+            <USLinkButton href="#" secondary base outline inverse unstyled>
                 Test
             </USLinkButton>
         );
@@ -141,13 +145,17 @@ describe("USLinkButton", () => {
     });
 
     test.each(testScenarios)(
-        "%s=%s button style applied",
+        "%s button style applied",
         ([key, value, prefix]) => {
             const prop = { [key]: value };
             const className = prefix
                 ? `usa-button--${prefix}-${value}`
                 : `usa-button--${value}`;
-            renderWithRouter(<USLinkButton {...prop}>Test</USLinkButton>);
+            renderWithRouter(
+                <USLinkButton {...prop} href="#">
+                    Test
+                </USLinkButton>
+            );
             expect(screen.getByRole("link")).toHaveClass(
                 "usa-button",
                 className
