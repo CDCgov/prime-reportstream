@@ -2,48 +2,26 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../utils/CustomRenderUtils";
 
-import {
-    createRSDomainRegex,
-    USCrumbLink,
-    USExtLink,
-    USLink,
-    USNavLink,
-} from "./USLink";
+import { USCrumbLink, USExtLink, USLink, USNavLink } from "./USLink";
 
-const RS_DOMAIN_REGEX = createRSDomainRegex("localhost:3000");
+const routeUrls = [
+    "",
+    "#",
+    "#asdf",
+    "##asdf",
+    "/",
+    "asdf",
+    `//${window.location.host}/asdf`,
+    `${window.location.origin}`,
+];
 
-describe("RS_DOMAIN_REGEX", () => {
-    test("localhost", () => {
-        expect(
-            RS_DOMAIN_REGEX.test("https://localhost:3000/login")
-        ).toBeTruthy();
-        expect(
-            RS_DOMAIN_REGEX.test("http://localhost:3000/login")
-        ).toBeTruthy();
-    });
-    test("reportstream.cdc.gov/login", () => {
-        expect(
-            RS_DOMAIN_REGEX.test("https://reportstream.cdc.gov/login")
-        ).toBeTruthy();
-        expect(
-            RS_DOMAIN_REGEX.test("http://reportstream.cdc.gov/login")
-        ).toBeTruthy();
-    });
-    test("www.cdc.gov", () => {
-        expect(RS_DOMAIN_REGEX.test("https://www.cdc.gov")).toBeFalsy();
-        expect(RS_DOMAIN_REGEX.test("http://www.cdc.gov")).toBeFalsy();
-    });
-    test("google.com", () => {
-        expect(RS_DOMAIN_REGEX.test("https://www.google.com")).toBeFalsy();
-        expect(RS_DOMAIN_REGEX.test("http://www.google.com")).toBeFalsy();
-    });
-    test("mailto", () => {
-        expect(RS_DOMAIN_REGEX.test("mailto:someone@abc.com")).toBeFalsy();
-    });
-    test("#", () => {
-        expect(RS_DOMAIN_REGEX.test("#someHeader")).toBeFalsy();
-    });
-});
+const nonRouteUrls = [
+    undefined,
+    "mailto:someone@abc.com",
+    "https://www.google.com",
+    "http://www.google.com",
+    "//www.google.com",
+];
 
 describe("USLink", () => {
     test("renders without error", () => {
@@ -61,6 +39,19 @@ describe("USLink", () => {
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
         expect(link).toHaveClass("my-custom-class");
+    });
+    // Native react element type will be DOM element name string.
+    // Custom components will have a type.displayName of their variable
+    // name (ex: const CustomComponent = () => {} will have displayName
+    // CustomComponent).
+    test.each(routeUrls)("'%s' renders as Link", (url) => {
+        const component = USLink({ children: <>Test</>, href: url });
+        expect(component.type).not.toBe("a");
+        expect(component.type.displayName).toBe("Link");
+    });
+    test.each(nonRouteUrls)("'%s' renders as anchor", (url) => {
+        const component = USLink({ children: <>Test</>, href: url });
+        expect(component.type).toBe("a");
     });
     /** Specialization of USLink */
     describe("USExtLink", () => {

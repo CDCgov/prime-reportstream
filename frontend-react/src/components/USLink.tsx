@@ -1,9 +1,6 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
-import { escapeRegExp } from "lodash";
-
-import config from "../config";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -18,18 +15,6 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
-/**
- * Creates a regex that can be tested against the static ReportStream domain
- * (set in config) and the current window.location.host (in case of dev dynamic host)
- */
-export function createRSDomainRegex(origin: string) {
-    return new RegExp(
-        `^https?://(${escapeRegExp(config.RS_DOMAIN)}|${escapeRegExp(origin)})`
-    );
-}
-
-export const RS_DOMAIN_REGEX = createRSDomainRegex(window.location.host);
-
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
  * @example
@@ -43,12 +28,37 @@ export const USLink = ({
     state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
-    const isRoute =
-        href && (href.startsWith("/") || RS_DOMAIN_REGEX.test(href));
+    let isRoute = false;
+    let linkUrl = "";
+
+    /**
+     * Attempt to parse href as URL (taking into account "//" shorthand).
+     * If it errors, then assume its a relative url (aka route). If it
+     * parses, then verify its an absolute url by comparing url origin
+     * against window (aka route).
+     */
+    if (href !== undefined) {
+        try {
+            const url = new URL(
+                href.replace(/^\/\//, `${window.location.protocol}//`)
+            );
+            isRoute =
+                url.protocol.startsWith("http") &&
+                url.origin === window.location.origin;
+            if (isRoute) {
+                linkUrl = `${url.pathname}${url.search}`;
+            } else {
+                linkUrl = href;
+            }
+        } catch (e: any) {
+            isRoute = true;
+            linkUrl = href;
+        }
+    }
 
     return isRoute ? (
         <Link
-            to={href?.replace(RS_DOMAIN_REGEX, "") || ""}
+            to={linkUrl}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
@@ -57,7 +67,7 @@ export const USLink = ({
         </Link>
     ) : (
         <a
-            href={href}
+            href={linkUrl}
             className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >
