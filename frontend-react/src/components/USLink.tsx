@@ -8,7 +8,6 @@ import DOMPurify from "dompurify";
  * One less headache when updating to React 18 in the future! */
 interface CustomLinkProps {
     children: React.ReactNode;
-    anchor?: boolean;
     className?: string;
     activeClassName?: string;
     state?: any;
@@ -17,14 +16,39 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
+/**
+ * Stateless function to get route href from href that could be
+ * absolute, shorthand, relative, and/or a non-route.
+ * Attempt to parse href as URL (taking into account "//" shorthand).
+ * If it errors, then assume its a relative url (aka route). If it
+ * parses, then verify its an absolute route through origins.
+ */
+export function getHrefRoute(href?: string): string | undefined {
+    if (href === undefined) return undefined;
+
+    try {
+        const url = new URL(
+            href.replace(/^\/\//, `${window.location.protocol}//`)
+        );
+        if (
+            url.protocol.startsWith("http") &&
+            url.origin === window.location.origin
+        )
+            return `${url.pathname}${url.search}`;
+    } catch (e: any) {
+        return href;
+    }
+
+    return undefined;
+}
+
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
  * @example
  * <USLink href="/page">To Page</USLink> // uses <Link> from react-router-dom
- * <USLink anchor href="#this-section-on-my-page">To Section</USLink> // uses <a>
+ * <USLink href="#this-section-on-my-page">To Section</USLink> // uses <a>
  * */
 export const USLink = ({
-    anchor = false,
     children,
     className,
     href,
@@ -32,10 +56,11 @@ export const USLink = ({
     ...anchorHTMLAttributes
 }: USLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
+    const routeHref = getHrefRoute(sanitizedHref);
 
-    return !anchor && sanitizedHref ? (
+    return routeHref !== undefined ? (
         <Link
-            to={sanitizedHref}
+            to={routeHref}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
@@ -72,10 +97,9 @@ export const USExtLink = ({
     className,
     children,
     ...anchorHTMLAttributes
-}: Omit<USLinkProps, "anchor" | "rel" | "target">) => {
+}: Omit<USLinkProps, "rel" | "target">) => {
     return (
         <USLink
-            anchor
             target="_blank"
             rel="noreferrer noopener"
             className={classnames("usa-link--external", className)}
@@ -92,7 +116,7 @@ export const USCrumbLink = ({
     className,
     children,
     ...anchorHTMLAttributes
-}: Omit<USLinkProps, "anchor">) => (
+}: USLinkProps) => (
     <USLink
         className={classnames("usa-breadcrumb__link", className)}
         {...anchorHTMLAttributes}
