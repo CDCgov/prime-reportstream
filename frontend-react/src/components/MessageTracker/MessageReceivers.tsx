@@ -12,17 +12,14 @@ type MessageReceiverProps = {
 };
 
 const ColumnDataEnum = {
-    Name: { title: "Name", respKey: "receivingOrg" },
-    Service: { title: "Service", respKey: "receivingOrgSvc" },
-    Date: { title: "Date", respKey: "createdAt" },
-    ReportId: { title: "Report Id", respKey: "reportId" },
-    Main: { title: "Main" },
-    Sub: { title: "Sub" },
-    FileName: { title: "File Name", respKey: "fileName" },
-    TransportResults: {
-        title: "Transport Results",
-        respKey: "transportResult",
-    },
+    Name: "Name",
+    Service: "Service",
+    Date: "Date",
+    ReportId: "Report Id",
+    Main: "Main",
+    Sub: "Sub",
+    FileName: "File Name",
+    TransportResults: "Transport Results",
 };
 
 enum FilterOptions {
@@ -32,18 +29,18 @@ enum FilterOptions {
 }
 
 const MessageReceiversColHeader = ({
-    columnDataKey,
+    columnHeaderTitle,
     activeColumn,
     setActiveColumn,
     activeColumnSortOrder,
     setActiveColumnSortOrder,
     filterIcon,
 }) => {
-    const isCurrentlyActiveColumn = columnDataKey === activeColumn;
+    const isCurrentlyActiveColumn = columnHeaderTitle === activeColumn;
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
-            setActiveColumn(columnDataKey);
+            setActiveColumn(columnHeaderTitle);
             setActiveColumnSortOrder(FilterOptions.None);
         }
 
@@ -71,13 +68,54 @@ const MessageReceiversColHeader = ({
             scope="col"
             onClick={handleColHeaderClick}
         >
-            {columnDataKey}{" "}
+            {columnHeaderTitle}{" "}
             {isCurrentlyActiveColumn ? filterIcon : <Icon.UnfoldMore />}
         </th>
     );
 };
 
-const MessageReceiversColRow = () => {};
+const MessageReceiversColRow = ({
+    receiver,
+    activeColumn,
+    activeColumnSortOrder,
+}) => {
+    const checkForActiveColumn = (colName) =>
+        colName === activeColumn && activeColumnSortOrder !== FilterOptions.None
+            ? "active-col-td"
+            : "";
+    return (
+        <tr>
+            <td className={checkForActiveColumn(ColumnDataEnum.Name)}>
+                {receiver.receivingOrg ? receiver.receivingOrg : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Service)}>
+                {receiver.receivingOrgSvc ? receiver.receivingOrgSvc : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Date)}>
+                {receiver.reportId ? receiver.reportId : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
+                {receiver.fileName ? receiver.fileName : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
+                {receiver.fileUrl ? receiver.fileUrl : "N/A"}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
+                {formattedDateFromTimestamp(receiver.createdAt, "MMMM DD YYYY")}
+            </td>
+            <td className={checkForActiveColumn(ColumnDataEnum.FileName)}>
+                {receiver.transportResult ? receiver.transportResult : "N/A"}
+            </td>
+            <td
+                className={checkForActiveColumn(
+                    ColumnDataEnum.TransportResults
+                )}
+            >
+                {receiver.transportResult ? receiver.transportResult : "N/A"}
+            </td>
+        </tr>
+    );
+};
 
 export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const [activeColumn, setActiveColumn] = useState("");
@@ -106,9 +144,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 return (
                                     <MessageReceiversColHeader
                                         key={index}
-                                        columnDataKey={
-                                            ColumnDataEnum[key].title
-                                        }
+                                        columnHeaderTitle={ColumnDataEnum[key]}
                                         activeColumn={activeColumn}
                                         setActiveColumn={setActiveColumn}
                                         activeColumnSortOrder={
@@ -125,39 +161,13 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                     </tr>
                 </thead>
                 <tbody style={{ wordBreak: "break-all" }}>
-                    {receiverDetails.map((receiver, i) => (
-                        <tr key={i}>
-                            <td>
-                                {receiver.receivingOrg
-                                    ? receiver.receivingOrg
-                                    : "N/A"}
-                            </td>
-                            <td>
-                                {receiver.receivingOrgSvc
-                                    ? receiver.receivingOrgSvc
-                                    : "N/A"}
-                            </td>
-                            <td>
-                                {receiver.reportId ? receiver.reportId : "N/A"}
-                            </td>
-                            <td>
-                                {receiver.fileName ? receiver.fileName : "N/A"}
-                            </td>
-                            <td>
-                                {receiver.fileUrl ? receiver.fileUrl : "N/A"}
-                            </td>
-                            <td>
-                                {formattedDateFromTimestamp(
-                                    receiver.createdAt,
-                                    "MMMM DD YYYY"
-                                )}
-                            </td>
-                            <td>
-                                {receiver.transportResult
-                                    ? receiver.transportResult
-                                    : "N/A"}
-                            </td>
-                        </tr>
+                    {receiverDetails.map((receiver, index) => (
+                        <MessageReceiversColRow
+                            key={index}
+                            receiver={receiver}
+                            activeColumn={activeColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                        />
                     ))}
                 </tbody>
             </Table>

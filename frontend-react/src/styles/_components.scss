@@ -11,8 +11,21 @@ hr {
     padding: 0.25rem 0.25rem;
 }
 
+// MessageDetails.tsx
+.usa-table thead th {
+  cursor: pointer;
+}
+
 .usa-table thead th.active-col-header {
   background-color: $bg-col-header;
+}
+
+.usa-table td.active-col-td {
+  background-color: $bg-col-data;
+}
+
+// End -- MessageDetails.tsx
+
 // Message Tracker specific styles for Accordion component
 .message-tracker {
     .usa-accordion__button {
