@@ -1,0 +1,14 @@
+elements:
+  - name: message-identifier
+    value:
+      - Bundle.id
+    required: true
+    hl7Spec:
+      - MSH-10
+
+  - name: message-time
+    value:
+      - Bundle.timestamp
+    required: true
+    hl7Spec:
+      - MSH-7
