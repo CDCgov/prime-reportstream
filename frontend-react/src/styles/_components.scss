@@ -1,4 +1,6 @@
 $theme-hr-border-color: "base-lighter";
+$bg-col-header: #73B3E7;
+$bg-col-data: #D9E8F6;
 
 hr {
     border: 1px solid color($theme-hr-border-color)
@@ -7,4 +9,8 @@ hr {
 .usa-icon-button {
     border-radius: 100%;
     padding: 0.25rem 0.25rem;
+}
+
+.usa-table thead th.active-col-header {
+  background-color: $bg-col-header;
 }
