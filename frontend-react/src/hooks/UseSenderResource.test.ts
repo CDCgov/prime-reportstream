@@ -24,6 +24,9 @@ describe("useSenderResource", () => {
             } as MembershipSettings,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: QueryWrapper(),
@@ -43,6 +46,9 @@ describe("useSenderResource", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useSenderResource(),
