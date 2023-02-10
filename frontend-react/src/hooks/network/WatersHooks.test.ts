@@ -5,7 +5,8 @@ import {
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
-import { ContentType } from "../UseFileHandler";
+import { ContentType, FileType } from "../UseFileHandler";
+import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 
 import { useWatersUploader } from "./WatersHooks";
 
@@ -40,6 +41,8 @@ describe("useWatersUploader", () => {
                 fileName: "",
                 // test response trigger
                 client: WatersTestHeaderValue.TEST_NAME,
+                format: FileType.CSV,
+                schema: STANDARD_SCHEMA_OPTIONS[0].value,
             });
             await waitForNextUpdate();
             expect(result.current.isWorking).toEqual(true);
