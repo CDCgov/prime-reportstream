@@ -343,7 +343,7 @@ class DetailedSubmissionHistory(
                 existingDestination.itemCountBeforeQualFilter =
                     existingDestination.itemCountBeforeQualFilter?.plus(
                         descendantDest.itemCountBeforeQualFilter ?: 0
-                    )
+                    ) ?: descendantDest.itemCountBeforeQualFilter
             } ?: run {
                 destinations += descendantDest
             }
@@ -385,7 +385,7 @@ class DetailedSubmissionHistory(
 
                     existingDestination.itemCountBeforeQualFilter = existingDestination.itemCountBeforeQualFilter?.plus(
                         filterResult.originalCount
-                    )
+                    ) ?: filterResult.originalCount
                 } ?: run {
                     destinations.add(
                         Destination(
