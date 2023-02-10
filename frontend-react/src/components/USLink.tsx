@@ -44,9 +44,6 @@ export function getHrefRoute(href?: string): string | undefined {
 }
 
 export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
-    fallbackComponent?: React.FunctionComponent<
-        React.AnchorHTMLAttributes<Element>
-    >;
     state?: any;
 }
 
