@@ -34,7 +34,9 @@ export const MarkdownRSLink = ({ children, ...props }: MarkdownRSLinkProps) => {
     if (props.href !== undefined) {
         try {
             // Browsers allow // shorthand in anchor urls but URL does not
-            const url = new URL(props.href.replace(/^\/\//, "https://"));
+            const url = new URL(
+                props.href.replace(/^\/\//, `${window.location.protocol}//`)
+            );
             isExternal =
                 url.protocol.startsWith("http") &&
                 url.host !== "cdc.gov" &&
