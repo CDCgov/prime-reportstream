@@ -95,7 +95,7 @@ export const USExtLink = ({
     className,
     children,
     ...anchorHTMLAttributes
-}: Omit<USLinkProps, "anchor" | "rel" | "target">) => {
+}: Omit<USLinkProps, "rel" | "target">) => {
     return (
         <USLink
             target="_blank"
@@ -114,7 +114,7 @@ export const USCrumbLink = ({
     className,
     children,
     ...anchorHTMLAttributes
-}: Omit<USLinkProps, "anchor">) => (
+}: USLinkProps) => (
     <USLink
         className={classnames("usa-breadcrumb__link", className)}
         {...anchorHTMLAttributes}
