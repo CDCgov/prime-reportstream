@@ -31,9 +31,11 @@ export const USLink = ({
     state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
-    return !anchor ? (
+    const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
+
+    return !anchor && sanitizedHref ? (
         <Link
-            to={href || ""}
+            to={sanitizedHref}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
@@ -42,7 +44,7 @@ export const USLink = ({
         </Link>
     ) : (
         <a
-            href={href}
+            href={sanitizedHref}
             className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >
