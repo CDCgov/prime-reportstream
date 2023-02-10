@@ -81,16 +81,16 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
+                    <IdentifierLink href="/terms-of-service">
+                        Terms of service
+                    </IdentifierLink>
+                </IdentifierLinkItem>
+                <IdentifierLinkItem>
                     <IdentifierLink
                         href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html"
                         className="usa-link--external"
                     >
                         Vulnerability disclosure policy
-                    </IdentifierLink>
-                </IdentifierLinkItem>
-                <IdentifierLinkItem>
-                    <IdentifierLink href="/terms-of-service">
-                        Terms of service
                     </IdentifierLink>
                 </IdentifierLinkItem>
             </IdentifierLinks>
