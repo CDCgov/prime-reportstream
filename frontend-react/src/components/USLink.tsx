@@ -1,6 +1,7 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
+import DOMPurify from "dompurify";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -28,6 +29,7 @@ export const USLink = ({
     state,
     ...anchorHTMLAttributes
 }: USLinkProps) => {
+    const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     let isRoute = false;
     let linkUrl = "";
 
@@ -37,10 +39,10 @@ export const USLink = ({
      * parses, then verify its an absolute url by comparing url origin
      * against window (aka route).
      */
-    if (href !== undefined) {
+    if (sanitizedHref !== undefined) {
         try {
             const url = new URL(
-                href.replace(/^\/\//, `${window.location.protocol}//`)
+                sanitizedHref.replace(/^\/\//, `${window.location.protocol}//`)
             );
             isRoute =
                 url.protocol.startsWith("http") &&
