@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 
@@ -40,18 +39,18 @@ export const About = () => {
                 <p>
                     ReportStream (also known as PRIME ReportStream) was created
                     for the public good by the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.CDC.url)}>
+                    <USExtLink href={site.orgs.CDC.url}>
                         Centers for Disease Control and Prevention (CDC)
                     </USExtLink>
                     , and the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.USDS.url)}>
+                    <USExtLink href={site.orgs.USDS.url}>
                         U.S. Digital Service (USDS)
                     </USExtLink>
                     .
                 </p>
                 <p>
                     Part of the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.PRIME.url)}>
+                    <USExtLink href={site.orgs.PRIME.url}>
                         Pandemic-Ready Interoperability Modernization Effort
                         (PRIME)
                     </USExtLink>
