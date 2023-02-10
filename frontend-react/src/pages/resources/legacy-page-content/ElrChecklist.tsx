@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import DOMPurify from "dompurify";
-import { Button } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
@@ -36,7 +36,7 @@ export const ELRChecklistIa = () => {
                     )
                 }
             >
-                ELR onboarding form
+                ELR onboarding form <Icon.Launch />
             </Button>
             <Button
                 type="button"
@@ -215,9 +215,9 @@ export const ELRChecklistIa = () => {
                 <p>
                     ReportStream collects unique identifiers from testing
                     facilities when they register to send data, including name,{" "}
-                    <USExtLink href="https://www.cdc.gov/clia/about.html">
+                    <USLink href="https://www.cdc.gov/clia/about.html">
                         CLIA
-                    </USExtLink>{" "}
+                    </USLink>{" "}
                     number, and address. This information is included with data
                     sent to public health departments.
                 </p>
