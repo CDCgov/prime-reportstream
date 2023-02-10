@@ -1,11 +1,13 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { FileHandlerForm } from "./FileHandlerForm";
 
 describe("FileHandlerForm", () => {
     test("renders proper submitted, cancellable state", async () => {
         const resetSpy = jest.fn();
-        render(
+        renderWithBase(
             <FileHandlerForm
                 handleSubmit={() => {}}
                 handleFileChange={() => {}}
@@ -39,7 +41,7 @@ describe("FileHandlerForm", () => {
         const submitSpy = jest.fn((e) => e.preventDefault()); // to prevent error message in console
         const fileChangeSpy = jest.fn();
 
-        render(
+        renderWithBase(
             <FileHandlerForm
                 handleSubmit={submitSpy}
                 handleFileChange={fileChangeSpy}
@@ -83,7 +85,7 @@ describe("FileHandlerForm", () => {
         const resetSpy = jest.fn();
         const submitSpy = jest.fn();
         const fileChangeSpy = jest.fn();
-        render(
+        renderWithBase(
             <FileHandlerForm
                 handleSubmit={submitSpy}
                 handleFileChange={fileChangeSpy}

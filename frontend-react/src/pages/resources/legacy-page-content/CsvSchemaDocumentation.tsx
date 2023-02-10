@@ -143,7 +143,7 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <USLink anchor href="#formatting-guidelines">
+                        <USLink href="#formatting-guidelines">
                             General formatting guidelines
                         </USLink>
                     </li>
@@ -157,7 +157,6 @@ export const CsvSchemaDocumentation = () => {
                                                 key={`toc-${fieldIndex}-${sectionIndex}`}
                                             >
                                                 <USLink
-                                                    anchor
                                                     href={`#${section.slug}`}
                                                 >
                                                     {section.title}
@@ -265,11 +264,7 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <USLink
-                                anchor
-                                href="#anchor-top"
-                                className="usa-link"
-                            >
+                            <USLink href="#anchor-top" className="usa-link">
                                 Return to top
                             </USLink>
                         </p>

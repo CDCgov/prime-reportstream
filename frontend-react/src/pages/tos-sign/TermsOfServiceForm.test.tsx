@@ -1,13 +1,15 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import TermsOfServiceForm from "./TermsOfServiceForm";
 
 describe("Basic rendering", () => {
     beforeEach(() => {
         process.env.REACT_APP_SECRET = "fake secret";
-        render(
+        renderWithBase(
             <BrowserRouter>
                 <TermsOfServiceForm />
             </BrowserRouter>

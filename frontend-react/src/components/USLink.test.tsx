@@ -3,6 +3,7 @@ import { screen } from "@testing-library/react";
 import { renderWithRouter } from "../utils/CustomRenderUtils";
 
 import {
+    getHrefRoute,
     USCrumbLink,
     USExtLink,
     USLink,
@@ -24,6 +25,39 @@ const testScenarios = Object.entries(enumProps).map(([key, valueList]) =>
     valueList.map((v) => [key, v, enumPropMap[key as keyof typeof enumProps]])
 );
 
+const routeUrls = [
+    "",
+    "#",
+    "#asdf",
+    "##asdf",
+    "/",
+    "asdf",
+    `//${window.location.host}/asdf`,
+    `${window.location.origin}`,
+];
+
+const routeUrlsMap = {
+    [`//${window.location.host}/asdf`]: "/asdf",
+    [`${window.location.origin}`]: `/`,
+};
+
+const nonRouteUrls = [
+    undefined,
+    "mailto:someone@abc.com",
+    "https://www.google.com",
+    "http://www.google.com",
+    "//www.google.com",
+];
+
+describe("getHrefRoute", () => {
+    test.each(routeUrls)("'%s' returns string", (url) => {
+        expect(getHrefRoute(url)).toBe(routeUrlsMap[url] ?? url);
+    });
+    test.each(nonRouteUrls)("'%s' returns undefined", (url) => {
+        expect(getHrefRoute(url)).toBe(undefined);
+    });
+});
+
 describe("USLink", () => {
     test("renders without error", () => {
         renderWithRouter(<USLink href={"/some/url"}>My Link</USLink>);
@@ -40,6 +74,19 @@ describe("USLink", () => {
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
         expect(link).toHaveClass("my-custom-class");
+    });
+    // Native react element type will be DOM element name string.
+    // Custom components will have a type.displayName of their variable
+    // name (ex: const CustomComponent = () => {} will have displayName
+    // CustomComponent).
+    test.each(routeUrls)("'%s' renders as Link", (url) => {
+        const component = USLink({ children: <>Test</>, href: url });
+        expect(component.type).not.toBe("a");
+        expect(component.type.displayName).toBe("Link");
+    });
+    test.each(nonRouteUrls)("'%s' renders as anchor", (url) => {
+        const component = USLink({ children: <>Test</>, href: url });
+        expect(component.type).toBe("a");
     });
     /** Specialization of USLink */
     describe("USExtLink", () => {
