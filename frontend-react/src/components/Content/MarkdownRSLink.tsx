@@ -1,5 +1,4 @@
 import { Options } from "react-markdown";
-//import URL from "whatwg-url";
 
 import { USExtLink, USLink } from "../USLink";
 
