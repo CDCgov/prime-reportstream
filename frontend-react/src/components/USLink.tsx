@@ -50,11 +50,11 @@ export const USLink = ({
             if (isRoute) {
                 linkUrl = `${url.pathname}${url.search}`;
             } else {
-                linkUrl = href;
+                linkUrl = sanitizedHref;
             }
         } catch (e: any) {
             isRoute = true;
-            linkUrl = href;
+            linkUrl = sanitizedHref;
         }
     }
 
