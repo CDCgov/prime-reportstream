@@ -62,9 +62,9 @@ export const Faq = () => {
             <p>
                 ReportStream shares some resources with other projects operated
                 by the CDC (e.g.{" "}
-                <USExtLink href="https://www.simplereport.gov/">
+                <USLink href="https://www.simplereport.gov/">
                     SimpleReport
-                </USExtLink>
+                </USLink>
                 ).
             </p>
             <p>
@@ -83,13 +83,11 @@ export const Faq = () => {
             </h3>
             <p>
                 ReportStream and{" "}
-                <USExtLink href="https://simplereport.gov">
-                    SimpleReport
-                </USExtLink>{" "}
+                <USLink href="https://simplereport.gov">SimpleReport</USLink>{" "}
                 are sister projects under the{" "}
-                <USExtLink href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html">
+                <USLink href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html">
                     Pandemic-Ready Interoperability Modernization Effort (PRIME)
-                </USExtLink>
+                </USLink>
                 , operated by the CDC.
             </p>
             <p>
