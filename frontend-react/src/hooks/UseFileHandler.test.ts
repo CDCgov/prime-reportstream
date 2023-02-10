@@ -1,13 +1,20 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import {
+    act,
+    renderHook,
+    RenderHookResult,
+} from "@testing-library/react-hooks";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ResponseError } from "../config/endpoints/waters";
+import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 
 import useFileHandler, {
     INITIAL_STATE,
     FileHandlerActionType,
     RequestCompletePayload,
+    FileType,
+    UseFileHandlerHookResult,
 } from "./UseFileHandler";
 
 const fakeDestination: Destination = {
@@ -303,6 +310,136 @@ describe("useFileHandler", () => {
                     service: "some service",
                 },
             ],
+        });
+    });
+
+    describe("when selecting a schema option", () => {
+        let renderer: RenderHookResult<undefined, UseFileHandlerHookResult>;
+
+        function doDispatch(payload: SchemaOption | null) {
+            renderer = renderHook(() => useFileHandler());
+
+            act(() =>
+                renderer.result.current.dispatch({
+                    type: FileHandlerActionType.SCHEMA_SELECTED,
+                    payload,
+                })
+            );
+        }
+
+        describe("when a schema option is unselected", () => {
+            beforeEach(() => {
+                doDispatch(null);
+            });
+
+            test("clears out the selected schema from state", () => {
+                expect(
+                    renderer.result.current.state.selectedSchemaOption
+                ).toBeNull();
+            });
+        });
+
+        describe("when a schema option is selected", () => {
+            const schemaOption: SchemaOption = {
+                value: "test",
+                title: "test",
+                format: FileType.CSV,
+            };
+
+            beforeEach(() => {
+                doDispatch(schemaOption);
+            });
+
+            test("sets the selected schema in state", () => {
+                expect(
+                    renderer.result.current.state.selectedSchemaOption
+                ).toEqual(schemaOption);
+            });
+        });
+
+        describe("when there's already file data in the useFileHandler state", () => {
+            let renderer: RenderHookResult<undefined, UseFileHandlerHookResult>;
+
+            beforeEach(() => {
+                renderer = renderHook(() => useFileHandler());
+
+                act(() => {
+                    renderer.result.current.dispatch({
+                        type: FileHandlerActionType.FILE_SELECTED,
+                        payload: {
+                            file: new File(
+                                [new Blob(["whatever"])],
+                                "blep.csv",
+                                {
+                                    type: "csv",
+                                }
+                            ),
+                        },
+                    });
+                });
+            });
+
+            describe("when selecting a schema with the same format as the file", () => {
+                test("does not reset the other useFileHandler state values", () => {
+                    expect(renderer.result.current.state).toEqual(
+                        expect.objectContaining({
+                            fileName: "blep.csv",
+                            fileType: "CSV",
+                            contentType: "text/csv",
+                        })
+                    );
+
+                    act(() => {
+                        renderer.result.current.dispatch({
+                            type: FileHandlerActionType.SCHEMA_SELECTED,
+                            payload: {
+                                value: "test-csv",
+                                title: "test-csv",
+                                format: FileType.CSV,
+                            },
+                        });
+                    });
+
+                    expect(renderer.result.current.state).toEqual(
+                        expect.objectContaining({
+                            fileName: "blep.csv",
+                            fileType: "CSV",
+                            contentType: "text/csv",
+                        })
+                    );
+                });
+            });
+
+            describe("when selecting a schema with a different format from the file", () => {
+                test("resets the other useFileHandler state values", () => {
+                    expect(renderer.result.current.state).toEqual(
+                        expect.objectContaining({
+                            fileName: "blep.csv",
+                            fileType: "CSV",
+                            contentType: "text/csv",
+                        })
+                    );
+
+                    act(() => {
+                        renderer.result.current.dispatch({
+                            type: FileHandlerActionType.SCHEMA_SELECTED,
+                            payload: {
+                                value: "test-hl7",
+                                title: "test-hl7",
+                                format: FileType.HL7,
+                            },
+                        });
+                    });
+
+                    expect(renderer.result.current.state).not.toEqual(
+                        expect.objectContaining({
+                            fileName: "blep.csv",
+                            fileType: "CSV",
+                            contentType: "text/csv",
+                        })
+                    );
+                });
+            });
         });
     });
 });
