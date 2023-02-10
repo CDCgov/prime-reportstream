@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
 import React from "react";
 import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
@@ -56,9 +55,7 @@ export const ErrorNoPage = () => {
                                             outline
                                             onClick={() =>
                                                 window.open(
-                                                    `mailto:${DOMPurify.sanitize(
-                                                        site.orgs.RS.email
-                                                    )}`
+                                                    `mailto:${site.orgs.RS.email}`
                                                 )
                                             }
                                         >
