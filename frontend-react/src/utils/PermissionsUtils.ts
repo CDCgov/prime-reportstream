@@ -1,6 +1,6 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { getOktaGroups, RSOrgType } from "./OrganizationUtils";
+import { getOktaGroups, RSOrgType, RSUserClaims } from "./OrganizationUtils";
 
 enum PERMISSIONS {
     /* Non-Okta pseudo groups */
@@ -34,5 +34,29 @@ const permissionCheck = (
             return oktaGroups.map((org) => isAdmin(org)).includes(true);
     }
 };
+
+export interface RSUserPermissions {
+    isUserAdmin: boolean;
+    isUserSender: boolean;
+    isUserReceiver: boolean;
+}
+
+export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
+    let isUserAdmin = false,
+        isUserReceiver = false,
+        isUserSender = false;
+
+    for (const org of user?.organization ?? []) {
+        if (isAdmin(org)) isUserAdmin = true;
+        if (isReceiver(org)) isUserReceiver = true;
+        if (isSender(org)) isUserSender = true;
+    }
+
+    return {
+        isUserAdmin,
+        isUserReceiver,
+        isUserSender,
+    };
+}
 
 export { PERMISSIONS, isSender, isReceiver, isAdmin, permissionCheck };
