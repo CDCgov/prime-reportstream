@@ -10,6 +10,20 @@ import {
     USLinkButton,
 } from "./USLink";
 
+const enumProps = {
+    size: ["big"],
+    accentStyle: ["cool", "warm"],
+};
+
+const enumPropMap = {
+    size: "",
+    accentStyle: "accent",
+};
+
+const testScenarios = Object.entries(enumProps).map(([key, valueList]) =>
+    valueList.map((v) => [key, v, enumPropMap[key as keyof typeof enumProps]])
+);
+
 describe("USLink", () => {
     test("renders without error", () => {
         renderWithRouter(<USLink href={"/some/url"}>My Link</USLink>);
@@ -64,12 +78,12 @@ describe("USNavLink", () => {
 
 describe("USLinkButton", () => {
     test("boolean button styles applied", () => {
-        const view = renderWithRouter(
+        renderWithRouter(
             <USLinkButton secondary base outline inverse unstyled>
                 Test
             </USLinkButton>
         );
-        expect(view.container.children[0]).toHaveClass(
+        expect(screen.getByRole("link")).toHaveClass(
             "usa-button",
             "usa-button--secondary",
             "usa-button--base",
@@ -78,31 +92,19 @@ describe("USLinkButton", () => {
             "usa-button--unstyled"
         );
     });
-    test("enum button styles applied", () => {
-        const enumProps = {
-            size: ["big"],
-            accentStyle: ["cool", "warm"],
-        };
 
-        const enumPropMap = {
-            size: "",
-            accentStyle: "accent",
-        };
-
-        for (const [key, value] of Object.entries(enumProps)) {
-            const classNamePrefix = enumPropMap[key as keyof typeof enumProps];
+    test.each(testScenarios)(
+        "%s=%s button style applied",
+        ([key, value, prefix]) => {
             const prop = { [key]: value };
-            const className =
-                classNamePrefix === ""
-                    ? `usa-button--${value}`
-                    : `usa-button--${classNamePrefix}-${value}`;
-            const view = renderWithRouter(
-                <USLinkButton {...prop}>Test</USLinkButton>
-            );
-            expect(view.container.children[0]).toHaveClass(
+            const className = prefix
+                ? `usa-button--${prefix}-${value}`
+                : `usa-button--${value}`;
+            renderWithRouter(<USLinkButton {...prop}>Test</USLinkButton>);
+            expect(screen.getByRole("link")).toHaveClass(
                 "usa-button",
                 className
             );
         }
-    });
+    );
 });

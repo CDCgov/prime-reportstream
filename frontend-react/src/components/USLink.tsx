@@ -75,13 +75,15 @@ export const USLinkButton = ({
 }: USLinkButtonProps) => {
     const linkClassname = classnames(
         "usa-button",
-        secondary ? "usa-button--secondary" : undefined,
-        accentStyle ? `usa-button--accent-${accentStyle}` : undefined,
-        base ? "usa-button--base" : undefined,
-        outline ? "usa-button--outline" : undefined,
-        inverse ? "usa-button--inverse" : undefined,
-        size ? `usa-button--${size}` : undefined,
-        unstyled ? "usa-button--unstyled" : undefined,
+        {
+            "usa-button--secondary": secondary,
+            [`usa-button--accent-${accentStyle}`]: accentStyle,
+            "usa-button--base": base,
+            "usa-button--outline": outline,
+            "usa-button--inverse": inverse,
+            [`usa-button--${size}`]: size,
+            "usa-button--unstyled": unstyled,
+        },
         className
     );
     return !anchor ? (
