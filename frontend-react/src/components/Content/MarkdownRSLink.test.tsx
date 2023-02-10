@@ -1,6 +1,6 @@
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import { MarkdownRSLink } from "./MarkdownRSLink";
+import { isExternalUrl, MarkdownRSLink } from "./MarkdownRSLink";
 
 const externalUrls = [
     "https://www.google.com",
@@ -22,6 +22,16 @@ const internalUrls = [
     "//www.cdc.gov",
     "//cdc.gov",
 ];
+
+describe("isExternalUrl", () => {
+    test.each(externalUrls)("'%s' returns true", (url) => {
+        expect(isExternalUrl(url)).toBeTruthy();
+    });
+
+    test.each(internalUrls)("'%s' returns false", (url) => {
+        expect(isExternalUrl(url)).toBeFalsy();
+    });
+});
 
 describe("MarkdownSRLink", () => {
     test.each(externalUrls)("'%s' returns external link", (url) => {

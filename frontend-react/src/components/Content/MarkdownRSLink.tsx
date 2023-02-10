@@ -21,6 +21,23 @@ export type MarkdownComponentProps<
     children: React.ReactNode;
 };
 
+export function isExternalUrl(href?: string) {
+    if (href === undefined) return false;
+    try {
+        // Browsers allow // shorthand in anchor urls but URL does not
+        const url = new URL(
+            href.replace(/^\/\//, `${window.location.protocol}//`)
+        );
+        return (
+            url.protocol.startsWith("http") &&
+            url.host !== "cdc.gov" &&
+            !url.host.endsWith(".cdc.gov")
+        );
+    } catch (e: any) {
+        return false;
+    }
+}
+
 export type MarkdownRSLinkProps = MarkdownComponentProps<"a">;
 
 export const MarkdownRSLink = ({ children, ...props }: MarkdownRSLinkProps) => {
@@ -32,18 +49,7 @@ export const MarkdownRSLink = ({ children, ...props }: MarkdownRSLinkProps) => {
      * from the cdc.gov domain (aka is internal).
      */
     if (props.href !== undefined) {
-        try {
-            // Browsers allow // shorthand in anchor urls but URL does not
-            const url = new URL(
-                props.href.replace(/^\/\//, `${window.location.protocol}//`)
-            );
-            isExternal =
-                url.protocol.startsWith("http") &&
-                url.host !== "cdc.gov" &&
-                !url.host.endsWith(".cdc.gov");
-        } catch (e: any) {
-            isExternal = false;
-        }
+        isExternal = isExternalUrl(props.href);
     }
 
     if (isExternal) {
