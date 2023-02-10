@@ -21,6 +21,11 @@ export type MarkdownComponentProps<
     children: React.ReactNode;
 };
 
+/**
+ * Try to parse the href as a URL. If it throws, then it's not
+ * an absolute href (aka is internal). If it parses, verify it is
+ * from the cdc.gov domain (aka is internal).
+ */
 export function isExternalUrl(href?: string) {
     if (href === undefined) return false;
     try {
@@ -43,11 +48,6 @@ export type MarkdownRSLinkProps = MarkdownComponentProps<"a">;
 export const MarkdownRSLink = ({ children, ...props }: MarkdownRSLinkProps) => {
     let isExternal = props.href !== undefined;
 
-    /**
-     * Try to parse the href as a URL. If it throws, then it's not
-     * an absolute href (aka is internal). If it parses, verify it is
-     * from the cdc.gov domain (aka is internal).
-     */
     if (props.href !== undefined) {
         isExternal = isExternalUrl(props.href);
     }
