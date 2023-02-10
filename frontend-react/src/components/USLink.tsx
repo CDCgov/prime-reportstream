@@ -16,6 +16,32 @@ type USLinkProps = AnchorHTMLAttributes<{}> &
     Omit<CustomLinkProps, "activeClassName">;
 type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
+/**
+ * Stateless function to get route href from href that could be
+ * absolute, shorthand, relative, and/or a non-route.
+ * Attempt to parse href as URL (taking into account "//" shorthand).
+ * If it errors, then assume its a relative url (aka route). If it
+ * parses, then verify its an absolute route through origins.
+ */
+export function getHrefRoute(href?: string): string | undefined {
+    if (href === undefined) return undefined;
+
+    try {
+        const url = new URL(
+            href.replace(/^\/\//, `${window.location.protocol}//`)
+        );
+        if (
+            url.protocol.startsWith("http") &&
+            url.origin === window.location.origin
+        )
+            return `${url.pathname}${url.search}`;
+    } catch (e: any) {
+        return href;
+    }
+
+    return undefined;
+}
+
 /** A single link for rendering standard links. Uses a `Link` by default
  * but adding `anchor` will make this a generic anchor tag.
  * @example
@@ -30,37 +56,11 @@ export const USLink = ({
     ...anchorHTMLAttributes
 }: USLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
-    let isRoute = false;
-    let linkUrl = "";
+    const routeHref = getHrefRoute(sanitizedHref);
 
-    /**
-     * Attempt to parse href as URL (taking into account "//" shorthand).
-     * If it errors, then assume its a relative url (aka route). If it
-     * parses, then verify its an absolute url by comparing url origin
-     * against window (aka route).
-     */
-    if (sanitizedHref !== undefined) {
-        try {
-            const url = new URL(
-                sanitizedHref.replace(/^\/\//, `${window.location.protocol}//`)
-            );
-            isRoute =
-                url.protocol.startsWith("http") &&
-                url.origin === window.location.origin;
-            if (isRoute) {
-                linkUrl = `${url.pathname}${url.search}`;
-            } else {
-                linkUrl = sanitizedHref;
-            }
-        } catch (e: any) {
-            isRoute = true;
-            linkUrl = sanitizedHref;
-        }
-    }
-
-    return isRoute ? (
+    return routeHref !== undefined ? (
         <Link
-            to={linkUrl}
+            to={routeHref}
             className={classnames("usa-link", className)}
             state={state}
             {...anchorHTMLAttributes}
@@ -69,7 +69,7 @@ export const USLink = ({
         </Link>
     ) : (
         <a
-            href={linkUrl}
+            href={sanitizedHref}
             className={classnames("usa-link", className)}
             {...anchorHTMLAttributes}
         >

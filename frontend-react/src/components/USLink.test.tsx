@@ -2,7 +2,13 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../utils/CustomRenderUtils";
 
-import { USCrumbLink, USExtLink, USLink, USNavLink } from "./USLink";
+import {
+    getHrefRoute,
+    USCrumbLink,
+    USExtLink,
+    USLink,
+    USNavLink,
+} from "./USLink";
 
 const routeUrls = [
     "",
@@ -15,6 +21,11 @@ const routeUrls = [
     `${window.location.origin}`,
 ];
 
+const routeUrlsMap = {
+    [`//${window.location.host}/asdf`]: "/asdf",
+    [`${window.location.origin}`]: `/`,
+};
+
 const nonRouteUrls = [
     undefined,
     "mailto:someone@abc.com",
@@ -22,6 +33,15 @@ const nonRouteUrls = [
     "http://www.google.com",
     "//www.google.com",
 ];
+
+describe("getHrefRoute", () => {
+    test.each(routeUrls)("'%s' returns string", (url) => {
+        expect(getHrefRoute(url)).toBe(routeUrlsMap[url] ?? url);
+    });
+    test.each(nonRouteUrls)("'%s' returns undefined", (url) => {
+        expect(getHrefRoute(url)).toBe(undefined);
+    });
+});
 
 describe("USLink", () => {
     test("renders without error", () => {
