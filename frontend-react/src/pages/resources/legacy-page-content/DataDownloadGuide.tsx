@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@trussworks/react-uswds";
 
@@ -73,9 +72,7 @@ export const DataDownloadGuideIa = () => {
 
                         <p>
                             Visit{" "}
-                            <USExtLink
-                                href={DOMPurify.sanitize(site.orgs.RS.url)}
-                            >
+                            <USExtLink href={site.orgs.RS.url}>
                                 reportstream.cdc.gov
                             </USExtLink>{" "}
                             using a modern desktop web browser (ex: Chrome,
