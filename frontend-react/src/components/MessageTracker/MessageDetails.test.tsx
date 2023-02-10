@@ -145,7 +145,7 @@ const DEFAULT_MESSAGE_DETAIL: RSMessageDetail = {
     id: TEST_ID,
     messageId: "12-234567",
     sender: "somebody 1",
-    submittedDate: "2022-09-28",
+    submittedDate: "2022-09-28T22:21:33.801667",
     reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
     fileName: "simple_report_example.csv",
     fileUrl:
@@ -189,10 +189,10 @@ describe("RSMessageDetail component", () => {
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
-        expect(screen.getByText("9/28/2022, 12:00:00 am")).toBeVisible();
+        expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
         expect(screen.getByText("File Location")).toBeVisible();
         expect(screen.getByText("RECEIVE")).toBeVisible();
-        expect(screen.getByText("/ simple_report.csvuploader")).toBeVisible();
+        expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
         expect(screen.getAllByText(/Incoming File Name/)[0]).toBeVisible();
         expect(
             screen.getByText(
@@ -203,7 +203,7 @@ describe("RSMessageDetail component", () => {
     });
 
     describe("parseFileLocation", () => {
-        test("returns folderLocation, sendingOrg, and fileName", () => {
+        test("returns folderLocation, sendingOrg, and fileName when all three fragments exist", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
                 fileUrl:
@@ -214,9 +214,7 @@ describe("RSMessageDetail component", () => {
             });
             render(<MessageDetails />);
             expect(screen.getByText("RECEIVE")).toBeVisible();
-            expect(
-                screen.getByText("/ simple_report.csvuploader")
-            ).toBeVisible();
+            expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
                 screen.getByText(
                     "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
@@ -224,7 +222,7 @@ describe("RSMessageDetail component", () => {
             ).toBeVisible();
         });
 
-        test("does not return folderLocation, sendingOrg, and fileName", () => {
+        test("does not return folderLocation, sendingOrg, and fileName when not all three fragments exist", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
                 fileUrl:

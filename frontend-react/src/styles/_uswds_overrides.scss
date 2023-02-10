@@ -19,7 +19,6 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
-$bg-primary: #005ea2;
 
 html, body {
   height: 100%;
@@ -74,7 +73,7 @@ main {
 }
 
 .usa-nav__primary-item a.usa-button {
-  color: $bg-primary;
+  color: color('primary');
 }
 
 // Breadcrumb
@@ -176,7 +175,7 @@ main {
   }
 
   .usa-nav__primary > .usa-current > a::after {
-    background-color: $bg-primary;
+    background-color: color('primary');
     border-radius: 0;
     content: "";
     display: block;

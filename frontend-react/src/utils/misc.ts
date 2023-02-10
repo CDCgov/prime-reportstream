@@ -185,23 +185,21 @@ export const parseFileLocation = (
     sendingOrg: string;
     fileName: string;
 } => {
-    let fileLocation = "";
-    let sendingOrg = "";
-    let fileName = "";
+    const fileReportsLocation = urlFileLocation.split("/").pop() || "";
+    const [folderLocation, sendingOrg, fileName] =
+        fileReportsLocation.split("%2F");
 
-    try {
-        const fileReportsLocation = urlFileLocation.split("/").pop();
-        if (fileReportsLocation?.split("%2F").length === 3) {
-            [fileLocation, sendingOrg, fileName] =
-                fileReportsLocation.split("%2F");
-        }
-    } catch (e) {
-        console.trace(e);
+    if (!(folderLocation && sendingOrg && fileName)) {
+        return {
+            folderLocation: "",
+            sendingOrg: "",
+            fileName: "",
+        };
     }
 
     return {
-        folderLocation: fileLocation.toUpperCase(),
-        sendingOrg: sendingOrg,
-        fileName: fileName,
+        folderLocation,
+        sendingOrg,
+        fileName,
     };
 };

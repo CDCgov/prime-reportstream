@@ -1,5 +1,4 @@
 import React from "react";
-import moment from "moment";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
@@ -19,6 +18,15 @@ type MessageDetailsProps = {
     id: string | undefined;
 };
 
+const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+});
+
 const dataToAccordionItems = (props: {
     id: string;
     title: string;
@@ -28,14 +36,16 @@ const dataToAccordionItems = (props: {
     if (props.data.length === 0) {
         return [];
     }
-    const items = (
-        <WarningsErrors title={""} data={props.data.map((md) => md.detail)} />
-    );
     results.push({
         id: props.id,
         title: props.title,
         expanded: false,
-        content: items,
+        content: (
+            <WarningsErrors
+                title={""}
+                data={props.data.map((md) => md.detail)}
+            />
+        ),
         headingLevel: "h3",
         className: "",
     });
@@ -47,12 +57,13 @@ export function MessageDetails() {
     const navigate = useNavigate();
     const { id } = useParams<MessageDetailsProps>();
     const { messageDetails } = useMessageDetails(id!!);
-    const warnings: WarningError[] = messageDetails
-        ? messageDetails.warnings
-        : [];
-    const errors: WarningError[] = messageDetails ? messageDetails.errors : [];
+    const submittedDate = messageDetails?.submittedDate
+        ? new Date(messageDetails.submittedDate)
+        : undefined;
+    const warnings = messageDetails?.warnings || [];
+    const errors = messageDetails?.errors || [];
 
-    const fileUrl = messageDetails?.fileUrl ? messageDetails.fileUrl : "";
+    const fileUrl = messageDetails?.fileUrl || "";
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (
@@ -98,19 +109,26 @@ export function MessageDetails() {
                             />
                             <DetailItem
                                 item="Date/Time Submitted"
-                                content={moment(
-                                    messageDetails!.submittedDate
-                                ).format("M/DD/YYYY, h:mm:ss a")}
+                                content={dateTimeFormatter.format(
+                                    submittedDate
+                                )}
                             />
                             <div className="display-flex flex-column margin-bottom-2">
                                 <span className="text-base line-height-body-5">
                                     {"File Location"}
                                 </span>
                                 <div>
-                                    <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
-                                        {folderLocation}
-                                    </span>
-                                    <span>{` / ${sendingOrg}`}</span>
+                                    {folderLocation && sendingOrg && (
+                                        <>
+                                            <span className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
+                                                {folderLocation.toUpperCase()}
+                                            </span>
+                                            <span className="padding-x-1">
+                                                /
+                                            </span>
+                                            <span>{`${sendingOrg}`}</span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             <DetailItem
