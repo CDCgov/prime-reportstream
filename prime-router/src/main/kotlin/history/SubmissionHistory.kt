@@ -319,12 +319,12 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the route and translate actions.
+     * Enrich a parent detailed history with details from translate actions.
      * Add destinations, errors, and warnings, to the history details.
      * Note: Route/Translate is exclusive to the Universal pipeline
      * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
      *
-     * @param descendants[] route and translate actions that will be used to enrich
+     * @param descendants[] translate actions that will be used to enrich
      */
     private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
         require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.translate) {
@@ -350,6 +350,14 @@ class DetailedSubmissionHistory(
         }
     }
 
+    /**
+     * Enrich a parent detailed history with details from the route action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     *
+     * @param descendants[] route actions that will be used to enrich
+     */
     private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
         require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.route) {
             "Must be route action. Enrichment is only available for the Universal Pipeline"
@@ -371,18 +379,10 @@ class DetailedSubmissionHistory(
                 destinations.firstOrNull {
                     it.organizationId == receiverNameSegments[0] && it.service == receiverNameSegments[1]
                 }?.let { existingDestination ->
-                    if (existingDestination.filteredReportRows == null) {
-                        existingDestination.filteredReportRows = mutableListOf(filterReport)
-                    } else {
-                        existingDestination.filteredReportRows!!.add(filterReport)
-                    }
-
-                    if (existingDestination.filteredReportItems == null) {
-                        existingDestination.filteredReportItems = mutableListOf(filterResultResponse)
-                    } else {
-                        existingDestination.filteredReportItems!!.add(filterResultResponse)
-                    }
-
+                    // filteredReportRows and filteredReportItems are initialized
+                    // when a DetailedSubmissionHistory is created, so they shouldn't be null
+                    existingDestination.filteredReportRows!!.add(filterReport)
+                    existingDestination.filteredReportItems!!.add(filterResultResponse)
                     existingDestination.itemCountBeforeQualFilter = existingDestination.itemCountBeforeQualFilter?.plus(
                         filterResult.originalCount
                     ) ?: filterResult.originalCount
@@ -616,8 +616,8 @@ data class Destination(
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
-    var filteredReportRows: MutableList<String>?,
-    var filteredReportItems: MutableList<ReportStreamFilterResultForResponse>?,
+    val filteredReportRows: MutableList<String>?,
+    val filteredReportItems: MutableList<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,

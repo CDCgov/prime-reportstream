@@ -1097,7 +1097,7 @@ class SubmissionHistoryTests {
                             null,
                             null,
                             1,
-                            1,
+                            null,
                             true
                         ),
                         DetailedReport(
@@ -1113,6 +1113,20 @@ class SubmissionHistoryTests {
                             1,
                             1,
                             true
+                        ),
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            null,
+                            true
                         )
                     )
                 ),
@@ -1123,8 +1137,8 @@ class SubmissionHistoryTests {
             assertThat(destinations.count()).isEqualTo(1)
             assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
-            assertThat(destinations.first().itemCount).isEqualTo(2)
-            assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(2)
+            assertThat(destinations.first().itemCount).isEqualTo(3)
+            assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(1)
         }
     }
 
@@ -1220,7 +1234,7 @@ class SubmissionHistoryTests {
             null,
             null,
             5,
-            7,
+            null,
             false
         )
 
@@ -1308,6 +1322,28 @@ class SubmissionHistoryTests {
                     null,
                     logs
                 ),
+                DetailedSubmissionHistory(
+                    3,
+                    TaskAction.translate,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    mutableListOf(
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            null,
+                            true
+                        ),
+                    )
+                )
             )
         )
 
