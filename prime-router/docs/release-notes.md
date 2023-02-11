@@ -16,6 +16,9 @@ Previously, the `client` parameter had to be set in the header. This is still an
 can pass `schema` and `format` as query parameters and a schema matching those values will be used to 
 validate the message. Additional information can be found in the API documentation.
 
+### Update Message API documentation
+
+Renamed `/api/messages/search` to `/api/messages` and updated API documentation for accuracy.
 
 ## November 29, 2022
 

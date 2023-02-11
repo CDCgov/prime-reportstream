@@ -1,6 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 
 import {
+    renderWithBase,
     renderWithFullAppContext,
     renderWithRouter,
 } from "../../utils/CustomRenderUtils";
@@ -68,7 +69,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
-                handlerType={""}
             />
         );
 
@@ -121,7 +121,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
-                handlerType={""}
             />
         );
 
@@ -213,7 +212,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        render(
+        renderWithBase(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}

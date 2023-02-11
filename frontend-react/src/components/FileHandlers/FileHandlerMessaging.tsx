@@ -11,7 +11,7 @@ import {
     ResponseError,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink, USLink } from "../USLink";
+import { USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -43,6 +43,8 @@ export const FileSuccessDisplay = ({
                 message={message}
             />
             <div>
+                {/* TODO: can probably remove since it's not being used now */}
+
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -118,7 +120,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -126,7 +127,6 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
         () =>
@@ -143,10 +143,10 @@ export const RequestedChangesDisplay = ({
     useEffect(() => {
         data.forEach((error: ResponseError) => {
             if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
+                console.error(`failure: ${error.details}`);
             }
         });
-    }, [data, handlerType, title]);
+    }, [data, title]);
 
     return (
         <>
@@ -162,9 +162,9 @@ export const RequestedChangesDisplay = ({
                         </USLink>
                     </li>
                     <li>
-                        <USExtLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
+                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </USExtLink>
+                        </USLink>
                     </li>
                 </ul>
             </StaticAlert>

@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
 import {
     renderWithRouter,
     renderWithCustomWrapper,
+    renderWithBase,
 } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
@@ -492,7 +493,7 @@ describe("ColumnData", () => {
 
 describe("Adding New Rows", () => {
     test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", () => {
-        render(<TestTable linkable={false} editable={true} />);
+        renderWithBase(<TestTable linkable={false} editable={true} />);
 
         let rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(3); // 2 data rows and 1 header row
@@ -505,7 +506,7 @@ describe("Adding New Rows", () => {
     });
 
     test("All fields on new editable row are editable", () => {
-        render(<TestTable linkable={false} editable={true} />);
+        renderWithBase(<TestTable linkable={false} editable={true} />);
 
         const addRowButton = screen.getByText("Test Action");
         userEvent.click(addRowButton);

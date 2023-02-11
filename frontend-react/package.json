@@ -7,9 +7,9 @@
     "dependencies": {
         "@microsoft/applicationinsights-react-js": "^3.4.0",
         "@microsoft/applicationinsights-web": "^2.8.9",
-        "@okta/okta-auth-js": "^6.9.0",
-        "@okta/okta-react": "^6.4.1",
-        "@okta/okta-signin-widget": "^6.0.1",
+        "@okta/okta-auth-js": "^7.2.0",
+        "@okta/okta-react": "^6.7.0",
+        "@okta/okta-signin-widget": "^7.2.1",
         "@rest-hooks/rest": "^3.0.3",
         "@tanstack/react-query": "^4.20.9",
         "@tanstack/react-query-devtools": "^4.20.9",
@@ -17,7 +17,7 @@
         "@xmldom/xmldom": "0.8.6",
         "axios": "^1.2.1",
         "classnames": "^2.3.1",
-        "dompurify": "^2.3.4",
+        "dompurify": "^2.4.3",
         "downloadjs": "^1.4.7",
         "loader-utils": "3.2.1",
         "lodash.chunk": "^4.2.0",
@@ -30,7 +30,7 @@
         "react": "<18.0.0",
         "react-device-detect": "^2.0.0",
         "react-dom": "<18.0.0",
-        "react-helmet": "^6.1.0",
+        "react-helmet-async": "^1.3.0",
         "react-idle-timer": "^4.6.4",
         "react-loader-spinner": "^5.1.3",
         "react-markdown": "^8.0.4",
@@ -86,7 +86,8 @@
             "[/\\\\]node_modules[/\\\\](?!(react-markdown|vfile|vfile-message|markdown-table|unist-.*|unified|bail|is-plain-obj|trough|remark-.*|rehype-.*|html-void-elements|hast-util-.*|zwitch|hast-to-hyperscript|hastscript|web-namespaces|mdast-util-.*|escape-string-regexp|micromark.*|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount|mdast-util-gfm|gemoji)).+\\.(js|jsx|mjs|cjs|ts|tsx)$"
         ],
         "moduleNameMapper": {
-            "axios": "axios/dist/node/axios.cjs"
+            "axios": "axios/dist/node/axios.cjs",
+            "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/staticAssetMock.js"
         }
     },
     "eslintConfig": {
@@ -217,7 +218,7 @@
         "@testing-library/react": "^12.1.2",
         "@testing-library/react-hooks": "^8.0.1",
         "@testing-library/user-event": "^13.5.0",
-        "@types/dompurify": "^2.3.1",
+        "@types/dompurify": "^2.4.0",
         "@types/downloadjs": "^1.4.2",
         "@types/lodash.chunk": "^4.2.7",
         "@types/lodash.omit": "^4.5.7",
