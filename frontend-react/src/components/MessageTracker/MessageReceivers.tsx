@@ -135,7 +135,67 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             ),
         [activeColumnSortOrder]
     );
-    console.log(receiverDetails);
+    const sortedData = useMemo(
+        () =>
+            activeColumnSortOrder !== FilterOptions.None
+                ? receiverDetails.sort((a, b) => {
+                      const { folderLocationA, sendingOrgA, fileNameA } =
+                          parseFileLocation(a.fileUrl);
+                      const { folderLocationB, sendingOrgB, fileNameB } =
+                          parseFileLocation(b.fileUrl);
+                      switch (true) {
+                          case activeColumn === ColumnDataEnum.Name:
+                          case activeColumn === ColumnDataEnum.Service:
+                          case activeColumn === ColumnDataEnum.ReportId:
+                          case activeColumn === ColumnDataEnum.TransportResults:
+                              if (activeColumnSortOrder === FilterOptions.ASC) {
+                                  return a[activeColumn] > b[activeColumn]
+                                      ? 1
+                                      : -1;
+                              } else {
+                                  return a[activeColumn] < b[activeColumn]
+                                      ? 1
+                                      : -1;
+                              }
+                          case activeColumn === ColumnDataEnum.Date:
+                              if (activeColumnSortOrder === FilterOptions.ASC) {
+                                  return new Date(a[activeColumn]) >
+                                      new Date(b[activeColumn])
+                                      ? 1
+                                      : -1;
+                              } else {
+                                  return new Date(a[activeColumn]) <
+                                      new Date(b[activeColumn])
+                                      ? 1
+                                      : -1;
+                              }
+                          case activeColumn === ColumnDataEnum.Main:
+                              if (activeColumnSortOrder === FilterOptions.ASC) {
+                                  return folderLocationA > folderLocationB
+                                      ? 1
+                                      : -1;
+                              } else {
+                                  return folderLocationA < folderLocationB
+                                      ? 1
+                                      : -1;
+                              }
+                          case activeColumn === ColumnDataEnum.Sub:
+                              if (activeColumnSortOrder === FilterOptions.ASC) {
+                                  return sendingOrgA > sendingOrgB ? 1 : -1;
+                              } else {
+                                  return sendingOrgA < sendingOrgB ? 1 : -1;
+                              }
+                          case activeColumn === ColumnDataEnum.FileName:
+                              if (activeColumnSortOrder === FilterOptions.ASC) {
+                                  return fileNameA > fileNameB ? 1 : -1;
+                              } else {
+                                  return fileNameA < fileNameB ? 1 : -1;
+                              }
+                      }
+                  })
+                : receiverDetails,
+        [activeColumn, activeColumnSortOrder]
+    );
     return (
         <>
             <h2>Receivers:</h2>
@@ -165,7 +225,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                     </tr>
                 </thead>
                 <tbody style={{ wordBreak: "break-all" }}>
-                    {receiverDetails.map((receiver, index) => (
+                    {sortedData.map((receiver, index) => (
                         <MessageReceiversColRow
                             key={index}
                             receiver={receiver}
