@@ -5,7 +5,14 @@ import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 
 const { senderDetail } = servicesEndpoints;
-export const useSenderResource = () => {
+
+export type UseSenderResourceHookResult = {
+    senderDetail?: RSSender;
+    senderIsLoading: boolean;
+    isInitialLoading: boolean;
+};
+
+export const useSenderResource = (): UseSenderResourceHookResult => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();
     /* Access the session. */
     const { activeMembership } = useSessionContext();
@@ -23,7 +30,7 @@ export const useSenderResource = () => {
             authorizedFetch,
         ]
     );
-    const { data, isLoading } = rsUseQuery(
+    const { data, isLoading, isInitialLoading } = rsUseQuery(
         [senderDetail.queryKey, activeMembership],
         memoizedDataFetch,
         {
@@ -31,5 +38,6 @@ export const useSenderResource = () => {
                 !!activeMembership?.parsedName && !!activeMembership.service,
         }
     );
-    return { senderDetail: data, senderIsLoading: isLoading };
+
+    return { senderDetail: data, senderIsLoading: isLoading, isInitialLoading };
 };
