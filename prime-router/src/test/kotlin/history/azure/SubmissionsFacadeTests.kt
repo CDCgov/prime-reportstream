@@ -182,5 +182,14 @@ class SubmissionsFacadeTests {
         )
         claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
+        // The auth should work, even without the
+        // annoying "Sender_" string in the claims, which is actually not needed any more.
+        val mismatchedClaims3: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmySendingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
     }
 }
