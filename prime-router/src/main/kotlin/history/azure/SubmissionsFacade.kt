@@ -145,6 +145,7 @@ class SubmissionsFacade(
      * Check whether these [claims] from this [request]
      * allow access to the sender associated with this [action].
      * @return true if authorized, false otherwise.
+     * Because this is a Submission request, this checks the [Action.sendingOrg]
      */
     override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,

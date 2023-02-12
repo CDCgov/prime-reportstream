@@ -108,6 +108,7 @@ class DeliveryFacade(
      * Check whether these [claims] from this [request]
      * allow access to the receiver associated with this [action].
      * @return true if authorized, false otherwise.
+     * Because this is a Delivery request, this checks the [Action.receivingOrg]
      */
     override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,
