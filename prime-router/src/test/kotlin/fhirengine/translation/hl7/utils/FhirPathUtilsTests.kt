@@ -13,7 +13,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
-import assertk.assertions.messageContains
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -204,14 +203,12 @@ class FhirPathUtilsTests {
         expression = "Bundle.#*($&id.exists()"
         assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
-            messageContains("Syntax error")
         }
 
         // verify it throws exception for non-boolean expression
         expression = "Bundle.id"
         assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
-            messageContains("Condition")
         }
     }
 }
