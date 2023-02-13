@@ -9,8 +9,19 @@ type MessageReceiverProps = {
     receiverDetails: ReceiverData[];
 };
 
+interface NormalizedReceiverData {
+    Name: string;
+    Service: string;
+    Date: string;
+    ReportId: string;
+    Main: string;
+    Sub: string;
+    FileName: string;
+    TransportResults: string;
+}
+
 interface MessageReceiversColRowProps {
-    receiver: ReceiverData;
+    receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
 }
@@ -97,38 +108,35 @@ const MessageReceiversColRow = ({
         activeColumnSortOrder !== FilterOptionsEnum.None
             ? "active-col-td"
             : "";
-    const { folderLocation, sendingOrg, fileName } = parseFileLocation(
-        receiver?.fileUrl || ""
-    );
     return (
         <tr>
             <td className={checkForActiveColumn(ColumnDataEnum.Name)}>
-                {receiver.receivingOrg ? receiver.receivingOrg : "N/A"}
+                {receiver.Name}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Service)}>
-                {receiver.receivingOrgSvc ? receiver.receivingOrgSvc : "N/A"}
+                {receiver.Service}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Date)}>
-                {formattedDateFromTimestamp(receiver.createdAt, "MMMM DD YYYY")}
+                {receiver.Date}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
-                {receiver.reportId ? receiver.reportId : "N/A"}
+                {receiver.ReportId}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
-                {folderLocation ? folderLocation : "N/A"}
+                {receiver.Main}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
-                {sendingOrg ? sendingOrg : "N/A"}
+                {receiver.Sub}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.FileName)}>
-                {fileName ? fileName : "N/A"}
+                {receiver.FileName}
             </td>
             <td
                 className={checkForActiveColumn(
                     ColumnDataEnum.TransportResults
                 )}
             >
-                {receiver.transportResult ? receiver.transportResult : "N/A"}
+                {receiver.TransportResults}
             </td>
         </tr>
     );
@@ -150,82 +158,115 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     );
     const normalizedData = useMemo(
         () =>
-            receiverDetails.map((receiverItem) => {
-                const formattedData = {};
-                for (const key of Object.keys(ColumnDataEnum)) {
-                    const columnTitle = ColumnDataEnum[key];
-                    let propertyData = "N/A";
-                    switch (true) {
-                        case columnTitle === ColumnDataEnum.Name:
-                            if (receiverItem.receivingOrg)
-                                propertyData = receiverItem.receivingOrg;
-                            break;
-                        case columnTitle === ColumnDataEnum.Service:
-                            if (receiverItem.receivingOrgSvc)
-                                propertyData = receiverItem.receivingOrgSvc;
-                            break;
-                        case columnTitle === ColumnDataEnum.Date:
-                            if (receiverItem.createdAt)
-                                propertyData = formattedDateFromTimestamp(
-                                    receiverItem.createdAt,
-                                    "MMMM DD YYYY"
+            receiverDetails.map(
+                (receiverItem: ReceiverData): NormalizedReceiverData => {
+                    const formattedData = Object.keys(ColumnDataEnum).reduce(
+                        (accumulator: any, currentValue: string) => {
+                            accumulator[currentValue] = "N/A";
+                            return accumulator;
+                        },
+                        {}
+                    );
+                    for (const key of Object.keys(ColumnDataEnum)) {
+                        const columnTitle =
+                            ColumnDataEnum[key as keyof typeof ColumnDataEnum];
+                        switch (true) {
+                            case columnTitle === ColumnDataEnum.Name:
+                                if (receiverItem.receivingOrg)
+                                    formattedData.Name =
+                                        receiverItem.receivingOrg;
+                                break;
+                            case columnTitle === ColumnDataEnum.Service:
+                                if (receiverItem.receivingOrgSvc)
+                                    formattedData.Service =
+                                        receiverItem.receivingOrgSvc;
+                                break;
+                            case columnTitle === ColumnDataEnum.Date:
+                                if (receiverItem.createdAt)
+                                    formattedData.Date =
+                                        formattedDateFromTimestamp(
+                                            receiverItem.createdAt,
+                                            "MMMM DD YYYY"
+                                        );
+                                break;
+                            case columnTitle === ColumnDataEnum.ReportId:
+                                if (receiverItem.reportId)
+                                    formattedData.ReportId =
+                                        receiverItem.reportId;
+                                break;
+                            case columnTitle === ColumnDataEnum.Main:
+                                const { folderLocation } = parseFileLocation(
+                                    receiverItem?.fileUrl || ""
                                 );
-                            break;
-                        case columnTitle === ColumnDataEnum.ReportId:
-                            if (receiverItem.reportId)
-                                propertyData = receiverItem.reportId;
-                            break;
-                        case columnTitle === ColumnDataEnum.Main:
-                            const { folderLocation } = parseFileLocation(
-                                receiverItem?.fileUrl || ""
-                            );
-                            propertyData = folderLocation;
-                            break;
-                        case columnTitle === ColumnDataEnum.Sub:
-                            const { sendingOrg } = parseFileLocation(
-                                receiverItem?.fileUrl || ""
-                            );
-                            propertyData = sendingOrg;
-                            break;
-                        case columnTitle === ColumnDataEnum.FileName:
-                            const { fileName } = parseFileLocation(
-                                receiverItem?.fileUrl || ""
-                            );
-                            propertyData = fileName;
-                            break;
-                        case columnTitle === ColumnDataEnum.TransportResults:
-                            if (receiverItem.transportResult)
-                                propertyData = receiverItem.transportResult;
-                            break;
+                                formattedData.Main = folderLocation;
+                                break;
+                            case columnTitle === ColumnDataEnum.Sub:
+                                const { sendingOrg } = parseFileLocation(
+                                    receiverItem?.fileUrl || ""
+                                );
+                                formattedData.Sub = sendingOrg;
+                                break;
+                            case columnTitle === ColumnDataEnum.FileName:
+                                const { fileName } = parseFileLocation(
+                                    receiverItem?.fileUrl || ""
+                                );
+                                formattedData.FileName = fileName;
+                                break;
+                            case columnTitle ===
+                                ColumnDataEnum.TransportResults:
+                                if (receiverItem.transportResult)
+                                    formattedData.TransportResults =
+                                        receiverItem.transportResult;
+                                break;
+                        }
                     }
-                    formattedData[key] = propertyData;
+                    return formattedData;
                 }
-                return formattedData;
-            }),
+            ),
         [receiverDetails]
     );
-    console.log("normalizedData = ", normalizedData);
     const sortedData = useMemo(
         () =>
             activeColumnSortOrder !== FilterOptionsEnum.None
-                ? normalizedData.sort((a, b) => {
-                      const activeColumnAData =
-                          activeColumn === ColumnDataEnum.Date
-                              ? Date.parse(a[activeColumn])
-                              : a[activeColumn];
-                      const activeColumnBData =
-                          activeColumn === ColumnDataEnum.Date
-                              ? Date.parse(b[activeColumn])
-                              : b[activeColumn];
+                ? normalizedData.sort(
+                      (
+                          a: NormalizedReceiverData,
+                          b: NormalizedReceiverData
+                      ): number => {
+                          const activeColumnAData =
+                              activeColumn === ColumnDataEnum.Date
+                                  ? Date.parse(
+                                        a[
+                                            activeColumn as keyof typeof ColumnDataEnum
+                                        ]
+                                    )
+                                  : a[
+                                        activeColumn as keyof typeof ColumnDataEnum
+                                    ];
+                          const activeColumnBData =
+                              activeColumn === ColumnDataEnum.Date
+                                  ? Date.parse(
+                                        b[
+                                            activeColumn as keyof typeof ColumnDataEnum
+                                        ]
+                                    )
+                                  : b[
+                                        activeColumn as keyof typeof ColumnDataEnum
+                                    ];
 
-                      if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
-                          return activeColumnAData > activeColumnBData ? 1 : -1;
-                      } else {
-                          return activeColumnAData < activeColumnBData ? 1 : -1;
+                          if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
+                              return activeColumnAData > activeColumnBData
+                                  ? 1
+                                  : -1;
+                          } else {
+                              return activeColumnAData < activeColumnBData
+                                  ? 1
+                                  : -1;
+                          }
                       }
-                  })
-                : receiverDetails,
-        [activeColumn, activeColumnSortOrder, normalizedData, receiverDetails]
+                  )
+                : normalizedData,
+        [activeColumn, activeColumnSortOrder, normalizedData]
     );
     return (
         <>
@@ -260,14 +301,16 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                     </tr>
                 </thead>
                 <tbody style={{ wordBreak: "break-all" }}>
-                    {sortedData.map((receiver, index) => (
-                        <MessageReceiversColRow
-                            key={index}
-                            receiver={receiver}
-                            activeColumn={activeColumn}
-                            activeColumnSortOrder={activeColumnSortOrder}
-                        />
-                    ))}
+                    {sortedData.map(
+                        (receiver: NormalizedReceiverData, index) => (
+                            <MessageReceiversColRow
+                                key={index}
+                                receiver={receiver}
+                                activeColumn={activeColumn}
+                                activeColumnSortOrder={activeColumnSortOrder}
+                            />
+                        )
+                    )}
                 </tbody>
             </Table>
         </>
