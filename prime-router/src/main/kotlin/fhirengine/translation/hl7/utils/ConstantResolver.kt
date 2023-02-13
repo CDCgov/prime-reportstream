@@ -129,25 +129,23 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
         }
 
         // Evaluate the constant before it is used.
-        val values = if (constantValue.isNullOrBlank()) null
+        return if (constantValue.isNullOrBlank()) null
         else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
                 null
             } else {
                 logger.trace("Evaluated FHIR Path constant $name to: $values")
-                val cleanedValues = mutableListOf<Base>()
-                for (value in values) {
-                    if (value is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
-                        cleanedValues.add(IntegerType(value.primitiveValue()))
+                // Convert string constants that are whole integers to Integer type to facilitate math operations
+                values.map {
+                    if (it is StringType && StringUtils.isNumeric(it.primitiveValue())) {
+                        IntegerType(it.primitiveValue())
                     } else {
-                        cleanedValues.add(value)
+                        it
                     }
                 }
-                cleanedValues
             }
         }
-        return values
     }
 
     override fun resolveConstantType(appContext: Any?, name: String?): TypeDetails {
