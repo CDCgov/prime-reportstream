@@ -208,94 +208,24 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const sortedData = useMemo(
         () =>
             activeColumnSortOrder !== FilterOptionsEnum.None
-                ? receiverDetails.sort((a, b) => {
-                      const fileLocationObj = {
-                          a: { ...parseFileLocation(a?.fileUrl || "") },
-                          b: { ...parseFileLocation(b?.fileUrl || "") },
-                      };
-                      const activeColumnA =
-                          a[activeColumn as keyof ReceiverData] !== null
-                              ? a[activeColumn as keyof ReceiverData]
-                              : "";
-                      const activeColumnB =
-                          b[activeColumn as keyof ReceiverData];
+                ? normalizedData.sort((a, b) => {
+                      const activeColumnAData =
+                          activeColumn === ColumnDataEnum.Date
+                              ? Date.parse(a[activeColumn])
+                              : a[activeColumn];
+                      const activeColumnBData =
+                          activeColumn === ColumnDataEnum.Date
+                              ? Date.parse(b[activeColumn])
+                              : b[activeColumn];
 
-                      switch (true) {
-                          case activeColumn === ColumnDataEnum.Name:
-                          case activeColumn === ColumnDataEnum.Service:
-                          case activeColumn === ColumnDataEnum.ReportId:
-                          case activeColumn === ColumnDataEnum.TransportResults:
-                              if (!activeColumnA || !activeColumnB) return 0;
-                              if (
-                                  activeColumnSortOrder ===
-                                  FilterOptionsEnum.ASC
-                              ) {
-                                  return activeColumnA > activeColumnB ? 1 : -1;
-                              } else {
-                                  return activeColumnA < activeColumnB ? 1 : -1;
-                              }
-                          case activeColumn === ColumnDataEnum.Date:
-                              const dateA = Date.parse(activeColumnA as string);
-                              const dateB = Date.parse(activeColumnB as string);
-                              if (
-                                  activeColumnSortOrder ===
-                                  FilterOptionsEnum.ASC
-                              ) {
-                                  return dateA > dateB ? 1 : -1;
-                              } else {
-                                  return dateA < dateB ? 1 : -1;
-                              }
-                          case activeColumn === ColumnDataEnum.Main:
-                              if (
-                                  activeColumnSortOrder ===
-                                  FilterOptionsEnum.ASC
-                              ) {
-                                  return fileLocationObj.a.folderLocation >
-                                      fileLocationObj.b.folderLocation
-                                      ? 1
-                                      : -1;
-                              } else {
-                                  return fileLocationObj.a.folderLocation <
-                                      fileLocationObj.b.folderLocation
-                                      ? 1
-                                      : -1;
-                              }
-                          case activeColumn === ColumnDataEnum.Sub:
-                              if (
-                                  activeColumnSortOrder ===
-                                  FilterOptionsEnum.ASC
-                              ) {
-                                  return fileLocationObj.a.sendingOrg >
-                                      fileLocationObj.b.sendingOrg
-                                      ? 1
-                                      : -1;
-                              } else {
-                                  return fileLocationObj.a.sendingOrg <
-                                      fileLocationObj.b.sendingOrg
-                                      ? 1
-                                      : -1;
-                              }
-                          case activeColumn === ColumnDataEnum.FileName:
-                              if (
-                                  activeColumnSortOrder ===
-                                  FilterOptionsEnum.ASC
-                              ) {
-                                  return fileLocationObj.a.fileName >
-                                      fileLocationObj.b.fileName
-                                      ? 1
-                                      : -1;
-                              } else {
-                                  return fileLocationObj.a.fileName <
-                                      fileLocationObj.b.fileName
-                                      ? 1
-                                      : -1;
-                              }
-                          default:
-                              return 0;
+                      if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
+                          return activeColumnAData > activeColumnBData ? 1 : -1;
+                      } else {
+                          return activeColumnAData < activeColumnBData ? 1 : -1;
                       }
                   })
                 : receiverDetails,
-        [activeColumn, activeColumnSortOrder, receiverDetails]
+        [activeColumn, activeColumnSortOrder, normalizedData, receiverDetails]
     );
     return (
         <>
