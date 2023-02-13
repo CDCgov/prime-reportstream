@@ -162,13 +162,13 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                               : "";
                       const activeColumnB =
                           b[activeColumn as keyof ReceiverData];
-                      if (!activeColumnA || !activeColumnB) return 0;
 
                       switch (true) {
                           case activeColumn === ColumnDataEnum.Name:
                           case activeColumn === ColumnDataEnum.Service:
                           case activeColumn === ColumnDataEnum.ReportId:
                           case activeColumn === ColumnDataEnum.TransportResults:
+                              if (!activeColumnA || !activeColumnB) return 0;
                               if (
                                   activeColumnSortOrder ===
                                   FilterOptionsEnum.ASC
