@@ -48,23 +48,23 @@ describe("Basic rendering", () => {
         ];
         const submitBtn = screen.getByTestId("submit");
 
-        for (const eachItem of DATA) {
+        for await (const eachItem of DATA) {
             // clear item, click submit, make sure error is there.
             const inputField = screen.getByTestId(eachItem.dataTestId);
 
             // fireEvent.change(inputField, {target: {value: " "}});
             fireEvent.change(inputField, { target: { value: "" } });
 
-            userEvent.click(submitBtn);
+            await userEvent.click(submitBtn);
             expect(
                 screen.getByText(eachItem.errorMsg, { exact: false })
             ).toBeInTheDocument();
 
             // now fill in and see if error messag is cleared
             // fireEvent.change(inputField, {target: {value: "test@example.com"}});
-            userEvent.type(inputField, "test@example.com");
+            await userEvent.type(inputField, "test@example.com");
 
-            userEvent.click(submitBtn);
+            await userEvent.click(submitBtn);
             expect(
                 screen.queryByText(eachItem.errorMsg, { exact: false })
             ).not.toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("Basic rendering", () => {
             // leave it cleared. If every field has a valid value, then last click on submit button will submit.
             fireEvent.change(inputField, { target: { value: "" } });
 
-            userEvent.click(submitBtn);
+            await userEvent.click(submitBtn);
             expect(
                 screen.getByText(eachItem.errorMsg, { exact: false })
             ).toBeInTheDocument();
@@ -81,9 +81,9 @@ describe("Basic rendering", () => {
         // the agree checkbox is the exception that mucks everything up
         const agreeErrorMsg = "must agree to the Terms of Service";
         const agreedInput = screen.getByTestId("agree");
-        userEvent.click(agreedInput);
+        await userEvent.click(agreedInput);
         expect(agreedInput).toBeChecked();
-        userEvent.click(submitBtn);
+        await userEvent.click(submitBtn);
         // this is "Visible" because it's using a hidden tag unlike other error messages
         // "<ErrorMessage>" vs "<ErrorMessageWithFlag>" .. this drove me nuts writing this test
         expect(
@@ -91,9 +91,9 @@ describe("Basic rendering", () => {
         ).not.toBeVisible();
 
         // toggle it off
-        userEvent.click(agreedInput);
+        await userEvent.click(agreedInput);
         expect(agreedInput).not.toBeChecked();
-        userEvent.click(submitBtn);
+        await userEvent.click(submitBtn);
         expect(
             screen.queryByText(agreeErrorMsg, { exact: false })
         ).toBeVisible();
