@@ -1,4 +1,6 @@
-export function getIsIE() {
+const IE_REGEX = /Trident\/|MSIE/;
+
+export function getIsIE(userAgent: string = window.navigator.userAgent) {
     // IE 10 and IE 11
-    return /Trident\/|MSIE/.test(window.navigator.userAgent);
+    return IE_REGEX.test(userAgent);
 }
