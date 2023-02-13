@@ -384,6 +384,16 @@ class FHIRRouter(
                 processingModeDefaultResult
             )
 
+            passes = passes && evaluateFilterAndLogResult(
+                getConditionFilter(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.CONDITION_FILTER,
+                defaultResponse = false,
+                false
+            )
+
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
                 listOfReceivers.add(receiver)
@@ -536,6 +546,6 @@ class FHIRRouter(
         return (
             orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
                 ?: emptyList()
-            ).plus(receiver.jurisdictionalFilter)
+            ).plus(receiver.conditionFilter)
     }
 }
