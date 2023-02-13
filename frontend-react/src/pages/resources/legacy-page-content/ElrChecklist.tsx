@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/anchor-has-content */
 import DOMPurify from "dompurify";
-import { Button } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
@@ -36,7 +36,7 @@ export const ELRChecklistIa = () => {
                     )
                 }
             >
-                ELR onboarding form
+                ELR onboarding form <Icon.Launch />
             </Button>
             <Button
                 type="button"
@@ -51,40 +51,36 @@ export const ELRChecklistIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink anchor href="#elr-contact-information">
+                    <USLink href="#elr-contact-information">
                         ELR contact information
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#alternate-contact-information">
+                    <USLink href="#alternate-contact-information">
                         Program or admin staff contact information
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#data-requirements-and-preferences">
+                    <USLink href="#data-requirements-and-preferences">
                         Data requirements and preferences
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#testing-facility-registration">
+                    <USLink href="#testing-facility-registration">
                         Testing facility registration
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#hl7-data-fields">
+                    <USLink href="#hl7-data-fields">
                         HL7 data fields (Not applicable if using an alternate
                         data format)
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#sftp-details">
-                        SFTP details
-                    </USLink>
+                    <USLink href="#sftp-details">SFTP details</USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#document-uploads">
-                        Document uploads
-                    </USLink>
+                    <USLink href="#document-uploads">Document uploads</USLink>
                 </li>
             </ul>
 
@@ -215,9 +211,9 @@ export const ELRChecklistIa = () => {
                 <p>
                     ReportStream collects unique identifiers from testing
                     facilities when they register to send data, including name,{" "}
-                    <USExtLink href="https://www.cdc.gov/clia/about.html">
+                    <USLink href="https://www.cdc.gov/clia/about.html">
                         CLIA
-                    </USExtLink>{" "}
+                    </USLink>{" "}
                     number, and address. This information is included with data
                     sent to public health departments.
                 </p>

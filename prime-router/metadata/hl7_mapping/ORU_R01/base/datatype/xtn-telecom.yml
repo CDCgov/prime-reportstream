@@ -37,6 +37,11 @@ elements:
     value: [ '"CP"' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
 
+  - name: xtn-email
+    condition: '%resource.system = "email"'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-4' ]
+
   - name: xtn-country-code
     condition: '%resource.value.exists()'
     value: [ '%resource.value.getPhoneNumberCountryCode()' ]
