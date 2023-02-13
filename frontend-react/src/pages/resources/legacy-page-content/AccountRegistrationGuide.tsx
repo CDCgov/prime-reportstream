@@ -55,12 +55,12 @@ export const AccountRegistrationGuideIa = () => {
                 <p className="text-bold">Jump to:</p>
                 <ul>
                     <li>
-                        <USLink anchor href="#anchor-mfa">
+                        <USLink href="#anchor-mfa">
                             Set up multi-factor authentication
                         </USLink>
                     </li>
                     <li>
-                        <USLink anchor href="#anchor-acct-mngt">
+                        <USLink href="#anchor-acct-mngt">
                             Account management
                         </USLink>
                     </li>
@@ -206,7 +206,7 @@ export const AccountRegistrationGuideIa = () => {
                             "Setup" below it. These authentication options are
                             meant to secure your account. Below, you can review
                             instructions for setting up{" "}
-                            <USLink anchor href="#anchor-mfa">
+                            <USLink href="#anchor-mfa">
                                 SMS authentication and Google Authenticator/Okta
                                 Verify
                             </USLink>
@@ -350,9 +350,9 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     If you forgot your password, follow the instructions under
                     "Need help signing in?" on the login page at{" "}
-                    <USExtLink href={`${site.orgs.RS.url}/login`}>
+                    <USLink href={`${site.orgs.RS.url}/login`}>
                         {`${site.orgs.RS.url}/login`}
-                    </USExtLink>
+                    </USLink>
                     .
                 </p>
                 <p>
