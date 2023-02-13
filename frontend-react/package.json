@@ -28,7 +28,7 @@
         "moment": "^2.29.4",
         "otplib": "^12.0.1",
         "react": "<18.0.0",
-        "react-device-detect": "^2.0.0",
+        "react-device-detect": "^2.2.3",
         "react-dom": "<18.0.0",
         "react-helmet-async": "^1.3.0",
         "react-idle-timer": "^4.6.4",
