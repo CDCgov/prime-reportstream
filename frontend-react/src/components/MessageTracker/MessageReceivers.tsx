@@ -148,6 +148,63 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             ),
         [activeColumnSortOrder]
     );
+    const normalizedData = useMemo(
+        () =>
+            receiverDetails.map((receiverItem) => {
+                const formattedData = {};
+                for (const key of Object.keys(ColumnDataEnum)) {
+                    const columnTitle = ColumnDataEnum[key];
+                    let propertyData = "N/A";
+                    switch (true) {
+                        case columnTitle === ColumnDataEnum.Name:
+                            if (receiverItem.receivingOrg)
+                                propertyData = receiverItem.receivingOrg;
+                            break;
+                        case columnTitle === ColumnDataEnum.Service:
+                            if (receiverItem.receivingOrgSvc)
+                                propertyData = receiverItem.receivingOrgSvc;
+                            break;
+                        case columnTitle === ColumnDataEnum.Date:
+                            if (receiverItem.createdAt)
+                                propertyData = formattedDateFromTimestamp(
+                                    receiverItem.createdAt,
+                                    "MMMM DD YYYY"
+                                );
+                            break;
+                        case columnTitle === ColumnDataEnum.ReportId:
+                            if (receiverItem.reportId)
+                                propertyData = receiverItem.reportId;
+                            break;
+                        case columnTitle === ColumnDataEnum.Main:
+                            const { folderLocation } = parseFileLocation(
+                                receiverItem?.fileUrl || ""
+                            );
+                            propertyData = folderLocation;
+                            break;
+                        case columnTitle === ColumnDataEnum.Sub:
+                            const { sendingOrg } = parseFileLocation(
+                                receiverItem?.fileUrl || ""
+                            );
+                            propertyData = sendingOrg;
+                            break;
+                        case columnTitle === ColumnDataEnum.FileName:
+                            const { fileName } = parseFileLocation(
+                                receiverItem?.fileUrl || ""
+                            );
+                            propertyData = fileName;
+                            break;
+                        case columnTitle === ColumnDataEnum.TransportResults:
+                            if (receiverItem.transportResult)
+                                propertyData = receiverItem.transportResult;
+                            break;
+                    }
+                    formattedData[key] = propertyData;
+                }
+                return formattedData;
+            }),
+        [receiverDetails]
+    );
+    console.log("normalizedData = ", normalizedData);
     const sortedData = useMemo(
         () =>
             activeColumnSortOrder !== FilterOptionsEnum.None
