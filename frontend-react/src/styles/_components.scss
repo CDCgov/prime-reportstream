@@ -14,6 +14,7 @@ hr {
 // MessageDetails.tsx
 .usa-table thead th {
   cursor: pointer;
+  user-select: none;
 }
 
 .usa-table thead th.active-col-header {
@@ -22,6 +23,12 @@ hr {
 
 .usa-table td.active-col-td {
   background-color: $bg-col-data;
+}
+
+.usa-table thead .column-header-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 // End -- MessageDetails.tsx

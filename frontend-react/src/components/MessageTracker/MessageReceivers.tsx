@@ -92,8 +92,10 @@ const MessageReceiversColHeader = ({
             scope="col"
             onClick={handleColHeaderClick}
         >
-            {columnHeaderTitle}{" "}
-            {isCurrentlyActiveColumn ? filterIcon : <Icon.UnfoldMore />}
+            <div className="column-header-title-container">
+                <p>{columnHeaderTitle}</p>
+                {isCurrentlyActiveColumn ? filterIcon : <Icon.UnfoldMore />}
+            </div>
         </th>
     );
 };
@@ -147,9 +149,9 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const [activeColumnSortOrder, setActiveColumnSortOrder] = useState("");
     const filterIcon = useMemo(
         () =>
-            activeColumnSortOrder === "asc" ? (
+            activeColumnSortOrder === FilterOptionsEnum.ASC ? (
                 <Icon.ExpandLess />
-            ) : activeColumnSortOrder === "desc" ? (
+            ) : activeColumnSortOrder === FilterOptionsEnum.DESC ? (
                 <Icon.ExpandMore />
             ) : (
                 <Icon.UnfoldMore />
