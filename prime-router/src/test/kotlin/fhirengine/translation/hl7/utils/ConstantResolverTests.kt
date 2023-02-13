@@ -11,7 +11,10 @@ import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isSameAs
 import assertk.assertions.isTrue
+import io.mockk.every
+import io.mockk.mockkObject
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Organization
@@ -65,9 +68,8 @@ class ConstantResolverTests {
 
     @Test
     fun `test fhir path resolver`() {
+        mockkObject(FhirPathUtils)
         assertThat { FhirPathCustomResolver().resolveConstant(null, null, false) }.isFailure()
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
         assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
             .isFailure().hasClass(PathEngineException::class.java)
 
@@ -93,7 +95,7 @@ class ConstantResolverTests {
             constants[constants.firstKey()]!!.replace("'", "")
         )
 
-        // Text the ability to resolve constants with suffix
+        // Test the ability to resolve constants with suffix
         val urlSuffix = "SomeSuffix"
         result = FhirPathCustomResolver().resolveConstant(context, "`rsext-$urlSuffix`", false)
         assertThat(result).isNotNull()
@@ -111,6 +113,29 @@ class ConstantResolverTests {
 
         result = FhirPathCustomResolver().resolveConstant(context, "unknownconst", false)
         assertThat(result).isNull()
+    }
+
+    @Test
+    fun `test fhir path resolver multiple values`() {
+        val integerValue = 99
+        val stringValue = "Ninety-Nine"
+
+        mockkObject(FhirPathUtils)
+        every { FhirPathUtils.evaluate(any(), any(), any(), any()) } returns
+            listOf<Base>(StringType(stringValue), StringType(integerValue.toString()))
+
+        val constants = sortedMapOf("const1" to "'value1'") // this does not matter but context wants something
+        val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
+        val result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
+        assertThat(result).isNotNull()
+        assertThat(result!!.isNotEmpty())
+        assertThat(result.size == 2)
+        assertThat(result[0].isPrimitive).isTrue()
+        assertThat(result[0]).isInstanceOf(StringType::class.java)
+        assertThat((result[0] as StringType).value).isEqualTo(stringValue)
+        assertThat(result[1].isPrimitive).isTrue()
+        assertThat(result[1] is IntegerType).isTrue()
+        assertThat((result[1] as IntegerType).value).isEqualTo(integerValue)
     }
 
     @Test
