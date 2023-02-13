@@ -1,16 +1,28 @@
 import React, { useMemo, useState } from "react";
 import { Table, Icon } from "@trussworks/react-uswds";
 
-import { DetailItem } from "../DetailItem/DetailItem";
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-
-import { QualityFilters } from "./QualityFilters";
 import { parseFileLocation } from "../../utils/misc";
 
 type MessageReceiverProps = {
     receiverDetails: ReceiverData[];
 };
+
+interface MessageReceiversColRowProps {
+    receiver: ReceiverData;
+    activeColumn: string;
+    activeColumnSortOrder: string;
+}
+
+interface MessageReceiversColHeaderProps {
+    columnHeaderTitle: string;
+    activeColumn: string;
+    setActiveColumn: (colTitle: string) => void;
+    activeColumnSortOrder: string;
+    setActiveColumnSortOrder: (sortOrder: string) => void;
+    filterIcon: JSX.Element;
+}
 
 const ColumnDataEnum = {
     Name: "Name",
@@ -23,11 +35,11 @@ const ColumnDataEnum = {
     TransportResults: "Transport Results",
 };
 
-enum FilterOptions {
-    None = "",
-    ASC = "asc",
-    DESC = "desc",
-}
+const FilterOptionsEnum = {
+    None: "",
+    ASC: "asc",
+    DESC: "desc",
+};
 
 const MessageReceiversColHeader = ({
     columnHeaderTitle,
@@ -36,25 +48,25 @@ const MessageReceiversColHeader = ({
     activeColumnSortOrder,
     setActiveColumnSortOrder,
     filterIcon,
-}) => {
+}: MessageReceiversColHeaderProps) => {
     const isCurrentlyActiveColumn = columnHeaderTitle === activeColumn;
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
             setActiveColumn(columnHeaderTitle);
-            setActiveColumnSortOrder(FilterOptions.None);
+            setActiveColumnSortOrder(FilterOptionsEnum.None);
         }
 
         // Explicitly set the proceeding sort order
         switch (true) {
-            case activeColumnSortOrder === FilterOptions.None:
-                setActiveColumnSortOrder(FilterOptions.ASC);
+            case activeColumnSortOrder === FilterOptionsEnum.None:
+                setActiveColumnSortOrder(FilterOptionsEnum.ASC);
                 break;
-            case activeColumnSortOrder === FilterOptions.ASC:
-                setActiveColumnSortOrder(FilterOptions.DESC);
+            case activeColumnSortOrder === FilterOptionsEnum.ASC:
+                setActiveColumnSortOrder(FilterOptionsEnum.DESC);
                 break;
-            case activeColumnSortOrder === FilterOptions.DESC:
-                setActiveColumnSortOrder(FilterOptions.None);
+            case activeColumnSortOrder === FilterOptionsEnum.DESC:
+                setActiveColumnSortOrder(FilterOptionsEnum.None);
                 break;
         }
     };
@@ -62,7 +74,7 @@ const MessageReceiversColHeader = ({
         <th
             className={
                 isCurrentlyActiveColumn &&
-                activeColumnSortOrder !== FilterOptions.None
+                activeColumnSortOrder !== FilterOptionsEnum.None
                     ? "active-col-header"
                     : ""
             }
@@ -79,13 +91,14 @@ const MessageReceiversColRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
-}) => {
-    const checkForActiveColumn = (colName) =>
-        colName === activeColumn && activeColumnSortOrder !== FilterOptions.None
+}: MessageReceiversColRowProps) => {
+    const checkForActiveColumn = (colName: string) =>
+        colName === activeColumn &&
+        activeColumnSortOrder !== FilterOptionsEnum.None
             ? "active-col-td"
             : "";
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(
-        receiver.fileUrl
+        receiver?.fileUrl || ""
     );
     return (
         <tr>
@@ -137,64 +150,95 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     );
     const sortedData = useMemo(
         () =>
-            activeColumnSortOrder !== FilterOptions.None
+            activeColumnSortOrder !== FilterOptionsEnum.None
                 ? receiverDetails.sort((a, b) => {
-                      const { folderLocationA, sendingOrgA, fileNameA } =
-                          parseFileLocation(a.fileUrl);
-                      const { folderLocationB, sendingOrgB, fileNameB } =
-                          parseFileLocation(b.fileUrl);
+                      const fileLocationObj = {
+                          a: { ...parseFileLocation(a?.fileUrl || "") },
+                          b: { ...parseFileLocation(b?.fileUrl || "") },
+                      };
+                      const activeColumnA =
+                          a[activeColumn as keyof ReceiverData] !== null
+                              ? a[activeColumn as keyof ReceiverData]
+                              : "";
+                      const activeColumnB =
+                          b[activeColumn as keyof ReceiverData];
+                      if (!activeColumnA || !activeColumnB) return 0;
+
                       switch (true) {
                           case activeColumn === ColumnDataEnum.Name:
                           case activeColumn === ColumnDataEnum.Service:
                           case activeColumn === ColumnDataEnum.ReportId:
                           case activeColumn === ColumnDataEnum.TransportResults:
-                              if (activeColumnSortOrder === FilterOptions.ASC) {
-                                  return a[activeColumn] > b[activeColumn]
-                                      ? 1
-                                      : -1;
+                              if (
+                                  activeColumnSortOrder ===
+                                  FilterOptionsEnum.ASC
+                              ) {
+                                  return activeColumnA > activeColumnB ? 1 : -1;
                               } else {
-                                  return a[activeColumn] < b[activeColumn]
-                                      ? 1
-                                      : -1;
+                                  return activeColumnA < activeColumnB ? 1 : -1;
                               }
                           case activeColumn === ColumnDataEnum.Date:
-                              if (activeColumnSortOrder === FilterOptions.ASC) {
-                                  return new Date(a[activeColumn]) >
-                                      new Date(b[activeColumn])
-                                      ? 1
-                                      : -1;
+                              const dateA = Date.parse(activeColumnA as string);
+                              const dateB = Date.parse(activeColumnB as string);
+                              if (
+                                  activeColumnSortOrder ===
+                                  FilterOptionsEnum.ASC
+                              ) {
+                                  return dateA > dateB ? 1 : -1;
                               } else {
-                                  return new Date(a[activeColumn]) <
-                                      new Date(b[activeColumn])
-                                      ? 1
-                                      : -1;
+                                  return dateA < dateB ? 1 : -1;
                               }
                           case activeColumn === ColumnDataEnum.Main:
-                              if (activeColumnSortOrder === FilterOptions.ASC) {
-                                  return folderLocationA > folderLocationB
+                              if (
+                                  activeColumnSortOrder ===
+                                  FilterOptionsEnum.ASC
+                              ) {
+                                  return fileLocationObj.a.folderLocation >
+                                      fileLocationObj.b.folderLocation
                                       ? 1
                                       : -1;
                               } else {
-                                  return folderLocationA < folderLocationB
+                                  return fileLocationObj.a.folderLocation <
+                                      fileLocationObj.b.folderLocation
                                       ? 1
                                       : -1;
                               }
                           case activeColumn === ColumnDataEnum.Sub:
-                              if (activeColumnSortOrder === FilterOptions.ASC) {
-                                  return sendingOrgA > sendingOrgB ? 1 : -1;
+                              if (
+                                  activeColumnSortOrder ===
+                                  FilterOptionsEnum.ASC
+                              ) {
+                                  return fileLocationObj.a.sendingOrg >
+                                      fileLocationObj.b.sendingOrg
+                                      ? 1
+                                      : -1;
                               } else {
-                                  return sendingOrgA < sendingOrgB ? 1 : -1;
+                                  return fileLocationObj.a.sendingOrg <
+                                      fileLocationObj.b.sendingOrg
+                                      ? 1
+                                      : -1;
                               }
                           case activeColumn === ColumnDataEnum.FileName:
-                              if (activeColumnSortOrder === FilterOptions.ASC) {
-                                  return fileNameA > fileNameB ? 1 : -1;
+                              if (
+                                  activeColumnSortOrder ===
+                                  FilterOptionsEnum.ASC
+                              ) {
+                                  return fileLocationObj.a.fileName >
+                                      fileLocationObj.b.fileName
+                                      ? 1
+                                      : -1;
                               } else {
-                                  return fileNameA < fileNameB ? 1 : -1;
+                                  return fileLocationObj.a.fileName <
+                                      fileLocationObj.b.fileName
+                                      ? 1
+                                      : -1;
                               }
+                          default:
+                              return 0;
                       }
                   })
                 : receiverDetails,
-        [activeColumn, activeColumnSortOrder]
+        [activeColumn, activeColumnSortOrder, receiverDetails]
     );
     return (
         <>
@@ -208,7 +252,11 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 return (
                                     <MessageReceiversColHeader
                                         key={index}
-                                        columnHeaderTitle={ColumnDataEnum[key]}
+                                        columnHeaderTitle={
+                                            ColumnDataEnum[
+                                                key as keyof typeof ColumnDataEnum
+                                            ]
+                                        }
                                         activeColumn={activeColumn}
                                         setActiveColumn={setActiveColumn}
                                         activeColumnSortOrder={
