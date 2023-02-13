@@ -1,7 +1,6 @@
 import { GovBanner } from "@trussworks/react-uswds";
 import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
-import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import React, { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
@@ -25,6 +24,7 @@ import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { logout } from "./utils/UserUtils";
+import { IS_IE } from "./utils/GetIsIE";
 
 const { APP_ENV } = config;
 
@@ -104,7 +104,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <ErrorUnsupportedBrowser />;
+    if (IS_IE) return <ErrorUnsupportedBrowser />;
     return (
         <AppWrapper
             oktaAuth={OKTA_AUTH}
