@@ -167,12 +167,6 @@ class FHIRRouter(
                 metadata = this.metadata
             )
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report)
-
-            // check if there are any receivers
-            val hasReceivers = listOfReceivers.isNotEmpty()
-
             // create item lineage
             report.itemLineages = listOf(
                 ItemLineage(
@@ -188,63 +182,55 @@ class FHIRRouter(
                 )
             )
 
-            // create none event
-            var translateEvent = ProcessEvent(
-                Event.EventAction.NONE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            // get the receivers that this bundle should go to
+            val listOfReceivers = applyFilters(bundle, report)
 
-            if (hasReceivers) {
+            // check if there are any receivers
+            if (listOfReceivers.isNotEmpty()) {
+                // this bundle has receivers; send message to translate function
                 // add the receivers to the fhir bundle
                 FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
 
-                // create translate event - used instead of none event
-                translateEvent = ProcessEvent(
+                // create translate event
+                val nextEvent = ProcessEvent(
                     Event.EventAction.TRANSLATE,
                     message.reportId,
                     Options.None,
                     emptyMap(),
                     emptyList()
                 )
-            }
 
-            // upload new copy to blobstore
-            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyBytes,
-                report.name,
-                message.blobSubFolderName,
-                translateEvent.eventAction
-            )
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
 
-            if (hasReceivers) {
                 // insert translate task into Task table
                 this.insertTranslateTask(
                     report,
                     report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    translateEvent
+                    nextEvent
                 )
-            }
 
-            // nullify the previous task next_action
-            db.updateTask(
-                message.reportId,
-                TaskAction.none,
-                null,
-                null,
-                finishedField = Tables.TASK.ROUTED_AT,
-                null
-            )
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
 
-            if (hasReceivers) {
                 // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
                 //  the destinations have been updated in the FHIR
                 this.queue.sendMessage(
@@ -255,6 +241,39 @@ class FHIRRouter(
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName
                     ).serialize()
+                )
+            } else {
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
                 )
             }
         } catch (e: IllegalArgumentException) {
