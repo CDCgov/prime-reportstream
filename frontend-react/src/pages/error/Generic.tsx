@@ -1,8 +1,8 @@
 import React from "react";
 import { Alert, Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import {
     ErrorDisplayMessage,
     GENERIC_ERROR_PAGE_CONFIG,
@@ -26,7 +26,9 @@ export const ParagraphErrorDisplay = ({
     const navigate = useNavigate();
     return (
         <>
-            <BasicHelmet pageTitle="Error" />
+            <Helmet>
+                <title>Error</title>
+            </Helmet>
             <div
                 data-testid={"error-page-wrapper"}
                 className="usa-section padding-top-6"

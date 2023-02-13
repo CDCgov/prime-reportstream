@@ -3,9 +3,9 @@
 import DOMPurify from "dompurify";
 import { Button, Icon } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
@@ -13,9 +13,9 @@ export const ELRChecklistIa = () => {
     const navigate = useNavigate();
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.ELR_CHECKLIST} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.ELR_CHECKLIST} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.ELR_CHECKLIST}</h1>
             <h2>
                 If you're a public health department and want to connect
