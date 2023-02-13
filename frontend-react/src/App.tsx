@@ -24,7 +24,7 @@ import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { logout } from "./utils/UserUtils";
-import { getIsIE } from "./utils/GetIsIE";
+import { IS_IE } from "./utils/GetIsIE";
 
 const { APP_ENV } = config;
 
@@ -104,7 +104,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (getIsIE()) return <ErrorUnsupportedBrowser />;
+    if (IS_IE) return <ErrorUnsupportedBrowser />;
     return (
         <AppWrapper
             oktaAuth={OKTA_AUTH}
