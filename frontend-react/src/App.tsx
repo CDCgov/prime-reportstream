@@ -116,7 +116,7 @@ const App = () => {
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
                     <DAPHeader env={APP_ENV?.toString()} />
-                    <USLink anchor className="usa-skipnav" href="#main-content">
+                    <USLink className="usa-skipnav" href="#main-content">
                         Skip Nav
                     </USLink>
                     <GovBanner aria-label="Official government website" />
