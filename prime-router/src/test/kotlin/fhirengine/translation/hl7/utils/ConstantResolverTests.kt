@@ -122,7 +122,7 @@ class ConstantResolverTests {
 
         mockkObject(FhirPathUtils)
         every { FhirPathUtils.evaluate(any(), any(), any(), any()) } returns
-            listOf<Base>(StringType(stringValue), IntegerType(integerValue))
+            listOf<Base>(StringType(stringValue), StringType(integerValue.toString()))
 
         val constants = sortedMapOf("const1" to "'value1'") // this does not matter but context wants something
         val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
