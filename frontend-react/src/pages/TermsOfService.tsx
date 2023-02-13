@@ -75,9 +75,9 @@ export const TermsOfService = () => {
                             and agree that you are solely responsible for and
                             shall abide by these Terms of Service, as well as
                             any relevant sections of 
-                            <USExtLink href="https://www.cdc.gov/other/information.html">
+                            <USLink href="https://www.cdc.gov/other/information.html">
                                 CDC’s Privacy Policies
-                            </USExtLink>
+                            </USLink>
                              (collectively, Terms).
                         </p>
 
@@ -510,9 +510,7 @@ export const TermsOfService = () => {
                         </p>
 
                         <p className="margin-top-8">
-                            <USLink anchor href="#anchor-top">
-                                Back to top
-                            </USLink>
+                            <USLink href="#anchor-top">Back to top</USLink>
                         </p>
                     </section>
                 </div>

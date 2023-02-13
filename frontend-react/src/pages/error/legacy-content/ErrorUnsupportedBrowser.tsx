@@ -1,5 +1,3 @@
-import DOMPurify from "dompurify";
-
 import site from "../../../content/site.json";
 import { USExtLink } from "../../../components/USLink";
 
@@ -35,9 +33,7 @@ export const ErrorUnsupportedBrowser = () => {
             </ul>
             <p>
                 Still having issues? Contact ReportStream support at{" "}
-                <USExtLink
-                    href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}
-                >
+                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
                 </USExtLink>
                 .
