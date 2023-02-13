@@ -493,4 +493,14 @@ class FHIRRouter(
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
     }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
+                ?: emptyList()
+            ).plus(receiver.jurisdictionalFilter)
+    }
 }
