@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 
 import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { FeatureFlagUIComponent } from "./FeatureFlags";
 
@@ -21,7 +22,7 @@ describe("FeatureFlags", () => {
             checkFlag: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderWithBase(<FeatureFlagUIComponent />);
 
         const featureFlagAlerts = screen.getAllByTestId("alert");
         expect(featureFlagAlerts).toHaveLength(3);
@@ -41,7 +42,7 @@ describe("FeatureFlags", () => {
             checkFlag: jest.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderWithBase(<FeatureFlagUIComponent />);
 
         const featureFlagDeleteButtons = screen.getAllByRole("button");
         expect(featureFlagDeleteButtons).toHaveLength(3); // 1 add button + 2 delete buttons
@@ -59,7 +60,7 @@ describe("FeatureFlags", () => {
             checkFlag: jest.fn(),
             featureFlags: ["flag-1"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderWithBase(<FeatureFlagUIComponent />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");
@@ -78,7 +79,7 @@ describe("FeatureFlags", () => {
             checkFlag: jest.fn(() => true),
             featureFlags: ["flag-1"],
         });
-        render(<FeatureFlagUIComponent />);
+        renderWithBase(<FeatureFlagUIComponent />);
 
         const addButton = screen.getAllByRole("button")[0];
         const textInput = screen.getByRole("textbox");

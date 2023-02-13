@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 import { SampleTimingObj } from "../../utils/TemporarySettingsAPITypes";
 
 import { ObjectTooltip } from "./ObjectTooltip";
@@ -9,7 +10,7 @@ const TestObjectToolTip = () => {
 };
 
 describe("ObjectTooltip", () => {
-    beforeEach(() => render(<TestObjectToolTip />));
+    beforeEach(() => renderWithBase(<TestObjectToolTip />));
     test("Renders stringified JSON value of obj", () => {
         const element = screen.getByText(/00:00/);
         expect(element).toBeInTheDocument();

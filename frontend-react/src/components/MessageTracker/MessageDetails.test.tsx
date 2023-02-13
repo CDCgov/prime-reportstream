@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { MessageDetails } from "./MessageDetails";
 
@@ -169,7 +170,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: MOCK_EMPTY_MESSAGE_DETAIL as RSMessageDetail,
         });
-        render(<MessageDetails />);
+        renderWithBase(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
     });
 
@@ -177,7 +178,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: MOCK_MESSAGE_DETAIL as RSMessageDetail,
         });
-        render(<MessageDetails />);
+        renderWithBase(<MessageDetails />);
 
         expect(screen.getByText(/Message ID/)).toBeInTheDocument();
         expect(screen.getByText(/12-234567/)).toBeInTheDocument();
