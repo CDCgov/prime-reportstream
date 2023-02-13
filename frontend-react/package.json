@@ -6,7 +6,7 @@
     "proxy": "http://localhost:7071",
     "dependencies": {
         "@microsoft/applicationinsights-react-js": "^3.4.1",
-        "@microsoft/applicationinsights-web": "^2.8.9",
+        "@microsoft/applicationinsights-web": "^2.8.10",
         "@okta/okta-auth-js": "^7.2.0",
         "@okta/okta-react": "^6.7.0",
         "@okta/okta-signin-widget": "^7.2.1",
