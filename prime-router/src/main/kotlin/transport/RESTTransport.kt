@@ -36,6 +36,7 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
@@ -109,7 +110,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
                     // post the report
                     val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
-                    val responseBody = postReport(
+                    val response = postReport(
                         reportContent,
                         fileName,
                         restTransportInfo.reportUrl,
@@ -117,10 +118,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger,
                         reportClient
                     )
+                    val responseBody = response.bodyAsText()
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
                     logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(msg)
+                    actionHistory.action.httpStatus = response.status.value
                     actionHistory.trackSentReport(
                         receiver,
                         sentReportId,
@@ -155,6 +158,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
                         )
                     }
+                    actionHistory.action.httpStatus = t.response.status.value
                     actionHistory.setActionType(TaskAction.send_error)
                     actionHistory.trackActionResult(msg)
                     null
@@ -171,6 +175,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 " This may be recoverable. Will retry."
                         )
                     }
+                    actionHistory.action.httpStatus = t.response.status.value
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
                     RetryToken.allItems
@@ -386,11 +391,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         headers: Map<String, String>,
         logger: Logger,
         httpClient: HttpClient
-    ): String {
+    ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
         httpClient.use { client ->
-            val theResponse: String = client.post(restUrl) {
+            val theResponse: HttpResponse = client.post(restUrl) {
                 logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
                 postHeaders(
@@ -426,7 +431,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 )
                 accept(ContentType.Application.Json)
-            }.bodyAsText()
+            }
             return theResponse
         }
     }
