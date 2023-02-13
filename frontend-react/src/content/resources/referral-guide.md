@@ -29,7 +29,7 @@ _Last updated: May 19, 2022_
 >
 > **What’s ReportStream?**
 >
-> ReportStream is a free tool developed by the Centers for Disease Control and Prevention (CDC) and U.S. Digital Service (USDS) that makes it easy for public health data to be transferred from testing facilities to public health departments. More about this tool can be found at [reportstream.cdc.gov](http://reportstream.cdc.gov).
+> ReportStream is a free tool developed by the Centers for Disease Control and Prevention (CDC) and U.S. Digital Service (USDS) that makes it easy for public health data to be transferred from testing facilities to public health departments. More about this tool can be found at [reportstream.cdc.gov](https://reportstream.cdc.gov).
 >
 > **Why use ReportStream?**
 >
