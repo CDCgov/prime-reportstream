@@ -71,8 +71,6 @@
         "cypress:production:run": "echo 'not implemented yet'",
         "cypress:production:open": "echo 'not implemented yet'",
         "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/@uswds/uswds/packages/ --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
-        "e2e": "cypress run",
-        "e2e:open": "cypress open",
         "test": "react-scripts test",
         "test:ci": "CI=true yarn --verbose test --coverage --verbose --silent",
         "eject": "react-scripts eject",
