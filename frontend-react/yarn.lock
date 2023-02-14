@@ -2307,10 +2307,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@trussworks/react-uswds@<4.0.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.2.0.tgz#3193b968419837895444a6e9e72a832bd7afcb84"
-  integrity sha512-wZYK03JoP+BwzBaJ3AN5jG5nmsIQokTk863zKo+zkEiynbUAeXLd+IZUKu+yTjfc4RpSlt1aIEo+sxaQZSu10A==
+"@trussworks/react-uswds@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-4.0.0.tgz#51f241e4190c09b439f0824371809f868a5b6760"
+  integrity sha512-e1H2prPdu8zTiQOtG/QAoggJXpo7p74R0/PzCT4JrkIdMQfeEMsrweejrfhsKhjZpI2vJkZSiHVnS7CZCksfpg==
 
 "@trysound/sax@0.2.0":
   version "0.2.0"
@@ -3048,6 +3048,16 @@
   dependencies:
     "@typescript-eslint/types" "5.48.2"
     eslint-visitor-keys "^3.3.0"
+
+"@uswds/uswds@^3.1.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@uswds/uswds/-/uswds-3.3.0.tgz#19097ada5bb07cd51269811d0309b021604823e9"
+  integrity sha512-qiugkbwrO+eIIwi4lbEdH15LCHuAjfUMDRQNBBujakR99Ka3iqmrLpPllffdKaJJnnYkt75v0lltnJ5Nnd/obQ==
+  dependencies:
+    classlist-polyfill "1.0.3"
+    object-assign "4.1.1"
+    receptor "1.0.0"
+    resolve-id-refs "0.1.0"
 
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
@@ -4996,11 +5006,6 @@ dompurify@^2.4.3:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.4.3.tgz#f4133af0e6a50297fc8874e2eaedc13a3c308c03"
   integrity sha512-q6QaLcakcRjebxjg8/+NP+h0rPfatOgOzc46Fst9VAA3jF2ApfKBNKMzdP4DYTqtUMXSCd5pRS/8Po/OmoCHZQ==
-
-domready@1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/domready/-/domready-1.0.8.tgz#91f252e597b65af77e745ae24dd0185d5e26d58c"
-  integrity sha512-uIzsOJUNk+AdGE9a6VDeessoMCzF8RrZvJCX/W8QtyfgdR6Uofn/MvRonih3OtCO79b2VDzDOymuiABrQ4z3XA==
 
 domutils@^1.7.0:
   version "1.7.0"
@@ -11736,17 +11741,6 @@ use-sync-external-store@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
   integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
-
-uswds@^2.13.0:
-  version "2.13.3"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.13.3.tgz#f2a0623b496941ff30ad3a0ea1610407d35a6b14"
-  integrity sha512-qCblljeaRvS3+PrSxoHqQwmMnp746+Y1YZA34BkTzJknvo2bhhdzGE21yJaInumzIqV3glLD13TFdRwrwikMMQ==
-  dependencies:
-    classlist-polyfill "1.0.3"
-    domready "1.0.8"
-    object-assign "4.1.1"
-    receptor "1.0.0"
-    resolve-id-refs "0.1.0"
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
