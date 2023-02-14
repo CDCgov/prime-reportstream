@@ -18,7 +18,7 @@ See Github release notes anytime at [https://github.com/CDCgov/prime-reportstrea
 
 #### New State Connections
 
-We’re excited to announce that ReportStream has recently established connections to send and report public health data with the following state: Utah
+We’re excited to announce that ReportStream has recently established connections to send and report public health data with the following state: Utah.
 
 
 ---
