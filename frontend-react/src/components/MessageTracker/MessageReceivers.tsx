@@ -26,13 +26,14 @@ interface MessageReceiversColRowProps {
     activeColumnSortOrder: string;
 }
 
-interface MessageReceiversColHeaderProps {
+interface MessageReceiversHeaderProps {
     columnHeaderTitle: string;
     activeColumn: string;
     setActiveColumn: (colTitle: string) => void;
     activeColumnSortOrder: string;
     setActiveColumnSortOrder: (sortOrder: string) => void;
     filterIcon: JSX.Element;
+    rowSpan: number;
 }
 
 const ColumnDataEnum = {
@@ -52,14 +53,15 @@ const FilterOptionsEnum = {
     DESC: "desc",
 };
 
-const MessageReceiversColHeader = ({
+const MessageReceiversHeader = ({
     columnHeaderTitle,
     activeColumn,
     setActiveColumn,
     activeColumnSortOrder,
     setActiveColumnSortOrder,
     filterIcon,
-}: MessageReceiversColHeaderProps) => {
+    rowSpan,
+}: MessageReceiversHeaderProps) => {
     const isCurrentlyActiveColumn = columnHeaderTitle === activeColumn;
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
@@ -89,8 +91,8 @@ const MessageReceiversColHeader = ({
                     ? "active-col-header"
                     : ""
             }
-            scope="col"
             onClick={handleColHeaderClick}
+            rowSpan={rowSpan}
         >
             <div className="column-header-title-container">
                 <p>{columnHeaderTitle}</p>
@@ -277,29 +279,81 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             <Table key="messagedetails" aria-label="Message Details" bordered>
                 <thead>
                     <tr>
-                        {Object.keys(ColumnDataEnum).map(
-                            (key: string, index) => {
-                                return (
-                                    <MessageReceiversColHeader
-                                        key={index}
-                                        columnHeaderTitle={
-                                            ColumnDataEnum[
-                                                key as keyof typeof ColumnDataEnum
-                                            ]
-                                        }
-                                        activeColumn={activeColumn}
-                                        setActiveColumn={setActiveColumn}
-                                        activeColumnSortOrder={
-                                            activeColumnSortOrder
-                                        }
-                                        setActiveColumnSortOrder={
-                                            setActiveColumnSortOrder
-                                        }
-                                        filterIcon={filterIcon}
-                                    />
-                                );
-                            }
-                        )}
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.Name}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={2}
+                        />
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.Service}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={2}
+                        />
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.Date}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={2}
+                        />
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.ReportId}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={2}
+                        />
+                        <th colSpan={3}>File Location</th>
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.TransportResults}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={2}
+                        />
+                    </tr>
+                    <tr>
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.Main}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={1}
+                        />
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.Sub}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={1}
+                        />
+                        <MessageReceiversHeader
+                            columnHeaderTitle={ColumnDataEnum.FileName}
+                            activeColumn={activeColumn}
+                            setActiveColumn={setActiveColumn}
+                            activeColumnSortOrder={activeColumnSortOrder}
+                            setActiveColumnSortOrder={setActiveColumnSortOrder}
+                            filterIcon={filterIcon}
+                            rowSpan={1}
+                        />
                     </tr>
                 </thead>
                 <tbody style={{ wordBreak: "break-all" }}>
