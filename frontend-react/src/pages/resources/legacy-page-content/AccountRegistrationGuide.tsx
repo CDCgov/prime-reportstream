@@ -1,5 +1,6 @@
+import { Helmet } from "react-helmet-async";
+
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
@@ -7,9 +8,9 @@ import { USExtLink, USLink } from "../../../components/USLink";
 export const AccountRegistrationGuideIa = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.ACCOUNT_REGISTRATION} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.ACCOUNT_REGISTRATION} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.ACCOUNT_REGISTRATION}</h1>
             <h2>
                 Follow these steps to set up a new user account with
