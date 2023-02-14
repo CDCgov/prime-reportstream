@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { Table, Icon } from "@trussworks/react-uswds";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { parseFileLocation } from "../../utils/misc";
 
 type MessageReceiverProps = {
@@ -24,7 +23,6 @@ interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
-    isBadge?: boolean;
 }
 
 interface MessageReceiversColProps {
@@ -36,6 +34,15 @@ interface MessageReceiversColProps {
     filterIcon: JSX.Element;
     rowSpan: number;
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+});
 
 const ColumnDataEnum = {
     Name: "Name",
@@ -107,7 +114,6 @@ const MessageReceiversRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
-    isBadge,
 }: MessageReceiversRowProps) => {
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
@@ -125,18 +131,26 @@ const MessageReceiversRow = ({
             <td className={checkForActiveColumn(ColumnDataEnum.Date)}>
                 {receiver.Date}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
+            <td
+                className={`message-receiver-break-word ${checkForActiveColumn(
+                    ColumnDataEnum.ReportId
+                )}`}
+            >
                 {receiver.ReportId}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
-                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1 message-receivers-badge">
+                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
                     {receiver.Main.toUpperCase()}
                 </p>
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
                 {receiver.Sub}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.FileName)}>
+            <td
+                className={`message-receiver-break-word ${checkForActiveColumn(
+                    ColumnDataEnum.FileName
+                )}`}
+            >
                 {receiver.FileName}
             </td>
             <td
@@ -192,10 +206,10 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             case columnTitle === ColumnDataEnum.Date:
                                 if (receiverItem.createdAt)
                                     formattedData.Date =
-                                        formattedDateFromTimestamp(
-                                            receiverItem.createdAt,
-                                            "MMMM DD YYYY"
+                                        dateTimeFormatter.format(
+                                            new Date(receiverItem.createdAt)
                                         );
+
                                 break;
                             case columnTitle === ColumnDataEnum.ReportId:
                                 if (receiverItem.reportId)

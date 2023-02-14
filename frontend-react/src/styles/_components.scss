@@ -31,16 +31,12 @@ hr {
   justify-content: space-between;
 }
 
-.usa-table .message-receivers-table td {
-  word-break: break-all;
+.usa-table .message-receivers-table td.message-receiver-break-word {
+  word-break: break-word;
 }
 
 .usa-table .message-receivers-table td {
   vertical-align: top;
-}
-
-.usa-table .message-receivers-table .message-receivers-badge {
-  word-break: normal;
 }
 
 // End -- MessageDetails.tsx
