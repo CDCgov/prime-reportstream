@@ -1,8 +1,8 @@
 import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export type CsvSchemaItem = {
@@ -93,7 +93,9 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
 export const CsvSchemaDocumentation = () => {
     return (
         <>
-            <BasicHelmet pageTitle="CSV schema documentation | Resources" />
+            <Helmet>
+                <title>CSV schema documentation | Resources</title>
+            </Helmet>
             <h1 id="anchor-top" className="margin-top-0 ">
                 CSV schema documentation{" "}
             </h1>
@@ -143,7 +145,7 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <USLink anchor href="#formatting-guidelines">
+                        <USLink href="#formatting-guidelines">
                             General formatting guidelines
                         </USLink>
                     </li>
@@ -157,7 +159,6 @@ export const CsvSchemaDocumentation = () => {
                                                 key={`toc-${fieldIndex}-${sectionIndex}`}
                                             >
                                                 <USLink
-                                                    anchor
                                                     href={`#${section.slug}`}
                                                 >
                                                     {section.title}
@@ -265,11 +266,7 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <USLink
-                                anchor
-                                href="#anchor-top"
-                                className="usa-link"
-                            >
+                            <USLink href="#anchor-top" className="usa-link">
                                 Return to top
                             </USLink>
                         </p>

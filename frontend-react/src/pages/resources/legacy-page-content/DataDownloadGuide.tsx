@@ -1,9 +1,8 @@
-import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
@@ -11,9 +10,9 @@ export const DataDownloadGuideIa = () => {
     const navigate = useNavigate();
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.DOWNLOAD_GUIDE} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.DOWNLOAD_GUIDE} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.DOWNLOAD_GUIDE}</h1>
             <h2>
                 Instructions for public health departments to download data
@@ -73,9 +72,7 @@ export const DataDownloadGuideIa = () => {
 
                         <p>
                             Visit{" "}
-                            <USExtLink
-                                href={DOMPurify.sanitize(site.orgs.RS.url)}
-                            >
+                            <USExtLink href={site.orgs.RS.url}>
                                 reportstream.cdc.gov
                             </USExtLink>{" "}
                             using a modern desktop web browser (ex: Chrome,
@@ -124,9 +121,7 @@ export const DataDownloadGuideIa = () => {
                     Contact us
                 </Button>
                 <p className="margin-top-8">
-                    <USLink anchor href="#anchor-top">
-                        Back to top
-                    </USLink>
+                    <USLink href="#anchor-top">Back to top</USLink>
                 </p>
             </section>
         </>
