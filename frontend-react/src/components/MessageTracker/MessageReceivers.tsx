@@ -24,6 +24,7 @@ interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
+    isBadge?: boolean;
 }
 
 interface MessageReceiversColProps {
@@ -106,6 +107,7 @@ const MessageReceiversRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
+    isBadge,
 }: MessageReceiversRowProps) => {
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
@@ -126,8 +128,10 @@ const MessageReceiversRow = ({
             <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
                 {receiver.ReportId}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
-                {receiver.Main}
+            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
+                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1 message-receivers-badge">
+                    {receiver.Main.toUpperCase()}
+                </p>
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
                 {receiver.Sub}
@@ -356,7 +360,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         />
                     </tr>
                 </thead>
-                <tbody style={{ wordBreak: "break-all" }}>
+                <tbody className="message-receivers-table">
                     {sortedData.map(
                         (receiver: NormalizedReceiverData, index) => (
                             <MessageReceiversRow
