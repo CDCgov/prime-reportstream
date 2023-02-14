@@ -158,7 +158,7 @@ const MessageReceiversRow = ({
             >
                 {receiver.ReportId}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.ReportId)}>
+            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
                 <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
                     {receiver.Main.toUpperCase()}
                 </p>
@@ -214,6 +214,32 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             ),
         [activeColumnSortOrder]
     );
+    // Since we're splicing together both data from receiverDetails && fileUrl
+    // To simplify any proceeding logic within this component, we need to
+    // merge and normalize the data. The data currently appears like:
+    //   {
+    //     "reportId": "4b3c73df-83b1-48f9-a5a2-ce0c38662f7c",
+    //     "receivingOrg": "ignore",
+    //     "receivingOrgSvc": "HL7_NULL",
+    //     "transportResult": null,
+    //     "fileName": null,
+    //     "fileUrl": "http://azurite:10000/devstoreaccount1/reports/batch%2Fignore.HL7_NULL%2Ftx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv",
+    //     "createdAt": "2023-02-03T18:22:55.580322",
+    //     "qualityFilters": []
+    // }
+    // And we parse fileUrl using parseFileLocation to find: folderLocation, sendingOrg and fileName. We use normalizedData to fix this.
+
+    // Our expected output should look like the following:
+    //   NormalizedReceiverData {
+    //     Name: string;
+    //     Service: string;
+    //     Date: string;
+    //     ReportId: string;
+    //     Main: string;
+    //     Sub: string;
+    //     FileName: string;
+    //     TransportResults: string;
+    // }
     const normalizedData = useMemo(
         () =>
             receiverDetails.map(
