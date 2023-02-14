@@ -21,6 +21,9 @@ describe("useOrganizationReceivers", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
             wrapper: QueryWrapper(),
@@ -40,6 +43,9 @@ describe("useOrganizationReceivers", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationReceivers(),

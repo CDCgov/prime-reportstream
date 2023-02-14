@@ -13,7 +13,7 @@ type MessageReceiverProps = {
 export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     return (
         <>
-            <h3>Receivers:</h3>
+            <h2>Receivers:</h2>
             {receiverDetails?.map((receiver, i) => (
                 <div
                     className="display-flex flex-column margin-bottom-5"

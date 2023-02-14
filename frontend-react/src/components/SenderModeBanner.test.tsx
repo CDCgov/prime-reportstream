@@ -29,6 +29,9 @@ describe("SenderModeBanner", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         renderWithFullAppContext(
             <SenderModeBanner />,

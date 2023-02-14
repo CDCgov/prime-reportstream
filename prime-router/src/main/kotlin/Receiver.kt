@@ -24,6 +24,7 @@ import java.time.ZoneId
  * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+ * @param conditionFilter defines the filters that select the conditions that a STLT wants to receive
  * @param deidentify transform
  * @param deidentifiedValue is the replacement value for PII fields
  * @param timing defines how to delay reports to the org. If null, then send immediately
@@ -44,6 +45,7 @@ open class Receiver(
     val routingFilter: ReportStreamFilter = emptyList(),
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
+    val conditionFilter: ReportStreamFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -88,6 +90,7 @@ open class Receiver(
         qualityFilter: ReportStreamFilter = emptyList(),
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
+        conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false
     ) : this(
         name,
@@ -99,6 +102,7 @@ open class Receiver(
         qualityFilter = qualityFilter,
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
+        conditionFilter = conditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
@@ -117,6 +121,7 @@ open class Receiver(
         copy.routingFilter,
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
+        copy.conditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -246,6 +251,10 @@ open class Receiver(
                     }
                 }
             }
+        }
+
+        if (topic != Topic.FULL_ELR && conditionFilter.isNotEmpty() && conditionFilter[0].isNotEmpty()) {
+            return "Condition filter only allowed for receiver with topic 'full_elr'"
         }
         return null
     }
