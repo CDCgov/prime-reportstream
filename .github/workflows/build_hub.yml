@@ -42,7 +42,7 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
       - name: Set up JDK 11
-        uses: actions/setup-java@1df8dbefe2a8cbc99770194893dd902763bee34b
+        uses: actions/setup-java@3f07048e3d294f56e9b90ac5ea2c6f74e9ad0f98
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@a3caf02865c0604ad3dc1ecfcc5cdec9c41b7936
+        uses: EnricoMi/publish-unit-test-result-action@26dda2fabf18a9c6329223e653166444edbb7e78
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -97,7 +97,7 @@ jobs:
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@a3caf02865c0604ad3dc1ecfcc5cdec9c41b7936
+        uses: EnricoMi/publish-unit-test-result-action@26dda2fabf18a9c6329223e653166444edbb7e78
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -159,7 +159,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@5adcb0bb0f9fb3f95ef05400558bdb3f329ee808
+        uses: peter-evans/create-or-update-comment@67dcc547d311b736a8e6c5c236542148a47adc3d
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -202,7 +202,7 @@ jobs:
           languages: ${{ matrix.language }}
 
       - name: Set up JDK 11
-        uses: actions/setup-java@1df8dbefe2a8cbc99770194893dd902763bee34b
+        uses: actions/setup-java@3f07048e3d294f56e9b90ac5ea2c6f74e9ad0f98
         with:
           java-version: '11'
           distribution: 'adopt'
