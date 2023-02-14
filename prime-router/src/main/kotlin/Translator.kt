@@ -133,16 +133,20 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         )
         if (routingFilteredReport.isEmpty()) return routingFilteredReport
 
-        // Do conditionFiltering on the routingFilteredReport
-        val conditionFilteredReport = filterByOneFilterType(
-            routingFilteredReport,
-            receiver,
-            organization,
-            ReportStreamFilterType.CONDITION_FILTER,
-            trackingElement,
-            doLogging = true
-        )
-        if (conditionFilteredReport.isEmpty()) return conditionFilteredReport
+        var conditionFilteredReport = routingFilteredReport
+        // condition filter can only be used on UP
+        if (receiver.topic == Topic.FULL_ELR) {
+            // Do conditionFiltering on the routingFilteredReport
+            conditionFilteredReport = filterByOneFilterType(
+                routingFilteredReport,
+                receiver,
+                organization,
+                ReportStreamFilterType.CONDITION_FILTER,
+                trackingElement,
+                doLogging = true
+            )
+            if (conditionFilteredReport.isEmpty()) return conditionFilteredReport
+        }
 
         // Do processingModeFiltering on the routingFilteredReport
         val processingModeFilteredReport = filterByOneFilterType(
