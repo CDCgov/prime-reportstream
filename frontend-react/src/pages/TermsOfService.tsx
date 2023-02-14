@@ -297,11 +297,11 @@ export const TermsOfService = () => {
                                 or receipt of data by PRIME ReportStream.
                             </li>
                             <li>
-                                You will promptly inform CDC (usds@cdc.gov) in
-                                the event you become aware of any misuse of
-                                identifiable information or protected health
-                                information you submit and/or access through
-                                PRIME ReportStream.
+                                You will promptly inform CDC
+                                (reportstream@cdc.gov) in the event you become
+                                aware of any misuse of identifiable information
+                                or protected health information you submit
+                                and/or access through PRIME ReportStream.
                             </li>
                             <li>
                                 You will promptly inform CDC in the event that
