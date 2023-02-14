@@ -6,16 +6,7 @@ import { AuthElement } from "../components/AuthElement";
 import { withCatch } from "../components/RSErrorBoundary";
 
 const Validate = () => {
-    return withCatch(
-        <FileHandler
-            headingText="ReportStream File Validator"
-            successMessage="File validated"
-            resetText="Validate another file"
-            submitText="Validate"
-            showSuccessMetadata={false}
-            showWarningBanner={false}
-        />
-    );
+    return withCatch(<FileHandler />);
 };
 
 export default Validate;

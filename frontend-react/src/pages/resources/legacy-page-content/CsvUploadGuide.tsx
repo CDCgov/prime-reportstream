@@ -42,12 +42,12 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink anchor href="#preparing-a-csv" className="usa-link">
+                    <USLink href="#preparing-a-csv" className="usa-link">
                         How to prepare a CSV file for ReportStream
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#upload-a-csv" className="usa-link">
+                    <USLink href="#upload-a-csv" className="usa-link">
                         How to upload a CSV file to ReportStream
                     </USLink>
                 </li>

@@ -1,6 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 
 import {
+    renderWithBase,
     renderWithFullAppContext,
     renderWithRouter,
 } from "../../utils/CustomRenderUtils";
@@ -211,7 +212,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        render(
+        renderWithBase(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}

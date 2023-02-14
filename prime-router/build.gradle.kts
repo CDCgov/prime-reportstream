@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.8.0"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -106,7 +106,7 @@ defaultTasks("package")
 val ktorVersion = "2.2.2"
 val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
-jacoco.toolVersion = "0.8.7"
+jacoco.toolVersion = "0.8.8"
 
 // Set the compiler JVM target
 java {
