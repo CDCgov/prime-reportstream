@@ -2,7 +2,9 @@ import { PropsWithChildren } from "react";
 import { Security } from "@okta/okta-react";
 import { OktaAuth } from "@okta/okta-auth-js";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
+import { HelmetProvider } from "react-helmet-async";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
@@ -29,18 +31,24 @@ export const AppWrapper = ({
     oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
     return (
-        <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
-            <AppInsightsProvider>
-                <SessionProvider oktaHook={oktaHook}>
-                    <QueryClientProvider client={appQueryClient}>
-                        <AuthorizedFetchProvider>
-                            <FeatureFlagProvider>
-                                {children}
-                            </FeatureFlagProvider>
-                        </AuthorizedFetchProvider>
-                    </QueryClientProvider>
-                </SessionProvider>
-            </AppInsightsProvider>
-        </Security>
+        <HelmetProvider>
+            <Security
+                oktaAuth={oktaAuth}
+                restoreOriginalUri={restoreOriginalUri}
+            >
+                <AppInsightsProvider>
+                    <SessionProvider oktaHook={oktaHook}>
+                        <QueryClientProvider client={appQueryClient}>
+                            <AuthorizedFetchProvider>
+                                <FeatureFlagProvider>
+                                    {children}
+                                </FeatureFlagProvider>
+                            </AuthorizedFetchProvider>
+                            <ReactQueryDevtools initialIsOpen={false} />
+                        </QueryClientProvider>
+                    </SessionProvider>
+                </AppInsightsProvider>
+            </Security>
+        </HelmetProvider>
     );
 };

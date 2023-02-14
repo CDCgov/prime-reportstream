@@ -14,35 +14,68 @@ identifier_1:
   constants:
     sys: "urn:id:extID"
 
-identifier_2:
+identifier_2a:
   condition: $valueIn NOT_NULL
   valueOf: datatype/Identifier_var
   generateList: true
+  useGroup: true
   expressionType: resource
   vars:
-    valueIn: ORC.3.1 | OBR.3.1
-    systemCX: ORC.3.2 | OBR.3.2
-    universalId: ORC.3.3 | OBR.3.3
-    universalIdType: ORC.3.4 | OBR.3.4
+    valueIn: ORC.3.1
+    systemCX: ORC.3.2
+    universalId: ORC.3.3
+    universalIdType: ORC.3.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "FILL"
     display: "Filler Identifier"
 
-identifier_3:
+identifier_2b:
+  condition: $valueInORC NULL && $valueIn NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  useGroup: true
+  expressionType: resource
+  vars:
+    valueIn: OBR.3.1
+    systemCX: OBR.3.2
+    universalId: OBR.3.3
+    universalIdType: OBR.3.4
+    valueInORC: ORC.3.1
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    code: "FILL"
+
+identifier_3a:
   condition: $valueIn NOT_NULL
   valueOf: datatype/Identifier_var
   generateList: true
+  useGroup: true
   expressionType: resource
   vars:
-    valueIn: ORC.2.1 | OBR.2.1
-    systemCX: ORC.2.2 | OBR.2.2
-    universalId: ORC.2.3 | OBR.2.3
-    universalIdType: ORC.2.4 | OBR.2.4
+    valueIn: ORC.2.1
+    systemCX: ORC.2.2
+    universalId: ORC.2.3
+    universalIdType: ORC.2.4
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
-    display: "Placer Identifier"
+
+identifier_3b:
+  condition: $valueInORC NULL && $valueIn NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  useGroup: true
+  expressionType: resource
+  vars:
+    valueIn: OBR.2.1
+    systemCX: OBR.2.2
+    universalId: OBR.2.3
+    universalIdType: OBR.2.4
+    valueInORC: ORC.2.1
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    code: "PLAC"
 
 identifier_4:
   condition: $valueIn NOT_NULL
@@ -107,8 +140,8 @@ effectiveDateTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBR.7 | ORC.15
-    start: OBR.7 | ORC.15
+    dateTimeIn: OBR.7
+    start: OBR.7
     end: OBR.8
 
 effectivePeriod:
@@ -123,8 +156,8 @@ issued:
   type: STRING
   valueOf: 'GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)'
   expressionType: JEXL
-  vars: 
-    dateTimeIn: OBR.22  
+  vars:
+    dateTimeIn: OBR.22
 
 resultsInterpreter:
   condition: $interpreter NOT_NULL
@@ -275,3 +308,18 @@ extension_6:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         code: "FILL"
         display: "Filler Identifier"
+
+extension_7:
+  generateList: true
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: ORC.9
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: business-event
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL

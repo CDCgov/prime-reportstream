@@ -1,5 +1,7 @@
 import React, { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
+
+import { USLink } from "../USLink";
 
 import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
 import { TableRowData } from "./TableRows";
@@ -74,16 +76,16 @@ export const ColumnData = ({
         // Render column value as NavLink
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
-            <NavLink
-                className="usa-link"
-                to={`${feature.linkBasePath || ""}${
+            <USLink
+                href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
+                state={feature.linkState || {}}
             >
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </NavLink>
+            </USLink>
         );
     }
 
@@ -100,12 +102,14 @@ export const ColumnData = ({
             return action();
         };
         return tableData(
-            <button
-                className="usa-link bg-transparent border-transparent"
-                onClick={() => doAction()}
+            <Button
+                className="font-mono-2xs line-height-alt-4"
+                type="button"
+                unstyled
+                onClick={doAction}
             >
                 {displayValue}
-            </button>
+            </Button>
         );
     }
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { Alert } from "@trussworks/react-uswds";
+import { Alert, Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import { BasicHelmet } from "../../components/header/BasicHelmet";
 import {
@@ -22,6 +23,7 @@ export const ParagraphErrorDisplay = ({
 }: {
     config?: ParagraphWithTitle;
 }) => {
+    const navigate = useNavigate();
     return (
         <>
             <BasicHelmet pageTitle="Error" />
@@ -37,12 +39,12 @@ export const ParagraphErrorDisplay = ({
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a
-                                            href="legacy-content"
-                                            className="usa-button"
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/")}
                                         >
                                             Visit homepage
-                                        </a>
+                                        </Button>
                                     </li>
                                 </ul>
                             </div>

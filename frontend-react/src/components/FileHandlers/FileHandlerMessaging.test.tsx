@@ -1,6 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 
 import {
+    renderWithBase,
     renderWithFullAppContext,
     renderWithRouter,
 } from "../../utils/CustomRenderUtils";
@@ -68,7 +69,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
-                handlerType={""}
             />
         );
 
@@ -93,7 +93,7 @@ describe("FileErrorDisplay", () => {
             field: "first field",
             trackingIds: ["first_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_MESSAGE_DATE_VALIDATION",
+            errorCode: "INVALID_MSG_PARSE_DATE",
             details: "none",
         };
         const fakeError2: ResponseError = {
@@ -102,7 +102,7 @@ describe("FileErrorDisplay", () => {
             field: "second field",
             trackingIds: ["second_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_MESSAGE_VALIDATION",
+            errorCode: "INVALID_HL7_MSG_VALIDATION",
             details: "none",
         };
         const fakeError3: ResponseError = {
@@ -111,7 +111,7 @@ describe("FileErrorDisplay", () => {
             field: "third field",
             trackingIds: ["third_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_PHONE_NUMBER",
+            errorCode: "INVALID_MSG_PARSE_TELEPHONE",
             details: "none",
         };
         const errors = [fakeError1, fakeError2, fakeError3];
@@ -121,7 +121,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
-                handlerType={""}
             />
         );
 
@@ -213,7 +212,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        render(
+        renderWithBase(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}

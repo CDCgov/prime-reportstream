@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
@@ -68,11 +68,17 @@ describe("EditSenderSettings", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditSenderSettings />);
+        renderWithBase(<EditSenderSettings />);
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });
-
+    test("toggle allowDuplicates", () => {
+        const checkbox = screen.getByTestId("allowDuplicates");
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).not.toBeChecked();
+        fireEvent.click(checkbox);
+        expect(checkbox).toBeChecked();
+    });
     test("should be able to edit keys field", () => {
         const keysField = screen.getByTestId("keys");
 

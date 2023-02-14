@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
 import { getStoredOrg } from "../../utils/SessionStorageTools";
@@ -14,6 +14,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
+import { FeatureName } from "../../AppRouter";
 
 /* Custom types */
 type DestinationItemProps = {
@@ -82,7 +83,7 @@ function SubmissionDetailsContent() {
     /* Conditional title strings */
     const preTitle = `${
         actionDetails.sender
-    } ${actionDetails.topic.toUpperCase()} Submissions`;
+    } ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
         : "Date and Time parsing error";
@@ -131,9 +132,13 @@ function SubmissionDetails() {
         { label: "Submissions", path: "/submissions" },
         { label: `Details: ${actionId}` },
     ];
+    const location = useLocation();
     return (
         <>
-            <Crumbs crumbList={crumbs} />
+            <Crumbs
+                crumbList={crumbs}
+                previousPage={(location.state as any)?.previousPage}
+            />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >

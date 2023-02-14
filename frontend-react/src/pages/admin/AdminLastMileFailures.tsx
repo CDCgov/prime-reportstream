@@ -6,11 +6,12 @@ import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMile
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { BasicHelmet } from "../../components/header/BasicHelmet";
+import { FeatureName } from "../../AppRouter";
 
 export function AdminLastMileFailures() {
     return (
         <>
-            <BasicHelmet pageTitle="Admin" />
+            <BasicHelmet pageTitle={FeatureName.ADMIN} />
             <section className="grid-container margin-bottom-5">
                 <h3 className="margin-bottom-0">
                     <Suspense fallback={<Spinner />} />

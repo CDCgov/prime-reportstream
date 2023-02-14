@@ -27,7 +27,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
         columns: [
             {
                 dataAttr: "messageId",
-                columnHeader: "Message Id",
+                columnHeader: "Message ID",
                 feature: {
                     link: true,
                     linkAttr: "id",
@@ -51,6 +51,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 feature: {
                     link: true,
                     linkBasePath: "/submissions/",
+                    linkState: { previousPage: "Message ID Search" },
                 },
             },
         ],
@@ -122,7 +123,9 @@ export function MessageTracker() {
                                 value={searchFilter}
                                 onChange={(evt) =>
                                     setSearchFilter(
-                                        (evt.target as HTMLInputElement).value
+                                        (
+                                            evt.target as HTMLInputElement
+                                        ).value.trim()
                                     )
                                 }
                                 required={true}
@@ -131,7 +134,7 @@ export function MessageTracker() {
                         <Button
                             type="submit"
                             name="submit-button"
-                            className="usa-button height-5 radius-left-0 rs-margin-top-auto-important margin-right-3"
+                            className="usa-button height-5 radius-left-1 rs-margin-top-auto-important margin-right-3 margin-left-3"
                         >
                             Search
                         </Button>

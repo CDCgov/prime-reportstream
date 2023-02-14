@@ -1,11 +1,13 @@
-import DOMPurify from "dompurify";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
 
 import site from "../../../content/site.json";
 import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const DataDownloadGuideIa = () => {
+    const navigate = useNavigate();
     return (
         <>
             <BasicHelmet
@@ -57,9 +59,9 @@ export const DataDownloadGuideIa = () => {
                         <p className="margin-top-05">
                             To gain access to the ReportStream application,
                             follow the steps outlined in the{" "}
-                            <a href="/resources/account-registration-guide">
+                            <USLink href="/resources/account-registration-guide">
                                 Account Registration Guide
-                            </a>
+                            </USLink>
                             .
                         </p>
                     </li>
@@ -70,9 +72,9 @@ export const DataDownloadGuideIa = () => {
 
                         <p>
                             Visit{" "}
-                            <a href={DOMPurify.sanitize(site.orgs.RS.url)}>
+                            <USExtLink href={site.orgs.RS.url}>
                                 reportstream.cdc.gov
-                            </a>{" "}
+                            </USExtLink>{" "}
                             using a modern desktop web browser (ex: Chrome,
                             Firefox, Safari, Edge) and log in.
                         </p>
@@ -87,13 +89,9 @@ export const DataDownloadGuideIa = () => {
                         </h3>
                         <p>
                             Once logged in to ReportStream, visit{" "}
-                            <NavLink
-                                to="/daily-data"
-                                key="daily"
-                                className="usa-link"
-                            >
+                            <USLink href="/daily-data" key="daily">
                                 reportstream.cdc.gov/daily-data
-                            </NavLink>
+                            </USLink>
                             .
                         </p>
                         <p>
@@ -115,17 +113,15 @@ export const DataDownloadGuideIa = () => {
                     Do you have questions, problems, or bugs to report? Contact
                     us for help.
                 </p>
-                <a
-                    href="/support/contact"
-                    className="usa-button usa-button--outline"
+                <Button
+                    type="button"
+                    outline
+                    onClick={() => navigate("/support/contact")}
                 >
                     Contact us
-                </a>
-
+                </Button>
                 <p className="margin-top-8">
-                    <a href="#anchor-top" className="usa-link">
-                        Back to top
-                    </a>
+                    <USLink href="#anchor-top">Back to top</USLink>
                 </p>
             </section>
         </>

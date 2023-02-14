@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
+import { Button } from "@trussworks/react-uswds";
+
 import { SectionProp } from "../HomeProps";
 
 export default function CtaSection({ section }: { section: SectionProp }) {
+    const navigate = useNavigate();
     return (
         <div>
             <h2
@@ -15,13 +19,9 @@ export default function CtaSection({ section }: { section: SectionProp }) {
             <p data-testid="summary" className="usa-prose">
                 {section.summary}
             </p>
-            <a
-                data-testid="email-link"
-                href="/support/contact"
-                className="usa-button"
-            >
+            <Button type="button" onClick={() => navigate("/support/contact")}>
                 Get in touch
-            </a>
+            </Button>
         </div>
     );
 }

@@ -1,4 +1,3 @@
-
 ### Schema: upload-covid-19
 ### Topic: covid-19
 ### Tracking Element: (message_id)
@@ -78,8 +77,26 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
+---
+
+**Name**: equipment_model_id
+
+**ReportStream Internal Name**: equipment_model_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Equipment UID
 
 ---
 
@@ -96,7 +113,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -132,9 +149,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Accension number
-
 ---
 
 **Name**: first_test
@@ -171,9 +186,7 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
-
 ---
 
 **Name**: hospitalized
@@ -210,9 +223,7 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
-
 ---
 
 **Name**: icu
@@ -249,9 +260,7 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
-
 ---
 
 **Name**: illness_onset_date
@@ -295,9 +304,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_name
@@ -311,9 +318,7 @@ The city of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_name
@@ -339,9 +344,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The phone number of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_state
@@ -541,9 +544,7 @@ YT|TERRITOIRES DU YUKON|LOCAL
 YT|YT|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound State values to RS values
-
 ---
 
 **Name**: ordering_facility_street
@@ -557,9 +558,7 @@ Translate multiple inbound State values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_street2
@@ -573,9 +572,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The secondary address of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_street
@@ -601,9 +598,7 @@ The secondary address of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_provider_city
@@ -617,9 +612,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the provider
-
 ---
 
 **Name**: ordering_provider_first_name
@@ -638,9 +631,7 @@ The city of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: ordering_provider_id
@@ -659,9 +650,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The ordering provider’s National Provider Identifier
-
 ---
 
 **Name**: ordering_provider_last_name
@@ -680,9 +669,7 @@ The ordering provider’s National Provider Identifier
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: ordering_provider_middle_name
@@ -718,9 +705,7 @@ The last name of provider who ordered the test
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: ordering_provider_state
@@ -920,9 +905,7 @@ YT|TERRITOIRES DU YUKON|LOCAL
 YT|YT|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound State values to RS values
-
 ---
 
 **Name**: ordering_provider_street
@@ -936,9 +919,7 @@ Translate multiple inbound State values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The street address of the provider
-
 ---
 
 **Name**: ordering_provider_street2
@@ -952,9 +933,7 @@ The street address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street second address of the provider
-
 ---
 
 **Name**: ordering_provider_zip_code
@@ -968,9 +947,7 @@ The street second address of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: patient_city
@@ -984,9 +961,7 @@ The zip code of the provider
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: patient_county
@@ -1016,11 +991,9 @@ The patient's city
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -1076,9 +1049,7 @@ U|NULL|LOCAL
 U|Patient Declines|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound ethnicity values to RS / OMB values
-
 ---
 
 **Name**: patient_first_name
@@ -1092,9 +1063,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: patient_gender
@@ -1129,9 +1098,7 @@ A|A|LOCAL
 A|Ambiguous|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Gender values to RS values
-
 ---
 
 **Name**: patient_id
@@ -1145,10 +1112,8 @@ Translate multiple inbound Gender values to RS values
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -1168,9 +1133,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
-
 ---
 
 **Name**: patient_last_name
@@ -1184,9 +1147,7 @@ The name of the assigner of the patient_id field. Typically we use the name of t
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: patient_middle_name
@@ -1212,9 +1173,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: patient_preferred_language
@@ -2362,9 +2321,7 @@ zun|Zuni|ISO
 zun|zun|ISO
 
 **Documentation**:
-
 Translate multiple inbound Language values to the ISO-639 codes
-
 ---
 
 **Name**: patient_race
@@ -2424,9 +2381,7 @@ ASKU|Asked, but unknown|LOCAL
 ASKU|ASKU|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Race values to RS / OMB values
-
 ---
 
 **Name**: patient_state
@@ -2626,9 +2581,7 @@ YT|TERRITOIRES DU YUKON|LOCAL
 YT|YT|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound State values to RS values
-
 ---
 
 **Name**: patient_street
@@ -2642,9 +2595,7 @@ Translate multiple inbound State values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: patient_street2
@@ -2658,9 +2609,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's second address line
-
 ---
 
 **Name**: patient_zip_code
@@ -2674,9 +2623,7 @@ The patient's second address line
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: pregnant
@@ -2720,9 +2667,7 @@ Code | Display | System
 261665006|261665006|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound values into the Pregnancy SNOMED Codes
-
 ---
 
 **Name**: processing_mode_code
@@ -2763,9 +2708,7 @@ P|ACTIVE|HL7
 P|P|HL7
 
 **Documentation**:
-
 P, D, or T for Production, Debugging, or Training
-
 ---
 
 **Name**: reporting_facility_clia
@@ -2787,9 +2730,7 @@ P, D, or T for Production, Debugging, or Training
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: reporting_facility_name
@@ -2811,9 +2752,7 @@ The reporting facility's CLIA
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The reporting facility's name
-
 ---
 
 **Name**: residence_type
@@ -2880,9 +2819,7 @@ Code | Display | System
 32911000|Homeless|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound values into Residence Type SNOMED codes.
-
 ---
 
 **Name**: resident_congregate_setting
@@ -2919,9 +2856,7 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
-
 ---
 
 **Name**: specimen_collection_date
@@ -2954,9 +2889,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -3046,9 +2979,7 @@ Code | Display | System
 39607008|39607008|SNOMED_CT
 
 **Documentation**:
-
 Translate inbound text to outbound SNOMED Codes
-
 ---
 
 **Name**: specimen_type
@@ -3132,9 +3063,7 @@ Code | Display | System
 258607008|258607008|SNOMED_CT
 
 **Documentation**:
-
 Translate inbound text to outbound SNOMED Codes
-
 ---
 
 **Name**: symptomatic_for_disease
@@ -3171,9 +3100,29 @@ UNK|NP|LOCAL
 UNK|maybe|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound Y/N/U AOE values to RS values
+---
 
+**Name**: test_kit_name_id
+
+**ReportStream Internal Name**: test_kit_name_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+                
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Testkit Name ID
+
+**Documentation**:
+Follows guidence for OBX-17 as defined in the HL7 Confluence page
 ---
 
 **Name**: test_performed_code
@@ -3191,9 +3140,25 @@ Translate multiple inbound Y/N/U AOE values to RS values
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 The LOINC code of the test performed. This is a standardized coded value describing the test
+---
 
+**Name**: test_performed_name
+
+**ReportStream Internal Name**: test_performed_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Test Performed LOINC Long Name
+
+**Documentation**:
+The LOINC description of the test performed as related to the LOINC code.
 ---
 
 **Name**: test_result
@@ -3268,9 +3233,7 @@ Code | Display | System
 82334004|82334004|SNOMED_CT
 
 **Documentation**:
-
 Translate multiple inbound Test Result values to RS values
-
 ---
 
 **Name**: test_result_date
@@ -3330,10 +3293,8 @@ C|C|HL7
 C|c|HL7
 
 **Documentation**:
-
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
-
 
 ---
 
@@ -3348,9 +3309,7 @@ the test result is in some intermediate status, is a correction, or is the final
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: testing_lab_clia
@@ -3373,11 +3332,9 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -3392,9 +3349,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
 ---
 
 **Name**: testing_lab_name
@@ -3418,9 +3373,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The name of the laboratory which performed the test, can be the same as the sending facility name
-
 ---
 
 **Name**: testing_lab_phone_number
@@ -3434,9 +3387,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: testing_lab_specimen_received_date
@@ -3462,12 +3413,10 @@ The phone number of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The received date time for the specimen. This field is very important to many states for their HL7,
 but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
 setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
 be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-
 
 ---
 
@@ -3668,9 +3617,7 @@ YT|TERRITOIRES DU YUKON|LOCAL
 YT|YT|LOCAL
 
 **Documentation**:
-
 Translate multiple inbound State values to RS values
-
 ---
 
 **Name**: testing_lab_street
@@ -3684,9 +3631,7 @@ Translate multiple inbound State values to RS values
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: testing_lab_street2
@@ -3700,9 +3645,7 @@ The street address for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 Street 2 field for the testing lab
-
 ---
 
 **Name**: testing_lab_zip_code
@@ -3716,9 +3659,7 @@ Street 2 field for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: accession_number_temp
@@ -3744,9 +3685,7 @@ The postal code for the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: ordering_facility_state
@@ -3764,9 +3703,7 @@ unique id to track the usage of the message
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: ordering_facility_state_temp
@@ -3796,9 +3733,7 @@ The state of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the provider
-
 ---
 
 **Name**: patient_county_code
@@ -3816,9 +3751,7 @@ The state of the provider
 **Table Column**: FIPS
 
 **Documentation**:
-
 The FIPS code for the patient's county
-
 ---
 
 **Name**: patient_id_temp
@@ -3862,9 +3795,7 @@ The FIPS code for the patient's county
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: placer_order_id
@@ -3883,9 +3814,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID number of the lab order from the placer
-
 ---
 
 **Name**: processing_mode_code_fromsettings
@@ -3911,9 +3840,7 @@ The ID number of the lab order from the placer
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: test_type
@@ -3943,9 +3870,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The specimen-id from the testing lab
-
 ---
 
 **Name**: testing_lab_state
@@ -3963,7 +3888,5 @@ The specimen-id from the testing lab
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---

@@ -34,10 +34,17 @@ describe("Rendering", () => {
 });
 
 describe("Helper functions", () => {
-    test("inclusiveDate", () => {
+    test("inclusiveDate without time should add EOD time to date", () => {
         const includedDate = new Date(
             inclusiveDateString("2022-04-21")
         ).toISOString();
-        expect(includedDate).toEqual("2022-04-21T23:59:59.000Z");
+        expect(includedDate).toEqual("2022-04-21T23:59:59.999Z");
+    });
+
+    test("inclusiveDate with time should add EOD time to date", () => {
+        const includedDate = new Date(
+            inclusiveDateString("3000-01-01T00:00:00.000Z")
+        ).toISOString();
+        expect(includedDate).toEqual("3000-01-01T23:59:59.999Z");
     });
 });

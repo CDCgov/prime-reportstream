@@ -1,38 +1,166 @@
-import React, { PropsWithChildren } from "react";
+import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
+import classnames from "classnames";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
+import DOMPurify from "dompurify";
 
-// Known issue with the `PropsWithChildren generic in React 18,
-// so I wrote this in a way that we can just remove `<any>` and be
-// okay if we update our React version.
-interface USNavLinkProps extends PropsWithChildren<any> {
-    href: string;
+/** React.PropsWithChildren has known issues with generic extension in React 18,
+ * so rather than using it here, we are using our own definition of child types.
+ * One less headache when updating to React 18 in the future! */
+interface CustomLinkProps {
+    children: React.ReactNode;
     className?: string;
     activeClassName?: string;
+    state?: any;
 }
-type USLinkProps = Omit<USNavLinkProps, "activeClassName">;
+type USLinkProps = AnchorHTMLAttributes<{}> &
+    Omit<CustomLinkProps, "activeClassName">;
+type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
 
-/** A single link for rendering standard links */
-export const USLink = ({ children, href, className }: USLinkProps) => (
-    <Link to={href} className={`usa-link ${className}`}>
-        {children}
-    </Link>
-);
+/**
+ * Stateless function to get route href from href that could be
+ * absolute, shorthand, relative, and/or a non-route.
+ * Attempt to parse href as URL (taking into account "//" shorthand).
+ * If it errors, then assume its a relative url (aka route). If it
+ * parses, then verify its an absolute route through origins.
+ */
+export function getHrefRoute(href?: string): string | undefined {
+    if (href === undefined) return undefined;
 
-/** A single link for rendering external links */
-export const USExtLink = ({ href, className, children }: USLinkProps) => (
-    <USLink href={href} className={`usa-link--external ${className}`}>
+    try {
+        const url = new URL(
+            href.replace(/^\/\//, `${window.location.protocol}//`)
+        );
+        if (
+            url.protocol.startsWith("http") &&
+            url.origin === window.location.origin
+        )
+            return `${url.pathname}${url.search}`;
+    } catch (e: any) {
+        return href;
+    }
+
+    return undefined;
+}
+
+export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
+    state?: any;
+}
+
+/**
+ * Sanitizes href and determines if href is an app route or regular
+ * link.
+ */
+export const SafeLink = ({
+    children,
+    href,
+    state,
+    ...anchorHTMLAttributes
+}: SafeLinkProps) => {
+    const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
+    const routeHref = getHrefRoute(sanitizedHref);
+
+    return routeHref !== undefined ? (
+        <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
+            {children}
+        </Link>
+    ) : (
+        <a href={sanitizedHref} {...anchorHTMLAttributes}>
+            {children}
+        </a>
+    );
+};
+
+/**
+ * USWDS Link via SafeLink
+ */
+export const USLink = ({ children, className, ...props }: USLinkProps) => {
+    return (
+        <SafeLink className={classnames("usa-link", className)} {...props}>
+            {children}
+        </SafeLink>
+    );
+};
+
+export interface USLinkButtonProps
+    extends USLinkProps,
+        Omit<ButtonProps, "type"> {}
+
+export const USLinkButton = ({
+    className,
+    secondary,
+    accentStyle,
+    base,
+    outline,
+    inverse,
+    size,
+    unstyled,
+    ...anchorHTMLAttributes
+}: USLinkButtonProps) => {
+    const linkClassname = classnames(
+        "usa-button",
+        {
+            "usa-button--secondary": secondary,
+            [`usa-button--accent-${accentStyle}`]: accentStyle,
+            "usa-button--base": base,
+            "usa-button--outline": outline,
+            "usa-button--inverse": inverse,
+            [`usa-button--${size}`]: size,
+            "usa-button--unstyled": unstyled,
+        },
+        className
+    );
+    return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
+};
+
+/** A single link for rendering external links. Uses {@link USLink} as a baseline.
+ * Handles target and rel, and will disperse all other anchor attributes given.
+ * @example
+ * <USExtLink href="www.mysite.com">My Site</USExtLink>
+ * // Same as the following:
+ * <USLink
+ *      target="_blank"
+ *      rel="noreferrer noopener"
+ *      href="www.mysite.com"
+ *      className="usa-link--external">
+ *          My Site
+ *  </USLink>
+ * */
+export const USExtLink = ({
+    className,
+    children,
+    ...anchorHTMLAttributes
+}: Omit<USLinkProps, "rel" | "target">) => {
+    return (
+        <USLink
+            target="_blank"
+            rel="noreferrer noopener"
+            className={classnames("usa-link--external", className)}
+            {...anchorHTMLAttributes}
+        >
+            {children}
+        </USLink>
+    );
+};
+
+/** A single link for building breadcrumbs. Uses `USLink` as a base and renders a
+ * react-router-dom `Link` with applied uswds styling for specific use in breadcrumbs */
+export const USCrumbLink = ({
+    className,
+    children,
+    ...anchorHTMLAttributes
+}: USLinkProps) => (
+    <USLink
+        className={classnames("usa-breadcrumb__link", className)}
+        {...anchorHTMLAttributes}
+    >
         {children}
     </USLink>
 );
 
-/** A single link for building breadcrumbs */
-export const USCrumbLink = ({ href, className, children }: USLinkProps) => (
-    <USLink href={href} className={`usa-breadcrumb__link ${className}`}>
-        {children}
-    </USLink>
-);
-
-/** A single link to replace NavLink (react-router-dom) */
+/** A single link to replace NavLink (react-router-dom). Applies uswds navigation link styling
+ * and handles both active and standard style states. This DOES NOT use `USLink` as a base; it
+ * relies on `NavLink` for additional functionality. */
 export const USNavLink = ({
     href,
     children,
@@ -41,11 +169,13 @@ export const USNavLink = ({
 }: USNavLinkProps) => {
     return (
         <NavLink
-            to={href}
+            to={href || ""}
             className={({ isActive }) =>
-                isActive
-                    ? `usa-nav__link usa-current ${activeClassName || ""}`
-                    : `usa-nav__link ${className || ""}`
+                classnames("usa-nav__link", {
+                    "usa-current": isActive,
+                    [activeClassName as any]: isActive, // `as any` because string may be undefined
+                    [className as any]: !isActive, // `as any` because string may be undefined
+                })
             }
         >
             {children}

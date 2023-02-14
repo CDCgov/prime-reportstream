@@ -89,7 +89,7 @@ abstract class LoadTestSimulator : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simulation.sender as CovidSender,
+            (simulation.sender as CovidSender).schemaName,
             simulation.numItemsPerSubmission,
             simulation.targetStates,
             simulation.targetCounties,
@@ -523,7 +523,7 @@ abstract class LoadTestSimulator : CoolTest() {
 
             val sql = """select max(action_id)
                 from action
-              """
+            """
 
             actionId = ctx.fetchOne(
                 sql
@@ -550,7 +550,7 @@ abstract class LoadTestSimulator : CoolTest() {
               and a.action_id >= ?
               and rf.receiving_org = ?
               and rf.receiving_org_svc = ?
-              """
+            """
 
             itemsFound = ctx.fetchOne(
                 sql,

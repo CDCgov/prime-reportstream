@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo } from "react";
-import { Link, NavLink } from "react-router-dom";
 import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { StaticAlert } from "../StaticAlert";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import {
-    ResponseError,
     ErrorCodeTranslation,
+    ResponseError,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -38,11 +38,13 @@ export const FileSuccessDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"success slim"}
+                type={[StaticAlertType.Success, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />
             <div>
+                {/* TODO: can probably remove since it's not being used now */}
+
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -51,9 +53,9 @@ export const FileSuccessDisplay = ({
                                     Confirmation Code
                                 </p>
                                 <p className="margin-top-05">
-                                    <Link to={`/submissions/${reportId}`}>
+                                    <USLink href={`/submissions/${reportId}`}>
                                         {reportId}
-                                    </Link>
+                                    </USLink>
                                 </p>
                             </div>
                         )}
@@ -118,7 +120,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -126,10 +127,12 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
-        () => (title === RequestLevel.WARNING ? "warning" : "error"),
+        () =>
+            title === RequestLevel.WARNING
+                ? StaticAlertType.Warning
+                : StaticAlertType.Error,
         [title]
     );
     const showTable =
@@ -140,10 +143,10 @@ export const RequestedChangesDisplay = ({
     useEffect(() => {
         data.forEach((error: ResponseError) => {
             if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
+                console.error(`failure: ${error.details}`);
             }
         });
-    }, [data, handlerType, title]);
+    }, [data, title]);
 
     return (
         <>
@@ -151,24 +154,17 @@ export const RequestedChangesDisplay = ({
                 <h5 className="margin-bottom-1">Resources</h5>
                 <ul className={"margin-0"}>
                     <li>
-                        <NavLink
+                        <USLink
                             target="_blank"
-                            to={"/resources/programmers-guide"}
+                            href="/resources/programmers-guide"
                         >
                             ReportStream Programmers Guide
-                        </NavLink>
+                        </USLink>
                     </li>
                     <li>
-                        <a
-                            className={"usa-link--external"}
-                            target={"_blank"}
-                            href={
-                                "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
-                            }
-                            rel="noreferrer"
-                        >
+                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </a>
+                        </USLink>
                     </li>
                 </ul>
             </StaticAlert>
@@ -215,7 +211,13 @@ interface FileWarningBannerProps {
 }
 
 export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+    return (
+        <StaticAlert
+            type={StaticAlertType.Warning}
+            heading="Warning"
+            message={message}
+        />
+    );
 };
 
 interface ErrorRowProps {
@@ -227,7 +229,13 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, field, errorCode, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{errorCode ? ErrorCodeTranslation[errorCode] : message}</td>
+            <td>
+                {errorCode &&
+                errorCode !== "UNKNOWN" &&
+                ErrorCodeTranslation[errorCode]
+                    ? ErrorCodeTranslation[errorCode]
+                    : message}
+            </td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
@@ -252,7 +260,7 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"error slim"}
+                type={[StaticAlertType.Error, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />

@@ -5,7 +5,8 @@ import {
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
 import { QueryWrapper } from "../../utils/CustomRenderUtils";
-import { ContentType } from "../UseFileHandler";
+import { ContentType, FileType } from "../UseFileHandler";
+import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 
 import { useWatersUploader } from "./WatersHooks";
 
@@ -25,28 +26,9 @@ describe("useWatersUploader", () => {
         expect(result.current.sendFile).toBeInstanceOf(Function);
         expect(result.current.uploaderError).toBeNull();
     });
-    test("posts to /api/waters", async () => {
-        const { result, waitForNextUpdate } = renderHookWithQueryWrapper();
-        let response;
-        await act(async () => {
-            const post = result.current.sendFile({
-                contentType: ContentType.CSV,
-                fileContent: "",
-                fileName: "",
-                // test response trigger
-                client: WatersTestHeaderValue.TEST_NAME,
-            });
-            await waitForNextUpdate();
-            expect(result.current.isWorking).toEqual(true);
-            response = await post;
-        });
-        expect(response).toEqual({
-            endpoint: "upload",
-        });
-    });
     test("posts to /api/validate when validateOnly param is true", async () => {
         const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(mockCallbackFn, true),
+            () => useWatersUploader(mockCallbackFn),
             {
                 wrapper: QueryWrapper(),
             }
@@ -59,6 +41,8 @@ describe("useWatersUploader", () => {
                 fileName: "",
                 // test response trigger
                 client: WatersTestHeaderValue.TEST_NAME,
+                format: FileType.CSV,
+                schema: STANDARD_SCHEMA_OPTIONS[0].value,
             });
             await waitForNextUpdate();
             expect(result.current.isWorking).toEqual(true);

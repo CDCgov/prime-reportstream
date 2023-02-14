@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
@@ -74,7 +75,8 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
+NTE|1|L|This is a final comment|RE
+            """
         sampleHl7MessageWithRepeats =
             """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
@@ -88,11 +90,13 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
+NTE|1|L|This is a final comment|RE
+            """
     }
 
     private fun createConfig(
         replaceValue: Map<String, String> = emptyMap(),
+        replaceValueAwithB: Map<String, Any> = emptyMap(),
         cliaForSender: Map<String, String> = emptyMap(),
         cliaForOutOfStateTesting: String? = null,
         truncateHl7Fields: String? = null,
@@ -100,7 +104,7 @@ NTE|1|L|This is a final comment|RE"""
         truncateHDNamespaceIds: Boolean = false,
         stripInvalidCharsRegex: String? = null,
         replaceUnicodeWithAscii: Boolean = false,
-        useBatchHeaders: Boolean = false,
+        useBatchHeaders: Boolean = false
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -112,6 +116,7 @@ NTE|1|L|This is a final comment|RE"""
             cliaForOutOfStateTesting = cliaForOutOfStateTesting,
             cliaForSender = cliaForSender,
             replaceValue = replaceValue,
+            replaceValueAwithB = replaceValueAwithB,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
@@ -147,6 +152,75 @@ NTE|1|L|This is a final comment|RE"""
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test createHeader with no replaceValueAwithB batch`() {
+        val outputStream = ByteArrayOutputStream()
+
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = createConfig(
+            replaceValue = mapOf("" to "", "" to ""),
+        )
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        serializer.writeBatch(testReport, outputStream)
+        val output = outputStream.toString(StandardCharsets.UTF_8)
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|||||"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "BHS|^~\\&|||||"
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `test createHeader withreplaceValueAwithB batch`() {
+        val outputStream = ByteArrayOutputStream()
+
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val replaceFHSSendingApp = arrayListOf(mapOf("*" to "New Sendign App^2.16.840.1.114222.4.1.237821^ISO"))
+        val replaceFHSReceivingApp = arrayListOf(mapOf("*" to "New Receiving Application^1234^ISO"))
+        val replaceFHSReceivingFacility = arrayListOf(mapOf("*" to "New Receiving Facility"))
+
+        val replaceValueAwithBMap: Map<String, Any>? = mapOf(
+            "FHS-3" to replaceFHSSendingApp,
+            "FHS-5" to replaceFHSReceivingApp,
+            "FHS-6" to replaceFHSReceivingFacility,
+        )
+        val hl7Config = createConfig(
+            replaceValueAwithB = replaceValueAwithBMap!!
+        )
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        serializer.writeBatch(testReport, outputStream)
+        val output = outputStream.toString(StandardCharsets.UTF_8)
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|New Sendign App^2.16.840.1.114222.4.1.237821^ISO|"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "|New Receiving Application^1234^ISO|"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "|New Receiving Facility|"
+            )
+        ).isTrue()
     }
 
     @Test
@@ -364,6 +438,23 @@ NTE|1|L|This is a final comment|RE"""
         // Execute primeCLI command.  Note, upon success, it will generate the HL7 output file in $testOutputFile
         main(args)
 
+        val messageWithHeader = File(testOutputFile).readLines().joinToString("\r")
+        assertThat(
+            messageWithHeader.contains(
+                "FHS|^~\\&|CDC TESTING SENDING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING FACILITY|"
+            )
+        ).isTrue()
+
         val message = File(testOutputFile).readLines().drop(2).joinToString("\r")
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
@@ -498,6 +589,76 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    fun `test error messages bad death date`() {
+        val badDeathMsg =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+SFT|Centers for Disease Control and Prevention|0.2-SNAPSHOT|PRIME ReportStream|0.2-SNAPSHOT||20220816000000+0000
+PID|1||apfetlj^^^Any lab USA&78D8659823&CLIA^b7k3c1^Any facility USA&78D8659823&CLIA||Gutmann^Theron^Stuart^^^^1bqxp||19300117||||315 Francesco Lock^^Riverdale^MI^48877^USA^^^26057||(219)489-3600^PRN^PH^^1^219^4893600~^NET^Internet^tim.gerlach@email.com|||||||348-25-6785|||||||||08112022|N
+            """
+        val mappedMessage = serializer.convertMessageToMap(badDeathMsg, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_DATE)
+    }
+
+    @Test
+    fun `test error messages bad phone ordering`() {
+        val badPhoneMsg =
+            """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+SFT|Centers for Disease Control and Prevention|0.2-SNAPSHOT|PRIME ReportStream|0.2-SNAPSHOT||20220816000000+0000
+PID|1||apfetlj^^^Any lab USA&78D8659823&CLIA^b7k3c1^Any facility USA&78D8659823&CLIA||Gutmann^Theron^Stuart^^^^1bqxp||19300117||||315 Francesco Lock^^Riverdale^MI^48877^USA^^^26057||(219)489-3600^PRN^PH^^1^219^4893600~^NET^Internet^tim.gerlach@email.com|||||||348-25-6785|||||||||20220811|N
+ORC|RE|797773^Any lab USA^82D7546467^CLIA|704220^Any lab USA^82D7546467^CLIA|988705^vxuzaz^56D2778463^CLIA||||||||1172556940^Veum^Deetta^Harris^^^^^0.0.0.0.1^^^^04jfc||(209)462-0271^WPN^PH^^1^209^4620271|20220811234213+0000||||||Any facility USA^L|1739 Fadel Road^^Riverdale^MI^48877^^^^26057|+999999999999|9215 Oren Views^^Riverdale^MI^48877^^^^26057
+            """
+        val mappedMessage = serializer.convertMessageToMap(badPhoneMsg, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_TELEPHONE)
+    }
+
+    @Test
+    fun `test error messages bad livd lookup`() {
+        val badDatetime =
+            """MSH|^~\&|ProPhase^2.16.840.1.114222.4.1.238646^ISO^PI|ProPhase^33D2215033^CLIA|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|CDC Prime^2.16.840.1.114222.4.1.237821^ISO|20220413233348-0500||ORU^R01^ORU_R01^R01|00038772|P|2.5.1||||NE|||||PHLabReport-Batch^^2.16.840.1.114222.4.1.238646^ISO|
+PID|1||1649709582^^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO^^PROPHASE DIAGNOSTICS&2.16.840.1.114222.4.1.238646&ISO|02856-PZ-22101|Patient^Test||20000513|F||UNK^Unknown^HL70005|123 St Apt 1^^TestCity^NY^11102||8887776666^^^fakeemail@gmail.com^^^8887776666|||||||||U^Unknown^HL70189^^^^2.5.1||||||||N|||||10007059|
+SFT|Orchard|9.0|Orchard Enterprise|9.0.211217.220208||20220411
+ORC|RE|PH-388002|221010003714^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|1|||^^^20220411163900||20220411163900|||1215053962^Brandeis^Vincent|^^^LABWORQ&PZ-1001|646-450-4344|20220411163900-0500|||||1|ProPhase Diagnostics|711 Stewart Ave Ste 200^^Garden City^NY^11530|646-450-4344|711 Stewart Ave Ste 200^^Garden City^NY^11530
+OBR|1|PH-388002|221010003714^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|94500-6^SARS-CoV-2 (COVID-19) RNA NAA+probe Ql (Resp)^LN|R||20220411163900|||PUnknown^Unknown^Phleb||||20220412022700|Swab|1215053962^Brandeis^Vincent||||||20220413233206-0500||PGC|F||^^^20220411163900^^R||^02856-PZ-22101|||||System|||||||||||||||||||||PATIENT|||||
+OBX|1|CWE|94500-6^SARS-CoV-2 RNA^LN^^SARS-CoV-2 RNA^LN||260373001^Detected^SCT||Detected|A|||F|||20220413233206-0500|PGC|System|PhoenixDx SARS-CoV-2 Multiplex_Trax Management Services Inc.^SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection^EUA||20220413233206-0500||||ProPhase Diagnostics^L^^^^CLIA^33D2215033^ISO^XX^33D2215033|711 Stewart Ave Ste 200^^Garden City^NY^11530||
+SPM|1|PH-388002^221010003714&&2.16.840.1.114222.4.1.238646&ISO||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SNOMED_CT|||||||||20220411163900-0500|20220413233206-0500
+            """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.warnings.size).isEqualTo(2)
+        assertThat(mappedMessage.warnings[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING)
+        assertThat(mappedMessage.warnings[1].errorCode).isEqualTo(ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING)
+    }
+
+    @Test
+    fun `test error messages bad missing fields`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000||ORU^R01^ORU_R01|474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(2)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_MISSING_FIELD)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_MSG_MISSING_FIELD)
+    }
+
+    @Test
+    fun `test error messages unsupported HL7 msg type`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^57D2109627^CLIA|0.0.0.0.1|0.0.0.0.1|20220832|ORU^R01^ORU_R01|186294|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^dw1aq^e3yul7^if520yz2l
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.warnings.size).isEqualTo(1)
+        assertThat(mappedMessage.warnings[0].errorCode).isEqualTo(ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED)
+    }
+
+    @Test
+    fun `test error messages missing Hl7 MSH`() {
+        val badDatetime = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|0.0.0.0.1^78D8659823^CLIA|0.0.0.0.1|0.0.0.0.1|20220816234214+0000|||474797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^t9vlplqc^6jlu9^0wrmuceoi
+        """
+        val mappedMessage = serializer.convertMessageToMap(badDatetime, 1, covid19Schema)
+        assertThat(mappedMessage.errors.size).isEqualTo(1)
+        assertThat(mappedMessage.errors[0].errorCode).isEqualTo(ErrorCode.INVALID_HL7_MSG_TYPE_MISSING)
+    }
+
+    @Test
     fun `test reading HL7 batch message from file`() {
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile).readText()
@@ -540,7 +701,6 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test checkLIVDValueExists`() {
-
         // happy path success
         val modelCOVIDSeqTest = serializer.checkLIVDValueExists("Model", "COVIDSeq Test")
         assertThat(modelCOVIDSeqTest).isTrue()
@@ -564,7 +724,6 @@ NTE|1|L|This is a final comment|RE"""
      */
     @Test
     fun `test confirmObservationOrder`() {
-
         // message where first OBX segment contains the test result
         val sampleRegMessage = File("./src/testIntegration/resources/serializers/test_result_first_rep.hl7")
             .readText()
@@ -766,7 +925,8 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Config = createConfig(cliaForOutOfStateTesting = "10DfakeCL")
         val receiver = Receiver("test", "ca-dph", Topic.COVID_19, translation = hl7Config)
         val schema = "direct/direct-covid-19"
-        val csvHeader = """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
+        val csvHeader =
+            """senderId,testOrdered,testName,testCodingSystem,testResult,testResultText,testPerformed,
             testResultCodingSystem,testResultDate,testReportDate,testOrderedDate,specimenCollectedDate,deviceIdentifier,
             deviceName,specimenId,serialNumber,patientAge,patientAgeUnits,patientDob,patientRace,patientRaceText,
             patientEthnicity,patientEthnicityText,patientSex,patientZip,patientCounty,orderingProviderNpi,
@@ -779,7 +939,8 @@ NTE|1|L|This is a final comment|RE"""
             patientPhone,patientPhoneArea,orderingProviderAddress,orderingProviderAddress2,orderingProviderCity,
             orderingProviderState,orderingProviderPhone,orderingProviderPhoneArea,firstTest,previousTestType,previousTestDate,
             previousTestResult,correctedTestId,healthcareEmployee,healthcareEmployeeType,symptomatic,symptomsList,hospitalized,
-            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility"""
+            hospitalizedCode,symptomsIcu,congregateResident,congregateResidentType,pregnant,pregnantText,patientEmail,reportingFacility
+            """
 
         val csvBlankState =
             """fake,94531-1,SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,LN,260415000,
@@ -789,7 +950,8 @@ NTE|1|L|This is a final comment|RE"""
             9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
             93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
             ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,,+16618297861,661,
-            UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         val csvContentBlankState = ByteArrayInputStream(
             csvHeader.replace("\n            ", "")
@@ -818,7 +980,8 @@ NTE|1|L|This is a final comment|RE"""
             yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
             9902 Brimhall rd ste 100,,Bakersfield,TX,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,,
             93312,Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,
-            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            ,9902 BRIMHALL RD STE 100,,BAKERSFIELD,CA,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         // SenderID is set to "fake" in this CSV
         val csvContentProviderState = ByteArrayInputStream(
@@ -848,7 +1011,8 @@ NTE|1|L|This is a final comment|RE"""
             yr,1975-10-10,2106-3,White,2135-2,Hispanic or Latino,M,93307,Kern County,1760085880,,,93312,05D2191150,Inovia Pharmacy,
             9902 Brimhall rd ste 100,,Bakersfield,,93312,Kern County,+16618297861,Inovia Pharmacy,9902 Brimhall rd ste 100,,Bakersfield,TX,93312,
             Kern County,+16618297861,445297001,Tapia,Jose,,e553c462-6bad-4e42-ab1e-0879b797aa31,1211 Dawn st,,Bakersfield,CA,+16614933107,661,
-            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880"""
+            9902 BRIMHALL RD STE 100,,BAKERSFIELD,TX,+16618297861,661,UNK,,,,,,,UNK,,NO,,NO,NO,,261665006,UNK,,1760085880
+            """
 
         // SenderID is set to "fake" in this CSV
         val csvContentFacilityState = ByteArrayInputStream(

@@ -343,7 +343,9 @@ class TranslationTests {
             // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
             // value for the sender, and your test will fail. This is not a bug.
             val sender = if (senderName != null) {
-                settings.senders.firstOrNull { it.organizationName.lowercase() == senderName.lowercase() }
+                settings.senders.firstOrNull {
+                    it.organizationName.plus(".").plus(it.name).lowercase() == senderName.lowercase()
+                }
             } else {
                 settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
             }
