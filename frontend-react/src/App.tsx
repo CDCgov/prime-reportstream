@@ -1,6 +1,5 @@
 import { GovBanner } from "@trussworks/react-uswds";
 import { toRelativeUrl } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
 import { useIdleTimer } from "react-idle-timer";
 import React, { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
@@ -109,7 +108,6 @@ const App = () => {
         <AppWrapper
             oktaAuth={OKTA_AUTH}
             restoreOriginalUri={restoreOriginalUri}
-            oktaHook={useOktaAuth}
         >
             <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
