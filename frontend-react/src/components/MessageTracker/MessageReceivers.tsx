@@ -20,13 +20,13 @@ interface NormalizedReceiverData {
     TransportResults: string;
 }
 
-interface MessageReceiversColRowProps {
+interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
 }
 
-interface MessageReceiversHeaderProps {
+interface MessageReceiversColProps {
     columnHeaderTitle: string;
     activeColumn: string;
     setActiveColumn: (colTitle: string) => void;
@@ -53,7 +53,7 @@ const FilterOptionsEnum = {
     DESC: "desc",
 };
 
-const MessageReceiversHeader = ({
+const MessageReceiversCol = ({
     columnHeaderTitle,
     activeColumn,
     setActiveColumn,
@@ -61,7 +61,7 @@ const MessageReceiversHeader = ({
     setActiveColumnSortOrder,
     filterIcon,
     rowSpan,
-}: MessageReceiversHeaderProps) => {
+}: MessageReceiversColProps) => {
     const isCurrentlyActiveColumn = columnHeaderTitle === activeColumn;
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
@@ -102,11 +102,11 @@ const MessageReceiversHeader = ({
     );
 };
 
-const MessageReceiversColRow = ({
+const MessageReceiversRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
-}: MessageReceiversColRowProps) => {
+}: MessageReceiversRowProps) => {
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
         activeColumnSortOrder !== FilterOptionsEnum.None
@@ -279,7 +279,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             <Table key="messagedetails" aria-label="Message Details" bordered>
                 <thead>
                     <tr>
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.Name}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -288,7 +288,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={2}
                         />
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.Service}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -297,7 +297,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={2}
                         />
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.Date}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -306,7 +306,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={2}
                         />
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.ReportId}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -316,7 +316,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             rowSpan={2}
                         />
                         <th colSpan={3}>File Location</th>
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.TransportResults}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -327,7 +327,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         />
                     </tr>
                     <tr>
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.Main}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -336,7 +336,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={1}
                         />
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.Sub}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -345,7 +345,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={1}
                         />
-                        <MessageReceiversHeader
+                        <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.FileName}
                             activeColumn={activeColumn}
                             setActiveColumn={setActiveColumn}
@@ -359,7 +359,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 <tbody style={{ wordBreak: "break-all" }}>
                     {sortedData.map(
                         (receiver: NormalizedReceiverData, index) => (
-                            <MessageReceiversColRow
+                            <MessageReceiversRow
                                 key={index}
                                 receiver={receiver}
                                 activeColumn={activeColumn}
