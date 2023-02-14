@@ -1,5 +1,14 @@
-import React, { useMemo, useState } from "react";
-import { Table, Icon } from "@trussworks/react-uswds";
+import React, { useMemo, useRef, useState } from "react";
+import {
+    Table,
+    Icon,
+    Modal,
+    ModalFooter,
+    ButtonGroup,
+    ModalToggleButton,
+    ModalRef,
+    ModalHeading,
+} from "@trussworks/react-uswds";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
@@ -23,6 +32,8 @@ interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
+    setModalText: ({ title, body }: { title: string; body: string }) => void;
+    modalRef: React.RefObject<ModalRef>;
 }
 
 interface MessageReceiversColProps {
@@ -114,6 +125,8 @@ const MessageReceiversRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
+    setModalText,
+    modalRef,
 }: MessageReceiversRowProps) => {
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
@@ -135,6 +148,13 @@ const MessageReceiversRow = ({
                 className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.ReportId
                 )}`}
+                onClick={() => {
+                    setModalText({
+                        title: `${ColumnDataEnum.ReportId}:`,
+                        body: receiver.ReportId,
+                    });
+                    modalRef?.current?.toggleModal();
+                }}
             >
                 {receiver.ReportId}
             </td>
@@ -150,13 +170,27 @@ const MessageReceiversRow = ({
                 className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.FileName
                 )}`}
+                onClick={() => {
+                    setModalText({
+                        title: `${ColumnDataEnum.FileName}:`,
+                        body: receiver.FileName,
+                    });
+                    modalRef?.current?.toggleModal();
+                }}
             >
                 {receiver.FileName}
             </td>
             <td
-                className={checkForActiveColumn(
+                className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.TransportResults
-                )}
+                )}`}
+                onClick={() => {
+                    setModalText({
+                        title: `${ColumnDataEnum.TransportResults}:`,
+                        body: receiver.TransportResults,
+                    });
+                    modalRef?.current?.toggleModal();
+                }}
             >
                 {receiver.TransportResults}
             </td>
@@ -165,6 +199,8 @@ const MessageReceiversRow = ({
 };
 
 export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
+    const modalRef = useRef<ModalRef>(null);
+    const [modalText, setModalText] = useState({ title: "", body: "" });
     const [activeColumn, setActiveColumn] = useState("");
     const [activeColumnSortOrder, setActiveColumnSortOrder] = useState("");
     const filterIcon = useMemo(
@@ -382,11 +418,31 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 receiver={receiver}
                                 activeColumn={activeColumn}
                                 activeColumnSortOrder={activeColumnSortOrder}
+                                setModalText={setModalText}
+                                modalRef={modalRef}
                             />
                         )
                     )}
                 </tbody>
             </Table>
+            <Modal id="message-receivers-modal" ref={modalRef}>
+                <ModalHeading>{modalText.title}</ModalHeading>
+                <div className="usa-prose">
+                    <p>{modalText.body}</p>
+                </div>
+                <ModalFooter>
+                    <ButtonGroup>
+                        <ModalToggleButton
+                            modalRef={modalRef}
+                            closer
+                            unstyled
+                            className="padding-105 text-center"
+                        >
+                            Done
+                        </ModalToggleButton>
+                    </ButtonGroup>
+                </ModalFooter>
+            </Modal>
         </>
     );
 };
