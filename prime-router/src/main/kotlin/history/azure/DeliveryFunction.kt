@@ -8,6 +8,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -45,9 +47,13 @@ class DeliveryFunction(
      * @return Name for the organization
      */
     override fun getOrgName(organization: String): String? {
-        val receiver = workflowEngine.settings.findReceiver(organization)
-        receivingOrgSvc = receiver?.name
-        return receiver?.organizationName
+        return if (organization.contains(Sender.fullNameSeparator)) {
+            workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }
+        } else {
+            workflowEngine.settings.receivers.find {
+                it.organizationName == organization && it.customerStatus == CustomerStatus.ACTIVE
+            }
+        }?.organizationName
     }
 
     /**
