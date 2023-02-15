@@ -135,7 +135,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
         var conditionFilteredReport = routingFilteredReport
         // condition filter can only be used on UP
-        if (receiver.topic == Topic.FULL_ELR) {
+        if (receiver.topic == Topic.FULL_ELR && !receiver.conditionFilter.isNullOrEmpty()) {
             // Do conditionFiltering on the routingFilteredReport
             conditionFilteredReport = filterByOneFilterType(
                 routingFilteredReport,
