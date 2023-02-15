@@ -69,6 +69,12 @@ const FilterOptionsEnum = {
     DESC: "desc",
 };
 
+const StatusEnum = {
+    BATCH: "BATCH",
+    PROCESS: "PROCESS",
+    READY: "READY",
+};
+
 const MessageReceiversCol = ({
     columnHeaderTitle,
     activeColumn,
@@ -125,6 +131,8 @@ const MessageReceiversRow = ({
     setModalText,
     modalRef,
 }: MessageReceiversRowProps) => {
+    // We highlight the entire active column so within the row,
+    // we need to know which column is active
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
         activeColumnSortOrder !== FilterOptionsEnum.None
@@ -159,9 +167,9 @@ const MessageReceiversRow = ({
             <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
                 <p
                     className={`font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0 ${
-                        uppercaseMain === "BATCH" && "blue-5"
-                    } ${uppercaseMain === "PROCESS" && "blue-10"} ${
-                        uppercaseMain === "READY" && "blue-20"
+                        uppercaseMain === StatusEnum.BATCH && "bg-blue-5"
+                    } ${uppercaseMain === StatusEnum.PROCESS && "bg-blue-10"} ${
+                        uppercaseMain === StatusEnum.READY && "bg-blue-20"
                     }`}
                 >
                     {uppercaseMain}
@@ -231,7 +239,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     //     "createdAt": "2023-02-03T18:22:55.580322",
     //     "qualityFilters": []
     // }
-    // And we parse fileUrl using parseFileLocation to find: folderLocation, sendingOrg and fileName. We use normalizedData to fix this.
+    // And we parse fileUrl using parseFileLocation to find: folderLocation, sendingOrg and fileName. We use normalizedData to fix this. If there's no data, we fill in the string with N/A.
 
     // Our expected output should look like the following:
     //   NormalizedReceiverData {
@@ -314,6 +322,9 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
         [receiverDetails]
     );
     const sortedData = useMemo(
+        // All of the normalized data can be sorted by the same sort algo
+        // which requires a return of -1 0 1. For dates, we need to
+        // convert them to a numerical value.
         () =>
             activeColumnSortOrder !== FilterOptionsEnum.None
                 ? normalizedData.sort(

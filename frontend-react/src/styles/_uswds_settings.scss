@@ -64,6 +64,9 @@ $flex-wrap-settings: (
   responsive: true
 );
 
+// Add all USWDS colors: https://designsystem.digital.gov/design-tokens/color/system-tokens/
+$global-color-palettes: "palette-color";
+
 // COLORS - USDS redefine
 // these are color names we can reference else where and/or redefine usds colors
 $black: #010101;
