@@ -7,7 +7,7 @@ export class BasePage extends BasePageComponent {
     path = "/";
 
     get baseTitle() {
-        return Cypress.env("base_page_title");
+        return Cypress.env("basePageTitle");
     }
 
     go() {

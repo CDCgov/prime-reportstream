@@ -166,14 +166,12 @@
             },
             {
                 "files": [
-                    "**/__tests__/**/*.[jt]s?(x)",
-                    "**/?(*.)+(spec|test).[jt]s?(x)",
-                    "**/cypress/**/*.[jt]s?(x)"
+                    "./src/**/__tests__/**/*.[jt]s?(x)",
+                    "./src/**/?(*.)+(spec|test).[jt]s?(x)"
                 ],
                 "extends": [
                     "plugin:testing-library/react",
-                    "plugin:jest-dom/recommended",
-                    "plugin:cypress/recommended"
+                    "plugin:jest-dom/recommended"
                 ],
                 "rules": {
                     "testing-library/no-render-in-setup": [
@@ -186,6 +184,22 @@
                     "testing-library/prefer-screen-queries": "warn",
                     "testing-library/no-unnecessary-act": "warn",
                     "testing-library/no-await-sync-query": "warn"
+                }
+            },
+            {
+                "plugins": [
+                    "chai-friendly"
+                ],
+                "files": [
+                    "**/cypress/**/*.[jt]s?(x)"
+                ],
+                "extends": [
+                    "plugin:cypress/recommended"
+                ],
+                "rules": {
+                    "no-unused-expressions": "off",
+                    "@typescript-eslint/no-unused-expressions": "off",
+                    "chai-friendly/no-unused-expressions": "error"
                 }
             }
         ],
@@ -212,7 +226,7 @@
     },
     "devDependencies": {
         "@rest-hooks/test": "^7.3.1",
-        "@testing-library/cypress": "^8.0.7",
+        "@testing-library/cypress": "^9.0.0",
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/react": "^12.1.2",
         "@testing-library/react-hooks": "^8.0.1",
@@ -230,17 +244,18 @@
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.8.3",
         "@types/testing-library__jest-dom": "^5.14.2",
-        "cypress": "^10.11.0",
+        "cypress": "^12.5.1",
         "cypress-each": "^1.13.1",
-        "cypress-localstorage-commands": "^2.1.0",
+        "cypress-localstorage-commands": "^2.2.2",
         "cypress-plugin-tab": "^1.0.5",
         "dotenv": "^16.0.3",
         "env-cmd": "^10.1.0",
         "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-chai-friendly": "^0.7.2",
         "eslint-plugin-cypress": "^2.12.1",
         "eslint-plugin-jest-dom": "^4.0.1",
         "eslint-plugin-prettier": "^4.2.1",
-        "eslint-plugin-testing-library": "^5.9.1",
+        "eslint-plugin-testing-library": "^5.10.1",
         "eslint-plugin-unused-imports": "2.0.0",
         "jest-canvas-mock": "^2.3.1",
         "msw": "^0.36.8",
