@@ -100,8 +100,7 @@
             "testing-library",
             "unused-imports",
             "jest-dom",
-            "prettier",
-            "chai-friendly"
+            "prettier"
         ],
         "env": {
             "browser": true,
@@ -188,6 +187,9 @@
                 }
             },
             {
+                "plugins": [
+                    "chai-friendly"
+                ],
                 "files": [
                     "**/cypress/**/*.[jt]s?(x)"
                 ],
