@@ -15,10 +15,15 @@ hr {
 .usa-table thead th {
   cursor: pointer;
   user-select: none;
+  background-color: #f0f0f0;
 }
 
 .usa-table thead th.active-col-header {
   background-color: $bg-col-header;
+}
+
+.usa-table thead th.white-space-pre {
+  white-space: pre;
 }
 
 .usa-table td.active-col-td {
@@ -37,6 +42,8 @@ hr {
 }
 
 .usa-table .message-receivers-table td {
+  font-size: 14px;
+  padding: 1rem;
   vertical-align: top;
 }
 

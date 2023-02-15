@@ -3,9 +3,6 @@ import {
     Table,
     Icon,
     Modal,
-    ModalFooter,
-    ButtonGroup,
-    ModalToggleButton,
     ModalRef,
     ModalHeading,
 } from "@trussworks/react-uswds";
@@ -115,7 +112,7 @@ const MessageReceiversCol = ({
         >
             <div className="column-header-title-container">
                 <p>{columnHeaderTitle}</p>
-                {isCurrentlyActiveColumn ? filterIcon : <Icon.UnfoldMore />}
+                {isCurrentlyActiveColumn ? filterIcon : <Icon.SortArrow />}
             </div>
         </th>
     );
@@ -159,7 +156,7 @@ const MessageReceiversRow = ({
                 {receiver.ReportId}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
-                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-top-4px padding-bottom-4px padding-left-1 padding-right-1">
+                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0">
                     {receiver.Main.toUpperCase()}
                 </p>
             </td>
@@ -167,7 +164,7 @@ const MessageReceiversRow = ({
                 {receiver.Sub}
             </td>
             <td
-                className={`message-receiver-break-word ${checkForActiveColumn(
+                className={`message-receiver-break-word white-space-pre ${checkForActiveColumn(
                     ColumnDataEnum.FileName
                 )}`}
                 onClick={() => {
@@ -206,11 +203,11 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const filterIcon = useMemo(
         () =>
             activeColumnSortOrder === FilterOptionsEnum.ASC ? (
-                <Icon.ExpandLess />
+                <Icon.ArrowUpward />
             ) : activeColumnSortOrder === FilterOptionsEnum.DESC ? (
-                <Icon.ExpandMore />
+                <Icon.ArrowDownward />
             ) : (
-                <Icon.UnfoldMore />
+                <Icon.SortArrow />
             ),
         [activeColumnSortOrder]
     );
@@ -395,7 +392,9 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             filterIcon={filterIcon}
                             rowSpan={2}
                         />
-                        <th colSpan={3}>File Location</th>
+                        <th colSpan={3}>
+                            <p>File Location</p>
+                        </th>
                         <MessageReceiversCol
                             columnHeaderTitle={ColumnDataEnum.TransportResults}
                             activeColumn={activeColumn}
@@ -456,18 +455,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 <div className="usa-prose">
                     <p>{modalText.body}</p>
                 </div>
-                <ModalFooter>
-                    <ButtonGroup>
-                        <ModalToggleButton
-                            modalRef={modalRef}
-                            closer
-                            unstyled
-                            className="padding-105 text-center"
-                        >
-                            Done
-                        </ModalToggleButton>
-                    </ButtonGroup>
-                </ModalFooter>
             </Modal>
         </>
     );
