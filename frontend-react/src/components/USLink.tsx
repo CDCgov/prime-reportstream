@@ -1,6 +1,7 @@
 import React, { AnchorHTMLAttributes } from "react";
 import { Link, NavLink } from "react-router-dom";
 import classnames from "classnames";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
@@ -42,50 +43,82 @@ export function getHrefRoute(href?: string): string | undefined {
     return undefined;
 }
 
-/** A single link for rendering standard links. Uses a `Link` by default
- * but adding `anchor` will make this a generic anchor tag.
- * @example
- * <USLink href="/page">To Page</USLink> // uses <Link> from react-router-dom
- * <USLink href="#this-section-on-my-page">To Section</USLink> // uses <a>
- * */
-export const USLink = ({
+export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
+    state?: any;
+}
+
+/**
+ * Sanitizes href and determines if href is an app route or regular
+ * link.
+ */
+export const SafeLink = ({
     children,
-    className,
     href,
     state,
     ...anchorHTMLAttributes
-}: USLinkProps) => {
+}: SafeLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     const routeHref = getHrefRoute(sanitizedHref);
 
     return routeHref !== undefined ? (
-        <Link
-            to={routeHref}
-            className={classnames("usa-link", className)}
-            state={state}
-            {...anchorHTMLAttributes}
-        >
+        <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
             {children}
         </Link>
     ) : (
-        <a
-            href={sanitizedHref}
-            className={classnames("usa-link", className)}
-            {...anchorHTMLAttributes}
-        >
+        <a href={sanitizedHref} {...anchorHTMLAttributes}>
             {children}
         </a>
     );
 };
 
-/** A single link for rendering external links. Uses {@link USLink} as a baseline,
- * with `anchor` applied, so it is not a Router link. Also handles target
- * and rel, and will disperse all other anchor attributes given.
+/**
+ * USWDS Link via SafeLink
+ */
+export const USLink = ({ children, className, ...props }: USLinkProps) => {
+    return (
+        <SafeLink className={classnames("usa-link", className)} {...props}>
+            {children}
+        </SafeLink>
+    );
+};
+
+export interface USLinkButtonProps
+    extends USLinkProps,
+        Omit<ButtonProps, "type"> {}
+
+export const USLinkButton = ({
+    className,
+    secondary,
+    accentStyle,
+    base,
+    outline,
+    inverse,
+    size,
+    unstyled,
+    ...anchorHTMLAttributes
+}: USLinkButtonProps) => {
+    const linkClassname = classnames(
+        "usa-button",
+        {
+            "usa-button--secondary": secondary,
+            [`usa-button--accent-${accentStyle}`]: accentStyle,
+            "usa-button--base": base,
+            "usa-button--outline": outline,
+            "usa-button--inverse": inverse,
+            [`usa-button--${size}`]: size,
+            "usa-button--unstyled": unstyled,
+        },
+        className
+    );
+    return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
+};
+
+/** A single link for rendering external links. Uses {@link USLink} as a baseline.
+ * Handles target and rel, and will disperse all other anchor attributes given.
  * @example
  * <USExtLink href="www.mysite.com">My Site</USExtLink>
  * // Same as the following:
  * <USLink
- *      anchor
  *      target="_blank"
  *      rel="noreferrer noopener"
  *      href="www.mysite.com"

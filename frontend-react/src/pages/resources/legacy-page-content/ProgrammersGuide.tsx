@@ -1,16 +1,16 @@
 import { Button } from "@trussworks/react-uswds";
 import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
 
 export const ProgrammersGuide = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.PROGRAMMERS_GUIDE} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.PROGRAMMERS_GUIDE} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.PROGRAMMERS_GUIDE}</h1>
             <h2>
                 Full documentation for interacting with the ReportStream API

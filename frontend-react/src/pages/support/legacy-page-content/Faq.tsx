@@ -1,10 +1,13 @@
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { Helmet } from "react-helmet-async";
+
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const Faq = () => {
     return (
         <>
-            <BasicHelmet pageTitle="FAQ | Support" />
+            <Helmet>
+                <title>FAQ | Support</title>
+            </Helmet>
             <h1>Frequently asked questions</h1>
             <h2>Answers to common questions about ReportStream</h2>
             <hr />

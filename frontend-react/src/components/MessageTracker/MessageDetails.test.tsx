@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
@@ -181,11 +181,11 @@ describe("RSMessageDetail component", () => {
         });
         renderWithBase(<MessageDetails />);
 
-        expect(screen.getByText("Message ID")).toBeVisible();
-        expect(screen.getByText(/12-234567/)).toBeVisible();
-        expect(screen.getByText(/Submitter/)).toBeVisible();
-        expect(screen.getByText(/somebody 1/)).toBeVisible();
-        expect(screen.getByText(/Incoming Report ID/)).toBeVisible();
+        expect(screen.getByText("Message ID")).toBeInTheDocument();
+        expect(screen.getByText(/12-234567/)).toBeInTheDocument();
+        expect(screen.getByText(/Submitter/)).toBeInTheDocument();
+        expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
+        expect(screen.getByText(/Incoming Report ID/)).toBeInTheDocument();
         expect(
             screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
         ).toBeVisible();
@@ -213,7 +213,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            render(<MessageDetails />);
+            renderWithBase(<MessageDetails />);
             expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
@@ -232,7 +232,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            render(<MessageDetails />);
+            renderWithBase(<MessageDetails />);
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
                 screen.queryByText("/ simple_report.csvuploader")

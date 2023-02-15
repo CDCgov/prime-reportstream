@@ -1,11 +1,14 @@
+import { Helmet } from "react-helmet-async";
+
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const Contact = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Contact | Support" />
+            <Helmet>
+                <title>Contact | Support</title>
+            </Helmet>
             <h1>Contact us</h1>
             <h2>
                 For general inquiries, questions, or issues. Reach out, we're
