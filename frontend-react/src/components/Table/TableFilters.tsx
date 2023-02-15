@@ -27,10 +27,8 @@ interface SubmissionFilterProps {
 /* This helper ensures start range values are inclusive
  * of the day set in the date picker. */
 const inclusiveDateString = (originalDate: string) => {
-    let inclusiveDateDate = new Date(originalDate);
-    return new Date(
-        inclusiveDateDate.setUTCHours(23, 59, 59, 999)
-    ).toISOString();
+    let inclusiveDate = new Date(originalDate);
+    return new Date(inclusiveDate.setUTCHours(23, 59, 59, 999)).toISOString();
 };
 
 /* This component contains the UI for selecting query parameters.
@@ -50,8 +48,10 @@ function TableFilters({
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
 
-    let from = new Date(rangeFrom).toISOString();
-    let to = inclusiveDateString(rangeTo);
+    let from = !isNaN(Date.parse(rangeFrom))
+        ? new Date(rangeFrom).toISOString()
+        : "";
+    let to = !isNaN(Date.parse(rangeTo)) ? inclusiveDateString(rangeTo) : "";
 
     const updateRange = () => {
         filterManager.updateRange({
@@ -91,23 +91,25 @@ function TableFilters({
                 <DateRangePicker
                     className={StyleClass.DATE_CONTAINER}
                     startDateLabel="From (Start Range):"
+                    startDateHint="mm/dd/yyyy"
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
                         onChange: (val?: string) => {
-                            val
-                                ? setRangeFrom(val)
-                                : console.warn("Start Range is undefined");
+                            if (val) {
+                                setRangeFrom(val);
+                            }
                         },
                     }}
                     endDateLabel="Until (End Range):"
+                    endDateHint="mm/dd/yyyy"
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",
                         onChange: (val?: string) => {
-                            val
-                                ? setRangeTo(val)
-                                : console.warn("Start Range is undefined");
+                            if (val) {
+                                setRangeTo(val);
+                            }
                         },
                     }}
                 />
