@@ -2,12 +2,11 @@ package gov.cdc.prime.router.metadata
 
 import gov.cdc.prime.router.Metadata
 
-// this will be used by the LivdMappers and the CustomFHIRFunction
-// /need to move most of LivdMappers in here
-// will need to move the tests to look at this as well
-// keep the library the way it was then use the context to use the library to pass in custom functions
 object LivdLookup {
+    val livdTableName = "LIVD-SARS-CoV-2"
     /**
+     * Will find a value in the LIVD table based on the test kit name id, equipment model name, equipment model id, or
+     * the device id
      * @param testPerformedCode used for additional filtering of the test info in case we are dealing with tests that
      * check for more than on type of disease
      * @param processingModeCode will flag the data as test data which will make it ignore any test devices
@@ -27,13 +26,9 @@ object LivdLookup {
         testKitNameId: String?,
         equipmentModelName: String?,
         tableColumn: String,
-        tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = "LIVD-SARS-CoV-2")
+        tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = livdTableName)
     ): String? {
-        if (tableRef == null) {
-            error("Schema Error: could not find table '$tableRef'")
-        }
-
-        val filters = tableRef.FilterBuilder()
+        val filters = tableRef?.FilterBuilder() ?: error("Could not find table '$tableRef'\"")
         // get the test performed code for additional filtering of the test information in case we are
         // dealing with tests that check for more than one type of disease, for example COVID + influenza
         if (testPerformedCode != null) {

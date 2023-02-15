@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.common.PhonePart
 import gov.cdc.prime.router.common.PhoneUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
@@ -32,7 +33,7 @@ object CustomFHIRFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        LookupLivdTableLoincCodes;
+        LivdTableLookup;
 
         companion object {
             /**
@@ -95,10 +96,10 @@ object CustomFHIRFunctions {
                 )
             }
 
-            CustomFHIRFunctionNames.LookupLivdTableLoincCodes -> {
+            CustomFHIRFunctionNames.LivdTableLookup -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "looks up the LOINC codes in the LIVD table that match the information provided",
-                    0,
+                    "looks up data in the LIVD table that match the information provided",
+                    1,
                     1
                 )
             }
@@ -155,8 +156,8 @@ object CustomFHIRFunctions {
                     getIdType(focus)
                 }
 
-                CustomFHIRFunctionNames.LookupLivdTableLoincCodes -> {
-                    lookupLivdTableLoincCodes(focus, parameters)
+                CustomFHIRFunctionNames.LivdTableLookup -> {
+                    livdTableLookup(focus, parameters)
                 }
 
                 else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
@@ -361,88 +362,72 @@ object CustomFHIRFunctions {
      * element model name
      * @return a list with one value denoting the LOINC Code, or an empty list
      */
-    fun lookupLivdTableLoincCodes(
+    fun livdTableLookup(
         focus: MutableList<Base>,
         parameters: MutableList<MutableList<Base>>?,
         metadata: Metadata = Metadata.getInstance()
     ): MutableList<Base> {
-        val lookupTable = metadata.findLookupTable(name = "LIVD-SARS-CoV-2")
-        val observation = focus.first()
-        if (observation is Observation) {
-            var result: String? = ""
-            // Maps to OBX 17 CWE.1 Which is coding[1].code
-            val coding = (observation as Observation?)?.code?.coding
-            if (!coding.isNullOrEmpty()) {
-                coding[0]?.code?.let {
-                    result = LivdLookup.find(
-                        testPerformedCode = null,
-                        processingModeCode = null,
-                        deviceId = it,
-                        equipmentModelId = null,
-                        testKitNameId = null,
-                        equipmentModelName = null,
-                        tableRef = lookupTable,
-                        tableColumn = parameters!!.first().first().primitiveValue()
-                    )
-                }
-            }
+        val lookupTable = metadata.findLookupTable(name = LivdLookup.livdTableName)
 
-            // Maps to OBX 18 which is mapped to Device.identifier
-            val equipmentModelId = observation.device.identifier.id
-            if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
-                result = LivdLookup.find(
-                    testPerformedCode = null,
-                    processingModeCode = null,
-                    deviceId = null,
-                    equipmentModelId = equipmentModelId,
-                    testKitNameId = null,
-                    equipmentModelName = null,
-                    tableRef = lookupTable,
-                    tableColumn = parameters!!.first().first().primitiveValue()
-                )
-            }
-
-            // In the covid-19 schema this also maps to OBX-17 so it is the same as the device id
-            if (!result.isNullOrBlank() && !coding.isNullOrEmpty()) {
-                coding[0]?.code?.let {
-                    result = LivdLookup.find(
-                        testPerformedCode = null,
-                        processingModeCode = null,
-                        deviceId = null,
-                        equipmentModelId = null,
-                        testKitNameId = it,
-                        equipmentModelName = null,
-                        tableRef = lookupTable,
-                        tableColumn = parameters!!.first().first().primitiveValue()
-                    )
-                }
-            }
-
-            val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
-            if (!deviceName.isNullOrBlank()) {
-                result = LivdLookup.find(
-                    testPerformedCode = null,
-                    processingModeCode = null,
-                    deviceId = null,
-                    equipmentModelId = null,
-                    testKitNameId = null,
-                    equipmentModelName = deviceName,
-                    tableRef = lookupTable,
-                    tableColumn = parameters!!.first().first().primitiveValue()
-                )
-            }
-
-            if (!result.isNullOrBlank()) {
-                return mutableListOf(
-                    StringType(
-                        result
-                    )
-                )
-            }
-        } else {
-            error("Must call the lookupLivdTableLoincCodes function on an observation")
+        if (focus.size != 1) {
+            throw SchemaException("Must call the livdTableLookup function on a single observation")
         }
 
-        return mutableListOf()
+        val observation = focus.first()
+        if (observation !is Observation) {
+            throw SchemaException("Must call the livdTableLookup function on an observation")
+        }
+
+        var result: String? = ""
+        // Maps to OBX 17 CWE.1 Which is coding[1].code
+        val testPerformedCode = (observation as Observation?)?.code?.coding?.firstOrNull()?.code
+        val deviceId = (observation as Observation?)?.method?.coding?.firstOrNull()?.code
+        if (!deviceId.isNullOrEmpty()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = deviceId,
+                equipmentModelId = null,
+                testKitNameId = null,
+                equipmentModelName = null,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        // Maps to OBX 18 which is mapped to Device.identifier
+        val equipmentModelId = (observation.device.resource as Device?)?.identifier?.firstOrNull()?.id
+        if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = null,
+                equipmentModelId = equipmentModelId,
+                testKitNameId = null,
+                equipmentModelName = null,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
+        if (!result.isNullOrBlank() && !deviceName.isNullOrBlank()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = null,
+                equipmentModelId = null,
+                testKitNameId = null,
+                equipmentModelName = deviceName,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        return if (result.isNullOrBlank()) {
+            mutableListOf(StringType(null))
+        } else {
+            mutableListOf(StringType(result))
+        }
     }
 }

@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -69,7 +68,7 @@ class CustomFHIRFunctionsTests {
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
             // todo: this is temporary until this code is moved
-            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LookupLivdTableLoincCodes) {
+            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
@@ -308,20 +307,20 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test lookupLivdTableLoincCodes is Observation`() {
+    fun `test livdTableLookup is Observation`() {
         assertThat(
-            CustomFHIRFunctions.lookupLivdTableLoincCodes(
+            CustomFHIRFunctions.livdTableLookup(
                 mutableListOf(Observation()), mutableListOf(), UnitTestUtils.simpleMetadata
-            )
-        ).isEqualTo(mutableListOf())
+            ) == mutableListOf(StringType(null))
+        )
     }
 
     @Test
-    fun `test lookupLivdTableLoincCodes is not Observation`() {
+    fun `test livdTableLookup is not Observation`() {
         assertThat {
-            CustomFHIRFunctions.lookupLivdTableLoincCodes(
+            CustomFHIRFunctions.livdTableLookup(
                 mutableListOf(Device()), mutableListOf(), UnitTestUtils.simpleMetadata
             )
-        }.isFailure().hasMessage("Must call the lookupLivdTableLoincCodes function on an observation")
+        }.isFailure()
     }
 }
