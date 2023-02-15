@@ -390,7 +390,7 @@ class FHIRRouter(
                 report,
                 receiver,
                 ReportStreamFilterType.CONDITION_FILTER,
-                defaultResponse = false,
+                defaultResponse = true,
                 false
             )
 
