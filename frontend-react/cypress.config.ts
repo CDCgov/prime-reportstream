@@ -13,13 +13,13 @@ const cypressConfig = require(path.resolve(
     `./cypress/cypress.${cypressEnv}.json`
 ));
 
-function getEnvOrDefault(name: string, dfault?: string) {
+function getEnvOrDefault(name: string, defaultValue?: string) {
     if (!!cypressConfig[name]) {
         return cypressConfig[name];
     }
 
-    if (dfault) {
-        return dfault;
+    if (defaultValue) {
+        return defaultValue;
     }
 
     throw new Error(`No value supplied for env variable ${name}`);
