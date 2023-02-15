@@ -4,6 +4,24 @@
 
 
 ---
+### January 2023
+
+See Github release notes anytime at [https://github.com/CDCgov/prime-reportstream/releases](https://github.com/CDCgov/prime-reportstream/releases). 
+
+#### Improvements
+
+* Accessibility: The ReportStream website now has a "skip navigation" link that takes users with screen readers to the main page content instead of tabbing through each nav item. To access it with a keyboard, for example, a user just hits TAB once, then ENTER to "click" the link.
+
+* Usability: Now you don't need to re-login or re-logout across multiple browser tabs open on the ReportStream website. When logged in to the ReportStream website, if you open a new browser tab to the ReportStream website, you will already be logged in to the website. When you log out of the website on one browser tab, you will be logged out of all ReportStream browser tabs.
+
+* Usability: On Daily Data table, to make it easier to find the file you are looking for, the "File" column now displays the entire filename instead of just the file type.
+
+#### New State Connections
+
+We’re excited to announce that ReportStream has recently established connections to send and report public health data with the following state: Utah.
+
+
+---
 
 ### December 2022
 
