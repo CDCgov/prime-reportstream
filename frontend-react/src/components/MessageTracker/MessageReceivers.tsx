@@ -19,7 +19,7 @@ interface NormalizedReceiverData {
     Service: string;
     Date: string;
     ReportId: string;
-    Main: string;
+    Main: "Batch" | "Process" | "Ready";
     Sub: string;
     FileName: string;
     TransportResults: string;
@@ -130,6 +130,7 @@ const MessageReceiversRow = ({
         activeColumnSortOrder !== FilterOptionsEnum.None
             ? "active-col-td"
             : "";
+    const uppercaseMain = receiver.Main.toUpperCase();
     return (
         <tr>
             <td className={checkForActiveColumn(ColumnDataEnum.Name)}>
@@ -156,8 +157,14 @@ const MessageReceiversRow = ({
                 {receiver.ReportId}
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
-                <p className="font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0">
-                    {receiver.Main.toUpperCase()}
+                <p
+                    className={`font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0 ${
+                        uppercaseMain === "BATCH" && "blue-5"
+                    } ${uppercaseMain === "PROCESS" && "blue-10"} ${
+                        uppercaseMain === "READY" && "blue-20"
+                    }`}
+                >
+                    {uppercaseMain}
                 </p>
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
