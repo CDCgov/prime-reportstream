@@ -96,6 +96,7 @@ class Metadata : Logging {
         IsValidCLIA(),
         InDateInterval(),
         FilterOutNegativeAntigenTestType(),
+        Intersect()
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(
