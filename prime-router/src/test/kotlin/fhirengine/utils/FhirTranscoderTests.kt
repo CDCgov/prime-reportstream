@@ -45,8 +45,8 @@ class FhirTranscoderTests {
 
         // Ensure contains id and type
         val jsonObj = JSONObject(encodedBundle)
-        assertThat(jsonObj.get("id")).equals(testBundle.id)
-        assertThat(jsonObj.get("type")).equals(testBundle.type.name.lowercase())
+        assertThat(jsonObj.get("id")).isEqualTo(testBundle.id)
+        assertThat(jsonObj.get("type")).isEqualTo(testBundle.type.name.lowercase())
     }
 
     @Test
@@ -56,8 +56,8 @@ class FhirTranscoderTests {
         """.trimIndent()
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
         assertThat(decodedBundle).isNotNull()
-        assertThat(decodedBundle.id).equals("someid")
-        assertThat(decodedBundle.type).equals(Bundle.BundleType.MESSAGE)
+        assertThat(decodedBundle.id).isEqualTo("Bundle/someid")
+        assertThat(decodedBundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
     }
 
     @Test
@@ -73,7 +73,7 @@ class FhirTranscoderTests {
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
         // Ensure the decoded output is the same as the input pre-encode
         assertThat(decodedBundle).isNotNull()
-        assertThat(decodedBundle).equals(testBundle)
+        assertThat(decodedBundle == testBundle)
     }
 
     @Test
