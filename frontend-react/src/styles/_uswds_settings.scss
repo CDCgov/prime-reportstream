@@ -9,9 +9,9 @@
     these paths are from where the output css lives, in this case
             /frontend-react/src/content/generated/global.out.css
  */
-$theme-image-path: "../../../node_modules/uswds/dist/img";
-$theme-font-path: "../../../node_modules/uswds/dist/fonts";
-$theme-hero-image: "../../../node_modules/uswds/dist/img/hero.png";
+$theme-image-path: "../../../node_modules/@uswds/uswds/dist/img";
+$theme-font-path: "../../../node_modules/@uswds/uswds/dist/fonts";
+$theme-hero-image: "../../../node_modules/@uswds/uswds/dist/img/hero.jpg";
 
 $theme-show-compile-warnings: true;
 $theme-show-notifications: false;

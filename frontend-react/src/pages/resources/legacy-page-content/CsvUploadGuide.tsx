@@ -1,4 +1,5 @@
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { Helmet } from "react-helmet-async";
+
 import site from "../../../content/site.json";
 import { USLink } from "../../../components/USLink";
 
@@ -6,7 +7,9 @@ import { USLink } from "../../../components/USLink";
 export const CsvUploadGuideIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="CSV upload guide | Resources" />
+            <Helmet>
+                <title>CSV upload guide | Resources</title>
+            </Helmet>
             <h1 id="anchor-top">CSV upload guide </h1>
             <h2 className="usa-intro">
                 Step-by-step instructions and guidance for preparing and

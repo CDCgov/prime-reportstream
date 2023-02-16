@@ -1,5 +1,6 @@
+import { Helmet } from "react-helmet-async";
+
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
@@ -7,9 +8,9 @@ import { USExtLink, USLink } from "../../../components/USLink";
 export const GettingStartedPhd = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
             <h2>
                 A step-by-step process for connecting your jurisdiction to

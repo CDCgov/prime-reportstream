@@ -1,6 +1,6 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import Title from "../../components/Title";
 
 import { AgreementBody } from "./TermsOfServiceForm";
@@ -39,7 +39,9 @@ function SuccessPage({ data }: { data: AgreementBody | null }) {
     ];
     return data !== null ? (
         <>
-            <BasicHelmet pageTitle="Sign the Terms of Service" />
+            <Helmet>
+                <title>Sign the Terms of Service</title>
+            </Helmet>
             <div
                 data-testid="success-container"
                 className="tablet:grid-col-6 margin-x-auto"
