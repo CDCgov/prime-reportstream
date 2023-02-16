@@ -84,7 +84,7 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
                         <blockquote className="rs-blockquote__documentation">
                             <p>
-                                To: reportstream@cdc.gov
+                                To: {site.orgs.RS.email}
                                 <br />
                                 Subject: Register a new account - organization
                                 or testing facility
