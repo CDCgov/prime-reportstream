@@ -268,6 +268,46 @@ class FakeDataService : Logging {
                     }
                 }
 
+                // Normally we want an actual equipment model name off the LIVD table
+                // But some schema have this field as a TEXT field (specifically CSV schema)
+                element.nameContains("equipment_model_name") -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "LIVD-SARS-CoV-2",
+                                tableColumn = "Model"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
+                // Normally we want an actual test performed code off the LIVD table
+                // But some schema have this field as a TEXT field (specifically CSV schema)
+                element.nameContains("test_performed_code") -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "LIVD-SARS-CoV-2",
+                                tableColumn = "Test Performed LOINC Code"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
                 else -> faker.lorem().characters(5, 10)
             }
         }
