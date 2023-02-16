@@ -67,7 +67,8 @@ describe("MessageReceivers component", () => {
                 .getByRole("table")
                 .getElementsByClassName("message-receiver-break-word")[0]
         ).toHaveTextContent("578eae4e-b24d-45aa-bc5c-4d96a0bfef96");
-        userEvent.click(screen.getByText(/Report Id/));
+
+        await userEvent.click(screen.getByText(/^Report Id$/));
         expect(
             screen
                 .getByRole("table")
