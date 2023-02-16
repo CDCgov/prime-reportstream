@@ -380,6 +380,8 @@ class FHIRRouter(
                 processingModeDefaultResult
             )
 
+            // CONDItiON FILTER
+            //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
                 getConditionFilter(receiver, orgFilters),
                 bundle,
