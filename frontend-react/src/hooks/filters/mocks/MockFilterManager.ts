@@ -7,7 +7,7 @@ import { PageSettingsAction } from "../UsePages";
 
 const fakeDispatch = <T>(): Dispatch<T> => {
     return (_v: T) => {
-        console.log(_v);
+        // console.log(_v);
     };
 };
 

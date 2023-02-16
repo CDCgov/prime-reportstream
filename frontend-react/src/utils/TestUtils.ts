@@ -20,4 +20,35 @@ const mockEvent = (mock?: Partial<any>) => {
     };
 };
 
-export { mockEvent };
+function conditionallySupressConsole(...matchers: string[]) {
+    const origConsole = jest.requireActual("console");
+    const jestError = jest
+        .spyOn(console, "error")
+        .mockImplementation((message: any) => {
+            if (
+                !matchers.find((matcher) =>
+                    message.toString().includes(matcher)
+                )
+            ) {
+                origConsole.error(message);
+            }
+        });
+    const jestWarn = jest
+        .spyOn(console, "warn")
+        .mockImplementation((message: any) => {
+            if (
+                !matchers.find((matcher) =>
+                    message.toString().includes(matcher)
+                )
+            ) {
+                origConsole.warn(message);
+            }
+        });
+
+    return () => {
+        jestError.mockRestore();
+        jestWarn.mockRestore();
+    };
+}
+
+export { mockEvent, conditionallySupressConsole };
