@@ -59,4 +59,7 @@ enum class Topic(val json_val: String) {
 
     @JsonProperty("test")
     TEST("test"),
+
+    @JsonProperty("full-elr-test")
+    FULL_ELR_TEST("full-elr-test"),
 }
