@@ -5050,10 +5050,10 @@ domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.1:
   dependencies:
     domelementtype "^2.2.0"
 
-dompurify@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.4.3.tgz#f4133af0e6a50297fc8874e2eaedc13a3c308c03"
-  integrity sha512-q6QaLcakcRjebxjg8/+NP+h0rPfatOgOzc46Fst9VAA3jF2ApfKBNKMzdP4DYTqtUMXSCd5pRS/8Po/OmoCHZQ==
+dompurify@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.0.tgz#6adc6f918376d93419ed1ee35811850680027cba"
+  integrity sha512-0g/yr2IJn4nTbxwL785YxS7/AvvgGFJw6LLWP+BzWzB1+BYOqPUT9Hy0rXrZh5HLdHnxH72aDdzvC9SdTjsuaA==
 
 domutils@^1.7.0:
   version "1.7.0"
@@ -10059,10 +10059,10 @@ react-helmet-async@^1.3.0:
     react-fast-compare "^3.2.0"
     shallowequal "^1.1.0"
 
-react-idle-timer@^4.6.4:
-  version "4.6.4"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.4.tgz#71ba954ba6f464df24d46a94e63c5ef19f7319dc"
-  integrity sha512-iq61dPud8fgj7l1KOJEY5pyiD532fW0KcIe/5XUe/0lB/4Vytoy4tZBlLGSiYodPzKxTL6HyKoOmG6tyzjD7OQ==
+react-idle-timer@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.2.tgz#4062c4decfee082cc9c9ca1ea9dc4b44425edce6"
+  integrity sha512-BQsqL8tJAMQ3+EnlXTfTrXgWKrQC8UpAaZFjujaXyxQECBnJXxYHFYjXMDyo4Dd28YIOC4UUI3XbSyft0jSwhQ==
 
 react-is@^16.13.1:
   version "16.13.1"
