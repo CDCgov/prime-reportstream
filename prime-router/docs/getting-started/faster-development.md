@@ -1,7 +1,5 @@
 # Tips for Faster Development
 
-> Note: [GitHub codespaces](using-codespaces.md) are available for a browser-only dev environment.
-
 Using the Docker containers makes it simple to run the baseline locally, but takes some time to tear down
 the containers, rebuild and redeploy.  If you are wanting to 
 test changes more quickly and/or save memory you can then run the Azure functions locally.
