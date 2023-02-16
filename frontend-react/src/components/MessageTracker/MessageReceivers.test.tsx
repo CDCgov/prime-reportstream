@@ -15,7 +15,7 @@ describe("MessageReceivers component", () => {
                 transportResult: "Transport result",
                 fileName: "fl-covid-19.hl7",
                 fileUrl:
-                    "http://azurite:10000/devstoreaccount1/reports/batch%2Fignore.HL7_NULL%2Ftx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv",
+                    "https://azurite:10000/devstoreaccount1/reports/batch%2Fignore.HL7_NULL%2Ftx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv",
                 createdAt: "2022-09-28T19:55:12.46782",
                 qualityFilters: [],
             },
@@ -26,7 +26,7 @@ describe("MessageReceivers component", () => {
                 transportResult: null,
                 fileName: "fl-covid-19.pdf",
                 fileUrl:
-                    "http://azurite:10000/devstoreaccount1/reports/batch%2Fignore.HL8_NULL%2Ftx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-400.internal.csv",
+                    "https://azurite:10000/devstoreaccount1/reports/batch%2Fignore.HL8_NULL%2Ftx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-400.internal.csv",
                 createdAt: "2022-01-28T19:55:12.46782",
                 qualityFilters: [],
             },
