@@ -299,10 +299,15 @@ export const TermsOfService = () => {
                             </li>
                             <li>
                                 You will promptly inform CDC (
-                                {site.orgs.RS.email}) in the event you become
-                                aware of any misuse of identifiable information
-                                or protected health information you submit
-                                and/or access through PRIME ReportStream.
+                                <USExtLink
+                                    href={`mailto: ${site.orgs.RS.email}`}
+                                >
+                                    {site.orgs.RS.email}
+                                </USExtLink>
+                                ) in the event you become aware of any misuse of
+                                identifiable information or protected health
+                                information you submit and/or access through
+                                PRIME ReportStream.
                             </li>
                             <li>
                                 You will promptly inform CDC in the event that
