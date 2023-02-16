@@ -8,7 +8,6 @@ import { Organizations } from "../../UseAdminSafeOrganizationName";
 import { useOrgDeliveries } from "./DeliveryHooks";
 
 describe("useReportsList", () => {
-
     describe("when requesting as a receiver", () => {
         beforeAll(() => deliveryServer.listen());
         afterEach(() => deliveryServer.resetHandlers());
