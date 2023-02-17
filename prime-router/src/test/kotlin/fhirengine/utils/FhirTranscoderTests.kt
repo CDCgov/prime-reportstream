@@ -8,6 +8,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Patient
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -67,13 +68,18 @@ class FhirTranscoderTests {
         testBundle.type = Bundle.BundleType.MESSAGE
         testBundle.id = "someid"
         testBundle.timestamp = Date()
-        testBundle.addEntry()
+        val resource = Patient()
+        resource.id = "somePatientId"
+        testBundle.addEntry().resource = resource
 
         val encodedBundle = FhirTranscoder.encode(testBundle)
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
         // Ensure the decoded output is the same as the input pre-encode
         assertThat(decodedBundle).isNotNull()
-        assertThat(decodedBundle == testBundle)
+        assertThat(decodedBundle.id).isEqualTo("Bundle/someid")
+        assertThat(decodedBundle.type.name).isEqualTo(testBundle.type.name)
+        assertThat(decodedBundle.timestamp).isEqualTo(testBundle.timestamp)
+        assertThat(decodedBundle.entry.size).isEqualTo(testBundle.entry.size)
     }
 
     @Test
