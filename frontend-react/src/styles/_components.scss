@@ -1,6 +1,4 @@
 $theme-hr-border-color: "base-lighter";
-$bg-col-header: #73B3E7;
-$bg-col-data: #D9E8F6;
 
 hr {
     border: 1px solid color($theme-hr-border-color)
@@ -20,7 +18,7 @@ hr {
   }
   
   .usa-table thead th.active-col-header {
-    background-color: $bg-col-header;
+    background-color: color('bg-blue-30');
   }
   
   .usa-table thead th.white-space-pre {
@@ -28,7 +26,7 @@ hr {
   }
   
   .usa-table td.active-col-td {
-    background-color: $bg-col-data;
+    background-color: color('bg-blue-10');
   }
   
   .usa-table thead .column-header-title-container {
