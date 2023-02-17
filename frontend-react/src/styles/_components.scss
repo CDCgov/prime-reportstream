@@ -21,10 +21,6 @@ hr {
     background-color: color('blue-30');
   }
   
-  .usa-table thead th.white-space-pre {
-    white-space: pre;
-  }
-  
   .usa-table td.active-col-td {
     background-color: color('blue-10');
   }
@@ -35,6 +31,7 @@ hr {
   }
   
   .usa-table thead .column-header-title-container p {
+    font-size: 14px;
     margin: 0;
   }
   

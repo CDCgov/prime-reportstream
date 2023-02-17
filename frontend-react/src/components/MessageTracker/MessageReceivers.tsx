@@ -126,7 +126,14 @@ const MessageReceiversCol = ({
             rowSpan={rowSpan}
         >
             <div className="column-header-title-container">
-                <p>{columnHeaderTitle}</p>
+                <p
+                    className={classnames({
+                        "text-pre":
+                            columnHeaderTitle === ColumnDataEnum.FileName,
+                    })}
+                >
+                    {columnHeaderTitle}
+                </p>
                 {sortIcon}
             </div>
         </th>
@@ -195,7 +202,7 @@ const MessageReceiversRow = ({
             </td>
             <td
                 role="button"
-                className={`message-receiver-break-word white-space-pre ${checkForActiveColumn(
+                className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.FileName
                 )}`}
                 onClick={() => {
