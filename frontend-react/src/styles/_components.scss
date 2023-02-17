@@ -11,52 +11,54 @@ hr {
     padding: 0.25rem 0.25rem;
 }
 
-// MessageDetails.tsx
-.usa-table thead th {
-  cursor: pointer;
-  user-select: none;
-  background-color: #f0f0f0;
+// MessageReceivers.tsx
+.message-receivers-table {
+  .usa-table thead th {
+    cursor: pointer;
+    user-select: none;
+    background-color: #f0f0f0;
+  }
+  
+  .usa-table thead th.active-col-header {
+    background-color: $bg-col-header;
+  }
+  
+  .usa-table thead th.white-space-pre {
+    white-space: pre;
+  }
+  
+  .usa-table td.active-col-td {
+    background-color: $bg-col-data;
+  }
+  
+  .usa-table thead .column-header-title-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .usa-table thead .column-header-title-container p {
+    margin: 0;
+  }
+  
+  .usa-table thead .column-header-title-container svg {
+    flex: none;
+    margin-left: 2px;
+    height: 28px;
+    width: 28px;
+  }
+  
+  .usa-table td.message-receiver-break-word {
+    cursor: pointer;
+    word-break: break-word;
+  }
+  
+  .usa-table td {
+    font-size: 14px;
+    padding: 1rem;
+    vertical-align: top;
+  }
 }
-
-.usa-table thead th.active-col-header {
-  background-color: $bg-col-header;
-}
-
-.usa-table thead th.white-space-pre {
-  white-space: pre;
-}
-
-.usa-table td.active-col-td {
-  background-color: $bg-col-data;
-}
-
-.usa-table thead .column-header-title-container {
-  display: flex;
-  align-items: center;
-}
-
-.usa-table thead .column-header-title-container p {
-  margin: 0;
-}
-
-.usa-table thead .column-header-title-container svg {
-  flex: none;
-  margin-left: 2px;
-  height: 28px;
-  width: 28px;
-}
-
-.usa-table .message-receivers-table td.message-receiver-break-word {
-  cursor: pointer;
-  word-break: break-word;
-}
-
-.usa-table .message-receivers-table td {
-  font-size: 14px;
-  padding: 1rem;
-  vertical-align: top;
-}
-// End -- MessageDetails.tsx
+// End -- MessageReceivers.tsx
 
 // Message Tracker specific styles for Accordion component
 .message-tracker {
