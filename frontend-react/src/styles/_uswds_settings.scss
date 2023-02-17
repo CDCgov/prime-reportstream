@@ -48,19 +48,16 @@
   $theme-process-list-heading-font-family: "sans",
   $theme-process-list-heading-font-size: "md",
 
-  
-// Flex
+  // Flex
+  $flex-settings: (
+    responsive: true
+  ),
 
-$flex-settings: (
-  responsive: true
-),
+  $flex-direction-settings: (
+    responsive: true
+  ),
 
-$flex-direction-settings: (
-  responsive: true
-),
-
-$flex-wrap-settings: (
-  responsive: true
-),
-
+  $flex-wrap-settings: (
+    responsive: true
+  ),
 );
