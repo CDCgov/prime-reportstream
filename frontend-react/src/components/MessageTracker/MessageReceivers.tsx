@@ -6,6 +6,7 @@ import {
     ModalRef,
     ModalHeading,
 } from "@trussworks/react-uswds";
+import classnames from "classnames";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
@@ -108,12 +109,11 @@ const MessageReceiversCol = ({
     return (
         <th
             role="button"
-            className={
-                isCurrentlyActiveColumn &&
-                activeColumnSortOrder !== FilterOptionsEnum.NONE
-                    ? "active-col-header"
-                    : ""
-            }
+            className={classnames({
+                "active-col-header":
+                    isCurrentlyActiveColumn &&
+                    activeColumnSortOrder !== FilterOptionsEnum.NONE,
+            })}
             onClick={handleColHeaderClick}
             rowSpan={rowSpan}
         >
@@ -135,10 +135,12 @@ const MessageReceiversRow = ({
     // We highlight the entire active column so within the row,
     // we need to know which column is active
     const checkForActiveColumn = (colName: string) =>
-        colName === activeColumn &&
-        activeColumnSortOrder !== FilterOptionsEnum.NONE
-            ? "active-col-td"
-            : "";
+        classnames({
+            "active-col-td":
+                colName === activeColumn &&
+                activeColumnSortOrder !== FilterOptionsEnum.NONE,
+        });
+
     const uppercaseMain = receiver.Main.toUpperCase();
     return (
         <tr>
@@ -168,11 +170,14 @@ const MessageReceiversRow = ({
             </td>
             <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
                 <p
-                    className={`font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0 ${
-                        uppercaseMain === StatusEnum.BATCH && "bg-blue-5"
-                    } ${uppercaseMain === StatusEnum.PROCESS && "bg-blue-10"} ${
-                        uppercaseMain === StatusEnum.READY && "bg-blue-20"
-                    }`}
+                    className={classnames(
+                        "font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0",
+                        {
+                            "bg-blue-5": uppercaseMain === StatusEnum.BATCH,
+                            "bg-blue-10": uppercaseMain === StatusEnum.PROCESS,
+                            "bg-blue-20": uppercaseMain === StatusEnum.READY,
+                        }
+                    )}
                 >
                     {uppercaseMain}
                 </p>
