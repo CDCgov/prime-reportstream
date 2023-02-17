@@ -40,7 +40,6 @@ interface MessageReceiversColProps {
     setActiveColumn: (colTitle: string) => void;
     activeColumnSortOrder: string;
     setActiveColumnSortOrder: (sortOrder: string) => void;
-    filterIcon: JSX.Element;
     rowSpan: number;
 }
 
@@ -82,7 +81,6 @@ const MessageReceiversCol = ({
     setActiveColumn,
     activeColumnSortOrder,
     setActiveColumnSortOrder,
-    filterIcon,
     rowSpan,
 }: MessageReceiversColProps) => {
     const isCurrentlyActiveColumn = columnHeaderTitle === activeColumn;
@@ -94,18 +92,28 @@ const MessageReceiversCol = ({
         }
 
         // Explicitly set the proceeding sort order
-        switch (true) {
-            case activeColumnSortOrder === FilterOptionsEnum.NONE:
-                setActiveColumnSortOrder(FilterOptionsEnum.ASC);
-                break;
-            case activeColumnSortOrder === FilterOptionsEnum.ASC:
-                setActiveColumnSortOrder(FilterOptionsEnum.DESC);
-                break;
-            case activeColumnSortOrder === FilterOptionsEnum.DESC:
-                setActiveColumnSortOrder(FilterOptionsEnum.NONE);
-                break;
+        if (activeColumnSortOrder === FilterOptionsEnum.NONE) {
+            setActiveColumnSortOrder(FilterOptionsEnum.ASC);
+        } else if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
+            setActiveColumnSortOrder(FilterOptionsEnum.DESC);
+        } else if (activeColumnSortOrder === FilterOptionsEnum.DESC) {
+            setActiveColumnSortOrder(FilterOptionsEnum.NONE);
         }
     };
+    const sortIcon = useMemo(() => {
+        if (
+            isCurrentlyActiveColumn &&
+            activeColumnSortOrder === FilterOptionsEnum.ASC
+        ) {
+            return <Icon.ArrowUpward />;
+        } else if (
+            isCurrentlyActiveColumn &&
+            activeColumnSortOrder === FilterOptionsEnum.DESC
+        ) {
+            return <Icon.ArrowDownward />;
+        }
+        return <Icon.SortArrow />;
+    }, [activeColumnSortOrder, isCurrentlyActiveColumn]);
     return (
         <th
             role="button"
@@ -119,7 +127,7 @@ const MessageReceiversCol = ({
         >
             <div className="column-header-title-container">
                 <p>{columnHeaderTitle}</p>
-                {isCurrentlyActiveColumn ? filterIcon : <Icon.SortArrow />}
+                {sortIcon}
             </div>
         </th>
     );
@@ -223,17 +231,8 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const modalRef = useRef<ModalRef>(null);
     const [modalText, setModalText] = useState({ title: "", body: "" });
     const [activeColumn, setActiveColumn] = useState("");
-    const [activeColumnSortOrder, setActiveColumnSortOrder] = useState("");
-    const filterIcon = useMemo(
-        () =>
-            activeColumnSortOrder === FilterOptionsEnum.ASC ? (
-                <Icon.ArrowUpward />
-            ) : activeColumnSortOrder === FilterOptionsEnum.DESC ? (
-                <Icon.ArrowDownward />
-            ) : (
-                <Icon.SortArrow />
-            ),
-        [activeColumnSortOrder]
+    const [activeColumnSortOrder, setActiveColumnSortOrder] = useState(
+        FilterOptionsEnum.NONE
     );
     // Since we're splicing together both data from receiverDetails && fileUrl
     // To simplify any proceeding logic within this component, we need to
@@ -395,7 +394,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
@@ -406,7 +404,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
@@ -417,7 +414,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
@@ -428,7 +424,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={2}
                             />
                             <th colSpan={3}>
@@ -444,7 +439,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={2}
                             />
                         </tr>
@@ -457,7 +451,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
@@ -468,7 +461,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
@@ -479,7 +471,6 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 setActiveColumnSortOrder={
                                     setActiveColumnSortOrder
                                 }
-                                filterIcon={filterIcon}
                                 rowSpan={1}
                             />
                         </tr>
