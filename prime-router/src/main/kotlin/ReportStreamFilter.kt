@@ -103,15 +103,6 @@ data class ReportStreamFilters(
             processingModeFilter = listOf("allowAll()")
         )
 
-        private val defaultTestFullELRFilters = ReportStreamFilters(
-            topic = Topic.FULL_ELR_TEST,
-            jurisdictionalFilter = null,
-            qualityFilter = listOf("matches(a, no)"),
-            routingFilter = listOf("matches(b, false)"),
-            processingModeFilter = listOf("allowAll()"),
-            conditionFilter = listOf("%conditions.intersect('600-7').exists()")
-        )
-
         /**
          * Map from topic-name to a list of filter-function-strings
          */
@@ -119,8 +110,7 @@ data class ReportStreamFilters(
             defaultCovid19Filters.topic to defaultCovid19Filters,
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
             defaultCsvFileTestFilters.topic to defaultCsvFileTestFilters,
-            defaultTestFilters.topic to defaultTestFilters,
-            defaultTestFullELRFilters.topic to defaultTestFullELRFilters
+            defaultTestFilters.topic to defaultTestFilters
         )
     }
 }
