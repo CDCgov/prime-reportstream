@@ -64,7 +64,7 @@ const ColumnDataEnum = {
 };
 
 const FilterOptionsEnum = {
-    None: "",
+    NONE: "none",
     ASC: "asc",
     DESC: "desc",
 };
@@ -89,19 +89,19 @@ const MessageReceiversCol = ({
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
             setActiveColumn(columnHeaderTitle);
-            setActiveColumnSortOrder(FilterOptionsEnum.None);
+            setActiveColumnSortOrder(FilterOptionsEnum.NONE);
         }
 
         // Explicitly set the proceeding sort order
         switch (true) {
-            case activeColumnSortOrder === FilterOptionsEnum.None:
+            case activeColumnSortOrder === FilterOptionsEnum.NONE:
                 setActiveColumnSortOrder(FilterOptionsEnum.ASC);
                 break;
             case activeColumnSortOrder === FilterOptionsEnum.ASC:
                 setActiveColumnSortOrder(FilterOptionsEnum.DESC);
                 break;
             case activeColumnSortOrder === FilterOptionsEnum.DESC:
-                setActiveColumnSortOrder(FilterOptionsEnum.None);
+                setActiveColumnSortOrder(FilterOptionsEnum.NONE);
                 break;
         }
     };
@@ -109,7 +109,7 @@ const MessageReceiversCol = ({
         <th
             className={
                 isCurrentlyActiveColumn &&
-                activeColumnSortOrder !== FilterOptionsEnum.None
+                activeColumnSortOrder !== FilterOptionsEnum.NONE
                     ? "active-col-header"
                     : ""
             }
@@ -135,7 +135,7 @@ const MessageReceiversRow = ({
     // we need to know which column is active
     const checkForActiveColumn = (colName: string) =>
         colName === activeColumn &&
-        activeColumnSortOrder !== FilterOptionsEnum.None
+        activeColumnSortOrder !== FilterOptionsEnum.NONE
             ? "active-col-td"
             : "";
     const uppercaseMain = receiver.Main.toUpperCase();
@@ -326,7 +326,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
         // which requires a return of -1 0 1. For dates, we need to
         // convert them to a numerical value.
         () =>
-            activeColumnSortOrder !== FilterOptionsEnum.None
+            activeColumnSortOrder !== FilterOptionsEnum.NONE
                 ? normalizedData.sort(
                       (
                           a: NormalizedReceiverData,
