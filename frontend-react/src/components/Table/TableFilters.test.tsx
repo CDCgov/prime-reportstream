@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
@@ -46,5 +47,35 @@ describe("Helper functions", () => {
             inclusiveDateString("3000-01-01T00:00:00.000Z")
         ).toISOString();
         expect(includedDate).toEqual("3000-01-01T23:59:59.999Z");
+    });
+});
+
+describe("Rendering with invalid dates", () => {
+    const consoleErrorSpy = jest.spyOn(global.console, "error");
+    let startDateNode: HTMLElement;
+    let endDateNode: HTMLElement;
+
+    beforeEach(() => {
+        renderWithRouter(
+            <TableFilters
+                filterManager={mockFilterManager}
+                cursorManager={mockCursorManager}
+            />
+        );
+
+        startDateNode = screen.getAllByTestId("date-picker-external-input")[0];
+        endDateNode = screen.getAllByTestId("date-picker-external-input")[1];
+    });
+
+    test("in Start Range does not throw an error", async () => {
+        await userEvent.type(startDateNode, "abc");
+
+        expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
+    test("in End Range does not throw an error", async () => {
+        await userEvent.type(endDateNode, "abc");
+
+        expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 });

@@ -12,6 +12,7 @@ import {
     FALLBACK_TO,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
+import { showError } from "../AlertNotifications";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -26,9 +27,10 @@ interface SubmissionFilterProps {
 
 /* This helper ensures start range values are inclusive
  * of the day set in the date picker. */
-const inclusiveDateString = (originalDate: string) => {
-    let inclusiveDate = new Date(originalDate);
-    return new Date(inclusiveDate.setUTCHours(23, 59, 59, 999)).toISOString();
+const inclusiveDateString = (originalDateStr: string) => {
+    return new Date(
+        new Date(originalDateStr).setUTCHours(23, 59, 59, 999)
+    ).toISOString();
 };
 
 /* This component contains the UI for selecting query parameters.
@@ -47,11 +49,15 @@ function TableFilters({
      * state to hold these so updates don't render immediately after setting a filter */
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
+    let from: string;
+    let to: string;
 
-    let from = !isNaN(Date.parse(rangeFrom))
-        ? new Date(rangeFrom).toISOString()
-        : "";
-    let to = !isNaN(Date.parse(rangeTo)) ? inclusiveDateString(rangeTo) : "";
+    try {
+        from = new Date(rangeFrom).toISOString();
+        to = inclusiveDateString(rangeTo);
+    } catch (e: any) {
+        showError("Invalid date value.");
+    }
 
     const updateRange = () => {
         filterManager.updateRange({
@@ -96,7 +102,7 @@ function TableFilters({
                         id: "start-date",
                         name: "start-date-picker",
                         onChange: (val?: string) => {
-                            if (val) {
+                            if (val && Date.parse(val)) {
                                 setRangeFrom(val);
                             }
                         },
@@ -107,7 +113,7 @@ function TableFilters({
                         id: "end-date",
                         name: "end-date-picker",
                         onChange: (val?: string) => {
-                            if (val) {
+                            if (val && Date.parse(val)) {
                                 setRangeTo(val);
                             }
                         },
