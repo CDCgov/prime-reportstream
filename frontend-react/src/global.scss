@@ -12,9 +12,7 @@
 
 @use 'uswds';
 @import "~@trussworks/react-uswds/lib/uswds.css";
-@import "styles/uswds_custom_theme.scss";
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
-@import "styles/color"; // _color.scss
 @import "styles/typography"; // _typography.scss
 @import "styles/reportstream";  // _reportstream.scss
 @import "styles/components";
