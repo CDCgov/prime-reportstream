@@ -380,7 +380,7 @@ class FHIRRouter(
                 processingModeDefaultResult
             )
 
-            // CONDItiON FILTER
+            // CONDITION FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
                 getConditionFilter(receiver, orgFilters),

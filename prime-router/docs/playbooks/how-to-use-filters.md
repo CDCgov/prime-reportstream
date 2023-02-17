@@ -77,7 +77,6 @@ filters:
   - topic: "covid-19"
     jurisdictionalFilter: [ "orEquals(ordering_facility_state, NJ, patient_state, NJ)" ]
     qualityFilter:  [ "hasAtLeastOneOf(order_test_date,specimen_collection_date)" , etc, etc]
-    conditionFilter: ["%conditions.intersect('600-7').exists()"]**
 receivers:
 - name: "elr"
   routingFilters:  [ "doesNotMatch(sender_id, FlakyBakyTestsInc)" ]
@@ -98,8 +97,6 @@ receivers:
 - **routingFilter**.  This is meant for general purpose usage.  The default for topic covid-19 is `allowAll()`, that is, it does no filtering.  Individual Organizations and/or Receivers can override this and apply more stringent rules as desired.  The original use case for routingFilter was when an Organization wants to disallow data from any one particular sender_id, as in the example above.
 
 - **processingModeFilter**.  The default for covid-19 is `doesNotMatch(processing_mode_code, T, D)`.  Generally you should *never* override this, unless you have a receiver that specifically wants test data, as in the `test` receiver in the example.  The default processingModeFilter is a valuable check, and its what allows our senders to safely end junk/test/training PII data to our Production system, knowing it won't be forwarded to receivers.  That's why it gets it own special filter type.
-
-- **conditionFilter**. This cannot be added to a receiver whose topic is anything other than FULL_ELR. If you do add it, it is to filter the conditions aka diseases that are passed in.
 
 A few subtleties:
 
