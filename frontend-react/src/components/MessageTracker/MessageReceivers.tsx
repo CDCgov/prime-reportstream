@@ -107,6 +107,7 @@ const MessageReceiversCol = ({
     };
     return (
         <th
+            role="button"
             className={
                 isCurrentlyActiveColumn &&
                 activeColumnSortOrder !== FilterOptionsEnum.NONE
@@ -151,6 +152,7 @@ const MessageReceiversRow = ({
                 {receiver.Date}
             </td>
             <td
+                role="button"
                 className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.ReportId
                 )}`}
@@ -179,6 +181,7 @@ const MessageReceiversRow = ({
                 {receiver.Sub}
             </td>
             <td
+                role="button"
                 className={`message-receiver-break-word white-space-pre ${checkForActiveColumn(
                     ColumnDataEnum.FileName
                 )}`}
@@ -193,6 +196,7 @@ const MessageReceiversRow = ({
                 {receiver.FileName}
             </td>
             <td
+                role="button"
                 className={`message-receiver-break-word ${checkForActiveColumn(
                     ColumnDataEnum.TransportResults
                 )}`}
