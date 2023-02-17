@@ -33,7 +33,17 @@ hr {
 .usa-table thead .column-header-title-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+}
+
+.usa-table thead .column-header-title-container p {
+  margin: 0;
+}
+
+.usa-table thead .column-header-title-container svg {
+  flex: none;
+  margin-left: 2px;
+  height: 28px;
+  width: 28px;
 }
 
 .usa-table .message-receivers-table td.message-receiver-break-word {
