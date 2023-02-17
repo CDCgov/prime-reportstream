@@ -8,6 +8,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -248,16 +249,12 @@ class FhirTranscoderTests {
             "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         )[0]
 
-        var observation = (
-            (
-                FhirPathUtils.evaluate(
-                    null,
-                    diagnosticReport,
-                    bundle,
-                    "%resource.result[0]"
-                )[0] as Reference
-                ).resource
-            ) as Base
+        var observation = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            diagnosticReport,
+            bundle,
+            "%resource.result[0].resolve()"
+        )[0]
 
         var diagnosticReportReferences = getReferences(diagnosticReport)
         var observationReportReferences = getReferences(observation)
