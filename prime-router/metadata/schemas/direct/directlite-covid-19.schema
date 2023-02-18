@@ -210,3 +210,4 @@ elements:
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
   - name: test_type
+  - name: abnormal_flag
