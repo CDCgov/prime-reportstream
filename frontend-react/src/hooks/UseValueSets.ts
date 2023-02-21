@@ -92,15 +92,10 @@ export const useValueSetsMeta = (
     dataTableName: string = LookupTables.VALUE_SET
 ): ValueSetsMetaResponse => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
-    const memoizedDataFetch = useCallback(
-        () => authorizedFetch(getTableList),
-        [authorizedFetch]
-    );
 
     // get all lookup tables in order to get metadata
-    const { data: tableData } = rsUseQuery(
-        [getTableList.queryKey],
-        memoizedDataFetch
+    const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
+        authorizedFetch(getTableList)
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);

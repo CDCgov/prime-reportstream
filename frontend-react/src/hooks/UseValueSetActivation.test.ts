@@ -15,7 +15,7 @@ describe("useValueSetActivation", () => {
             wrapper: QueryWrapper(),
         });
 
-    test("returns trigger and loading indicator", async () => {
+    test("returns trigger and loading indicator", () => {
         const { result } = renderWithQueryWrapper();
         const { activateTable, isActivating, activationError } = result.current;
         expect(isActivating).toEqual(false);

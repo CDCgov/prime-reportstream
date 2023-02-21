@@ -1,6 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { rest } from "msw";
 
+import config from "../../config";
 import { renderWithBase } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
@@ -85,7 +86,7 @@ describe("EditReceiverSettings", () => {
         settingsServer.listen();
         settingsServer.use(
             rest.get(
-                "https://test.prime.cdc.gov/api/settings/organizations/abbott/receivers/user1234",
+                `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
                 (req, res, ctx) => res(ctx.json(mockData))
             )
         );

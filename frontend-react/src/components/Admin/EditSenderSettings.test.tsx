@@ -5,6 +5,7 @@ import { renderWithBase } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import config from "../../config";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
@@ -69,7 +70,7 @@ describe("EditSenderSettings", () => {
         settingsServer.listen();
         settingsServer.use(
             rest.get(
-                "https://test.prime.cdc.gov/api/settings/organizations/abbott/senders/user1234",
+                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
                 (req, res, ctx) => res(ctx.json(mockData))
             )
         );
