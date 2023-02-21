@@ -332,8 +332,7 @@ class FhirToHl7ConverterTests {
             hl7Spec = listOf("MSH-11")
         )
         var schema = ConverterSchema(
-            hl7Type = "ORU_R01",
-            hl7Version = "2.5.1",
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element)
         )
         val message = FhirToHl7Converter(schema).convert(bundle)
@@ -346,14 +345,8 @@ class FhirToHl7ConverterTests {
             value = listOf(pathWithValue),
             hl7Spec = listOf("MSH-11")
         )
-        schema = ConverterSchema(hl7Type = "ORU_R01", elements = mutableListOf(element))
-        assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
-        element = ConverterSchemaElement(
-            "name",
-            value = listOf(pathWithValue),
-            hl7Spec = listOf("MSH-11")
-        )
-        schema = ConverterSchema(hl7Version = "2.5.1", elements = mutableListOf(element))
+        schema =
+            ConverterSchema(elements = mutableListOf(element))
         assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
@@ -377,8 +370,7 @@ class FhirToHl7ConverterTests {
             hl7Spec = listOf("MSH-12")
         )
         schema = ConverterSchema(
-            hl7Type = "ORU_R01",
-            hl7Version = "2.5.1",
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element, dupe)
         )
 
@@ -401,7 +393,10 @@ class FhirToHl7ConverterTests {
         val elemA = ConverterSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
 
         val rootSchema =
-            ConverterSchema(hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = mutableListOf(elemA, elemB))
+            ConverterSchema(
+                hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+                elements = mutableListOf(elemA, elemB)
+            )
 
         // nobody sharing the same name
         assertThat(FhirToHl7Converter(rootSchema).convert(bundle).isEmpty).isFalse()

@@ -19,40 +19,37 @@ class ConverterSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConverterSchema("ORU_R01")
+        schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConverterSchema("ORU_R01", "2.5.1")
+        schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01")
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
         val goodElement = ConverterSchemaElement(value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
-        schema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01", mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
 
         // A child schema
-        schema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01", mutableListOf(goodElement))
         assertThat(schema.validate(true)).isNotEmpty()
 
         // A bad type
-        schema = ConverterSchema("VAT", "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema("some bad class", mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConverterSchema(null, "2.5.1", mutableListOf(goodElement))
+        schema = ConverterSchema(null, mutableListOf(goodElement))
         assertThat(schema.isValid()).isFalse()
-        assertThat(schema.errors).isNotEmpty()
-
-        schema = ConverterSchema("ORU_R01", null, mutableListOf(goodElement))
-        assertThat(schema.isValid()).isFalse()
-        assertThat(schema.isValid()).isFalse() // We check again to make sure we get the same value
         assertThat(schema.errors).isNotEmpty()
 
         // Check on constants
         schema = ConverterSchema(
-            "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "")
+            "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            mutableListOf(goodElement),
+            constants = sortedMapOf("const1" to "")
         )
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
@@ -60,7 +57,9 @@ class ConverterSchemaTests {
         assertThat(schema.errors[0]).contains(schema.constants.firstKey())
 
         schema = ConverterSchema(
-            "ORU_R01", "2.5.1", mutableListOf(goodElement), constants = sortedMapOf("const1" to "value")
+            "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            mutableListOf(goodElement),
+            constants = sortedMapOf("const1" to "value")
         )
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
@@ -151,26 +150,14 @@ class ConverterSchemaTests {
         var goodElement = ConverterSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         var childSchema = ConverterSchema(elements = mutableListOf(goodElement))
         var elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        var topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        var topSchema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
         goodElement = ConverterSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
         childSchema = ConverterSchema(elements = mutableListOf(goodElement))
         elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
-        assertThat(topSchema.isValid()).isFalse()
-        assertThat(topSchema.errors).isNotEmpty()
-
-        childSchema = ConverterSchema(hl7Version = "2.5.1", elements = mutableListOf(goodElement))
-        elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
-        assertThat(topSchema.isValid()).isFalse()
-        assertThat(topSchema.errors).isNotEmpty()
-
-        childSchema = ConverterSchema(hl7Type = "ORU_R01", elements = mutableListOf(goodElement))
-        elementWithSchema = ConverterSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
-        topSchema = ConverterSchema("ORU_R01", "2.5.1", mutableListOf(elementWithSchema))
+        topSchema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01", mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
     }
@@ -303,8 +290,7 @@ class ConverterSchemaTests {
             )
         )
         val schema = ConverterSchema(
-            hl7Type = "ORU_R01",
-            hl7Version = "2.5.1",
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(
                 ConverterSchemaElement("parent1"),
                 ConverterSchemaElement("parent2"),
@@ -314,8 +300,7 @@ class ConverterSchemaTests {
         )
 
         val extendedSchema = ConverterSchema(
-            hl7Type = "ORU_R01",
-            hl7Version = "2.7",
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(
                 ConverterSchemaElement("parent1", required = true),
                 ConverterSchemaElement("child2", condition = "condition1"),
@@ -327,6 +312,5 @@ class ConverterSchemaTests {
         assertThat((schema.elements[0]).required).isEqualTo((extendedSchema.elements[0]).required)
         assertThat(childSchema.elements[1].condition).isEqualTo(extendedSchema.elements[1].condition)
         assertThat(schema.elements.last().name).isEqualTo(extendedSchema.elements[2].name)
-        assertThat(schema.hl7Version).isEqualTo("2.7")
     }
 }
