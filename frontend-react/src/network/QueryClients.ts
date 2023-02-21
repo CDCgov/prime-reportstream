@@ -12,7 +12,12 @@ export const appQueryClient = new QueryClient({
         },
     },
 });
-export const testQueryClient = new QueryClient({
-    // to allow for faster testable failures
-    defaultOptions: { queries: { retry: false } },
-});
+export const getTestQueryClient = () =>
+    new QueryClient({
+        // to allow for faster testable failures
+        defaultOptions: {
+            queries: {
+                retry: false,
+            },
+        },
+    });
