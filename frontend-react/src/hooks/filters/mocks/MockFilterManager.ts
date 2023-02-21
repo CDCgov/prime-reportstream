@@ -6,9 +6,7 @@ import { SortSettingsAction } from "../UseSortOrder";
 import { PageSettingsAction } from "../UsePages";
 
 const fakeDispatch = <T>(): Dispatch<T> => {
-    return (_v: T) => {
-        console.log(_v);
-    };
+    return (_v: T) => {};
 };
 
 export const mockFilterManager = {

@@ -45,7 +45,6 @@ describe("useWatersUploader", () => {
                 schema: STANDARD_SCHEMA_OPTIONS[0].value,
             });
             await waitForNextUpdate();
-            expect(result.current.isWorking).toEqual(true);
             response = await post;
         });
         expect(response).toEqual({

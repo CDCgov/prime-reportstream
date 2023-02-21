@@ -8,6 +8,7 @@ import {
     ValueSetsMetaResponse,
     ValueSetsTableResponse,
 } from "../../../hooks/UseValueSets";
+import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
 import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
 
@@ -115,6 +116,7 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
+        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
@@ -136,11 +138,13 @@ describe("ValueSetsDetail", () => {
                 "Our apologies, there was an error loading this content."
             )
         ).toBeInTheDocument();
+        restore();
     });
 });
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
+        const restore = conditionallySuppressConsole("not-found: Test");
         const mockSetAlert = jest.fn();
         renderWithQueryProvider(
             <ValueSetsDetailTable
@@ -155,6 +159,7 @@ describe("ValueSetsDetailTable", () => {
             type: "error",
             message: "unknown-error: test-error",
         });
+        restore();
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
         mockSaveData = jest.fn(() => {
