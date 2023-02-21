@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { ReactNode, createContext, useContext, useMemo } from "react";
 import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { useOktaAuth } from "@okta/okta-react";
 
 import {
     MembershipSettings,
@@ -28,10 +29,6 @@ export interface RSSessionContext extends RSUserPermissions {
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
 
-interface ISessionProviderProps {
-    oktaHook: OktaHook;
-}
-
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
     activeMembership: {} as MembershipSettings,
@@ -43,14 +40,11 @@ export const SessionContext = createContext<RSSessionContext>({
     isUserReceiver: false,
 });
 
-// accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
-// behavior for testing. In non test cases this hook will be the `useOktaAuth` hook from
-// `okta-react`
-const SessionProvider = ({
-    children,
-    oktaHook,
-}: React.PropsWithChildren<ISessionProviderProps>) => {
-    const { authState } = oktaHook();
+const SessionProvider = ({ children }: { children: ReactNode }) => {
+    // HACK: empty object fallback to account for tests not being rendered in Security
+    // will be fixed once all rendering is funneled through a custom renderer
+    const oktaAuth = useOktaAuth() || {};
+    const { authState } = oktaAuth;
     const {
         state: { activeMembership, initialized },
         dispatch,

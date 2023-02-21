@@ -1,6 +1,7 @@
 import { Alert } from "@trussworks/react-uswds";
 
 import { USExtLink, USLink } from "../components/USLink";
+import site from "../content/site.json";
 
 export const TermsOfService = () => {
     return (
@@ -297,8 +298,13 @@ export const TermsOfService = () => {
                                 or receipt of data by PRIME ReportStream.
                             </li>
                             <li>
-                                You will promptly inform CDC (usds@cdc.gov) in
-                                the event you become aware of any misuse of
+                                You will promptly inform CDC (
+                                <USExtLink
+                                    href={`mailto: ${site.orgs.RS.email}`}
+                                >
+                                    {site.orgs.RS.email}
+                                </USExtLink>
+                                ) in the event you become aware of any misuse of
                                 identifiable information or protected health
                                 information you submit and/or access through
                                 PRIME ReportStream.

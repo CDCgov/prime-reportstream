@@ -880,7 +880,7 @@ class SubmissionHistoryTests {
 
         val refUUID = UUID.randomUUID()
 
-        var reports = listOf(
+        val reports = listOf(
             inputReport,
             DetailedReport(
                 UUID.randomUUID(),
@@ -946,7 +946,6 @@ class SubmissionHistoryTests {
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
         }
     }
-
     @Test
     fun `test UP enrichWithDescendants reached translate`() {
         val inputReport = DetailedReport(
@@ -964,7 +963,7 @@ class SubmissionHistoryTests {
             false
         )
 
-        var reports = listOf(
+        val reports = listOf(
             inputReport,
             DetailedReport(
                 UUID.randomUUID(),
@@ -1047,7 +1046,7 @@ class SubmissionHistoryTests {
             false
         )
 
-        var reports = listOf(
+        val reports = listOf(
             inputReport,
             DetailedReport(
                 UUID.randomUUID(),
@@ -1098,7 +1097,7 @@ class SubmissionHistoryTests {
                             null,
                             null,
                             1,
-                            1,
+                            null,
                             true
                         ),
                         DetailedReport(
@@ -1114,6 +1113,20 @@ class SubmissionHistoryTests {
                             1,
                             1,
                             true
+                        ),
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            null,
+                            true
                         )
                     )
                 ),
@@ -1124,8 +1137,8 @@ class SubmissionHistoryTests {
             assertThat(destinations.count()).isEqualTo(1)
             assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
-            assertThat(destinations.first().itemCount).isEqualTo(2)
-            assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(2)
+            assertThat(destinations.first().itemCount).isEqualTo(3)
+            assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(1)
         }
     }
 
@@ -1146,30 +1159,12 @@ class SubmissionHistoryTests {
             false
         )
 
-        var reports = listOf(
-            inputReport,
-            DetailedReport(
-                UUID.randomUUID(),
-                null,
-                null,
-                null,
-                null,
-                "full-elr",
-                "otherExternalName1",
-                null,
-                null,
-                1,
-                1,
-                true
-            ),
-        ).toMutableList()
-
         val testEnrich = DetailedSubmissionHistory(
             1,
             TaskAction.receive,
             OffsetDateTime.now(),
             HttpStatus.OK.value(),
-            reports
+            mutableListOf(inputReport)
         )
         assertThat(testEnrich.destinations.count()).isEqualTo(0)
         testEnrich.enrichWithDescendants(
@@ -1223,6 +1218,142 @@ class SubmissionHistoryTests {
             assertThat(destinations.count()).isEqualTo(2)
             assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
+        }
+    }
+
+    @Test
+    fun `test UP enrichWithDescendants filterLogs populate for the corresponding receiver`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "full-elr",
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false
+        )
+
+        val testEnrich = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            mutableListOf(inputReport)
+        )
+
+        val logs = listOf(
+            DetailedActionLog(
+                ActionLogScope.item,
+                UUID.randomUUID(),
+                1,
+                null,
+                ActionLogLevel.error,
+                InvalidEquipmentMessage("")
+            ),
+            DetailedActionLog(
+                ActionLogScope.translation,
+                UUID.randomUUID(),
+                2,
+                null,
+                ActionLogLevel.filter,
+                ReportStreamFilterResult(
+                    "recvOrg1.recvSvc1",
+                    5,
+                    "matches",
+                    listOf(
+                        "ordering_facility_county",
+                        "QUALITY_PASS"
+                    ),
+                    "802798",
+                    ReportStreamFilterType.QUALITY_FILTER
+                )
+            ),
+            DetailedActionLog(
+                ActionLogScope.translation,
+                UUID.randomUUID(),
+                2,
+                null,
+                ActionLogLevel.filter,
+                ReportStreamFilterResult(
+                    "recvOrg2.recvSvc2",
+                    5,
+                    "matches",
+                    listOf(
+                        "ordering_facility_county",
+                        "QUALITY_PASS"
+                    ),
+                    "802798",
+                    ReportStreamFilterType.QUALITY_FILTER
+                )
+            ),
+            DetailedActionLog(
+                ActionLogScope.translation,
+                UUID.randomUUID(),
+                2,
+                null,
+                ActionLogLevel.filter,
+                ReportStreamFilterResult(
+                    "recvOrg1.recvSvc1",
+                    5,
+                    "matches",
+                    listOf(
+                        "ordering_facility_county",
+                        "QUALITY_PASS"
+                    ),
+                    "802798",
+                    ReportStreamFilterType.QUALITY_FILTER
+                )
+            ),
+        )
+
+        assertThat(testEnrich.destinations.count()).isEqualTo(0)
+        testEnrich.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    2,
+                    TaskAction.route,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    null,
+                    logs
+                ),
+                DetailedSubmissionHistory(
+                    3,
+                    TaskAction.translate,
+                    OffsetDateTime.now(),
+                    HttpStatus.OK.value(),
+                    mutableListOf(
+                        DetailedReport(
+                            UUID.randomUUID(),
+                            "recvOrg1",
+                            "recvSvc1",
+                            null,
+                            null,
+                            "full-elr",
+                            "otherExternalName1",
+                            null,
+                            null,
+                            1,
+                            null,
+                            true
+                        ),
+                    )
+                )
+            )
+        )
+
+        testEnrich.run {
+            assertThat(destinations.count()).isEqualTo(2)
+            assertThat(destinations.first().organizationId).isEqualTo("recvOrg1")
+            assertThat(destinations.first().filteredReportItems?.count()).isEqualTo(2)
+            assertThat(destinations.first().service).isEqualTo("recvSvc1")
+            assertThat(destinations[1].service).isEqualTo("recvSvc2")
+            assertThat(destinations[1].filteredReportItems?.count()).isEqualTo(1)
         }
     }
 }

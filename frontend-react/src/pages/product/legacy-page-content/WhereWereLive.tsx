@@ -1,13 +1,16 @@
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
+import { Helmet } from "react-helmet-async";
+
 import live from "../../../content/live.json";
 import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const WhereWereLive = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Where we're live | Product" />
+            <Helmet>
+                <title>Where we're live | Product</title>
+            </Helmet>
             <h1 aria-describedby="product-heading-description" id="anchor-top">
                 Where we're live
             </h1>

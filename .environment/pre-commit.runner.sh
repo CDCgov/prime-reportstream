@@ -16,6 +16,7 @@ CHECKS_TO_RUN=(
     ${REPO_ROOT}/.environment/ktlint/run-ktlintCheck.sh
     ${REPO_ROOT}/.environment/terraform-fmt/run-terraform-fmt.sh
     ${REPO_ROOT}/.environment/eslint/run-eslintCheck.sh
+    ${REPO_ROOT}/.environment/yarn/run-yarnCheck.sh
 )
 
 function error() {

@@ -108,38 +108,6 @@ class FHIRRouter(
     private var actionLogger: ActionLogger? = null
 
     /**
-     * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
-     * used in configuration filter expressions with the specified Fhir Path expression before the expression
-     * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
-     * where needed. Format is %myVariable within the filters, and each variable used must be defined
-     * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
-     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to the
-     * underlying fhir library.
-     *
-     * The values used are located in the fhirpath_filter_shorthand lookup table.
-     *
-     * @returns A string that has all shorthand elements replaces with their mapped string from the lookup table.
-     */
-    internal fun replaceShorthand(input: String): String {
-        var output = input
-        regexVariable.findAll(input)
-            .map { it.value }
-            .sortedByDescending { it.length }
-            .forEach {
-                // remove %, ', and ` from start and end of string to be replaced
-                val replacement = shorthandLookupTable[
-                    it
-                        .trimStart('%', '\'', '`')
-                        .trimEnd('\'', '`')
-                ]
-                if (!replacement.isNullOrEmpty()) {
-                    output = output.replace(it, replacement)
-                }
-            }
-        return output
-    }
-
-    /**
      * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
      * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
      * a populated lookup table is not required to run the universal pipeline routing
@@ -444,7 +412,7 @@ class FHIRRouter(
                     CustomContext(bundle, bundle, shorthandLookupTable),
                     bundle,
                     bundle,
-                    replaceShorthand(it)
+                    it
                 )
             }
         } catch (e: SchemaException) {
@@ -524,5 +492,15 @@ class FHIRRouter(
             orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
+    }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
+                ?: emptyList()
+            ).plus(receiver.jurisdictionalFilter)
     }
 }

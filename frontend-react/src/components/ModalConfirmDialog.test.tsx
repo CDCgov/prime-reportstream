@@ -49,8 +49,8 @@ describe("ConfirmDialog", () => {
 
         // click the cancel button and make sure it goes away and our callback was called.
         // eslint-disable-next-line testing-library/no-unnecessary-act
-        act(() => {
-            userEvent.click(screen.getByTestId(`${id}-closebtn`));
+        await act(async () => {
+            await userEvent.click(screen.getByTestId(`${id}-closebtn`));
         });
         expect(callbackCount).toBe(1);
     });
