@@ -45,11 +45,12 @@ function createTypeWrapperForAuthorizedFetch(
             headers,
         });
 
-        return axios(axiosConfig)
-            .then(({ data }) => data)
-            .catch((e: AxiosError) => {
-                throw new RSNetworkError<T>(e as AxiosError<T>);
-            });
+        try {
+            const res = await axios(axiosConfig);
+            return res.data;
+        } catch (e: any) {
+            throw new RSNetworkError<T>(e as AxiosError<T>);
+        }
     };
 }
 

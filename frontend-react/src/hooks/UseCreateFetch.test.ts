@@ -1,6 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import * as axios from "axios";
 
+import config from "../config";
 import { RSEndpoint } from "../config/endpoints";
 import { mockToken } from "../utils/TestUtils";
 
@@ -90,7 +91,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,
@@ -117,7 +118,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,
@@ -143,7 +144,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,

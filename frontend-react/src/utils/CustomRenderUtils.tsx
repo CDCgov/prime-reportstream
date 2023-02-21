@@ -8,7 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
-import { testQueryClient } from "../network/QueryClients";
+import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 
 import { mockToken } from "./TestUtils";
@@ -59,7 +59,7 @@ export const SessionWrapper = ({ children }: PropsWithChildren<{}>) => {
 };
 
 export const QueryWrapper =
-    (client: QueryClient = new QueryClient()) =>
+    (client: QueryClient = getTestQueryClient()) =>
     ({ children }: PropsWithChildren<{}>) =>
         (
             <BaseWrapper>
@@ -87,7 +87,7 @@ const AppWrapper = ({ children }: PropsWithChildren<{}>) => {
         <BaseWrapper>
             <RouterWrapper>
                 <SessionProvider>
-                    <QueryClientProvider client={testQueryClient}>
+                    <QueryClientProvider client={getTestQueryClient()}>
                         <AuthorizedFetchProvider>
                             <FeatureFlagProvider>
                                 {children}

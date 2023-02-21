@@ -8,6 +8,7 @@ import {
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ResponseError } from "../../config/endpoints/waters";
+import { conditionallySuppressConsole } from "../../utils/TestUtils";
 
 import {
     RequestLevel,
@@ -63,6 +64,7 @@ describe("FileSuccessDisplay", () => {
 
 describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
+        const restore = conditionallySuppressConsole("failure:");
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
@@ -83,9 +85,11 @@ describe("FileErrorDisplay", () => {
 
         const table = screen.queryByRole("table");
         expect(table).not.toBeInTheDocument();
+        restore();
     });
 
     test("renders table when data is given", async () => {
+        const restore = conditionallySuppressConsole("failure:");
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "Exception: first error\ntruncated",
@@ -145,6 +149,7 @@ describe("FileErrorDisplay", () => {
         expect(thirdCells[0]).toHaveTextContent(
             "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
         );
+        restore();
     });
 });
 

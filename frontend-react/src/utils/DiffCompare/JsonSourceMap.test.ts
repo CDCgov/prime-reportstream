@@ -1,3 +1,5 @@
+import { conditionallySuppressConsole } from "../TestUtils";
+
 import { jsonSourceMap } from "./JsonSourceMap";
 
 // <editor-fold defaultstate="collapsed" desc="mockData: based on real data">
@@ -735,6 +737,9 @@ describe("JsonSourceMap suite", () => {
     });
 
     test("throws if json include non-standard Set/Map objects", () => {
+        const restore = conditionallySuppressConsole(
+            "Map and Set elements not supported."
+        );
         expect(() =>
             jsonSourceMap(
                 new Map([
@@ -744,6 +749,7 @@ describe("JsonSourceMap suite", () => {
                 2
             )
         ).toThrow();
+        restore();
     });
 
     test("special characters", () => {
