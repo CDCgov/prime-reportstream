@@ -6,7 +6,9 @@
       a- Replace all subscription value with ${subscription_id}
       b- Replace all resource group value with ${resource_group_name}
       c- Replace all appinsights name value with ${appinsights_name}
-      e.g: "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+         e.g: "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+      d- Remove "properties {" at the begining of your file andd the corresponding "}" at the end.
+      e- Remove the extra code at the end of the file after the metadata portion
 4- Commit your changes and create a PR to master branch
 5- Once the PR is approved and merged, the changes will be apply during the next deployment in production env
 

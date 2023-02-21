@@ -14,31 +14,6 @@
               "inputs": [
                 {
                   "name": "id",
-                  "value": "/subscriptions/${subscription_id}/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights"
-                },
-                {
-                  "name": "Version",
-                  "value": "1.0"
-                }
-              ],
-              "type": "Extension/AppInsightsExtension/PartType/MonitoredApplicationsTile",
-              "asset": {
-                "idInputName": "id",
-                "type": "ApplicationInsights"
-              }
-            }
-          },
-          "1": {
-            "position": {
-              "x": 2,
-              "y": 0,
-              "colSpan": 2,
-              "rowSpan": 1
-            },
-            "metadata": {
-              "inputs": [
-                {
-                  "name": "id",
                   "value": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                 },
                 {
@@ -46,988 +21,1775 @@
                   "value": "1.0"
                 }
               ],
-              "type": "Extension/AppInsightsExtension/PartType/MonitoredApplicationsTile",
+              "type": "Extension/AppInsightsExtension/PartType/AspNetOverviewPinnedPart",
               "asset": {
                 "idInputName": "id",
                 "type": "ApplicationInsights"
-              }
+              },
+              "defaultMenuItemId": "overview"
             }
           },
-          "2": {
+          "1": {
             "position": {
-              "x": 0,
-              "y": 2,
-              "colSpan": 6,
-              "rowSpan": 4
+              "x": 2,
+              "y": 0,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
                   "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
                   "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "PartId",
-                  "value": "12caea22-3545-459f-8f05-9618d2003711",
-                  "isOptional": true
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
                 },
                 {
                   "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable =  () {\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend member_type = iif(isempty(memberType), \"<undefined>\", memberType)\n};\nlet cohortedTable = splitTable\n    //| where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    | summarize ['Page Views'] = count() by bin(timestamp, 1d), member_type\n    | project\n    [\"Date/Time\"] = timestamp,\n    member_type,\n    [\"Page Views\"]\n| render columnchart; \ncohortedTable\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "FrameControlChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "value": "StackedColumn",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "value": {
-                    "xAxis": {
-                      "name": "Date/Time",
-                      "type": "datetime"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Page Views",
-                        "type": "long"
-                      }
-                    ],
-                    "splitBy": [
-                      {
-                        "name": "member_type",
-                        "type": "string"
-                      }
-                    ],
-                    "aggregation": "Sum"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "value": {
-                    "isEnabled": true,
-                    "position": "Bottom"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
-                  "isOptional": true
+                  "value": "1.0"
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
-              "settings": {
-                "content": {
-                  "Query": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable =  () {\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend member_type = iif(isempty(memberType), \"<undefined>\", memberType)\n};\nlet cohortedTable = splitTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    | summarize ['Page Views'] = count() by bin(timestamp, 1d), member_type\n    | project\n    [\"Date/Time\"] = timestamp,\n    member_type,\n    [\"Page Views\"]\n| render columnchart; \ncohortedTable\n\n",
-                  "PartTitle": "Total Page Views by Member Type"
+              "type": "Extension/AppInsightsExtension/PartType/ProactiveDetectionAsyncPart",
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
+              },
+              "defaultMenuItemId": "ProactiveDetection"
+            }
+          },
+          "2": {
+            "position": {
+              "x": 3,
+              "y": 0,
+              "colSpan": 1,
+              "rowSpan": 1
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
+                },
+                {
+                  "name": "ResourceId",
+                  "value": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                 }
+              ],
+              "type": "Extension/AppInsightsExtension/PartType/QuickPulseButtonSmallPart",
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
               }
             }
           },
           "3": {
             "position": {
-              "x": 6,
-              "y": 2,
-              "colSpan": 6,
-              "rowSpan": 4
+              "x": 4,
+              "y": 0,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
                   "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
                   "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
                 },
                 {
-                  "name": "PartId",
-                  "value": "7db41bbc-9a0a-4311-9130-8493cd13c8fa",
-                  "isOptional": true
+                  "name": "TimeContext",
+                  "value": {
+                    "durationMs": 86400000,
+                    "endTime": null,
+                    "createdTime": "2018-05-04T01:20:33.345Z",
+                    "isInitialTime": true,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  }
                 },
                 {
                   "name": "Version",
-                  "value": "2.0",
+                  "value": "1.0"
+                },
+                {
+                  "name": "componentId",
                   "isOptional": true
                 },
                 {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews, customEvents, requests\n    | where timestamp > ago(1d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable = () {\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend memberType = iif(isempty(memberType), \"<undefined>\", memberType)\n};\nlet cohortedTable = splitTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    | where memberType != \"<undefined>\"\n    | extend byDimension = bin(timestamp, 1h)\n    | summarize metricHll = hll(session_Id) by byDimension, memberType;\nlet topSegments = cohortedTable\n    | summarize mergedMetricHll = hll_merge(metricHll) by memberType\n    | project memberType, dcount_session_Id = dcount_hll(mergedMetricHll)\n    | top 5 by dcount_session_Id desc nulls last\n    | summarize makelist(memberType);\ncohortedTable\n| extend userId = iff(memberType in (topSegments), memberType, \"Other\")\n| project byDimension, userId, metricHll\n| summarize metric = hll_merge(metricHll) by userId, byDimension\n| order by userId asc, byDimension desc\n| project [\"Date/time\"]=byDimension, [\"Membership Type\"]=userId, [\"Session Count\"] = dcount_hll(metric)\n| render columnchart\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "FrameControlChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "value": "StackedColumn",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "value": {
-                    "xAxis": {
-                      "name": "Date/time",
-                      "type": "datetime"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Session Count",
-                        "type": "long"
-                      }
-                    ],
-                    "splitBy": [
-                      {
-                        "name": "Membership Type",
-                        "type": "string"
-                      }
-                    ],
-                    "aggregation": "Sum"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "value": {
-                    "isEnabled": true,
-                    "position": "Bottom"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
+                  "name": "id",
                   "isOptional": true
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
-              "settings": {
-                "content": {
-                  "Query": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews, customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable = () {\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend memberType = iif(isempty(memberType), \"<undefined>\", memberType)\n};\nlet cohortedTable = splitTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    | where memberType != \"<undefined>\"\n    | extend byDimension = bin(timestamp, 1d)\n    | summarize metricHll = hll(session_Id) by byDimension, memberType;\nlet topSegments = cohortedTable\n    | summarize mergedMetricHll = hll_merge(metricHll) by memberType\n    | project memberType, dcount_session_Id = dcount_hll(mergedMetricHll)\n    | top 5 by dcount_session_Id desc nulls last\n    | summarize makelist(memberType);\ncohortedTable\n| extend userId = iff(memberType in (topSegments), memberType, \"Other\")\n| project byDimension, userId, metricHll\n| summarize metric = hll_merge(metricHll) by userId, byDimension\n| order by userId asc, byDimension desc\n| project [\"Date/Time\"]=byDimension, [\"Membership Type\"]=userId, [\"Session Count\"] = dcount_hll(metric)\n| render columnchart\n\n",
-                  "PartTitle": "Session Count by Member Type",
-                  "Dimensions": {
-                    "xAxis": {
-                      "name": "Date/Time",
-                      "type": "datetime"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Session Count",
-                        "type": "long"
-                      }
-                    ],
-                    "splitBy": [
-                      {
-                        "name": "Membership Type",
-                        "type": "string"
-                      }
-                    ],
-                    "aggregation": "Sum"
-                  }
-                }
+              "type": "Extension/AppInsightsExtension/PartType/WebTestsPinnedPart",
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
               }
             }
           },
           "4": {
             "position": {
-              "x": 12,
-              "y": 2,
-              "colSpan": 6,
-              "rowSpan": 4
+              "x": 5,
+              "y": 0,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
                   "name": "ComponentId",
+                  "value": {
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
+                },
+                {
+                  "name": "TimeContext",
+                  "value": {
+                    "durationMs": 86400000,
+                    "endTime": null,
+                    "createdTime": "2018-05-08T18:47:35.237Z",
+                    "isInitialTime": true,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  }
+                },
+                {
+                  "name": "ConfigurationId",
+                  "value": "78ce933e-e864-4b05-a27b-71fd55a6afad"
+                },
+                {
+                  "name": "MainResourceId",
                   "isOptional": true
                 },
                 {
-                  "name": "Scope",
-                  "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/Microsoft.Insights/components/${appinsights_name}"
-                    ]
-                  },
+                  "name": "ResourceIds",
+                  "isOptional": true
+                },
+                {
+                  "name": "DataModel",
+                  "isOptional": true
+                },
+                {
+                  "name": "UseCallerTimeContext",
+                  "isOptional": true
+                },
+                {
+                  "name": "OverrideSettings",
                   "isOptional": true
                 },
                 {
                   "name": "PartId",
-                  "value": "9ef4b7a4-9076-4f6a-8644-13efc1293899",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"*\"]);let grain = iff(true, 1d, 1h);  let mainTable = union pageViews     | where timestamp > ago(90d) | where isempty(operation_SyntheticSource) | extend name =replace(\"\\n\", \"\",name) | extend name =replace(\"\\r\", \"\",name) | where '*' in (usg_events) or name in (usg_events) | where customDimensions[\"activeMembership\"] !contains \"prime-admin\" ; let resultTable = mainTable; resultTable     | make-series Users = dcountif(user_Id, 'user_Id' != 'user_AuthenticatedId' or ('user_Id' =='user_AuthenticatedId' and isnotempty(user_Id))) default = 0 on timestamp from ago(90d) to now() step grain\r| render barchart\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "FrameControlChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "value": "StackedColumn",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "value": {
-                    "xAxis": {
-                      "name": "timestamp",
-                      "type": "datetime"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Users",
-                        "type": "real"
-                      }
-                    ],
-                    "splitBy": [],
-                    "aggregation": "Sum"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "value": {
-                    "isEnabled": true,
-                    "position": "Bottom"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
                   "isOptional": true
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
-              "settings": {
-                "content": {
-                  "Query": "let usg_events = dynamic([\"*\"]);let grain = iff(true, 1d, 1h);  let mainTable = union pageViews     | where timestamp > ago(30d) | where isempty(operation_SyntheticSource) | extend name =replace(\"\\n\", \"\",name) | extend name =replace(\"\\r\", \"\",name) | where '*' in (usg_events) or name in (usg_events) | where customDimensions[\"activeMembership\"] !contains \"prime-admin\" ; let resultTable = mainTable; resultTable     | make-series [\"Page Views\"] = dcountif(user_Id, 'user_Id' != 'user_AuthenticatedId' or ('user_Id' =='user_AuthenticatedId' and isnotempty(user_Id))) default = 0 on timestamp from ago(30d) to now() step grain\n\n",
-                  "PartTitle": "Page Views Excluding 'prime-admin'",
-                  "Dimensions": {
-                    "xAxis": {
-                      "name": "timestamp",
-                      "type": "datetime"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Page Views",
-                        "type": "real"
-                      }
-                    ],
-                    "splitBy": [],
-                    "aggregation": "Sum"
-                  }
-                }
+              "type": "Extension/AppInsightsExtension/PartType/ApplicationMapPart",
+              "settings": {},
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
               }
             }
           },
           "5": {
             "position": {
-              "x": 18,
-              "y": 2,
-              "colSpan": 6,
-              "rowSpan": 4
+              "x": 0,
+              "y": 1,
+              "colSpan": 3,
+              "rowSpan": 1
             },
             "metadata": {
-              "inputs": [
-                {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
-                  "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
-                  "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "PartId",
-                  "value": "4c473b58-a778-417c-a144-8ba938108f7b",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"Daily Data | Table Pagination\", \"Submissions | Table Pagination\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(90d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where true;\nlet byTable = mainTable;\nlet queryTable = () {\n    byTable\n    | extend dimension = customDimensions[\"tablePagination\"]\n    | extend dimension = iif(isempty(dimension), \"<undefined>\", dimension)\n};\nlet byCohortTable = queryTable\n    | project name, dimension;\nlet topSegments = byCohortTable\n    | summarize Events = count() by name, dimension\n    | summarize make_list(dimension,1000);    //Returns a dynamic JSON array of all the values of Expr in the group. Needed here.\nlet topEventMetrics = byCohortTable\n    | where dimension in (topSegments);\nlet otherEventUsers = byCohortTable\n    | where dimension !in (topSegments)\n    | extend dimension = \"Other\";\notherEventUsers\n| union topEventMetrics\n| summarize Events = count() by name, dimension\n| order by dimension asc\n| render columnchart\nwith (\n    xtitle=\"Table\",\n    ytitle=\"Counts\",\n    title=\"Pagination Usage by Table\")\n\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "FrameControlChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "value": "StackedColumn",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Pagination Usage by Table",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "value": {
-                    "xAxis": {
-                      "name": "name",
-                      "type": "string"
-                    },
-                    "yAxis": [
-                      {
-                        "name": "Events",
-                        "type": "long"
-                      }
-                    ],
-                    "splitBy": [
-                      {
-                        "name": "dimension",
-                        "type": "string"
-                      }
-                    ],
-                    "aggregation": "Sum"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "value": {
-                    "isEnabled": true,
-                    "position": "Bottom"
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
-                  "isOptional": true
-                }
-              ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "inputs": [],
+              "type": "Extension/HubsExtension/PartType/MarkdownPart",
               "settings": {
                 "content": {
-                  "Query": "let usg_events = dynamic([\"Daily Data | Table Pagination\", \"Submissions | Table Pagination\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where true;\nlet byTable = mainTable;\nlet queryTable = () {\n    byTable\n    | extend dimension = customDimensions[\"tablePagination\"]\n    | extend dimension = iif(isempty(dimension), \"<undefined>\", dimension)\n};\nlet byCohortTable = queryTable\n    | project name, dimension;\nlet topSegments = byCohortTable\n    | summarize Events = count() by name, dimension\n    | summarize make_list(dimension,1000);    //Returns a dynamic JSON array of all the values of Expr in the group. Needed here.\nlet topEventMetrics = byCohortTable\n    | where dimension in (topSegments);\nlet otherEventUsers = byCohortTable\n    | where dimension !in (topSegments)\n    | extend dimension = \"Other\";\notherEventUsers\n| union topEventMetrics\n| summarize Events = count() by name, dimension\n| order by dimension asc\n| render columnchart\nwith (\n    xtitle=\"Table\",\n    ytitle=\"Counts\",\n    title=\"Pagination Usage by Table\")\n\n",
-                  "SpecificChart": "UnstackedColumn"
+                  "settings": {
+                    "content": "# Usage",
+                    "title": "",
+                    "subtitle": ""
+                  }
                 }
               }
             }
           },
           "6": {
             "position": {
-              "x": 0,
-              "y": 6,
-              "colSpan": 9,
-              "rowSpan": 5
+              "x": 3,
+              "y": 1,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
                   "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
                   "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
                 },
                 {
-                  "name": "PartId",
-                  "value": "7f10e6c8-aa3b-48fd-9534-fe194127357b",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(90d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where isnotempty(customDimensions[\"tableFilter\"])\n    | extend ActiveMembership = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(ActiveMembership)\n    | extend TableFilter = todynamic(tostring(customDimensions[\"tableFilter\"]))\n    | evaluate bag_unpack(TableFilter);\nlet queryTable = mainTable;\nqueryTable\n| extend TimeDiff = datetime_diff('day', todatetime(endRange), todatetime(startRange))\n| order by timestamp desc \n| project\n    [\"No. Days in Range\"] = TimeDiff,\n    [\"Start Date\"] = todatetime(startRange),\n    [\"Table Filter Name\"] = name,\n    [\"Organization Name\"] = parsedName,\n    [\"Date filter was Used\"] = todatetime(timestamp);\nqueryTable\n\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "AnalyticsGrid",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
-                  "isOptional": true
+                  "name": "TimeContext",
+                  "value": {
+                    "durationMs": 86400000,
+                    "endTime": null,
+                    "createdTime": "2018-05-04T01:22:35.782Z",
+                    "isInitialTime": true,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  }
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
-              "settings": {
-                "content": {
-                  "Query": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where isnotempty(customDimensions[\"tableFilter\"])\n    | extend ActiveMembership = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(ActiveMembership)\n    | extend TableFilter = todynamic(tostring(customDimensions[\"tableFilter\"]))\n    | evaluate bag_unpack(TableFilter);\nlet queryTable = mainTable;\nqueryTable\n| extend TimeDiff = datetime_diff('day', todatetime(endRange), todatetime(startRange))\n| order by timestamp desc \n| project\n    [\"No. Days in Range\"] = TimeDiff,\n    [\"Start Date\"] = todatetime(startRange),\n    [\"Table Filter Name\"] = name,\n    [\"Organization Name\"] = parsedName,\n    [\"Date filter was Used\"] = todatetime(timestamp),\n    memberType;\nqueryTable\n\n",
-                  "PartTitle": "Table Filter Event Usage"
-                }
+              "type": "Extension/AppInsightsExtension/PartType/UsageUsersOverviewPart",
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
               }
             }
           },
           "7": {
             "position": {
-              "x": 9,
-              "y": 6,
-              "colSpan": 9,
-              "rowSpan": 5
+              "x": 4,
+              "y": 1,
+              "colSpan": 3,
+              "rowSpan": 1
             },
             "metadata": {
-              "inputs": [
-                {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
-                  "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
-                  "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "PartId",
-                  "value": "1a5f54c6-441c-4164-b54b-2ea880afdcee",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "value": "P1D",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "// select count from page where member type ='prime-admin'\nlet usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews\n    | where timestamp > ago(90d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend member_type = iif(isempty(memberType), \"<undefined>\", memberType)\n    | summarize PageCount = count() by member_type, operation_Name\n| project [\"Page Viewed\"] = operation_Name, p = pack(strcat(member_type, \" visit count\"), PageCount)\n| summarize b = make_bag(p) by [\"Page Viewed\"]\n| evaluate bag_unpack(b)\n\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "AnalyticsGrid",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": false,
-                  "isOptional": true
-                }
-              ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "inputs": [],
+              "type": "Extension/HubsExtension/PartType/MarkdownPart",
               "settings": {
                 "content": {
-                  "Query": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union pageViews\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\n    queryTable\n    | extend dimension = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimension)\n    | extend member_type = iif(isempty(memberType), \"unauthenticated\", memberType)\n    | summarize PageCount = count() by member_type, operation_Name\n| project [\"Page Viewed\"] = operation_Name, p = pack(strcat(member_type, \" visit count\"), PageCount)\n| summarize b = make_bag(p) by [\"Page Viewed\"]\n| order by ['Page Viewed'] asc \n| evaluate bag_unpack(b)\n\n",
-                  "PartTitle": "Page Views by Member Type",
-                  "IsQueryContainTimeRange": true
+                  "settings": {
+                    "content": "# Reliability",
+                    "title": "",
+                    "subtitle": ""
+                  }
                 }
               }
             }
           },
           "8": {
             "position": {
-              "x": 0,
-              "y": 11,
-              "colSpan": 9,
-              "rowSpan": 5
+              "x": 7,
+              "y": 1,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
+                  "name": "ResourceId",
+                  "value": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                 },
                 {
-                  "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
+                  "name": "DataModel",
                   "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
+                    "version": "1.0.0",
+                    "timeContext": {
+                      "durationMs": 86400000,
+                      "createdTime": "2018-05-04T23:42:40.072Z",
+                      "isInitialTime": false,
+                      "grain": 1,
+                      "useDashboardTimeRange": false
+                    }
                   },
                   "isOptional": true
                 },
                 {
-                  "name": "PartId",
-                  "value": "526d8e53-6d5e-4c42-81af-9ef1c9ccfba1",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"Daily Data | Table Pagination\", \"Submissions | Table Pagination\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(2d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where true;\nlet byTable = mainTable;\nlet queryTable = () {\n    byTable\n    | extend dimActiveMembership = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimActiveMembership)\n    | extend member_type = iif(isempty(memberType), \"unauthenticated\", memberType)\n    | extend dimTablePagination = todynamic(tostring(customDimensions[\"tablePagination\"]))\n    | evaluate bag_unpack(dimTablePagination)\n};\nlet byCohortTable = queryTable\n    | project name, member_type, pageSize, pageNumber;\nlet topSegments = byCohortTable\n    | summarize PageCount = count() by name, member_type, pageSize, pageNumber\n    | project\n    [\"Event Name\"] = name,\n    [\"Page Size\"] = pageSize,\n    [\"Page Number\"] = pageNumber,\n    p = pack(strcat(member_type, \" Table Page Count\"), PageCount)\n| summarize b = make_bag(p) by [\"Event Name\"], [\"Page Size\"], [\"Page Number\"]\n| evaluate bag_unpack(b)\n| order by [\"Event Name\"] asc, [\"Page Size\"] asc, [\"Page Number\"] asc;\ntopSegments",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "AnalyticsGrid",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
+                  "name": "ConfigurationId",
+                  "value": "8a02f7bf-ac0f-40e1-afe9-f0e72cfee77f",
                   "isOptional": true
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
-              "settings": {
-                "content": {
-                  "Query": "let usg_events = dynamic([\"Daily Data | Table Pagination\", \"Submissions | Table Pagination\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | where true;\nlet byTable = mainTable;\nlet queryTable = () {\n    byTable\n    | extend dimActiveMembership = todynamic(tostring(customDimensions[\"activeMembership\"]))\n    | evaluate bag_unpack(dimActiveMembership)\n    | extend member_type = iif(isempty(memberType), \"unauthenticated\", memberType)\n    | extend dimTablePagination = todynamic(tostring(customDimensions[\"tablePagination\"]))\n    | evaluate bag_unpack(dimTablePagination)\n};\nlet byCohortTable = queryTable\n    | project name, member_type, pageSize, pageNumber;\nlet topSegments = byCohortTable\n    | summarize PageCount = count() by name, member_type, pageSize, pageNumber\n    | project\n    [\"Event Name\"] = name,\n    [\"Page Size\"] = pageSize,\n    [\"Page Number\"] = pageNumber,\n    p = pack(strcat(member_type, \" Table Page Count\"), PageCount)\n| summarize b = make_bag(p) by [\"Event Name\"], [\"Page Size\"], [\"Page Number\"]\n| evaluate bag_unpack(b)\n| order by [\"Event Name\"] asc, [\"Page Size\"] asc, [\"Page Number\"] asc;\ntopSegments\n",
-                  "PartTitle": "Table Pagination Counts by Member Type"
-                }
-              }
+              "type": "Extension/AppInsightsExtension/PartType/CuratedBladeFailuresPinnedPart",
+              "isAdapter": true,
+              "asset": {
+                "idInputName": "ResourceId",
+                "type": "ApplicationInsights"
+              },
+              "defaultMenuItemId": "failures"
             }
           },
           "9": {
             "position": {
-              "x": 9,
-              "y": 11,
-              "colSpan": 9,
-              "rowSpan": 5
+              "x": 8,
+              "y": 1,
+              "colSpan": 3,
+              "rowSpan": 1
             },
             "metadata": {
-              "inputs": [
-                {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
-                },
-                {
-                  "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
-                  "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
-                  },
-                  "isOptional": true
-                },
-                {
-                  "name": "PartId",
-                  "value": "1071a5f0-114e-4c2f-bb11-5362584215c3",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"File Validator\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | extend fileValidatorProps = tostring(customDimensions[\"fileValidator\"]);\nlet queryTable = mainTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    // | summarize ['Count'] = count() by bin(timestamp, 1d), session_Id, fileValidatorProps\n    | extend dimension = todynamic(fileValidatorProps)\n    | evaluate bag_unpack(dimension)\n    | extend ['Pass/Fail'] = iif(errorCount == 0, \"Pass\", \"Fail\")\n    | order by timestamp desc \n    | project\n        [\"Date\"] = format_datetime(timestamp, 'MM/dd/yyyy'),\n        [\"Session Id\"] = session_Id,\n        // [\"Count\"],\n        ['Pass/Fail'],\n        [\"Error Count\"] = errorCount,\n        [\"Warning Count\"] = warningCount,\n        [\"Sender\"] = sender,\n        [\"Schema\"] = schema,\n        [\"File Type\"] = fileType; \nqueryTable\n\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "AnalyticsGrid",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
-                  "isOptional": true
-                }
-              ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "inputs": [],
+              "type": "Extension/HubsExtension/PartType/MarkdownPart",
               "settings": {
                 "content": {
-                  "PartTitle": "File Validator Statistics"
+                  "settings": {
+                    "content": "# Responsiveness\r\n",
+                    "title": "",
+                    "subtitle": ""
+                  }
                 }
               }
             }
           },
           "10": {
             "position": {
-              "x": 0,
-              "y": 16,
-              "colSpan": 6,
-              "rowSpan": 4
+              "x": 11,
+              "y": 1,
+              "colSpan": 1,
+              "rowSpan": 1
             },
             "metadata": {
               "inputs": [
                 {
-                  "name": "resourceTypeMode",
-                  "isOptional": true
+                  "name": "ResourceId",
+                  "value": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                 },
                 {
-                  "name": "ComponentId",
-                  "isOptional": true
-                },
-                {
-                  "name": "Scope",
+                  "name": "DataModel",
                   "value": {
-                    "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
-                    ]
+                    "version": "1.0.0",
+                    "timeContext": {
+                      "durationMs": 86400000,
+                      "createdTime": "2018-05-04T23:43:37.804Z",
+                      "isInitialTime": false,
+                      "grain": 1,
+                      "useDashboardTimeRange": false
+                    }
                   },
                   "isOptional": true
                 },
                 {
-                  "name": "PartId",
-                  "value": "5fc74968-4b70-41a1-862f-9726e124425e",
-                  "isOptional": true
-                },
-                {
-                  "name": "Version",
-                  "value": "2.0",
-                  "isOptional": true
-                },
-                {
-                  "name": "TimeRange",
-                  "isOptional": true
-                },
-                {
-                  "name": "DashboardId",
-                  "isOptional": true
-                },
-                {
-                  "name": "DraftRequestParameters",
-                  "isOptional": true
-                },
-                {
-                  "name": "Query",
-                  "value": "let usg_events = dynamic([\"*\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(200h)\n    | where isempty(operation_SyntheticSource) //filtering out HTTP requests made by bots\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events);\nlet queryTable = mainTable;\nlet splitTable =  () {\n    queryTable\n    | extend timeInSeconds = todynamic(tostring(customDimensions[\"sessionLength\"]))\n    | evaluate bag_unpack(timeInSeconds)\n    | order by timestamp desc\n};\nsplitTable\n",
-                  "isOptional": true
-                },
-                {
-                  "name": "ControlType",
-                  "value": "AnalyticsGrid",
-                  "isOptional": true
-                },
-                {
-                  "name": "SpecificChart",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartTitle",
-                  "value": "Analytics",
-                  "isOptional": true
-                },
-                {
-                  "name": "PartSubTitle",
-                  "value": "${appinsights_name}",
-                  "isOptional": true
-                },
-                {
-                  "name": "Dimensions",
-                  "isOptional": true
-                },
-                {
-                  "name": "LegendOptions",
-                  "isOptional": true
-                },
-                {
-                  "name": "IsQueryContainTimeRange",
-                  "value": true,
+                  "name": "ConfigurationId",
+                  "value": "2a8ede4f-2bee-4b9c-aed9-2db0e8a01865",
                   "isOptional": true
                 }
               ],
-              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "type": "Extension/AppInsightsExtension/PartType/CuratedBladePerformancePinnedPart",
+              "isAdapter": true,
+              "asset": {
+                "idInputName": "ResourceId",
+                "type": "ApplicationInsights"
+              },
+              "defaultMenuItemId": "performance"
+            }
+          },
+          "11": {
+            "position": {
+              "x": 12,
+              "y": 1,
+              "colSpan": 3,
+              "rowSpan": 1
+            },
+            "metadata": {
+              "inputs": [],
+              "type": "Extension/HubsExtension/PartType/MarkdownPart",
               "settings": {
                 "content": {
-                  "PartTitle": "Session Duration with Membership Metadata"
+                  "settings": {
+                    "content": "# Browser",
+                    "title": "",
+                    "subtitle": ""
+                  }
+                }
+              }
+            }
+          },
+          "12": {
+            "position": {
+              "x": 15,
+              "y": 1,
+              "colSpan": 1,
+              "rowSpan": 1
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
+                },
+                {
+                  "name": "MetricsExplorerJsonDefinitionId",
+                  "value": "BrowserPerformanceTimelineMetrics"
+                },
+                {
+                  "name": "TimeContext",
+                  "value": {
+                    "durationMs": 86400000,
+                    "createdTime": "2018-05-08T12:16:27.534Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  }
+                },
+                {
+                  "name": "CurrentFilter",
+                  "value": {
+                    "eventTypes": [
+                      4,
+                      1,
+                      3,
+                      5,
+                      2,
+                      6,
+                      13
+                    ],
+                    "typeFacets": {},
+                    "isPermissive": false
+                  }
+                },
+                {
+                  "name": "id",
+                  "value": {
+                    "Name": "${appinsights_name}",
+                    "SubscriptionId": "${subscription_id}",
+                    "ResourceGroup": "${resource_group_name}"
+                  }
+                },
+                {
+                  "name": "Version",
+                  "value": "1.0"
+                }
+              ],
+              "type": "Extension/AppInsightsExtension/PartType/MetricsExplorerBladePinnedPart",
+              "asset": {
+                "idInputName": "ComponentId",
+                "type": "ApplicationInsights"
+              },
+              "defaultMenuItemId": "browser"
+            }
+          },
+          "13": {
+            "position": {
+              "x": 0,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "sessions/count",
+                          "aggregationType": 5,
+                          "namespace": "microsoft.insights/components/kusto",
+                          "metricVisualization": {
+                            "displayName": "Sessions",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "users/count",
+                          "aggregationType": 5,
+                          "namespace": "microsoft.insights/components/kusto",
+                          "metricVisualization": {
+                            "displayName": "Users",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Unique sessions and users",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "segmentationUsers"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "sessions/count",
+                          "aggregationType": 5,
+                          "namespace": "microsoft.insights/components/kusto",
+                          "metricVisualization": {
+                            "displayName": "Sessions",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "users/count",
+                          "aggregationType": 5,
+                          "namespace": "microsoft.insights/components/kusto",
+                          "metricVisualization": {
+                            "displayName": "Users",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Unique sessions and users",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "segmentationUsers"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "14": {
+            "position": {
+              "x": 4,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "requests/failed",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Failed requests",
+                            "color": "#EC008C"
+                          }
+                        }
+                      ],
+                      "title": "Failed requests",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "failures"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "requests/failed",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Failed requests",
+                            "color": "#EC008C"
+                          }
+                        }
+                      ],
+                      "title": "Failed requests",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "failures"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "15": {
+            "position": {
+              "x": 8,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "requests/duration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Server response time",
+                            "color": "#00BCF2"
+                          }
+                        }
+                      ],
+                      "title": "Server response time",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "performance"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "requests/duration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Server response time",
+                            "color": "#00BCF2"
+                          }
+                        }
+                      ],
+                      "title": "Server response time",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "performance"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "16": {
+            "position": {
+              "x": 12,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/networkDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Page load network connect time",
+                            "color": "#7E58FF"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/processingDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Client processing time",
+                            "color": "#44F1C8"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/sendDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Send request time",
+                            "color": "#EB9371"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/receiveDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Receiving response time",
+                            "color": "#0672F1"
+                          }
+                        }
+                      ],
+                      "title": "Average page load time breakdown",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/networkDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Page load network connect time",
+                            "color": "#7E58FF"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/processingDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Client processing time",
+                            "color": "#44F1C8"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/sendDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Send request time",
+                            "color": "#EB9371"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "browserTimings/receiveDuration",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Receiving response time",
+                            "color": "#0672F1"
+                          }
+                        }
+                      ],
+                      "title": "Average page load time breakdown",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "17": {
+            "position": {
+              "x": 0,
+              "y": 5,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "availabilityResults/availabilityPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Availability",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average availability",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "availability"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "availabilityResults/availabilityPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Availability",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average availability",
+                      "visualization": {
+                        "chartType": 3,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      },
+                      "openBladeOnClick": {
+                        "openBlade": true,
+                        "destinationBlade": {
+                          "extensionName": "HubsExtension",
+                          "bladeName": "ResourceMenuBlade",
+                          "parameters": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}",
+                            "menuid": "availability"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "18": {
+            "position": {
+              "x": 4,
+              "y": 5,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "exceptions/server",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Server exceptions",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "dependencies/failed",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Dependency failures",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Server exceptions and Dependency failures",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "exceptions/server",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Server exceptions",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "dependencies/failed",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Dependency failures",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Server exceptions and Dependency failures",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "19": {
+            "position": {
+              "x": 8,
+              "y": 5,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processorCpuPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Processor time",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processCpuPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Process CPU",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Average processor and process CPU utilization",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processorCpuPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Processor time",
+                            "color": "#47BDF5"
+                          }
+                        },
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processCpuPercentage",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Process CPU",
+                            "color": "#7E58FF"
+                          }
+                        }
+                      ],
+                      "title": "Average processor and process CPU utilization",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "20": {
+            "position": {
+              "x": 12,
+              "y": 5,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "exceptions/browser",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Browser exceptions",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Browser exceptions",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "exceptions/browser",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Browser exceptions",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Browser exceptions",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "21": {
+            "position": {
+              "x": 0,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "availabilityResults/count",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Availability test results count",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Availability test results count",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "availabilityResults/count",
+                          "aggregationType": 7,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Availability test results count",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Availability test results count",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "22": {
+            "position": {
+              "x": 4,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processIOBytesPerSecond",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Process IO rate",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average process I/O rate",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/processIOBytesPerSecond",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Process IO rate",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average process I/O rate",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "23": {
+            "position": {
+              "x": 8,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "options",
+                  "value": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/memoryAvailableBytes",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Available memory",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average available memory",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "sharedTimeRange",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+              "settings": {
+                "content": {
+                  "options": {
+                    "chart": {
+                      "metrics": [
+                        {
+                          "resourceMetadata": {
+                            "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
+                          },
+                          "name": "performanceCounters/memoryAvailableBytes",
+                          "aggregationType": 4,
+                          "namespace": "microsoft.insights/components",
+                          "metricVisualization": {
+                            "displayName": "Available memory",
+                            "color": "#47BDF5"
+                          }
+                        }
+                      ],
+                      "title": "Average available memory",
+                      "visualization": {
+                        "chartType": 2,
+                        "legendVisualization": {
+                          "isVisible": true,
+                          "position": 2,
+                          "hideSubtitle": false
+                        },
+                        "axisVisualization": {
+                          "x": {
+                            "isVisible": true,
+                            "axisType": 2
+                          },
+                          "y": {
+                            "isVisible": true,
+                            "axisType": 1
+                          }
+                        },
+                        "disablePinning": true
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1053,29 +1815,31 @@
           "value": {
             "MsPortalFx_TimeRange": {
               "model": {
-                "format": "utc",
+                "format": "local",
                 "granularity": "auto",
-                "relative": "30d"
+                "relative": "1h"
               },
               "displayCache": {
-                "name": "UTC Time",
-                "value": "Past 30 days"
+                "name": "Local Time",
+                "value": "Past hour"
               },
               "filteredPartIds": [
-                "StartboardPart-LogsDashboardPart-474730cc-d9f7-4265-b616-7c5e5575ec43",
-                "StartboardPart-LogsDashboardPart-5b8c5fda-eccc-4eaa-8781-fb435376f4c9",
-                "StartboardPart-LogsDashboardPart-0a2227e3-fa86-46b0-960a-b2c6c531d90c",
-                "StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269e85",
-                "StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269fe7",
-                "StartboardPart-LogsDashboardPart-4f1ca6dd-eee2-4ea3-8c92-97fa8b6702a5",
-                "StartboardPart-LogsDashboardPart-0e6386ee-24a5-46d1-96b6-80a0ae9fd14f",
-                "StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5713c5",
-                "StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5712d7"
+                "StartboardPart-ApplicationMapPart-f6980648-05c8-40cb-b454-8988d0cb8608",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb861a",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb861c",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb861e",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb8620",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb8622",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb8624",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb8626",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb8628",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb862a",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb862c",
+                "StartboardPart-MonitorChartPart-f6980648-05c8-40cb-b454-8988d0cb862e"
               ]
             }
           }
         }
       }
     }
-  
 }
