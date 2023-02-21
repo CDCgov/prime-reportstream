@@ -23,6 +23,9 @@ describe("useOrganizationSettings", () => {
                 activeMembership: undefined,
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -48,6 +51,9 @@ describe("useOrganizationSettings", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
             });
         });
 
@@ -74,6 +80,9 @@ describe("useOrganizationSettings", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: true,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 

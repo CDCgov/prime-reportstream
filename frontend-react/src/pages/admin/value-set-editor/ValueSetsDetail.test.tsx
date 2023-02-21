@@ -86,7 +86,7 @@ describe("ValueSetsDetail", () => {
         expect(rows.length).toBe(3); // +1 for header
     });
 
-    test("Rows are editable", () => {
+    test("Rows are editable", async () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
@@ -107,7 +107,7 @@ describe("ValueSetsDetail", () => {
         expect(editButtons.length).toEqual(rows.length - 1);
 
         // activate editing mode for first row
-        userEvent.click(editButtons[0]);
+        await userEvent.click(editButtons[0]);
 
         // assert input element is rendered in edit mode
         const input = screen.getAllByRole("textbox");
@@ -179,19 +179,19 @@ describe("ValueSetsDetailTable", () => {
         const editButtons = screen.getAllByText("Edit");
         const editButton = editButtons[0];
         expect(editButton).toBeInTheDocument();
-        userEvent.click(editButton);
+        await userEvent.click(editButton);
 
         const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
         const firstInput = inputs[0];
         const initialValue = firstInput.value;
-        userEvent.click(firstInput);
-        userEvent.keyboard("~~fakeInputValue~~");
+        await userEvent.click(firstInput);
+        await userEvent.keyboard("~~fakeInputValue~~");
 
         const saveButton = screen.getByText("Save");
         expect(saveButton).toBeInTheDocument();
         // eslint-disable-next-line testing-library/no-unnecessary-act
         await act(async () => {
-            userEvent.click(saveButton);
+            await userEvent.click(saveButton);
         });
         fakeRowsCopy.shift();
 

@@ -1,7 +1,6 @@
-import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
@@ -9,9 +8,9 @@ import { USExtLink, USLink } from "../../../components/USLink";
 export const GettingStartedPhd = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
             <h2>
                 A step-by-step process for connecting your jurisdiction to
@@ -36,9 +35,7 @@ export const GettingStartedPhd = () => {
                     <p className="margin-top-05">
                         Let us know you're interested by filling out and
                         submitting{" "}
-                        <USExtLink
-                            href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                        >
+                        <USExtLink href={site.forms.intakeElr.url}>
                             this form
                         </USExtLink>{" "}
                         . We'll be in touch within a week to schedule a kick-off
@@ -92,9 +89,7 @@ export const GettingStartedPhd = () => {
                 <p>
                     Ready to bring ReportStream to your jurisdiction, or just
                     have more questions? Fill out{" "}
-                    <USExtLink
-                        href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                    >
+                    <USExtLink href={site.forms.intakeElr.url}>
                         the form
                     </USExtLink>{" "}
                     and we'll be in touch!

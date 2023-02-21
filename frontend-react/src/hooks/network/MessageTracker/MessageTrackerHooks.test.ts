@@ -26,6 +26,9 @@ describe("useMessageSearch", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
 
         const { result } = renderHook(() => useMessageSearch(), {
@@ -60,6 +63,9 @@ describe("useMessageDetails", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
 
         const { result, waitForNextUpdate } = renderHook(

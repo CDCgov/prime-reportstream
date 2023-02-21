@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -84,7 +84,7 @@ describe("EditReceiverSettings", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditReceiverSettings />);
+        renderWithBase(<EditReceiverSettings />);
     });
 
     test("should be able to edit keys field", () => {

@@ -27,6 +27,9 @@ describe("useOrganizationReceiversFeed", () => {
                 activeMembership: undefined,
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -57,6 +60,9 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: true,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -88,6 +94,9 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
             });
         });
 
@@ -116,6 +125,9 @@ describe("useOrganizationReceiversFeed", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useOrganizationReceiversFeed(),
