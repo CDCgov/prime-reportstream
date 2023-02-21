@@ -8,7 +8,7 @@ import {
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ResponseError } from "../../config/endpoints/waters";
-import { conditionallySupressConsole } from "../../utils/TestUtils";
+import { conditionallySuppressConsole } from "../../utils/TestUtils";
 
 import {
     RequestLevel,
@@ -64,7 +64,7 @@ describe("FileSuccessDisplay", () => {
 
 describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
-        const restore = conditionallySupressConsole("failure:");
+        const restore = conditionallySuppressConsole("failure:");
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
@@ -89,7 +89,7 @@ describe("FileErrorDisplay", () => {
     });
 
     test("renders table when data is given", async () => {
-        const restore = conditionallySupressConsole("failure:");
+        const restore = conditionallySuppressConsole("failure:");
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "Exception: first error\ntruncated",

@@ -1,6 +1,6 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
-const mockToken = (mock?: Partial<AccessToken>): AccessToken => {
+export const mockToken = (mock?: Partial<AccessToken>): AccessToken => {
     return {
         authorizeUrl: mock?.authorizeUrl || "",
         expiresAt: mock?.expiresAt || 0,
@@ -12,15 +12,13 @@ const mockToken = (mock?: Partial<AccessToken>): AccessToken => {
     };
 };
 
-export { mockToken };
-
-const mockEvent = (mock?: Partial<any>) => {
+export const mockEvent = (mock?: Partial<any>) => {
     return {
         response: mock?.response || null,
     };
 };
 
-function conditionallySupressConsole(...matchers: string[]) {
+export function conditionallySuppressConsole(...matchers: string[]) {
     const origConsole = jest.requireActual("console");
     const jestError = jest
         .spyOn(console, "error")
@@ -50,5 +48,3 @@ function conditionallySupressConsole(...matchers: string[]) {
         jestWarn.mockRestore();
     };
 }
-
-export { mockEvent, conditionallySupressConsole };

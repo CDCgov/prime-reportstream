@@ -8,7 +8,7 @@ import {
     ValueSetsMetaResponse,
     ValueSetsTableResponse,
 } from "../../../hooks/UseValueSets";
-import { conditionallySupressConsole } from "../../../utils/TestUtils";
+import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
 import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
 
@@ -116,7 +116,7 @@ describe("ValueSetsDetail", () => {
     });
 
     test("Handles error with table fetch", () => {
-        const restore = conditionallySupressConsole("not-found: Test");
+        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
@@ -144,7 +144,7 @@ describe("ValueSetsDetail", () => {
 
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
-        const restore = conditionallySupressConsole("not-found: Test");
+        const restore = conditionallySuppressConsole("not-found: Test");
         const mockSetAlert = jest.fn();
         renderWithQueryProvider(
             <ValueSetsDetailTable

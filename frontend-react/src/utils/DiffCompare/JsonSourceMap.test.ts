@@ -1,4 +1,4 @@
-import { conditionallySupressConsole } from "../TestUtils";
+import { conditionallySuppressConsole } from "../TestUtils";
 
 import { jsonSourceMap } from "./JsonSourceMap";
 
@@ -737,7 +737,7 @@ describe("JsonSourceMap suite", () => {
     });
 
     test("throws if json include non-standard Set/Map objects", () => {
-        const restore = conditionallySupressConsole(
+        const restore = conditionallySuppressConsole(
             "Map and Set elements not supported."
         );
         expect(() =>

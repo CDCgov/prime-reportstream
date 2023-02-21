@@ -8,7 +8,7 @@ import {
     ValueSetsMetaResponse,
     ValueSetsTableResponse,
 } from "../../../hooks/UseValueSets";
-import { conditionallySupressConsole } from "../../../utils/TestUtils";
+import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -95,7 +95,7 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        const restore = conditionallySupressConsole("not-found: Test");
+        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({

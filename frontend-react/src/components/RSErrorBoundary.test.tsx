@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 
 import { renderWithBase } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { conditionallySupressConsole } from "../utils/TestUtils";
+import { conditionallySuppressConsole } from "../utils/TestUtils";
 
 import { withCatch } from "./RSErrorBoundary";
 
@@ -30,7 +30,7 @@ const ThrowsNoErrorWrapped = () => withCatch(<ThrowsNoError />);
 
 describe("RSErrorBoundary", () => {
     test("Catches RSError", () => {
-        const restore = conditionallySupressConsole(
+        const restore = conditionallySuppressConsole(
             "unknown-error",
             "The above error occurred in the <ThrowsRSError> component:"
         );
@@ -44,7 +44,7 @@ describe("RSErrorBoundary", () => {
     });
 
     test("Catches legacy errors", () => {
-        const restore = conditionallySupressConsole(
+        const restore = conditionallySuppressConsole(
             "Please work to migrate all non RSError throws to use an RSError object.",
             "Error: mock",
             "The above error occurred in the <ThrowsGenericError> component:",
