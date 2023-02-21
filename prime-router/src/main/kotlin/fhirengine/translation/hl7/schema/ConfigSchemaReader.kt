@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -61,7 +61,7 @@ object ConfigSchemaReader : Logging {
                 // Need to smart cast so the compiler knows which merge is being called
                 parentSchema is ConverterSchema && childSchema is ConverterSchema ->
                     parentSchema.merge(childSchema)
-                parentSchema is FHIRTransformSchema && childSchema is FHIRTransformSchema ->
+                parentSchema is FhirTransformSchema && childSchema is FhirTransformSchema ->
                     parentSchema.merge(childSchema)
                 else ->
                     throw SchemaException(

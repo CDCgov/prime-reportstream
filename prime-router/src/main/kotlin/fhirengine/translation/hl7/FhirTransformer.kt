@@ -1,16 +1,13 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
-import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.convertFhirType
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
@@ -18,88 +15,74 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
- * Convert a FHIR bundle to an HL7 message using the [schemaRef] to perform the conversion.
- * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
- * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+ * Transform a FHIR bundle based on the [schemaRef].
+ * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
+ * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
  * the schema validation process.
- * @property terser the terser to use for building the HL7 message (use for dependency injection)
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
-class FhirToHl7Converter(
-    private val schemaRef: ConverterSchema,
+class FhirTransformer(
+    private val schemaRef: FhirTransformSchema,
     private val strict: Boolean = false,
-    private var terser: Terser? = null,
-    // the constant substitutor is not thread save, so we need one instance per converter instead of using a shared copy
+    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : Logging {
     /**
-     * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
-     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+     * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
+     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
+     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
      * the schema validation process.
-     * @property terser the terser to use for building the HL7 message (use for dependency injection)
      */
     constructor(
         schema: String,
         schemaFolder: String,
         strict: Boolean = false,
-        terser: Terser? = null
     ) : this(
-        schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
         strict = strict,
-        terser = terser
     )
 
     /**
-     * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
-     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+     * Transform a FHIR bundle based on the [schema] (which includes a folder location).
+     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
+     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
      * the schema validation process.
-     * @param terser the terser to use for building the HL7 message (use for dependency injection)
      */
     constructor(
         schema: String,
         strict: Boolean = false,
-        terser: Terser? = null
     ) : this(
-        schemaRef = converterSchemaFromFile(
+        schemaRef = fhirTransformSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
         strict = strict,
-        terser = terser
     )
 
     /**
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    fun convert(bundle: Bundle): Message {
-        // Sanity check, but the schema is assumed good to go here
-        check(!schemaRef.hl7Type.isNullOrBlank())
-        check(!schemaRef.hl7Version.isNullOrBlank())
-        val message = HL7Utils.SupportedMessages.getMessageInstance(schemaRef.hl7Type!!, schemaRef.hl7Version!!)
-
-        // Sanity check, but at this point we know we have a good schema
-        check(message != null)
-        terser = Terser(message)
+    fun transform(bundle: Bundle): Bundle {
+        var transformedBundle = bundle.copy()
         val dupes = schemaRef.duplicateElements
         if (dupes.isNotEmpty()) { // value is the number of matches
             throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
         }
-        processSchema(schemaRef, bundle, bundle)
-        return message
+        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle, transformedBundle = transformedBundle)
+        return transformedBundle
     }
 
     /**
      * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
-    private fun processSchema(
-        schema: ConverterSchema,
+    private fun transformWithSchema(
+        schema: FhirTransformSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle),
+        transformedBundle: Bundle,
+        context: CustomContext = CustomContext(bundle, focusResource),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -109,7 +92,7 @@ class FhirToHl7Converter(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            processElement(element, bundle, focusResource, schemaContext, debug)
+            transformBasedOnElement(element, bundle, focusResource, transformedBundle, schemaContext, debug)
         }
     }
 
@@ -117,10 +100,11 @@ class FhirToHl7Converter(
      * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [focusResource] in the bundle.
      * Set [debug] to true to enable debug statements to the logs.
      */
-    internal fun processElement(
-        element: ConverterSchemaElement,
+    internal fun transformBasedOnElement(
+        element: FHIRTransformSchemaElement,
         bundle: Bundle,
         focusResource: Base,
+        transformedBundle: Bundle,
         context: CustomContext,
         debug: Boolean = false
     ) {
@@ -131,7 +115,7 @@ class FhirToHl7Converter(
         var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
-        val focusResources = getFocusResources(element, bundle, focusResource, elementContext)
+        val focusResources = getFocusResources(element.resource, bundle, focusResource, elementContext)
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
@@ -152,21 +136,24 @@ class FhirToHl7Converter(
                             elementContext
                         )
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
-                        processSchema(
-                            element.schemaRef!! as ConverterSchema,
+                        transformWithSchema(
+                            element.schemaRef!! as FhirTransformSchema,
                             bundle,
                             singleFocusResource,
+                            transformedBundle,
                             indexContext,
                             element.debug || debug
                         )
                     }
 
                     // A value
-                    element.value.isNotEmpty() && element.hl7Spec.isNotEmpty() -> {
+                    element.value.isNotEmpty() -> {
                         val value = getValue(element, bundle, singleFocusResource, elementContext)
-                        setHl7Value(element, value, context)
+                        if (value != null) {
+                            setBundleProperty(element, value, context, transformedBundle)
+                        }
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
-                            "value: $value, hl7Spec: ${element.hl7Spec}"
+                            "value: $value"
                     }
 
                     // This should never happen as the schema was validated prior to getting here
@@ -194,20 +181,20 @@ class FhirToHl7Converter(
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext
-    ): String {
-        var retVal = ""
+    ): Base? {
+        var retVal: Base? = null
         run findValue@{
             element.value.forEach {
-                val value = if (it.isBlank()) ""
+                val value = if (it.isBlank()) emptyList<Base>()
                 else try {
-                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                    FhirPathUtils.evaluate(context, focusResource, bundle, it)
                 } catch (e: SchemaException) {
                     logger.error("Error while getting value for element ${element.name}", e)
-                    ""
+                    emptyList<Base>()
                 }
                 logger.trace("Evaluated value expression '$it' to '$value'")
-                if (value.isNotBlank()) {
-                    retVal = value
+                if (value.isNotEmpty()) {
+                    retVal = value[0]
                     return@findValue
                 }
             }
@@ -217,7 +204,9 @@ class FhirToHl7Converter(
         // does a lowerCase comparison
         if (element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
-            retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
+            val valStr =
+                lowerSet.getOrDefault(retVal?.primitiveValue()?.lowercase() ?: "", retVal?.primitiveValue() ?: "")
+            retVal = FhirPathUtils.evaluate(context, focusResource, bundle, valStr)[0]
         }
         return retVal
     }
@@ -227,16 +216,16 @@ class FhirToHl7Converter(
      * @return a list of focus resources containing at least one resource.  Multiple resources are returned for collections
      */
     internal fun getFocusResources(
-        element: ConfigSchemaElement,
+        resourceStr: String?,
         bundle: Bundle,
         previousFocusResource: Base,
         context: CustomContext
     ): List<Base> {
-        val resourceList = if (element.resource == null) {
+        val resourceList = if (resourceStr == null || resourceStr == "") {
             listOf(previousFocusResource)
         } else {
             val evaluatedResource = FhirPathUtils
-                .evaluate(context, previousFocusResource, bundle, element.resource!!)
+                .evaluate(context, previousFocusResource, bundle, resourceStr)
             evaluatedResource
         }
 
@@ -267,37 +256,40 @@ class FhirToHl7Converter(
     }
 
     /**
-     * Set the [value] an [element]'s HL7 spec.
+     * Set the [value] an [element]'s bundleProperty.
      */
-    internal fun setHl7Value(element: ConverterSchemaElement, value: String, context: CustomContext) {
-        if (value.isBlank() && element.required == true) {
-            // The value is empty, but the element was required
-            throw RequiredElementException(element)
-        }
-        element.hl7Spec.forEach { rawHl7Spec ->
-            val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
-            try {
-                terser!!.set(resolvedHl7Spec, value)
-                logger.trace("Set HL7 $resolvedHl7Spec = $value")
-            } catch (e: HL7Exception) {
-                val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
-                if (strict) {
-                    logger.error(msg, e)
-                    throw HL7ConversionException(msg, e)
-                } else logger.warn(msg, e)
-            } catch (e: IllegalArgumentException) {
-                val msg = "Invalid Hl7 spec $resolvedHl7Spec specified in schema for element ${element.name}"
-                if (strict) {
-                    logger.error(msg, e)
-                    throw SchemaException(msg, e)
-                } else logger.warn(msg, e)
-            } catch (e: Exception) {
-                val msg = "Unknown error while processing element ${element.name}."
-                if (strict) {
-                    logger.error(msg, e)
-                    throw HL7ConversionException(msg, e)
-                } else logger.warn(msg, e)
+    internal fun setBundleProperty(
+        element: FHIRTransformSchemaElement, // TODO: remove and add only needed fields
+        value: Base,
+        context: CustomContext,
+        bundle: Bundle
+    ) {
+        var bundleProperty = element.bundleProperty // "%resource.id" "Bundle.something.something.property"
+        if (bundleProperty != null) {
+            val focusResources = if (bundleProperty.startsWith("%resource.")) {
+                bundleProperty = bundleProperty.substringAfter("%resource.")
+                getFocusResources(element.resource, bundle, bundle, context)
+            } else { // if (bundleProperty.startsWith("Bundle.")
+                listOf(bundle)
+            } // else error
+            focusResources.forEach { focusResource ->
+                val path = bundleProperty.substringBeforeLast(".", "")
+                val field = bundleProperty.substringAfterLast(".")
+                val propertiesToUpdate = getFocusResources(path, bundle, focusResource, context)
+                if (propertiesToUpdate.isEmpty()) {
+                    // TODO: Create missing properties
+                }
+                propertiesToUpdate.forEach {
+                    val property = it.getNamedProperty(field)
+                    var sourceType = property.typeCode
+                    var targetType = value.fhirType()
+
+                    val newValue = convertFhirType(value, sourceType, targetType)
+
+                    it.setProperty(field, newValue)
+                }
             }
+            println(bundle)
         }
     }
 }

@@ -45,6 +45,12 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      */
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
+    val duplicateElements: Map<String?, Int>
+        get() = (
+            elements.filter { it.name != null } +
+                elements.flatMap { it.schemaRef?.elements ?: emptyList() }
+            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
+
     /**
      * Add an error [msg] to the list of errors.
      */
