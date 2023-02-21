@@ -342,6 +342,22 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
+    fun `test retrieval of a non-existent organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "foo")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `test retrieval of a an organization's submission history for a non-existent sending channel`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "test-lab.foo")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
     fun `test access DHPrimeAdmins can view all organization's submission history`() {
         val submissionFunction = setupSubmissionFunctionForTesting("DHPrimeAdmins", mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
