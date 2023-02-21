@@ -7,17 +7,15 @@
 //@import '~uswds/dist/scss/theme/uswds-theme-utilities';
 
 // override (change some of the defaults loaded above)
-@import "styles/uswds_settings";  // _uswds_settings.scss
+@forward "styles/uswds_settings";  // _uswds_settings.scss
+@forward 'uswds';
 
-@import "uswds";
-
-@import "@trussworks/react-uswds/lib/index.css";
-
+@use 'uswds';
+@import "~@trussworks/react-uswds/lib/uswds.css";
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
-@import "styles/color"; // _color.scss
 @import "styles/typography"; // _typography.scss
 @import "styles/reportstream";  // _reportstream.scss
 @import "styles/components";
 
 // Print styles (e.g. may be used by PDF generation)
-@import "./styles/print";
+@import "styles/print";
