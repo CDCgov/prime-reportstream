@@ -539,4 +539,6 @@ elements:
       csvFields: [{ name: residence_type, format: $display}]
       default: ""
 
+###### These fields are calculated for filtering purposes
     - name: test_type
+    - name: abnormal_flag

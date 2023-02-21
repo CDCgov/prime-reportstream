@@ -1,13 +1,14 @@
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { Helmet } from "react-helmet-async";
+
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const SystemAndSettingsIa = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.SYSTEM} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.SYSTEM} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.SYSTEM}</h1>
 
             <h2>
