@@ -16,10 +16,14 @@ import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -143,6 +147,14 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
     }
 
+    private fun getHttpResponse(statusCode: HttpStatusCode, body: String): HttpResponse {
+        val response = mockk<HttpResponse>(relaxed = true) {
+            coEvery { bodyAsText(any()) } returns body
+            every { status } returns statusCode
+        }
+        return response
+    }
+
     @BeforeEach
     fun reset() {
         actionHistory = ActionHistory(TaskAction.send)
@@ -158,9 +170,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
                 "test-key"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.OK, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -172,9 +186,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
                 "test-assertion"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.OK, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -184,9 +200,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.OK, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -196,9 +214,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.OK, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -208,9 +228,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.InternalServerError, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -220,9 +242,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(getHttpResponse(HttpStatusCode.Unauthorized, ""))
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -237,6 +261,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -251,6 +276,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
@@ -265,6 +291,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
