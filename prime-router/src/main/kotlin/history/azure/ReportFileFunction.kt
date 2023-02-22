@@ -84,7 +84,10 @@ abstract class ReportFileFunction(
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             val userOrgName = this.getOrgName(organization)
-                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
+                ?: return HttpUtilities.notFoundResponse(
+                    request,
+                    "$organization: invalid organization identifier"
+                )
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
             if (!reportFileFacade.checkAccessAuthorization(claims, userOrgName, null, request)) {
