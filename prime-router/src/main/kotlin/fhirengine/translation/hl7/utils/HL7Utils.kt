@@ -47,7 +47,7 @@ object HL7Utils : Logging {
     }
 
     /**
-     * Checks is a specific HL7 message [hl7Class] is supported.
+     * Checks if a specific HL7 message [hl7Class] is supported.
      * @return true if the HL7 message is supported, false otherwise
      */
     fun supports(hl7Class: String): Boolean {
