@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Extension
 
 /**
  * Transform a FHIR bundle based on the [schemaRef].
@@ -150,7 +151,13 @@ class FhirTransformer(
                     element.value.isNotEmpty() -> {
                         val value = getValue(element, bundle, singleFocusResource, elementContext)
                         if (value != null) {
-                            setBundleProperty(element, value, context, transformedBundle)
+                            setBundleProperty(
+                                element.bundleProperty,
+                                value,
+                                context,
+                                transformedBundle,
+                                element.resource
+                            )
                         }
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
                             "value: $value"
@@ -259,37 +266,124 @@ class FhirTransformer(
      * Set the [value] an [element]'s bundleProperty.
      */
     internal fun setBundleProperty(
-        element: FHIRTransformSchemaElement, // TODO: remove and add only needed fields
+        bundleProperty: String?,
         value: Base,
         context: CustomContext,
-        bundle: Bundle
+        bundle: Bundle,
+        resource: String?
     ) {
-        var bundleProperty = element.bundleProperty // "%resource.id" "Bundle.something.something.property"
-        if (bundleProperty != null) {
-            val focusResources = if (bundleProperty.startsWith("%resource.")) {
-                bundleProperty = bundleProperty.substringAfter("%resource.")
-                getFocusResources(element.resource, bundle, bundle, context)
-            } else { // if (bundleProperty.startsWith("Bundle.")
-                listOf(bundle)
-            } // else error
-            focusResources.forEach { focusResource ->
-                val path = bundleProperty.substringBeforeLast(".", "")
-                val field = bundleProperty.substringAfterLast(".")
-                val propertiesToUpdate = getFocusResources(path, bundle, focusResource, context)
-                if (propertiesToUpdate.isEmpty()) {
-                    // TODO: Create missing properties
-                }
-                propertiesToUpdate.forEach {
-                    val property = it.getNamedProperty(field)
-                    var sourceType = property.typeCode
-                    var targetType = value.fhirType()
+        if (bundleProperty == null) return
 
-                    val newValue = convertFhirType(value, sourceType, targetType)
-
-                    it.setProperty(field, newValue)
-                }
+        val focusResource = if (resource != null) {
+            var focusResources = getFocusResources(resource, bundle, bundle, context)
+            if (focusResources.isNotEmpty()) {
+                focusResources[0]
+            } else {
+                bundle
             }
-            println(bundle)
+        } else {
+            bundle
         }
+
+        val pathParts = bundleProperty.split(".")
+        // We start one level down as we use the addChild function to set the value at the end
+        var pathToEvaluate = bundleProperty.dropLast(pathParts.last().length + 1)
+        val childrenNames = pathParts.dropLast(1).reversed()
+        val missingChildren = mutableListOf<String>()
+        childrenNames.forEach { childName ->
+            if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate).isEmpty()) {
+                pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
+                missingChildren.add(childName)
+            } else return@forEach
+        }
+        if (missingChildren.isNotEmpty()) {
+            println("Missing $missingChildren children. Stopped at: $pathToEvaluate")
+            check(missingChildren.last() != "entry") // We do not need to support entries
+        }
+        // Now go on reverse and create the needed children
+        val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate)
+        if (parent.size != 1) throw Exception()
+        var childResource = parent[0]
+        missingChildren.reversed().forEach { childName ->
+            when {
+                childName.startsWith("extension(") -> {
+                    val matchResult = extensionRegex.find(childName)
+                    if (matchResult != null) {
+                        childResource = childResource.addChild("extension")
+                        (childResource as Extension).url = matchResult.groupValues[0]
+                    }
+                }
+                else -> childResource = childResource.addChild(childName)
+            }
+        }
+        // Finally set the value
+        val property = childResource.getNamedProperty(pathParts.last())
+        var sourceType = property.typeCode
+        var targetType = value.fhirType()
+
+        val newValue = convertFhirType(value, sourceType, targetType)
+
+        childResource.setProperty(pathParts.last(), newValue)
+
+//        val path = bundleProperty.substringBeforeLast(".", "")
+//        val field = bundleProperty.substringAfterLast(".")
+//        val propertiesToUpdate = getFocusResources(path, bundle, focusResource, context)
+//        if (propertiesToUpdate.isEmpty()) {
+//            // TODO: Create missing properties
+//        }
+//        propertiesToUpdate.forEach {
+//            val property = it.getNamedProperty(field)
+//            var sourceType = property.typeCode
+//            var targetType = value.fhirType()
+//
+//            val newValue = convertFhirType(value, sourceType, targetType)
+//
+//            it.setProperty(field, newValue)
+//        }
+
+        println(bundle)
     }
 }
+
+fun setValue(bundle: Bundle, path: String, value: Base) {
+    val pathParts = path.split(".")
+    // We start one level down as we use the addChild function to set the value at the end
+    var pathToEvaluate = path.dropLast(pathParts.last().length + 1)
+    val childrenNames = pathParts.dropLast(1).reversed()
+    val missingChildren = mutableListOf<String>()
+    childrenNames.forEach { childName ->
+        if (FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle,
+                pathToEvaluate
+            ).isEmpty()
+        ) {
+            pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
+            missingChildren.add(childName)
+        } else return@forEach
+    }
+    println("Missing $missingChildren children. Stopped at: $pathToEvaluate")
+    check(missingChildren.last() != "entry") // We do not need to support entries
+    // Now go on reverse and create the needed children
+    val parent = FhirPathUtils.evaluate(
+        CustomContext(bundle, bundle), bundle, bundle,
+        pathToEvaluate
+    )
+    if (parent.size != 1) throw Exception()
+    var childResource = parent[0]
+    missingChildren.reversed().forEach { childName ->
+        when {
+            childName.startsWith("extension(") -> {
+                val matchResult = extensionRegex.find(childName)
+                if (matchResult != null) {
+                    childResource = childResource.addChild("extension")
+                    (childResource as Extension).url = matchResult.groupValues[0]
+                }
+            }
+            else -> childResource = childResource.addChild(childName)
+        }
+    }
+    // Finally set the value
+    childResource.setProperty(pathParts.last(), value)
+}
+
+private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()

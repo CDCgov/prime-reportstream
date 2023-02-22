@@ -7,7 +7,10 @@ import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Patient
 import kotlin.test.Test
 
 class FhirTransformerTests {
@@ -58,24 +61,31 @@ class FhirTransformerTests {
             .hasClass(SchemaException::class.java)
     }
 
-//    @Test
-//    fun `test transform deeper property`() {
-//        val bundle = Bundle()
-//        bundle.id = "abc123"
-//
-//        val elemA = FHIRTransformSchemaElement(
-//            "elementA",
-//            value = listOf("'Somefirstname Somelastname'"),
-//            resource = "Bundle.entry.resource.ofType(Patient).contact",
-//            bundleProperty = "%resource.name.text"
-//        )
-//
-//        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
-//
-//        // nobody sharing the same name
-//        assertThat(FhirTransformer(schema).transform(bundle).isEmpty).isFalse()
-//
-//        var newBundle = FhirTransformer(schema).transform(bundle)
-//        assertThat(newBundle).isEqualTo("654321")
-//    }
+    @Test
+    fun `test transform deeper property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("'Somefirstname Somelastname'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.contact.name.text"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        var newBundle = FhirTransformer(schema).transform(bundle)
+        var newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(newBundle, newBundle),
+                newBundle,
+                newBundle,
+                "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("Somefirstname Somelastname")
+    }
 }
