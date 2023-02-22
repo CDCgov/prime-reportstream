@@ -1,9 +1,10 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
+import config from "../config";
 import { RSReceiver } from "../config/endpoints/settings";
 
-const base = "https://test.prime.cdc.gov/api/settings/organizations";
+const base = `${config.API_ROOT}/settings/organizations`;
 const getSender = (org: string, sender: string) =>
     `${base}/${org}/senders/${sender}`;
 const testSender = getSender("testOrg", "testSender");
