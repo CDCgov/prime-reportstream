@@ -99,7 +99,7 @@ class InvalidCodeMessage(
     private val format: String? = null
 ) : ItemActionLogDetail(fieldMapping) {
     override val message: String get() {
-        var msg = "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
+        var msg = "The code '$formattedValue' for field $fieldMapping is invalid. Reformat to HL7 specification."
         if (format !== null) {
             msg += " Reformat to $format."
         }
