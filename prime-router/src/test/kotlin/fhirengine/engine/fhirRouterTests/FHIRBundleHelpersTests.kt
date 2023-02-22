@@ -29,9 +29,14 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
+import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.PractitionerRole
+import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
+import org.hl7.fhir.r4.model.Reference
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -40,6 +45,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.lang.IllegalStateException
 import java.util.UUID
+import kotlin.streams.toList
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -179,7 +185,7 @@ class FHIRBundleHelpersTests {
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         val bundle = messages[0]
 
-        var diagnosticReport = FhirPathUtils.evaluate(
+        val diagnosticReport = FhirPathUtils.evaluate(
             null,
             bundle,
             bundle,
@@ -233,7 +239,7 @@ class FHIRBundleHelpersTests {
             "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         )[0]
 
-        var observation = FhirPathUtils.evaluate(
+        val observation = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle),
             diagnosticReport,
             bundle,
@@ -331,6 +337,61 @@ class FHIRBundleHelpersTests {
         assertThat(diagnosticReport.getResourceReferences().count()> 1).isTrue()
         assertThat(diagnosticReport.getResourceReferences().contains(observation.idBase)).isFalse()
     }
+
+    @Test
+    fun `Test removing Provenance from Bundle`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        val bundle = messages[0]
+        val provenance = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Provenance)"
+        )[0]
+
+        val organizationReference = (provenance as Provenance).agent[0].who.reference
+        val deviceReference = provenance.entity[0].what.reference
+
+        // Verify that Provenance and its organization and device are present in the bundle
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == organizationReference
+            }
+        ).isNotNull()
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == deviceReference
+            }
+        ).isNotNull()
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == provenance.id
+            }
+        ).isNotNull()
+
+        bundle.deleteResource(provenance)
+
+        // Verify that  Provenance and its organization and device are removed from the bundle
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == provenance.id
+            }
+        ).isNull()
+
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == organizationReference
+            }
+        ).isNull()
+        assertThat(
+            bundle.entry.find {
+                it.fullUrl == deviceReference
+            }
+        ).isNull()
+    }
+
     @Test
     fun `Test Removing an observation that doesn't exist`() {
         val actionLogger = ActionLogger()
@@ -340,5 +401,41 @@ class FHIRBundleHelpersTests {
         observation.id = "test"
 
         assertFailsWith<IllegalStateException> { messages[0].deleteResource(observation) }
+    }
+
+    @Test
+    fun `Test getChildProperties from a Property`() {
+
+        val diagnosticReport = DiagnosticReport()
+        val observation = Observation()
+        observation.id = "Observation/123"
+        diagnosticReport.id = "DiagnosticReport/123"
+        val reference = Reference(observation)
+        diagnosticReport.result.add(reference)
+        val property = Property("Diagnostic Report", null, null, 0, 0, diagnosticReport)
+
+        assertThat(FHIRBundleHelpers.getChildProperties(property).toList()).isNotEmpty()
+    }
+
+    @Test
+    fun `Test getting nested references from a Resource`() {
+        val observation = Observation()
+        observation.id = "Observation/123"
+
+        val practitioner = PractitionerRole()
+        practitioner.id = "Practitioner/123"
+        val practitionerReference = Reference(practitioner)
+        practitionerReference.reference = practitioner.id
+        observation.performer.add(practitionerReference)
+
+        val organization = org.hl7.fhir.r4.model.Organization()
+        organization.id = "Organization/123"
+        val organizationReference = Reference(organization)
+        organizationReference.reference = organization.id
+        observation.extension.add(Extension("", organizationReference))
+
+        val references = FHIRBundleHelpers.filterReferenceProperties(observation.getResourceProperties())
+        assertThat(references).isNotEmpty()
+        assertThat(references.count()).isEqualTo(2)
     }
 }

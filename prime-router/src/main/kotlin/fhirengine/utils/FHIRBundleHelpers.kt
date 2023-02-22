@@ -83,7 +83,7 @@ object FHIRBundleHelpers {
      *
      * @return a list containing only the references in [properties]
      */
-    private fun filterReferenceProperties(properties: List<Property>): List<String> {
+    internal fun filterReferenceProperties(properties: List<Property>): List<String> {
         return properties.filter { it.hasValues() }.flatMap { it.values }
             .filterIsInstance<Reference>().map { it.reference }
     }
@@ -93,7 +93,7 @@ object FHIRBundleHelpers {
      *
      * @return a flatmap stream of all child properties on a [property]
      */
-    private fun getChildProperties(property: Property): Stream<Property> {
+    internal fun getChildProperties(property: Property): Stream<Property> {
         return Stream.concat(
             Stream.of(property),
             property.values.flatMap { it.children() }.stream().flatMap { getChildProperties(it) }
@@ -116,8 +116,8 @@ object FHIRBundleHelpers {
 
     /**
      * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
-     * If the [resource] is a [DiagnosticReport] and it has no observations. The [DiagnosticReport] and all
-     * its references will be removed
+     * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
+     * observations, the [DiagnosticReport] will be deleted
      *
      */
     fun Bundle.deleteResource(resource: Base) {
@@ -125,24 +125,26 @@ object FHIRBundleHelpers {
         if (this.entry.find { it.fullUrl == resource.idBase } == null) {
             throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
         }
+        // First remove the resource from the bundle
+        this.entry.removeIf { it.fullUrl == resource.idBase }
 
         // Get the resource children references
         val resourceChildren = resource.getResourceReferences()
         // get all resources except the resource being removed
-        val allResources = this.entry.filter { it.resource.id != resource.idBase }
+        val allResources = this.entry
         // get all references for every resource
         val allReferences = allResources.flatMap { it.getResourceReferences() }
 
         // remove orphaned children
         resourceChildren.forEach { child ->
             if (!allReferences.contains(child)) {
-                this.entry.removeIf { it.resource.id == child }
+                allResources.firstOrNull { it.fullUrl == child }?.let { this.deleteResource(it.resource) }
             }
         }
 
         // Go through every resource and check if the resource has a reference to the resource being deleted
         // if there is remove the reference
-        this.entry.forEach { res ->
+        allResources.forEach { res ->
             res.resource.getResourceProperties().forEach { property ->
                 property.values.forEach {
                     if (it is Reference && it.reference == resource.idBase) {
@@ -158,8 +160,5 @@ object FHIRBundleHelpers {
         if (resource is Observation) {
             getDiagnosticReportNoObservations(this).forEach { this.deleteResource(it) }
         }
-
-        // finally remove the resource from the bundle
-        this.entry.removeIf { it.fullUrl == resource.idBase }
     }
 }
