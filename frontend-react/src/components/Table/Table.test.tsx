@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
@@ -288,7 +288,7 @@ describe("TableRows", () => {
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -297,8 +297,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button
@@ -339,7 +338,7 @@ describe("TableRows", () => {
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -348,8 +347,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button
@@ -392,7 +390,7 @@ describe("TableRows", () => {
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -401,8 +399,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button

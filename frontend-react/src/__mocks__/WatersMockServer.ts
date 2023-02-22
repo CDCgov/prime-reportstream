@@ -18,12 +18,12 @@ export enum WatersTestHeaderValue {
 const handlers = [
     rest.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, (req, res, ctx) => {
         if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            req.headers.get(WatersTestHeader.CLIENT) ===
             WatersTestHeaderValue.FAIL
         )
             return res(ctx.status(400));
         if (
-            req.headers["_headers"][WatersTestHeader.CLIENT] ===
+            req.headers.get(WatersTestHeader.CLIENT) ===
             WatersTestHeaderValue.TEST_NAME
         ) {
             return res(ctx.status(201), ctx.json({ endpoint: "validate" }));
