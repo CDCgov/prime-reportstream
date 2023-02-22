@@ -1,9 +1,11 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { rest } from "msw";
 
 import { renderWithBase } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import config from "../../config";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
@@ -33,8 +35,8 @@ jest.mock("react-router-dom", () => ({
     },
     useParams: () => {
         return {
-            orgName: "abbott",
-            senderName: "user1234",
+            orgname: "abbott",
+            sendername: "user1234",
             action: "edit",
         };
     },
@@ -64,8 +66,15 @@ const testKeys = JSON.stringify([
 const testProcessingType = "sync";
 
 describe("EditSenderSettings", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
+    beforeAll(() => {
+        settingsServer.listen();
+        settingsServer.use(
+            rest.get(
+                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
+                (req, res, ctx) => res(ctx.json(mockData))
+            )
+        );
+    });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
         renderWithBase(<EditSenderSettings />);
