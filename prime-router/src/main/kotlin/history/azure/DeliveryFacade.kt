@@ -3,6 +3,7 @@ package gov.cdc.prime.router.history.azure
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
@@ -104,19 +105,17 @@ class DeliveryFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [orgName].
-     * @return true if [claims] authorizes access to this [orgName].  Return
-     * false if the [orgName] is empty or if the claim does not give access.
+     * Check whether these [claims] from this [request]
+     * allow access to the receiver associated with this [action].
+     * @return true if authorized, false otherwise.
+     * Because this is a Delivery request, this checks the [Action.receivingOrg]
      */
-    override fun checkAccessAuthorization(
+    override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,
-        orgName: String?,
-        senderOrReceiver: String?,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        // todo If orgname is not known, this only works for primeadmin right now.
-        //  Need to query the report_file table to find who the receiving_org is for this id.
-        return claims.authorizedForSendOrReceive(orgName, null, request)
+        return claims.authorizedForSendOrReceive(action.receivingOrg, null, request)
     }
 
     companion object {
