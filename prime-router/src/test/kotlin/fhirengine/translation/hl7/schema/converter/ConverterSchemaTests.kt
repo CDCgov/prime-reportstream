@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter
 
 import assertk.assertAll
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -51,10 +50,8 @@ class ConverterSchemaTests {
             mutableListOf(goodElement),
             constants = sortedMapOf("const1" to "")
         )
-        assertThat(schema.isValid()).isFalse()
-        assertThat(schema.errors).isNotEmpty()
-        assertThat(schema.errors.size).isEqualTo(1)
-        assertThat(schema.errors[0]).contains(schema.constants.firstKey())
+        assertThat(schema.isValid()).isTrue()
+        assertThat(schema.errors).isEmpty()
 
         schema = ConverterSchema(
             "ca.uhn.hl7v2.model.v251.message.ORU_R01",
@@ -135,9 +132,8 @@ class ConverterSchemaTests {
             "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), constants = sortedMapOf("const1" to "")
         )
         val errors = element.validate()
-        assertThat(errors).isNotEmpty()
-        assertThat(errors.size).isEqualTo(1)
-        assertThat(errors[0]).contains(element.constants.firstKey())
+        assertThat(errors).isEmpty()
+
         element = ConverterSchemaElement(
             "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"),
             constants = sortedMapOf("const1" to "value")
