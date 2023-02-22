@@ -73,7 +73,7 @@ enum class Options {
      * If the annotation is present, the constant is no longer in use.
      */
 
-    val isDeprecated = this.declaringClass.getField(this.name)
+    val isDeprecated = this.declaringJavaClass.getField(this.name)
         .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {

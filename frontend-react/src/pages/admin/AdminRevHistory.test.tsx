@@ -69,7 +69,7 @@ jest.mock("../../network/api/Organizations/SettingRevisions", () => {
 });
 
 describe("AdminRevHistory", () => {
-    test("Renders with no errors", () => {
+    test("Renders with no errors", async () => {
         // a REAL test would need Cypress to click revisions in the top two accordian lists
         // and verify the diffs are rendering the diffs correctly
 
@@ -87,7 +87,7 @@ describe("AdminRevHistory", () => {
             expect(parentRow1).not.toBeNull();
             // key linter happy
             if (parentRow1 !== null) {
-                userEvent.click(parentRow1);
+                await userEvent.click(parentRow1);
             }
         }
 
@@ -97,7 +97,7 @@ describe("AdminRevHistory", () => {
             expect(parentRow2).not.toBeNull();
             // key linter happy
             if (parentRow2 !== null) {
-                userEvent.click(parentRow2);
+                await userEvent.click(parentRow2);
             }
         }
 

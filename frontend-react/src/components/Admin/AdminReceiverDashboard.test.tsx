@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import React, { Suspense } from "react";
 import { MemoryRouter } from "react-router-dom";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
@@ -236,7 +237,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = render(
+        const { baseElement } = renderWithBase(
             <MemoryRouter>
                 <Suspense fallback={<></>}>
                     <NetworkErrorBoundary
@@ -300,7 +301,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("ModalInfoRender", async () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
-        render(
+        renderWithBase(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />
         );
@@ -311,7 +312,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender empty", async () => {
-        render(
+        renderWithBase(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />
         );
@@ -319,7 +320,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("DateRangePickingAtomic", async () => {
-        render(
+        renderWithBase(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"

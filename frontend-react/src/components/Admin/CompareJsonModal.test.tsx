@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import {
     ConfirmSaveSettingModal,
@@ -32,7 +34,7 @@ describe("ConfirmSaveSettingModal", () => {
     }
 
     function renderComponent(props: Partial<CompareSettingsModalProps> = {}) {
-        render(<TestWrapper {...props} />);
+        renderWithBase(<TestWrapper {...props} />);
 
         textareaNode = screen.getByTestId("EditableCompare__textarea");
         saveButtonNode = screen.getByText("Save");

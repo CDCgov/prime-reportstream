@@ -1,6 +1,8 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { rest } from "msw";
 
-import { render } from "../../utils/CustomRenderUtils";
+import config from "../../config";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -72,19 +74,26 @@ jest.mock("react-router-dom", () => ({
     },
     useParams: () => {
         return {
-            orgName: "abbott",
-            senderName: "user1234",
+            orgname: "abbott",
+            receivername: "user1234",
             action: "edit",
         };
     },
 }));
 
 describe("EditReceiverSettings", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
+    beforeAll(() => {
+        settingsServer.listen();
+        settingsServer.use(
+            rest.get(
+                `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
+                (req, res, ctx) => res(ctx.json(mockData))
+            )
+        );
+    });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditReceiverSettings />);
+        renderWithBase(<EditReceiverSettings />);
     });
 
     test("should be able to edit keys field", () => {

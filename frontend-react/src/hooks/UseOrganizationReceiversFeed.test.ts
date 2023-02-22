@@ -27,6 +27,9 @@ describe("useOrganizationReceiversFeed", () => {
                 activeMembership: undefined,
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -57,6 +60,9 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: true,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -88,6 +94,9 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
             });
         });
 
@@ -116,12 +125,17 @@ describe("useOrganizationReceiversFeed", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
+        const { result, waitFor } = renderHook(
             () => useOrganizationReceiversFeed(),
-            { wrapper: QueryWrapper() }
+            {
+                wrapper: QueryWrapper(),
+            }
         );
-        await waitForNextUpdate();
+        await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",

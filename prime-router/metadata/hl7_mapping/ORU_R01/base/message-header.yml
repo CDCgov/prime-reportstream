@@ -110,5 +110,11 @@ elements:
     hl7Spec: [ MSH-11-2 ]
 
   - name: country-code
-    value: [ '%resource.sender.resolve().address.country' ]
+    value:
+      - '%resource.sender.resolve().address.country'
+      - '"USA"'
     hl7Spec: [ MSH-17 ]
+
+  - name: message-character-set
+    value: [ '"UNICODE UTF-8"' ]
+    hl7Spec: [ MSH-18 ]

@@ -2,7 +2,7 @@ import { Button } from "@trussworks/react-uswds";
 
 import { logout } from "../../utils/UserUtils";
 import config from "../../config";
-import { USLink } from "../USLink";
+import { USLinkButton } from "../USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
 
 const { IS_PREVIEW } = config;
@@ -21,12 +21,9 @@ const SignInOrUser = () => {
             </Button>
         </div>
     ) : (
-        <USLink href="/login">
-            {/* Does not need to be a NavLink, as "Login" does not present the need for activeClassName utility */}
-            <Button type="button" inverse={IS_PREVIEW}>
-                Log in {IS_PREVIEW ? "via OktaPreview" : ""}
-            </Button>
-        </USLink>
+        <USLinkButton href="/login" inverse={IS_PREVIEW}>
+            Log in {IS_PREVIEW ? "via OktaPreview" : ""}
+        </USLinkButton>
     );
 };
 

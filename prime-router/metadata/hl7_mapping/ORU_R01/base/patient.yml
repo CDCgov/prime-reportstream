@@ -115,7 +115,7 @@ elements:
 
   - name: patient-death-indicator-1
     condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
-    value: [ '"Y"']
+    value: [ '"Y"' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
   - name: patient-death-indicator-2
@@ -158,6 +158,7 @@ elements:
 
   # need to check why the value we get here is SCT instead of HL70446
   - name: patient-species-coding-system
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code.exists()'
     value: [ '"SCT"' ]
     hl7Spec: [ '%{hl7PIDField}-35-3' ]
 

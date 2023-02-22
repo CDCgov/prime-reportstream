@@ -86,6 +86,14 @@ class FhirTranscoderTests {
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
 
+        // Empty bundle
+        val emptyBundle = """
+            {"resourceType":"Bundle"}
+        """.trimIndent()
+        FhirTranscoder.getBundles(emptyBundle, actionLogger)
+        assertThat(actionLogger.hasErrors()).isTrue()
+        actionLogger.logs.clear()
+
         // Some CSV was sent
         val badData2 = """
             a,b,c

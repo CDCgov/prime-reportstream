@@ -1,13 +1,15 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
+import { renderWithBase } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
+import { conditionallySuppressConsole } from "../utils/TestUtils";
 
 import { withCatch } from "./RSErrorBoundary";
 
 // Dummy components for testing
 const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
-    if (error) throw new RSNetworkError(new AxiosError(""));
+    if (error) throw new RSNetworkError(new AxiosError("mock"));
     return <></>;
 };
 const ThrowsGenericError = ({
@@ -15,7 +17,7 @@ const ThrowsGenericError = ({
 }: {
     error: boolean;
 }): JSX.Element => {
-    if (error) throw Error("");
+    if (error) throw Error("mock");
     return <></>;
 };
 const ThrowsNoError = (): JSX.Element => <div>Success!</div>;
@@ -26,31 +28,39 @@ const ThrowsGenericErrorWrapped = () =>
     withCatch(<ThrowsGenericError error={true} />);
 const ThrowsNoErrorWrapped = () => withCatch(<ThrowsNoError />);
 
-// Silences console.error and console.log of error stack
-jest.spyOn(global.console, "error");
-jest.spyOn(global.console, "log");
-
 describe("RSErrorBoundary", () => {
     test("Catches RSError", () => {
-        render(<ThrowsRSErrorWrapped />);
+        const restore = conditionallySuppressConsole(
+            "unknown-error",
+            "The above error occurred in the <ThrowsRSError> component:"
+        );
+        renderWithBase(<ThrowsRSErrorWrapped />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
             )
         ).toBeInTheDocument();
+        restore();
     });
 
     test("Catches legacy errors", () => {
-        render(<ThrowsGenericErrorWrapped />);
+        const restore = conditionallySuppressConsole(
+            "Please work to migrate all non RSError throws to use an RSError object.",
+            "Error: mock",
+            "The above error occurred in the <ThrowsGenericError> component:",
+            "unknown-error"
+        );
+        renderWithBase(<ThrowsGenericErrorWrapped />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
             )
         ).toBeInTheDocument();
+        restore();
     });
 
     test("Renders component when no error", () => {
-        render(<ThrowsNoErrorWrapped />);
+        renderWithBase(<ThrowsNoErrorWrapped />);
         expect(screen.getByText("Success!")).toBeInTheDocument();
     });
 });

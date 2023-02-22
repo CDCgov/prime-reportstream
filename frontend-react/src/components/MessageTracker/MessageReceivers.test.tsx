@@ -1,4 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { MessageReceivers } from "./MessageReceivers";
 
@@ -50,7 +52,9 @@ describe("MessageReceivers component", () => {
                 ],
             },
         ];
-        render(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
+        renderWithBase(
+            <MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />
+        );
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
         expect(screen.getByText(/Receiver Name/)).toBeInTheDocument();
