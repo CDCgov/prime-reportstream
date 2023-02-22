@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { HelmetProvider } from "react-helmet-async";
 
-import SessionProvider, { OktaHook } from "../contexts/SessionContext";
+import SessionProvider from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
@@ -21,14 +21,12 @@ const AppInsightsProvider = (props: PropsWithChildren<{}>) => (
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
     restoreOriginalUri: (_oktaAuth: any, originalUri: string) => void;
-    oktaHook: OktaHook;
 }
 
 export const AppWrapper = ({
     children,
     oktaAuth,
     restoreOriginalUri,
-    oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
     return (
         <HelmetProvider>
@@ -37,7 +35,7 @@ export const AppWrapper = ({
                 restoreOriginalUri={restoreOriginalUri}
             >
                 <AppInsightsProvider>
-                    <SessionProvider oktaHook={oktaHook}>
+                    <SessionProvider>
                         <QueryClientProvider client={appQueryClient}>
                             <AuthorizedFetchProvider>
                                 <FeatureFlagProvider>
