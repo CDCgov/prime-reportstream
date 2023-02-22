@@ -122,8 +122,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
                     logger.info("Message successfully sent!")
-                    actionHistory.trackActionResult(msg)
-                    actionHistory.action.httpStatus = response.status.value
+                    actionHistory.trackActionResult(response.status, msg)
                     actionHistory.trackSentReport(
                         receiver,
                         sentReportId,
@@ -158,9 +157,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
                         )
                     }
-                    actionHistory.action.httpStatus = t.response.status.value
                     actionHistory.setActionType(TaskAction.send_error)
-                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackActionResult(t.response.status, msg)
                     null
                 }
                 is ServerResponseException -> {
@@ -175,9 +173,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                                 " This may be recoverable. Will retry."
                         )
                     }
-                    actionHistory.action.httpStatus = t.response.status.value
                     actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackActionResult(t.response.status, msg)
                     RetryToken.allItems
                 }
                 else -> {
