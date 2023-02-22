@@ -30,8 +30,7 @@ interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
     activeColumn: string;
     activeColumnSortOrder: string;
-    setModalText: ({ title, body }: { title: string; body: string }) => void;
-    modalRef: React.RefObject<ModalRef>;
+    handleCellClick: (title: string, body: string) => void;
 }
 
 interface MessageReceiversColProps {
@@ -144,8 +143,7 @@ const MessageReceiversRow = ({
     receiver,
     activeColumn,
     activeColumnSortOrder,
-    setModalText,
-    modalRef,
+    handleCellClick,
 }: MessageReceiversRowProps) => {
     // We highlight the entire active column so within the row,
     // we need to know which column is active
@@ -174,11 +172,7 @@ const MessageReceiversRow = ({
                     ColumnDataEnum.ReportId
                 )}`}
                 onClick={() => {
-                    setModalText({
-                        title: `${ColumnDataEnum.ReportId}:`,
-                        body: receiver.ReportId,
-                    });
-                    modalRef?.current?.toggleModal();
+                    handleCellClick(ColumnDataEnum.ReportId, receiver.ReportId);
                 }}
             >
                 {receiver.ReportId}
@@ -206,11 +200,7 @@ const MessageReceiversRow = ({
                     ColumnDataEnum.FileName
                 )}`}
                 onClick={() => {
-                    setModalText({
-                        title: `${ColumnDataEnum.FileName}:`,
-                        body: receiver.FileName,
-                    });
-                    modalRef?.current?.toggleModal();
+                    handleCellClick(ColumnDataEnum.FileName, receiver.FileName);
                 }}
             >
                 {receiver.FileName}
@@ -221,11 +211,10 @@ const MessageReceiversRow = ({
                     ColumnDataEnum.TransportResults
                 )}`}
                 onClick={() => {
-                    setModalText({
-                        title: `${ColumnDataEnum.TransportResults}:`,
-                        body: receiver.TransportResults,
-                    });
-                    modalRef?.current?.toggleModal();
+                    handleCellClick(
+                        ColumnDataEnum.TransportResults,
+                        receiver.TransportResults
+                    );
                 }}
             >
                 {receiver.TransportResults}
@@ -382,6 +371,10 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 : normalizedData,
         [activeColumn, activeColumnSortOrder, normalizedData]
     );
+    function handleCellClick(title: string, body: string) {
+        setModalText({ title: `${title}:`, body });
+        modalRef?.current?.toggleModal();
+    }
     return (
         <>
             <h2>Receivers:</h2>
@@ -492,8 +485,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                     activeColumnSortOrder={
                                         activeColumnSortOrder
                                     }
-                                    setModalText={setModalText}
-                                    modalRef={modalRef}
+                                    handleCellClick={handleCellClick}
                                 />
                             )
                         )}
