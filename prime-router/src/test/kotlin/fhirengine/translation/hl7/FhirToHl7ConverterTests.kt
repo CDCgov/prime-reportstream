@@ -113,21 +113,21 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema)
 
         var element = ConverterSchemaElement("name")
-        var focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        var focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(bundle)
 
         element = ConverterSchemaElement("name", resource = "Bundle.entry.resource.ofType(MessageHeader)")
-        focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(resource)
 
         element = ConverterSchemaElement("name", resource = "Bundle.entry.resource.ofType(Patient)")
-        focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isEmpty()
 
         element = ConverterSchemaElement("name", resource = "1")
-        focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0].isPrimitive).isTrue()
         assertThat(focusResources[0].primitiveValue()).isEqualTo("1")
@@ -136,7 +136,7 @@ class FhirToHl7ConverterTests {
             "name",
             resource = "Bundle.entry.resource.ofType(MessageHeader).destination[0].name"
         )
-        focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0].isEmpty).isFalse()
 
@@ -146,11 +146,11 @@ class FhirToHl7ConverterTests {
             resource = "Bundle.entry.resource.ofType(MessageHeader).destination",
             value = listOf("%resource.name")
         )
-        focusResources = converter.getFocusResources(element, bundle, bundle, customContext)
+        focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources.size).isEqualTo(1)
         assertThat(focusResources).isEqualTo(resource.destination)
-        assertThat(converter.getValue(element, bundle, focusResources[0], customContext))
+        assertThat(converter.getValueAsString(element, bundle, focusResources[0], customContext))
             .isEqualTo(resource.destination[0].name)
     }
 
@@ -163,13 +163,13 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema)
 
         var element = ConverterSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(bundle.id)
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo(bundle.id)
 
         element = ConverterSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.id"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(bundle.id)
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo(bundle.id)
 
         element = ConverterSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.timestamp"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEmpty()
     }
 
     @Test
@@ -186,22 +186,22 @@ class FhirToHl7ConverterTests {
         )
 
         var element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("S")
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo("S")
 
         bundle.id = "grompfle"
         element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo("G")
 
         bundle.id = "GRompfle" // verify case insensitivity
         element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("G")
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo("G")
 
         bundle.id = "unmapped"
         element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo("unmapped")
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo("unmapped")
 
         element = ConverterSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEmpty()
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEmpty()
     }
 
     @Test
