@@ -90,7 +90,7 @@ abstract class ReportFileFunction(
                 )
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
-            if (!reportFileFacade.checkAccessAuthorization(claims, userOrgName, null, request)) {
+            if (!reportFileFacade.checkAccessAuthorizationForOrg(claims, userOrgName, null, request)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
@@ -168,7 +168,7 @@ abstract class ReportFileFunction(
             HttpUtilities.notFoundResponse(request, "$id is not a valid report")
         }
         // todo bug:  we need to find the report_file id's receiving_org, and send it here.
-        else if (!reportFileFacade.checkAccessAuthorization(claims, action.sendingOrg, null, request)) {
+        else if (!reportFileFacade.checkAccessAuthorizationForAction(claims, action, request)) {
             logger.warn(
                 "Invalid Authorization for user ${claims.userName}:" +
                     " ${request.httpMethod}:${request.uri.path}"

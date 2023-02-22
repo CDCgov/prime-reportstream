@@ -8,7 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
-import { testQueryClient } from "../network/QueryClients";
+import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 
 import { mockToken } from "./TestUtils";
@@ -48,22 +48,18 @@ const RouterWrapper: FC = ({ children }) => {
     );
 };
 
-export const SessionWrapper =
-    (mockOkta: OktaHook) =>
-    ({ children }: PropsWithChildren<{}>) => {
-        return (
-            <BaseWrapper>
-                <RouterWrapper>
-                    <SessionProvider oktaHook={mockOkta}>
-                        {children}
-                    </SessionProvider>
-                </RouterWrapper>
-            </BaseWrapper>
-        );
-    };
+export const SessionWrapper = ({ children }: PropsWithChildren<{}>) => {
+    return (
+        <BaseWrapper>
+            <RouterWrapper>
+                <SessionProvider>{children}</SessionProvider>
+            </RouterWrapper>
+        </BaseWrapper>
+    );
+};
 
 export const QueryWrapper =
-    (client: QueryClient = new QueryClient()) =>
+    (client: QueryClient = getTestQueryClient()) =>
     ({ children }: PropsWithChildren<{}>) =>
         (
             <BaseWrapper>
@@ -86,25 +82,23 @@ const FeatureFlagWrapper: FC = ({ children }) => {
     );
 };
 
-const AppWrapper =
-    (mockOkta: OktaHook) =>
-    ({ children }: PropsWithChildren<{}>) => {
-        return (
-            <BaseWrapper>
-                <RouterWrapper>
-                    <SessionProvider oktaHook={mockOkta}>
-                        <QueryClientProvider client={testQueryClient}>
-                            <AuthorizedFetchProvider>
-                                <FeatureFlagProvider>
-                                    {children}
-                                </FeatureFlagProvider>
-                            </AuthorizedFetchProvider>
-                        </QueryClientProvider>
-                    </SessionProvider>
-                </RouterWrapper>
-            </BaseWrapper>
-        );
-    };
+const AppWrapper = ({ children }: PropsWithChildren<{}>) => {
+    return (
+        <BaseWrapper>
+            <RouterWrapper>
+                <SessionProvider>
+                    <QueryClientProvider client={getTestQueryClient()}>
+                        <AuthorizedFetchProvider>
+                            <FeatureFlagProvider>
+                                {children}
+                            </FeatureFlagProvider>
+                        </AuthorizedFetchProvider>
+                    </QueryClientProvider>
+                </SessionProvider>
+            </RouterWrapper>
+        </BaseWrapper>
+    );
+};
 
 export const renderWithBase = (
     ui: ReactElement,
@@ -122,11 +116,10 @@ const renderWithRouter = (
 
 const renderWithSession = (
     ui: ReactElement,
-    oktaHook?: OktaHook,
     options?: Omit<RenderOptions, "wrapper">
 ) =>
     render(ui, {
-        wrapper: SessionWrapper(oktaHook || makeOktaHook()),
+        wrapper: SessionWrapper,
         ...options,
     });
 
@@ -151,7 +144,7 @@ export const renderWithFullAppContext = (
     options?: Omit<RenderOptions, "wrapper">
 ) => {
     return render(ui, {
-        wrapper: AppWrapper(oktaHook || makeOktaHook()),
+        wrapper: AppWrapper,
         ...options,
     });
 };

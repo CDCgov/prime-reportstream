@@ -1,7 +1,7 @@
 import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../components/USLink";
 
 import site from "./../content/site.json";
@@ -11,7 +11,9 @@ export const About = () => {
     return (
         <>
             <div className="grid-container rs-documentation usa-prose desktop:margin-top-6">
-                <BasicHelmet pageTitle="About" />
+                <Helmet>
+                    <title>About</title>
+                </Helmet>
                 <h1 id="anchor-top">About</h1>
                 <h2>
                     ReportStream is an open source, cloud based platform that
