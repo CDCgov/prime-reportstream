@@ -6,8 +6,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.Fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.convertFhirType
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
@@ -65,13 +65,12 @@ class FhirTransformer(
      * @return the HL7 message
      */
     fun transform(bundle: Bundle): Bundle {
-        var transformedBundle = bundle.copy()
         val dupes = schemaRef.duplicateElements
         if (dupes.isNotEmpty()) { // value is the number of matches
             throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
         }
-        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle, transformedBundle = transformedBundle)
-        return transformedBundle
+        transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
+        return bundle
     }
 
     /**
@@ -82,7 +81,6 @@ class FhirTransformer(
         schema: FhirTransformSchema,
         bundle: Bundle,
         focusResource: Base,
-        transformedBundle: Bundle,
         context: CustomContext = CustomContext(bundle, focusResource),
         debug: Boolean = false
     ) {
@@ -93,7 +91,7 @@ class FhirTransformer(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            transformBasedOnElement(element, bundle, focusResource, transformedBundle, schemaContext, debug)
+            transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
         }
     }
 
@@ -105,7 +103,6 @@ class FhirTransformer(
         element: FHIRTransformSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        transformedBundle: Bundle,
         context: CustomContext,
         debug: Boolean = false
     ) {
@@ -141,7 +138,6 @@ class FhirTransformer(
                             element.schemaRef!! as FhirTransformSchema,
                             bundle,
                             singleFocusResource,
-                            transformedBundle,
                             indexContext,
                             element.debug || debug
                         )
@@ -155,8 +151,8 @@ class FhirTransformer(
                                 element.bundleProperty,
                                 value,
                                 context,
-                                transformedBundle,
-                                element.resource
+                                bundle,
+                                singleFocusResource
                             )
                         }
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
@@ -219,7 +215,7 @@ class FhirTransformer(
     }
 
     /**
-     * Determine the focus resource for an [element] using [bundle] and the [previousFocusResource].
+     * Determine the focus resource from [resourceStr] using [bundle] and the [previousFocusResource].
      * @return a list of focus resources containing at least one resource.  Multiple resources are returned for collections
      */
     internal fun getFocusResources(
@@ -240,7 +236,8 @@ class FhirTransformer(
     }
 
     /**
-     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle] and [focusResource] * to evaluate the condition expression.
+     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle] and [focusResource]
+     * to evaluate the condition expression.
      * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
      */
     internal fun canEvaluate(
@@ -263,27 +260,16 @@ class FhirTransformer(
     }
 
     /**
-     * Set the [value] an [element]'s bundleProperty.
+     * Set the [value] on [bundleProperty] using [bundle] as the root resource and [focusResource] as the focus resource
      */
     internal fun setBundleProperty(
         bundleProperty: String?,
         value: Base,
         context: CustomContext,
         bundle: Bundle,
-        resource: String?
+        focusResource: Base
     ) {
         if (bundleProperty == null) return
-
-        val focusResource = if (resource != null) {
-            var focusResources = getFocusResources(resource, bundle, bundle, context)
-            if (focusResources.isNotEmpty()) {
-                focusResources[0]
-            } else {
-                bundle
-            }
-        } else {
-            bundle
-        }
 
         val pathParts = bundleProperty.split(".")
         // We start one level down as we use the addChild function to set the value at the end
@@ -318,72 +304,9 @@ class FhirTransformer(
         }
         // Finally set the value
         val property = childResource.getNamedProperty(pathParts.last())
-        var sourceType = property.typeCode
-        var targetType = value.fhirType()
-
-        val newValue = convertFhirType(value, sourceType, targetType)
-
+        val newValue = FhirBundleUtils.convertFhirType(value, property.typeCode, value.fhirType())
         childResource.setProperty(pathParts.last(), newValue)
-
-//        val path = bundleProperty.substringBeforeLast(".", "")
-//        val field = bundleProperty.substringAfterLast(".")
-//        val propertiesToUpdate = getFocusResources(path, bundle, focusResource, context)
-//        if (propertiesToUpdate.isEmpty()) {
-//            // TODO: Create missing properties
-//        }
-//        propertiesToUpdate.forEach {
-//            val property = it.getNamedProperty(field)
-//            var sourceType = property.typeCode
-//            var targetType = value.fhirType()
-//
-//            val newValue = convertFhirType(value, sourceType, targetType)
-//
-//            it.setProperty(field, newValue)
-//        }
-
-        println(bundle)
     }
-}
-
-fun setValue(bundle: Bundle, path: String, value: Base) {
-    val pathParts = path.split(".")
-    // We start one level down as we use the addChild function to set the value at the end
-    var pathToEvaluate = path.dropLast(pathParts.last().length + 1)
-    val childrenNames = pathParts.dropLast(1).reversed()
-    val missingChildren = mutableListOf<String>()
-    childrenNames.forEach { childName ->
-        if (FhirPathUtils.evaluate(
-                CustomContext(bundle, bundle), bundle, bundle,
-                pathToEvaluate
-            ).isEmpty()
-        ) {
-            pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
-            missingChildren.add(childName)
-        } else return@forEach
-    }
-    println("Missing $missingChildren children. Stopped at: $pathToEvaluate")
-    check(missingChildren.last() != "entry") // We do not need to support entries
-    // Now go on reverse and create the needed children
-    val parent = FhirPathUtils.evaluate(
-        CustomContext(bundle, bundle), bundle, bundle,
-        pathToEvaluate
-    )
-    if (parent.size != 1) throw Exception()
-    var childResource = parent[0]
-    missingChildren.reversed().forEach { childName ->
-        when {
-            childName.startsWith("extension(") -> {
-                val matchResult = extensionRegex.find(childName)
-                if (matchResult != null) {
-                    childResource = childResource.addChild("extension")
-                    (childResource as Extension).url = matchResult.groupValues[0]
-                }
-            }
-            else -> childResource = childResource.addChild(childName)
-        }
-    }
-    // Finally set the value
-    childResource.setProperty(pathParts.last(), value)
 }
 
 private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()

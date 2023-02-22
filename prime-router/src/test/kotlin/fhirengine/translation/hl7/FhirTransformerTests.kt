@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertThat
 import assertk.assertions.hasClass
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
@@ -41,8 +42,9 @@ class FhirTransformerTests {
         // nobody sharing the same name
         assertThat(FhirTransformer(rootSchema).transform(bundle).isEmpty).isFalse()
 
-        var newBundle = FhirTransformer(rootSchema).transform(bundle)
+        val newBundle = FhirTransformer(rootSchema).transform(bundle)
         assertThat(newBundle.id).isEqualTo("654321")
+        assertThat(bundle.id).isEqualTo("654321")
 
         // B/C sharing the same name
         elemC.name = "elementB"
@@ -71,14 +73,14 @@ class FhirTransformerTests {
 
         val elemA = FHIRTransformSchemaElement(
             "elementA",
-            value = listOf("'Somefirstname Somelastname'"),
+            value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
             bundleProperty = "%resource.contact.name.text"
         )
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        var newBundle = FhirTransformer(schema).transform(bundle)
+        val newBundle = FhirTransformer(schema).transform(bundle)
         var newValue =
             FhirPathUtils.evaluate(
                 CustomContext(newBundle, newBundle),
@@ -86,6 +88,176 @@ class FhirTransformerTests {
                 newBundle,
                 "Bundle.entry.resource.ofType(Patient).contact.name.text"
             )
-        assertThat(newValue[0].primitiveValue()).isEqualTo("Somefirstname Somelastname")
+        assertThat(newValue[0].primitiveValue()).isEqualTo("First Last")
+
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
+                "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("First Last")
+    }
+
+    @Test
+    fun `test transform with condition`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("'First Last'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            condition = "%resource.id = '654fed'",
+            bundleProperty = "%resource.contact.name.text"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+        var newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue).isEmpty()
+
+        resource.id = "654fed"
+        FhirTransformer(schema).transform(bundle)
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("First Last")
+    }
+
+    @Test
+    fun `test multi-step transform with condition`() {
+        val origBundle = Bundle()
+        origBundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        origBundle.addEntry().resource = resource
+
+        // Resource doesn't exist, so make sure bundle isn't updated
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("'First Last'"),
+            resource = "Bundle.entry.resource.ofType(Patient).contact",
+            bundleProperty = "%resource.name.text"
+        )
+        val schemaA = FhirTransformSchema(elements = mutableListOf(elemA))
+        var bundle = origBundle.copy()
+        FhirTransformer(schemaA).transform(bundle)
+        var newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue).isEmpty()
+
+        // Resource does exist, make sure bundle is updated with Patient.contact
+        val elemB = FHIRTransformSchemaElement(
+            "elementB",
+            value = listOf("'other'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.contact.gender"
+        )
+        val schemaB = FhirTransformSchema(elements = mutableListOf(elemB))
+        bundle = origBundle.copy()
+        FhirTransformer(schemaB).transform(bundle)
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.gender"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("other")
+
+        // In original order, same result
+        val schemaC = FhirTransformSchema(elements = mutableListOf(elemA, elemB))
+        bundle = origBundle.copy()
+        FhirTransformer(schemaC).transform(bundle)
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue).isEmpty()
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.gender"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("other")
+
+        // In backwards order, both updates occur
+        val schemaD = FhirTransformSchema(elements = mutableListOf(elemB, elemA))
+        bundle = origBundle.copy()
+        FhirTransformer(schemaD).transform(bundle)
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("First Last")
+        newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle), bundle, bundle, "Bundle.entry.resource.ofType(Patient).contact.gender"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("other")
+    }
+
+    @Test
+    fun `test transform boolean property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("true"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.active"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        val newBundle = FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(newBundle, newBundle),
+                newBundle,
+                newBundle,
+                "Bundle.entry.resource.ofType(Patient).active"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("true")
+    }
+
+    @Test
+    fun `test transform with multiple values`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("Bundle.entry.resource.ofType(Patient).contact.name", "%resource.contact.name", "Bundle.id"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.contact.name.text"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        val newBundle = FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(newBundle, newBundle),
+                newBundle,
+                newBundle,
+                "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("abc123")
     }
 }
