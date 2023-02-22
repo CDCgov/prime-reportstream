@@ -44,7 +44,10 @@ hr {
   
   .usa-table td.message-receiver-break-word {
     cursor: pointer;
-    word-break: break-word;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .usa-table td {
