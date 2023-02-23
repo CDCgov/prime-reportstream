@@ -10,11 +10,16 @@ interface ReceiverFeeds {
     services: RSReceiver[];
     activeService: RSReceiver | undefined;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    isDisabled: boolean;
 }
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
 export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
-    const { data: receivers, isLoading } = useOrganizationReceivers();
+    const {
+        data: receivers,
+        isLoading,
+        fetchStatus,
+    } = useOrganizationReceivers();
     const [active, setActive] = useState<RSReceiver | undefined>();
 
     useEffect(() => {
@@ -29,9 +34,10 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
     }, [receivers]);
 
     return {
-        loadingServices: isLoading,
+        loadingServices: isLoading && fetchStatus !== "idle",
         services: receivers || [],
         activeService: active,
         setActiveService: setActive,
+        isDisabled: isLoading && fetchStatus === "idle",
     };
 };

@@ -134,156 +134,6 @@ class RoutingTests {
     }
 
     @Test
-    fun `test replaceShorthand with simple string including fhir resource`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%resource.%patient")
-
-        // assert
-        assertThat(result).isEqualTo("%resource.Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string in quotes`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%'patient'")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string in backticks`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%`patient`")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with two variable string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient or %messageId")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(MessageHeader).id"
-        )
-    }
-
-    @Test
-    fun `test replaceShorthand with dashed string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test-dash")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.dash")
-    }
-
-    @Test
-    fun `test replaceShorthand with underscored string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test_underscore")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.underscore")
-    }
-
-    @Test
-    fun `test replaceShorthand with apostrophe string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test'apostrophe")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.apostrophe")
-    }
-
-    @Test
-    fun `test replaceShorthand with multi parts string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient.name.first")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient).name.first")
-    }
-
-    @Test
-    fun `test replaceShorthand with multi part while in middle`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("myVariable.%patient.name.first")
-
-        // assert
-        assertThat(result).isEqualTo("myVariable.Bundle.entry.resource.ofType(Patient).name.first")
-    }
-
-    @Test
-    fun `test replaceShorthand with similar strings, order 1`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient or %patientState")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(Patient).address.state"
-        )
-    }
-
-    @Test
-    fun `test replaceShorthand with similar strings, order 2`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patientState or %patient")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient).address.state or Bundle.entry.resource.ofType(Patient)"
-        )
-    }
-
-    @Test
     fun `test applyFilters receiver setting - (reverseTheQualityFilter = true) `() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
@@ -611,6 +461,52 @@ class RoutingTests {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
+            queueMock.sendMessage(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any())
+        }
+    }
+
+    @Test
+    fun `test bundle with no receivers is not routed to translate function`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        every { engine.applyFilters(any(), any()) } returns emptyList()
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackCreatedReport(any(), any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any())
+        }
+        verify(exactly = 0) {
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any())

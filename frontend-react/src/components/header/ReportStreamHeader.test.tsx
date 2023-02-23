@@ -58,6 +58,9 @@ describe("ReportStreamHeader", () => {
             isAdminStrictCheck: true,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         } as RSSessionContext);
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
@@ -92,6 +95,9 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         renderWithSession(<ReportStreamHeader />);
         expect(
@@ -127,6 +133,9 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();

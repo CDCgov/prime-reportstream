@@ -25,14 +25,15 @@ const val MESSAGE_ID_PARAMETER = "messageId"
 
 /**
  * Azure Functions with HTTP Trigger.
- * Search and retrieve messages
+ * Search and retrieve messages. In this case, "messages" means data related to
+ * specific records in the `covid_result_metadata` table
  */
 class MessagesFunctions(
     private val dbAccess: DatabaseAccess = DatabaseAccess()
 ) : Logging {
     /**
-     * entry point for the /messages/search endpoint,
-     * which searches for a given messageId in the database
+     * entry point for the /messages endpoint,
+     * which searches for a given message_id in the covid_result_metadata table
      */
     @FunctionName("messageSearch")
     @StorageAccount("AzureWebJobsStorage")
@@ -41,7 +42,7 @@ class MessagesFunctions(
             name = "messageSearch",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "messages/search"
+            route = "messages"
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         return try {
@@ -65,9 +66,9 @@ class MessagesFunctions(
     }
 
     /**
-     * Handles an incoming message search request.
-     * @param request The incoming request
-     * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
+     * Handles an incoming message search request
+     * @param request The HTTP request to return a response for
+     * @return Returns a HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processSearchRequest(
         request: HttpRequestMessage<String?>
@@ -114,8 +115,8 @@ class MessagesFunctions(
     }
 
     /**
-     * entry point for the /message/{id} endpoint,
-     * which searches for a given id of a metadata result in the database
+     * Entry point for the /message/{id} endpoint,
+     * which searches for a given record matching the `covid_results_metadata_id` PK in `covid_result_metadata` table
      */
     @FunctionName("messageDetails")
     @StorageAccount("AzureWebJobsStorage")
@@ -149,9 +150,14 @@ class MessagesFunctions(
     }
 
     /**
-     * Handles an incoming id to retrieve message details request.
-     * @param id to search by
-     * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
+     * Handles an incoming `covid_results_metadata_id` id to retrieve message details related to the
+     * matching record in the `covid_result_metadata` table
+     * Using the report_id of the matching `covid_result_metadata` record, combines metadata from `report_file`
+     * and `action_log` tables to return information related to the message
+     * @param request The HTTP request to return a response for
+     * @param id The `covid_result_metadata` PK to search by
+     * @return Returns an HttpResponseMessage indicating the result of the operation. If successful, response contains
+     *  a `Message` object containing the message details
      */
     internal fun processMessageDetailRequest(
         request: HttpRequestMessage<String?>,

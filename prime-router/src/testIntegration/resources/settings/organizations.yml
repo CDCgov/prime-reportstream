@@ -44,6 +44,9 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
         suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
         replaceValueAwithB:
+          FHS-3: [ "*": "CDC TESTING SENDING APP^12345^ISO"]
+          FHS-5: [ "*": "CDC TESTING RECEIVING APP^12345^ISO"]
+          FHS-6: [ "*": "CDC TESTING RECEIVING FACILITY"]
           MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
           MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
           MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]

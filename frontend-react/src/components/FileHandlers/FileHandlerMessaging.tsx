@@ -5,13 +5,13 @@ import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { StaticAlert } from "../StaticAlert";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import {
-    ResponseError,
     ErrorCodeTranslation,
+    ResponseError,
 } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink, USLink } from "../USLink";
+import { USLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -38,11 +38,13 @@ export const FileSuccessDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"success slim"}
+                type={[StaticAlertType.Success, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />
             <div>
+                {/* TODO: can probably remove since it's not being used now */}
+
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -118,7 +120,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -126,10 +127,12 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
-        () => (title === RequestLevel.WARNING ? "warning" : "error"),
+        () =>
+            title === RequestLevel.WARNING
+                ? StaticAlertType.Warning
+                : StaticAlertType.Error,
         [title]
     );
     const showTable =
@@ -140,10 +143,10 @@ export const RequestedChangesDisplay = ({
     useEffect(() => {
         data.forEach((error: ResponseError) => {
             if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
+                console.error(`failure: ${error.details}`);
             }
         });
-    }, [data, handlerType, title]);
+    }, [data, title]);
 
     return (
         <>
@@ -159,9 +162,9 @@ export const RequestedChangesDisplay = ({
                         </USLink>
                     </li>
                     <li>
-                        <USExtLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
+                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </USExtLink>
+                        </USLink>
                     </li>
                 </ul>
             </StaticAlert>
@@ -208,7 +211,13 @@ interface FileWarningBannerProps {
 }
 
 export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+    return (
+        <StaticAlert
+            type={StaticAlertType.Warning}
+            heading="Warning"
+            message={message}
+        />
+    );
 };
 
 interface ErrorRowProps {
@@ -251,7 +260,7 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"error slim"}
+                type={[StaticAlertType.Error, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />

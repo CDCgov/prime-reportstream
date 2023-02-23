@@ -1,7 +1,10 @@
 import { useCallback, useMemo } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
+import {
+    Organizations,
+    useAdminSafeOrganizationName,
+} from "../../UseAdminSafeOrganizationName";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import {
     deliveriesEndpoints,
@@ -65,6 +68,11 @@ const useOrgDeliveries = (service?: string) => {
 
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
+            // HACK: return empty results if requesting as an admin
+            if (activeMembership?.parsedName === Organizations.PRIMEADMINS) {
+                return Promise.resolve<RSDelivery[]>([]);
+            }
+
             const fetcher = generateFetcher();
             return fetcher(getOrgDeliveries, {
                 segments: {
@@ -79,7 +87,14 @@ const useOrgDeliveries = (service?: string) => {
                 },
             }) as unknown as Promise<RSDelivery[]>;
         },
-        [orgAndService, sortOrder, generateFetcher, rangeFrom, rangeTo]
+        [
+            orgAndService,
+            sortOrder,
+            generateFetcher,
+            rangeFrom,
+            rangeTo,
+            activeMembership?.parsedName,
+        ]
     );
 
     return { fetchResults, filterManager };

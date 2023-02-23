@@ -96,6 +96,7 @@ NTE|1|L|This is a final comment|RE
 
     private fun createConfig(
         replaceValue: Map<String, String> = emptyMap(),
+        replaceValueAwithB: Map<String, Any> = emptyMap(),
         cliaForSender: Map<String, String> = emptyMap(),
         cliaForOutOfStateTesting: String? = null,
         truncateHl7Fields: String? = null,
@@ -115,6 +116,7 @@ NTE|1|L|This is a final comment|RE
             cliaForOutOfStateTesting = cliaForOutOfStateTesting,
             cliaForSender = cliaForSender,
             replaceValue = replaceValue,
+            replaceValueAwithB = replaceValueAwithB,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
@@ -150,6 +152,75 @@ NTE|1|L|This is a final comment|RE
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 2)
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test createHeader with no replaceValueAwithB batch`() {
+        val outputStream = ByteArrayOutputStream()
+
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = createConfig(
+            replaceValue = mapOf("" to "", "" to ""),
+        )
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        serializer.writeBatch(testReport, outputStream)
+        val output = outputStream.toString(StandardCharsets.UTF_8)
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|||||"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "BHS|^~\\&|||||"
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `test createHeader withreplaceValueAwithB batch`() {
+        val outputStream = ByteArrayOutputStream()
+
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val replaceFHSSendingApp = arrayListOf(mapOf("*" to "New Sendign App^2.16.840.1.114222.4.1.237821^ISO"))
+        val replaceFHSReceivingApp = arrayListOf(mapOf("*" to "New Receiving Application^1234^ISO"))
+        val replaceFHSReceivingFacility = arrayListOf(mapOf("*" to "New Receiving Facility"))
+
+        val replaceValueAwithBMap: Map<String, Any>? = mapOf(
+            "FHS-3" to replaceFHSSendingApp,
+            "FHS-5" to replaceFHSReceivingApp,
+            "FHS-6" to replaceFHSReceivingFacility,
+        )
+        val hl7Config = createConfig(
+            replaceValueAwithB = replaceValueAwithBMap!!
+        )
+        val receiver = Receiver("mock", "ca-phd", Topic.COVID_19, translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        serializer.writeBatch(testReport, outputStream)
+        val output = outputStream.toString(StandardCharsets.UTF_8)
+        assertThat(
+            output.contains(
+                "FHS|^~\\&|New Sendign App^2.16.840.1.114222.4.1.237821^ISO|"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "|New Receiving Application^1234^ISO|"
+            )
+        ).isTrue()
+
+        assertThat(
+            output.contains(
+                "|New Receiving Facility|"
+            )
+        ).isTrue()
     }
 
     @Test
@@ -366,6 +437,23 @@ NTE|1|L|This is a final comment|RE
 
         // Execute primeCLI command.  Note, upon success, it will generate the HL7 output file in $testOutputFile
         main(args)
+
+        val messageWithHeader = File(testOutputFile).readLines().joinToString("\r")
+        assertThat(
+            messageWithHeader.contains(
+                "FHS|^~\\&|CDC TESTING SENDING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING APP^12345^ISO|"
+            )
+        ).isTrue()
+        assertThat(
+            messageWithHeader.contains(
+                "|CDC TESTING RECEIVING FACILITY|"
+            )
+        ).isTrue()
 
         val message = File(testOutputFile).readLines().drop(2).joinToString("\r")
         val mcf = CanonicalModelClassFactory("2.5.1")

@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
@@ -91,7 +90,7 @@ class ConstantSubstitutor {
  * Custom resolver for the FHIR path engine.
  */
 class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): Base? {
+    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base>? {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
@@ -135,14 +134,16 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
                 null
-            } else if (values.size != 1) {
-                throw SchemaException("Constant $name must resolve to one value, but had ${values.size}.")
             } else {
-                logger.trace("Evaluated FHIR Path constant $name to: ${values[0]}")
+                logger.trace("Evaluated FHIR Path constant $name to: $values")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
-                if (values[0] is StringType && StringUtils.isNumeric(values[0].primitiveValue())) {
-                    IntegerType(values[0].primitiveValue())
-                } else values[0]
+                values.map {
+                    if (it is StringType && StringUtils.isNumeric(it.primitiveValue())) {
+                        IntegerType(it.primitiveValue())
+                    } else {
+                        it
+                    }
+                }
             }
         }
     }

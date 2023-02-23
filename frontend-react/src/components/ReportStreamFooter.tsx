@@ -53,6 +53,11 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
+                    <IdentifierLink href="https://www.cdc.gov/Other/disclaimer.html#exit-notification">
+                        External Links
+                    </IdentifierLink>
+                </IdentifierLinkItem>
+                <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/od/foia">
                         FOIA requests
                     </IdentifierLink>
@@ -63,7 +68,10 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="https://oig.hhs.gov/">
+                    <IdentifierLink
+                        href="https://oig.hhs.gov/"
+                        className="usa-link--external"
+                    >
                         Office of the Inspector General
                     </IdentifierLink>
                 </IdentifierLinkItem>
@@ -73,13 +81,16 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">
-                        Vulnerability disclosure policy
+                    <IdentifierLink href="/terms-of-service">
+                        Terms of service
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="/terms-of-service">
-                        Terms of service
+                    <IdentifierLink
+                        href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html"
+                        className="usa-link--external"
+                    >
+                        Vulnerability disclosure policy
                     </IdentifierLink>
                 </IdentifierLinkItem>
             </IdentifierLinks>

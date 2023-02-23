@@ -49,7 +49,7 @@ export interface MessageListResource {
 
 export const messageTrackerEndpoints: RSApiEndpoints = {
     search: new RSEndpoint({
-        path: "/messages/search",
+        path: "/messages",
         method: HTTPMethods.GET,
         queryKey: "messagesSearch",
     }),

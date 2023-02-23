@@ -1,9 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { UseMutateAsyncFunction, useMutation } from "@tanstack/react-query";
 
 import { useAuthorizedFetch } from "../../contexts/AuthorizedFetchContext";
 import { watersEndpoints, WatersResponse } from "../../config/endpoints/waters";
-import { ContentType } from "../UseFileHandler";
+import { ContentType, FileType } from "../UseFileHandler";
 import { RSNetworkError } from "../../utils/RSNetworkError";
 
 export interface WatersPostArgs {
@@ -11,34 +10,53 @@ export interface WatersPostArgs {
     fileName: string;
     fileContent: string;
     contentType?: ContentType;
+    schema: string;
+    format: FileType;
 }
 
-const { upload, validate } = watersEndpoints;
+const { validate } = watersEndpoints;
+
+export type UseWatersUploaderSendFileMutation = UseMutateAsyncFunction<
+    WatersResponse,
+    RSNetworkError<WatersResponse>,
+    WatersPostArgs
+>;
+
+export type UseWatersUploaderResult = {
+    sendFile: UseWatersUploaderSendFileMutation;
+    isWorking: boolean;
+    uploaderError: RSNetworkError<WatersResponse> | null;
+};
+
+export const FORMAT_TO_CONTENT_TYPE = {
+    [FileType.CSV]: ContentType.CSV,
+    [FileType.HL7]: ContentType.HL7,
+};
 
 /** Uploads a file to ReportStream */
 export const useWatersUploader = (
-    callback: (data?: WatersResponse) => void,
-    validateOnly: boolean = false
+    callback: (data?: WatersResponse) => void
 ) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
-    /* Conditionally set the endpoint */
-    const memoizedEndpoint = useMemo(
-        () => (validateOnly ? validate : upload),
-        [validateOnly]
-    );
+
     const mutationFunction = ({
-        contentType,
         fileContent,
         client,
         fileName,
+        schema,
+        format,
     }: WatersPostArgs) => {
-        return authorizedFetch(memoizedEndpoint, {
+        return authorizedFetch(validate, {
             headers: {
-                "Content-Type": contentType || ContentType.CSV,
+                "Content-Type": FORMAT_TO_CONTENT_TYPE[format],
                 payloadName: fileName,
                 client: client,
             },
             data: fileContent,
+            params: {
+                format,
+                schema,
+            },
         });
     };
     const mutation = useMutation<

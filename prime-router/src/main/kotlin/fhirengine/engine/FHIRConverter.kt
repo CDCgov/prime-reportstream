@@ -53,7 +53,7 @@ class FHIRConverter(
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
             Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(message, actionLogger)
-            Report.Format.FHIR -> getContentFromFHIR(message)
+            Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
 
@@ -61,12 +61,13 @@ class FHIRConverter(
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
             // operate on each fhir bundle
+            var bundleIndex = 1
             for (bundle in fhirBundles) {
                 // make a 'report'
                 val report = Report(
                     Report.Format.FHIR,
                     emptyList(),
-                    fhirBundles.size,
+                    1,
                     itemLineage = listOf(
                         ItemLineage()
                     ),
@@ -78,7 +79,7 @@ class FHIRConverter(
                     ItemLineage(
                         null,
                         message.reportId,
-                        1,
+                        bundleIndex++,
                         report.id,
                         1,
                         null,
@@ -173,14 +174,15 @@ class FHIRConverter(
     }
 
     /**
-     * Decodes a FHIR [message] and returns it as list of bundles
-     *
+     * Decodes a FHIR [message] into FHIR bundles and keeps track of any validation
+     * errors when reading the message into [actionLogger]
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        message: RawSubmission
+        message: RawSubmission,
+        actionLogger: ActionLogger
     ): List<Bundle> {
-        return listOf(FhirTranscoder.decode(message.downloadContent()))
+        return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
     }
 
     /**

@@ -7,11 +7,11 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
+import { Helmet } from "react-helmet-async";
 
 import { showAlertNotification } from "../../components/AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import {
     FeatureFlagActionType,
     useFeatureFlags,
@@ -23,7 +23,6 @@ const { DEFAULT_FEATURE_FLAGS } = config;
 export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
-    USER_UPLOAD = "user-upload",
     MESSAGE_TRACKER = "message-tracker",
 }
 
@@ -67,7 +66,9 @@ export function FeatureFlagUIComponent() {
 
     return (
         <>
-            <BasicHelmet pageTitle="Feature Flags" />
+            <Helmet>
+                <title>Feature Flags</title>
+            </Helmet>
             <section className="grid-container margin-top-0">
                 <h3>List of feature flags</h3>
                 <GridContainer containerSize="desktop">

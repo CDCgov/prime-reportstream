@@ -20,6 +20,7 @@ import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../AppRouter";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -204,10 +205,23 @@ const DeliveriesTableWithNumberedPagination = ({
 };
 
 export const DeliveriesTable = () => {
-    const { loadingServices, services, activeService, setActiveService } =
-        useOrganizationReceiversFeed();
+    const {
+        loadingServices,
+        services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
+
+    if (isDisabled) {
+        return (
+            <div className="grid-container">
+                <AdminFetchAlert />
+            </div>
+        );
+    }
 
     if (!loadingServices && !activeService)
         return (

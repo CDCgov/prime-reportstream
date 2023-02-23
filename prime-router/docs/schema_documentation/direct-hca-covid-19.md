@@ -1180,6 +1180,23 @@ The last name of provider who ordered the test
 
 ---
 
+**Name**: ordering_provider_name_type_code
+
+**ReportStream Internal Name**: ordering_provider_name_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
+- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: ordering_provider_phone_number
 
 **ReportStream Internal Name**: ordering_provider_phone_number
@@ -4725,6 +4742,18 @@ This is the assigner of the CLIA for the testing lab. If the testing lab has a C
 
 **Documentation**:
 The name of the laboratory which performed the test, can be the same as the sending facility name
+---
+
+**Name**: testing_lab_name_type_code
+
+**ReportStream Internal Name**: testing_lab_name_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: testing_lab_phone_number

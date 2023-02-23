@@ -51,6 +51,7 @@ elements:
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-5'
     schema: datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: contact-business-phone-number
     resource: '%resource.telecom.where(use = "work")'
@@ -58,6 +59,7 @@ elements:
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-6'
     schema: datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
@@ -65,6 +67,7 @@ elements:
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-31'
     schema: datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: contact-persons-address
     resource: '%resource.organization.resolve().contact.address'

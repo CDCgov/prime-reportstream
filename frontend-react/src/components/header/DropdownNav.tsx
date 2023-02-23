@@ -75,10 +75,6 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Value Sets", "value-sets", "/admin"),
         makeNonStaticOption("Validate", "validate", "/file-handler"),
     ];
-    if (checkFlag(FeatureFlagName.USER_UPLOAD))
-        pages.push(
-            makeNonStaticOption("User Upload", "user-upload", "/file-handler")
-        );
     if (checkFlag(FeatureFlagName.MESSAGE_TRACKER))
         pages.push(
             makeNonStaticOption(
