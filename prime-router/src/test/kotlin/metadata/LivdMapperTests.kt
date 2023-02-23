@@ -3,13 +3,13 @@ package gov.cdc.prime.router.metadata
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.metadata.LivdLookup.testProcessingModeCode
 import kotlin.test.Test
 
 class LivdMapperTests {
@@ -189,40 +189,6 @@ class LivdMapperTests {
     }
 
     @Test
-    fun `test livdLookup model variation lookup`() {
-        val lookupTable = LookupTable.read(livdPath)
-        val element = Element(
-            "ordered_test_code",
-            tableRef = lookupTable,
-            tableColumn = LivdTableColumns.TEST_PERFORMED_CODE.colName
-        )
-
-        // Cue COVID-19 Test does not have an * in the table
-        var testModel = "Cue COVID-19 Test"
-        var expectedTestOrderedLoinc = "95409-9"
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, lookupTable.FilterBuilder()))
-            .isEqualTo(expectedTestOrderedLoinc)
-
-        // Add an * to the end of the model name
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", lookupTable.FilterBuilder()))
-            .isEqualTo(expectedTestOrderedLoinc)
-
-        // Add some other character to fail the lookup
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel^", lookupTable.FilterBuilder()))
-            .isNull()
-
-        // Accula SARS-Cov-2 Test does have an * in the table
-        testModel = "Accula SARS-Cov-2 Test"
-        expectedTestOrderedLoinc = "95409-9"
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, testModel, lookupTable.FilterBuilder()))
-            .isEqualTo(expectedTestOrderedLoinc)
-
-        // Add an * to the end of the model name
-        assertThat(LIVDLookupMapper.lookupByEquipmentModelName(element, "$testModel*", lookupTable.FilterBuilder()))
-            .isEqualTo(expectedTestOrderedLoinc)
-    }
-
-    @Test
     fun `test supplemental devices for test only`() {
         val lookupTable = LookupTable.read(livdPath)
         val modelElement = Element(
@@ -277,8 +243,8 @@ class LivdMapperTests {
         listOf("model2", "90001-2", "model2kit1", "model2uid3", ""),
 
         // Rows: 7-8: Test devices
-        listOf("model3", "90003-1", "model3kit1", "model3uid1", LIVDLookupMapper.testProcessingModeCode),
-        listOf("model4", "90003-1", "model4kit1", "model4uid1", LIVDLookupMapper.testProcessingModeCode),
+        listOf("model3", "90003-1", "model3kit1", "model3uid1", testProcessingModeCode),
+        listOf("model4", "90003-1", "model4kit1", "model4uid1", testProcessingModeCode),
 
         // Rows 9-11: Some devices with similar data, but different test performed code
         listOf("model5", "90005-1", "model5kit1", "model5uid1", ""),
@@ -340,9 +306,6 @@ class LivdMapperTests {
     @Test
     fun `test LIVD apply mapper lookup logic`() {
         val mapper = LIVDLookupMapper()
-
-        // Bad element
-        assertThat { mapper.apply(Element("noTableElement"), emptyList(), emptyList()) }.isFailure()
 
         // Simple device ID lookups
         var devIndex = 1
@@ -426,7 +389,7 @@ class LivdMapperTests {
                 modelNameElement, emptyList(),
                 listOf(
                     createValue(testKitElement, devIndex),
-                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+                    ElementAndValue(processingModeElement, testProcessingModeCode)
                 )
             ).value
         ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
@@ -436,7 +399,7 @@ class LivdMapperTests {
                 modelNameElement, emptyList(),
                 listOf(
                     createValue(testKitElement, devIndex),
-                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+                    ElementAndValue(processingModeElement, testProcessingModeCode)
                 )
             ).value
         ).isEqualTo(getDeviceCol(devIndex, modelNameElement))
@@ -456,7 +419,7 @@ class LivdMapperTests {
             mapper.apply(
                 modelNameElement, emptyList(),
                 listOf(
-                    ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode),
+                    ElementAndValue(processingModeElement, testProcessingModeCode),
                     ElementAndValue(modelNameElement, ""),
                     ElementAndValue(equipmentUidElement, ""),
                     ElementAndValue(deviceIdElement, ""),
@@ -476,7 +439,7 @@ class LivdMapperTests {
             modelNameElement, emptyList(),
             listOf(
                 createValue(testKitElement, devIndex),
-                ElementAndValue(processingModeElement, LIVDLookupMapper.testProcessingModeCode)
+                ElementAndValue(processingModeElement, testProcessingModeCode)
             )
         )
         assertThat(mapperResult.value.isNullOrEmpty()).isFalse()
