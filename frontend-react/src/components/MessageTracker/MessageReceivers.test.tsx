@@ -31,9 +31,7 @@ describe("MessageReceivers component", () => {
                 qualityFilters: [],
             },
         ];
-        renderApp(
-            <MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />
-        );
+        renderApp(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
         expect(screen.getAllByText(/Name/)[0]).toBeInTheDocument();

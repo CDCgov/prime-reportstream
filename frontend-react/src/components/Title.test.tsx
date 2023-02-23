@@ -8,9 +8,7 @@ describe("Title component", () => {
     const UNIQUE_TITLE = `Title for test`;
     const UNIQUE_PRETITLE = `Unique PreTitle for unit test`;
     beforeEach(() => {
-        renderApp(
-            <Title title={UNIQUE_TITLE} preTitle={UNIQUE_PRETITLE} />
-        );
+        renderApp(<Title title={UNIQUE_TITLE} preTitle={UNIQUE_PRETITLE} />);
     });
 
     it("verify title shows", async () => {

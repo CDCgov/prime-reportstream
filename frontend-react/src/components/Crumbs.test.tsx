@@ -43,9 +43,7 @@ const TestPage = () => {
 const fakeCrumbs: CrumbConfig[] = [{ label: "Test label", path: "/test-path" }];
 describe("WithCrumbs", () => {
     test("HOC renders crumbs and page", () => {
-        renderApp(
-            <WithCrumbs page={<TestPage />} crumbList={fakeCrumbs} />
-        );
+        renderApp(<WithCrumbs page={<TestPage />} crumbList={fakeCrumbs} />);
         expect(screen.getByText("Test Page")).toBeInTheDocument();
         expect(screen.getByText("Test label")).toBeInTheDocument();
     });

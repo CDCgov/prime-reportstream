@@ -27,7 +27,7 @@ const mockData: ActionDetailsResource = new TestResponse(
 const fixtures: Fixture[] = [
     {
         endpoint: ActionDetailsResource.detail(),
-        args: [{ actionId: mockData.id }],
+        args: [{ actionId: mockData.id, organization: "" }],
         error: false,
         response: mockData,
     },
@@ -35,7 +35,10 @@ const fixtures: Fixture[] = [
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
-        renderApp(<SubmissionDetails />, { reactHookFixtures: fixtures });
+        renderApp(<SubmissionDetails />, {
+            reactHookFixtures: fixtures,
+            initialRouteEntries: [`/submissions/${mockData.id}`],
+        });
     });
 
     test("renders crumb nav to Submissions list", () => {

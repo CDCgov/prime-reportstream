@@ -24,9 +24,7 @@ describe("FileHandlerForm", () => {
     };
 
     function doRender(props: Partial<FileHandlerFormProps> = {}) {
-        return renderApp(
-            <FileHandlerForm {...DEFAULT_PROPS} {...props} />
-        );
+        return renderApp(<FileHandlerForm {...DEFAULT_PROPS} {...props} />);
     }
 
     describe("when unsubmitted (default state)", () => {

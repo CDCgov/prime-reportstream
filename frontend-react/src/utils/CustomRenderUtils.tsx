@@ -1,6 +1,6 @@
 import { PropsWithChildren, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useRoutes } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
@@ -10,11 +10,31 @@ import SessionProvider from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
+import { appRoutes } from "../AppRouter";
 
 interface AppWrapperOptions {
     initialRouteEntries?: string[];
     reactHookFixtures?: Fixture[];
 }
+
+interface TestRouterProps {
+    children: React.ReactNode;
+    initialEntries?: string[];
+}
+
+/**
+ * Dynamically makes the supplied children the return element for all
+ * routes.
+ * FUTURE_TODO: Remove this once okta user/session mocking is easier
+ * and use <AppRouter /> instead.
+ */
+const TestRoutes = ({ children }: TestRouterProps) => {
+    const routes = useRoutes(
+        appRoutes.map((r) => ({ ...r, element: children }))
+    );
+
+    return routes;
+};
 
 export const AppWrapper = ({
     initialRouteEntries,
@@ -24,31 +44,35 @@ export const AppWrapper = ({
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
     // FUTURE_TODO: Remove MockResolver and reactHookFixtures when removing react-hooks.
-    return ({ children }: PropsWithChildren<{}>) => (
-        <CacheProvider>
-            <MemoryRouter initialEntries={initialRouteEntries}>
-                <HelmetProvider>
-                    <SessionProvider>
-                        <QueryClientProvider client={getTestQueryClient()}>
-                            <AuthorizedFetchProvider>
-                                <FeatureFlagProvider>
-                                    {reactHookFixtures ? (
-                                        <MockResolver
-                                            fixtures={reactHookFixtures}
-                                        >
-                                            {children}
-                                        </MockResolver>
-                                    ) : (
-                                        children
-                                    )}
-                                </FeatureFlagProvider>
-                            </AuthorizedFetchProvider>
-                        </QueryClientProvider>
-                    </SessionProvider>
-                </HelmetProvider>
-            </MemoryRouter>
-        </CacheProvider>
-    );
+    return ({ children }: PropsWithChildren<{}>) => {
+        return (
+            <CacheProvider>
+                <MemoryRouter initialEntries={initialRouteEntries}>
+                    <HelmetProvider>
+                        <SessionProvider>
+                            <QueryClientProvider client={getTestQueryClient()}>
+                                <AuthorizedFetchProvider>
+                                    <FeatureFlagProvider>
+                                        {reactHookFixtures ? (
+                                            <MockResolver
+                                                fixtures={reactHookFixtures}
+                                            >
+                                                <TestRoutes>
+                                                    {children}
+                                                </TestRoutes>
+                                            </MockResolver>
+                                        ) : (
+                                            <TestRoutes>{children}</TestRoutes>
+                                        )}
+                                    </FeatureFlagProvider>
+                                </AuthorizedFetchProvider>
+                            </QueryClientProvider>
+                        </SessionProvider>
+                    </HelmetProvider>
+                </MemoryRouter>
+            </CacheProvider>
+        );
+    };
 };
 
 interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}

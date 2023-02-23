@@ -104,9 +104,7 @@ describe("USLink", () => {
     /** Specialization of USLink */
     describe("USCrumbLink", () => {
         test("renders with breadcrumb link class", () => {
-            renderApp(
-                <USCrumbLink href={"/some/url"}>My Link</USCrumbLink>
-            );
+            renderApp(<USCrumbLink href={"/some/url"}>My Link</USCrumbLink>);
             const link = screen.getByRole("link");
             expect(link).toHaveClass("usa-link");
             expect(link).toHaveClass("usa-breadcrumb__link");
@@ -116,9 +114,7 @@ describe("USLink", () => {
 /** Specialization of NavLink from react-router-dom */
 describe("USNavLink", () => {
     test("renders without error", () => {
-        renderApp(
-            <USNavLink href={"/some/url"}>Navigation Link</USNavLink>
-        );
+        renderApp(<USNavLink href={"/some/url"}>Navigation Link</USNavLink>);
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-nav__link");
     });

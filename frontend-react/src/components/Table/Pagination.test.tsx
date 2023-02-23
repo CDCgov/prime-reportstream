@@ -9,11 +9,6 @@ import Pagination, {
 } from "./Pagination";
 
 describe("Pagination", () => {
-    // Text match for getting pagination elements by role to capture previous
-    // and next links, page numbers, and overflow indicators (which are for
-    // presentation).
-    const ITEM_ROLE = /listitem|presentation/i;
-
     test.each([
         {
             description: "on the first page of an unbounded set",

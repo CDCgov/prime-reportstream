@@ -5,7 +5,7 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
-import { renderWithResolver } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -46,7 +46,7 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-        renderWithResolver(<SubmissionTable />, fixtures);
+        renderApp(<SubmissionTable />, { reactHookFixtures: fixtures });
 
         const pagination = await screen.findByLabelText(
             /submissions pagination/i
@@ -78,7 +78,7 @@ describe("SubmissionTable", () => {
                 isUserSender: false,
             });
 
-            renderWithResolver(<SubmissionTable />, []);
+            renderApp(<SubmissionTable />, { reactHookFixtures: [] });
         });
 
         test("renders a warning about not being able to request submission history", async () => {

@@ -22,9 +22,7 @@ describe("WarningsErrors component", () => {
                     "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
             },
         ];
-        renderApp(
-            <WarningsErrors title={"THE HEADING"} data={warnings} />
-        );
+        renderApp(<WarningsErrors title={"THE HEADING"} data={warnings} />);
 
         expect(screen.getByText(/THE HEADING/)).toBeInTheDocument();
 
