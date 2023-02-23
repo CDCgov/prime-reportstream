@@ -112,50 +112,6 @@ class TranslatorTests {
                 format: CSV
     """.trimIndent()
 
-    private val filterConditionTestYaml = """
-        ---
-          - name: phd
-            description: Piled Higher and Deeper 
-            jurisdiction: STATE             
-            stateCode: IG
-            receivers: 
-            - name: elr
-              organizationName: phd
-              topic: full-elr-test
-              customerStatus: active
-              conditionFilter: [ "intersect(ordered_test_code,94531-1)" ]            
-              translation: 
-                type: CUSTOM
-                schemaName: two
-                format: CSV
-    """.trimIndent()
-
-    private val filterTestYamlWithConditionFilter = """
-        ---
-          - name: phd
-            description: Piled Higher and Deeper 
-            jurisdiction: STATE
-            filters:
-            - topic: full-elr-test
-              jurisdictionalFilter: [ "matches(b,true)" ]
-              qualityFilter: [ "matches(b,true)" ]
-              # Missing routingFilter
-            stateCode: IG
-            receivers: 
-            - name: elr
-              organizationName: phd
-              topic: full-elr-test
-              customerStatus: active
-              jurisdictionalFilter: [ "matches(a,yes)"]
-              conditionFilter: [ "intersect(ordered_test_code,94531-2)" ]
-              # Missing qualityFilter
-              routingFilter: [ "matches(a,yes)"]
-              translation: 
-                type: CUSTOM
-                schemaName: two
-                format: CSV
-    """.trimIndent()
-
     private val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")))
 
     @Test
@@ -206,100 +162,6 @@ class TranslatorTests {
             assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
             assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("2")
             assertThat(this.filteringResults[2].filteredTrackingElement).isEqualTo("4")
-        }
-    }
-
-    @Test
-    fun `test filterOutSpecifiedConditionSomeSelected`() {
-        val mySchema = Schema(
-            name = "two", topic = Topic.FULL_ELR_TEST, trackingElement = "id",
-            elements = listOf(
-                Element("id"), Element("order_test_date"),
-                Element("ordered_test_code"), Element("test_result"), Element("test_type")
-            )
-        )
-        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
-        val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(filterConditionTestYaml.toByteArray()))
-        }
-        val translator = Translator(metadata, settings)
-        // Table has 4 rows and 3 columns.
-        val table1 = Report(
-            mySchema,
-            listOf(
-                listOf("0", "20221103202920", "94531-1", "260385009", "antigen"),
-                listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"),
-                listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"),
-                listOf("3", "20221103202923", "94531-1", "10828004", "Serology"),
-                listOf("4", "20221103202924", "94531-2", "895231008", "antigen"),
-                listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"),
-                listOf("6", "20221103202926", "94531-1", "260385009", "Serology"),
-            ),
-            TestSource,
-            metadata = metadata,
-            itemCountBeforeQualFilter = 7,
-        )
-        val rcvr = settings.findReceiver("phd.elr")
-        assertThat(rcvr).isNotNull()
-        val org = settings.findOrganization("phd")
-        assertThat(org).isNotNull()
-
-        translator.filterByOneFilterType(
-            table1, rcvr!!, org!!, ReportStreamFilterType.CONDITION_FILTER, mySchema.trackingElement, true
-        ).run {
-            assertThat(this.itemCount).isEqualTo(3)
-            assertThat(this.filteringResults.size).isEqualTo(4)
-
-            assertThat(this.getRow(0)[0]).isEqualTo("0")
-            assertThat(this.getRow(1)[0]).isEqualTo("3")
-            assertThat(this.getRow(2)[0]).isEqualTo("6")
-            assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("1")
-            assertThat(this.filteringResults[1].filteredTrackingElement).isEqualTo("2")
-            assertThat(this.filteringResults[2].filteredTrackingElement).isEqualTo("4")
-            assertThat(this.filteringResults[3].filteredTrackingElement).isEqualTo("5")
-        }
-    }
-
-    @Test
-    fun `test filterOutSpecifiedConditionNoneSelected`() {
-        val mySchema = Schema(
-            name = "two", topic = Topic.FULL_ELR_TEST, trackingElement = "id",
-            elements = listOf(
-                Element("id"), Element("order_test_date"),
-                Element("ordered_test_code"), Element("test_result"), Element("test_type")
-            )
-        )
-        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
-        val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(filterConditionTestYaml.toByteArray()))
-        }
-        val translator = Translator(metadata, settings)
-        // Table has 4 rows and 3 columns.
-        val table1 = Report(
-            mySchema,
-            listOf(
-                listOf("0", "20221103202920", "94531-4", "260385009", "antigen"),
-                listOf("1", "20221103202921", "94531-2", "10828004", "Antigen"),
-                listOf("2", "20221103202922", "94531-3", "260415000", "Antigen"),
-                listOf("3", "20221103202923", "94531-4", "10828004", "Serology"),
-                listOf("4", "20221103202924", "94531-2", "895231008", "antigen"),
-                listOf("5", "20221103202925", "94531-3", "260373001", "Antigen"),
-                listOf("6", "20221103202926", "94531-4", "260385009", "Serology"),
-            ),
-            TestSource,
-            metadata = metadata,
-            itemCountBeforeQualFilter = 7,
-        )
-        val rcvr = settings.findReceiver("phd.elr")
-        assertThat(rcvr).isNotNull()
-        val org = settings.findOrganization("phd")
-        assertThat(org).isNotNull()
-
-        translator.filterByOneFilterType(
-            table1, rcvr!!, org!!, ReportStreamFilterType.CONDITION_FILTER, mySchema.trackingElement, true
-        ).run {
-            assertThat(this.itemCount).isEqualTo(0)
-            assertThat(this.filteringResults.size).isEqualTo(7)
         }
     }
 
@@ -483,41 +345,6 @@ class TranslatorTests {
             assertThat(this.getRow(0)[0]).isEqualTo("2")
             assertThat(this.filteringResults.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
             assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
-        }
-    }
-
-    @Test
-    fun `test filterByAllFilterTypes_ConditionFilterIncluded`() {
-        val mySchema = Schema(
-            name = "two", topic = Topic.FULL_ELR_TEST, trackingElement = "id",
-            elements = listOf(Element("id"), Element("a"), Element("b"), Element("ordered_test_code"))
-        )
-        val metadata = UnitTestUtils.simpleMetadata.loadSchemas(mySchema)
-        val settings = FileSettings().also {
-            it.loadOrganizations(ByteArrayInputStream(filterTestYamlWithConditionFilter.toByteArray()))
-        }
-        val translator = Translator(metadata, settings)
-        // Table has 4 rows and 3 columns.
-        val table1 = Report(
-            mySchema,
-            listOf(
-                listOf("0", "yes", "true", "94531-1"), // row 0
-                listOf("1", "no", "true", "94531-2"),
-                listOf("2", "yes", "false", "94531-2"),
-                listOf("3", "no", "false", "94531-2"), // row 3
-                listOf("4", "yes", "true", "94531-2"),
-            ),
-            TestSource,
-            metadata = metadata
-        )
-        val rcvr = settings.findReceiver("phd.elr")
-        assertThat(rcvr).isNotNull()
-        // Juris filter eliminates rows 1,2,3 (zero based), but does not create filteredItem entries.
-        translator.filterByAllFilterTypes(settings, table1, rcvr!!).run {
-            assertThat(this).isNotNull()
-            assertThat(this!!.itemCount).isEqualTo(1)
-            assertThat(this.getRow(0)[0]).isEqualTo("4") // row 0
-            assertThat(this.filteringResults.size).isEqualTo(1) // four rows eliminated, one logged for condition
         }
     }
 
