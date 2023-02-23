@@ -87,11 +87,9 @@ const MessageReceiversCol = ({
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
             setActiveColumn(columnHeaderTitle);
-            setActiveColumnSortOrder(FilterOptionsEnum.NONE);
-        }
-
-        // Explicitly set the proceeding sort order
-        if (activeColumnSortOrder === FilterOptionsEnum.NONE) {
+            setActiveColumnSortOrder(FilterOptionsEnum.ASC);
+        } else if (activeColumnSortOrder === FilterOptionsEnum.NONE) {
+            // Explicitly set the proceeding sort order
             setActiveColumnSortOrder(FilterOptionsEnum.ASC);
         } else if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
             setActiveColumnSortOrder(FilterOptionsEnum.DESC);
@@ -99,23 +97,22 @@ const MessageReceiversCol = ({
             setActiveColumnSortOrder(FilterOptionsEnum.NONE);
         }
     };
-    const sortIcon = useMemo(() => {
-        if (
-            isCurrentlyActiveColumn &&
-            activeColumnSortOrder === FilterOptionsEnum.ASC
-        ) {
-            return <Icon.ArrowUpward />;
-        } else if (
-            isCurrentlyActiveColumn &&
-            activeColumnSortOrder === FilterOptionsEnum.DESC
-        ) {
-            return <Icon.ArrowDownward />;
-        }
-        return <Icon.SortArrow />;
-    }, [activeColumnSortOrder, isCurrentlyActiveColumn]);
+    let SortIcon = Icon.SortArrow;
+    if (
+        isCurrentlyActiveColumn &&
+        activeColumnSortOrder === FilterOptionsEnum.ASC
+    ) {
+        SortIcon = Icon.ArrowUpward;
+    } else if (
+        isCurrentlyActiveColumn &&
+        activeColumnSortOrder === FilterOptionsEnum.DESC
+    ) {
+        SortIcon = Icon.ArrowDownward;
+    }
     return (
         <th
             role="button"
+            tabIndex={0}
             className={classnames({
                 "active-col-header":
                     isCurrentlyActiveColumn &&
@@ -133,7 +130,7 @@ const MessageReceiversCol = ({
                 >
                     {columnHeaderTitle}
                 </p>
-                {sortIcon}
+                {<SortIcon />}
             </div>
         </th>
     );
@@ -147,7 +144,7 @@ const MessageReceiversRow = ({
 }: MessageReceiversRowProps) => {
     // We highlight the entire active column so within the row,
     // we need to know which column is active
-    const checkForActiveColumn = (colName: string) =>
+    const getColumnClasses = (colName: string) =>
         classnames({
             "active-col-td":
                 colName === activeColumn &&
@@ -157,18 +154,19 @@ const MessageReceiversRow = ({
     const uppercaseMain = receiver.Main.toUpperCase();
     return (
         <tr>
-            <td className={checkForActiveColumn(ColumnDataEnum.Name)}>
+            <td className={getColumnClasses(ColumnDataEnum.Name)}>
                 {receiver.Name}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Service)}>
+            <td className={getColumnClasses(ColumnDataEnum.Service)}>
                 {receiver.Service}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Date)}>
+            <td className={getColumnClasses(ColumnDataEnum.Date)}>
                 {receiver.Date}
             </td>
             <td
                 role="button"
-                className={`message-receiver-break-word ${checkForActiveColumn(
+                tabIndex={0}
+                className={`message-receiver-break-word ${getColumnClasses(
                     ColumnDataEnum.ReportId
                 )}`}
                 onClick={() => {
@@ -177,7 +175,7 @@ const MessageReceiversRow = ({
             >
                 {receiver.ReportId}
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Main)}>
+            <td className={getColumnClasses(ColumnDataEnum.Main)}>
                 <p
                     className={classnames(
                         "font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0",
@@ -191,12 +189,13 @@ const MessageReceiversRow = ({
                     {uppercaseMain}
                 </p>
             </td>
-            <td className={checkForActiveColumn(ColumnDataEnum.Sub)}>
+            <td className={getColumnClasses(ColumnDataEnum.Sub)}>
                 {receiver.Sub}
             </td>
             <td
                 role="button"
-                className={`message-receiver-break-word ${checkForActiveColumn(
+                tabIndex={0}
+                className={`message-receiver-break-word ${getColumnClasses(
                     ColumnDataEnum.FileName
                 )}`}
                 onClick={() => {
@@ -207,7 +206,8 @@ const MessageReceiversRow = ({
             </td>
             <td
                 role="button"
-                className={`message-receiver-break-word ${checkForActiveColumn(
+                tabIndex={0}
+                className={`message-receiver-break-word ${getColumnClasses(
                     ColumnDataEnum.TransportResults
                 )}`}
                 onClick={() => {
@@ -270,18 +270,18 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                     for (const key of Object.keys(ColumnDataEnum)) {
                         const columnTitle =
                             ColumnDataEnum[key as keyof typeof ColumnDataEnum];
-                        switch (true) {
-                            case columnTitle === ColumnDataEnum.Name:
+                        switch (columnTitle) {
+                            case ColumnDataEnum.Name:
                                 if (receiverItem.receivingOrg)
                                     formattedData.Name =
                                         receiverItem.receivingOrg;
                                 break;
-                            case columnTitle === ColumnDataEnum.Service:
+                            case ColumnDataEnum.Service:
                                 if (receiverItem.receivingOrgSvc)
                                     formattedData.Service =
                                         receiverItem.receivingOrgSvc;
                                 break;
-                            case columnTitle === ColumnDataEnum.Date:
+                            case ColumnDataEnum.Date:
                                 if (receiverItem.createdAt)
                                     formattedData.Date =
                                         dateTimeFormatter.format(
@@ -289,31 +289,30 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                         );
 
                                 break;
-                            case columnTitle === ColumnDataEnum.ReportId:
+                            case ColumnDataEnum.ReportId:
                                 if (receiverItem.reportId)
                                     formattedData.ReportId =
                                         receiverItem.reportId;
                                 break;
-                            case columnTitle === ColumnDataEnum.Main:
+                            case ColumnDataEnum.Main:
                                 const { folderLocation } = parseFileLocation(
                                     receiverItem?.fileUrl || ""
                                 );
                                 formattedData.Main = folderLocation;
                                 break;
-                            case columnTitle === ColumnDataEnum.Sub:
+                            case ColumnDataEnum.Sub:
                                 const { sendingOrg } = parseFileLocation(
                                     receiverItem?.fileUrl || ""
                                 );
                                 formattedData.Sub = sendingOrg;
                                 break;
-                            case columnTitle === ColumnDataEnum.FileName:
+                            case ColumnDataEnum.FileName:
                                 const { fileName } = parseFileLocation(
                                     receiverItem?.fileUrl || ""
                                 );
                                 formattedData.FileName = fileName;
                                 break;
-                            case columnTitle ===
-                                ColumnDataEnum.TransportResults:
+                            case ColumnDataEnum.TransportResults:
                                 if (receiverItem.transportResult)
                                     formattedData.TransportResults =
                                         receiverItem.transportResult;
@@ -375,6 +374,12 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
         setModalText({ title: `${title}:`, body });
         modalRef?.current?.toggleModal();
     }
+    const commonProps = {
+        activeColumn,
+        setActiveColumn,
+        activeColumnSortOrder,
+        setActiveColumnSortOrder,
+    };
     return (
         <>
             <h2>Receivers:</h2>
@@ -387,90 +392,50 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                     <thead>
                         <tr>
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.Name}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.Service}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.Date}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.ReportId}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={2}
                             />
                             <th colSpan={3}>
                                 <p>File Location</p>
                             </th>
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={
                                     ColumnDataEnum.TransportResults
-                                }
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
                                 }
                                 rowSpan={2}
                             />
                         </tr>
                         <tr>
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.Main}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.Sub}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
+                                {...commonProps}
                                 columnHeaderTitle={ColumnDataEnum.FileName}
-                                activeColumn={activeColumn}
-                                setActiveColumn={setActiveColumn}
-                                activeColumnSortOrder={activeColumnSortOrder}
-                                setActiveColumnSortOrder={
-                                    setActiveColumnSortOrder
-                                }
                                 rowSpan={1}
                             />
                         </tr>
