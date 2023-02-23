@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
@@ -22,6 +23,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
@@ -183,7 +185,9 @@ class FHIRBundleHelpersTests {
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
         val bundle = messages[0]
+        assertThat(bundle).isNotNull()
 
         val diagnosticReport = FhirPathUtils.evaluate(
             null,
@@ -192,6 +196,7 @@ class FHIRBundleHelpersTests {
             "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         )[0]
 
+        assertThat(diagnosticReport).isNotNull()
         val diagnosticReportReferences = diagnosticReport.getResourceReferences()
 
         assertThat(diagnosticReportReferences.count()).isEqualTo(5)
@@ -202,7 +207,10 @@ class FHIRBundleHelpersTests {
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+
         val bundle = messages[0]
+        assertThat(bundle).isNotNull()
 
         val diagnosticReport = FhirPathUtils.evaluate(
             null,
@@ -211,6 +219,7 @@ class FHIRBundleHelpersTests {
             "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
         )[0]
 
+        assertThat(diagnosticReport).isNotNull()
         assertThat(diagnosticReport.getResourceProperties()).isNotEmpty()
     }
 
@@ -220,9 +229,24 @@ class FHIRBundleHelpersTests {
         val fhirBundle =
             File("src/test/resources/fhirengine/engine/bundle_diagnostic_report_no_observations.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
         val bundle = messages[0]
-
+        assertThat(bundle).isNotNull()
         assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle).count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Test removing Diagnostic report no observation`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle =
+            File("src/test/resources/fhirengine/engine/bundle_diagnostic_report_no_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle).count()).isEqualTo(1)
+        messages[0].deleteChildlessResource(Observation())
+        assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle)).isEmpty()
     }
 
     @Test
@@ -230,7 +254,9 @@ class FHIRBundleHelpersTests {
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
         val bundle = messages[0]
+        assertThat(bundle).isNotNull()
 
         val diagnosticReport = FhirPathUtils.evaluate(
             null,
@@ -245,6 +271,9 @@ class FHIRBundleHelpersTests {
             bundle,
             "%resource.result[0].resolve()"
         )[0]
+
+        assertThat(diagnosticReport).isNotNull()
+        assertThat(observation).isNotNull()
 
         val observationReferences = observation.getResourceReferences()
 
@@ -312,7 +341,9 @@ class FHIRBundleHelpersTests {
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
         val bundle = messages[0]
+        assertThat(bundle).isNotNull()
         val diagnosticReport = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle),
             bundle,
@@ -326,6 +357,9 @@ class FHIRBundleHelpersTests {
             bundle,
             "%resource.result[0].resolve()"
         )[0]
+
+        assertThat(observation).isNotNull()
+        assertThat(diagnosticReport).isNotNull()
 
         // Check that diagnostic report has multiple observations
         // and contains the observation being removed
@@ -343,17 +377,22 @@ class FHIRBundleHelpersTests {
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
         val bundle = messages[0]
+        assertThat(bundle).isNotNull()
         val provenance = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle),
             bundle,
             bundle,
             "Bundle.entry.resource.ofType(Provenance)"
         )[0]
+        assertThat(provenance).isNotNull()
 
         val organizationReference = (provenance as Provenance).agent[0].who.reference
         val deviceReference = provenance.entity[0].what.reference
 
+        assertThat(organizationReference).isNotNull()
+        assertThat(deviceReference).isNotNull()
         // Verify that Provenance and its organization and device are present in the bundle
         assertThat(
             bundle.entry.find {

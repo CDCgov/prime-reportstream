@@ -155,10 +155,18 @@ object FHIRBundleHelpers {
             }
         }
 
+        this.deleteChildlessResource(resource)
+    }
+
+    /**
+     * Deletes resources that have no children after deleting a [resource]
+     *
+     */
+    internal fun Bundle.deleteChildlessResource(resource: Base) {
         // if resource being removed is an observation
         // check if there are any diagnostic reports with no observations and remove them
-        if (resource is Observation) {
-            getDiagnosticReportNoObservations(this).forEach { this.deleteResource(it) }
+        when (resource) {
+            is Observation -> getDiagnosticReportNoObservations(this).forEach { this.deleteResource(it) }
         }
     }
 }
