@@ -3,9 +3,10 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -25,7 +26,7 @@ import org.hl7.fhir.r4.model.Bundle
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
 class FhirToHl7Converter(
-    private val schemaRef: ConfigSchema,
+    private val schemaRef: ConverterSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null,
     // the constant substitutor is not thread save, so we need one instance per converter instead of using a shared copy
@@ -43,7 +44,11 @@ class FhirToHl7Converter(
         schemaFolder: String,
         strict: Boolean = false,
         terser: Terser? = null
-    ) : this(ConfigSchemaReader.fromFile(schema, schemaFolder), strict, terser)
+    ) : this(
+        schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        strict = strict,
+        terser = terser
+    )
 
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
@@ -57,12 +62,12 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null
     ) : this(
-        ConfigSchemaReader.fromFile(
+        schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
-        strict,
-        terser
+        strict = strict,
+        terser = terser
     )
 
     /**
@@ -95,7 +100,7 @@ class FhirToHl7Converter(
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
-        schema: ConfigSchema,
+        schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext = CustomContext(bundle, bundle),
@@ -117,7 +122,7 @@ class FhirToHl7Converter(
      * Set [debug] to true to enable debug statements to the logs.
      */
     internal fun processElement(
-        element: ConfigSchemaElement,
+        element: ConverterSchemaElement,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
@@ -152,7 +157,7 @@ class FhirToHl7Converter(
                         )
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
-                            element.schemaRef!!,
+                            element.schemaRef!! as ConverterSchema,
                             bundle,
                             singleFocusResource,
                             indexContext,
@@ -268,7 +273,7 @@ class FhirToHl7Converter(
     /**
      * Set the [value] an [element]'s HL7 spec.
      */
-    internal fun setHl7Value(element: ConfigSchemaElement, value: String, context: CustomContext) {
+    internal fun setHl7Value(element: ConverterSchemaElement, value: String, context: CustomContext) {
         if (value.isBlank() && element.required == true) {
             // The value is empty, but the element was required
             throw RequiredElementException(element)

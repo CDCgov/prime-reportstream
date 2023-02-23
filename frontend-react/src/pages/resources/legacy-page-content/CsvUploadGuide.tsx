@@ -1,4 +1,5 @@
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { Helmet } from "react-helmet-async";
+
 import site from "../../../content/site.json";
 import { USLink } from "../../../components/USLink";
 
@@ -6,7 +7,9 @@ import { USLink } from "../../../components/USLink";
 export const CsvUploadGuideIa = () => {
     return (
         <>
-            <BasicHelmet pageTitle="CSV upload guide | Resources" />
+            <Helmet>
+                <title>CSV upload guide | Resources</title>
+            </Helmet>
             <h1 id="anchor-top">CSV upload guide </h1>
             <h2 className="usa-intro">
                 Step-by-step instructions and guidance for preparing and
@@ -42,12 +45,12 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink anchor href="#preparing-a-csv" className="usa-link">
+                    <USLink href="#preparing-a-csv" className="usa-link">
                         How to prepare a CSV file for ReportStream
                     </USLink>
                 </li>
                 <li>
-                    <USLink anchor href="#upload-a-csv" className="usa-link">
+                    <USLink href="#upload-a-csv" className="usa-link">
                         How to upload a CSV file to ReportStream
                     </USLink>
                 </li>

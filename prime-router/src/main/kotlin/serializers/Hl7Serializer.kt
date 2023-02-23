@@ -1395,8 +1395,11 @@ class Hl7Serializer(
     ) {
         if (value.isEmpty()) return
         val parts = value.split(Element.phoneDelimiter)
-        val areaCode = parts[0].substring(0, 3)
-        val local = parts[0].substring(3)
+        val (areaCode, local) = if (parts[0].length == 7 && parts[1].isEmpty() && parts[2].isEmpty()) {
+            Pair("", parts[0])
+        } else {
+            Pair(parts[0].substring(0, 3), parts[0].substring(3))
+        }
         val country = parts[1]
         val extension = parts[2]
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
@@ -1436,7 +1439,7 @@ class Hl7Serializer(
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    val phoneNumber = "($areaCode)$localWithDash" +
+                    val phoneNumber = if (areaCode.isEmpty()) "$localWithDash" else "($areaCode)$localWithDash" +
                         if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
@@ -1815,18 +1818,37 @@ class Hl7Serializer(
         receivingApplicationReportIn: String? = null,
         receivingFacilityReportIn: String? = null
     ): String {
-        val sendingApplicationReport = sendingApplicationReportIn
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
+        var sendingApplicationReportInReplace: String? = null
+        var receivingApplicationReportInReplace: String? = null
+        var receivingFacilityReportInReplace: String? = null
+        // Following allows replaceValueAandB to replace FHS and BHS 3, 5, 6 only
+        replaceValueAwithB.forEach { segment ->
+            // Scan through segment(s)
+            @Suppress("UNCHECKED_CAST")
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val fields = pairs.values.first().trim()
+                if (segment.key == "FHS-3")
+                    sendingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-5")
+                    receivingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-6")
+                    receivingFacilityReportInReplace = fields
+            }
+        }
+
+        val sendingApplicationReport = sendingApplicationReportIn ?: sendingApplicationReportInReplace
             ?: (report.getString(0, "sending_application") ?: "")
-        val receivingApplicationReport = receivingApplicationReportIn
+        val receivingApplicationReport = receivingApplicationReportIn ?: receivingApplicationReportInReplace
             ?: (report.getString(0, "receiving_application") ?: "")
-        val receivingFacilityReport = receivingFacilityReportIn
+        val receivingFacilityReport = receivingFacilityReportIn ?: receivingFacilityReportInReplace
             ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
         var receivingFacilityTruncationLimit: Int? = null
 
-        val hl7Config = report.destination?.translation as? Hl7Configuration?
         if (hl7Config?.truncateHDNamespaceIds == true) {
             sendingAppTruncationLimit = getTruncationLimitWithEncoding(sendingApplicationReport, HD_TRUNCATION_LIMIT)
             receivingAppTruncationLimit = getTruncationLimitWithEncoding(
@@ -1984,18 +2006,22 @@ class Hl7Serializer(
             if (xtnValue is XTN) {
                 when (element.type) {
                     Element.Type.TELEPHONE -> {
-                        // If we have an area code or local number use the new fields, otherwise try the deprecated field
-                        if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
-                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                            if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                                xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
-                            ) {
-                                strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
-                                    "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
-                            }
-                        } else if (!xtnValue.telephoneNumber.isEmpty) {
+                        // 1st - If there is a full phone number use it.
+                        if (!xtnValue.telephoneNumber.isEmpty) {
                             strValue = element.toNormalized(xtnValue.telephoneNumber.valueOrEmpty)
-                        }
+                        } else
+                        // Otherwise, if there is a local number use it.
+                            if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                                // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                                if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                                    xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
+                                ) {
+                                    strValue = "${xtnValue.areaCityCode.value ?: ""}" +
+                                        "${xtnValue.localNumber.value ?: ""}:" +
+                                        "${xtnValue.countryCode.value ?: ""}:" +
+                                        "${xtnValue.extension.value ?: ""}"
+                                }
+                            }
                     }
                     Element.Type.EMAIL -> {
                         if (xtnValue.telecommunicationEquipmentType.isEmpty ||

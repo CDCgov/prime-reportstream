@@ -152,8 +152,9 @@ class ValidateFunction(
                     itemCount = it.report.itemCount,
                     sentReports = mutableListOf(),
                     downloadedReports = mutableListOf(),
-                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) },
-                    filteredReportRows = it.report.filteringResults.map { it.message },
+                    filteredReportItems = it.report.filteringResults.map { ReportStreamFilterResultForResponse(it) }
+                        .toMutableList(),
+                    filteredReportRows = it.report.filteringResults.map { it.message }.toMutableList(),
                     itemCountBeforeQualFilter = it.report.itemCountBeforeQualFilter,
                     sendingAt = null
                 )

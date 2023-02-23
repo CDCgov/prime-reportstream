@@ -1,4 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+
+import { renderWithBase } from "../../../utils/CustomRenderUtils";
 
 import Feature from "./Feature";
 
@@ -10,7 +12,7 @@ describe("Feature rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Feature section={baseSection} feature={baseFeature} />);
+        renderWithBase(<Feature section={baseSection} feature={baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -47,7 +49,7 @@ describe("DeliveryMethodFeature rendering", () => {
     };
 
     beforeEach(() => {
-        render(
+        renderWithBase(
             <Feature
                 section={deliveryMethodSection}
                 feature={deliveryFeature}
@@ -76,7 +78,9 @@ describe("LiveMapFeature rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Feature section={liveMapSection} feature={liveMapFeature} />);
+        renderWithBase(
+            <Feature section={liveMapSection} feature={liveMapFeature} />
+        );
     });
 
     test("renders without error", () => {

@@ -124,7 +124,7 @@ abstract class Sender(
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
         HL7("application/hl7-v2"),
-        FHIR("application/fhir+json"),
+        FHIR("application/fhir+ndjson"),
         HL7_BATCH("application/hl7-v2"),
     }
 

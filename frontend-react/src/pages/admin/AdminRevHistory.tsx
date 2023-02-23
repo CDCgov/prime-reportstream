@@ -2,6 +2,7 @@ import React, { Suspense, useCallback, useState } from "react";
 import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import {
@@ -15,7 +16,6 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 
 type AccordionClickHandler = (
     key: string,
@@ -176,7 +176,9 @@ const AdminRevHistory = () => {
 
     return (
         <>
-            <BasicHelmet pageTitle="Revision History" />
+            <Helmet>
+                <title>Revision History</title>
+            </Helmet>
 
             <section className="grid-container margin-top-0">
                 <h4>

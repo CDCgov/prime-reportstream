@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
-import gov.cdc.prime.router.ReportStreamFilterDefinition.Companion.logger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -290,19 +289,11 @@ class ELRReceiver : SubmissionReceiver {
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
             Sender.Format.FHIR -> {
-                try {
-                    val bundle = FhirTranscoder.decode(content)
-                    if (bundle.isEmpty) {
-                        actionLogs.error(InvalidReportMessage("Unable to find FHIR Bundle in provided data."))
-                    }
-                } catch (e: Exception) {
-                    logger.error(e)
-                    actionLogs.error(InvalidReportMessage("Unable to parse FHIR data."))
-                }
+                val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
                     Format.FHIR,
                     sources,
-                    1,
+                    bundles.size,
                     metadata = metadata,
                     nextAction = TaskAction.convert
                 )

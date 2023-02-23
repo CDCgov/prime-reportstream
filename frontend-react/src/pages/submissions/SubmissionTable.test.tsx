@@ -36,6 +36,9 @@ describe("SubmissionTable", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         const fixtures: Fixture[] = [
             {
@@ -85,6 +88,9 @@ describe("SubmissionTable", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: true,
+                isUserReceiver: false,
+                isUserSender: false,
             });
 
             renderWithResolver(<SubmissionTable />, []);
