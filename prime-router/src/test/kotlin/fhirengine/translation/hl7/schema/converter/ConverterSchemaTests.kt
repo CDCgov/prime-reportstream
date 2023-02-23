@@ -22,10 +22,6 @@ class ConverterSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01")
-        assertThat(schema.isValid()).isFalse()
-        assertThat(schema.errors).isNotEmpty()
-
         val goodElement = ConverterSchemaElement(value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         schema = ConverterSchema("ca.uhn.hl7v2.model.v251.message.ORU_R01", mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()

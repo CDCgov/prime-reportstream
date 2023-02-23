@@ -15,11 +15,6 @@ import ca.uhn.hl7v2.util.Terser
 import kotlin.test.Test
 
 class Hl7UtilsTests {
-    // @Test
-    // fun `test get message instance from enum value`() {
-    //     assertThat(HL7Utils.SupportedMessages.ORU_R01_2_5_1.getMessageInstance()).isInstanceOf(ORU_R01::class.java)
-    // }
-
     @Test
     fun `test get message type string`() {
         class Unsupported_ORU_R01 : ORU_R01()
