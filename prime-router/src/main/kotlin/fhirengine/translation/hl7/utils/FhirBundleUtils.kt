@@ -40,7 +40,7 @@ object FhirBundleUtils : Logging {
      * and logs an error if the conversion is not supported.
      */
     fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
-        return if (sourceType == targetType) {
+        return if (sourceType == targetType || targetType == "*") {
             value
         } else if (stringCompatibleTypes.contains(sourceType)) {
             when (targetType) {

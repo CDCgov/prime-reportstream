@@ -6,12 +6,18 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeType
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.StringType
 import kotlin.test.Test
 
 class FhirTransformerTests {
@@ -287,5 +293,79 @@ class FhirTransformerTests {
                 "Bundle.entry.resource.ofType(Patient).contact.name.text"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("abc123")
+    }
+
+    @Test
+    fun `test set bundle property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).name.text", StringType("name"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        assertThat(patient.name[0].text).isEqualTo("name")
+
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).active", BooleanType("true"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        assertThat(patient.active).isTrue()
+
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).id", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        assertThat(patient.id).isEqualTo("newId")
+
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).extension('someExtension').value[x]", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        assertThat(patient.extension[0].value).isEqualTo(IdType("newId"))
+    }
+
+    @Test
+    fun `test set bundle property failures`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        // Incompatible value types
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+
+        // Can't currently create new resources on the fly
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+
+        // Improper extension format
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
     }
 }
