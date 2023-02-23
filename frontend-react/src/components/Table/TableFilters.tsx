@@ -10,6 +10,7 @@ import {
 import {
     FALLBACK_FROM,
     FALLBACK_TO,
+    getEndOfDay,
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange";
 
@@ -24,14 +25,18 @@ interface SubmissionFilterProps {
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
 
-/* This helper ensures start range values are inclusive
- * of the day set in the date picker. */
-const inclusiveDateString = (originalDate: string) => {
-    let inclusiveDateDate = new Date(originalDate);
-    return new Date(
-        inclusiveDateDate.setUTCHours(23, 59, 59, 999)
-    ).toISOString();
-};
+// using a regex to check for format because of different browsers' implementations of Date
+// e.g.:
+//   new Date('11') in Chrome --> Date representation of 11/01/2001
+//   new Date('11') in Firefox --> Invalid Date
+const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
+
+export function isValidDateString(dateStr?: string) {
+    // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
+    return (
+        DATE_RE.test(dateStr || "") && !Number.isNaN(Date.parse(dateStr || ""))
+    );
+}
 
 /* This component contains the UI for selecting query parameters.
  * When the `Apply` button is clicked, these should be updated in
@@ -44,25 +49,26 @@ function TableFilters({
     cursorManager,
     onFilterClick,
 }: SubmissionFilterProps) {
-    /* Local state to hold values before pushing to context. Pushing to context
-     * will trigger a re-render due to the API call fetching new data. We have local
-     * state to hold these so updates don't render immediately after setting a filter */
+    // store ISO strings to pass to FilterManager when user clicks 'Filter'
+    // TODO: Remove FilterManager and CursorManager
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
-
-    let from = new Date(rangeFrom).toISOString();
-    let to = inclusiveDateString(rangeTo);
+    const isFilterEnabled = Boolean(
+        rangeFrom && rangeTo && rangeFrom < rangeTo
+    );
 
     const updateRange = () => {
         filterManager.updateRange({
             type: RangeSettingsActionType.RESET,
-            payload: { from, to },
+            payload: { from: rangeFrom, to: rangeTo },
         });
         cursorManager &&
             cursorManager.update({
                 type: CursorActionType.RESET,
                 payload:
-                    filterManager.sortSettings.order === "DESC" ? to : from,
+                    filterManager.sortSettings.order === "DESC"
+                        ? rangeTo
+                        : rangeFrom,
             });
     };
 
@@ -71,7 +77,7 @@ function TableFilters({
         updateRange();
 
         // call onFilterClick with the specified range
-        if (onFilterClick) onFilterClick({ from, to });
+        if (onFilterClick) onFilterClick({ from: rangeFrom, to: rangeTo });
     };
 
     /* Clears manager and local state values */
@@ -91,29 +97,40 @@ function TableFilters({
                 <DateRangePicker
                     className={StyleClass.DATE_CONTAINER}
                     startDateLabel="From (Start Range):"
+                    startDateHint="mm/dd/yyyy"
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
                         onChange: (val?: string) => {
-                            val
-                                ? setRangeFrom(val)
-                                : console.warn("Start Range is undefined");
+                            if (isValidDateString(val)) {
+                                setRangeFrom(new Date(val!!).toISOString());
+                            } else {
+                                setRangeFrom("");
+                            }
                         },
+                        defaultValue: rangeFrom,
                     }}
                     endDateLabel="Until (End Range):"
+                    endDateHint="mm/dd/yyyy"
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",
                         onChange: (val?: string) => {
-                            val
-                                ? setRangeTo(val)
-                                : console.warn("Start Range is undefined");
+                            if (isValidDateString(val)) {
+                                setRangeTo(
+                                    getEndOfDay(new Date(val!!)).toISOString()
+                                );
+                            } else {
+                                setRangeTo("");
+                            }
                         },
+                        defaultValue: rangeTo,
                     }}
                 />
                 <div className="button-container">
                     <div className={StyleClass.DATE_CONTAINER}>
                         <Button
+                            disabled={!isFilterEnabled}
                             onClick={() => applyToFilterManager()}
                             type={"button"}
                         >
@@ -122,7 +139,7 @@ function TableFilters({
                     </div>
                     <div className={StyleClass.DATE_CONTAINER}>
                         <Button
-                            onClick={() => clearAll()}
+                            onClick={clearAll}
                             type={"button"}
                             name="clear-button"
                             unstyled
@@ -137,4 +154,3 @@ function TableFilters({
 }
 
 export default TableFilters;
-export { inclusiveDateString };
