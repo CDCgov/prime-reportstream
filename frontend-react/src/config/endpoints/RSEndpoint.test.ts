@@ -1,5 +1,6 @@
-import { RSEndpoint } from ".";
 import config from "..";
+
+import { RSEndpoint } from ".";
 
 const testEndpoint = new RSEndpoint({
     path: "/path",
