@@ -43,7 +43,7 @@ describe("AdminOrgNew", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<AdminOrgNew />, { reactHookFixtures: fixtures });
+        renderApp(<AdminOrgNew />, { restHookFixtures: fixtures });
     });
 
     test("should go to the new created organization's page", () => {

@@ -262,7 +262,7 @@ describe("AdminReceiverDashboard tests", () => {
                     />
                 </NetworkErrorBoundary>
             </Suspense>,
-            { reactHookFixtures: fixtures }
+            { restHookFixtures: fixtures }
         );
 
         const days = screen.getAllByText(/Mon/);

@@ -46,7 +46,7 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-        renderApp(<SubmissionTable />, { reactHookFixtures: fixtures });
+        renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
 
         const pagination = await screen.findByLabelText(
             /submissions pagination/i
@@ -78,7 +78,7 @@ describe("SubmissionTable", () => {
                 isUserSender: false,
             });
 
-            renderApp(<SubmissionTable />, { reactHookFixtures: [] });
+            renderApp(<SubmissionTable />, { restHookFixtures: [] });
         });
 
         test("renders a warning about not being able to request submission history", async () => {

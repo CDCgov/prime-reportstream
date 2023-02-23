@@ -90,7 +90,7 @@ describe("EditReceiverSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<EditReceiverSettings />, { reactHookFixtures: fixtures });
+        renderApp(<EditReceiverSettings />, { restHookFixtures: fixtures });
     });
 
     test("should be able to edit keys field", () => {

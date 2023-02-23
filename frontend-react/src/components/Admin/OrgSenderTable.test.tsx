@@ -163,7 +163,7 @@ describe("OrgReceiverTable", () => {
     afterAll(() => settingsServer.close());
     beforeEach(() => {
         renderApp(<OrgSenderTable orgname={"test"} key={"test"} />, {
-            reactHookFixtures: fixtures,
+            restHookFixtures: fixtures,
         });
     });
 

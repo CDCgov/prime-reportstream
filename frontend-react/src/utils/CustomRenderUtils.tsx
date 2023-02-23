@@ -14,7 +14,7 @@ import { appRoutes } from "../AppRouter";
 
 interface AppWrapperOptions {
     initialRouteEntries?: string[];
-    reactHookFixtures?: Fixture[];
+    restHookFixtures?: Fixture[];
 }
 
 interface TestRouterProps {
@@ -38,12 +38,12 @@ const TestRoutes = ({ children }: TestRouterProps) => {
 
 export const AppWrapper = ({
     initialRouteEntries,
-    reactHookFixtures,
+    restHookFixtures,
 }: AppWrapperOptions = {}) => {
     // FUTURE_TODO: Replace children with <AppRouter /> if initialRouteEntries after mocking okta users
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
-    // FUTURE_TODO: Remove MockResolver and reactHookFixtures when removing react-hooks.
+    // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
     return ({ children }: PropsWithChildren<{}>) => {
         return (
             <CacheProvider>
@@ -53,9 +53,9 @@ export const AppWrapper = ({
                             <QueryClientProvider client={getTestQueryClient()}>
                                 <AuthorizedFetchProvider>
                                     <FeatureFlagProvider>
-                                        {reactHookFixtures ? (
+                                        {restHookFixtures ? (
                                             <MockResolver
-                                                fixtures={reactHookFixtures}
+                                                fixtures={restHookFixtures}
                                             >
                                                 <TestRoutes>
                                                     {children}
@@ -81,12 +81,12 @@ export const renderApp = (
     ui: ReactElement,
     {
         initialRouteEntries,
-        reactHookFixtures,
+        restHookFixtures,
         ...options
     }: Omit<RenderAppOptions, "wrapper"> = {}
 ) => {
     return render(ui, {
-        wrapper: AppWrapper({ initialRouteEntries, reactHookFixtures }),
+        wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),
         ...options,
     });
 };

@@ -73,7 +73,7 @@ describe("EditSenderSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<EditSenderSettings />, { reactHookFixtures: fixtures });
+        renderApp(<EditSenderSettings />, { restHookFixtures: fixtures });
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });

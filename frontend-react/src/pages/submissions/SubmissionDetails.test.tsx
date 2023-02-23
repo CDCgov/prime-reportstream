@@ -36,7 +36,7 @@ const fixtures: Fixture[] = [
 describe("SubmissionDetails", () => {
     beforeEach(() => {
         renderApp(<SubmissionDetails />, {
-            reactHookFixtures: fixtures,
+            restHookFixtures: fixtures,
             initialRouteEntries: [`/submissions/${mockData.id}`],
         });
     });
