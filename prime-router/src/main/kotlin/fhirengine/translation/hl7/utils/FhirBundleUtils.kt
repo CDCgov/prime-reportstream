@@ -38,8 +38,8 @@ object FhirBundleUtils : Logging {
     fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
         return if (sourceType == targetType) {
             value
-        } else if (stringCompatibleTypes.contains(targetType)) {
-            when (sourceType) {
+        } else if (stringCompatibleTypes.contains(sourceType)) {
+            when (targetType) {
                 "base64Binary" -> Base64BinaryType(value.primitiveValue())
                 "canonical" -> CanonicalType(value.primitiveValue())
                 "code" -> CodeType(value.primitiveValue())

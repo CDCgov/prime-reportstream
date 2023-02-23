@@ -59,8 +59,8 @@ class FhirTransformer(
     )
 
     /**
-     * Convert the given [bundle] to an HL7 message.
-     * @return the HL7 message
+     * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
+     * @return the transformed bundle
      */
     fun transform(bundle: Bundle): Bundle {
         val dupes = schemaRef.duplicateElements
@@ -72,7 +72,7 @@ class FhirTransformer(
     }
 
     /**
-     * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
+     * Transform the [bundle] using the elements in the given [schema] using [context] starting at the
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun transformWithSchema(
@@ -94,8 +94,8 @@ class FhirTransformer(
     }
 
     /**
-     * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [focusResource] in the bundle.
-     * Set [debug] to true to enable debug statements to the logs.
+     * Transform the [bundle] using [element] and [context] starting at the
+     * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     internal fun transformBasedOnElement(
         element: FHIRTransformSchemaElement,
@@ -217,7 +217,7 @@ class FhirTransformer(
         }
         // Finally set the value
         val property = childResource.getNamedProperty(pathParts.last())
-        val newValue = FhirBundleUtils.convertFhirType(value, property.typeCode, value.fhirType())
+        val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode)
         childResource.setProperty(pathParts.last(), newValue)
     }
 }
