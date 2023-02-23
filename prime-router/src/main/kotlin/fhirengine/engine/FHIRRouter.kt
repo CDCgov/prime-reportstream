@@ -167,14 +167,6 @@ class FHIRRouter(
                 metadata = this.metadata
             )
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report)
-
-            // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.isNotEmpty()) {
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
-            }
-
             // create item lineage
             report.itemLineages = listOf(
                 ItemLineage(
@@ -190,57 +182,100 @@ class FHIRRouter(
                 )
             )
 
-            // create translate event
-            val translateEvent = ProcessEvent(
-                Event.EventAction.TRANSLATE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            // get the receivers that this bundle should go to
+            val listOfReceivers = applyFilters(bundle, report)
 
-            // upload new copy to blobstore
-            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyBytes,
-                report.name,
-                message.blobSubFolderName,
-                translateEvent.eventAction
-            )
+            // check if there are any receivers
+            if (listOfReceivers.isNotEmpty()) {
+                // this bundle has receivers; send message to translate function
+                // add the receivers to the fhir bundle
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+                // create translate event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.TRANSLATE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
 
-            // insert translate task into Task table
-            this.insertTranslateTask(
-                report,
-                report.bodyFormat.toString(),
-                blobInfo.blobUrl,
-                translateEvent
-            )
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
 
-            // nullify the previous task next_action
-            db.updateTask(
-                message.reportId,
-                TaskAction.none,
-                null,
-                null,
-                finishedField = Tables.TASK.ROUTED_AT,
-                null
-            )
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
 
-            // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
-            //  the destinations have been updated in the FHIR
-            this.queue.sendMessage(
-                elrTranslationQueueName,
-                RawSubmission(
-                    report.id,
+                // insert translate task into Task table
+                this.insertTranslateTask(
+                    report,
+                    report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
-                    message.blobSubFolderName
-                ).serialize()
-            )
+                    nextEvent
+                )
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+
+                // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
+                //  the destinations have been updated in the FHIR
+                this.queue.sendMessage(
+                    elrTranslationQueueName,
+                    RawSubmission(
+                        report.id,
+                        blobInfo.blobUrl,
+                        BlobAccess.digestToString(blobInfo.digest),
+                        message.blobSubFolderName
+                    ).serialize()
+                )
+            } else {
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+            }
         } catch (e: IllegalArgumentException) {
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
