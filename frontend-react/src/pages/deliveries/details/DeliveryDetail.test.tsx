@@ -1,6 +1,6 @@
 import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
-import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import { DeliveryDetail } from "./DeliveryDetail";
 
@@ -20,7 +20,7 @@ describe("DeliveryDetails", () => {
         mockUseReportDetail.mockReturnValueOnce({
             reportDetail: {} as RSDelivery,
         });
-        renderWithFullAppContext(<DeliveryDetail />);
+        renderApp(<DeliveryDetail />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

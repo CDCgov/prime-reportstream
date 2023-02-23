@@ -1,8 +1,8 @@
 import React from "react";
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithQueryProvider } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import {
     SettingRevision,
     SettingRevisionParams,
@@ -48,11 +48,6 @@ const fakeRows: SettingRevision[] = [
 ];
 // </editor-fold>
 
-// router path
-jest.mock("react-router-dom", () => ({
-    useParams: () => ({ org: "ignore", settingType: "organization" }),
-}));
-
 // replace this call to return our mock data
 jest.mock("../../network/api/Organizations/SettingRevisions", () => {
     return {
@@ -74,32 +69,38 @@ describe("AdminRevHistory", () => {
         // and verify the diffs are rendering the diffs correctly
 
         // eslint-disable-next-line react/jsx-pascal-case
-        renderWithQueryProvider(<_exportForTesting.AdminRevHistory />);
+        renderApp(<_exportForTesting.AdminRevHistory />, {
+            initialRouteEntries: [
+                "/admin/revisionhistory/org/ignore/settingtype/organization",
+            ],
+        });
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
         // eslint-disable-next-line no-restricted-globals
         expect(screen.getAllByText(/local@test.com/).length).toBe(2);
 
-        // click an item in each list and make sure the diff loads. (click parent row)
-        {
-            const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
-            const parentRow1 = clickTarget1.parentElement;
-            expect(parentRow1).not.toBeNull();
-            // key linter happy
-            if (parentRow1 !== null) {
-                await userEvent.click(parentRow1);
+        await act(async () => {
+            // click an item in each list and make sure the diff loads. (click parent row)
+            {
+                const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
+                const parentRow1 = clickTarget1.parentElement;
+                expect(parentRow1).not.toBeNull();
+                // key linter happy
+                if (parentRow1 !== null) {
+                    await userEvent.click(parentRow1);
+                }
             }
-        }
 
-        {
-            const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
-            const parentRow2 = clickTarget2.parentElement;
-            expect(parentRow2).not.toBeNull();
-            // key linter happy
-            if (parentRow2 !== null) {
-                await userEvent.click(parentRow2);
+            {
+                const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
+                const parentRow2 = clickTarget2.parentElement;
+                expect(parentRow2).not.toBeNull();
+                // key linter happy
+                if (parentRow2 !== null) {
+                    await userEvent.click(parentRow2);
+                }
             }
-        }
+        });
 
         // make sure the meta data at the bottom is updated.
         {

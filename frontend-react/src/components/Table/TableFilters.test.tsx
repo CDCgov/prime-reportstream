@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
@@ -8,7 +8,7 @@ import TableFilters, { inclusiveDateString } from "./TableFilters";
 
 describe("Rendering", () => {
     beforeEach(() => {
-        renderWithRouter(
+        renderApp(
             <TableFilters
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}

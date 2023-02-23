@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { MessageReceivers } from "./MessageReceivers";
 
@@ -31,7 +31,7 @@ describe("MessageReceivers component", () => {
                 qualityFilters: [],
             },
         ];
-        renderWithBase(
+        renderApp(
             <MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />
         );
 

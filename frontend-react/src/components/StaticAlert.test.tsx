@@ -1,12 +1,12 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithBase } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import { StaticAlert, StaticAlertType } from "./StaticAlert";
 
 describe("StaticAlert", () => {
     test("renders correct class for success", async () => {
-        renderWithBase(
+        renderApp(
             <StaticAlert type={StaticAlertType.Success} heading={"any"} />
         );
 
@@ -15,7 +15,7 @@ describe("StaticAlert", () => {
     });
 
     test("renders correct class for success", async () => {
-        renderWithBase(
+        renderApp(
             <StaticAlert type={StaticAlertType.Error} heading={"any"} />
         );
 

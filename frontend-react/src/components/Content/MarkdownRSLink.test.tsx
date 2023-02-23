@@ -1,4 +1,4 @@
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { isExternalUrl, MarkdownRSLink } from "./MarkdownRSLink";
 
@@ -35,7 +35,7 @@ describe("isExternalUrl", () => {
 
 describe("MarkdownSRLink", () => {
     test.each(externalUrls)("'%s' returns external link", (url) => {
-        const view = renderWithRouter(
+        const view = renderApp(
             <MarkdownRSLink node={undefined as any} href={url}>
                 Test
             </MarkdownRSLink>
@@ -44,7 +44,7 @@ describe("MarkdownSRLink", () => {
     });
 
     test.each(internalUrls)("'%s' returns internal link", (url) => {
-        const view = renderWithRouter(
+        const view = renderApp(
             <MarkdownRSLink node={undefined as any} href={url}>
                 Test
             </MarkdownRSLink>

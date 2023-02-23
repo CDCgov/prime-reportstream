@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { WarningsErrors } from "./WarningsErrors";
 
@@ -22,7 +22,7 @@ describe("WarningsErrors component", () => {
                     "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
             },
         ];
-        renderWithBase(
+        renderApp(
             <WarningsErrors title={"THE HEADING"} data={warnings} />
         );
 

@@ -1,9 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import {
-    renderWithFullAppContext,
-    renderWithQueryProvider,
-} from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import {
     OverallStatus,
     ResponseError,
@@ -214,7 +211,7 @@ describe("FileHandler", () => {
             mockUseSenderSchemaOptions({ isLoading: true });
             mockUseWatersUploader();
 
-            renderWithFullAppContext(<FileHandler />);
+            renderApp(<FileHandler />);
         });
 
         test("renders a spinner", () => {
@@ -236,7 +233,7 @@ describe("FileHandler", () => {
                     sendFile: jest.fn(),
                 });
 
-                renderWithQueryProvider(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("renders as expected", () => {
@@ -272,7 +269,7 @@ describe("FileHandler", () => {
                     sendFile: sendFileSpy,
                 });
 
-                renderWithFullAppContext(<FileHandler />);
+                renderApp(<FileHandler />);
 
                 fireEvent.change(
                     screen.getByTestId("file-input-input"),
@@ -324,7 +321,7 @@ describe("FileHandler", () => {
                     sendFile: jest.fn(),
                 });
 
-                renderWithQueryProvider(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("renders a loading indicator", () => {
@@ -348,7 +345,7 @@ describe("FileHandler", () => {
                     uploaderError: null,
                     sendFile: () => Promise.resolve({}),
                 });
-                renderWithFullAppContext(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("renders error messages", () => {
@@ -387,7 +384,7 @@ describe("FileHandler", () => {
                     sendFile: () => Promise.resolve(mockSendFile),
                 });
 
-                renderWithFullAppContext(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("does not render error messages", () => {
@@ -434,7 +431,7 @@ describe("FileHandler", () => {
                     sendFile: () => Promise.resolve(mockSendFile),
                 });
 
-                renderWithFullAppContext(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("does not render error messages", () => {
@@ -474,7 +471,7 @@ describe("FileHandler", () => {
                     sendFile: () => Promise.resolve({}),
                 });
 
-                renderWithFullAppContext(<FileHandler />);
+                renderApp(<FileHandler />);
             });
 
             test("renders warnings", () => {
@@ -493,7 +490,7 @@ describe("FileHandler", () => {
         describe("when selecting between schemas", () => {
             describe("when no schema is selected", () => {
                 beforeEach(() => {
-                    renderWithFullAppContext(<FileHandler />);
+                    renderApp(<FileHandler />);
                 });
 
                 test("does not render a prompt", () => {
@@ -521,7 +518,7 @@ describe("FileHandler", () => {
                         selectedSchemaOption,
                     });
 
-                    renderWithFullAppContext(<FileHandler />);
+                    renderApp(<FileHandler />);
                 });
 
                 test("only renders a prompt to upload a CSV file", () => {
@@ -549,7 +546,7 @@ describe("FileHandler", () => {
                         selectedSchemaOption,
                     });
 
-                    renderWithFullAppContext(<FileHandler />);
+                    renderApp(<FileHandler />);
                 });
 
                 test("only renders a prompt to upload an HL7 file", () => {

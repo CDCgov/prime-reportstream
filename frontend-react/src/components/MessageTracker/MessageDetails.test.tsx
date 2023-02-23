@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mocks__/MessageTrackerHooks";
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { MessageDetails } from "./MessageDetails";
 
@@ -171,7 +171,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: MOCK_EMPTY_MESSAGE_DETAIL,
         });
-        renderWithBase(<MessageDetails />);
+        renderApp(<MessageDetails />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
     });
 
@@ -179,7 +179,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: DEFAULT_MESSAGE_DETAIL,
         });
-        renderWithBase(<MessageDetails />);
+        renderApp(<MessageDetails />);
 
         expect(screen.getByText("Message ID")).toBeInTheDocument();
         expect(screen.getByText(/12-234567/)).toBeInTheDocument();
@@ -213,7 +213,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            renderWithBase(<MessageDetails />);
+            renderApp(<MessageDetails />);
             expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
@@ -232,7 +232,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            renderWithBase(<MessageDetails />);
+            renderApp(<MessageDetails />);
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
                 screen.queryByText("/ simple_report.csvuploader")

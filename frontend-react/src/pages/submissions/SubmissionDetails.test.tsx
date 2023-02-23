@@ -1,8 +1,9 @@
 import { MatcherFunction, screen } from "@testing-library/react";
+import { Fixture } from "@rest-hooks/test";
 
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../AppRouter";
 
@@ -22,19 +23,19 @@ const timeRegex: RegExp = /\d{1,2}:\d{2}/;
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL
 ).data;
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
+
+const fixtures: Fixture[] = [
+    {
+        endpoint: ActionDetailsResource.detail(),
+        args: [{ actionId: mockData.id }],
+        error: false,
+        response: mockData,
     },
-    /* Must return children when mocking, otherwise nothing inside renders */
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
+];
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
-        renderWithRouter(<SubmissionDetails />);
+        renderApp(<SubmissionDetails />, { reactHookFixtures: fixtures });
     });
 
     test("renders crumb nav to Submissions list", () => {
@@ -100,9 +101,7 @@ describe("SubmissionDetails", () => {
 
 describe("DetailItem", () => {
     beforeEach(() => {
-        renderWithRouter(
-            <DetailItem item="Test Item" content="Test Content" />
-        );
+        renderApp(<DetailItem item="Test Item" content="Test Content" />);
     });
 
     test("renders content", () => {
@@ -113,7 +112,7 @@ describe("DetailItem", () => {
 
 describe("DestinationItem", () => {
     beforeEach(() => {
-        renderWithRouter(
+        renderApp(
             <DestinationItem destinationObj={mockData.destinations[0]} />
         );
     });

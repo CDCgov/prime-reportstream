@@ -1,6 +1,6 @@
 import { screen, fireEvent } from "@testing-library/react";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../../hooks/UseFileHandler";
 
@@ -24,7 +24,7 @@ describe("FileHandlerForm", () => {
     };
 
     function doRender(props: Partial<FileHandlerFormProps> = {}) {
-        return renderWithBase(
+        return renderApp(
             <FileHandlerForm {...DEFAULT_PROPS} {...props} />
         );
     }

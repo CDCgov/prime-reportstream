@@ -1,10 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import {
-    renderWithBase,
-    renderWithFullAppContext,
-    renderWithRouter,
-} from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ResponseError } from "../../config/endpoints/waters";
@@ -22,7 +18,7 @@ import {
 // think of a better way to do it. Is there a better pattern for this? - DWS
 describe("FileSuccessDisplay", () => {
     test("renders expected content", async () => {
-        renderWithRouter(
+        renderApp(
             <FileSuccessDisplay
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
@@ -65,7 +61,7 @@ describe("FileSuccessDisplay", () => {
 describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
         const restore = conditionallySuppressConsole("failure:");
-        renderWithFullAppContext(
+        renderApp(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
@@ -119,7 +115,7 @@ describe("FileErrorDisplay", () => {
             details: "none",
         };
         const errors = [fakeError1, fakeError2, fakeError3];
-        renderWithFullAppContext(
+        renderApp(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
                 heading={"THE HEADING"}
@@ -217,7 +213,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        renderWithBase(
+        renderApp(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}

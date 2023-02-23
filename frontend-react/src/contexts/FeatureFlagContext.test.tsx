@@ -1,4 +1,4 @@
-import { renderWithBase } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
@@ -81,7 +81,7 @@ describe("FeatureFlagProvider", () => {
     const mockSavedFlags = ["flag-1", "flag-2"];
     beforeEach(() => {
         mockGetSavedFeatureFlags.mockReturnValue(mockSavedFlags);
-        renderWithBase(<FeatureFlagProviderTestRenderer />);
+        renderApp(<FeatureFlagProviderTestRenderer />);
     });
     test("provides initial state with saved flags and env level flags", async () => {
         expect(providerValueMonitor).toHaveBeenCalledTimes(1);

@@ -1,8 +1,10 @@
+import { Fixture } from "@rest-hooks/test";
 import { fireEvent, screen } from "@testing-library/react";
 import { rest } from "msw";
 
 import config from "../../config";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -54,19 +56,14 @@ const mockData = {
     dateTimeFormat: "OFFSET",
 };
 
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
+const fixtures: Fixture[] = [
+    {
+        endpoint: OrgReceiverSettingsResource.list(),
+        args: [],
+        error: false,
+        response: mockData,
     },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
+];
 
 jest.mock("react-router-dom", () => ({
     useNavigate: () => {
@@ -93,7 +90,7 @@ describe("EditReceiverSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithBase(<EditReceiverSettings />);
+        renderApp(<EditReceiverSettings />, { reactHookFixtures: fixtures });
     });
 
     test("should be able to edit keys field", () => {

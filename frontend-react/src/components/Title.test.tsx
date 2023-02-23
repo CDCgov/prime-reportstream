@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithBase } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import Title from "./Title";
 
@@ -8,7 +8,7 @@ describe("Title component", () => {
     const UNIQUE_TITLE = `Title for test`;
     const UNIQUE_PRETITLE = `Unique PreTitle for unit test`;
     beforeEach(() => {
-        renderWithBase(
+        renderApp(
             <Title title={UNIQUE_TITLE} preTitle={UNIQUE_PRETITLE} />
         );
     });

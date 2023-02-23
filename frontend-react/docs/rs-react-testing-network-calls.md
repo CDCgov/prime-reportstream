@@ -132,7 +132,7 @@ describe("ValueSetsIndex", () => {
             valueSetArray: [] as ValueSet[],
             error: null,
         }));
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndex />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
         const rows = screen.getAllByRole("row");

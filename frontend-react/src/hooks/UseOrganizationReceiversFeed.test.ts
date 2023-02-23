@@ -1,6 +1,6 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
@@ -37,7 +37,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -70,7 +70,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -101,11 +101,13 @@ describe("useOrganizationReceiversFeed", () => {
         });
 
         test("returns correct organization receivers feed", async () => {
-            const { result, waitForNextUpdate } = renderHook(
+            const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
-                { wrapper: QueryWrapper() }
+                { wrapper: AppWrapper() }
             );
-            await waitForNextUpdate();
+            await waitFor(() =>
+                expect(result.current.services.length).toBeGreaterThan(0)
+            );
             expect(result.current.services).toEqual(dummyReceivers);
             expect(result.current.setActiveService).toBeDefined();
             expect(result.current.activeService).toEqual(dummyActiveReceiver);
@@ -129,12 +131,9 @@ describe("useOrganizationReceiversFeed", () => {
             isUserReceiver: true,
             isUserSender: false,
         });
-        const { result, waitFor } = renderHook(
-            () => useOrganizationReceiversFeed(),
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result } = renderHook(() => useOrganizationReceiversFeed(), {
+            wrapper: AppWrapper(),
+        });
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "elr-0",

@@ -1,11 +1,14 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import React, { Suspense } from "react";
-import { MemoryRouter } from "react-router-dom";
+import { Fixture } from "@rest-hooks/test";
 
-import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
+import {
+    AdmConnStatusDataType,
+    AdmConnStatusResource,
+} from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
@@ -81,19 +84,19 @@ const mockData: AdmConnStatusDataType[] = [
 ];
 // </editor-fold>
 
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
+const fixtures: Fixture[] = [
+    {
+        endpoint: AdmConnStatusResource.list(),
+        args: [
+            {
+                startDate: new Date("2022-07-11"),
+                endDate: new Date("2022-07-14"),
+            },
+        ],
+        error: false,
+        response: mockData,
     },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
+];
 
 describe("AdminReceiverDashboard tests", () => {
     test("misc functions", () => {
@@ -237,30 +240,29 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = renderWithBase(
-            <MemoryRouter>
-                <Suspense fallback={<></>}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                        <_exportForTesting.MainRender
-                            datesRange={[
-                                new Date("2022-07-11"),
-                                new Date("2022-07-14"),
-                            ]}
-                            filterRowStatus={
-                                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
-                            }
-                            filterErrorText={" "}
-                            filterRowReceiver={"-"}
-                            onDetailsClick={(
-                                _subdata: AdmConnStatusDataType[]
-                            ) => {}}
-                        />
-                    </NetworkErrorBoundary>
-                </Suspense>
-            </MemoryRouter>
+        const { baseElement } = renderApp(
+            <Suspense fallback={<></>}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    {/*eslint-disable-next-line react/jsx-pascal-case*/}
+                    <_exportForTesting.MainRender
+                        datesRange={[
+                            new Date("2022-07-11"),
+                            new Date("2022-07-14"),
+                        ]}
+                        filterRowStatus={
+                            _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                        }
+                        filterErrorText={" "}
+                        filterRowReceiver={"-"}
+                        onDetailsClick={(
+                            _subdata: AdmConnStatusDataType[]
+                        ) => {}}
+                    />
+                </NetworkErrorBoundary>
+            </Suspense>,
+            { reactHookFixtures: fixtures }
         );
 
         const days = screen.getAllByText(/Mon/);
@@ -301,7 +303,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("ModalInfoRender", async () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
-        renderWithBase(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />
         );
@@ -312,7 +314,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender empty", async () => {
-        renderWithBase(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />
         );
@@ -320,7 +322,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("DateRangePickingAtomic", async () => {
-        renderWithBase(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"

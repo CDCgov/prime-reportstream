@@ -1,6 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { Fixture } from "@rest-hooks/test";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
@@ -11,19 +12,14 @@ const mockData: OrganizationResource = new TestResponse(
     ResponseType.NEW_ORGANIZATION
 ).data;
 
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
+const fixtures: Fixture[] = [
+    {
+        endpoint: OrganizationResource.list(),
+        args: [],
+        error: false,
+        response: mockData,
     },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
+];
 
 jest.mock("react-router-dom", () => ({
     ...(jest.requireActual("react-router-dom") as any),
@@ -47,7 +43,7 @@ describe("AdminOrgNew", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithRouter(<AdminOrgNew />);
+        renderApp(<AdminOrgNew />, { reactHookFixtures: fixtures });
     });
 
     test("should go to the new created organization's page", () => {

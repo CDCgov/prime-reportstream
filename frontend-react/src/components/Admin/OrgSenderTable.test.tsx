@@ -1,7 +1,9 @@
 import { screen } from "@testing-library/react";
+import { Fixture } from "@rest-hooks/test";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 
 import { OrgSenderTable } from "./OrgSenderTable";
 
@@ -146,28 +148,23 @@ const mockData = [
     },
 ];
 
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
+const fixtures: Fixture[] = [
+    {
+        endpoint: OrgSenderSettingsResource.list(),
+        args: [{ orgname: "test" }],
+        error: false,
+        response: mockData,
     },
-    useController: () => {
-        // fetch is destructured as fetchController in component
-        return { fetch: () => mockData };
-    },
-    // Must return children when mocking, otherwise nothing inside renders
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
+];
 
 describe("OrgReceiverTable", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithFullAppContext(
-            <OrgSenderTable orgname={"test"} key={"test"} />
-        );
+        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />, {
+            reactHookFixtures: fixtures,
+        });
     });
 
     test("renders correctly", () => {

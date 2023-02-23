@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { AxiosError } from "axios";
 
-import { renderWithBase } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { conditionallySuppressConsole } from "../utils/TestUtils";
 
@@ -34,7 +34,7 @@ describe("RSErrorBoundary", () => {
             "unknown-error",
             "The above error occurred in the <ThrowsRSError> component:"
         );
-        renderWithBase(<ThrowsRSErrorWrapped />);
+        renderApp(<ThrowsRSErrorWrapped />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -50,7 +50,7 @@ describe("RSErrorBoundary", () => {
             "The above error occurred in the <ThrowsGenericError> component:",
             "unknown-error"
         );
-        renderWithBase(<ThrowsGenericErrorWrapped />);
+        renderApp(<ThrowsGenericErrorWrapped />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -60,7 +60,7 @@ describe("RSErrorBoundary", () => {
     });
 
     test("Renders component when no error", () => {
-        renderWithBase(<ThrowsNoErrorWrapped />);
+        renderApp(<ThrowsNoErrorWrapped />);
         expect(screen.getByText("Success!")).toBeInTheDocument();
     });
 });

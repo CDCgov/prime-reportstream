@@ -1,8 +1,7 @@
 import { screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
 
 import site from "../../content/site.json";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { AgreementBody } from "./TermsOfServiceForm";
 import SuccessPage from "./SuccessPage";
@@ -20,11 +19,7 @@ describe("Basic rendering", () => {
     };
 
     beforeEach(() => {
-        renderWithBase(
-            <BrowserRouter>
-                <SuccessPage data={mockData} />
-            </BrowserRouter>
-        );
+        renderApp(<SuccessPage data={mockData} />);
     });
 
     test("Renders without error", async () => {

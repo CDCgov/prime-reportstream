@@ -1,7 +1,7 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 
 import { useValueSetActivation } from "./UseValueSets";
 
@@ -12,7 +12,7 @@ describe("useValueSetActivation", () => {
 
     const renderWithQueryWrapper = () =>
         renderHook(() => useValueSetActivation(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
 
     test("returns trigger and loading indicator", () => {
