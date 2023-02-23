@@ -80,9 +80,12 @@ abstract class ConfigSchemaProcessor : Logging {
         // does a lowerCase comparison
         if (element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
-            val valStr =
-                lowerSet.getOrDefault(retVal?.primitiveValue()?.lowercase() ?: "", retVal?.primitiveValue() ?: "")
-            retVal = FhirPathUtils.evaluate(context, focusResource, bundle, valStr)[0]
+            val valStr = lowerSet[retVal?.primitiveValue()?.lowercase() ?: ""]
+            if (valStr != null) {
+                val value = FhirPathUtils.evaluate(context, focusResource, bundle, valStr)
+                if (value.isNotEmpty())
+                    retVal = value[0]
+            }
         }
         return retVal
     }

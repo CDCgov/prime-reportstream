@@ -30,8 +30,8 @@ object FhirBundleUtils : Logging {
         "oid",
         "string",
         "time",
-        "url",
         "uri",
+        "url",
         "uuid"
     )
 
@@ -55,8 +55,8 @@ object FhirBundleUtils : Logging {
                 "oid" -> OidType(value.primitiveValue())
                 "string" -> StringType(value.primitiveValue())
                 "time" -> TimeType(value.primitiveValue())
-                "url" -> UrlType(value.primitiveValue())
                 "uri" -> UriType(value.primitiveValue())
+                "url" -> UrlType(value.primitiveValue())
                 "uuid" -> UuidType(value.primitiveValue())
                 else -> {
                     logger.error("Conversion between $sourceType and $targetType not yet implemented.")
