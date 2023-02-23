@@ -35,6 +35,10 @@ object FhirBundleUtils : Logging {
         "uuid"
     )
 
+    /**
+     * Converts a [value] of type [sourceType] into a compatible Base of type [targetType]. Returns the original value
+     * and logs an error if the conversion is not supported.
+     */
     fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
         return if (sourceType == targetType) {
             value
