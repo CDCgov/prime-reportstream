@@ -121,7 +121,10 @@ describe("when validating values", () => {
 
 describe("isValidDateString", () => {
     test("returns true only when the date string is well-formed and a valid date", () => {
+        expect(isValidDateString("1/1/23")).toEqual(true);
         expect(isValidDateString("1/1/2023")).toEqual(true);
+        expect(isValidDateString("01/1/2023")).toEqual(true);
+        expect(isValidDateString("01/01/2023")).toEqual(true);
         expect(isValidDateString("01/01/2023")).toEqual(true);
 
         expect(isValidDateString("")).toEqual(false);

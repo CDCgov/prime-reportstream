@@ -25,7 +25,11 @@ interface SubmissionFilterProps {
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
 }
 
-const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}$/;
+// using a regex to check for format because of different browsers' implementations of Date
+// e.g.:
+//   new Date('11') in Chrome --> Date representation of 11/01/2001
+//   new Date('11') in Firefox --> Invalid Date
+const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
 
 export function isValidDateString(dateStr?: string) {
     // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
