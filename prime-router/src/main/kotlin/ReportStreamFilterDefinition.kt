@@ -397,33 +397,6 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
 }
 
 /**
- * intersect("condition1"|"condition2"|"condition3"|)
- * Implements a condition check match.  If a row has valid data for any of the conditions, the row is selected.
- */
-class Intersect : ReportStreamFilterDefinition {
-    override val name = "intersect"
-    override fun getSelection(
-        args: List<String>,
-        table: Table,
-        receiver: Receiver,
-        doAuditing: Boolean
-    ): Selection {
-        // Check args
-        if (args.size < 2) error("Expecting more than one argument got none")
-
-        // Add indexes to form a selection
-        val selection = Selection.withRange(0, 0)
-        val column = table.stringColumn(args[0])
-        column.forEachIndexed { index, value ->
-            if (args.contains(value)) {
-                selection.add(index)
-            }
-        }
-        return selection
-    }
-}
-
-/**
  * AtLeastOneHasValue(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has true value for any of the columns, the row is selected.
  */
