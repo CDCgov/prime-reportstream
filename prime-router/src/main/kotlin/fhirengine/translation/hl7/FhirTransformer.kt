@@ -209,7 +209,7 @@ class FhirTransformer(
                     val matchResult = extensionRegex.find(childName)
                     if (matchResult != null) {
                         childResource = childResource.addChild("extension")
-                        (childResource as Extension).url = matchResult.groupValues[0]
+                        (childResource as Extension).url = matchResult.groupValues[1]
                     }
                 }
                 else -> childResource = childResource.addChild(childName)

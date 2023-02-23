@@ -222,15 +222,43 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        val newBundle = FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).transform(bundle)
         val newValue =
             FhirPathUtils.evaluate(
-                CustomContext(newBundle, newBundle),
-                newBundle,
-                newBundle,
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
                 "Bundle.entry.resource.ofType(Patient).active"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("true")
+    }
+
+    @Test
+    fun `test transform extension property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("'someValue'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.extension('someExtension').value[x]"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
+                "Bundle.entry.resource.ofType(Patient).extension('someExtension').value[0]"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("someValue")
     }
 
     @Test
@@ -250,12 +278,12 @@ class FhirTransformerTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        val newBundle = FhirTransformer(schema).transform(bundle)
+        FhirTransformer(schema).transform(bundle)
         val newValue =
             FhirPathUtils.evaluate(
-                CustomContext(newBundle, newBundle),
-                newBundle,
-                newBundle,
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
                 "Bundle.entry.resource.ofType(Patient).contact.name.text"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("abc123")
