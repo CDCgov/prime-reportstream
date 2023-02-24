@@ -68,6 +68,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
                 val receiver = header.receiver
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
+                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
