@@ -179,10 +179,17 @@ export function MessageDetails() {
                         </div>
                     </div>
                 </div>
-                <hr className="margin-bottom-4" />
-                <MessageReceivers
-                    receiverDetails={messageDetails!.receiverData}
-                />
+                <hr className="margin-top-2 margin-bottom-4" />
+                {messageDetails?.receiverData! ? (
+                    <MessageReceivers
+                        receiverDetails={messageDetails.receiverData}
+                    />
+                ) : (
+                    <>
+                        <h2>Receivers:</h2>
+                        <h3>No Data to Display</h3>
+                    </>
+                )}
             </div>
         </>
     );
