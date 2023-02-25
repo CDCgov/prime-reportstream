@@ -9,9 +9,9 @@ import {
 } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import Spinner from "../Spinner";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
-import Spinner from "../Spinner";
 
 // <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
 const mockData: AdmConnStatusDataType[] = [

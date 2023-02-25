@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 import { Fixture } from "@rest-hooks/test";
+import { Suspense } from "react";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
+import Spinner from "../Spinner";
 
 import { OrgSenderTable } from "./OrgSenderTable";
-import { Suspense } from "react";
-import Spinner from "../Spinner";
 
 const mockData = [
     {
