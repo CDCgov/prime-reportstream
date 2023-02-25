@@ -1,12 +1,14 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { Fixture } from "@rest-hooks/test";
+import userEvent from "@testing-library/user-event/";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
+import { conditionallySuppressConsole } from "../../utils/TestUtils";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
@@ -19,22 +21,24 @@ let nameField: HTMLElement;
 const fixtures: Fixture[] = [
     {
         endpoint: OrgSenderSettingsResource.list(),
-        args: [],
+        args: [{ orgname: mockData.organizationName }],
+        error: false,
+        response: [mockData],
+    },
+    {
+        endpoint: OrgSenderSettingsResource.detail(),
+        args: [
+            { orgname: mockData.organizationName, sendername: mockData.name },
+        ],
         error: false,
         response: mockData,
     },
 ];
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
-    },
-    useParams: () => {
-        return {
-            orgname: "abbott",
-            sendername: "user1234",
-            action: "edit",
-        };
     },
 }));
 
@@ -66,53 +70,95 @@ describe("EditSenderSettings", () => {
         settingsServer.listen();
         settingsServer.use(
             rest.get(
-                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
+                `${config.API_ROOT}/settings/organizations/${mockData.organizationName}/senders/${mockData.name}`,
                 (req, res, ctx) => res(ctx.json(mockData))
             )
         );
     });
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderApp(<EditSenderSettings />, { restHookFixtures: fixtures });
-        nameField = screen.getByTestId("name");
+    test("toggle allowDuplicates", async () => {
+        renderApp(<EditSenderSettings />, {
+            restHookFixtures: fixtures,
+            initialRouteEntries: [
+                `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/edit`,
+            ],
+        });
+        nameField = await screen.findByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
-    });
-    test("toggle allowDuplicates", () => {
         const checkbox = screen.getByTestId("allowDuplicates");
         expect(checkbox).toBeInTheDocument();
         expect(checkbox).not.toBeChecked();
-        fireEvent.click(checkbox);
+        await userEvent.click(checkbox);
         expect(checkbox).toBeChecked();
     });
-    test("should be able to edit keys field", () => {
+    test("should be able to edit keys field", async () => {
+        renderApp(<EditSenderSettings />, {
+            restHookFixtures: fixtures,
+            initialRouteEntries: [
+                `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/edit`,
+            ],
+        });
+        nameField = await screen.findByTestId("name");
+        editJsonAndSaveButton = screen.getByTestId("submit");
         const keysField = screen.getByTestId("keys");
 
         expect(keysField).toBeInTheDocument();
 
-        fireEvent.change(keysField, { target: { value: testKeys } });
+        await userEvent.clear(keysField);
+        await userEvent.type(
+            keysField,
+            testKeys.replaceAll("[", "[[").replaceAll("{", "{{")
+        );
 
         expect(keysField).toHaveValue(testKeys);
     });
 
-    test("should be able to edit processing type field", () => {
-        const processingTypeField = screen.getByTestId("processingType");
-
-        expect(processingTypeField).toBeInTheDocument();
-
-        fireEvent.change(processingTypeField, {
-            target: { value: testProcessingType },
+    // DO NOT USE THIS TEST AS AN EXAMPLE. Checking the classList
+    // instead of something queryable using testing-library
+    // is incorrect. This test implementation is expected
+    // to be replaced with a future component refactor.
+    test("should be able to edit processing type field", async () => {
+        renderApp(<EditSenderSettings />, {
+            restHookFixtures: fixtures,
+            initialRouteEntries: [
+                `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/edit`,
+            ],
         });
+        nameField = await screen.findByTestId("name");
+        editJsonAndSaveButton = screen.getByTestId("submit");
+        // This testing implementation is incomplete so silencing
+        // an error that occurs
+        const restore = conditionallySuppressConsole(
+            "Trace: ShowError JSON data"
+        );
+        const processingTypeField = screen.getByTestId("processingType");
+        expect(processingTypeField).toBeInTheDocument();
+        const compareModal = screen.getByLabelText(
+            "Compare your changes with previous version"
+        );
 
-        expect(processingTypeField).toHaveValue(testProcessingType);
-        fireEvent.click(editJsonAndSaveButton);
-        fireEvent.click(screen.getByTestId("editCompareCancelButton"));
-        fireEvent.click(screen.getByTestId("senderSettingDeleteButton"));
+        userEvent.selectOptions(processingTypeField, testProcessingType);
+        await waitFor(() =>
+            expect(processingTypeField).toHaveValue(testProcessingType)
+        );
+
+        userEvent.click(editJsonAndSaveButton);
+        await waitFor(() =>
+            expect(compareModal.classList).not.toContain("is-hidden")
+        );
+        userEvent.click(screen.getByTestId("editCompareCancelButton"));
+        await waitFor(() =>
+            expect(compareModal.classList).toContain("is-hidden")
+        );
+        userEvent.click(screen.getByTestId("senderSettingDeleteButton"));
+        await screen.findByLabelText("Confirm Delete");
+        restore();
     });
 
     describe("should validate name", () => {
         const consoleTraceSpy = jest.fn();
 
-        beforeEach(() => {
+        beforeEach(async () => {
             jest.spyOn(console, "trace").mockImplementationOnce(
                 consoleTraceSpy
             );
@@ -122,33 +168,57 @@ describe("EditSenderSettings", () => {
             jest.resetAllMocks();
         });
 
-        test("should display an error if name value is prohibited", () => {
-            fireEvent.change(nameField, {
-                target: { value: "Organization" },
+        test("should display an error if name value is prohibited", async () => {
+            renderApp(<EditSenderSettings />, {
+                restHookFixtures: fixtures,
+                initialRouteEntries: [
+                    `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/clone`,
+                ],
             });
+            nameField = await screen.findByTestId("name");
+            editJsonAndSaveButton = screen.getByTestId("submit");
+            await userEvent.clear(nameField);
+            await userEvent.type(nameField, "Organization");
             expect(nameField).toHaveValue("Organization");
 
-            fireEvent.click(editJsonAndSaveButton);
+            await userEvent.click(editJsonAndSaveButton);
             expect(consoleTraceSpy).toHaveBeenCalled();
         });
 
-        test("should display an error if name value contains a non-alphanumeric char", () => {
-            fireEvent.change(nameField, {
-                target: { value: "a\\nlinefeed" },
+        test("should display an error if name value contains a non-alphanumeric char", async () => {
+            renderApp(<EditSenderSettings />, {
+                restHookFixtures: fixtures,
+                initialRouteEntries: [
+                    `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/clone`,
+                ],
             });
+            nameField = await screen.findByTestId("name");
+            editJsonAndSaveButton = screen.getByTestId("submit");
+            await userEvent.clear(nameField);
+            await userEvent.type(nameField, "a\\nlinefeed");
             expect(nameField).toHaveValue("a\\nlinefeed");
 
-            fireEvent.click(editJsonAndSaveButton);
+            await userEvent.click(editJsonAndSaveButton);
             expect(consoleTraceSpy).toHaveBeenCalled();
         });
 
-        test("should not display error if name value is valid", () => {
-            fireEvent.change(nameField, {
-                target: { value: "test" },
+        test("should not display error if name value is valid", async () => {
+            renderApp(<EditSenderSettings />, {
+                restHookFixtures: fixtures,
+                initialRouteEntries: [
+                    `/admin/orgsendersettings/org/${mockData.organizationName}/sender/${mockData.name}/action/clone`,
+                ],
             });
+            nameField = await screen.findByTestId("name");
+            editJsonAndSaveButton = screen.getByTestId("submit");
+            await userEvent.clear(nameField);
+            await userEvent.type(nameField, "test");
             expect(nameField).toHaveValue("test");
 
-            fireEvent.click(editJsonAndSaveButton);
+            userEvent.click(editJsonAndSaveButton);
+            await screen.findAllByLabelText(
+                "Compare your changes with previous version"
+            );
             expect(consoleTraceSpy).not.toHaveBeenCalled();
         });
     });

@@ -1,13 +1,11 @@
-import { screen, act } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
+import { ValueSetsMetaResponse } from "../../../hooks/UseValueSetsMeta";
+import { ValueSetsTableResponse } from "../../../hooks/UseValueSetsTable";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
-} from "../../../hooks/UseValueSets";
 import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
 import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
@@ -42,16 +40,28 @@ let mockActivateTable = jest.fn();
 let mockUseValueSetsTable = jest.fn();
 let mockUseValueSetsMeta = jest.fn();
 
-jest.mock("../../../hooks/UseValueSets", () => {
+jest.mock("../../../hooks/UseValueSetsTable", () => {
     return {
         useValueSetsTable: (valueSetName: string) =>
             mockUseValueSetsTable(valueSetName),
+    };
+});
+jest.mock("../../../hooks/UseValueSetUpdate", () => {
+    return {
         useValueSetUpdate: () => ({
             saveData: mockSaveData,
         }),
+    };
+});
+jest.mock("../../../hooks/UseValueSetActivation", () => {
+    return {
         useValueSetActivation: () => ({
             activateTable: mockActivateTable,
         }),
+    };
+});
+jest.mock("../../../hooks/UseValueSetsMeta", () => {
+    return {
         useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
@@ -108,15 +118,17 @@ describe("ValueSetsDetail", () => {
         expect(editButtons.length).toEqual(rows.length - 1);
 
         // activate editing mode for first row
-        await userEvent.click(editButtons[0]);
+        userEvent.click(editButtons[0]);
 
         // assert input element is rendered in edit mode
-        const input = screen.getAllByRole("textbox");
-        expect(input.length).toEqual(3);
+        expect(await screen.findAllByRole("textbox")).toHaveLength(3);
     });
 
     test("Handles error with table fetch", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
+        const restore = conditionallySuppressConsole(
+            "not-found: Test",
+            "The above error occurred"
+        );
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
@@ -130,8 +142,6 @@ describe("ValueSetsDetail", () => {
                     valueSetMeta: fakeMeta,
                 } as ValueSetsMetaResponse)
         );
-        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
-         * test them via the ErrorBoundary test? */
         renderApp(<ValueSetsDetail />, {
             initialRouteEntries: ["/admin/value-sets/a-path"],
         });
@@ -145,7 +155,7 @@ describe("ValueSetsDetail", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles fetch related errors", () => {
+    test("Handles fetch related errors", async () => {
         const restore = conditionallySuppressConsole("not-found: Test");
         const mockSetAlert = jest.fn();
         renderApp(
@@ -164,6 +174,7 @@ describe("ValueSetsDetailTable", () => {
         restore();
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
+        const fakeInputValue = "~~fakeInputValue";
         mockSaveData = jest.fn(() => {
             // to avoid unnecessary console error
             return Promise.resolve({ tableVersion: 2 });
@@ -174,7 +185,6 @@ describe("ValueSetsDetailTable", () => {
             return Promise.resolve({ tableVersion: 2 });
         });
         const mockSetAlert = jest.fn();
-        const fakeRowsCopy = [...fakeRows];
 
         renderApp(
             <ValueSetsDetailTable
@@ -186,34 +196,36 @@ describe("ValueSetsDetailTable", () => {
         const editButtons = screen.getAllByText("Edit");
         const editButton = editButtons[0];
         expect(editButton).toBeInTheDocument();
-        await userEvent.click(editButton);
+        userEvent.click(editButton);
 
-        const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
-        const firstInput = inputs[0];
+        const firstInput = await screen.findByLabelText<HTMLInputElement>(
+            "display-0"
+        );
         const initialValue = firstInput.value;
-        await userEvent.click(firstInput);
-        await userEvent.keyboard("~~fakeInputValue~~");
+        const newFakeRows = [
+            {
+                ...fakeRows[0],
+                display: `${initialValue}${fakeInputValue}`,
+            },
+            ...fakeRows.slice(1),
+        ];
+        userEvent.type(firstInput, fakeInputValue);
+
+        await waitFor(() => {
+            expect(firstInput).toHaveValue(`${initialValue}${fakeInputValue}`);
+        });
 
         const saveButton = screen.getByText("Save");
         expect(saveButton).toBeInTheDocument();
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-            await userEvent.click(saveButton);
-        });
-        fakeRowsCopy.shift();
+        userEvent.click(saveButton);
 
-        expect(mockSaveData).toHaveBeenCalled();
-        expect(mockSaveData).toHaveBeenCalledWith({
-            data: [
-                {
-                    ...fakeRows[0],
-                    display: `${initialValue}~~fakeInputValue~~`,
-                },
-                ...fakeRowsCopy,
-            ],
-            tableName: "a-path",
+        await waitFor(() => {
+            expect(mockSaveData).toHaveBeenCalledWith({
+                data: newFakeRows,
+                tableName: "a-path",
+            });
         });
-        expect(mockActivateTable).toHaveBeenCalled();
+
         expect(mockActivateTable).toHaveBeenCalledWith({
             tableVersion: 2,
             tableName: "a-path",

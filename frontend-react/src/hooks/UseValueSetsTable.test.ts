@@ -4,7 +4,7 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
 import { AppWrapper } from "../utils/CustomRenderUtils";
 
-import { useValueSetsTable } from "./UseValueSets";
+import { useValueSetsTable } from "./UseValueSetsTable";
 
 describe("useValueSetsTable", () => {
     const renderWithQueryWrapper = (tableName: LookupTables) =>

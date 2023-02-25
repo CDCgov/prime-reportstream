@@ -4,11 +4,9 @@ import { AxiosError, AxiosResponse } from "axios";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
-} from "../../../hooks/UseValueSets";
 import { conditionallySuppressConsole } from "../../../utils/TestUtils";
+import { ValueSetsMetaResponse } from "../../../hooks/UseValueSetsMeta";
+import { ValueSetsTableResponse } from "../../../hooks/UseValueSetsTable";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -31,9 +29,13 @@ const fakeMeta = {
 let mockUseValueSetsTable = jest.fn();
 let mockUseValueSetsMeta = jest.fn();
 
-jest.mock("../../../hooks/UseValueSets", () => {
+jest.mock("../../../hooks/UseValueSetsTable", () => {
     return {
         useValueSetsTable: () => mockUseValueSetsTable(),
+    };
+});
+jest.mock("../../../hooks/UseValueSetsMeta", () => {
+    return {
         useValueSetsMeta: () => mockUseValueSetsMeta(),
     };
 });
@@ -95,7 +97,10 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
+        const restore = conditionallySuppressConsole(
+            "not-found: Test",
+            "The above error occurred"
+        );
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({

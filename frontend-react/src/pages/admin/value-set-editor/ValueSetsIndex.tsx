@@ -7,10 +7,6 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import {
-    useValueSetsMeta,
-    useValueSetsTable,
-} from "../../../hooks/UseValueSets";
-import {
     LookupTable,
     LookupTables,
     ValueSet,
@@ -18,6 +14,8 @@ import {
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
+import { useValueSetsMeta } from "../../../hooks/UseValueSetsMeta";
+import { useValueSetsTable } from "../../../hooks/UseValueSetsTable";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (

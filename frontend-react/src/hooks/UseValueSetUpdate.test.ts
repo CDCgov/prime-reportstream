@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { AppWrapper } from "../utils/CustomRenderUtils";
 
-import { useValueSetUpdate } from "./UseValueSets";
+import { useValueSetUpdate } from "./UseValueSetUpdate";
 
 // note that running the mutation tests below results in a warning:
 // `Can't perform a React state update on an unmounted component`

@@ -7,8 +7,11 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { FeatureFlagUIComponent } from "./FeatureFlags";
 
 jest.mock("../../config", () => {
+    const originalModule = jest.requireActual("../../config");
     return {
+        ...originalModule,
         default: {
+            ...originalModule.default,
             DEFAULT_FEATURE_FLAGS: "flag-3",
         },
         __esModule: true,

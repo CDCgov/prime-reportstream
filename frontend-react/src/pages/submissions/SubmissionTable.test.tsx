@@ -9,8 +9,6 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 
 import SubmissionTable from "./SubmissionTable";
 
-// const { addFeatureFlag, removeFeatureFlag } = _exportForTesting;
-
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
         mockSessionContext.mockReturnValue({
@@ -77,11 +75,10 @@ describe("SubmissionTable", () => {
                 isUserReceiver: false,
                 isUserSender: false,
             });
-
-            renderApp(<SubmissionTable />, { restHookFixtures: [] });
         });
 
         test("renders a warning about not being able to request submission history", async () => {
+            renderApp(<SubmissionTable />, { restHookFixtures: [] });
             expect(
                 await screen.findByText(
                     "Cannot fetch Organization data as admin"

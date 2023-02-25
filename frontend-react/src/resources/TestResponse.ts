@@ -112,11 +112,11 @@ export class TestResponse {
         customerStatus: "active",
         processingType: "sync",
         allowDuplicates: false,
-        organizationName: "hca",
+        organizationName: "abbott",
         pk: function (): string {
             throw new Error("Function not implemented.");
         },
-        name: "",
+        name: "user1234",
         version: 0,
         createdBy: "mctest@example.com",
         createdAt: "1/1/2000 00:00:00",

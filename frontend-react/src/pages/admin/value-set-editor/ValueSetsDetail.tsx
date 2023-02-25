@@ -12,12 +12,7 @@ import Table, {
     ColumnConfig,
     TableConfig,
 } from "../../../components/Table/Table";
-import {
-    useValueSetActivation,
-    useValueSetsMeta,
-    useValueSetsTable,
-    useValueSetUpdate,
-} from "../../../hooks/UseValueSets";
+import { useValueSetActivation } from "../../../hooks/UseValueSetActivation";
 import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
@@ -34,6 +29,9 @@ import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
+import { useValueSetsMeta } from "../../../hooks/UseValueSetsMeta";
+import { useValueSetsTable } from "../../../hooks/UseValueSetsTable";
+import { useValueSetUpdate } from "../../../hooks/UseValueSetUpdate";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {

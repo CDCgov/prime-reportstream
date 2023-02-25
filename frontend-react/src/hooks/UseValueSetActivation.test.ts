@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { AppWrapper } from "../utils/CustomRenderUtils";
 
-import { useValueSetActivation } from "./UseValueSets";
+import { useValueSetActivation } from "./UseValueSetActivation";
 
 describe("useValueSetActivation", () => {
     beforeAll(() => lookupTableServer.listen());

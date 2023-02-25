@@ -92,13 +92,8 @@ describe("SubmissionDetails", () => {
         }
     });
 
-    test("Filename conditionally shows in title", () => {
-        /*
-            TODO: How can we use the object and not static strings to
-            check for substrings like this??
-        */
-        const title = screen.getByText(/SubmissionDetails Unit Test/);
-        expect(title).toBeInTheDocument();
+    test("Filename conditionally shows in title", async () => {
+        await screen.findByText(new RegExp(`${mockData.externalName}$`));
     });
 });
 

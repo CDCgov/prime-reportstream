@@ -1,4 +1,10 @@
-import { fireEvent, screen, cleanup, within } from "@testing-library/react";
+import {
+    fireEvent,
+    screen,
+    cleanup,
+    within,
+    waitFor,
+} from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
@@ -91,6 +97,6 @@ describe("MessageTracker component", () => {
 
         fireEvent.change(textInput, { target: { value: "    abc 123    " } });
         fireEvent.click(submitButton);
-        expect(textInput).toHaveValue("abc 123");
+        await waitFor(() => expect(textInput).toHaveValue("abc 123"));
     });
 });

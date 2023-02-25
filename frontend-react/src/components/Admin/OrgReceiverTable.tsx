@@ -12,7 +12,6 @@ import React, { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import Spinner from "../Spinner";
 import {
     CheckSettingParams,
     CheckSettingResult,
@@ -91,84 +90,78 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     History
                 </USLink>
             </h2>
-            {!orgReceiverSettings ? (
-                <Spinner />
-            ) : (
-                <Table
-                    key="orgreceiversettingstable"
-                    aria-label="Organization Receivers"
-                    striped
-                    fullWidth
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Org Name</th>
-                            <th scope="col">Topic</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Meta</th>
-                            <th scope="col">Action</th>
-                            <th scope="col">
-                                <USNavLink
-                                    className="usa-button"
-                                    href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
-                                    key={`receiver-create-link`}
-                                >
-                                    New
-                                </USNavLink>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tBodyOrgReceiver" className="font-mono-2xs">
-                        {orgReceiverSettings.map((eachOrgSetting, index) => (
-                            <tr
-                                key={`receiver-row-${eachOrgSetting.name}-${index}`}
+            <Table
+                key="orgreceiversettingstable"
+                aria-label="Organization Receivers"
+                striped
+                fullWidth
+            >
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Org Name</th>
+                        <th scope="col">Topic</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Meta</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">
+                            <USNavLink
+                                className="usa-button"
+                                href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
+                                key={`receiver-create-link`}
                             >
-                                <td>{eachOrgSetting.name}</td>
-                                <td>
-                                    {eachOrgSetting?.organizationName || "-"}
-                                </td>
-                                <td>{eachOrgSetting.topic || ""}</td>
-                                <td>{eachOrgSetting.customerStatus || ""}</td>
-                                <td>
-                                    <DisplayMeta metaObj={eachOrgSetting} />
-                                </td>
-                                <td colSpan={2}>
-                                    <ButtonGroup type="segmented">
-                                        <Button
-                                            type="button"
-                                            key={`receiver-row-checkcmd-${eachOrgSetting.name}-${index}`}
-                                            data-receiver={eachOrgSetting.name}
-                                            onClick={() =>
-                                                clickShowDialog({
-                                                    orgName: orgName,
-                                                    receiverName: `${eachOrgSetting.name}`,
-                                                })
-                                            }
-                                        >
-                                            Check
-                                        </Button>
-                                        <USNavLink
-                                            className="usa-button"
-                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
-                                            key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
-                                        >
-                                            Edit
-                                        </USNavLink>
-                                        <USNavLink
-                                            className="usa-button"
-                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
-                                            key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
-                                        >
-                                            Clone
-                                        </USNavLink>
-                                    </ButtonGroup>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
+                                New
+                            </USNavLink>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyOrgReceiver" className="font-mono-2xs">
+                    {orgReceiverSettings.map((eachOrgSetting, index) => (
+                        <tr
+                            key={`receiver-row-${eachOrgSetting.name}-${index}`}
+                        >
+                            <td>{eachOrgSetting.name}</td>
+                            <td>{eachOrgSetting?.organizationName || "-"}</td>
+                            <td>{eachOrgSetting.topic || ""}</td>
+                            <td>{eachOrgSetting.customerStatus || ""}</td>
+                            <td>
+                                <DisplayMeta metaObj={eachOrgSetting} />
+                            </td>
+                            <td colSpan={2}>
+                                <ButtonGroup type="segmented">
+                                    <Button
+                                        type="button"
+                                        key={`receiver-row-checkcmd-${eachOrgSetting.name}-${index}`}
+                                        data-receiver={eachOrgSetting.name}
+                                        onClick={() =>
+                                            clickShowDialog({
+                                                orgName: orgName,
+                                                receiverName: `${eachOrgSetting.name}`,
+                                            })
+                                        }
+                                    >
+                                        Check
+                                    </Button>
+                                    <USNavLink
+                                        className="usa-button"
+                                        href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
+                                        key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Edit
+                                    </USNavLink>
+                                    <USNavLink
+                                        className="usa-button"
+                                        href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
+                                        key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
+                                    >
+                                        Clone
+                                    </USNavLink>
+                                </ButtonGroup>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
             <Modal
                 isLarge={true}
                 className="rs-admindash-modal rs-resend-modal"

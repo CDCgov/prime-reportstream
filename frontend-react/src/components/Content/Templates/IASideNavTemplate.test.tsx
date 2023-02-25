@@ -20,12 +20,16 @@ jest.mock("react-router-dom", () => ({
 
 describe("StaticPageFromDirectories", () => {
     test("Renders without error", () => {
-        renderApp(<IASideNavTemplate directories={testDirectories} />);
+        renderApp(<IASideNavTemplate directories={testDirectories} />, {
+            initialRouteEntries: ["/resources/*"],
+        });
     });
     test("Renders without side-nav", () => {
-        renderApp(<IASideNavTemplate directories={testDirectories} />);
+        renderApp(<IASideNavTemplate directories={testDirectories} />, {
+            initialRouteEntries: ["/resources/*"],
+        });
         const nav = screen.getByText("Test Dir");
         expect(nav).toBeInTheDocument();
-        expect(nav).toHaveAttribute("href", "/test-dir");
+        expect(nav).toHaveAttribute("href", "/resources/test-dir");
     });
 });

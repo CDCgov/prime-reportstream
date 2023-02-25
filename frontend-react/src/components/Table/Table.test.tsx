@@ -1,15 +1,14 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { act } from "react-dom/test-utils";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { TestTable } from "./TestTable";
+import { ColumnData } from "./ColumnData";
 import Table, { ColumnConfig, TableConfig } from "./Table";
 import { TableRowData, TableRows } from "./TableRows";
-import { ColumnData } from "./ColumnData";
+import { TestTable } from "./TestTable";
 /* Table generation tools */
 
 const getSetOfRows = (count: number, linkable: boolean = true) => {
@@ -87,19 +86,21 @@ const selectDatesFromRange = async (dayOne: string, dayTwo: string) => {
     const endDatePickerButton = datePickerButtons[1];
 
     /* Select Start Date */
-    await userEvent.click(startDatePickerButton);
-    const newStartDateButton = screen.getByText(`${dayOne}`);
-    await userEvent.click(newStartDateButton);
+    userEvent.click(startDatePickerButton);
+    const newStartDateButton = await screen.findByText(`${dayOne}`);
+    userEvent.click(newStartDateButton);
+    await waitFor(() => expect(newStartDateButton).not.toBeInTheDocument());
 
     /* Select End Date */
-    await userEvent.click(endDatePickerButton);
-    const newEndDateButton = screen.getByText(`${dayTwo}`);
-    await userEvent.click(newEndDateButton);
+    userEvent.click(endDatePickerButton);
+    const newEndDateButton = await screen.findByText(`${dayTwo}`);
+    userEvent.click(newEndDateButton);
+    await waitFor(() => expect(newEndDateButton).not.toBeInTheDocument());
 };
 
-const clickFilterButton = async () => {
+const clickFilterButton = () => {
     const filterButton = screen.getByText("Filter");
-    await userEvent.click(filterButton);
+    return userEvent.click(filterButton);
 };
 
 /* Sample components for test rendering */
@@ -132,9 +133,9 @@ describe("Table, basic tests", () => {
         expect(screen.getByText("Simple Table")).toBeInTheDocument();
     });
 
-    test("DatasetAction fires onClick", () => {
+    test("DatasetAction fires onClick", async () => {
         renderApp(<SimpleTable />);
-        fireEvent.click(screen.getByText("Test Action"));
+        await userEvent.click(screen.getByText("Test Action"));
         expect(mockAction).toHaveBeenCalledTimes(1);
     });
 
@@ -154,11 +155,11 @@ describe("Table, basic tests", () => {
         expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
 
-    test("Edit button column renders and operates", () => {
+    test("Edit button column renders and operates", async () => {
         renderApp(<SimpleTable />);
         expect(screen.getAllByText("Edit").length).toEqual(10);
-        fireEvent.click(screen.getAllByText("Edit")[0]);
-        expect(screen.getAllByRole("textbox").length).toEqual(1);
+        userEvent.click(screen.getAllByText("Edit")[0]);
+        await screen.findByRole("textbox");
     });
 
     test("Link columns are rendered as links", () => {
@@ -181,11 +182,11 @@ describe("Table, basic tests", () => {
 });
 
 describe("Sorting integration", () => {
-    test("(Locally) Sorting swaps on header click", () => {
+    test("(Locally) Sorting swaps on header click", async () => {
         renderApp(<FilteredTable />);
         const header = screen.getByText("Locallysortedcolumn");
         // click header
-        fireEvent.click(header);
+        await userEvent.click(header);
         // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
         expect(mockSortUpdater).toHaveBeenCalledWith({
             type: SortSettingsActionType.APPLY_LOCAL_SORT,
@@ -205,11 +206,11 @@ describe("Sorting integration", () => {
         expect(mockSortUpdater).toHaveBeenCalledTimes(3);
     });
 
-    test("(Server) Sorting swaps on header click", () => {
+    test("(Server) Sorting swaps on header click", async () => {
         renderApp(<FilteredTable />);
         const header = screen.getByText("Sortedcolumn");
         // click header
-        fireEvent.click(header);
+        await userEvent.click(header);
         // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
         expect(mockSortUpdater).toHaveBeenCalledWith({
             type: SortSettingsActionType.APPLY_LOCAL_SORT,
@@ -242,15 +243,21 @@ describe("Table, filter integration tests", () => {
         expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
 
         await selectDatesFromRange("20", "23");
-        await clickFilterButton();
+        clickFilterButton();
 
         /* Assert the value of state in string has changed */
-        expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
+        await waitFor(() =>
+            expect(screen.getByText(/range:/)).not.toHaveTextContent(
+                defaultState
+            )
+        );
 
         const clearButton = screen.getByText("Clear");
-        await userEvent.click(clearButton);
+        userEvent.click(clearButton);
 
-        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+        await waitFor(() =>
+            expect(screen.getByText(/range:/)).toHaveTextContent(defaultState)
+        );
     });
 
     test("cursor sets properly according to sort order", async () => {
@@ -258,21 +265,24 @@ describe("Table, filter integration tests", () => {
         expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
 
         await selectDatesFromRange("10", "20");
-        await clickFilterButton();
+        clickFilterButton();
 
-        expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
-            defaultCursor
-        );
         // Checking for inclusive date
-        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
+        await waitFor(() =>
+            expect(screen.getByText(/cursor:/)).toHaveTextContent(
+                /23:59:59.999Z/
+            )
+        );
 
         // Change sort order and repeat
         userEvent.click(screen.getByText("Column Two"));
         await selectDatesFromRange("13", "23");
-        await clickFilterButton();
+        clickFilterButton();
 
         // Checking for exclusive date
-        expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
+        await waitFor(() =>
+            expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/)
+        );
     });
 });
 
@@ -285,15 +295,17 @@ describe("TableRows", () => {
         const fakeRowSetter = jest.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>
         );
 
         // click the edit button
@@ -308,21 +320,23 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>
         );
 
         // click save
         const saveButton = screen.getAllByText("Save")[0];
         expect(saveButton).toBeInTheDocument();
-        userEvent.click(saveButton);
+        await userEvent.click(saveButton);
 
         // expect onSave to have not been called
         expect(fakeSave).toHaveBeenCalledTimes(0);
@@ -335,15 +349,17 @@ describe("TableRows", () => {
         const fakeRowSetter = jest.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>
         );
 
         // click the edit button
@@ -358,15 +374,17 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>
         );
 
         // click second edit button
@@ -387,15 +405,17 @@ describe("TableRows", () => {
         const fakeRowSetter = jest.fn();
 
         const { rerender } = render(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={undefined}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={undefined}
+                />
+            </table>
         );
 
         // click the edit button
@@ -410,40 +430,42 @@ describe("TableRows", () => {
         // as we've confirmed that the state setter has been called with 0,
         // we can rerender with that state value passed in to check the next step
         rerender(
-            <TableRows
-                rows={fakeRows}
-                onSave={fakeSave}
-                enableEditableRows={true}
-                filterManager={mockFilterManager}
-                columns={fakeColumns}
-                setRowToEdit={fakeRowSetter}
-                rowToEdit={0}
-            />
+            <table>
+                <TableRows
+                    rows={fakeRows}
+                    onSave={fakeSave}
+                    enableEditableRows={true}
+                    filterManager={mockFilterManager}
+                    columns={fakeColumns}
+                    setRowToEdit={fakeRowSetter}
+                    rowToEdit={0}
+                />
+            </table>
         );
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0"
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
-        await userEvent.keyboard("fakeItem");
+        userEvent.type(firstInput, "fakeItem");
+        await waitFor(() =>
+            expect(firstInput).toHaveValue(`${initialValue}fakeItem`)
+        );
 
         // click save
         const saveButton = screen.getByText("Save");
         expect(saveButton).toBeInTheDocument();
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-            await userEvent.click(saveButton);
-        });
+        userEvent.click(saveButton);
 
         // expect onSave to have been called
-        expect(fakeSave).toHaveBeenCalledTimes(1);
-        expect(fakeSave).toHaveBeenCalledWith({
-            ...fakeRows[0],
-            editableColumn: `${initialValue}fakeItem`,
-        });
+        await waitFor(() =>
+            expect(fakeSave).toHaveBeenCalledWith({
+                ...fakeRows[0],
+                editableColumn: `${initialValue}fakeItem`,
+            })
+        );
     });
 });
 
@@ -454,22 +476,25 @@ describe("ColumnData", () => {
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeUpdate = jest.fn(() => Promise.resolve());
         renderApp(
-            <tr>
-                <ColumnData
-                    rowIndex={0}
-                    colIndex={7} // this is the editable column
-                    rowData={fakeRows}
-                    columnConfig={fakeColumns[7]} // this is the editable column
-                    editing={true}
-                    setUpdatedRow={fakeUpdate}
-                />
-            </tr>
+            <table>
+                <tbody>
+                    <tr>
+                        <ColumnData
+                            rowIndex={0}
+                            colIndex={7} // this is the editable column
+                            rowData={fakeRows}
+                            columnConfig={fakeColumns[7]} // this is the editable column
+                            editing={true}
+                            setUpdatedRow={fakeUpdate}
+                        />
+                    </tr>
+                </tbody>
+            </table>
         );
 
         // update value
-        const firstInput = screen.getByLabelText(
-            "editableColumn-0"
-        ) as HTMLInputElement;
+        const firstInput =
+            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
@@ -491,20 +516,19 @@ describe("Adding New Rows", () => {
         expect(rows).toHaveLength(3); // 2 data rows and 1 header row
 
         const addRowButton = screen.getByText("Test Action");
-        await userEvent.click(addRowButton);
+        userEvent.click(addRowButton);
 
-        rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(4);
+        await waitFor(() => expect(screen.getAllByRole("row")).toHaveLength(4));
     });
 
     test("All fields on new editable row are editable", async () => {
         renderApp(<TestTable linkable={false} editable={true} />);
 
         const addRowButton = screen.getByText("Test Action");
-        await userEvent.click(addRowButton);
+        userEvent.click(addRowButton);
 
+        await waitFor(() => expect(screen.getAllByRole("row")).toHaveLength(4));
         const rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(4);
 
         const newRow = rows[3];
         const inputs = within(newRow).getAllByRole("textbox");

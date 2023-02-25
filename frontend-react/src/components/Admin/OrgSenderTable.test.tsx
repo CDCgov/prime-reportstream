@@ -6,6 +6,8 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 
 import { OrgSenderTable } from "./OrgSenderTable";
+import { Suspense } from "react";
+import Spinner from "../Spinner";
 
 const mockData = [
     {
@@ -162,12 +164,17 @@ describe("OrgReceiverTable", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />, {
-            restHookFixtures: fixtures,
-        });
+        renderApp(
+            <Suspense fallback={<Spinner />}>
+                <OrgSenderTable orgname={"test"} key={"test"} />
+            </Suspense>,
+            {
+                restHookFixtures: fixtures,
+            }
+        );
     });
 
-    test("renders correctly", () => {
-        expect(screen.getByText("HL7_BATCH")).toBeInTheDocument();
+    test("renders correctly", async () => {
+        await screen.findByText("HL7_BATCH");
     });
 });

@@ -14,15 +14,15 @@ const mockData: OrganizationResource = new TestResponse(
 
 const fixtures: Fixture[] = [
     {
-        endpoint: OrganizationResource.list(),
-        args: [],
+        endpoint: OrganizationResource.update(),
+        args: [{ orgname: mockData.name }],
         error: false,
         response: mockData,
     },
 ];
 
 jest.mock("react-router-dom", () => ({
-    ...(jest.requireActual("react-router-dom") as any),
+    ...jest.requireActual("react-router-dom"),
     __esModule: true,
     useNavigate: () => jest.fn(),
 }));

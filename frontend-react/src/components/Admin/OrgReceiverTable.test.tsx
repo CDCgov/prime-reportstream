@@ -1,9 +1,12 @@
 import { Fixture } from "@rest-hooks/test";
 import { screen } from "@testing-library/react";
+import { Suspense } from "react";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { checkSettingsServer } from "../../__mocks__/CheckSettingsMockServer";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
+import Spinner from "../Spinner";
 
 import { OrgReceiverTable } from "./OrgReceiverTable";
 
@@ -82,23 +85,37 @@ const mockData = [
 const fixtures: Fixture[] = [
     {
         endpoint: OrgReceiverSettingsResource.list(),
-        args: [{ orgname: "ignore" }],
+        args: [{ orgname: "test" }],
         error: false,
         response: mockData,
     },
 ];
 
 describe("OrgReceiverTable", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
-    afterAll(() => settingsServer.close());
+    beforeAll(() => {
+        settingsServer.listen();
+        checkSettingsServer.listen();
+    });
+    afterEach(() => {
+        settingsServer.resetHandlers();
+        checkSettingsServer.resetHandlers();
+    });
+    afterAll(() => {
+        settingsServer.close();
+        checkSettingsServer.close();
+    });
     beforeEach(() => {
-        renderApp(<OrgReceiverTable orgname={"test"} key={"test"} />, {
-            restHookFixtures: fixtures,
-        });
+        renderApp(
+            <Suspense fallback={<Spinner />}>
+                <OrgReceiverTable orgname={"test"} key={"test"} />
+            </Suspense>,
+            {
+                restHookFixtures: fixtures,
+            }
+        );
     });
 
-    test("renders correctly", () => {
-        expect(screen.getByText("HL7_BATCH")).toBeInTheDocument();
+    test("renders correctly", async () => {
+        await screen.findByText("HL7_BATCH");
     });
 });

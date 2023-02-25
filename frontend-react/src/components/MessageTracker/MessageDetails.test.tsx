@@ -161,9 +161,6 @@ jest.mock("react-router-dom", () => ({
     useNavigate: () => {
         return jest.fn();
     },
-    useParams: () => ({
-        id: TEST_ID,
-    }),
 }));
 
 describe("RSMessageDetail component", () => {
@@ -171,15 +168,19 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: MOCK_EMPTY_MESSAGE_DETAIL,
         });
-        renderApp(<MessageDetails />);
-        expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
+        renderApp(<MessageDetails />, {
+            initialRouteEntries: [`/message-details/${TEST_ID}`],
+        });
+        expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID.toString());
     });
 
     test("renders expected content", () => {
         mockUseMessageDetails.mockReturnValueOnce({
             messageDetails: DEFAULT_MESSAGE_DETAIL,
         });
-        renderApp(<MessageDetails />);
+        renderApp(<MessageDetails />, {
+            initialRouteEntries: [`/message-details/${TEST_ID}`],
+        });
 
         expect(screen.getByText("Message ID")).toBeInTheDocument();
         expect(screen.getByText(/12-234567/)).toBeInTheDocument();
@@ -213,7 +214,9 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            renderApp(<MessageDetails />);
+            renderApp(<MessageDetails />, {
+                initialRouteEntries: [`/message-details/${TEST_ID}`],
+            });
             expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
@@ -232,7 +235,9 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValueOnce({
                 messageDetails: mockMessageDetails,
             });
-            renderApp(<MessageDetails />);
+            renderApp(<MessageDetails />, {
+                initialRouteEntries: [`/message-details/${TEST_ID}`],
+            });
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
                 screen.queryByText("/ simple_report.csvuploader")

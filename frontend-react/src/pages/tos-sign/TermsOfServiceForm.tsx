@@ -11,6 +11,7 @@ import {
 } from "@trussworks/react-uswds";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import axios from "axios";
 
 import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
@@ -47,7 +48,11 @@ export interface AgreementBody {
     [RequiredFields.agreedToTermsOfService]: boolean;
 }
 
-function TermsOfServiceForm() {
+interface TermsOfServiceFormProps {
+    onSubmit?: (body: AgreementBody) => Promise<void>;
+}
+
+function TermsOfServiceForm({ onSubmit }: TermsOfServiceFormProps) {
     const STATES = getStateTerritoryList();
 
     /* Form field values are stored here */
@@ -88,24 +93,28 @@ function TermsOfServiceForm() {
             return;
         }
 
-        const response = await fetch(`${RS_API_URL}/api/email-registered`, {
-            method: "POST",
-            headers: {
-                ...getAppInsightsHeaders(),
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-        if (response.status < 200 || response.status > 299) {
-            setSubmitting(false);
+        try {
+            if (onSubmit) {
+                await onSubmit(body);
+            } else {
+                await axios(`${RS_API_URL}/api/email-registered`, {
+                    method: "POST",
+                    headers: {
+                        ...getAppInsightsHeaders(),
+                        "Content-Type": "application/json",
+                    },
+                    data: body,
+                });
+            }
+            setSuccess(true);
+        } catch (e: any) {
             setSendGridErrorFlag({
                 isError: true,
-                status: response.status,
+                status: e.message,
             });
-            return;
         }
 
-        setSuccess(true);
+        setSubmitting(false);
     };
 
     /* INFO
@@ -243,7 +252,11 @@ function TermsOfServiceForm() {
                     ).
                 </p>
 
-                <Form id="tos-agreement" onSubmit={(e) => handleSubmit(e)}>
+                <Form
+                    id="tos-agreement"
+                    onSubmit={(e) => handleSubmit(e)}
+                    name="tos-agreement"
+                >
                     <fieldset className="usa-fieldset margin-bottom-6">
                         <legend className="usa-legend font-body-lg text-bold">
                             Name and contact information
@@ -382,7 +395,6 @@ function TermsOfServiceForm() {
                             />
                         </FormGroup>
                         <Checkbox
-                            alt="Agreed checkbox"
                             className="padding-top-3"
                             id="multi-state"
                             data-testid="multi-state"
@@ -399,6 +411,7 @@ function TermsOfServiceForm() {
                         </legend>
                         <FormGroup error={agreeErrorFlag}>
                             <Checkbox
+                                alt="Agreed checkbox"
                                 id="agree"
                                 data-testid="agree"
                                 name="agree"
@@ -407,19 +420,12 @@ function TermsOfServiceForm() {
                                 ) => setAgree(e.target.checked)}
                                 label={<AgreementLabel />}
                             />
-                            <ErrorMessage>
-                                <span
-                                    style={{
-                                        color: "#b50909",
-                                        visibility: agreeErrorFlag
-                                            ? "visible"
-                                            : "hidden",
-                                    }}
-                                >
-                                    You must agree to the Terms of Service
-                                    before using ReportStream.
-                                </span>
-                            </ErrorMessage>
+                            <ErrorMessageWithFlag
+                                flag={agreeErrorFlag}
+                                message={
+                                    "You must agree to the Terms of Service before using ReportStream."
+                                }
+                            />
                         </FormGroup>
                     </fieldset>
                 </Form>

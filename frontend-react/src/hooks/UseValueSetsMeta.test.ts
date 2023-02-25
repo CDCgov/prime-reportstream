@@ -4,7 +4,7 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
 import { AppWrapper } from "../utils/CustomRenderUtils";
 
-import { useValueSetsMeta } from "./UseValueSets";
+import { useValueSetsMeta } from "./UseValueSetsMeta";
 
 describe("useValueSetsMeta", () => {
     const renderWithQueryWrapper = (tableName?: LookupTables) =>
@@ -12,14 +12,7 @@ describe("useValueSetsMeta", () => {
             wrapper: AppWrapper(),
         });
 
-    beforeAll(() =>
-        lookupTableServer.listen({
-            onUnhandledRequest: (req) => {
-                console.error("unhandled");
-                throw new Error("unhandled " + req.url);
-            },
-        })
-    );
+    beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 

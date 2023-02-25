@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -66,11 +66,13 @@ describe("MessageReceivers component", () => {
                 .getElementsByClassName("message-receiver-break-word")[0]
         ).toHaveTextContent("578eae4e-b24d-45aa-bc5c-4d96a0bfef96");
 
-        await userEvent.click(screen.getByText(/^Report Id$/));
-        expect(
-            screen
-                .getByRole("table")
-                .getElementsByClassName("message-receiver-break-word")[0]
-        ).toHaveTextContent("400eae4e-b24d-45aa-bc5c-4d96a0bfef96");
+        userEvent.click(screen.getByText(/^Report Id$/));
+        await waitFor(() =>
+            expect(
+                screen
+                    .getByRole("table")
+                    .getElementsByClassName("message-receiver-break-word")[0]
+            ).toHaveTextContent("400eae4e-b24d-45aa-bc5c-4d96a0bfef96")
+        );
     });
 });

@@ -51,7 +51,9 @@ export const AppWrapper = ({
                     <HelmetProvider>
                         <SessionProvider>
                             <QueryClientProvider client={getTestQueryClient()}>
-                                <AuthorizedFetchProvider>
+                                <AuthorizedFetchProvider
+                                    initializedOverride={true}
+                                >
                                     <FeatureFlagProvider>
                                         {restHookFixtures ? (
                                             <MockResolver

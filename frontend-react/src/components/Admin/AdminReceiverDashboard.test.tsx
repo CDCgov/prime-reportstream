@@ -11,6 +11,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
+import Spinner from "../Spinner";
 
 // <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
 const mockData: AdmConnStatusDataType[] = [
@@ -89,8 +90,10 @@ const fixtures: Fixture[] = [
         endpoint: AdmConnStatusResource.list(),
         args: [
             {
-                startDate: new Date("2022-07-11"),
-                endDate: new Date("2022-07-14"),
+                startDate: _exportForTesting.startOfDayIso(
+                    new Date("2022-07-11")
+                ),
+                endDate: _exportForTesting.endOfDayIso(new Date("2022-07-14")),
             },
         ],
         error: false,
@@ -241,10 +244,10 @@ describe("AdminReceiverDashboard tests", () => {
 
     test("sortStatusData and MainRender tests", async () => {
         const { baseElement } = renderApp(
-            <Suspense fallback={<></>}>
-                <NetworkErrorBoundary
-                    fallbackComponent={() => <ErrorPage type="message" />}
-                >
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
+                <Suspense fallback={<Spinner />}>
                     {/*eslint-disable-next-line react/jsx-pascal-case*/}
                     <_exportForTesting.MainRender
                         datesRange={[
@@ -260,12 +263,12 @@ describe("AdminReceiverDashboard tests", () => {
                             _subdata: AdmConnStatusDataType[]
                         ) => {}}
                     />
-                </NetworkErrorBoundary>
-            </Suspense>,
+                </Suspense>
+            </NetworkErrorBoundary>,
             { restHookFixtures: fixtures }
         );
 
-        const days = screen.getAllByText(/Mon/);
+        const days = await screen.findAllByText(/Mon/);
         expect(days.length).toBe(3);
         const orgs = screen.getAllByText(/oh-doh/);
         expect(orgs.length).toBe(1);

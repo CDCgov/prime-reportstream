@@ -1,10 +1,12 @@
 import { Fixture } from "@rest-hooks/test";
-import { fireEvent, screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 
 import config from "../../config";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -59,22 +61,22 @@ const mockData = {
 const fixtures: Fixture[] = [
     {
         endpoint: OrgReceiverSettingsResource.list(),
-        args: [],
+        args: [{ orgname: "abbott" }],
+        error: false,
+        response: [mockData],
+    },
+    {
+        endpoint: OrgReceiverSettingsResource.detail(),
+        args: [{ orgname: "abbott", receivername: "user1234", action: "edit" }],
         error: false,
         response: mockData,
     },
 ];
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
-    },
-    useParams: () => {
-        return {
-            orgname: "abbott",
-            receivername: "user1234",
-            action: "edit",
-        };
     },
 }));
 
@@ -90,20 +92,46 @@ describe("EditReceiverSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<EditReceiverSettings />, { restHookFixtures: fixtures });
+        renderApp(<EditReceiverSettings />, {
+            restHookFixtures: fixtures,
+            initialRouteEntries: [
+                "/admin/orgreceiversettings/org/abbott/receiver/user1234/action/edit",
+            ],
+        });
     });
 
-    test("should be able to edit keys field", () => {
-        const descriptionField = screen.getByTestId("description");
+    // DO NOT USE THIS TEST AS AN EXAMPLE. Checking the classList
+    // instead of something queryable using testing-library
+    // is incorrect. This test implementation is expected
+    // to be replaced with a future component refactor.
+    test("should be able to edit keys field", async () => {
+        // This testing implementation is incomplete so silencing
+        // an error that occurs
+        const restore = conditionallySuppressConsole(
+            "Trace: ShowError JSON data"
+        );
+        const descriptionField = await screen.findByTestId<HTMLInputElement>(
+            "description"
+        );
         expect(descriptionField).toBeInTheDocument();
+        const compareModal = screen.getByLabelText(
+            "Compare your changes with previous version"
+        );
 
-        fireEvent.change(descriptionField, {
-            target: { value: "Testing Edit" },
-        });
-
-        expect(descriptionField).toHaveValue("Testing Edit");
-        fireEvent.click(screen.getByTestId("submit"));
-        fireEvent.click(screen.getByTestId("editCompareCancelButton"));
-        fireEvent.click(screen.getByTestId("receiverSettingDeleteButton"));
+        userEvent.type(descriptionField, "Testing Edit");
+        await waitFor(() =>
+            expect(descriptionField).toHaveValue("Testing Edit")
+        );
+        userEvent.click(screen.getByTestId("submit"));
+        await waitFor(() =>
+            expect(compareModal.classList).not.toContain("is-hidden")
+        );
+        userEvent.click(screen.getByTestId("editCompareCancelButton"));
+        await waitFor(() =>
+            expect(compareModal.classList).toContain("is-hidden")
+        );
+        userEvent.click(screen.getByTestId("receiverSettingDeleteButton"));
+        await screen.findByLabelText("Confirm Delete");
+        restore();
     });
 });
