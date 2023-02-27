@@ -1,8 +1,8 @@
 ---
-name: API Sender Onboarding – Go Live Coordination
+name: API Sender Onboarding – 4. Go Live Coordination
 about: This Issue is used for "go live coordination" for the individual sender's API
   Sender Onboarding epic.
-title: "[name of company] Onboarding – Go Live Coordination"
+title: "[name of company] Onboarding – 4. Go Live Coordination"
 labels: onboarding-ops, sender
 assignees: ''
 
@@ -25,7 +25,7 @@ assignees: ''
      - [ ] [name of company] Onboarding - Validate Test Files 
      - [ ] name of company] Onboarding – Testing in Staging and Prod 
      - [ ] [name of company] Onboarding – Validate Receiver 
-- [ ] RS team member who originates this ticket: complete the following when creating this Issue. 
+- [ ] RS team member who originates this ticket: make sure the following are included when creating this Issue. 
      - [ ] Pipelines: Onboarding & Operations (New) 
      - [ ] Labels: "Onboarding-ops" and "Sender" 
      - [ ] Epics: [select the epic for this API onboarding sender]
