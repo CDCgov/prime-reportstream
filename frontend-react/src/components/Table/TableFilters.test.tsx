@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -7,16 +7,29 @@ import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
 import TableFilters, { isValidDateString } from "./TableFilters";
 
-describe("Rendering", () => {
-    beforeEach(() => {
-        renderApp(
-            <TableFilters
-                filterManager={mockFilterManager}
-                cursorManager={mockCursorManager}
-            />
-        );
-    });
+const VALID_FROM = "01/01/2023";
+const VALID_TO = "02/02/2023";
+const INVALID_DATE = "99/99/9999";
 
+let startDateNode: HTMLInputElement;
+let endDateNode: HTMLInputElement;
+let filterButtonNode: HTMLElement;
+
+beforeEach(() => {
+    renderApp(
+        <TableFilters
+            filterManager={mockFilterManager}
+            cursorManager={mockCursorManager}
+        />
+    );
+
+    [startDateNode, endDateNode] = screen.getAllByTestId<HTMLInputElement>(
+        "date-picker-external-input"
+    );
+    filterButtonNode = screen.getByText("Filter");
+});
+
+describe("Rendering", () => {
     test("renders without error", async () => {
         const container = await screen.findByTestId("filter-container");
         expect(container).toBeInTheDocument();
@@ -35,86 +48,106 @@ describe("Rendering", () => {
 });
 
 describe("when validating values", () => {
-    const VALID_FROM = "01/01/2023";
-    const VALID_TO = "02/02/2023";
-    const INVALID_DATE = "99/99/9999";
-
-    let startDateNode: HTMLElement;
-    let endDateNode: HTMLElement;
-    let filterButtonNode: HTMLElement;
-
-    beforeEach(() => {
-        renderWithRouter(
-            <TableFilters
-                filterManager={mockFilterManager}
-                cursorManager={mockCursorManager}
-            />
-        );
-
-        [startDateNode, endDateNode] = screen.getAllByTestId(
-            "date-picker-external-input"
-        );
-        filterButtonNode = screen.getByText("Filter");
-    });
-
     describe("by default", () => {
         test("enables the Filter button with the fallback values", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", false);
+            expect(filterButtonNode).toBeEnabled();
         });
     });
 
     describe("when both values are valid", () => {
-        beforeEach(async () => {
-            await userEvent.type(startDateNode, VALID_FROM);
-            await userEvent.type(endDateNode, VALID_TO);
-        });
-
-        test("enables the Filter button", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", true);
+        test("enables the Filter button", async () => {
+            // Overwrite default value
+            userEvent.type(startDateNode, VALID_FROM, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(startDateNode).toHaveValue(VALID_FROM));
+            userEvent.type(endDateNode, VALID_TO, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: endDateNode.value.length,
+            });
+            await waitFor(() => expect(endDateNode).toHaveValue(VALID_TO));
+            expect(filterButtonNode).toBeEnabled();
         });
     });
 
     describe("when both values are invalid", () => {
         beforeEach(async () => {
-            await userEvent.type(startDateNode, INVALID_DATE);
-            await userEvent.type(endDateNode, INVALID_DATE);
+            userEvent.type(startDateNode, INVALID_DATE, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() =>
+                expect(startDateNode).toHaveValue(INVALID_DATE)
+            );
+            userEvent.type(endDateNode, INVALID_DATE, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(endDateNode).toHaveValue(INVALID_DATE));
         });
 
         test("disables the Filter button", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", true);
+            expect(filterButtonNode).toBeDisabled();
         });
     });
 
     describe("when the from range is invalid", () => {
         beforeEach(async () => {
-            await userEvent.type(startDateNode, INVALID_DATE);
-            await userEvent.type(endDateNode, VALID_TO);
+            userEvent.type(startDateNode, INVALID_DATE, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() =>
+                expect(startDateNode).toHaveValue(INVALID_DATE)
+            );
+            userEvent.type(endDateNode, VALID_TO, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(endDateNode).toHaveValue(VALID_TO));
         });
 
         test("disables the Filter button", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", true);
+            expect(filterButtonNode).toBeDisabled();
         });
     });
 
     describe("when the to range is invalid", () => {
         beforeEach(async () => {
-            await userEvent.type(startDateNode, VALID_FROM);
-            await userEvent.type(endDateNode, INVALID_DATE);
+            userEvent.type(startDateNode, VALID_FROM, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(startDateNode).toHaveValue(VALID_FROM));
+            userEvent.type(endDateNode, INVALID_DATE, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(endDateNode).toHaveValue(INVALID_DATE));
         });
 
         test("disables the Filter button", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", true);
+            expect(filterButtonNode).toBeDisabled();
         });
     });
 
     describe("when the from value is greater than the to value", () => {
         beforeEach(async () => {
-            await userEvent.type(startDateNode, VALID_TO);
-            await userEvent.type(endDateNode, VALID_FROM);
+            userEvent.type(startDateNode, VALID_TO, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(startDateNode).toHaveValue(VALID_TO));
+            userEvent.type(endDateNode, VALID_FROM, {
+                initialSelectionStart: 0,
+                initialSelectionEnd: startDateNode.value.length,
+            });
+            await waitFor(() => expect(endDateNode).toHaveValue(VALID_FROM));
         });
 
         test("disables the Filter button", () => {
-            expect(filterButtonNode).toHaveProperty("disabled", true);
+            expect(filterButtonNode).toBeDisabled();
         });
     });
 });
