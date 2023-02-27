@@ -277,7 +277,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -288,7 +288,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -331,7 +331,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -342,7 +342,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -385,7 +385,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -396,7 +396,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -439,7 +439,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -450,7 +450,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -494,7 +494,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -506,7 +506,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -550,7 +550,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -567,7 +567,7 @@ class RoutingTests {
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -737,7 +737,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns emptyList()
         every { engine.getRoutingFilter(any(), any()) } returns emptyList()

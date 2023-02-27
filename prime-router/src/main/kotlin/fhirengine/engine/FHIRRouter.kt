@@ -189,7 +189,7 @@ class FHIRRouter(
             if (listOfReceivers.isNotEmpty()) {
                 // this bundle has receivers; send message to translate function
                 // add the receivers to the fhir bundle
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
 
                 // create translate event
                 val nextEvent = ProcessEvent(
