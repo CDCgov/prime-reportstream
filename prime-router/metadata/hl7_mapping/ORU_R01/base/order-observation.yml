@@ -23,8 +23,9 @@ elements:
     resource: '%service'
     # Only create the segment if we have data for it
     condition: >
-      %resource.extension(%`rsext-start-of-service`).exists() or
-      %resource.extension(%`rsext-end-of-service`).exists() or
+      %resource.occurrence.repeat.bounds.start.exists() or
+      %resource.occurrence.repeat.bounds.end.exists() or
+      %resource.priority.exists() or
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
 

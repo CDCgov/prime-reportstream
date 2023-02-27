@@ -18,7 +18,13 @@ locals {
       PGSSLMODE=require \
       psql -h ${azurerm_postgresql_server.postgres_server.fqdn} -U ${var.postgres_user}@${azurerm_postgresql_server.postgres_server.name} \
         -d prime_data_hub \
-        -c "CREATE ROLE ${var.postgres_readonly_user} WITH LOGIN PASSWORD '${var.postgres_readonly_pass}'" \
+        -c "CREATE ROLE ${var.postgres_readonly_user} WITH LOGIN PASSWORD '${var.postgres_readonly_pass}'" &> /dev/null
+
+      sleep 5;
+      sudo PGPASSWORD=${var.postgres_pass} \
+      PGSSLMODE=require \
+      psql -h ${azurerm_postgresql_server.postgres_server.fqdn} -U ${var.postgres_user}@${azurerm_postgresql_server.postgres_server.name} \
+        -d prime_data_hub \
         -c "ALTER ROLE ${var.postgres_readonly_user} WITH LOGIN PASSWORD '${var.postgres_readonly_pass}'" \
         -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${var.postgres_readonly_user}"
 
@@ -34,6 +40,7 @@ resource "null_resource" "postgres_readonly_role" {
   }
 
   depends_on = [
-    azurerm_postgresql_server.postgres_server
+    azurerm_postgresql_server.postgres_server,
+    data.http.icanhazip
   ]
 }

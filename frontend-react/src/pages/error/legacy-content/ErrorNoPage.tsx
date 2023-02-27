@@ -1,10 +1,12 @@
-import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 import React from "react";
+import { Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
 
 import site from "../../../content/site.json";
 
 export const ErrorNoPage = () => {
+    const navigate = useNavigate();
     return (
         <>
             <Helmet>
@@ -40,22 +42,25 @@ export const ErrorNoPage = () => {
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a href="./" className="usa-button">
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/")}
+                                        >
                                             Visit homepage
-                                        </a>
+                                        </Button>
                                     </li>
                                     <li className="usa-button-group__item">
-                                        <a
-                                            className="usa-button usa-button--outline"
-                                            href={
-                                                "mailto:" +
-                                                DOMPurify.sanitize(
-                                                    site.orgs.RS.email
+                                        <Button
+                                            type="button"
+                                            outline
+                                            onClick={() =>
+                                                window.open(
+                                                    `mailto:${site.orgs.RS.email}`
                                                 )
                                             }
                                         >
                                             Contact us
-                                        </a>
+                                        </Button>
                                     </li>
                                 </ul>
                             </div>

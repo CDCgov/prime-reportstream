@@ -1,108 +1,135 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 
-import { FileHandlerForm } from "./FileHandlerForm";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
+import { FileType } from "../../hooks/UseFileHandler";
+
+import { FileHandlerForm, FileHandlerFormProps } from "./FileHandlerForm";
 
 describe("FileHandlerForm", () => {
-    test("renders proper submitted, cancellable state", async () => {
-        const resetSpy = jest.fn();
-        render(
-            <FileHandlerForm
-                handleSubmit={() => {}}
-                handleFileChange={() => {}}
-                resetState={resetSpy}
-                fileInputResetValue={0}
-                submitted={true}
-                cancellable={true}
-                fileName="any"
-                formLabel="any"
-                resetText="any"
-                submitText="any"
-            />
+    const DEFAULT_PROPS: FileHandlerFormProps = {
+        handleSubmit: () => {},
+        handleFileChange: () => {},
+        resetState: () => {},
+        fileInputResetValue: 0,
+        submitted: false,
+        cancellable: true,
+        fileName: "file.file",
+        formLabel: "Label",
+        resetText: "Reset",
+        submitText: "Submit",
+        schemaOptions: STANDARD_SCHEMA_OPTIONS,
+        selectedSchemaOption: null,
+        onSchemaChange: () => {},
+    };
+
+    function doRender(props: Partial<FileHandlerFormProps> = {}) {
+        return renderWithBase(
+            <FileHandlerForm {...DEFAULT_PROPS} {...props} />
         );
+    }
 
-        // this is to make sure that after the form is submitted that we remove the input
-        // this test id is added by trussworks, so... hopefully they don't change it?
-        const input = screen.queryByTestId("file-input-input");
-        expect(input).not.toBeInTheDocument();
-
-        const cancelButton = await screen.findByText("Cancel");
-        expect(cancelButton).toHaveAttribute("type", "button");
-
-        fireEvent.click(cancelButton);
-
-        expect(resetSpy).toHaveBeenCalledTimes(1);
-    });
-
-    // going to go ahead and deal with testing handlers here as well, in one big test
-    test("renders proper unsubmitted default state, including handler behavior", async () => {
-        const resetSpy = jest.fn();
+    describe("when unsubmitted (default state)", () => {
         const submitSpy = jest.fn((e) => e.preventDefault()); // to prevent error message in console
         const fileChangeSpy = jest.fn();
 
-        render(
-            <FileHandlerForm
-                handleSubmit={submitSpy}
-                handleFileChange={fileChangeSpy}
-                resetState={resetSpy}
-                fileInputResetValue={0}
-                submitted={false}
-                cancellable={false}
-                fileName="file.file"
-                formLabel="somebody's form label"
-                resetText="any"
-                submitText="CLICK HERE"
-            />
-        );
+        beforeEach(() => {
+            doRender({
+                submitted: false,
+                handleSubmit: submitSpy,
+                handleFileChange: fileChangeSpy,
+            });
+        });
 
-        // make sure basic elements are present
-        const input = await screen.findByTestId("file-input-input"); //
-        expect(input).toBeInTheDocument();
+        test("renders the input", () => {
+            expect(screen.getByTestId("file-input-input")).toBeVisible();
+        });
 
-        const label = await screen.findByTestId("label");
-        expect(label).toHaveTextContent("somebody's form label");
-
-        const submitButton = await screen.findByText("CLICK HERE");
-        expect(submitButton).toHaveAttribute("type", "submit");
-
-        // test file change
-        fireEvent.change(input /*, fileChangeEvent */);
-
-        expect(fileChangeSpy).toHaveBeenCalledTimes(1);
-
-        // // For some reason this comes through with a null currentTarget
-        // // I feel like it's going to be very hard to get this to work, so skipping for now
-        // expect(fileChangeSpy).toHaveBeenCalledWith(
-        //     expect.objectContaining(fileChangeEvent)
-        // );
-
-        fireEvent.click(submitButton);
-        expect(submitSpy).toHaveBeenCalledTimes(1);
+        test("renders the schema options", () => {
+            STANDARD_SCHEMA_OPTIONS.forEach(({ title }) => {
+                expect(screen.getByText(title)).toBeVisible();
+            });
+        });
     });
 
-    test("renders a reset button instead of submit button when submitted", async () => {
+    describe("when submitted", () => {
+        beforeEach(() => {
+            doRender({
+                submitted: true,
+            });
+        });
+
+        test("renders a reset button instead of a submit button", () => {
+            expect(screen.getByText("Reset")).toBeVisible();
+            expect(screen.queryByText("Submit")).not.toBeInTheDocument();
+        });
+
+        test("omits the file input", () => {
+            // this is to make sure that after the form is submitted that we remove the input
+            // this test id is added by trussworks, so... hopefully they don't change it?
+            const input = screen.queryByTestId("file-input-input");
+            expect(input).not.toBeInTheDocument();
+        });
+    });
+
+    describe("when cancellable", () => {
         const resetSpy = jest.fn();
-        const submitSpy = jest.fn();
-        const fileChangeSpy = jest.fn();
-        render(
-            <FileHandlerForm
-                handleSubmit={submitSpy}
-                handleFileChange={fileChangeSpy}
-                resetState={resetSpy}
-                fileInputResetValue={0}
-                submitted={true}
-                cancellable={false}
-                fileName="file.file"
-                formLabel="somebody's form label"
-                resetText="CLICK HERE"
-                submitText=""
-            />
-        );
 
-        const resetButton = await screen.findByText("CLICK HERE");
-        expect(resetButton).toHaveAttribute("type", "button");
+        beforeEach(() => {
+            doRender({
+                cancellable: true,
+                resetState: resetSpy,
+            });
+        });
 
-        fireEvent.click(resetButton);
+        describe("when clicking cancel", () => {
+            beforeEach(() => {
+                const cancelButton = screen.getByText("Cancel");
+                expect(cancelButton).toHaveAttribute("type", "button");
 
-        expect(resetSpy).toHaveBeenCalledTimes(1);
+                fireEvent.click(cancelButton);
+            });
+
+            test("calls the resetState callback", () => {
+                expect(resetSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+    });
+
+    // NOTE: based on Trussworks data-testid values: https://github.com/trussworks/react-uswds/blob/main/src/components/forms/FileInput/FileInput.tsx#L196
+    describe("with accept values", () => {
+        describe("when a schema option is selected", () => {
+            beforeEach(() => {
+                doRender({
+                    selectedSchemaOption: {
+                        title: "whatever-csv",
+                        value: "whatever-csv",
+                        format: FileType.CSV,
+                    },
+                });
+            });
+
+            test("only allows files from the selected format", () => {
+                expect(screen.getByTestId("file-input-input")).toHaveAttribute(
+                    "accept",
+                    ".csv"
+                );
+            });
+        });
+
+        describe("when a schema option is not selected", () => {
+            beforeEach(() => {
+                doRender({
+                    selectedSchemaOption: null,
+                });
+            });
+
+            test("allows .csv and .hl7 files", () => {
+                expect(screen.getByTestId("file-input-input")).toHaveAttribute(
+                    "accept",
+                    ".csv,.hl7"
+                );
+            });
+        });
     });
 });

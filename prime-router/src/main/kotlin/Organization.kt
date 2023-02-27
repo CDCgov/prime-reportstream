@@ -12,9 +12,11 @@ open class Organization(
     val stateCode: String?,
     val countyName: String?,
     val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic.
+    // enabled features for organization. Features defined in lookup table rs_feature_flags
+    val featureFlags: List<String>? = emptyList(),
 ) {
     constructor(org: Organization) : this(
-        org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters
+        org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags
     )
 
     enum class Jurisdiction {
@@ -60,12 +62,13 @@ class DeepOrganization(
     stateCode: String? = null,
     countyName: String? = null,
     filters: List<ReportStreamFilters>? = emptyList(),
+    featureFlags: List<String>? = emptyList(),
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
-) : Organization(name, description, jurisdiction, stateCode, countyName, filters) {
+) : Organization(name, description, jurisdiction, stateCode, countyName, filters, featureFlags) {
     constructor(org: Organization, senders: List<Sender>, receivers: List<Receiver>) :
         this(
-            org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters,
+            org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags,
             senders, receivers
         )
 }

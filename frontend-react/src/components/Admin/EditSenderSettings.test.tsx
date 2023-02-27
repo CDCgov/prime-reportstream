@@ -1,15 +1,19 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { rest } from "msw";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import config from "../../config";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS
 ).data;
+let editJsonAndSaveButton: HTMLElement;
+let nameField: HTMLElement;
 
 jest.mock("rest-hooks", () => ({
     useResource: () => {
@@ -31,8 +35,8 @@ jest.mock("react-router-dom", () => ({
     },
     useParams: () => {
         return {
-            orgName: "abbott",
-            senderName: "user1234",
+            orgname: "abbott",
+            sendername: "user1234",
             action: "edit",
         };
     },
@@ -62,13 +66,28 @@ const testKeys = JSON.stringify([
 const testProcessingType = "sync";
 
 describe("EditSenderSettings", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
+    beforeAll(() => {
+        settingsServer.listen();
+        settingsServer.use(
+            rest.get(
+                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
+                (req, res, ctx) => res(ctx.json(mockData))
+            )
+        );
+    });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditSenderSettings />);
+        renderWithBase(<EditSenderSettings />);
+        nameField = screen.getByTestId("name");
+        editJsonAndSaveButton = screen.getByTestId("submit");
     });
-
+    test("toggle allowDuplicates", () => {
+        const checkbox = screen.getByTestId("allowDuplicates");
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox).not.toBeChecked();
+        fireEvent.click(checkbox);
+        expect(checkbox).toBeChecked();
+    });
     test("should be able to edit keys field", () => {
         const keysField = screen.getByTestId("keys");
 
@@ -89,8 +108,52 @@ describe("EditSenderSettings", () => {
         });
 
         expect(processingTypeField).toHaveValue(testProcessingType);
-        fireEvent.click(screen.getByTestId("submit"));
+        fireEvent.click(editJsonAndSaveButton);
         fireEvent.click(screen.getByTestId("editCompareCancelButton"));
         fireEvent.click(screen.getByTestId("senderSettingDeleteButton"));
+    });
+
+    describe("should validate name", () => {
+        const consoleTraceSpy = jest.fn();
+
+        beforeEach(() => {
+            jest.spyOn(console, "trace").mockImplementationOnce(
+                consoleTraceSpy
+            );
+        });
+
+        afterEach(() => {
+            jest.resetAllMocks();
+        });
+
+        test("should display an error if name value is prohibited", () => {
+            fireEvent.change(nameField, {
+                target: { value: "Organization" },
+            });
+            expect(nameField).toHaveValue("Organization");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).toHaveBeenCalled();
+        });
+
+        test("should display an error if name value contains a non-alphanumeric char", () => {
+            fireEvent.change(nameField, {
+                target: { value: "a\\nlinefeed" },
+            });
+            expect(nameField).toHaveValue("a\\nlinefeed");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).toHaveBeenCalled();
+        });
+
+        test("should not display error if name value is valid", () => {
+            fireEvent.change(nameField, {
+                target: { value: "test" },
+            });
+            expect(nameField).toHaveValue("test");
+
+            fireEvent.click(editJsonAndSaveButton);
+            expect(consoleTraceSpy).not.toHaveBeenCalled();
+        });
     });
 });

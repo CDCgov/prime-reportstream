@@ -13,6 +13,10 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
+import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
+import { FeatureName } from "../../AppRouter";
+import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -29,15 +33,16 @@ interface SubmissionTableContentProps {
     submissions: SubmissionsResource[];
 }
 
+function transformDate(s: string) {
+    return new Date(s).toLocaleString();
+}
+
 const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     filterManager,
     paginationProps,
     submissions,
 }) => {
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
-
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: "id",
@@ -69,7 +74,14 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
     return (
         <>
-            <TableFilters filterManager={filterManager} />
+            <TableFilters
+                filterManager={filterManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(analyticsEventName, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
+            />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
@@ -81,6 +93,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
 function SubmissionTableWithNumberedPagination() {
     const { activeMembership } = useSessionContext();
+    const isAdmin = activeMembership?.parsedName === Organizations.PRIMEADMINS;
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -91,19 +104,18 @@ function SubmissionTableWithNumberedPagination() {
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
-            // The `cursor` and `endCursor` parameters are always the high and
-            // low values of the range, respectively. When the results are in
-            // descending order we move the high value and keep the low value
-            // constant; in ascending order we keep the high value constant and
-            // move the low value.
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
+            // HACK: return empty results if requesting as an admin
+            if (isAdmin) {
+                return Promise.resolve<SubmissionsResource[]>([]);
+            }
+
             return controllerFetch(SubmissionsResource.list(), {
                 organization: activeMembership?.parsedName,
-                cursor,
-                endCursor,
+                cursor: currentCursor,
+                since: rangeFrom,
+                until: rangeTo,
                 pageSize: numResults,
-                sort: sortOrder,
+                sortdir: sortOrder,
                 showFailed: false,
             }) as unknown as Promise<SubmissionsResource[]>;
         },
@@ -113,6 +125,7 @@ function SubmissionTableWithNumberedPagination() {
             controllerFetch,
             rangeFrom,
             rangeTo,
+            isAdmin,
         ]
     );
 
@@ -127,9 +140,10 @@ function SubmissionTableWithNumberedPagination() {
     // inclusive: the request will return results whose cursor values are >= the
     // cursor.
     // When we move the `cursor` value in descending requests, the cursor is
-    // exclusive: the requst will return results whose cursor values are < the
+    // exclusive: the request will return results whose cursor values are < the
     // cursor.
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: submissions,
@@ -141,7 +155,16 @@ function SubmissionTableWithNumberedPagination() {
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
+
+    if (isAdmin) {
+        return (
+            <div className="grid-container">
+                <AdminFetchAlert />
+            </div>
+        );
+    }
 
     if (isLoading) {
         return <Spinner />;

@@ -1,7 +1,10 @@
 import { useCallback, useMemo } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
+import {
+    Organizations,
+    useAdminSafeOrganizationName,
+} from "../../UseAdminSafeOrganizationName";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import {
     deliveriesEndpoints,
@@ -23,7 +26,7 @@ export enum DeliveriesDataAttr {
     BATCH_READY = "batchReadyAt",
     EXPIRES = "expires",
     ITEM_COUNT = "reportItemCount",
-    FILE_TYPE = "fileType",
+    FILE_NAME = "fileName",
 }
 
 const filterManagerDefaults: FilterManagerDefaults = {
@@ -65,23 +68,33 @@ const useOrgDeliveries = (service?: string) => {
 
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
-            const fetcher = generateFetcher();
-            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
+            // HACK: return empty results if requesting as an admin
+            if (activeMembership?.parsedName === Organizations.PRIMEADMINS) {
+                return Promise.resolve<RSDelivery[]>([]);
+            }
 
+            const fetcher = generateFetcher();
             return fetcher(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
                 params: {
-                    sortDir: sortOrder,
-                    since: endCursor,
-                    until: cursor,
+                    sortdir: sortOrder,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
                     pageSize: numResults,
                 },
             }) as unknown as Promise<RSDelivery[]>;
         },
-        [orgAndService, sortOrder, generateFetcher, rangeFrom, rangeTo]
+        [
+            orgAndService,
+            sortOrder,
+            generateFetcher,
+            rangeFrom,
+            rangeTo,
+            activeMembership?.parsedName,
+        ]
     );
 
     return { fetchResults, filterManager };

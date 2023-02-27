@@ -17,6 +17,7 @@ export interface LinkableColumn {
     link: boolean;
     linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+    linkState?: unknown;
 }
 
 /** @alias for any type of feature column */

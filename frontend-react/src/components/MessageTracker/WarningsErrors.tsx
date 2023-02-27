@@ -29,11 +29,11 @@ export const WarningsErrors = ({ title, data }: WarningsErrorsDisplayProps) => {
 
     return (
         <>
-            <section className="margin-bottom-5">
+            <section>
                 <Table
                     title={title}
-                    classes={"padding-0"}
-                    tableRowsClassName={"font-body-xs"}
+                    classes={"font-sans-2xs padding-0 margin-bottom-0"}
+                    tableRowsClassName={"font-body-xs text-top"}
                     config={tableConfig}
                 />
             </section>

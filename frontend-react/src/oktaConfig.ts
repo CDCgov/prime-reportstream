@@ -1,8 +1,9 @@
-import { OktaAuthOptions } from "@okta/okta-auth-js";
+import { OktaAuthOptions, OktaAuth } from "@okta/okta-auth-js";
+import { WidgetOptions } from "@okta/okta-signin-widget";
 
 import config from "./config";
 
-const { OKTA_URL, OKTA_CLIENT_ID } = config;
+const { OKTA_URL, OKTA_CLIENT_ID, APP_ENV } = config;
 
 const oktaAuthConfig: OktaAuthOptions = {
     issuer: `${OKTA_URL}/oauth2/default`,
@@ -11,12 +12,15 @@ const oktaAuthConfig: OktaAuthOptions = {
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
-        storage: "sessionStorage",
+        storage: APP_ENV === "test" ? "memory" : "localStorage",
     },
     scopes: ["openid", "email"],
+    services: {
+        autoRenew: false,
+    },
 };
 
-const oktaSignInConfig = {
+const oktaSignInConfig: WidgetOptions = {
     logo: "/assets/cdc-logo.svg",
     language: "en",
     features: {
@@ -34,6 +38,10 @@ const oktaSignInConfig = {
         issuer: `${OKTA_URL}/oauth2/default`,
     },
     scopes: ["openid", "email"],
+    useClassicEngine: true,
 };
 
-export { oktaAuthConfig, oktaSignInConfig };
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+OKTA_AUTH.start();
+
+export { oktaAuthConfig, oktaSignInConfig, OKTA_AUTH };

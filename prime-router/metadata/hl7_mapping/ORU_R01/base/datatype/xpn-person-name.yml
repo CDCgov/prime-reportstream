@@ -14,8 +14,10 @@ elements:
     hl7Spec: [ '%{hl7NameField}-3' ]
 
   - name: use
-    condition: '%resource.use.exists()'
-    value: [ '%resource.use' ]
+    condition: '%resource.exists()'
+    value:
+      - '%resource.use'
+      - '"official"'
     hl7Spec: [ '%{hl7NameField}-7' ]
     valueSet:
       official: L

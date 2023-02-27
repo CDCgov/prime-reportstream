@@ -269,7 +269,6 @@ elements:
       documentation: Translate inbound text to outbound SNOMED Codes
       csvFields: [{ name: specimen_type, format: $display}]
 
-
 ############### LIVD Lookup() related fields
     - name: equipment_model_name
       cardinality: ONE 
@@ -282,6 +281,20 @@ elements:
       type: TEXT
       csvFields: [{name: test_performed_code}]
 
+    - name: test_performed_name
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: test_performed_name}]
+
+    - name: test_kit_name_id
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: test_kit_name_id}]
+
+    - name: equipment_model_id
+      cardinality: ZERO_OR_ONE
+      type: TEXT
+      csvFields: [{name: equipment_model_id}]
 
 ############### Ordering provider info
     - name: ordering_provider_id
@@ -321,17 +334,16 @@ elements:
       csvFields: [{ name: ordering_provider_state, format: $display}]
 
     - name: ordering_provider_state
-      cardinality: ONE 
+      cardinality: ONE
       mapper: use(ordering_provider_state_fromValueSet, ordering_provider_state_fromCSV)
 
     - name: ordering_provider_zip_code
-      cardinality: ONE 
+      cardinality: ONE
       csvFields: [{name: ordering_provider_zip_code}]
 
     - name: ordering_provider_phone_number
-      cardinality: ONE 
+      cardinality: ONE
       csvFields: [{name: ordering_provider_phone_number}]
-
 
 ############### Testing lab info
     - name: testing_lab_clia
@@ -391,24 +403,24 @@ elements:
       cardinality: ONE 
       csvFields: [{name: ordering_facility_name}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_name, ordering_facility_name_temp)
 
     - name: ordering_facility_street
       cardinality: ONE 
       csvFields: [{name: ordering_facility_street}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_street, ordering_facility_street_temp)
 
     - name: ordering_facility_street2
       csvFields: [{name: ordering_facility_street2}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_street2, ordering_facility_street_temp)
 
     - name: ordering_facility_city
       cardinality: ONE 
       csvFields: [{name: ordering_facility_city}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_name_temp,ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_street_temp)
 
     - name: ordering_facility_state_fromCSV
       type: TEXT
@@ -428,23 +440,17 @@ elements:
       cardinality: ONE 
       mapper: use(ordering_facility_state_temp, testing_lab_state)
 
-#    - name: ordering_facility_state
-#      cardinality: ONE 
-#      csvFields: [{name: ordering_facility_state}]
-#      mapperOverridesValue: true
-#      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_name_temp, ordering_facility_street_temp)
-
     - name: ordering_facility_zip_code
       cardinality: ONE 
       csvFields: [{name: ordering_facility_zip_code}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_street_temp)
 
     - name: ordering_facility_phone_number
       cardinality: ONE 
       csvFields: [{name: ordering_facility_phone_number}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_street_temp)
 
 
 ################ Reporting Facility Info
@@ -533,4 +539,6 @@ elements:
       csvFields: [{ name: residence_type, format: $display}]
       default: ""
 
+###### These fields are calculated for filtering purposes
     - name: test_type
+    - name: abnormal_flag

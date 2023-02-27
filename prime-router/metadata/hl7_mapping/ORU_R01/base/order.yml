@@ -44,7 +44,8 @@ elements:
     hl7Spec: [ '%{hl7Order}-6' ]
 
   - name: order-transaction-time
-    value: [ '%service.authoredOn' ]
+    condition: "%resource.extension(%`rsext-business-event`).exists()"
+    value: [ "%resource.extension(%`rsext-business-event`).value" ]
     hl7Spec: [ '%{hl7Order}-9' ]
 
   - name: order-entered-by
@@ -63,12 +64,13 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{hl7Order}-14(%{callbackIndex})'
+      hl7TelecomField: '%{hl7Order}-14'
     schema: datatype/xtn-telecom
-    resourceIndex: callbackIndex
+    resourceIndex: telecomIndex
 
   - name: order-effective-date
-    value: [ '%service.occurrence' ]
+    condition: '%service.extension(%`rsext-order-effective-date`).exists()'
+    value: [ '%service.extension(%`rsext-order-effective-date`).value' ]
     hl7Spec: [ '%{hl7Order}-15' ]
 
   - name: ordering-organization
@@ -94,6 +96,7 @@ elements:
     schema: datatype/xtn-telecom
     constants:
       hl7TelecomField: '%{hl7Order}-23'
+    resourceIndex: telecomIndex
 
   - name: ordering-facility-practitioner-address
     resource: '%service.requester.resolve().practitioner.resolve().address'

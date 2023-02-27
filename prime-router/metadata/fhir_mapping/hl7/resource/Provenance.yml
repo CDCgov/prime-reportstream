@@ -17,13 +17,6 @@ recorded:
   vars:
     dateTimeIn: MSH.7
 
-occurredDateTime:
-  type: STRING
-  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-  expressionType: JEXL
-  vars:
-    dateTimeIn: MSH.7
-
 agent_1:
   #  condition: $orgName NOT_NULL
   valueOf: secondary/ProvenanceAgent
