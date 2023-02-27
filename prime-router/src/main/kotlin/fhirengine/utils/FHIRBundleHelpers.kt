@@ -2,12 +2,14 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Property
@@ -23,7 +25,11 @@ object FHIRBundleHelpers {
     /**
      * Adds [receiverList] to the [fhirBundle] as targets
      */
-    internal fun addReceivers(fhirBundle: Bundle, receiverList: List<Receiver>) {
+    internal fun addReceivers(
+        fhirBundle: Bundle,
+        receiverList: List<Receiver>,
+        shortHandLookupTable: MutableMap<String, String>
+    ) {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
@@ -36,6 +42,9 @@ object FHIRBundleHelpers {
         // check all active customers for receiver data
         receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
             val endpoint = Endpoint()
+            val conditions = getConditionsForReceiver(fhirBundle, receiver, shortHandLookupTable)
+            addDiagnosticToReceivers(fhirBundle, conditions).forEach { endpoint.addExtension(it) }
+
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
             endpoint.name = receiver.displayName
             when (receiver.customerStatus) {
@@ -168,5 +177,43 @@ object FHIRBundleHelpers {
         when (resource) {
             is Observation -> getDiagnosticReportNoObservations(this).forEach { this.deleteResource(it) }
         }
+    }
+
+
+    // add conditions for receiver
+    private fun getConditionsForReceiver(
+        fhirBundle: Bundle,
+        receiver: Receiver,
+        shortHandLookupTable: MutableMap<String, String>
+    ): List<String> {
+        if (receiver.conditionFilter.isNotEmpty()) {
+            val conditions = mutableListOf<String>()
+            FhirPathUtils.pathEngine.evaluate(
+                CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
+                fhirBundle,
+                fhirBundle,
+                fhirBundle,
+                FhirPathUtils.parsePath(receiver.conditionFilter[0])
+            ).forEach {
+                conditions.add(it.toString())
+            }
+            return conditions
+        }
+        return listOf()
+    }
+
+    private fun addDiagnosticToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
+        val extensions = mutableListOf<Extension>()
+        fhirBundle.entry.forEach {
+            if (it.resource.resourceType.name == "DiagnosticReport") {
+                val diagnosticReport = it.resource as DiagnosticReport
+                diagnosticReport.code.coding.forEach { coding ->
+                    if (conditions.contains(coding.code)) {
+                        extensions.add(Extension(it.resource.resourceType.path, coding))
+                    }
+                }
+            }
+        }
+        return extensions
     }
 }
