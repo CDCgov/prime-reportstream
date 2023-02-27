@@ -31,7 +31,14 @@ elements:
 
   - name: observation-result
     resource: '%resource.result.resolve()'
+    condition: '%resource.result.where(identifier.type.system != "http://loinc.org")'
     schema: observation-result
+    resourceIndex: resultIndex
+
+  - name: observation-question
+    resource: '%resource.result.resolve()'
+    condition: '%resource.result.where(identifier.type.system = "http://loinc.org")'
+    schema: observation-question
     resourceIndex: resultIndex
 
   - name: order-note
