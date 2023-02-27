@@ -209,7 +209,12 @@ object FHIRBundleHelpers {
                 val diagnosticReport = it.resource as DiagnosticReport
                 diagnosticReport.code.coding.forEach { coding ->
                     if (conditions.contains(coding.code)) {
-                        extensions.add(Extension(it.resource.resourceType.path, coding))
+                        extensions.add(
+                            Extension(
+                                "https://reportstream.cdc.gov/fhir/StructureDefinition/diagnostic-report",
+                                Reference(diagnosticReport.id)
+                            )
+                        )
                     }
                 }
             }
