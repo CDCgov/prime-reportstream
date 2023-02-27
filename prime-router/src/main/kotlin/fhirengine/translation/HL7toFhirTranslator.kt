@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation
-
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
@@ -77,6 +77,7 @@ class HL7toFhirTranslator internal constructor(
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
         enhanceBundleMetadata(bundle, hl7Message)
+        enhanceBundleProvenance(bundle)
         return bundle
     }
 
@@ -103,5 +104,13 @@ class HL7toFhirTranslator internal constructor(
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
+    }
+
+    /**
+     * Enhance the [bundle] Provenance to include references to diagnostic reports.
+     */
+    private fun enhanceBundleProvenance(bundle: Bundle) {
+        // bundles must contain target references to diagnostic reports
+        FHIRBundleHelpers.addProvenanceReference(bundle)
     }
 }
