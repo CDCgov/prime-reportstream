@@ -1,10 +1,10 @@
 import { useResource } from "rest-hooks";
-import { Link, NavLink } from "react-router-dom";
 import { ButtonGroup, Table } from "@trussworks/react-uswds";
 import React from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";
+import { USLink, USNavLink } from "../USLink";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -25,11 +25,11 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         >
             <h2>
                 Organization Sender Settings ({orgSenderSettings.length}){" - "}
-                <Link
-                    to={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
+                <USLink
+                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
                 >
                     History
-                </Link>
+                </USLink>
             </h2>
             {!orgSenderSettings ? (
                 <Spinner />
@@ -49,13 +49,13 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <th scope="col">Meta</th>
                             <th scope="col">Action</th>
                             <th scope="col" align="right">
-                                <NavLink
+                                <USNavLink
                                     className="usa-button"
-                                    to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
+                                    href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
                                     key={`sender-create-link`}
                                 >
                                     New
-                                </NavLink>
+                                </USNavLink>
                             </th>
                         </tr>
                     </thead>
@@ -75,20 +75,20 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">
-                                        <NavLink
+                                        <USNavLink
                                             className="usa-button"
-                                            to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
+                                            href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
                                             key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
-                                        </NavLink>
-                                        <NavLink
+                                        </USNavLink>
+                                        <USNavLink
                                             className="usa-button"
-                                            to={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/clone`}
+                                            href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/clone`}
                                             key={`sender-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone
-                                        </NavLink>
+                                        </USNavLink>
                                     </ButtonGroup>
                                 </td>
                             </tr>

@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
@@ -8,6 +8,7 @@ import {
     ValueSetsMetaResponse,
     ValueSetsTableResponse,
 } from "../../../hooks/UseValueSets";
+import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 
@@ -94,6 +95,7 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
+        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
@@ -101,7 +103,11 @@ describe("ValueSetsIndex tests", () => {
                 } as ValueSetsMetaResponse)
         );
         mockUseValueSetsTable = jest.fn(() => {
-            throw new RSNetworkError("Test", { status: 404 } as AxiosResponse);
+            throw new RSNetworkError(
+                new AxiosError("Test", "404", undefined, {}, {
+                    status: 404,
+                } as AxiosResponse)
+            );
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
@@ -111,5 +117,6 @@ describe("ValueSetsIndex tests", () => {
                 "Our apologies, there was an error loading this content."
             )
         ).toBeInTheDocument();
+        restore();
     });
 });

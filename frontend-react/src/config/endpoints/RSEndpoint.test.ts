@@ -1,3 +1,5 @@
+import config from "..";
+
 import { RSEndpoint } from ".";
 
 const testEndpoint = new RSEndpoint({
@@ -19,7 +21,7 @@ describe("RSEndpoint", () => {
     });
 
     test("has a getter for url that works", () => {
-        expect(testEndpoint.url).toEqual("https://test.prime.cdc.gov/api/path");
+        expect(testEndpoint.url).toEqual(`${config.API_ROOT}/path`);
     });
 
     describe("toDynamicUrl", () => {
@@ -29,7 +31,7 @@ describe("RSEndpoint", () => {
 
         test("returns url if no dynamic segments are present and no values are passed", () => {
             expect(testEndpoint.toDynamicUrl()).toEqual(
-                "https://test.prime.cdc.gov/api/path"
+                `${config.API_ROOT}/path`
             );
         });
 
@@ -45,14 +47,14 @@ describe("RSEndpoint", () => {
                     something: "else",
                     anything: "more",
                 })
-            ).toEqual("https://test.prime.cdc.gov/api/else/more");
+            ).toEqual(`${config.API_ROOT}/else/more`);
         });
     });
 
     describe("toAxiosConfig", () => {
         test("passes along key params from class", () => {
             expect(testEndpoint.toAxiosConfig({})).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
             });
         });
@@ -62,7 +64,7 @@ describe("RSEndpoint", () => {
                     headers: { "x-fake-header": "anyway" },
                 })
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",
@@ -77,7 +79,7 @@ describe("RSEndpoint", () => {
                     method: "POST",
                 })
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/path",
+                url: `${config.API_ROOT}/path`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",
@@ -94,7 +96,7 @@ describe("RSEndpoint", () => {
                     },
                 })
             ).toEqual({
-                url: "https://test.prime.cdc.gov/api/else/more",
+                url: `${config.API_ROOT}/else/more`,
                 method: "GET",
                 headers: {
                     "x-fake-header": "anyway",

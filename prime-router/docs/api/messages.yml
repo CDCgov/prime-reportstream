@@ -6,19 +6,28 @@ info:
     name: USDS at Centers for Disease Control and Prevention
     url: https://open.cdc.gov
     email: usds@cdc.gov
+tags:
+  - name: messages
+    description: ReportStream messages API
 paths:
   /api/messages:
     get:
-      description: fetch a list of messages based on a message id
+      description: Fetch a list of COVID result entries from the `covid_result_metadata` table based on a `messageId`, 
+        called `message_id` on the backend. This endpoint will typically return one result but 
+        `message_id` is not guaranteed to be unique, so multiple results can be returned.
       security:
         - OAuth2: [ system_admin ]
       parameters:
         - name: messageId
           in: query
-          description: the exact message/tracking id of a message processed by ReportStream
+          description: The `message_id` of a COVID result message.
+          required: true
+          schema:
+            type: string
+          example: 436147
       responses:
         '200':
-          description: a list of message objects
+          description: a list of messages
           content:
             application/json:
               schema:
@@ -29,19 +38,21 @@ paths:
           description: unauthorized
   /api/message/{id}:
     get:
-      description: return details about a particular test result message including the sender, receivers information with quality filter information
+      description: Return details about a particular COVID test result message from the covid_result_metadata table.
       security:
         - OAuth2: [ user ]
       parameters:
         - name: id
           in: path
-          description: a valid test result record id
+          description: The unique identifier of a COVID test result message, 
+            that being the `covid_results_metadata_id` PK of the `covid_result_metadata` table.
           required: true
           schema:
             type: string
+          example: 1
       responses:
         '200':
-          description: the detailed report history object
+          description: The message details related to COVID test result message.
           content:
             application/json:
               schema:

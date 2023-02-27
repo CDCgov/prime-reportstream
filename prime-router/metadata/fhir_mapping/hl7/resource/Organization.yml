@@ -27,6 +27,14 @@ id_3:
 
 # Used by most organizations
 identifier_1:
+  condition: $id NOT_NULL
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  vars:
+    id: HD.1
+
+identifier_2:
   condition: $orgIdValue NULL
   valueOf: datatype/Identifier_Gen
   generateList: true
@@ -36,7 +44,7 @@ identifier_1:
     system: CWE.3 | CE.3
 
 # Used by IN1/Coverage (Insurance) organizations, which have a more complex identifier
-identifier_2:
+identifier_3:
   condition: $orgIdValue NOT_NULL
   valueOf: datatype/Identifier_var
   generateList: true
@@ -50,7 +58,7 @@ identifier_2:
     coding: $orgIdTypeCoding # $coding takes priority over $code
 
 # Must check for empty valueIn because coding could be set
-identifier_3:
+identifier_4:
   condition: $valueIn NOT_NULL
   valueOf: datatype/Identifier_var
   generateList: true

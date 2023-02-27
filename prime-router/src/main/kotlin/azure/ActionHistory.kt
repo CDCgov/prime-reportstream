@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -45,9 +46,11 @@ class ActionHistory(
      *
      */
     val action = Action()
+    val startTime: LocalDateTime
 
     init {
         action.actionName = taskAction
+        startTime = LocalDateTime.now()
     }
 
     /**
@@ -307,6 +310,18 @@ class ActionHistory(
             }
         }
         action.externalName = payloadName
+    }
+
+    /**
+     * Adds information to the Action object about the organization and receiver channel affected by this action.
+     * Typically, this would be called when a report is batched for that receiver, sent to that receiver,
+     * downloaded by that receiver, or any other action taken by that receiver or on behalf of that receiver.
+     * @param organizationName  The name of the receiving organization to associate with this action.
+     * @param receiverName  The name of the receiver channel to associate with this action.
+     */
+    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+        action.receivingOrg = organizationName
+        action.receivingOrgSvc = receiverName
     }
 
     /**

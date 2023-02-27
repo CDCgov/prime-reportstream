@@ -1,4 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
+
+import { renderWithBase } from "../../utils/CustomRenderUtils";
 
 import { WarningsErrors } from "./WarningsErrors";
 
@@ -20,7 +22,9 @@ describe("WarningsErrors component", () => {
                     "Invalid field Equipment_Model_ID (equipment_model_id); please refer to the Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet for acceptable values.",
             },
         ];
-        render(<WarningsErrors title={"THE HEADING"} data={warnings} />);
+        renderWithBase(
+            <WarningsErrors title={"THE HEADING"} data={warnings} />
+        );
 
         expect(screen.getByText(/THE HEADING/)).toBeInTheDocument();
 

@@ -1,12 +1,16 @@
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
+import { Helmet } from "react-helmet-async";
+
 import live from "../../../content/live.json";
 import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { USExtLink, USLink } from "../../../components/USLink";
 
 export const WhereWereLive = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Where we're live | Product" />
+            <Helmet>
+                <title>Where we're live | Product</title>
+            </Helmet>
             <h1 aria-describedby="product-heading-description" id="anchor-top">
                 Where we're live
             </h1>
@@ -16,9 +20,9 @@ export const WhereWereLive = () => {
             </h2>
             <h2>
                 Don't see your state or territory?{" "}
-                <a href="/support/contact" className="margin-left-1 usa-link">
+                <USLink href="/support/contact" className="margin-left-1">
                     Get in touch
-                </a>
+                </USLink>
                 .
             </h2>
             <img
@@ -26,8 +30,17 @@ export const WhereWereLive = () => {
                 src={usamapsvg}
                 alt="Map of states using ReportStream"
             />
-            ReportStream has established connections to send and report public
-            health data for each of the states and territories listed here.
+            <p className="font-body-2xs text-gray-50">
+                <USExtLink href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg">
+                    Heitordp
+                </USExtLink>
+                , CC0, via Wikimedia Commons
+            </p>
+            <p className="margin-top-10">
+                ReportStream has established connections to send and report
+                public health data for each of the states and territories listed
+                here.
+            </p>
             <ul className={"rs-livestate-two-column"}>
                 {live.data
                     .sort((a, b) => a.state.localeCompare(b.state))

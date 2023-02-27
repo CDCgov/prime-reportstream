@@ -1,10 +1,11 @@
 import { ReactElement } from "react";
-import { IconWarning } from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
+import { Icon } from "@trussworks/react-uswds";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { useSenderResource } from "../hooks/UseSenderResource";
+
+import { USLink } from "./USLink";
 
 const isNotActive = (val: string | undefined): boolean => {
     return val === "testing" || val === "inactive";
@@ -13,21 +14,20 @@ const isNotActive = (val: string | undefined): boolean => {
 const BannerContent = () => {
     const { senderDetail: sender, senderIsLoading: loading } =
         useSenderResource();
-    const path = "/getting-started/testing-facilities/overview";
     if (!loading && isNotActive(sender?.customerStatus)) {
         return (
             <section>
                 <header className="usa-banner__header bg-yellow">
                     <div className="usa-banner__inner">
                         <div className="grid-col-auto margin-right-1">
-                            <IconWarning />
+                            <Icon.Warning />
                         </div>
                         <div className="grid-col-fill tablet:grid-col-auto">
                             <b>Onboarding: </b> Your account is not yet sending
                             data to your public health authority.{" "}
-                            <NavLink to={path}>
+                            <USLink href="/getting-started/testing-facilities/overview">
                                 Learn more about onboarding.
-                            </NavLink>
+                            </USLink>
                         </div>
                     </div>
                 </header>

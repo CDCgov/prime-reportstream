@@ -149,7 +149,7 @@ class SimpleReportIntegrationTests {
         val filePath = "${inputPath}simplereport.csv"
         readAndRoute(filePath, "primedatainput/pdi-covid-19").forEach { (reportFile, orgSvc) ->
             when (orgSvc.fullName) {
-                "az-phd.elr-test" -> {
+                "ignore.CSV" -> {
                     val expectedResultsFile = File(expectedResultsPath, "simplereport-az.csv")
                     compareTestResultsToExpectedResults(reportFile, expectedResultsFile)
                 }

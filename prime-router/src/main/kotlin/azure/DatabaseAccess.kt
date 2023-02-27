@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Permission
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Routines
@@ -15,8 +14,6 @@ import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
-import gov.cdc.prime.router.azure.db.Tables.PERMISSION
-import gov.cdc.prime.router.azure.db.Tables.PERMISSION_ORGANIZATION
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -44,6 +41,7 @@ import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
+import org.apache.logging.log4j.ThreadContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -57,6 +55,8 @@ import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -531,7 +531,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 select * from report_descendants(?)
                 limit(100)
                 )
-              """
+        """
         return ctx.fetch(sql, parentReportId, parentReportId)
             .into(ReportFile::class.java)
             .toList()
@@ -1271,6 +1271,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         actionHistory.actionLogs.forEach {
             this.insertActionLog(it, txn)
         }
+
+        // log for app insights
+        val actionEndTime = LocalDateTime.now()
+        ThreadContext.put("action_id", actionHistory.action.actionId.toString())
+        ThreadContext.put("action_name", actionHistory.action.actionName.name)
+        ThreadContext.put("username", actionHistory.action.username)
+        ThreadContext.put("sending_organization", actionHistory.action.sendingOrg)
+        ThreadContext.put("start_time", actionHistory.startTime.toString())
+        ThreadContext.put("end_time", actionEndTime.toString())
+        ThreadContext.put("duration", Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString())
+        logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
+        ThreadContext.clearAll()
     }
 
     /**
@@ -1353,161 +1365,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .limit(MAX_RECORDS_TO_RETURN)
             .fetchInto(Action::class.java)
-    }
-
-    /**
-     * Returns all permissions
-     * @param txn an optional database transaction
-     */
-    fun fetchAllPermissions(
-        txn: DataAccessTransaction? = null
-    ): List<Permission> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(PERMISSION)
-            .limit(100)
-            .fetchInto(Permission::class.java)
-    }
-
-    /**
-     * Returns all permissions associated with an organization by name
-     * @param organizationName an exact organization name
-     * @param txn an optional database transaction
-     */
-    fun fetchPermissionsByOrgName(
-        organizationName: String,
-        txn: DataAccessTransaction? = null
-    ): List<Permission> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.select(PERMISSION.asterisk())
-            .from(PERMISSION)
-            .join(PERMISSION_ORGANIZATION)
-            .on(PERMISSION.PERMISSION_ID.eq(PERMISSION_ORGANIZATION.PERMISSION_ID))
-            .where(
-                PERMISSION_ORGANIZATION.ORGANIZATION_NAME.eq(organizationName)
-                    .and(PERMISSION.ENABLED.eq(true))
-            )
-            .limit(100)
-            .fetchInto(Permission::class.java)
-    }
-
-    /**
-     * Returns a permission
-     * @param id an exact permission id
-     * @param txn an optional database transaction
-     */
-    fun fetchPermissionById(
-        id: Int,
-        txn: DataAccessTransaction? = null
-    ): Permission? {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(PERMISSION)
-            .where(
-                PERMISSION.PERMISSION_ID.eq(id)
-            )
-            .fetchOne()
-            ?.into(Permission::class.java)
-    }
-
-    /**
-     * Updates a permission
-     * @param id an exact permission id
-     * @param permission type of Permission
-     * @param txn an optional database transaction
-     */
-    fun updatePermissionById(
-        id: Int,
-        permission: Permission,
-        txn: DataAccessTransaction? = null
-    ) {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        ctx.update(PERMISSION)
-            .set(PERMISSION.ENABLED, permission.enabled)
-            .where(PERMISSION.PERMISSION_ID.eq(id))
-            .execute()
-    }
-
-    /**
-     * Returns a permission
-     * @param userName the user name of the creator
-     * @param permission type of Permission
-     * @param txn an optional database transaction
-     */
-    fun insertPermission(
-        user: String,
-        permission: Permission,
-        txn: DataAccessTransaction? = null
-    ): Int {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.insertInto(PERMISSION)
-            .set(
-                PERMISSION.PERMISSION_ID,
-                DSL.defaultValue(PERMISSION.PERMISSION_ID)
-            )
-            .set(PERMISSION.NAME, permission.name)
-            .set(PERMISSION.DESCRIPTION, permission.description)
-            .set(PERMISSION.CREATED_BY, user)
-            .set(PERMISSION.CREATED_AT, OffsetDateTime.now())
-            .returningResult(PERMISSION.PERMISSION_ID)
-            .fetchOne()
-            ?.value1()
-            ?: error("Fetch error")
-    }
-
-    /**
-     * Associates a permission to an organization
-     * @param organizationName the organization name
-     * @param permissionId id of the Permission
-     * @param txn an optional database transaction
-     */
-    fun insertPermissionOrganization(
-        organizationName: String,
-        permissionId: Int,
-        txn: DataAccessTransaction? = null
-    ): Int {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.insertInto(PERMISSION_ORGANIZATION)
-            .set(
-                PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID,
-                DSL.defaultValue(PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID)
-            )
-            .set(PERMISSION_ORGANIZATION.PERMISSION_ID, permissionId)
-            .set(PERMISSION_ORGANIZATION.ORGANIZATION_NAME, organizationName)
-            .returningResult(PERMISSION_ORGANIZATION.PERMISSION_ORGANIZATION_ID)
-            .fetchOne()
-            ?.value1()
-            ?: error("Fetch error")
-    }
-
-    /**
-     * Deletes a permission
-     * @param id an exact permission id
-     * @param txn an optional database transaction
-     */
-    fun deletePermissionOrganization(
-        organizationName: String,
-        permissionId: Int,
-        txn: DataAccessTransaction? = null
-    ) {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        ctx.deleteFrom(PERMISSION_ORGANIZATION)
-            .where(PERMISSION_ORGANIZATION.PERMISSION_ID.eq(permissionId))
-            .and(PERMISSION_ORGANIZATION.ORGANIZATION_NAME.eq(organizationName))
-            .execute()
-    }
-
-    /**
-     * Deletes a permission
-     * @param id an exact permission id
-     * @param txn an optional database transaction
-     */
-    fun deletePermissionById(
-        id: Int,
-        txn: DataAccessTransaction? = null
-    ) {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        ctx.deleteFrom(PERMISSION)
-            .where(PERMISSION.PERMISSION_ID.eq(id))
-            .execute()
     }
 
     /** Common companion object */

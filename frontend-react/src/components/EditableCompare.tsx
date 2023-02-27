@@ -21,7 +21,7 @@ import { showError } from "./AlertNotifications";
 export type EditableCompareRef = {
     getEditedText: () => string;
     getOriginalText: () => string;
-    refreshEditedText: (updatedjson: string) => void;
+    refreshEditedText: (updatedjson?: string) => boolean; // returns true if valid JSON
     isValidSyntax: () => boolean;
 };
 
@@ -29,6 +29,7 @@ interface EditableCompareProps {
     original: string;
     modified: string;
     jsonDiffMode: boolean; // true is json aware compare, false is a text compare
+    onChange: (text: string, isValid: boolean) => void;
 }
 
 /**
@@ -48,7 +49,7 @@ interface EditableCompareProps {
 export const EditableCompare = forwardRef(
     // allows for functions on components (useImperativeHandle)
     (
-        props: EditableCompareProps,
+        { jsonDiffMode, modified, onChange, original }: EditableCompareProps,
         ref: Ref<EditableCompareRef>
     ): ReactElement => {
         // useRefs are used to access html elements directly (instead of document.getElementById)
@@ -66,42 +67,11 @@ export const EditableCompare = forwardRef(
         // the API call into this forwardRef well say if json is valid (to enable save button)
         const [isValidSyntax, setIsValidSyntax] = useState(true);
 
-        useImperativeHandle(
-            ref,
-            () => ({
-                getEditedText() {
-                    return textAreaContent;
-                },
-                getOriginalText() {
-                    return props.original;
-                },
-                // when showing/hiding json, force am update of the content
-                refreshEditedText(updatedjson) {
-                    setTextAreaContent(updatedjson);
-                    onChangeHandler(updatedjson);
-                },
-                isValidSyntax() {
-                    return isValidSyntax;
-                },
-            }),
-            // onChangeHandler appears below, remove from deps
-            // eslint-disable-next-line
-            [textAreaContent]
-        );
-
-        const turnOffSpellCheckSwigglies = () => {
-            if (editDiffRef?.current?.spellcheck) {
-                editDiffRef.current.spellcheck = false;
-            }
-        };
-
         const refreshDiffCallback = useCallback(
             (originalText: string, modifiedText: string) => {
                 if (originalText.length === 0 || modifiedText.length === 0) {
                     return;
                 }
-
-                turnOffSpellCheckSwigglies();
 
                 // jsonDiffMode requires json be valid. If it's not then don't run it.
                 const { valid, offset } = checkJson(modifiedText);
@@ -115,12 +85,13 @@ export const EditableCompare = forwardRef(
 
                     const threeParts = splitOn(modifiedText, start, end);
                     // we're using HTML5's <s> tag to show error, style sets background to red.
-                    const errorHtml = `${threeParts[0]}<s>${threeParts[1]}</s>${threeParts[2]}`;
+                    const errorHtml = `${threeParts[0]}<s data-testid="EditableCompare__errorDiff">${threeParts[1]}</s>${threeParts[2]}`;
                     setRightHandSideHighlightHtml(errorHtml);
+
                     return;
                 }
 
-                const result = props.jsonDiffMode
+                const result = jsonDiffMode
                     ? jsonDifferMarkup(
                           JSON.parse(originalText),
                           JSON.parse(modifiedText)
@@ -132,7 +103,7 @@ export const EditableCompare = forwardRef(
                     setLeftHandSideHighlightHtml(result.left.markupText);
                 }
 
-                // we only change the hightlighting on the BACKGROUND div so we don't mess up typing/cursor
+                // we only change the highlighting on the BACKGROUND div so we don't mess up typing/cursor
                 if (result.right.markupText !== rightHandSideHighlightHtml) {
                     setRightHandSideHighlightHtml(result.right.markupText);
                 }
@@ -140,33 +111,69 @@ export const EditableCompare = forwardRef(
             [
                 leftHandSideHighlightHtml,
                 rightHandSideHighlightHtml,
-                props.jsonDiffMode,
+                jsonDiffMode,
             ]
         );
 
-        // on change, we highlight the errors
+        // force an update of the content
+        // will update with the provided content or infer from previous content
+        const refreshEditedText = useCallback(
+            (updatedJson: string | undefined) => {
+                let formattedText = updatedJson || textAreaContent;
+                const { valid, errorMsg } = checkJson(formattedText);
+
+                if (valid) {
+                    formattedText = JSON.stringify(
+                        JSON.parse(formattedText),
+                        null,
+                        2
+                    );
+                    setTextAreaContent(formattedText);
+                } else {
+                    showError(`JSON data generated an error "${errorMsg}"`);
+                }
+
+                setIsValidSyntax(valid);
+                refreshDiffCallback(original, formattedText);
+
+                return valid;
+            },
+            [original, textAreaContent, refreshDiffCallback]
+        );
+
         const onChangeHandler = useCallback(
             (newText: string) => {
                 setTextAreaContent(newText);
-                refreshDiffCallback(props.original, newText);
+                // Disable highlighting while the user's typing
+                setRightHandSideHighlightHtml("");
+                onChange(newText, checkJson(newText).valid);
             },
-            [setTextAreaContent, refreshDiffCallback, props]
+            [setTextAreaContent, setRightHandSideHighlightHtml, onChange]
         );
 
-        const onBlurHandler = useCallback((newText: string) => {
-            const { valid, errorMsg } = checkJson(newText);
-            setIsValidSyntax(valid);
-            if (!valid) {
-                showError(`JSon data generated an error "${errorMsg}"`);
-            }
-        }, []);
+        useImperativeHandle(
+            ref,
+            () => ({
+                getEditedText() {
+                    return textAreaContent;
+                },
+                getOriginalText() {
+                    return original;
+                },
+                refreshEditedText,
+                isValidSyntax() {
+                    return isValidSyntax;
+                },
+            }),
+            [textAreaContent, original, isValidSyntax, refreshEditedText]
+        );
 
         useEffect(() => {
-            if (props.modified?.length > 0 && textAreaContent.length === 0) {
+            if (modified?.length > 0 && textAreaContent.length === 0) {
                 // initialization only
-                onChangeHandler(props.modified);
+                onChangeHandler(modified);
             }
-        }, [textAreaContent, props, onChangeHandler]);
+        }, [textAreaContent, modified, onChangeHandler]);
 
         return (
             <ScrollSync>
@@ -178,7 +185,7 @@ export const EditableCompare = forwardRef(
                                 className="rs-editable-compare-base rs-editable-compare-static"
                                 contentEditable={false}
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(props.original),
+                                    __html: DOMPurify.sanitize(original),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -204,9 +211,8 @@ export const EditableCompare = forwardRef(
                                 onChange={(e) => {
                                     onChangeHandler(e?.target?.value || "");
                                 }}
-                                onBlur={(e) => {
-                                    onBlurHandler(e?.target?.value || "");
-                                }}
+                                spellCheck="false"
+                                data-testid="EditableCompare__textarea"
                             />
                         </ScrollSyncPane>
 

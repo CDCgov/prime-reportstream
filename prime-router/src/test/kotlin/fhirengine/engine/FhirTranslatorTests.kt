@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -211,7 +213,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assert(terser.get("MSH-11-1") == "T")
+        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
     }
 
     /**
@@ -249,7 +251,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assert(terser.get("MSH-11-1") == "T")
+        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
     }
 
     /**
@@ -287,8 +289,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        val code = terser.get("MSH-11-1")
-        assert(code == "P")
+        assertThat(terser.get("MSH-11-1")).isEqualTo("P")
     }
 
     /**
@@ -328,6 +329,6 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assert(terser.get("MSH-11-1") == "T")
+        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
     }
 }

@@ -16,6 +16,7 @@ const config = {
     DEFAULT_FEATURE_FLAGS: DEFAULT_FEATURE_FLAGS as string[],
     IS_PREVIEW: envVars.OKTA_URL?.match(/oktapreview.com/) !== null,
     API_ROOT: `${envVars.RS_API_URL}/api`,
+    RS_DOMAIN: "reportstream.cdc.gov",
 };
 
 export default config;

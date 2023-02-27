@@ -14,17 +14,21 @@ import {
     SystemAndSettingsIa,
     SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
-import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
+import {
+    ReferralGuideMd,
+    GettingStartedSubmittingDataMd,
+} from "../../pages/resources/markdown-adapters";
 
-enum ResourcesDirectories {
+export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
-    DOWNLOAD_GUIDE = "CSV download guide",
+    DOWNLOAD_GUIDE = "Manual data download guide",
     REFERRAL_GUIDE = "ReportStream referral guide",
     PROGRAMMERS_GUIDE = "API Programmer's guide",
     ELR_CHECKLIST = "ELR onboarding checklist",
     SYSTEM = "System and settings",
     SECURITY = "Security practices",
-    GETTING_STARTED_PHD = "Getting started: Public health departments",
+    GETTING_STARTED_PHD = "Guide to receiving ReportStream data",
+    GETTING_STARTED_SUBMITTING_DATA = "Guide to submitting data to ReportStream",
 }
 /** Data that drives breadcrumb creation and slug appending
  * @todo: Refactor to make easier for content/design to create */
@@ -42,6 +46,10 @@ const slugs: SlugParams[] = [
     {
         key: ResourcesDirectories.GETTING_STARTED_PHD,
         slug: "getting-started-public-health-departments",
+    },
+    {
+        key: ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA,
+        slug: "getting-started-submitting-data",
     },
 ];
 
@@ -63,7 +71,7 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Step-by-step instructions for setting up a new user account."
+            "Access the ReportStream application to view and manually download data relevant to your jurisdiction."
         )
         .addElement(
             contentContainer(
@@ -81,13 +89,31 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Step-by-step process for connecting your jurisdiction to ReportStream."
+            "Set up an ELR connection to automatically receive jurisdiction relevant disease data."
         )
         .addElement(
             contentContainer(
                 GettingStartedPhd,
                 ResourcesDirectoryTools.makeCrumb(
                     ResourcesDirectories.GETTING_STARTED_PHD
+                )
+            )
+        ),
+    new ElementDirectory()
+        .setTitle(ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA)
+        .setSlug(
+            ResourcesDirectoryTools.getSlug(
+                ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
+            )
+        )
+        .setDescription(
+            "Set up a connection to SUBMIT jurisdiction relevant disease data."
+        )
+        .addElement(
+            contentContainer(
+                GettingStartedSubmittingDataMd,
+                ResourcesDirectoryTools.makeCrumb(
+                    ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
                 )
             )
         ),
@@ -115,7 +141,7 @@ export const resourcesDirectories = [
             )
         )
         .setDescription(
-            "Checklist of requirements for  setting up an ELR connection at your public health department."
+            "Set up an ELR connection to automatically report all disease data to public health departments."
         )
         .addElement(
             contentContainer(
@@ -130,9 +156,7 @@ export const resourcesDirectories = [
         .setSlug(
             ResourcesDirectoryTools.getSlug(ResourcesDirectories.DOWNLOAD_GUIDE)
         )
-        .setDescription(
-            "Instructions for downloading data as comma separated values (CSV) for your public health department."
-        )
+        .setDescription("Download data using the ReportStream application.")
         .addElement(
             contentContainer(
                 DataDownloadGuideIa,

@@ -1,0 +1,6 @@
+extends: sample_schema
+elements:
+  - name: note
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    bundleProperty: '%resource.note'
+    value: [ '"someNote"' ]

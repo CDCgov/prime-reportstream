@@ -1,6 +1,6 @@
 /* Renders the header row of the table from columns.values() */
 import React from "react";
-import { IconArrowDownward, IconArrowUpward } from "@trussworks/react-uswds";
+import { Icon } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
@@ -35,9 +35,9 @@ export const TableHeaders = ({
             order === sortOrder || (locally && localOrder === sortOrder);
 
         if (filterManager && isOrder("ASC")) {
-            return <IconArrowUpward />;
+            return <Icon.ArrowUpward />;
         } else if (filterManager && isOrder("DESC")) {
-            return <IconArrowDownward />;
+            return <Icon.ArrowDownward />;
         }
     };
 

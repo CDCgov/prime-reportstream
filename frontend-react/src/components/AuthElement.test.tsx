@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { RSSessionContext } from "../contexts/SessionContext";
+import { renderWithBase } from "../utils/CustomRenderUtils";
 
 import { AuthElement } from "./AuthElement";
 
@@ -39,13 +40,16 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElementWithProp test={"Success!"} />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -61,8 +65,11 @@ describe("AuthElement unit tests", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: false,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -79,8 +86,11 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.SENDER}
@@ -100,8 +110,11 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -122,13 +135,16 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -147,8 +163,11 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -168,8 +187,11 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -188,8 +210,11 @@ describe("AuthElement unit tests", () => {
             },
             dispatch: () => {},
             initialized: false,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         });
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -222,8 +247,11 @@ describe("AuthElement unit tests", () => {
             dispatch: () => {},
             initialized: true,
             isAdminStrictCheck: true,
+            isUserAdmin: true,
+            isUserReceiver: true,
+            isUserSender: false,
         } as RSSessionContext);
-        render(
+        renderWithBase(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.PRIME_ADMIN}

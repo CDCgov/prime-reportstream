@@ -1,4 +1,3 @@
-
 ### Schema: az/az-ihs-covid-19
 ### Topic: covid-19
 ### Tracking Element: (testing_lab_specimen_id)
@@ -33,9 +32,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the facility which the test was ordered from
-
 ---
 
 **Name**: Ordering_Facility_State
@@ -53,9 +50,7 @@ The city of the facility which the test was ordered from
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: Ordering_Facility_Address
@@ -69,9 +64,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The address of the facility which the test was ordered from
-
 ---
 
 **Name**: Ordering_Facility_Zip
@@ -85,9 +78,7 @@ The address of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the facility which the test was ordered from
-
 ---
 
 **Name**: Provider_First_Name
@@ -106,9 +97,7 @@ The zip code of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: Provider_Last_Name
@@ -127,9 +116,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: Provider_Phone_Number
@@ -148,9 +135,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: Ordering_facility_name
@@ -176,9 +161,7 @@ The phone number of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
-
 ---
 
 **Name**: Patient_City
@@ -192,9 +175,7 @@ The SimpleReport concept of organization. It refers to organization for the orde
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: Patient_County
@@ -224,11 +205,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -247,7 +226,7 @@ Other states may choose to define their own formats.
 
 **Reference URL**:
 [https://www.azdhs.gov/documents/preparedness/emergency-preparedness/guidance-facilities-point-of-care.pdf](https://www.azdhs.gov/documents/preparedness/emergency-preparedness/guidance-facilities-point-of-care.pdf) 
-
+                
 **Value Sets**
 
 Code | Display | System
@@ -268,10 +247,8 @@ Code | Display | System
 UNK|U|HL7
 
 **Documentation**:
-
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
 consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -286,9 +263,7 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: Patient_Sex
@@ -315,9 +290,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -332,10 +305,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -350,9 +321,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: Patient_Phone_Number
@@ -366,9 +335,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: Race
@@ -418,9 +385,7 @@ UNK|O|HL7
 ASKU|O|HL7
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -441,9 +406,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: Patient_Street_Address
@@ -457,9 +420,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: Patient_Zip
@@ -475,9 +436,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: Sending_Application
@@ -495,9 +454,7 @@ The patient's zip code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name and OID for the application sending information to the receivers
-
 
 ---
 
@@ -521,9 +478,7 @@ The name and OID for the application sending information to the receivers
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -544,11 +499,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique code for this specimen
-
 ---
 
 **Name**: Specimen_Site
@@ -586,9 +539,7 @@ Code | Display | System
 71836000|Nose|SNOMED_CT
 
 **Documentation**:
-
 Refers back to the specimen source site, which is then encoded into the SPM-8 segment
-
 ---
 
 **Name**: Specimen_Type
@@ -638,9 +589,7 @@ Code | Display | System
 445297001|Nasal Swab|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: Test_Code
@@ -658,9 +607,7 @@ The specimen source, such as Blood or Serum
 **Table Column**: Test Performed LOINC Code
 
 **Documentation**:
-
 The LOINC code of the test performed. This is a standardized coded value describing the test
-
 ---
 
 **Name**: Test_Name
@@ -678,9 +625,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 **Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
-
 The LOINC description of the test performed as related to the LOINC code.
-
 ---
 
 **Name**: Result
@@ -721,9 +666,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 ---
 
 **Name**: Result_Date
@@ -751,9 +694,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the testing lab
-
 ---
 
 **Name**: Lab_CLIA
@@ -776,11 +717,9 @@ The city of the testing lab
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -795,9 +734,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the testing lab
-
 ---
 
 **Name**: Lab_State
@@ -815,9 +752,7 @@ The phone number of the testing lab
 **Table Column**: State
 
 **Documentation**:
-
 The state for the testing lab
-
 ---
 
 **Name**: Lab_Address
@@ -831,9 +766,7 @@ The state for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address for the testing lab
-
 ---
 
 **Name**: Lab_Zip
@@ -847,9 +780,7 @@ The street address for the testing lab
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: equipment_model_name

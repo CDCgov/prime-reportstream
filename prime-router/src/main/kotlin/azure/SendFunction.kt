@@ -68,6 +68,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
                 val receiver = header.receiver
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
+                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
@@ -103,7 +104,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
-            val msg = "Send function unrecoverable exception for event. Mo intervention required: $message"
+            val msg = "Send function unrecoverable exception: ${t.message} Event: $message"
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             if (receiverStatus == CustomerStatus.ACTIVE) {

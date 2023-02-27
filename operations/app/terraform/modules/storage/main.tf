@@ -36,6 +36,12 @@ resource "azurerm_storage_account" "storage_account" {
   }
 }
 
+resource "azurerm_storage_queue" "storage_queue" {
+  name                 = each.value
+  for_each             = toset(var.storage_queue_name)
+  storage_account_name = azurerm_storage_account.storage_account.name
+}
+
 module "storageaccount_blob_private_endpoint" {
   for_each = var.subnets.primary_endpoint_subnets
 

@@ -1,0 +1,9 @@
+hl7Type: ORU_R01
+hl7Version: 2.5.1
+extends: ORU_R01
+elements:
+  - name: patient-information
+    resource: Bundle.entry.resource.ofType(Patient)
+    condition: '%resource.count() = 1'
+    required: true
+    schema: ORU_R01/patient

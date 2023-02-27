@@ -2,15 +2,12 @@
 name: color-labs-covid-19
 description: Color Labs
 topic: covid-19
-trackingElement: specimen_id
+trackingElement: message_id
 extends: hl7/hl7-ingest-covid-19
 
 elements:
   - name: sender_id
-    default: color-lab
-
-  - name: processing_mode_code
-    default: T
+    mapper: useSenderSetting(organizationName)
 
   - name: patient_ethnicity
     type: CODE

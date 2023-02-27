@@ -202,13 +202,19 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
+        val report1 = Report(
+            one,
+            listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource,
+            metadata = metadata,
+            bodyFormat = Report.Format.CSV
+        )
         val actionHistory = mockk<ActionHistory>()
         val sender = CovidSender("senderName", "org", Sender.Format.CSV, CustomerStatus.INACTIVE, one.name)
 
         every {
             BlobAccess.Companion.uploadBody(
-                Report.Format.CSV,
+                report1.bodyFormat,
                 any(),
                 any(),
                 sender.fullName,

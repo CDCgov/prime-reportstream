@@ -18,9 +18,10 @@ import uuid
 from cryptography.hazmat.primitives import serialization
 
 #
-# REPLACE THESE WITH YOUR CLIENT-ID AND KEYPAIR FILE
+# REPLACE THESE WITH YOUR CLIENT-ID, SENDER CHANNEL ID, AND KEYPAIR FILE
 #
 my_client_id = "healthy-labs"
+my_sender_id = "default"
 my_rsa_keypair_file = "./my-rsa-keypair.pem"
 
 #
@@ -53,11 +54,11 @@ key = serialization.load_pem_private_key(private_key.encode(), password=None)
 
 now = math.floor(datetime.datetime.timestamp(datetime.datetime.now()))
 
-header_data = { "kid": f"{my_client_id}.default"}
+header_data = { "kid": f"{my_client_id}.{my_sender_id}"}
 
 payload_data = {
-    "iss": f"{my_client_id}.default",
-    "sub": f"{my_client_id}.default",
+    "iss": f"{my_client_id}.{my_sender_id}",
+    "sub": f"{my_client_id}.{my_sender_id}",
     "aud": "staging.prime.cdc.gov",
     "exp": now + 300,                                # Expire in 5 minutes
     "jti": str(uuid.uuid4())
@@ -98,7 +99,7 @@ curl -X POST -H "Content-Type: application/x-www-form-urlencoded"  -d "scope={sc
 
 If its working, you'll get back a response like this:
 
-{{"sub":"{my_client_id}.default.report_90ffad77-9b47-448f-ab51-9b40c856d878","access_token":"ACCESS-TOKEN-STRING-HERE","token_type":"bearer","expires_in":300,"expires_at_seconds":1660744830,"scope":"{scope}"}}
+{{"sub":"{my_client_id}.{my_sender_id}.report_90ffad77-9b47-448f-ab51-9b40c856d878","access_token":"ACCESS-TOKEN-STRING-HERE","token_type":"bearer","expires_in":300,"expires_at_seconds":1660744830,"scope":"{scope}"}}
 
 (Note that the scope requested is {scope})
 
