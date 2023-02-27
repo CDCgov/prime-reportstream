@@ -11,13 +11,10 @@ import { AuthElement } from "./AuthElement";
 
 const mockUseNavigate = jest.fn();
 
-jest.mock("react-router", () => {
-    const originalModule = jest.requireActual("react-router");
-    return {
-        ...originalModule,
-        useNavigate: () => mockUseNavigate,
-    };
-});
+jest.mock("react-router", () => ({
+    ...jest.requireActual("react-router"),
+    useNavigate: () => mockUseNavigate,
+}));
 
 const TestElement = () => <h1>Test Passed</h1>;
 const TestElementWithProp = (props: { test: string }) => <h1>{props.test}</h1>;

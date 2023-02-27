@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactElement } from "react";
+import { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { MemoryRouter, useRoutes } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +11,10 @@ import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { appRoutes } from "../AppRouter";
+
+interface AppWrapperProps {
+    children: React.ReactNode;
+}
 
 interface AppWrapperOptions {
     initialRouteEntries?: string[];
@@ -44,7 +48,7 @@ export const AppWrapper = ({
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
     // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
-    return ({ children }: PropsWithChildren<{}>) => {
+    return ({ children }: AppWrapperProps) => {
         return (
             <CacheProvider>
                 <MemoryRouter initialEntries={initialRouteEntries}>

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
@@ -14,7 +14,7 @@ describe("Pagination", () => {
             description: "on the first page of an unbounded set",
             slots: [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR],
             currentPageNum: 1,
-            expectedItems: ["1", "2", "3", "4", "5", "6", "…", "Next"],
+            expectedItems: ["1", "2", "3", "4", "5", "6", "Next", "…"],
         },
         {
             description: "on the second page of an unbounded set",
@@ -28,8 +28,8 @@ describe("Pagination", () => {
                 "4",
                 "5",
                 "6",
-                "…",
                 "Next",
+                "…",
             ],
         },
         {
@@ -52,7 +52,7 @@ describe("Pagination", () => {
         },
     ])(
         "Handles Previous and Next links $description",
-        ({ slots, currentPageNum, expectedItems }) => {
+        async ({ slots, currentPageNum, expectedItems }) => {
             const props: PaginationProps = {
                 slots: slots as SlotItem[],
                 currentPageNum,
@@ -61,9 +61,12 @@ describe("Pagination", () => {
             renderApp(<Pagination {...props} />);
 
             const list = screen.getByRole("list");
-            const itemContents = Array.from(list.children).map(
-                (item) => item.textContent
-            );
+            const { getAllByRole, getByRole } = within(list);
+            const items =
+                expectedItems.indexOf("…") > -1
+                    ? [...getAllByRole("listitem"), getByRole("presentation")]
+                    : getAllByRole("listitem");
+            const itemContents = items.map((item) => item.textContent);
             expect(itemContents).toStrictEqual(expectedItems);
         }
     );
