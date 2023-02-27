@@ -15,7 +15,7 @@ type DetailItemProps = {
 export function DetailItem({ item, content }: DetailItemProps) {
     return (
         <div className="display-flex flex-column margin-bottom-2">
-            <span className="text-base">{item}</span>
+            <span className="text-base line-height-body-5">{item}</span>
             <span>{content}</span>
         </div>
     );

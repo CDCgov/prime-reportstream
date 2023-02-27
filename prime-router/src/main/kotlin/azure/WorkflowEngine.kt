@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
@@ -172,10 +173,14 @@ class WorkflowEngine(
         payloadName: String? = null
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
-        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val reportFormat = when (sender.topic) {
+            Topic.FULL_ELR -> report.bodyFormat
+            else -> Report.Format.safeValueOf(sender.format.toString())
+        }
+
+        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
-            senderReportFormat,
+            reportFormat,
             rawBody,
             blobFilename,
             sender.fullName,
@@ -871,7 +876,7 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.HL7 -> {
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
@@ -891,6 +896,7 @@ class WorkflowEngine(
                     )
                 }
             }
+            else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
 }

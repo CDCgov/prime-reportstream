@@ -41,11 +41,36 @@ abstract class ReportFileFacade(
      * Check whether these [claims] allow access to this [orgName].
      * @return true if [claims] authorizes access to this [orgName].  Return
      * false if the [orgName] is empty or if the claim does not give access.
+     *
+     * This authorization check can be used for queries that contain the desired [orgName]
+     * For example, "give me all the recent reports sent to org md-phd".   Drilldown queries, however, do not contain
+     * the [orgName], instead they have a report UUID or actionId.   For those, use [checkAccessAuthorizationForAction]
      */
-    abstract fun checkAccessAuthorization(
+    fun checkAccessAuthorizationForOrg(
         claims: AuthenticatedClaims,
         orgName: String? = null,
         senderOrReceiver: String? = null,
+        request: HttpRequestMessage<String?>,
+    ): Boolean {
+        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
+    }
+
+    /**
+     * Check whether these [claims] from this [request]
+     * allow access to the sender or receiver associated with this [action].
+     * @return true if authorized, false otherwise.
+     *
+     * This authorization check can be used for queries that do NOT contain the desired [orgName].
+     * For example, drilldown queries like "give me detailed info about report with UUID xxxxyyyzzz." do not
+     * contain the [orgName], instead they have a report UUID or actionId.
+     *
+     * We do not know the org, so we look it up in the Action table, using:
+     * sending_org (in the case of the [SubmissionsFacade.checkAccessAuthorizationForAction] impl),
+     * or the receiving_org (in the case of the [DeliveryFacade.checkAccessAuthorizationForAction] impl),
+     */
+    abstract fun checkAccessAuthorizationForAction(
+        claims: AuthenticatedClaims,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean
 }

@@ -1,12 +1,14 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 
 import {
+    renderWithBase,
     renderWithFullAppContext,
     renderWithRouter,
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { ResponseError } from "../../config/endpoints/waters";
+import { conditionallySuppressConsole } from "../../utils/TestUtils";
 
 import {
     RequestLevel,
@@ -62,13 +64,13 @@ describe("FileSuccessDisplay", () => {
 
 describe("FileErrorDisplay", () => {
     test("renders expected content", async () => {
+        const restore = conditionallySuppressConsole("failure:");
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
-                handlerType={""}
             />
         );
 
@@ -83,9 +85,11 @@ describe("FileErrorDisplay", () => {
 
         const table = screen.queryByRole("table");
         expect(table).not.toBeInTheDocument();
+        restore();
     });
 
     test("renders table when data is given", async () => {
+        const restore = conditionallySuppressConsole("failure:");
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "Exception: first error\ntruncated",
@@ -93,7 +97,7 @@ describe("FileErrorDisplay", () => {
             field: "first field",
             trackingIds: ["first_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_MESSAGE_DATE_VALIDATION",
+            errorCode: "INVALID_MSG_PARSE_DATE",
             details: "none",
         };
         const fakeError2: ResponseError = {
@@ -102,7 +106,7 @@ describe("FileErrorDisplay", () => {
             field: "second field",
             trackingIds: ["second_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_MESSAGE_VALIDATION",
+            errorCode: "INVALID_HL7_MSG_VALIDATION",
             details: "none",
         };
         const fakeError3: ResponseError = {
@@ -111,7 +115,7 @@ describe("FileErrorDisplay", () => {
             field: "third field",
             trackingIds: ["third_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_PHONE_NUMBER",
+            errorCode: "INVALID_MSG_PARSE_TELEPHONE",
             details: "none",
         };
         const errors = [fakeError1, fakeError2, fakeError3];
@@ -121,7 +125,6 @@ describe("FileErrorDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
-                handlerType={""}
             />
         );
 
@@ -146,6 +149,7 @@ describe("FileErrorDisplay", () => {
         expect(thirdCells[0]).toHaveTextContent(
             "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
         );
+        restore();
     });
 });
 
@@ -213,7 +217,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        render(
+        renderWithBase(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}

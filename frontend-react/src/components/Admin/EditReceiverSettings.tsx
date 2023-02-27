@@ -27,6 +27,7 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
+import { getAppInsightsHeaders } from "../../TelemetryService";
 
 import {
     ConfirmSaveSettingModal,
@@ -111,6 +112,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -238,6 +240,20 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     defaultvalue={orgReceiverSettings.customerStatus}
                     savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
                     valuesFrom={"customerStatus"}
+                />
+                <DropdownComponent
+                    fieldname={"timeZone"}
+                    label={"Time Zone"}
+                    defaultvalue={orgReceiverSettings.timeZone}
+                    savefunc={(v) => (orgReceiverSettings.timeZone = v)}
+                    valuesFrom={"timeZone"}
+                />
+                <DropdownComponent
+                    fieldname={"dateTimeFormat"}
+                    label={"Date Time Format"}
+                    defaultvalue={orgReceiverSettings.dateTimeFormat}
+                    savefunc={(v) => (orgReceiverSettings.dateTimeFormat = v)}
+                    valuesFrom={"dateTimeFormat"}
                 />
                 <TextInputComponent
                     fieldname={"description"}

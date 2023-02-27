@@ -1,4 +1,3 @@
-
 ### Schema: covid-19-gaen
 ### Topic: covid-19
 ### Tracking Element: message_id (message_id)
@@ -56,9 +55,7 @@ WR|Weakly reactive|HL7
 W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
-
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
 ---
 
 **Name**: date_result_released
@@ -102,9 +99,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: patient_phone_number
@@ -120,7 +115,5 @@ unique id to track the usage of the message
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---

@@ -1,3 +1,31 @@
+security:
+  condition: $code NOT_NULL
+  valueOf: datatype/Coding
+  expressionType: resource
+  vars:
+    code: MSH.8
+    display: MSH.8
+
+tag_1:
+  condition: $code NOT_NULL
+  valueOf: datatype/Coding
+  generateList: true
+  expressionType: resource
+  vars:
+    code: MSH.11.1
+  constants:
+    system: v2-0103
+
+tag_2:
+  condition: $code NOT_NULL
+  valueOf: datatype/Coding
+  generateList: true
+  expressionType: resource
+  vars:
+    code: MSH.11.2
+  constants:
+    system: v2-0207
+
 extension_1:
   generateList: true
   valueOf: extension/Extension
@@ -8,35 +36,8 @@ extension_1:
     KEY_NAME_SUFFIX: String
     urlValue: source-data-model-version
 
-extension_2:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, MSH.10
-  constants:
-    KEY_NAME_SUFFIX: Id
-    urlValue: source-record-id
-
-extension_3:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: source-processing-id
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept_var
-      expressionType: resource
-      vars:
-        system: SYSTEM_URL, $system_code
-        code: String, MSH.11
-        display: $NULL
-      constants:
-        system_code: "source-processing-id-system"
-
 # Patient las update facility universal ID
-extension_4:
+extension_2:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -51,7 +52,7 @@ extension_4:
     urlValue: last-updated-facility-universal-id
 
 # Patient las update facility namespace
-extension_5:
+extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource

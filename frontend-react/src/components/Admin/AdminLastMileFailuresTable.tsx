@@ -13,7 +13,6 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { Link } from "react-router-dom";
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
@@ -23,6 +22,8 @@ import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
+import { getAppInsightsHeaders } from "../../TelemetryService";
+import { USLink } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -126,7 +127,6 @@ const RenderResendModal = (props: {
                 <ButtonGroup>
                     <Button
                         type="button"
-                        size="small"
                         outline
                         onClick={props.closeResendModal}
                     >
@@ -134,7 +134,6 @@ const RenderResendModal = (props: {
                     </Button>
                     <Button
                         type="button"
-                        size="small"
                         disabled={props.loading}
                         onClick={() => props.startResend()}
                     >
@@ -211,14 +210,14 @@ const DataLoadRenderTable = (props: {
                         </span>
                     </td>
                     <td>
-                        <Link
+                        <USLink
                             title={"Jump to Settings"}
-                            to={linkRecvSettings}
+                            href={linkRecvSettings}
                             key={`recv_link_${eachRow.pk()}`}
                             className={"font-mono-xs"}
                         >
                             {eachRow.receiver}
-                        </Link>
+                        </USLink>
                     </td>
                     <td>
                         <Button
@@ -229,7 +228,6 @@ const DataLoadRenderTable = (props: {
                                 )
                             }
                             type="button"
-                            size="small"
                             className="padding-1 usa-button--outline"
                             title="Requeue items for resend"
                         >
@@ -356,6 +354,7 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
+                    ...getAppInsightsHeaders(),
                     Authorization: `Bearer ${getStoredOktaToken()}`,
                 },
                 mode: "cors",

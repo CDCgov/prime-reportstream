@@ -1,4 +1,3 @@
-
 ### Schema: waters/waters-covid-19
 ### Topic: covid-19
 ### Tracking Element: testId (message_id)
@@ -55,9 +54,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: serialNumber
@@ -85,7 +82,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
@@ -115,9 +112,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: hospitalized
@@ -143,9 +138,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: symptomsIcu
@@ -171,9 +164,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: testId
@@ -187,9 +178,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 unique id to track the usage of the message
-
 ---
 
 **Name**: testOrderedDate
@@ -267,9 +256,7 @@ unique id to track the usage of the message
 **Table Column**: State
 
 **Documentation**:
-
 The state of the facility which the test was ordered from
-
 ---
 
 **Name**: orderingProviderCity
@@ -283,9 +270,7 @@ The state of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The city of the provider
-
 ---
 
 **Name**: orderingProviderFname
@@ -304,9 +289,7 @@ The city of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The first name of the provider who ordered the test
-
 ---
 
 **Name**: orderingProviderNpi
@@ -325,9 +308,7 @@ The first name of the provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ordering provider’s National Provider Identifier
-
 ---
 
 **Name**: orderingProviderLname
@@ -346,9 +327,7 @@ The ordering provider’s National Provider Identifier
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The last name of provider who ordered the test
-
 ---
 
 **Name**: orderingProviderPhone
@@ -367,9 +346,7 @@ The last name of provider who ordered the test
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The phone number of the provider
-
 ---
 
 **Name**: orderingProviderState
@@ -387,9 +364,7 @@ The phone number of the provider
 **Table Column**: State
 
 **Documentation**:
-
 The state of the provider
-
 ---
 
 **Name**: orderingProviderAddress
@@ -403,9 +378,7 @@ The state of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street address of the provider
-
 ---
 
 **Name**: orderingProviderAddress2
@@ -419,9 +392,7 @@ The street address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The street second address of the provider
-
 ---
 
 **Name**: orderingProviderZip
@@ -435,9 +406,7 @@ The street second address of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The zip code of the provider
-
 ---
 
 **Name**: patientAge
@@ -465,9 +434,7 @@ The zip code of the provider
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: patientCounty
@@ -497,11 +464,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -551,10 +516,8 @@ U|UNK|HL7
 U|ASKU|HL7
 
 **Documentation**:
-
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
 consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -569,9 +532,7 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: patientSex
@@ -598,9 +559,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -615,10 +574,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
-
 
 ---
 
@@ -645,9 +602,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: patientNameMiddle_pii
@@ -673,9 +628,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: patientRace
@@ -704,9 +657,7 @@ UNK|Unknown|NULLFL
 ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -737,9 +688,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: patientHomeAddress_pii
@@ -753,9 +702,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: patientHomeAddress2_pii
@@ -769,9 +716,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's second address line
-
 ---
 
 **Name**: PatZip
@@ -785,9 +730,7 @@ The patient's second address line
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: pregnant
@@ -813,9 +756,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 Is the patient pregnant?
-
 ---
 
 **Name**: previousTestDate
@@ -890,10 +831,8 @@ Code | Display | System
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
 aggregator
-
 
 ---
 
@@ -916,9 +855,7 @@ aggregator
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The reporting facility's CLIA
-
 ---
 
 **Name**: congregateResident
@@ -944,9 +881,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: SubmitterUID
@@ -962,9 +897,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
-
 ---
 
 **Name**: congregateResidentType
@@ -1004,9 +937,7 @@ Code | Display | System
 261665006|Unknown|SNOMED_CT
 
 **Documentation**:
-
 The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
-
 ---
 
 **Name**: specimenCollectedDate
@@ -1027,9 +958,7 @@ The type of facility providing care (Hospital, Nursing Home, etc.).  This is a C
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -1050,11 +979,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
+                
 **Documentation**:
-
 A unique code for this specimen
-
 ---
 
 **Name**: specimenSource
@@ -1097,9 +1024,7 @@ Code | Display | System
 309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: symptomatic
@@ -1125,9 +1050,7 @@ N|NO|LOCAL
 UNK|UNK|LOCAL
 
 **Documentation**:
-
 Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-
 ---
 
 **Name**: symptomsList
@@ -1155,15 +1078,13 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
 
 **Documentation**:
-
 Follows guidence for OBX-17 as defined in the HL7 Confluence page
-
 ---
 
 **Name**: testResult
@@ -1204,9 +1125,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 ---
 
 **Name**: testResultDate
@@ -1241,11 +1160,9 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
-
 
 ---
 
@@ -1260,9 +1177,7 @@ An example of the ID is 03D2159846
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The postal code for the testing lab
-
 ---
 
 **Name**: TXNTIMESTAMP
@@ -1339,9 +1254,7 @@ WR|Weakly reactive|HL7
 W|Worse--use when direction not relevant|HL7
 
 **Documentation**:
-
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
 ---
 
 **Name**: test_authorized_for_home
@@ -1359,15 +1272,13 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
 **Documentation**:
-
 Is the test authorized for home use by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_otc
@@ -1385,15 +1296,13 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
 **Documentation**:
-
 Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -1411,15 +1320,13 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
-
+                
 **Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 
 **Documentation**:
-
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
-
 ---
 
 **Name**: test_type

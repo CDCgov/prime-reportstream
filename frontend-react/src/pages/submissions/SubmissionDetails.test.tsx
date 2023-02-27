@@ -4,6 +4,7 @@ import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
+import { FeatureName } from "../../AppRouter";
 
 import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
 
@@ -39,7 +40,7 @@ describe("SubmissionDetails", () => {
     test("renders crumb nav to Submissions list", () => {
         const submissionCrumb = screen.getByRole("link");
         expect(submissionCrumb).toBeInTheDocument();
-        expect(submissionCrumb).toHaveTextContent("Submissions");
+        expect(submissionCrumb).toHaveTextContent(FeatureName.SUBMISSIONS);
     });
 
     test("renders without error", async () => {

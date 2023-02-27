@@ -9,7 +9,7 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation
+    parameter, report, item, translation, internal
 }
 
 /**
@@ -93,7 +93,7 @@ interface ActionLogDetail {
     /**
      * The error code used to translate the error in the UI.
      */
-    val errorCode: String
+    val errorCode: ErrorCode
 }
 
 /**
