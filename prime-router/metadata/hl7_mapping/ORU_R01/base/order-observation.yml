@@ -31,14 +31,7 @@ elements:
 
   - name: observation-result
     resource: '%resource.result.resolve()'
-    condition: '%resource.result.where(identifier.type.system != "http://loinc.org")'
     schema: observation-result
-    resourceIndex: resultIndex
-
-  - name: observation-question
-    resource: '%resource.result.resolve()'
-    condition: '%resource.result.where(identifier.type.system = "http://loinc.org")'
-    schema: observation-question
     resourceIndex: resultIndex
 
   - name: order-note
@@ -50,3 +43,8 @@ elements:
       hl7NotePath: '%{hl7Order}'
       # Cannot use %resource here as this constant will be resolved in the note schema
       noteDetails: '%service.note'
+
+  - name: observation-question
+    resource: '%service.supportingInfo.resolve()'
+    schema: observation-question
+    resourceIndex: resultIndex
