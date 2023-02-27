@@ -150,7 +150,7 @@
     "jest": "^27.4.3",
     "jest-canvas-mock": "^2.3.1",
     "jest-resolve": "^27.4.2",
-    "jest-watch-typeahead": "^1.0.0",
+    "jest-watch-typeahead": "^2.2.2",
     "mini-css-extract-plugin": "^2.7.2",
     "msw": "^1.0.1",
     "npm-run-all": "^4.1.5",
