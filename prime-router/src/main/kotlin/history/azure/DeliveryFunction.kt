@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -48,12 +47,10 @@ class DeliveryFunction(
      */
     override fun getOrgName(organization: String): String? {
         return if (organization.contains(Sender.fullNameSeparator)) {
-            workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }
+            workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }?.organizationName
         } else {
-            workflowEngine.settings.receivers.find {
-                it.organizationName == organization && it.customerStatus == CustomerStatus.ACTIVE
-            }
-        }?.organizationName
+            workflowEngine.settings.findOrganization(organization)?.name
+        }
     }
 
     /**
