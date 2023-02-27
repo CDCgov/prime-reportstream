@@ -1,10 +1,15 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.common.PhonePart
 import gov.cdc.prime.router.common.PhoneUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
+import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
+import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
@@ -13,6 +18,7 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
 object CustomFHIRFunctions {
+
     /**
      * Custom FHIR Function names used to map from the string used in the FHIR path
      * to the function name in the CustomFHIRFunctions class
@@ -26,7 +32,8 @@ object CustomFHIRFunctions {
         Split,
         GetId,
         GetIdType,
-        HasPhoneNumberExtension;
+        HasPhoneNumberExtension,
+        LivdTableLookup;
 
         companion object {
             /**
@@ -52,27 +59,35 @@ object CustomFHIRFunctions {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
+
             CustomFHIRFunctionNames.GetPhoneNumberAreaCode -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
+
             CustomFHIRFunctionNames.GetPhoneNumberLocalNumber -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
+
             CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract extension from FHIR phone number", 0, 0)
             }
+
             CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("see if extension exists in FHIR phone number", 0, 0)
             }
+
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
             }
+
             CustomFHIRFunctionNames.Split -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimeter", 1, 1)
             }
+
             CustomFHIRFunctionNames.GetId -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extracts an ID from a resource property", 0, 0)
             }
+
             CustomFHIRFunctionNames.GetIdType -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
                     "determines the ID type from a resource property",
@@ -80,6 +95,15 @@ object CustomFHIRFunctions {
                     0
                 )
             }
+
+            CustomFHIRFunctionNames.LivdTableLookup -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "looks up data in the LIVD table that match the information provided",
+                    1,
+                    1
+                )
+            }
+
             else -> null
         }
     }
@@ -99,30 +123,43 @@ object CustomFHIRFunctions {
                 CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                     getPhoneNumberCountryCode(focus)
                 }
+
                 CustomFHIRFunctionNames.GetPhoneNumberAreaCode -> {
                     getPhoneNumberAreaCode(focus)
                 }
+
                 CustomFHIRFunctionNames.GetPhoneNumberLocalNumber -> {
                     getPhoneNumberLocalNumber(focus)
                 }
+
                 CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
                     getPhoneNumberExtension(focus)
                 }
+
                 CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
                     hasPhoneNumberExtension(focus)
                 }
+
                 CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                     getCodingSystemMapping(focus)
                 }
+
                 CustomFHIRFunctionNames.Split -> {
                     split(focus, parameters)
                 }
+
                 CustomFHIRFunctionNames.GetId -> {
                     getId(focus)
                 }
+
                 CustomFHIRFunctionNames.GetIdType -> {
                     getIdType(focus)
                 }
+
+                CustomFHIRFunctionNames.LivdTableLookup -> {
+                    livdTableLookup(focus, parameters)
+                }
+
                 else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
             }
             )
@@ -318,5 +355,79 @@ object CustomFHIRFunctions {
             else -> null
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
+    }
+
+    /**
+     * Get the LOINC Code from the LIVD table based on the device id, equipment model id, test kit name id, or the
+     * element model name
+     * @return a list with one value denoting the LOINC Code, or an empty list
+     */
+    fun livdTableLookup(
+        focus: MutableList<Base>,
+        parameters: MutableList<MutableList<Base>>?,
+        metadata: Metadata = Metadata.getInstance()
+    ): MutableList<Base> {
+        val lookupTable = metadata.findLookupTable(name = LivdLookup.livdTableName)
+
+        if (focus.size != 1) {
+            throw SchemaException("Must call the livdTableLookup function on a single observation")
+        }
+
+        val observation = focus.first()
+        if (observation !is Observation) {
+            throw SchemaException("Must call the livdTableLookup function on an observation")
+        }
+
+        var result: String? = ""
+        // Maps to OBX 17 CWE.1 Which is coding[1].code
+        val testPerformedCode = (observation as Observation?)?.code?.coding?.firstOrNull()?.code
+        val deviceId = (observation as Observation?)?.method?.coding?.firstOrNull()?.code
+        if (!deviceId.isNullOrEmpty()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = deviceId,
+                equipmentModelId = null,
+                testKitNameId = null,
+                equipmentModelName = null,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        // Maps to OBX 18 which is mapped to Device.identifier
+        val equipmentModelId = (observation.device.resource as Device?)?.identifier?.firstOrNull()?.id
+        if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = null,
+                equipmentModelId = equipmentModelId,
+                testKitNameId = null,
+                equipmentModelName = null,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
+        if (!result.isNullOrBlank() && !deviceName.isNullOrBlank()) {
+            result = LivdLookup.find(
+                testPerformedCode = testPerformedCode,
+                processingModeCode = null,
+                deviceId = null,
+                equipmentModelId = null,
+                testKitNameId = null,
+                equipmentModelName = deviceName,
+                tableRef = lookupTable,
+                tableColumn = parameters!!.first().first().primitiveValue()
+            )
+        }
+
+        return if (result.isNullOrBlank()) {
+            mutableListOf(StringType(null))
+        } else {
+            mutableListOf(StringType(result))
+        }
     }
 }

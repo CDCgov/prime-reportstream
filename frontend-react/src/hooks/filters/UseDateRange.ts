@@ -50,6 +50,13 @@ const rangeReducer = (
     }
 };
 
+export function getEndOfDay(date: Date) {
+    // return a new Date instance so we don't mutate old one
+    const newDate = new Date(date);
+    newDate.setUTCHours(23, 59, 59, 999);
+    return newDate;
+}
+
 const FALLBACK_FROM = new Date("2000-01-01").toISOString();
 const FALLBACK_TO = new Date("3000-01-01").toISOString();
 
