@@ -156,9 +156,6 @@ tasks.test {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
-    testLogging {
-        showStandardStreams = true
-    }
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
