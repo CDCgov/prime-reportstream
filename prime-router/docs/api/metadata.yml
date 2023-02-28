@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: ReportStream Metadata API
-  description: "This is a stub to be completed when this API is reviewed"
+  description: "Publicly available LOINC In Vitro Diagnostic (LIVD) for SARS-CoV-2 (COVID-19) data"
   version: "0.1"
   contact:
     name: USDS at Centers for Disease Control and Prevention
@@ -10,14 +10,87 @@ info:
 paths:
   /api/metadata/livd:
     get:
-      description: get data from livd tables
-      security:
-        - OAuth2: [ user ]
+      description: get data from LIVD tables
       responses:
         '200':
-          description: success call
-
-components:
-  securitySchemes:
-    OAuth2:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  description: An organization connected to data hub
+                  type: object
+                  properties:
+                    manufacturer:
+                      type: string
+                      example: "1drop Inc."
+                    model:
+                      type: string
+                      example: "1copy COVID-19 qPCR Multi Kit"
+                    vendorAnalyteName:
+                      type: string
+                      example: "SARS-CoV-2 Result Interpretation"
+                    vendorSpecimenDescription:
+                      type: string
+                      example: [ "anterior nasal swabs (697989009^Anterior nares swab^SCT)\r", "mid-turbinate nasal swabs(871810001^Mid-turbinate nasal swab^SCT)\r", "nasopharyngeal swabs (258500001^Nasopharyngeal swab^SCT)\r", "oropharyngeal swabs (258529004^Throat swab^SCT)\r", "nasopharyngeal wash (258467004^Nasopharyngeal washings^SCT)\r", "nasopharyngeal aspirate (258411007^Nasopharyngeal aspirate^SCT)\r", "nasal aspirate (429931000124105^Nasal aspirate specimen^SCT)" ]
+                    vendorResultDescription:
+                      type: string
+                      example: [ "Positive (260373001^Detected^SCT)\r", "Presumptive positive (720735008^Presumptive positive^SCT)\r", "Negative (260415000^Not detected^SCT)\r", "Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)" ]
+                    testPerformedLoincCode:
+                      type: string
+                      example: "94500-6"
+                    testPerformedLoincLongName:
+                      type: string
+                      example: "SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection"
+                    testOrderedLoincCode:
+                      type: string
+                      example: "94531-1"
+                    testOrderedLoincLongName:
+                      type: string
+                      example: "SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection"
+                    vendorComment:
+                      type: string
+                      example: ""
+                    vendorAnalyteCode:
+                      type: string
+                      example: ""
+                    vendorReferenceId:
+                      type: string
+                      example: ""
+                    testKitNameId:
+                      type: string
+                      example: "1copy COVID-19 qPCR Multi Kit_1drop Inc."
+                    testKitNameIdType:
+                      type: string
+                      example: "EUA"
+                    equipmentUid:
+                      type: string
+                      example: "Rotor-Gene Q 5plex HRM_QIAGEN GmbH"
+                    equipmentUidType:
+                      type: string
+                      example: "MNI"
+                    component:
+                      type: string
+                      example: "SARS coronavirus 2 RNA"
+                    property:
+                      type: string
+                      example: "PrThr"
+                    time:
+                      type: string
+                      example: "Pt"
+                    system:
+                      type: string
+                      example: "Respiratory"
+                    scale:
+                      type: string
+                      example: "Ord"
+                    method:
+                      type: string
+                      example: "Probe.amp.tar"
+                    publicationVersionId:
+                      type: string
+                      example: "20200519"
+                    loincVersionId:
+                      type: string
+                      example: "2.68"

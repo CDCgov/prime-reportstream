@@ -59,4 +59,6 @@
   $flex-wrap-settings: (
     responsive: true
   ),
+  // This flag enables all possible USWDS color tokens
+  $global-color-palettes: "palette-color",
 );
