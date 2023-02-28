@@ -542,6 +542,12 @@ class FHIRRouter(
         return (
             orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
                 ?: emptyList()
-            ).plus(receiver.conditionFilter)
+            ).plus(receiver.conditionFilter).map {
+                /*
+                    This needs to occur because the intersect needs to be evaluated later to get the conditions that
+                    match in order to add the diagnostic reports to the extensions.
+                 */
+            "$it.exists()"
+        }
     }
 }

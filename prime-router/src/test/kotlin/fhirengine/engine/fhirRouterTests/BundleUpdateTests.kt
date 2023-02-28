@@ -34,7 +34,7 @@ class BundleUpdateTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
-    private val shorthandLookupTable = testGetShorthandLookupTable()
+    private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
 
     val bodyUrl = "http://anyblob.com"
     private val defaultReceivers = listOf(
@@ -155,21 +155,5 @@ class BundleUpdateTests {
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
         assert(receiversOut[0] == "co-phd.full-elr-hl7")
-    }
-
-    private fun testGetShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable("fhirpath_filter_shorthand")
-        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null &&
-            lookup.hasColumn("variable") &&
-            lookup.hasColumn("fhirPath")
-        ) {
-            lookup.table.associate {
-                it.getString("variable") to
-                    it.getString("fhirPath")
-            }.toMutableMap()
-        } else {
-            emptyMap<String, String>().toMutableMap()
-        }
     }
 }
