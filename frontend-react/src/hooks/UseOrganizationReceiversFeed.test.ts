@@ -129,11 +129,13 @@ describe("useOrganizationReceiversFeed", () => {
             isUserReceiver: true,
             isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
+        const { result, waitFor } = renderHook(
             () => useOrganizationReceiversFeed(),
-            { wrapper: QueryWrapper() }
+            {
+                wrapper: QueryWrapper(),
+            }
         );
-        await waitForNextUpdate();
+        await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",
