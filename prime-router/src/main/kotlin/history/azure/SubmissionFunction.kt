@@ -33,12 +33,12 @@ class SubmissionFunction(
     var sendingOrgSvc: String? = null
 
     /**
-     * Get the correct name for an organization sender based on the name.
+     * Verify the correct name for an organization based on the name.
      *
-     * @param organization Name of organization and service
+     * @param organization Name of organization and optionally a sender in the format {orgName}.{sender}
      * @return Name for the organization
      */
-    override fun getOrgName(organization: String): String? {
+    override fun validateOrgSvcName(organization: String): String? {
         return if (organization.contains(Sender.fullNameSeparator)) {
             workflowEngine.settings.findSender(organization).also { sendingOrgSvc = it?.name }?.organizationName
         } else {

@@ -33,12 +33,12 @@ abstract class ReportFileFunction(
     private var currentAction: Action? = null
 
     /**
-     * Get the correct name for an organization based on the name.
+     * Verify the correct name for an organization based on the name
      *
-     * @param organization Name of organization and service
+     * @param organization Name of organization and optionally a service in the format {orgName}.{service}
      * @return Name for the organization
      */
-    abstract fun getOrgName(organization: String): String?
+    abstract fun validateOrgSvcName(organization: String): String?
 
     /**
      * Get history entries as a list
@@ -83,7 +83,7 @@ abstract class ReportFileFunction(
             val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            val userOrgName = this.getOrgName(organization)
+            val userOrgName = this.validateOrgSvcName(organization)
                 ?: return HttpUtilities.notFoundResponse(
                     request,
                     "$organization: invalid organization identifier"

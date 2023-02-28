@@ -40,12 +40,12 @@ class DeliveryFunction(
     var receivingOrgSvc: String? = null
 
     /**
-     * Get the correct name for an organization receiver based on the name.
+     * Verify the correct name for an organization based on the name
      *
-     * @param organization Name of organization and client in the format {orgName}.{client}
+     * @param organization Name of organization and optionally a receiver channel in the format {orgName}.{receiver}
      * @return Name for the organization
      */
-    override fun getOrgName(organization: String): String? {
+    override fun validateOrgSvcName(organization: String): String? {
         return if (organization.contains(Sender.fullNameSeparator)) {
             workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }?.organizationName
         } else {
