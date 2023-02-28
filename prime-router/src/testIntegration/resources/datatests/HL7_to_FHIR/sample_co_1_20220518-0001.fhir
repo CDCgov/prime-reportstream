@@ -436,7 +436,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -688,7 +688,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -972,7 +972,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -1214,7 +1214,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -1445,7 +1445,7 @@
         "use" : "work",
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -1684,7 +1684,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "A",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -1915,7 +1915,7 @@
         "use" : "work",
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -2154,7 +2154,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "A",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -2385,7 +2385,7 @@
         "use" : "work",
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -2663,7 +2663,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -2911,7 +2911,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -3153,7 +3153,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -3395,7 +3395,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -3636,7 +3636,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -3878,7 +3878,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -4120,7 +4120,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -4362,7 +4362,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -4604,7 +4604,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -4846,7 +4846,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -5088,7 +5088,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ]
@@ -5395,7 +5395,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -5709,7 +5709,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "R",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -5964,7 +5964,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -6278,7 +6278,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -6533,7 +6533,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "S",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -6843,7 +6843,7 @@
         "line" : [ "4567 E. NINTH AVENUE" ],
         "city" : "DENVER",
         "district" : "R",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80220",
         "country" : "USA"
       } ]
@@ -7477,7 +7477,7 @@
         "line" : [ "5600 S Quebec St #312A" ],
         "city" : "Greenwood Village",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80111",
         "country" : "USA"
       } ]
@@ -7531,7 +7531,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ],
@@ -7892,9 +7892,7 @@
         "reference" : "Observation/1674584582267111000.908bb3e8-61dd-49ec-b3dc-0c06fd7613c8"
       }, {
         "reference" : "Observation/1674584582271068000.d3cd7c4c-d6b2-4beb-b2d4-0865d01bba96"
-      }, {
-        "reference" : "Observation/1674584582275967000.f3bc8541-8497-4d3a-9022-00abaa955f71"
-      }]
+      } ]
     }
   }, {
     "fullUrl" : "Practitioner/1674584582553701000.6e70dbd4-a7bc-4b84-80bc-0ad3150c67cf",
@@ -8012,7 +8010,7 @@
         "line" : [ "5600 S Quebec St #312A" ],
         "city" : "Greenwood Village",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80111",
         "country" : "USA"
       } ]
@@ -8066,7 +8064,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ],
@@ -8295,12 +8293,9 @@
           }
         } ],
         "text" : "\nCritical result called to and read back by:CLAIRE HCE7362\nLocation:ICUB on 08/08/21 at 1539 by ELB.RM\nCritical result called to and read back by:CLAIRE HCE7362\nLocation:ICUB on 08/08/21 at 1050 by ELB.SMX"
-      } ],
-      "supportingInfo": [ {
-          "reference": "Observation/1674584582275967000.f3bc8541-8497-4d3a-9022-00abaa955f71"
-      }]
+      } ]
     }
-  },{
+  }, {
     "fullUrl" : "DiagnosticReport/1674584582559983000.44cfe222-6b49-4bdb-b9c0-f529ad726881",
     "resource" : {
       "resourceType" : "DiagnosticReport",
@@ -8554,7 +8549,7 @@
         "line" : [ "5600 S Quebec St #312A" ],
         "city" : "Greenwood Village",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80111",
         "country" : "USA"
       } ]
@@ -8608,7 +8603,7 @@
         "line" : [ "1501 S. POTOMAC" ],
         "city" : "AURORA",
         "district" : "MD",
-        "state" : "IG",
+        "state" : "CO",
         "postalCode" : "80012",
         "country" : "USA"
       } ],
@@ -9917,7 +9912,7 @@
           "use" : "home",
           "line" : [ "4861 20TH AVE" ],
           "city" : "AURORA",
-          "state" : "IG",
+          "state" : "CO",
           "postalCode" : "99999",
           "country" : "USA"
         }
@@ -10389,39 +10384,5 @@
         } ]
       }
     }
-  },{
-        "fullUrl": "Observation/1674584582275967000.f3bc8541-8497-4d3a-9022-00abaa955f71",
-        "resource": {
-            "resourceType": "Observation",
-            "id": "1674584582275967000.f3bc8541-8497-4d3a-9022-00abaa955f71",
-            "identifier": {
-                "use": "official",
-                "type": {
-                    "system": "http://loinc.org",
-                    "code": "81959-9",
-                    "display": "Public health laboratory ask at order entry panel"
-                }
-            },
-            "status": "final",
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://loinc.org",
-                        "code": "95417-2",
-                        "display": "Is this the patient’s first test for COVID-19? - free text - do not use for matching"
-                    }
-                ],
-                "text": "Is this the patient’s first test for COVID-19?"
-            },
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-                        "code": "Y",
-                        "display": "Yes"
-                    }
-                ]
-            }
-        }
-    } ]
+  } ]
 }
