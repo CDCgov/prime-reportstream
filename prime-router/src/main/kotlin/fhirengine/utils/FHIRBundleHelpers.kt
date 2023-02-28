@@ -180,7 +180,7 @@ object FHIRBundleHelpers {
     }
 
     // add conditions for receiver
-    private fun getConditionsForReceiver(
+    internal fun getConditionsForReceiver(
         fhirBundle: Bundle,
         receiver: Receiver,
         shortHandLookupTable: MutableMap<String, String>
@@ -201,7 +201,7 @@ object FHIRBundleHelpers {
         return listOf()
     }
 
-    private fun addDiagnosticToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
+    internal fun addDiagnosticToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
         val extensions = mutableListOf<Extension>()
         fhirBundle.entry.forEach {
             if (it.resource.resourceType.name == "DiagnosticReport") {

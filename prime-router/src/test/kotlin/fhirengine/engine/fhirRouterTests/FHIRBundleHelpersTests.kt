@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.addDiagnosticToReceivers
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
@@ -31,6 +33,8 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
@@ -478,5 +482,83 @@ class FHIRBundleHelpersTests {
         val references = FHIRBundleHelpers.filterReferenceProperties(observation.getResourceProperties())
         assertThat(references).isNotEmpty()
         assertThat(references.count()).isEqualTo(2)
+    }
+
+    @Test
+    fun `Test getConditionsForReceiver conditions match`() {
+        val observation = Observation()
+        observation.code.coding.add(Coding("blah", "600-7", "blah:600-7"))
+
+        val bundle = Bundle()
+        bundle.entry.add(Bundle.BundleEntryComponent())
+        bundle.entry[0].resource = observation
+
+        val receiver = Receiver(
+            "full-elr-condition-test",
+            "co-phd",
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            "one",
+            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7')")
+        )
+
+        val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+        shorthandLookupTable["testPerformedCodes"] = "Bundle.entry.resource.ofType(Observation).code.coding.code"
+
+        val conditions = FHIRBundleHelpers.getConditionsForReceiver(bundle, receiver, shorthandLookupTable)
+
+        assertThat(conditions).contains("600-7")
+        assertThat(conditions.size).isEqualTo(1)
+    }
+
+    @Test
+    fun `Test getConditionsForReceiver no conditions match`() {
+        val observation = Observation()
+        observation.code.coding.add(Coding("blah", "123-4", "blah:600-7"))
+
+        val bundle = Bundle()
+        bundle.entry.add(Bundle.BundleEntryComponent())
+        bundle.entry[0].resource = observation
+
+        val receiver = Receiver(
+            "full-elr-condition-test",
+            "co-phd",
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            "one",
+            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7')")
+        )
+
+        val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+        shorthandLookupTable["testPerformedCodes"] = "Bundle.entry.resource.ofType(Observation).code.coding.code"
+
+        val conditions = FHIRBundleHelpers.getConditionsForReceiver(bundle, receiver, shorthandLookupTable)
+
+        assertThat(conditions.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Test addDiagnosticToReceivers`() {
+        val diagnosticReport = DiagnosticReport()
+        diagnosticReport.code.coding.add(Coding("blah", "600-8", "blah:600-8"))
+        diagnosticReport.id = "diagnosticReportId"
+
+        val diagnosticReport2 = DiagnosticReport()
+        diagnosticReport2.code.coding.add(Coding("blah", "432-1", "blah:432-1"))
+        diagnosticReport2.id = "diagnosticReportId2"
+
+        val bundle = Bundle()
+        bundle.entry.add(Bundle.BundleEntryComponent())
+        bundle.entry[0].resource = diagnosticReport
+        bundle.entry.add(Bundle.BundleEntryComponent())
+        bundle.entry[1].resource = diagnosticReport2
+
+        val conditions = listOf("432-1")
+
+        val extension = addDiagnosticToReceivers(bundle, conditions)
+        assertThat(extension.size).isEqualTo(1)
+        assertThat(extension[0].url)
+            .isEqualTo("https://reportstream.cdc.gov/fhir/StructureDefinition/diagnostic-report")
+        assertThat((extension[0].value as Reference).reference).isEqualTo(diagnosticReport2.id)
     }
 }
