@@ -227,7 +227,7 @@ class HistoryApiTest : CoolTest() {
                 extraCheck = {
                     var retVal: String? = null
                     for (submission in it) {
-                        if (submission.sender != "ignore.ignore-full-elr")
+                        if (submission.sender != "$orgName.$fullELRSenderName")
                             retVal = "Mismatched sender"
                     }
                     retVal
