@@ -109,20 +109,6 @@ const fakeFile = new File([new Blob([contentString])], "file.csv", {
 });
 fakeFile.text = () => Promise.resolve(contentString);
 
-const fakeFileList = {
-    length: 1,
-    item: () => fakeFile,
-    [Symbol.iterator]: function* () {
-        yield fakeFile;
-    },
-} as FileList;
-
-const fileChangeEvent = {
-    target: {
-        files: fakeFileList,
-    },
-} as React.ChangeEvent<HTMLInputElement>;
-
 describe("FileHandler", () => {
     afterEach(() => {
         jest.restoreAllMocks();
