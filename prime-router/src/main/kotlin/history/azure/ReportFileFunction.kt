@@ -86,7 +86,7 @@ abstract class ReportFileFunction(
             val userOrgName = this.validateOrgSvcName(organization)
                 ?: return HttpUtilities.notFoundResponse(
                     request,
-                    "$organization: invalid organization identifier"
+                    "$organization: invalid organization or service identifier"
                 )
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
