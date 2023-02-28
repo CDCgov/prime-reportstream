@@ -29,6 +29,11 @@ elements:
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
 
+  - name: observation-question
+    resource: '%service.supportingInfo.resolve()'
+    schema: observation-question
+    resourceIndex: questionIndex
+
   - name: observation-result
     resource: '%resource.result.resolve()'
     schema: observation-result
@@ -43,8 +48,3 @@ elements:
       hl7NotePath: '%{hl7Order}'
       # Cannot use %resource here as this constant will be resolved in the note schema
       noteDetails: '%service.note'
-
-  - name: observation-question
-    resource: '%service.supportingInfo.resolve()'
-    schema: observation-question
-    resourceIndex: resultIndex

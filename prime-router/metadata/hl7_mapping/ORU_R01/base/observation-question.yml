@@ -1,10 +1,9 @@
 constants:
-  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-  observation: '%diagnostic.result[%resultIndex].resolve()'
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{questionIndex})'
+  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{questionIndex})/OBX'
 elements:
   - name: result-set-id
-    value: [ '%resultIndex + 1' ]
+    value: [ '%diagnostic.result.count() + %questionIndex' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-ce
