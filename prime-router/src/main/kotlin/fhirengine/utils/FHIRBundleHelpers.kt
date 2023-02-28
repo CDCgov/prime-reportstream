@@ -179,7 +179,6 @@ object FHIRBundleHelpers {
         }
     }
 
-
     // add conditions for receiver
     private fun getConditionsForReceiver(
         fhirBundle: Bundle,
