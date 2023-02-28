@@ -60,6 +60,8 @@ class FHIRBundleHelpersTests {
     val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     val bodyUrl = "http://anyblob.com"
+    private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
@@ -137,7 +139,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -154,7 +156,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[1])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -170,7 +172,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = oneOrganization.receivers
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance

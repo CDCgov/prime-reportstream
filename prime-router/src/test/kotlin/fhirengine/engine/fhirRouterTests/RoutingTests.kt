@@ -599,7 +599,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -613,7 +613,7 @@ class RoutingTests {
         verify(exactly = 0) {
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
