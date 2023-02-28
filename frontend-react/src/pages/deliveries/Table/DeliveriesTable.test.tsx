@@ -1,4 +1,5 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
@@ -160,15 +161,16 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             describe("TableFilter", () => {
-                test("Clicking on filter invokes the trackAppInsightEvent", () => {
-                    fireEvent.click(screen.getByText("Filter"));
+                test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                    await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
                         name: "Daily Data | Table Filter",
                         properties: {
                             tableFilter: {
                                 endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
+                                // xx/xx/xxxx returns a 06:00:00 vs xxxx-xx-xx's 00:00:00??
+                                startRange: "2000-01-01T06:00:00.000Z",
                             },
                         },
                     });
