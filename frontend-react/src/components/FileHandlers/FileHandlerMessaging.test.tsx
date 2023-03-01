@@ -384,6 +384,27 @@ describe("ValidationErrorMessage", () => {
         });
     });
 
+    describe("when the error is INVALID_HL7_MSG_VALIDATION", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
+            });
+        });
+
+        test("renders an error about an invalid field ", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat validation_field to HL7 specification."
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm"
+            );
+        });
+    });
+
     describe("when the error is INVALID_MSG_MISSING_FIELD", () => {
         beforeEach(() => {
             renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
