@@ -28,15 +28,16 @@ interface NormalizedReceiverData {
 
 interface MessageReceiversRowProps {
     receiver: NormalizedReceiverData;
-    activeColumn: string;
+    activeColumn?: keyof typeof ColumnDataEnum;
     activeColumnSortOrder: string;
     handleCellClick: (title: string, body: string) => void;
 }
 
 interface MessageReceiversColProps {
-    columnHeaderTitle: string;
-    activeColumn: string;
-    setActiveColumn: (colTitle: string) => void;
+    columnHeader: keyof typeof ColumnDataEnum;
+    columnHeaderTitle: ColumnDataTitle;
+    activeColumn?: keyof typeof ColumnDataEnum;
+    setActiveColumn: (colTitle: keyof typeof ColumnDataEnum) => void;
     activeColumnSortOrder: string;
     setActiveColumnSortOrder: (sortOrder: string) => void;
     rowSpan: number;
@@ -60,7 +61,8 @@ const ColumnDataEnum = {
     Sub: "Sub",
     FileName: "File Name",
     TransportResults: "Transport Results",
-};
+} as const satisfies { [k in keyof NormalizedReceiverData]: string };
+type ColumnDataTitle = (typeof ColumnDataEnum)[keyof typeof ColumnDataEnum];
 
 const FilterOptionsEnum = {
     NONE: "none",
@@ -75,6 +77,7 @@ const StatusEnum = {
 };
 
 const MessageReceiversCol = ({
+    columnHeader,
     columnHeaderTitle,
     activeColumn,
     setActiveColumn,
@@ -86,7 +89,7 @@ const MessageReceiversCol = ({
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
-            setActiveColumn(columnHeaderTitle);
+            setActiveColumn(columnHeader);
             setActiveColumnSortOrder(FilterOptionsEnum.ASC);
         } else if (activeColumnSortOrder === FilterOptionsEnum.NONE) {
             // Explicitly set the proceeding sort order
@@ -226,7 +229,9 @@ const MessageReceiversRow = ({
 export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const modalRef = useRef<ModalRef>(null);
     const [modalText, setModalText] = useState({ title: "", body: "" });
-    const [activeColumn, setActiveColumn] = useState("");
+    const [activeColumn, setActiveColumn] = useState<
+        keyof typeof ColumnDataEnum | undefined
+    >();
     const [activeColumnSortOrder, setActiveColumnSortOrder] = useState(
         FilterOptionsEnum.NONE
     );
@@ -329,7 +334,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
         // which requires a return of -1 0 1. For dates, we need to
         // convert them to a numerical value.
         () =>
-            activeColumnSortOrder !== FilterOptionsEnum.NONE
+            activeColumnSortOrder !== FilterOptionsEnum.NONE && activeColumn
                 ? normalizedData.sort(
                       (
                           a: NormalizedReceiverData,
@@ -337,24 +342,12 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                       ): number => {
                           const activeColumnAData =
                               activeColumn === ColumnDataEnum.Date
-                                  ? Date.parse(
-                                        a[
-                                            activeColumn as keyof typeof ColumnDataEnum
-                                        ]
-                                    )
-                                  : a[
-                                        activeColumn as keyof typeof ColumnDataEnum
-                                    ];
+                                  ? Date.parse(a[activeColumn])
+                                  : a[activeColumn];
                           const activeColumnBData =
                               activeColumn === ColumnDataEnum.Date
-                                  ? Date.parse(
-                                        b[
-                                            activeColumn as keyof typeof ColumnDataEnum
-                                        ]
-                                    )
-                                  : b[
-                                        activeColumn as keyof typeof ColumnDataEnum
-                                    ];
+                                  ? Date.parse(b[activeColumn])
+                                  : b[activeColumn];
 
                           if (activeColumnSortOrder === FilterOptionsEnum.ASC) {
                               return activeColumnAData > activeColumnBData
@@ -393,21 +386,25 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         <tr>
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"Name"}
                                 columnHeaderTitle={ColumnDataEnum.Name}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"Service"}
                                 columnHeaderTitle={ColumnDataEnum.Service}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"Date"}
                                 columnHeaderTitle={ColumnDataEnum.Date}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"ReportId"}
                                 columnHeaderTitle={ColumnDataEnum.ReportId}
                                 rowSpan={2}
                             />
@@ -416,6 +413,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             </th>
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"TransportResults"}
                                 columnHeaderTitle={
                                     ColumnDataEnum.TransportResults
                                 }
@@ -425,16 +423,19 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         <tr>
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"Main"}
                                 columnHeaderTitle={ColumnDataEnum.Main}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"Sub"}
                                 columnHeaderTitle={ColumnDataEnum.Sub}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
+                                columnHeader={"FileName"}
                                 columnHeaderTitle={ColumnDataEnum.FileName}
                                 rowSpan={1}
                             />
