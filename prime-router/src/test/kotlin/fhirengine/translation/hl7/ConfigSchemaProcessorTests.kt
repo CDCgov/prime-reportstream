@@ -208,4 +208,22 @@ class ConfigSchemaProcessorTests {
         element = ConverterSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
     }
+
+    @Test
+    fun `test get value as string with error`() {
+        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = MessageHeader()
+        resource.id = "def456"
+        resource.destination = listOf(MessageHeader.MessageDestinationComponent())
+        resource.destination[0].name = "a destination"
+        bundle.addEntry().resource = resource
+        val customContext = CustomContext(bundle, bundle)
+        val converter = FhirToHl7Converter(mockSchema)
+
+        // Non-primitive values should return an empty string and log an error
+        var element = ConverterSchemaElement("name", value = listOf("Bundle.entry"))
+        assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo("")
+    }
 }

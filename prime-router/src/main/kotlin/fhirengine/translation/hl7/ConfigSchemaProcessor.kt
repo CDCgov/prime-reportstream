@@ -62,12 +62,7 @@ abstract class ConfigSchemaProcessor : Logging {
         run findValue@{
             element.value.forEach {
                 val value = if (it.isBlank()) emptyList<Base>()
-                else try {
-                    FhirPathUtils.evaluate(context, focusResource, bundle, it)
-                } catch (e: SchemaException) {
-                    logger.error("Error while getting value for element ${element.name}", e)
-                    emptyList<Base>()
-                }
+                else FhirPathUtils.evaluate(context, focusResource, bundle, it)
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotEmpty()) {
                     retVal = value[0]
