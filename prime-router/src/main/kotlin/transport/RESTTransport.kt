@@ -21,6 +21,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -181,7 +182,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
                     actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(msg)
+                    if (t is ResponseException) {
+                        actionHistory.trackActionResult(t.response.status, msg)
+                    } else {
+                        actionHistory.trackActionResult(msg)
+                    }
                     RetryToken.allItems
                 }
             }

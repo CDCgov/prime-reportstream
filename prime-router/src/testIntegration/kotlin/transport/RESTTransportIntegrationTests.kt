@@ -14,13 +14,25 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
+import io.ktor.client.call.HttpClientCall
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Headers
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.Attributes
+import io.ktor.util.InternalAPI
+import io.ktor.util.date.GMTDate
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.bits.Memory
+import io.ktor.utils.io.core.Input
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -28,6 +40,8 @@ import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 
@@ -147,12 +161,47 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
     }
 
-    private fun getHttpResponse(statusCode: HttpStatusCode, body: String): HttpResponse {
-        val response = mockk<HttpResponse>(relaxed = true) {
-            coEvery { bodyAsText(any()) } returns body
-            every { status } returns statusCode
+    /**
+     * This is horrible, but my understanding is that HttpClientCall and HttpResponse are so tightly coupled that this
+     * is pretty much the only way to get a valid dummy HttpResponse object.
+     */
+    private fun getHttpResponse(statusCode: HttpStatusCode, body: String = ""): HttpResponse {
+        val call = mockk<HttpClientCall> {
+            every { client } returns mockk {}
+            coEvery { body(io.ktor.util.reflect.typeInfo<String>()) } returns "Rest Transport Test Call Body"
+            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<Input>()) } returns object : Input() {
+                override fun closeSource() {}
+
+                override fun fill(destination: Memory, offset: Int, length: Int): Int {
+                    return 0
+                }
+            }
+            every { coroutineContext } returns EmptyCoroutineContext
+            every { attributes } returns Attributes()
+            every { request } returns object : HttpRequest {
+                override val call: HttpClientCall = this@mockk
+                override val attributes: Attributes = Attributes()
+                override val content: OutgoingContent = object : OutgoingContent.NoContent() {}
+                override val headers: Headers = Headers.Empty
+                override val method: HttpMethod = HttpMethod.Get
+                override val url: Url = Url("/")
+            }
+
+            every { response } returns object : HttpResponse() {
+                override val call: HttpClientCall = this@mockk
+
+                @InternalAPI
+                override val content: ByteReadChannel = ByteReadChannel(body)
+                override val coroutineContext: CoroutineContext = EmptyCoroutineContext
+                override val headers: Headers = Headers.Empty
+                override val requestTime: GMTDate = GMTDate.START
+                override val responseTime: GMTDate = GMTDate.START
+                override val status: HttpStatusCode = statusCode
+                override val version: HttpProtocolVersion = HttpProtocolVersion.HTTP_1_1
+            }
         }
-        return response
+
+        return call.response
     }
 
     @BeforeEach
@@ -164,6 +213,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential(
                 "test-user",
@@ -171,7 +221,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             )
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.OK, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -181,13 +231,14 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getAssertionToken happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserAssertionCredential(
                 "test-assertion"
             )
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.OK, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -197,11 +248,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getIdToken happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.OK, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -211,11 +263,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service credential happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.OK, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -225,11 +278,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken unhappy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthError))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.InternalServerError)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.InternalServerError, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -239,11 +293,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken unauthorized`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientUnauthorized))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.Unauthorized)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(getHttpResponse(HttpStatusCode.Unauthorized, ""))
+            .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
