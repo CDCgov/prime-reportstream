@@ -24,7 +24,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.addDiagnosticToReceivers
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.addObservationsToReceivers
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
@@ -538,27 +538,27 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `Test addDiagnosticToReceivers`() {
-        val diagnosticReport = DiagnosticReport()
-        diagnosticReport.code.coding.add(Coding("blah", "600-8", "blah:600-8"))
-        diagnosticReport.id = "diagnosticReportId"
+    fun `Test addObservationsToReceivers`() {
+        val observation = Observation()
+        observation.code.coding.add(Coding("blah", "600-8", "blah:600-8"))
+        observation.id = "observationId"
 
-        val diagnosticReport2 = DiagnosticReport()
-        diagnosticReport2.code.coding.add(Coding("blah", "432-1", "blah:432-1"))
-        diagnosticReport2.id = "diagnosticReportId2"
+        val observation2 = Observation()
+        observation2.code.coding.add(Coding("blah", "432-1", "blah:432-1"))
+        observation2.id = "observationId2"
 
         val bundle = Bundle()
         bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[0].resource = diagnosticReport
+        bundle.entry[0].resource = observation
         bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[1].resource = diagnosticReport2
+        bundle.entry[1].resource = observation2
 
         val conditions = listOf("432-1")
 
-        val extension = addDiagnosticToReceivers(bundle, conditions)
+        val extension = addObservationsToReceivers(bundle, conditions)
         assertThat(extension.size).isEqualTo(1)
         assertThat(extension[0].url)
-            .isEqualTo(FHIRBundleHelpers.diagnosticReportURl)
-        assertThat((extension[0].value as Reference).reference).isEqualTo(diagnosticReport2.id)
+            .isEqualTo(FHIRBundleHelpers.observationURl)
+        assertThat((extension[0].value as Reference).reference).isEqualTo(observation2.id)
     }
 }
