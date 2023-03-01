@@ -18,12 +18,6 @@ elements:
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
-  - name: result-value-type-cwe
-    condition: '%resource.identifier.type.coding.code.exists() and %resource.identifier.type.coding.code = "81959-9"'
-    # Note that for v.2.5 and earlier CWE does not exist.
-    value: [ '"CWE"' ]
-    hl7Spec: [ '%{hl7OBXField}-2' ]
-
   - name: result-value-type-sn
     condition: '%resource.value is Ratio'
     value: [ '"SN"' ]
