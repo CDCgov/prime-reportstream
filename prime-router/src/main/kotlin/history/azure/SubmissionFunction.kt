@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -27,13 +28,20 @@ class SubmissionFunction(
     workflowEngine
 ) {
     /**
-     * Get the correct name for an organization sender based on the name.
+     * We store the service name here to pass to the facade
+     */
+    var sendingOrgSvc: String? = null
+
+    /**
+     * Verify the correct name for an organization based on the name.
      *
-     * @param organization Name of organization and service
+     * @param organization Name of organization and optionally a sender in the format {orgName}.{sender}
      * @return Name for the organization
      */
-    override fun getOrgName(organization: String): String? {
-        return workflowEngine.settings.findSender(organization)?.organizationName
+    override fun validateOrgSvcName(organization: String): String? {
+        return workflowEngine.settings.findSender(organization).also {
+            if (organization.contains(Sender.fullNameSeparator)) sendingOrgSvc = it?.name
+        }?.organizationName
     }
 
     /**
@@ -59,7 +67,7 @@ class SubmissionFunction(
 
         return submissionsFacade.findSubmissionsAsJson(
             userOrgName,
-            null, // currently, sending org client is not used but the functionality is there
+            sendingOrgSvc,
             params.sortDir,
             params.sortColumn,
             params.cursor,

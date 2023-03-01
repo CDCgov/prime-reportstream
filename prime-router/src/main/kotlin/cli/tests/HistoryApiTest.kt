@@ -63,6 +63,7 @@ data class HistoryApiTestCase(
     val expectedReports: Set<ReportId>,
     val jsonResponseChecker: HistoryJsonResponseChecker,
     val doMinimalChecking: Boolean,
+    val extraCheck: ((Array<ExpectedSubmissionList>) -> String?)? = null
 )
 
 class HistoryApiTest : CoolTest() {
@@ -202,6 +203,53 @@ class HistoryApiTest : CoolTest() {
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
             ),
+            HistoryApiTestCase(
+                "no such sender",
+                "${environment.url}/api/waters/org/$historyTestOrgName.gobblegobble/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                HttpStatus.NOT_FOUND,
+                expectedReports = emptySet(),
+                SubmissionListChecker(this),
+                doMinimalChecking = true,
+            ),
+            HistoryApiTestCase(
+                "single sender",
+                "${environment.url}/api/waters/org/$orgName.$fullELRSenderName/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                HttpStatus.OK,
+                expectedReports = reportIds,
+                SubmissionListChecker(this),
+                doMinimalChecking = true,
+                extraCheck = {
+                    var retVal: String? = null
+                    for (submission in it) {
+                        if (submission.sender != "$orgName.$fullELRSenderName")
+                            retVal = "Mismatched sender"
+                    }
+                    retVal
+                }
+            ),
+            HistoryApiTestCase(
+                "all senders",
+                "${environment.url}/api/waters/org/$orgName/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                HttpStatus.OK,
+                expectedReports = reportIds,
+                SubmissionListChecker(this),
+                doMinimalChecking = true,
+                extraCheck = {
+                    var retVal: String? = null
+                    if (it.map { it.sender }.toSet().size == 1)
+                        retVal = "Only one sender channel returned"
+                    retVal
+                }
+            )
         )
         if (environment != Environment.LOCAL) {
             testCases.add(
@@ -288,6 +336,12 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
                         "These ReportIds are missing from the history: ${missingReportIds.joinToString(",")}"
                 )
             }
+        }
+        val checkResult = testCase.extraCheck?.invoke(submissionsHistories)
+        if (checkResult != null) {
+            return testBeingRun.bad(
+                "*** ${testBeingRun.name}: TEST '${testCase.name}' FAILED: $checkResult"
+            )
         }
         return true
     }
