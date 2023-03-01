@@ -77,7 +77,7 @@ class HL7toFhirTranslator internal constructor(
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
         enhanceBundleMetadata(bundle, hl7Message)
-        enhanceBundleProvenance(bundle)
+        FHIRBundleHelpers.addProvenanceReference(bundle)
         return bundle
     }
 
@@ -104,13 +104,5 @@ class HL7toFhirTranslator internal constructor(
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
-    }
-
-    /**
-     * Enhance the [bundle] Provenance to include references to diagnostic reports.
-     */
-    private fun enhanceBundleProvenance(bundle: Bundle) {
-        // bundles must contain target references to diagnostic reports
-        FHIRBundleHelpers.addProvenanceReference(bundle)
     }
 }
