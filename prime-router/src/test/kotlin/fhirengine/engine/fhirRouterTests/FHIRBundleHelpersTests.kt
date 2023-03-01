@@ -466,6 +466,30 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
+    fun `Test manipulating bundle without provenance`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        val receiversIn = listOf(oneOrganization.receivers[0])
+        assertThat(bundle).isNotNull()
+        val provenance = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Provenance)"
+        )[0]
+        assertThat(provenance).isNotNull()
+        bundle.deleteResource(provenance)
+
+        // assert
+        assertFailsWith<IllegalStateException> { FHIRBundleHelpers.addReceivers(bundle, receiversIn) }
+        assertFailsWith<IllegalStateException> { FHIRBundleHelpers.addProvenanceReference(bundle) }
+    }
+
+    @Test
     fun `Test getChildProperties from a Property`() {
 
         val diagnosticReport = DiagnosticReport()
