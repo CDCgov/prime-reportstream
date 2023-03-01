@@ -22,7 +22,7 @@ import kotlin.streams.toList
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
-    val diagnosticReportURl = "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
+    const val observationURl = "http://hl7.org/fhir/StructureDefinition/Observation"
 
     /**
      * Adds [receiverList] to the [fhirBundle] as targets
@@ -45,7 +45,7 @@ object FHIRBundleHelpers {
         receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
             val endpoint = Endpoint()
             val conditions = getConditionsForReceiver(fhirBundle, receiver, shortHandLookupTable)
-            addDiagnosticToReceivers(fhirBundle, conditions).forEach { endpoint.addExtension(it) }
+            addObservationsToReceivers(fhirBundle, conditions).forEach { endpoint.addExtension(it) }
 
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
             endpoint.name = receiver.displayName
@@ -210,22 +210,22 @@ object FHIRBundleHelpers {
     }
 
     /**
-     * Adds the diagnostic report for those that have a condition that matches the condition filter
-     * @param fhirBundle the bundle to look for matching diagnostic reports in
+     * Adds the observation for those that have a condition that matches the condition filter
+     * @param fhirBundle the bundle to look for matching observations in
      * @param conditions the conditions to match on
      * @return is a list of the extensions which will be added to the bundle
      */
-    internal fun addDiagnosticToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
+    internal fun addObservationsToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
         val extensions = mutableListOf<Extension>()
         fhirBundle.entry.forEach {
-            if (it.resource.resourceType.name == "DiagnosticReport") {
-                val diagnosticReport = it.resource as DiagnosticReport
-                diagnosticReport.code.coding.forEach { coding ->
+            if (it.resource.resourceType.name == "Observation") {
+                val observation = it.resource as Observation
+                observation.code.coding.forEach { coding ->
                     if (conditions.contains(coding.code)) {
                         extensions.add(
                             Extension(
-                                diagnosticReportURl,
-                                Reference(diagnosticReport.id)
+                                observationURl,
+                                Reference(observation.id)
                             )
                         )
                     }
