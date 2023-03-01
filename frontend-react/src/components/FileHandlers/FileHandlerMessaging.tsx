@@ -279,7 +279,15 @@ export function ValidationErrorMessage({
             );
             break;
         case ErrorCode.INVALID_HL7_MSG_VALIDATION:
-            child = <>Reformat {field} as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.</>;
+            child = (
+                <>
+                    Reformat {field} to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>
+                    .
+                </>
+            );
             break;
         case ErrorCode.INVALID_MSG_MISSING_FIELD:
             child = <>Fill in the required field {field}.</>;
