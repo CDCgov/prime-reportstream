@@ -39,11 +39,9 @@ class SubmissionFunction(
      * @return Name for the organization
      */
     override fun validateOrgSvcName(organization: String): String? {
-        return if (organization.contains(Sender.fullNameSeparator)) {
-            workflowEngine.settings.findSender(organization).also { sendingOrgSvc = it?.name }?.organizationName
-        } else {
-            workflowEngine.settings.findOrganization(organization)?.name
-        }
+        return workflowEngine.settings.findSender(organization).also {
+            if (organization.contains(Sender.fullNameSeparator)) sendingOrgSvc = it?.name
+        }?.organizationName
     }
 
     /**
