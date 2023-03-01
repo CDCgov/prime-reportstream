@@ -59,6 +59,9 @@ object FHIRBundleHelpers {
         if (targetList.isNotEmpty()) provenanceResource.target.addAll(targetList)
     }
 
+    /**
+     * Adds references to diagnostic reports within [fhirBundle] as provenance targets
+     */
     internal fun addProvenanceReference(fhirBundle: Bundle) {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
