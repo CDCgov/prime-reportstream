@@ -341,11 +341,11 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                           b: NormalizedReceiverData
                       ): number => {
                           const activeColumnAData =
-                              activeColumn === ColumnDataEnum.Date
+                              activeColumn === "Date"
                                   ? Date.parse(a[activeColumn])
                                   : a[activeColumn];
                           const activeColumnBData =
-                              activeColumn === ColumnDataEnum.Date
+                              activeColumn === "Date"
                                   ? Date.parse(b[activeColumn])
                                   : b[activeColumn];
 
