@@ -67,7 +67,8 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter must be an intersect and cannot evaluate the intersect."
+            "Condition filter must be an intersect and cannot evaluate the intersect, " +
+                "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
         )
     }
 
@@ -88,7 +89,8 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter must be an intersect and cannot evaluate the intersect."
+            "Condition filter must be an intersect and cannot evaluate the intersect, " +
+                "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
         )
     }
 

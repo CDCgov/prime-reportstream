@@ -236,7 +236,8 @@ open class Receiver(
             if (conditionFilter.isNotEmpty()) {
                 conditionFilter.forEach {
                     if (it.contains(".exists") || !it.contains(".intersect")) {
-                        return "Condition filter must be an intersect and cannot evaluate the intersect."
+                        return "Condition filter must be an intersect and cannot evaluate the intersect, " +
+                            "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
                     }
                 }
             }

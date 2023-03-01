@@ -22,6 +22,8 @@ import kotlin.streams.toList
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
+    val diagnosticReportURl = "http://hl7.org/fhir/StructureDefinition/DiagnosticReport"
+
     /**
      * Adds [receiverList] to the [fhirBundle] as targets
      */
@@ -179,7 +181,13 @@ object FHIRBundleHelpers {
         }
     }
 
-    // add conditions for receiver
+    /**
+     * Evaluates the conditionFilter to get the individual LOINC codes from it
+     * @param fhirBundle the bundle will hold the actual value that %testPerformedCodes will evaluate to
+     * @param receiver the receiver is used to get the condition filter
+     * @param shortHandLookupTable used to get the %testPerformedCodes and its associated fhir path
+     * @return is a list of the LOINC codes as strings
+     */
     internal fun getConditionsForReceiver(
         fhirBundle: Bundle,
         receiver: Receiver,
@@ -201,6 +209,12 @@ object FHIRBundleHelpers {
         return listOf()
     }
 
+    /**
+     * Adds the diagnostic report for those that have a condition that matches the condition filter
+     * @param fhirBundle the bundle to look for matching diagnostic reports in
+     * @param conditions the conditions to match on
+     * @return is a list of the extensions which will be added to the bundle
+     */
     internal fun addDiagnosticToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
         val extensions = mutableListOf<Extension>()
         fhirBundle.entry.forEach {
@@ -210,7 +224,7 @@ object FHIRBundleHelpers {
                     if (conditions.contains(coding.code)) {
                         extensions.add(
                             Extension(
-                                "https://reportstream.cdc.gov/fhir/StructureDefinition/diagnostic-report",
+                                diagnosticReportURl,
                                 Reference(diagnosticReport.id)
                             )
                         )

@@ -551,7 +551,8 @@ class FHIRRouter(
             ).plus(receiver.conditionFilter).map {
                 /*
                     This needs to occur because the intersect needs to be evaluated later to get the conditions that
-                    match in order to add the diagnostic reports to the extensions.
+                    match in order to add the diagnostic reports to the extensions. However, here we need the exists()
+                    because the filter evaluation requires that it evaluates to a boolean for it to pass.
                  */
             "$it.exists()"
         }

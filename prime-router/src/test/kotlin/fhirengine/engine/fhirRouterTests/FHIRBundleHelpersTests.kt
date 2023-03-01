@@ -558,7 +558,7 @@ class FHIRBundleHelpersTests {
         val extension = addDiagnosticToReceivers(bundle, conditions)
         assertThat(extension.size).isEqualTo(1)
         assertThat(extension[0].url)
-            .isEqualTo("https://reportstream.cdc.gov/fhir/StructureDefinition/diagnostic-report")
+            .isEqualTo(FHIRBundleHelpers.diagnosticReportURl)
         assertThat((extension[0].value as Reference).reference).isEqualTo(diagnosticReport2.id)
     }
 }
