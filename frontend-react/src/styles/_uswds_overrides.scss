@@ -122,7 +122,7 @@ main {
     padding-right: 2rem;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     align-content: flex-start;
   }
@@ -140,6 +140,7 @@ main {
 
   .usa-header--basic .usa-nav__primary {
     flex: 1;
+    height: 100%;
   }
 
   .usa-header--basic .usa-nav__link {
@@ -147,6 +148,7 @@ main {
   }
 
   .usa-nav__primary > .usa-nav__primary-item > a {
+    height: 100%;
     font-weight: normal;
     color: #2e2e2e;
     padding: units(3);
@@ -167,8 +169,8 @@ main {
     color: #2e2e2e;
   }
 
-  .usa-nav__primary > .usa-nav__primary-item > a::after {
-
+  .usa-header--basic .usa-nav__link:hover::after {
+    bottom: 0;
   }
 
   .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
