@@ -37,7 +37,7 @@ interface MessageReceiversColProps {
     columnHeader: keyof typeof ColumnDataEnum;
     columnHeaderTitle: ColumnDataTitle;
     activeColumn?: keyof typeof ColumnDataEnum;
-    setActiveColumn: (colTitle: keyof typeof ColumnDataEnum) => void;
+    setActiveColumn: (col: keyof typeof ColumnDataEnum) => void;
     activeColumnSortOrder: string;
     setActiveColumnSortOrder: (sortOrder: string) => void;
     rowSpan: number;
