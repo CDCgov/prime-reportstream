@@ -10,8 +10,6 @@
     "@okta/okta-auth-js": "^7.2.0",
     "@okta/okta-react": "^6.7.0",
     "@okta/okta-signin-widget": "^7.2.1",
-    "@rest-hooks/core": "^3.0.0",
-    "@rest-hooks/endpoint": "^2.0.0",
     "@rest-hooks/rest": "^3.0.3",
     "@tanstack/react-query": "^4.20.9",
     "@tanstack/react-query-devtools": "^4.20.9",

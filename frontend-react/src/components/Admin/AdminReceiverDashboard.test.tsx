@@ -13,7 +13,6 @@ import Spinner from "../Spinner";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
 const mockData: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
@@ -83,7 +82,6 @@ const mockData: AdmConnStatusDataType[] = [
         receiverName: "elr-secondary",
     },
 ];
-// </editor-fold>
 
 const fixtures: Fixture[] = [
     {

@@ -1618,13 +1618,6 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.17.0":
-  version "7.21.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.21.0.tgz#5b55c9d394e5fcf304909a8b00c07dc217b56673"
-  integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
-  dependencies:
-    regenerator-runtime "^0.13.11"
-
 "@babel/template@^7.18.10", "@babel/template@^7.20.7":
   version "7.20.7"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.20.7.tgz#a15090c2839a83b02aa996c0b4994005841fd5a8"
@@ -2583,16 +2576,6 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
-"@rest-hooks/core@^3.0.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-3.4.0.tgz#c170b1a9cb494cd54f955264c23955e0615a6b2c"
-  integrity sha512-rZApwgu6a8eyFC4Rclqc/A8jXCrnnCdPuioIMwrornSZpMiWh5QWUO7eSMTXkHxPiXnrL7M5xcPl+vjCIbmGnA==
-  dependencies:
-    "@babel/runtime" "^7.13.0"
-    "@rest-hooks/normalizr" "^9.2.0"
-    "@rest-hooks/use-enhanced-reducer" "^1.2.0"
-    flux-standard-action "^2.1.1"
-
 "@rest-hooks/core@^3.2.4":
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-3.2.4.tgz#1a454a3f088c0b51bf2ba9edd3b277d39f1b3c53"
@@ -2603,14 +2586,6 @@
     "@rest-hooks/normalizr" "^8.2.6"
     "@rest-hooks/use-enhanced-reducer" "^1.1.1"
     flux-standard-action "^2.1.1"
-
-"@rest-hooks/endpoint@^2.0.0":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.3.1.tgz#f0286a1d913549c23fbd1ae52546228dcfc4ad3c"
-  integrity sha512-lr34zB5aSoY9JK3AoLsyPaViGizJdsbxh5+2CHuvrstIzNbTYqe6Cqr9RD0/Cm1Mf4mGrhMG9XKXIzcn2/LiDQ==
-  dependencies:
-    "@babel/runtime" "^7.13.0"
-    "@rest-hooks/normalizr" "^8.3.1"
 
 "@rest-hooks/endpoint@^2.2.7":
   version "2.2.7"
@@ -2626,21 +2601,6 @@
   integrity sha512-6pmxbqhqlDn2GfwQXDixEU24RhbAYfpN/6moVwnW+z42g4H0MYhG3HiHQDy7LQ8ETHtm54L1gVBqenm1UmkwMQ==
   dependencies:
     "@babel/runtime" "^7.13.0"
-
-"@rest-hooks/normalizr@^8.3.1":
-  version "8.3.1"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-8.3.1.tgz#dda2ce51959339a2110cce31abc55caf12044986"
-  integrity sha512-m0E+yF/T2UMRaRnCFQ9TD1/JVTExDEQkmxWqGyG+2HTURH6iSDrCChkqlH6aAPEKIDMpObv0n2rDEX/JF+3ryg==
-  dependencies:
-    "@babel/runtime" "^7.13.0"
-    npm-run-all "^4.1.5"
-
-"@rest-hooks/normalizr@^9.2.0":
-  version "9.5.1"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-9.5.1.tgz#1261e58de59aae0137d94c4c498c656ef8cee62e"
-  integrity sha512-OyEEzZsP3ODRhNYx82gBCl8h0OIjBKqLNNCu3v5zTUUHCKeioTqy6EP2o4wuVTAzvNa38ooAbKxtagyS7Fy8Fw==
-  dependencies:
-    "@babel/runtime" "^7.17.0"
 
 "@rest-hooks/rest@^3.0.3":
   version "3.0.3"
@@ -2660,11 +2620,6 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@rest-hooks/use-enhanced-reducer/-/use-enhanced-reducer-1.1.1.tgz#d7d267ca11aa3891773e92538b16c7a4f3b55637"
   integrity sha512-XTnLekC+2dussBo4ujvA6Y1Ii/PRMCiKIxWisizAjiDd2EaGVKSMCbImLR1BulOtQOy4+nhLuIKDV/0IvengRQ==
-
-"@rest-hooks/use-enhanced-reducer@^1.2.0":
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/use-enhanced-reducer/-/use-enhanced-reducer-1.2.7.tgz#e391ea4b89ee2e4307bb04460dd236b775c29a48"
-  integrity sha512-m+U4qFoLa4vefvJ5hBlx1m8K1tJUAOprVtclVfJFgQm1wJm6tsIzzcsM9QoBTlQdG+wp0g5c4eeOukW1R2w2Dg==
 
 "@rollup/plugin-babel@^5.2.0":
   version "5.3.1"
@@ -11030,11 +10985,6 @@ regenerate@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.2.tgz#b9346d8827e8f5a32f7ba29637d398b69014848a"
   integrity sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==
-
-regenerator-runtime@^0.13.11:
-  version "0.13.11"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
-  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
 regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.9:
   version "0.13.9"
