@@ -173,16 +173,17 @@ class FhirTransformer(
     }
 
     /**
-     * Set the [value] on [bundleProperty] using [bundle] as the root resource and [focusResource] as the focus resource
+     * Set the [value] on [rawBundleProperty] using [bundle] as the root resource and [focusResource] as the focus resource
      */
     internal fun setBundleProperty(
-        bundleProperty: String?,
+        rawBundleProperty: String?,
         value: Base,
         context: CustomContext,
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (bundleProperty == null) return
+        if (rawBundleProperty == null) return
+        val bundleProperty = constantSubstitutor.replace(rawBundleProperty, context)
 
         val pathParts = bundleProperty.split(".")
         // We start one level down as we use the addChild function to set the value at the end
