@@ -13,7 +13,7 @@ import java.util.SortedMap
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
-class FHIRTransformSchema(
+class FhirTransformSchema(
     elements: MutableList<FHIRTransformSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
@@ -21,7 +21,7 @@ class FHIRTransformSchema(
     override fun merge(childSchema: ConfigSchema<FHIRTransformSchemaElement>):
         ConfigSchema<FHIRTransformSchemaElement> =
         apply {
-            check(childSchema is FHIRTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
+            check(childSchema is FhirTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
             super.merge(childSchema)
         }
 }
@@ -47,7 +47,7 @@ class FHIRTransformSchemaElement(
     condition: String? = null,
     required: Boolean? = null,
     schema: String? = null,
-    schemaRef: FHIRTransformSchema? = null,
+    schemaRef: FhirTransformSchema? = null,
     resource: String? = null,
     value: List<String> = emptyList(),
     resourceIndex: String? = null,
