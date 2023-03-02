@@ -4,7 +4,7 @@ import { FileType } from "../../../hooks/UseFileHandler";
 export enum StandardSchema {
     CSV = "upload-covid-19",
     CSV_OTC = "csv-otc-covid-19",
-    HL7 = "standard/standard-covid-19",
+    HL7 = "hl7/hl7-ingest-covid-19-prod",
 }
 
 export const STANDARD_SCHEMA_VALUES: string[] = Object.values(StandardSchema);
