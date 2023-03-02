@@ -191,7 +191,7 @@ describe("RSMessageDetail component", () => {
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
         expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
-        expect(screen.getByText("File Location")).toBeVisible();
+        expect(screen.getAllByText("File Location")[0]).toBeVisible();
         expect(screen.getByText("RECEIVE")).toBeVisible();
         expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
         expect(screen.getAllByText(/Incoming File Name/)[0]).toBeVisible();

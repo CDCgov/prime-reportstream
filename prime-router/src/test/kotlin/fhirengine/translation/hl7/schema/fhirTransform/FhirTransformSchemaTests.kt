@@ -12,25 +12,25 @@ import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import kotlin.test.Test
 
-class FHIRTransformSchemaTests {
+class FhirTransformSchemaTests {
     @Test
     fun `test validate schema`() {
-        var schema = FHIRTransformSchema()
+        var schema = FhirTransformSchema()
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
         val goodElement = FHIRTransformSchemaElement(value = listOf("final"), bundleProperty = "%resource.status")
-        schema = FHIRTransformSchema(mutableListOf(goodElement))
+        schema = FhirTransformSchema(mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
 
-        schema = FHIRTransformSchema(mutableListOf(goodElement))
+        schema = FhirTransformSchema(mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.isValid()).isTrue() // We check again to make sure we get the same value
         assertThat(schema.errors).isEmpty()
 
         // Check on constants
-        schema = FHIRTransformSchema(
+        schema = FhirTransformSchema(
             mutableListOf(goodElement), constants = sortedMapOf("const1" to "")
         )
         assertThat(schema.isValid()).isFalse()
@@ -38,7 +38,7 @@ class FHIRTransformSchemaTests {
         assertThat(schema.errors.size).isEqualTo(1)
         assertThat(schema.errors[0]).contains(schema.constants.firstKey())
 
-        schema = FHIRTransformSchema(
+        schema = FhirTransformSchema(
             mutableListOf(goodElement), constants = sortedMapOf("const1" to "value")
         )
         assertThat(schema.isValid()).isTrue()
@@ -84,7 +84,7 @@ class FHIRTransformSchemaTests {
         assertThat(element.validate()).isEmpty()
 
         // Check on resource index
-        val aSchema = FHIRTransformSchema(
+        val aSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement(
                     "name",
@@ -131,16 +131,16 @@ class FHIRTransformSchemaTests {
             "name", value = listOf("final"),
             bundleProperty = "%resource.status"
         )
-        var childSchema = FHIRTransformSchema(elements = mutableListOf(goodElement))
+        var childSchema = FhirTransformSchema(elements = mutableListOf(goodElement))
         var elementWithSchema = FHIRTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
-        var topSchema = FHIRTransformSchema(mutableListOf(elementWithSchema))
+        var topSchema = FhirTransformSchema(mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
         var badElement = FHIRTransformSchemaElement("name", value = listOf("final")) // No bundleProperty = error
-        childSchema = FHIRTransformSchema(elements = mutableListOf(badElement))
+        childSchema = FhirTransformSchema(elements = mutableListOf(badElement))
         elementWithSchema = FHIRTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
-        topSchema = FHIRTransformSchema(mutableListOf(elementWithSchema))
+        topSchema = FhirTransformSchema(mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
     }
@@ -150,7 +150,7 @@ class FHIRTransformSchemaTests {
         fun newParent(): FHIRTransformSchemaElement {
             return FHIRTransformSchemaElement(
                 "name", condition = "condition1",
-                schema = "schema1", schemaRef = FHIRTransformSchema(), resource = "resource1", resourceIndex = "index1",
+                schema = "schema1", schemaRef = FhirTransformSchema(), resource = "resource1", resourceIndex = "index1",
                 value = listOf("value1"), constants = sortedMapOf("k1" to "v1"), bundleProperty = "%resource.status"
             )
         }
@@ -180,7 +180,7 @@ class FHIRTransformSchemaTests {
             "name",
             condition = "condition2",
             schema = "schema2",
-            schemaRef = FHIRTransformSchema(),
+            schemaRef = FhirTransformSchema(),
             resource = "resource2",
             resourceIndex = "index2",
             bundleProperty = "%resource.status"
@@ -206,7 +206,7 @@ class FHIRTransformSchemaTests {
 
         val elementC = FHIRTransformSchemaElement(
             "name", condition = "condition3",
-            schema = "schema3", schemaRef = FHIRTransformSchema(), resource = "resource3", resourceIndex = "index3",
+            schema = "schema3", schemaRef = FhirTransformSchema(), resource = "resource3", resourceIndex = "index3",
             value = listOf("value3"), constants = sortedMapOf("k3" to "v3"), bundleProperty = "%resource.status"
         )
         val parentElementC = newParent().merge(elementC)
@@ -239,14 +239,14 @@ class FHIRTransformSchemaTests {
 
     @Test
     fun `test find element`() {
-        val childSchema = FHIRTransformSchema(
+        val childSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement("child1"),
                 FHIRTransformSchemaElement("child2"),
                 FHIRTransformSchemaElement("child3")
             )
         )
-        val schema = FHIRTransformSchema(
+        val schema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement("parent1"),
                 FHIRTransformSchemaElement("parent2"),
@@ -261,14 +261,14 @@ class FHIRTransformSchemaTests {
 
     @Test
     fun `test merge of schemas`() {
-        val childSchema = FHIRTransformSchema(
+        val childSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement("child1"),
                 FHIRTransformSchemaElement("child2"),
                 FHIRTransformSchemaElement("child3")
             )
         )
-        val schema = FHIRTransformSchema(
+        val schema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement("parent1"),
                 FHIRTransformSchemaElement("parent2"),
@@ -277,7 +277,7 @@ class FHIRTransformSchemaTests {
             )
         )
 
-        val extendedSchema = FHIRTransformSchema(
+        val extendedSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FHIRTransformSchemaElement("parent1"),
                 FHIRTransformSchemaElement("child2", condition = "condition1"),

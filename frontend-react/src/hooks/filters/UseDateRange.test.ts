@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useDateRange, { RangeSettingsActionType } from "./UseDateRange";
+import useDateRange, {
+    getEndOfDay,
+    RangeSettingsActionType,
+} from "./UseDateRange";
 
 describe("UseDateRange", () => {
     test("renders with default values", () => {
@@ -79,5 +82,18 @@ describe("UseDateRange", () => {
             from: "2022-12-31T00:00:00.000Z",
             to: "2022-01-01T00:00:00.000Z",
         });
+    });
+});
+
+describe("getEndOfDay", () => {
+    const date = new Date("2023-02-17T00:00:00.000Z");
+
+    test("returns the end of the day in UTC", () => {
+        expect(getEndOfDay(date)).toEqual(new Date("2023-02-17T23:59:59.999Z"));
+    });
+
+    test("does not modify the original Date instance", () => {
+        getEndOfDay(date);
+        expect(date.toISOString()).toEqual("2023-02-17T00:00:00.000Z");
     });
 });
