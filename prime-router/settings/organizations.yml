@@ -92,7 +92,7 @@
       jurisdictionalFilter:
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
-        - "%hl7MessageType = 'R01'"
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
     - name: default
       organizationName: ignore
