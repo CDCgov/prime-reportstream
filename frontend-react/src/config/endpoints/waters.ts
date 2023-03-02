@@ -39,7 +39,7 @@ export interface ResponseError {
     indices: number[] | undefined;
     message: string | undefined;
     scope: string | undefined;
-    errorCode: keyof typeof ErrorCodeTranslation;
+    errorCode: ErrorCode;
     trackingIds: string[] | undefined;
     details: any | undefined;
     rowList?: string;
@@ -52,12 +52,18 @@ export enum WatersUrls {
 /*
 The error codes map to the error types specified in the serializer
  */
-export enum ErrorCodeTranslation {
-    INVALID_HL7_MSG_VALIDATION = "Invalid entry for field.",
-    INVALID_MSG_PARSE_DATE = "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
-    INVALID_HL7_MSG_FORMAT_INVALID = "",
-    INVALID_MSG_PARSE_TELEPHONE = "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555).",
-    UNKNOWN = "",
+export enum ErrorCode {
+    INVALID_MSG_PARSE_BLANK = "INVALID_MSG_PARSE_BLANK",
+    INVALID_HL7_MSG_TYPE_MISSING = "INVALID_HL7_MSG_TYPE_MISSING",
+    INVALID_HL7_MSG_TYPE_UNSUPPORTED = "INVALID_HL7_MSG_TYPE_UNSUPPORTED",
+    INVALID_HL7_MSG_FORMAT_INVALID = "INVALID_HL7_MSG_FORMAT_INVALID",
+    INVALID_MSG_PARSE_DATETIME = "INVALID_MSG_PARSE_DATETIME",
+    INVALID_MSG_PARSE_TELEPHONE = "INVALID_MSG_PARSE_TELEPHONE",
+    INVALID_MSG_PARSE_DATE = "INVALID_MSG_PARSE_DATE",
+    INVALID_HL7_MSG_VALIDATION = "INVALID_HL7_MSG_VALIDATION",
+    INVALID_MSG_MISSING_FIELD = "INVALID_MSG_MISSING_FIELD",
+    INVALID_MSG_EQUIPMENT_MAPPING = "INVALID_MSG_EQUIPMENT_MAPPING",
+    UNKNOWN = "UNKNOWN",
 }
 
 /*

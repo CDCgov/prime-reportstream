@@ -6,7 +6,7 @@ import {
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
-import { ResponseError } from "../config/endpoints/waters";
+import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 
 import useFileHandler, {
@@ -35,7 +35,7 @@ const fakeError: ResponseError = {
     message: "error message",
     trackingIds: ["track me"],
     scope: "some scope",
-    errorCode: "INVALID_HL7_MSG_VALIDATION",
+    errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
     details: "this happened",
 };
 
@@ -45,7 +45,7 @@ const fakeWarning: ResponseError = {
     message: "warning message",
     trackingIds: ["track me"],
     scope: "some warning scope",
-    errorCode: "INVALID_HL7_MSG_VALIDATION",
+    errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
     details: "this happened - a warning",
 };
 
