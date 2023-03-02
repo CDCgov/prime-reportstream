@@ -443,7 +443,11 @@ class FHIRRouter(
                 )
             }
         } catch (e: SchemaException) {
-            actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message ?: ""))
+            actionLogger?.warn(
+                EvaluateFilterConditionErrorMessage(
+                    e.message ?: "An unknown filter condition error occurred."
+                )
+            )
             return false
         }
         return if (reverseFilter) !result else result
