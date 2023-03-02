@@ -558,7 +558,7 @@ class FHIRBundleHelpersTests {
         val extension = addObservationsToReceivers(bundle, conditions)
         assertThat(extension.size).isEqualTo(1)
         assertThat(extension[0].url)
-            .isEqualTo(FHIRBundleHelpers.observationURl)
+            .isEqualTo(FHIRBundleHelpers.observationUrl)
         assertThat((extension[0].value as Reference).reference).isEqualTo(observation2.id)
     }
 }

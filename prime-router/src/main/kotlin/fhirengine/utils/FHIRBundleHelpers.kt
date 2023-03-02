@@ -22,7 +22,7 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
-    const val observationURl = "http://hl7.org/fhir/StructureDefinition/Observation"
+    const val observationUrl = "http://hl7.org/fhir/StructureDefinition/Observation"
 
     /**
      * Adds [receiverList] to the [fhirBundle] as targets
@@ -195,14 +195,16 @@ object FHIRBundleHelpers {
     ): List<String> {
         if (receiver.conditionFilter.isNotEmpty()) {
             val conditions = mutableListOf<String>()
-            FhirPathUtils.pathEngine.evaluate(
-                CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
-                fhirBundle,
-                fhirBundle,
-                fhirBundle,
-                FhirPathUtils.parsePath(receiver.conditionFilter[0])
-            ).forEach {
-                conditions.add(it.toString())
+            receiver.conditionFilter.forEach { conditionFilter ->
+                FhirPathUtils.pathEngine.evaluate(
+                    CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
+                    fhirBundle,
+                    fhirBundle,
+                    fhirBundle,
+                    FhirPathUtils.parsePath(conditionFilter)
+                ).forEach { condition ->
+                    conditions.add(condition.toString())
+                }
             }
             return conditions
         }
@@ -224,7 +226,7 @@ object FHIRBundleHelpers {
                     if (conditions.contains(coding.code)) {
                         extensions.add(
                             Extension(
-                                observationURl,
+                                observationUrl,
                                 Reference(observation.id)
                             )
                         )
