@@ -13,6 +13,7 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
+import java.util.stream.Collectors
 import java.util.stream.Stream
 
 /**
@@ -74,7 +75,7 @@ object FHIRBundleHelpers {
      * @return a list of all [Property] for a [Base] resource
      */
     fun Base.getResourceProperties(): List<Property> {
-        return this.children().stream().flatMap { getChildProperties(it) }.toList()
+        return this.children().stream().flatMap { getChildProperties(it) }.collect(Collectors.toList())
     }
 
     /**
