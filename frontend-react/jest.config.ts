@@ -24,7 +24,13 @@ const config: Config.InitialOptions = {
     moduleNameMapper: {
         "^react-native$": "react-native-web",
         "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
-        axios: "axios/dist/node/axios.cjs",
+        "^@rest-hooks/(.*)": [
+            "<rootDir>/node_modules/@rest-hooks/$1/dist/index.js",
+            "<rootDir>/node_modules/@rest-hooks/$1/dist/$1.js",
+            "<rootDir>/node_modules/@rest-hooks/$1/dist/index.cjs.js",
+        ],
+        "^msw/lib/node$": "<rootDir>/node_modules/msw/lib/node/index.js",
+        "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
         "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/staticAssetMock.js",
     },
     moduleFileExtensions: [
