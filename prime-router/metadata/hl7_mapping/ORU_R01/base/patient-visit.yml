@@ -1,5 +1,5 @@
 constants:
-  hl7PV1Field: /PATIENT_RESULT/PATIENT/VISIT/PV1
+  hl7PV1Field: '%{hl7SegmentGroup}/PV1'
 elements:
   - name: patient-visit-set-id
     value: [ '"1"' ]
