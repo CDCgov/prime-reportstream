@@ -2467,10 +2467,10 @@
     "@babel/runtime" "^7.11.2"
     compare-versions "^4.1.2"
 
-"@okta/okta-signin-widget@^7.2.1":
-  version "7.2.1"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-7.2.1.tgz#407abe3ef0189a173e5f1b6155b97df9905714bb"
-  integrity sha512-MvPlnmtRSjIKhvR6Aq6EKN3k4MkaNJzQwaUYHtlSVSD6vqzqBoNDJhXg6aLKvqeLDEZZCSSBYkedIWlF4I2Ofg==
+"@okta/okta-signin-widget@^7.3.1":
+  version "7.3.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-7.3.1.tgz#c9ee8e393105bc1e2275a77b44782eb2d57bc09c"
+  integrity sha512-dkC3rUEFkxkp0X6EpHe5dwEDlozNAwF53sSjj5yb7tGPGmIOevWlASuu3gDbKozHWTzU9hY3fN/WwHZyaQsTcA==
   dependencies:
     "@okta/okta-auth-js" "~7.0.0"
     "@sindresorhus/to-milliseconds" "^1.0.0"
