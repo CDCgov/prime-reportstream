@@ -1,4 +1,5 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import {
     renderWithFullAppContext,
@@ -101,27 +102,13 @@ jest.mock("../../TelemetryService", () => ({
   thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
 */
 
-const contentString = "some file content";
+const contentString = "foo,bar\r\nbar,foo";
 
 // doesn't work out of the box as it somehow doesn't come with a .text method
 const fakeFile = new File([new Blob([contentString])], "file.csv", {
-    type: "hl7",
+    type: "text/csv",
 });
 fakeFile.text = () => Promise.resolve(contentString);
-
-const fakeFileList = {
-    length: 1,
-    item: () => fakeFile,
-    [Symbol.iterator]: function* () {
-        yield fakeFile;
-    },
-} as FileList;
-
-const fileChangeEvent = {
-    target: {
-        files: fakeFileList,
-    },
-} as React.ChangeEvent<HTMLInputElement>;
 
 describe("FileHandler", () => {
     afterEach(() => {
@@ -264,7 +251,7 @@ describe("FileHandler", () => {
                 mockUseFileHandler({
                     ...INITIAL_STATE,
                     fileType: selectedSchemaOption.format,
-                    fileName: "anything",
+                    fileName: fakeFile.name,
                     selectedSchemaOption,
                 });
                 mockUseWatersUploader({
@@ -275,40 +262,47 @@ describe("FileHandler", () => {
 
                 renderWithFullAppContext(<FileHandler />);
 
-                fireEvent.change(
+                userEvent.upload(
                     screen.getByTestId("file-input-input"),
-                    fileChangeEvent
+                    fakeFile
                 );
-
                 await screen.findByTestId("file-input-preview-image");
 
-                fireEvent.click(screen.getByText("Validate"));
+                // jsdom seems currently unable to properly handle required file input
+                // fields. disabling form validation as temp hack
+                screen.getByRole<HTMLFormElement>("form").noValidate = true;
             });
 
-            test("calls fetch with the correct parameters", () => {
-                expect(sendFileSpy).toHaveBeenCalledWith({
-                    client: "apple.cantaloupe",
-                    contentType: undefined,
-                    fileContent: "some file content",
-                    fileName: "anything",
-                    format: "CSV",
-                    schema: "upload-covid-19",
-                });
+            test("calls fetch with the correct parameters", async () => {
+                userEvent.click(screen.getByText("Validate"));
+                await waitFor(() =>
+                    expect(sendFileSpy).toHaveBeenCalledWith({
+                        client: "apple.cantaloupe",
+                        contentType: undefined,
+                        fileContent: contentString,
+                        fileName: fakeFile.name,
+                        format: "CSV",
+                        schema: "upload-covid-19",
+                    })
+                );
             });
 
-            test("tracks the event", () => {
-                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                    name: EventName.FILE_VALIDATOR,
-                    properties: {
-                        fileValidator: {
-                            warningCount: 2,
-                            errorCount: 0,
-                            schema: "upload-covid-19",
-                            fileType: "CSV",
-                            sender: "aegis",
+            test("tracks the event", async () => {
+                userEvent.click(screen.getByText("Validate"));
+                await waitFor(() =>
+                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                        name: EventName.FILE_VALIDATOR,
+                        properties: {
+                            fileValidator: {
+                                warningCount: 2,
+                                errorCount: 0,
+                                schema: "upload-covid-19",
+                                fileType: "CSV",
+                                sender: "aegis",
+                            },
                         },
-                    },
-                });
+                    })
+                );
             });
         });
 
