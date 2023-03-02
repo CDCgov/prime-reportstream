@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.InvalidFilterExpressionMessage
+import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -342,11 +342,7 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = try {
-                evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
-            } catch (e: SchemaException) {
-                false
-            }
+            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
@@ -409,20 +405,16 @@ class FHIRRouter(
         defaultResponse: Boolean,
         reverseFilter: Boolean = false
     ): Boolean {
-        return try {
-            val passes = evaluateFilterCondition(
-                filters,
-                bundle,
-                defaultResponse,
-                reverseFilter
-            )
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, filterType)
-            }
-            passes
-        } catch (e: SchemaException) {
-            false
+        val passes = evaluateFilterCondition(
+            filters,
+            bundle,
+            defaultResponse,
+            reverseFilter
+        )
+        if (!passes) {
+            logFilterResults(filters, bundle, report, receiver, filterType)
         }
+        return passes
     }
 
     /**
@@ -451,8 +443,10 @@ class FHIRRouter(
                 )
             }
         } catch (e: SchemaException) {
-            actionLogger?.error(InvalidFilterExpressionMessage(e.message ?: ""))
-            throw e
+            actionLogger?.warn(
+                EvaluateFilterConditionErrorMessage(e.message)
+            )
+            return false
         }
         return if (reverseFilter) !result else result
     }

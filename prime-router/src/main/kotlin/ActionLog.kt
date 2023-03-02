@@ -152,6 +152,14 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
     }
 
     /**
+     * Check if the logger has logged any warnings.
+     * @return true if there are warnings logged, false otherwise
+     */
+    fun hasWarnings(): Boolean {
+        return logs.any { it.type == ActionLogLevel.warning }
+    }
+
+    /**
      * Check if any logs have been logged.
      * @return true if any log has been logged, false otherwise.
      */
