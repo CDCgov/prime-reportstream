@@ -6,6 +6,8 @@ Automated tests are an integral part of ongoing maintenance, and they help to fi
 
 To that end, we should subject our test code to the same rigor and scrutiny that we would our source code; tests should be clean, deterministic, and readily understandable for the benefit of anyone working in the codebase, regardless of how long they've been working in it.
 
+See RTL's [Guiding Principles doc](https://testing-library.com/docs/guiding-principles/) for the source of inspiration and generally good guidelines. 
+
 ### Tests should read like a manual for source code
 
 Tests are often one of the first places to look when dealing with familiar code because they offer insight into how specific pieces function in isolation.  Because of this, we should strive to make our tests read like a manual for the related source code: "given this input, I should expect this output" or more practically, "given these conditions, I should expect this behavior."  Most concepts in programming should be able to be boiled down into inputs and outputs, and tests are no different in that regard.
@@ -78,6 +80,8 @@ describe("when there are ten or more items", () => {
     });
 });
 ```
+
+Testing in the browser means that we're mostly going to be testing markup implicitly, but we should rarely (or never) be testing against markup explicitly.  See [Testing Library's doc](https://testing-library.com/docs/queries/about/#priority) for more information.
 
 > Why?
 >
@@ -346,6 +350,55 @@ describe("DynamicComponent", () => {
         test("does not render the fallback message", () => {
             expect(screen.queryByText("This is a fallback message.")).toBeNull();
         });    
+    });
+});
+```
+
+```tsx
+function useCustomHook() {
+    const { data, isLoading } = useQuery(...);
+    
+    const otherStuff = ...;
+    
+    return {
+        data,
+        isLoading,
+        otherStuff
+    };
+}
+
+function CustomComponent() {
+    const { isLoading } = useCustomHook();
+    
+    if (isLoading) {
+        return <p>Loading...</p>
+    }
+    
+    return <p>Hello, {data.name}!</p>;
+}
+
+// bad - `isLoading` is logic that comes directly from react-query, so it's redundant to test
+describe("useCustomHook", () => {
+    const { result } = renderHook(() => useCustomHook());
+    expect(result.current.isLoading).toEqual(true);
+});
+
+// good - assume `isLoading` functionality works and just test our custom logic that uses it
+describe("CustomComponent", () => {
+    describe("while loading", () => {
+        test("renders a loading message", () => {
+            // ...set up and rendering
+
+            expect(screen.getByText("Loading...")).toBeVisible();
+        })
+    });
+    
+    describe("when loaded", () => {
+        test("renders a welcome message", () => {
+            // ...set up and rendering
+
+            expect(screen.getByText("Hello, ReportStream!")).toBeVisible();
+        })
     });
 });
 ```
