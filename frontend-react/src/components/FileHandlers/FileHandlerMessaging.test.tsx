@@ -1,4 +1,5 @@
 import { screen, within } from "@testing-library/react";
+import React from "react";
 
 import {
     renderWithBase,
@@ -7,14 +8,16 @@ import {
 } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { ResponseError } from "../../config/endpoints/waters";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
+import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 
 import {
     RequestLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
     RequestedChangesDisplay,
+    ValidationErrorMessageProps,
+    ValidationErrorMessage,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -62,7 +65,7 @@ describe("FileSuccessDisplay", () => {
     });
 });
 
-describe("FileErrorDisplay", () => {
+describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
         const restore = conditionallySuppressConsole("failure:");
         renderWithFullAppContext(
@@ -92,33 +95,43 @@ describe("FileErrorDisplay", () => {
         const restore = conditionallySuppressConsole("failure:");
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
-            message: "Exception: first error\ntruncated",
+            message: "first field error",
             indices: [1],
             field: "first field",
             trackingIds: ["first_id"],
             scope: "unclear",
-            errorCode: "INVALID_MSG_PARSE_DATE",
+            errorCode: ErrorCode.UNKNOWN,
             details: "none",
         };
         const fakeError2: ResponseError = {
-            message: "Exception: second error\ntruncated",
+            message: "second field error",
             indices: [2],
             field: "second field",
             trackingIds: ["second_id"],
             scope: "unclear",
-            errorCode: "INVALID_HL7_MSG_VALIDATION",
+            errorCode: ErrorCode.UNKNOWN,
             details: "none",
         };
         const fakeError3: ResponseError = {
-            message: "Exception: third error\ntruncated",
+            message: "third field error",
             indices: [3],
             field: "third field",
             trackingIds: ["third_id"],
             scope: "unclear",
-            errorCode: "INVALID_MSG_PARSE_TELEPHONE",
+            errorCode: ErrorCode.UNKNOWN,
             details: "none",
         };
-        const errors = [fakeError1, fakeError2, fakeError3];
+        const fakeError4: ResponseError = {
+            message: "fourth field error",
+            indices: [4],
+            field: "fourth field",
+            trackingIds: ["fourth_id"],
+            scope: "unclear",
+            errorCode: ErrorCode.UNKNOWN,
+            details: "none",
+        };
+
+        const errors = [fakeError1, fakeError2, fakeError3, fakeError4];
         renderWithFullAppContext(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
@@ -132,23 +145,22 @@ describe("FileErrorDisplay", () => {
         expect(table).toBeInTheDocument();
 
         const rows = await screen.findAllByRole("row");
-        expect(rows).toHaveLength(4); // 3 errors + header
+        expect(rows).toHaveLength(5); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
-        expect(firstCells[0]).toHaveTextContent(
-            "Invalid entry for field. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format."
-        );
+        expect(firstCells[0]).toHaveTextContent("first field error");
         expect(firstCells[1]).toHaveTextContent("first field");
         expect(firstCells[2]).toHaveTextContent("first_id");
 
         const secondCells = await within(rows[2]).findAllByRole("cell");
-        expect(secondCells[0]).toHaveTextContent("Invalid entry for field.");
+        expect(secondCells[0]).toHaveTextContent("second field error");
 
         const thirdCells = await within(rows[3]).findAllByRole("cell");
-        expect(thirdCells[0]).toHaveTextContent(
-            "The string supplied is not a valid phone number. Reformat to a 10-digit phone number (e.g. (555) 555-5555)."
-        );
+        expect(thirdCells[0]).toHaveTextContent("third field error");
+
+        const fourthCells = await within(rows[4]).findAllByRole("cell");
+        expect(fourthCells[0]).toHaveTextContent("fourth field error");
         restore();
     });
 });
@@ -254,5 +266,206 @@ describe("FileQualityFilterDisplay", () => {
         ).toBeInTheDocument();
         const row3 = await within(rows[3]).findAllByRole("cell");
         expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
+    });
+});
+
+describe("ValidationErrorMessage", () => {
+    const DEFAULT_PROPS: ValidationErrorMessageProps = {
+        errorCode: ErrorCode.UNKNOWN,
+        field: "validation_field",
+        message: "default validation message",
+    };
+
+    let errorMessageNode: HTMLElement;
+
+    function renderComponent(props: Partial<ValidationErrorMessageProps>) {
+        const view = renderWithBase(
+            <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />
+        );
+
+        errorMessageNode = screen.getByTestId("ValidationErrorMessage");
+
+        return view;
+    }
+
+    describe("when the error code is INVALID_MSG_PARSE_BLANK", () => {
+        beforeEach(() => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_PARSE_BLANK });
+        });
+
+        test("renders an error about a blank message", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Blank message(s) found within file. Blank messages cannot be processed."
+            );
+        });
+    });
+
+    describe("when the error code is INVALID_HL7_MSG_TYPE_MISSING", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_MISSING,
+            });
+        });
+
+        test("renders an error about a missing message type field", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting."
+            );
+        });
+    });
+
+    describe("when the error code is INVALID_HL7_MSG_TYPE_UNSUPPORTED", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED,
+            });
+        });
+
+        test("renders an error about an unsupported type", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to HL7 specification for more details."
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm"
+            );
+        });
+    });
+
+    describe("when the error is INVALID_HL7_MSG_FORMAT_INVALID", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID,
+            });
+        });
+
+        test("renders an error about an invalid format", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Invalid HL7 message format. Check your formatting by referring to HL7 specification."
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm"
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_PARSE_DATETIME", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_PARSE_DATETIME,
+            });
+        });
+
+        test("renders an error about an invalid datetime", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat validation_field as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ."
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_PARSE_TELEPHONE", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_PARSE_TELEPHONE,
+            });
+        });
+
+        test("renders an error about an invalid phone number", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555)."
+            );
+        });
+    });
+
+    describe("when the error is INVALID_HL7_MSG_VALIDATION", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
+            });
+        });
+
+        test("renders an error about an invalid field ", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat validation_field to HL7 specification."
+            );
+        });
+
+        test("renders a link to the HL7 product matrix", () => {
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.hl7.org/implement/standards/product_brief.cfm"
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_MISSING_FIELD", () => {
+        beforeEach(() => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
+        });
+
+        test("renders an error about a missing field", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Fill in the required field validation_field."
+            );
+        });
+    });
+
+    describe("when the error is INVALID_MSG_EQUIPMENT_MAPPING", () => {
+        beforeEach(() => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
+            });
+        });
+
+        test("renders an error about LIVD table LOINC mapping", () => {
+            expect(errorMessageNode).toHaveTextContent(
+                "Reformat field validation_field. Refer to CDC LIVD table LOINC mapping spreadsheet for acceptable values."
+            );
+        });
+
+        test("renders a link to the CDC LIVD table LOINC mapping spreadsheet", () => {
+            expect(screen.getByRole("link")).toHaveAttribute(
+                "href",
+                "https://www.cdc.gov/csels/dls/livd-codes.html"
+            );
+        });
+    });
+
+    describe("when the error is UNKNOWN", () => {
+        describe("when the message is provided", () => {
+            beforeEach(() => {
+                renderComponent({
+                    errorCode: ErrorCode.UNKNOWN,
+                    message: "this is wrong please fix it kthxbai",
+                });
+            });
+
+            test("renders the message", () => {
+                expect(errorMessageNode).toHaveTextContent(
+                    "this is wrong please fix it kthxbai"
+                );
+            });
+        });
+
+        describe("when the message is not provided", () => {
+            beforeEach(() => {
+                renderComponent({
+                    errorCode: ErrorCode.UNKNOWN,
+                    message: undefined,
+                });
+            });
+
+            // TODO: check with Audrey if there should be a fallback message
+            test("renders an empty string", () => {
+                expect(errorMessageNode).toHaveTextContent("");
+            });
+        });
     });
 });
