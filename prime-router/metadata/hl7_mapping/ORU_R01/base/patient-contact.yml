@@ -1,47 +1,49 @@
+constants:
+  hl7NK1Field: '%{hl7SegmentGroup}/NK1'
 elements:
   - name: id
     value: [ 1 ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-1' ]
+    hl7Spec: [ '%{hl7NK1Field}-1' ]
 
   - name: contact-name
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7NameField: '/PATIENT_RESULT/PATIENT/NK1-2'
+      hl7NameField: '%{hl7NK1Field}-2'
     schema: datatype/xpn-person-name
 
   - name: contact-relationship-id
     value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").coding.code' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-1' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-1' ]
 
   - name: contact-relationship-text
     value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").text' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-2' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-2' ]
 
   - name: contact-relationship-system
     value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").coding.system' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-3' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-3' ]
 
   - name: contact-relationship-alternate-id
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.code' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-4' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-4' ]
 
   - name: contact-relationship-alternate-text
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.display' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-5' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-5' ]
 
   - name: contact-relationship-alternate-system
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
     value: [ '%resource.coding.system' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-6' ]
+    hl7Spec: [ '%{hl7NK1Field}-3-6' ]
 
   - name: contact-address
     resource: '%resource.address'
     condition: '%resource.exists()'
     constants:
-      hl7AddressField: '/PATIENT_RESULT/PATIENT/NK1-4'
+      hl7AddressField: '%{hl7NK1Field}-4'
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
@@ -49,7 +51,7 @@ elements:
     resource: '%resource.telecom.where(use != "work")'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-5'
+      hl7TelecomField: '%{hl7NK1Field}-5'
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
@@ -57,7 +59,7 @@ elements:
     resource: '%resource.telecom.where(use = "work")'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-6'
+      hl7TelecomField: '%{hl7NK1Field}-6'
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
@@ -65,7 +67,7 @@ elements:
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-31'
+      hl7TelecomField: '%{hl7NK1Field}-31'
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
@@ -73,6 +75,6 @@ elements:
     resource: '%resource.organization.resolve().contact.address'
     condition: '%resource.exists()'
     constants:
-      hl7AddressField: '/PATIENT_RESULT/PATIENT/NK1-32'
+      hl7AddressField: '%{hl7NK1Field}-32'
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex

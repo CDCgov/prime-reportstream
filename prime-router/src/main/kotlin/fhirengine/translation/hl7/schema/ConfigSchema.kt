@@ -45,6 +45,12 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      */
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
+    val duplicateElements: Map<String?, Int>
+        get() = (
+            elements.filter { it.name != null } +
+                elements.flatMap { it.schemaRef?.elements ?: emptyList() }
+            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
+
     /**
      * Add an error [msg] to the list of errors.
      */
@@ -70,11 +76,6 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * @return a list of validation errors, or an empty list if no errors
      */
     internal open fun validate(isChildSchema: Boolean = false): List<String> {
-        // Check that all constants have a string
-        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
-            addError("Constant '$key' does not have a value")
-        }
-
         // Validate the schema elements.
         if (elements.isEmpty()) {
             addError("Schema elements cannot be empty")
@@ -198,11 +199,6 @@ abstract class ConfigSchemaElement(
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
             addError("Missing schema reference for '$schema'")
-        }
-
-        // Check that all constants have a string
-        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
-            addError("Constant '$key' does not have a value")
         }
 
         schemaRef?.let {
