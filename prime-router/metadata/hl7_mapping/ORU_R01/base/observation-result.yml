@@ -63,6 +63,11 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
+  - name: observation-value-dateTime
+    condition: '%resource.value is dateTime'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
   - name: observation-value-cwe
     resource: '%resource.value'
     condition: '%resource is CodeableConcept'
