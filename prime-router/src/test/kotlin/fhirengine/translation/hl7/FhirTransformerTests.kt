@@ -385,9 +385,9 @@ class FhirTransformerTests {
 
         val childElement = FHIRTransformSchemaElement(
             "childElement",
-            value = listOf("'1'"),
+            value = listOf("%myIndexVar"),
             resource = "Bundle.entry",
-            bundleProperty = "Bundle.entry[%{myIndexVar}].resource.id"
+            bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
         )
         val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
         val element = FHIRTransformSchemaElement(
@@ -397,7 +397,7 @@ class FhirTransformerTests {
             schemaRef = childSchema
         )
         transformer.transformBasedOnElement(element, bundle, bundle, CustomContext(bundle, bundle))
-        assertThat(servRequest1.id).isEqualTo("1")
+        assertThat(servRequest1.id).isEqualTo("0")
         assertThat(servRequest2.id).isEqualTo("1")
     }
 }

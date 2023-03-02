@@ -42,7 +42,7 @@ object FhirBundleUtils : Logging {
     fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
-        } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
+        } else if (sourceType == "integer" || StringCompatibleType.values().any { it.typeAsString == sourceType }) {
             when (targetType) {
                 StringCompatibleType.Base64Binary.typeAsString -> Base64BinaryType(value.primitiveValue())
                 StringCompatibleType.Canonical.typeAsString -> CanonicalType(value.primitiveValue())
@@ -59,7 +59,7 @@ object FhirBundleUtils : Logging {
                 StringCompatibleType.Url.typeAsString -> UrlType(value.primitiveValue())
                 StringCompatibleType.Uuid.typeAsString -> UuidType(value.primitiveValue())
                 else -> {
-                    logger.error("Conversion between $sourceType and $targetType not yet implemented.")
+                    logger.error("Conversion between $sourceType and $targetType not supported.")
                     value
                 }
             }
