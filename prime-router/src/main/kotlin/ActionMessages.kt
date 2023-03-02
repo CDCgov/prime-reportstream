@@ -257,8 +257,8 @@ class UnsupportedProcessingTypeMessage() : ActionLogDetail {
 /**
  * A [message] for when a filter has an invalid expression
  */
-class EvaluateFilterConditionErrorMessage(message: String) : ActionLogDetail {
+class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
     override val scope = ActionLogScope.internal
-    override val message = message
+    override val message = message ?: "An unknown filter condition error occurred."
     override val errorCode = ErrorCode.UNKNOWN
 }

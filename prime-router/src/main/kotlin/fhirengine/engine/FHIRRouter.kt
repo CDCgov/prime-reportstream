@@ -444,9 +444,7 @@ class FHIRRouter(
             }
         } catch (e: SchemaException) {
             actionLogger?.warn(
-                EvaluateFilterConditionErrorMessage(
-                    e.message ?: "An unknown filter condition error occurred."
-                )
+                EvaluateFilterConditionErrorMessage(e.message)
             )
             return false
         }
