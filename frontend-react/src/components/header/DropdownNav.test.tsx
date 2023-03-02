@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import React from "react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
 import { AdminDropdown } from "./DropdownNav";
@@ -55,7 +55,7 @@ describe("AdminDropdownNav - value-sets", () => {
         });
     });
     test("Admin menu expands and contracts on click and selection", () => {
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
             "false"
@@ -73,7 +73,7 @@ describe("AdminDropdownNav - value-sets", () => {
     });
 
     test("Current admin pages", () => {
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
         const lastMileFailures = screen.getByText("Last Mile Failures");
@@ -105,7 +105,7 @@ describe("AdminDropdownNav - message-tracker", () => {
             featureFlags: [],
             checkFlag: jest.fn((flag) => flag !== "message-tracker"),
         });
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         const queryForNavItemMessageIdSearch =
             screen.queryByText("Message Id Search");
 
@@ -119,7 +119,7 @@ describe("AdminDropdownNav - message-tracker", () => {
             featureFlags: [],
             checkFlag: jest.fn((flag) => flag !== "message-tracker"),
         });
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         const queryForNavItemMessageIdSearch =
             screen.queryByText("Message Id Search");
 
@@ -128,7 +128,7 @@ describe("AdminDropdownNav - message-tracker", () => {
     });
 
     test("Flagged message-tracker page is shown when flag is set", () => {
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         const queryForNavItemMessageIdSearch =
             screen.queryByText("Message Id Search");
 

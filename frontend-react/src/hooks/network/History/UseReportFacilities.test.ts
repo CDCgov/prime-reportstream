@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react-hooks";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
 import { useReportsFacilities } from "./DeliveryHooks";
 
@@ -28,7 +28,7 @@ describe("useReportsList", () => {
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useReportsFacilities("123"),
-            { wrapper: QueryWrapper() }
+            { wrapper: AppWrapper() }
         );
         await waitForNextUpdate();
         expect(result.current.reportFacilities?.length).toEqual(2);

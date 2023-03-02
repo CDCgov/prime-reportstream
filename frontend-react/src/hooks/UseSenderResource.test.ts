@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
@@ -29,7 +29,7 @@ describe("useSenderResource", () => {
             isUserSender: true,
         });
         const { result } = renderHook(() => useSenderResource(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         expect(result.current.senderDetail).toEqual(undefined);
         expect(result.current.senderIsLoading).toEqual(true);
@@ -52,7 +52,7 @@ describe("useSenderResource", () => {
         });
         const { result, waitForNextUpdate } = renderHook(
             () => useSenderResource(),
-            { wrapper: QueryWrapper() }
+            { wrapper: AppWrapper() }
         );
         await waitForNextUpdate();
         expect(result.current.senderDetail).toEqual(dummySender);
