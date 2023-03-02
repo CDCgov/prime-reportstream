@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -19,6 +21,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -446,12 +449,67 @@ class FhirTranslatorTests {
         bundle.entry[5].resource = observation3
         bundle.entry[6].resource = observation4
 
-        val bundleAfter = engine.removeUnwantedConditions(bundle, provenance)
+        engine.removeUnwantedConditions(bundle, provenance)
         // checks that the second diagnostic report was removed
-        assertThat(bundleAfter.entry.size).isEqualTo(2)
+        assertThat(bundle.entry.size).isEqualTo(2)
         // checks that the other observations were removed from the bundle
-        assertThat((bundleAfter.entry[1].resource as DiagnosticReport).result.size).isEqualTo(1)
-        assertThat((bundleAfter.entry[1].resource as DiagnosticReport).result[0].id)
+        assertThat((bundle.entry[1].resource as DiagnosticReport).result.size).isEqualTo(1)
+        assertThat((bundle.entry[1].resource as DiagnosticReport).result[0].id)
             .isEqualTo("Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
+    }
+
+    @Test
+    fun `Test removing some filtered observations from a DiagnosticReport`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_some_unwanted_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+
+        var observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+
+        assertThat(observations.count()).isEqualTo(5)
+
+        engine.removeUnwantedConditions(bundle, provenance)
+
+        observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+
+        assertThat(observations.count()).isEqualTo(2)
+    }
+
+    @Test
+    fun `Test removing all filtered observations from a DiagnosticReport`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_all_unwanted_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+
+        var observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+        var diagnosticReport =
+            FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+
+        assertThat(observations.count()).isEqualTo(3)
+        assertThat(diagnosticReport.count()).isEqualTo(3)
+
+        engine.removeUnwantedConditions(bundle, provenance)
+
+        observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+        diagnosticReport =
+            FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+        assertThat(observations.count()).isEqualTo(1)
+        assertThat(diagnosticReport.count()).isEqualTo(1)
     }
 }

@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -25,7 +26,6 @@ import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
-import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Provenance
 
 /**
@@ -57,13 +57,13 @@ class FHIRTranslator(
         logger.trace("Translating FHIR file for receivers.")
         try {
             // pull fhir document and parse FHIR document
-            var bundle = FhirTranscoder.decode(message.downloadContent())
+            val bundle = FhirTranscoder.decode(message.downloadContent())
 
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
 
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            bundle = removeUnwantedConditions(bundle, provenance)
+            removeUnwantedConditions(bundle, provenance)
             val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
 
             receivers.forEach { recName ->
@@ -152,48 +152,21 @@ class FHIRTranslator(
      * @param bundle full bundle that will be modified and returned
      * @param provenance used to extract the ids of the observations we want to keep
      */
-    internal fun removeUnwantedConditions(bundle: Bundle, provenance: Provenance): Bundle {
-        val observationsToKeep = mutableListOf<String>()
-        val extensions = (provenance.target[0].resource as Endpoint).extension
-        // If none were added, then we want them all
-        if (extensions.isEmpty()) {
-            return bundle
-        }
+    internal fun removeUnwantedConditions(bundle: Bundle, provenance: Provenance) {
 
-        extensions.forEach { extension ->
-            extension.getResourceReferences().forEach {
-                observationsToKeep.add(it)
-            }
-        }
+        val observationsToKeep =
+            provenance.target.map { it.resource }.filterIsInstance<Endpoint>().flatMap { it.getResourceReferences() }
 
-        val observationsToRemove = mutableListOf<Observation>()
-        val diagnosticReportsToRemove = mutableListOf<DiagnosticReport>()
-        bundle.entry.forEach {
-            if (it.resource.resourceType.name == "DiagnosticReport") {
-                val diagnosticReport = it.resource as DiagnosticReport
-                var deleteAll = true
-                diagnosticReport.result.forEach { result ->
-                    val observation = result.resource as Observation
-                    if (!observationsToKeep.contains(observation.id)) {
-                        observationsToRemove.add(observation)
-                    } else {
-                        deleteAll = false
-                    }
-                }
-                if (deleteAll) {
-                    diagnosticReportsToRemove.add(diagnosticReport)
-                }
-            }
-        }
+        val diagnosticReports =
+            FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
 
-        observationsToRemove.forEach { observation ->
-            bundle.deleteResource(observation)
-        }
+        val allObservations =
+            diagnosticReports.filterIsInstance<DiagnosticReport>().flatMap { it.result }.map { it.reference }
 
-        diagnosticReportsToRemove.forEach { diagnosticReport ->
-            bundle.deleteResource(diagnosticReport)
-        }
+        val observationsIdsToRemove = allObservations - observationsToKeep.toSet()
 
-        return bundle
+        val observationsToRemove = bundle.entry.filter { it.resource.id in observationsIdsToRemove }
+
+        observationsToRemove.forEach { bundle.deleteResource(it.resource) }
     }
 }
