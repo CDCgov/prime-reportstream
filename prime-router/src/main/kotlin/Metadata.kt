@@ -95,7 +95,7 @@ class Metadata : Logging {
         AllowNone(),
         IsValidCLIA(),
         InDateInterval(),
-        FilterOutNegativeAntigenTestType(),
+        FilterOutNegativeAntigenTestType()
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(

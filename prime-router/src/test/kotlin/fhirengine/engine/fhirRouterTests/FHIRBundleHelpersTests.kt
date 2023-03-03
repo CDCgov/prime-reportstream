@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -25,6 +26,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExtensions
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -60,6 +62,8 @@ class FHIRBundleHelpersTests {
     val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     val bodyUrl = "http://anyblob.com"
+    private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
@@ -137,7 +141,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -154,7 +158,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[1])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -170,7 +174,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = oneOrganization.receivers
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -476,5 +480,30 @@ class FHIRBundleHelpersTests {
         val references = FHIRBundleHelpers.filterReferenceProperties(observation.getResourceProperties())
         assertThat(references).isNotEmpty()
         assertThat(references.count()).isEqualTo(2)
+    }
+
+    @Test
+    fun `test getObservationExtensions`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir")
+            .readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+
+        val receiver = Receiver(
+            "full-elr-hl7-2",
+            "co-phd",
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            "one",
+            conditionFilter = listOf("%obsPerformedCodes.intersect('94558-5').exists()")
+
+        )
+
+        shorthandLookupTable["obsPerformedCodes"] = "%resource.code.coding.code"
+
+        val extensions = getObservationExtensions(messages[0], receiver, shorthandLookupTable)
+        assertThat(extensions.size).isEqualTo(1)
+        assertThat((extensions[0].value as Reference).reference)
+            .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
 }
