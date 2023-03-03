@@ -31,13 +31,8 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
-import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
-import org.hl7.fhir.r4.model.Extension
-import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Provenance
-import org.hl7.fhir.r4.model.Reference
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -385,79 +380,6 @@ class FhirTranslatorTests {
             engine.removeUnwantedConditions(any(), any())
         }
     }
-
-    @Test
-    fun `test removeUnwantedConditions`() {
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
-
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
-
-        val observation = Observation()
-        observation.id = "Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-
-        val endpoint = Endpoint()
-        endpoint.extension = mutableListOf<Extension>()
-        endpoint.extension.add(Extension(observation.id, Reference(observation)))
-
-        val provenance = Provenance()
-        provenance.target = mutableListOf()
-        provenance.target.add(Reference())
-        provenance.target[0].resource = endpoint
-
-        val observation2 = Observation()
-        observation2.id = "Observation/2171741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-
-        val observation3 = Observation()
-        observation3.id = "Observation/2271741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-
-        val observation4 = Observation()
-        observation4.id = "Observation/2371741861219479500.1e349936-127c-4edc-8d77-39fb231f4391"
-
-        val diagnosticReport = DiagnosticReport()
-        diagnosticReport.result.add(0, Reference(observation.id))
-        diagnosticReport.result[0].resource = observation
-        diagnosticReport.result.add(1, Reference(observation2.id))
-        diagnosticReport.result[1].resource = observation2
-        diagnosticReport.result.add(2, Reference(observation3.id))
-        diagnosticReport.result[2].resource = observation3
-        diagnosticReport.result.add(3, Reference(observation4.id))
-        diagnosticReport.result[3].resource = observation4
-
-        val diagnosticReport2 = DiagnosticReport()
-        diagnosticReport2.result.add(0, Reference(observation2.id))
-        diagnosticReport2.result[0].resource = observation2
-        diagnosticReport2.result.add(1, Reference(observation3.id))
-        diagnosticReport2.result[1].resource = observation3
-        diagnosticReport2.result.add(2, Reference(observation4.id))
-        diagnosticReport2.result[2].resource = observation4
-
-        val bundle = Bundle()
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[0].resource = provenance
-        bundle.entry[1].resource = diagnosticReport
-        bundle.entry[2].resource = diagnosticReport2
-        bundle.entry[3].resource = observation
-        bundle.entry[4].resource = observation2
-        bundle.entry[5].resource = observation3
-        bundle.entry[6].resource = observation4
-
-        engine.removeUnwantedConditions(bundle, provenance)
-        // checks that the second diagnostic report was removed
-        assertThat(bundle.entry.size).isEqualTo(2)
-        // checks that the other observations were removed from the bundle
-        assertThat((bundle.entry[1].resource as DiagnosticReport).result.size).isEqualTo(1)
-        assertThat((bundle.entry[1].resource as DiagnosticReport).result[0].id)
-            .isEqualTo("Observation/1671741861219479500.1e349936-127c-4edc-8d77-39fb231f4391")
-    }
-
     @Test
     fun `Test removing some filtered observations from a DiagnosticReport`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -471,14 +393,16 @@ class FhirTranslatorTests {
         assertThat(bundle).isNotNull()
         val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
 
         var observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
 
         assertThat(observations.count()).isEqualTo(5)
 
-        engine.removeUnwantedConditions(bundle, provenance)
+        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
 
-        observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+        observations =
+            FhirPathUtils.evaluate(null, updatedBundle, updatedBundle, "Bundle.entry.resource.ofType(Observation)")
 
         assertThat(observations.count()).isEqualTo(2)
     }
@@ -496,7 +420,9 @@ class FhirTranslatorTests {
         assertThat(bundle).isNotNull()
         val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-
+        assertThat(provenance).isNotNull()
+        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+        assertThat(endpoint).isNotNull()
         var observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
         var diagnosticReport =
             FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
@@ -504,11 +430,12 @@ class FhirTranslatorTests {
         assertThat(observations.count()).isEqualTo(3)
         assertThat(diagnosticReport.count()).isEqualTo(3)
 
-        engine.removeUnwantedConditions(bundle, provenance)
+        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
 
-        observations = FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(Observation)")
+        observations =
+            FhirPathUtils.evaluate(null, updatedBundle, updatedBundle, "Bundle.entry.resource.ofType(Observation)")
         diagnosticReport =
-            FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+            FhirPathUtils.evaluate(null, updatedBundle, updatedBundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
         assertThat(observations.count()).isEqualTo(1)
         assertThat(diagnosticReport.count()).isEqualTo(1)
     }
