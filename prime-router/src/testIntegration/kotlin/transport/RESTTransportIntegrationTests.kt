@@ -51,43 +51,57 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     private val responseHeaders = headersOf("Content-Type" to listOf("application/json;charset=UTF-8"))
 
-    private val mockClientAuthOk = mockJsonResponseWithSuccess(
-        """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
+    private fun mockClientAuthOk(): HttpClient {
+        return mockJsonResponseWithSuccess(
+            """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
                         |"token_type": "Bearer", "expires_in": 3600}
-        """
-    )
+            """
+        )
+    }
 
-    private val mockClientAuthIDTokenOk = mockJsonResponseWithSuccess(
-        """{"email": "test-email@test.com",
+    private fun mockClientAuthIDTokenOk(): HttpClient {
+        return mockJsonResponseWithSuccess(
+            """{"email": "test-email@test.com",
                         "idToken": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"expiresIn": 3600,
                         "refreshToken": "RjY2NjM5NzA2OWJjuE7c"}
-        """
-    )
+            """
+        )
+    }
 
-    private val mockClientAuthError = mockJsonResponseWithError(
-        """{"error": {"code": 500,"message": "Mock internal server error."}}"""
-    )
+    private fun mockClientAuthError(): HttpClient {
+        return mockJsonResponseWithError(
+            """{"error": {"code": 500,"message": "Mock internal server error."}}"""
+        )
+    }
 
-    private val mockClientUnauthorized = mockJsonResponseWithUnauthorized(
-        """{"error": {"code": 401,"message": "Mock unauthorized error."}}"""
-    )
+    private fun mockClientUnauthorized(): HttpClient {
+        return mockJsonResponseWithUnauthorized(
+            """{"error": {"code": 401,"message": "Mock unauthorized error."}}"""
+        )
+    }
 
-    private val mockClientPostOk = mockJsonResponseWithSuccess(
-        """{"status": "Success", 
+    private fun mockClientPostOk(): HttpClient {
+        return mockJsonResponseWithSuccess(
+            """{"status": "Success", 
                         |"statusDesc": "Received. LIN:4299844", 
                         |"respTrackingId": "UT-20211119-746000000-54"}
-        """
-    )
+            """
+        )
+    }
 
-    private val mockClientPostError = mockJsonResponseWithError(
-        """{"error": {"code": 500,"message": "Mock internal server error."}}"""
-    )
+    private fun mockClientPostError(): HttpClient {
+        return mockJsonResponseWithError(
+            """{"error": {"code": 500,"message": "Mock internal server error."}}"""
+        )
+    }
 
-    private val mockClientUnknownError = mockJsonResponseWithUnknown(
-        """{"error": {"code": 999,"message": "Mock internal server error."}}"""
-    )
+    private fun mockClientUnknownError(): HttpClient {
+        return mockJsonResponseWithUnknown(
+            """{"error": {"code": 999,"message": "Mock internal server error."}}"""
+        )
+    }
 
     private fun mockJsonResponseWithSuccess(jsonResponse: String): HttpClient {
         return mockJsonResponse(jsonResponse, HttpStatusCode.OK)
@@ -212,7 +226,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service getToken happy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential(
@@ -230,7 +244,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service getAssertionToken happy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserAssertionCredential(
@@ -247,7 +261,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service getIdToken happy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
@@ -262,7 +276,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service credential happy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk))
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
@@ -277,7 +291,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service getToken unhappy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthError))
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthError()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.InternalServerError)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
@@ -292,7 +306,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service getToken unauthorized`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientUnauthorized))
+        val mockRestTransport = spyk(RESTTransport(mockClientUnauthorized()))
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.Unauthorized)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
@@ -307,7 +321,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service postReport happy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientPostOk))
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
@@ -322,7 +336,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service postReport unhappy path`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientPostError))
+        val mockRestTransport = spyk(RESTTransport(mockClientPostError()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
@@ -337,7 +351,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `test connecting to mock service unknown error`() {
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientUnknownError))
+        val mockRestTransport = spyk(RESTTransport(mockClientUnknownError()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
