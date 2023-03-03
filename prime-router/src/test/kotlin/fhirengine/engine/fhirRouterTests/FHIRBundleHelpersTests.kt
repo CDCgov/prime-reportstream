@@ -24,17 +24,15 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.addObservationsToReceivers
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExtensions
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
-import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
@@ -485,80 +483,27 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
-    fun `Test getConditionsForReceiver conditions match`() {
-        val observation = Observation()
-        observation.code.coding.add(Coding("blah", "600-7", "blah:600-7"))
-
-        val bundle = Bundle()
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[0].resource = observation
+    fun `test getObservationExtensions`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir")
+            .readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
 
         val receiver = Receiver(
-            "full-elr-condition-test",
+            "full-elr-hl7-2",
             "co-phd",
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             "one",
-            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7')")
+            conditionFilter = listOf("%obsPerformedCodes.intersect('94558-5').exists()")
+
         )
 
-        val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
-        shorthandLookupTable["testPerformedCodes"] = "Bundle.entry.resource.ofType(Observation).code.coding.code"
+        shorthandLookupTable["obsPerformedCodes"] = "%resource.code.coding.code"
 
-        val conditions = FHIRBundleHelpers.getConditionsForReceiver(bundle, receiver, shorthandLookupTable)
-
-        assertThat(conditions).contains("600-7")
-        assertThat(conditions.size).isEqualTo(1)
-    }
-
-    @Test
-    fun `Test getConditionsForReceiver no conditions match`() {
-        val observation = Observation()
-        observation.code.coding.add(Coding("blah", "123-4", "blah:600-7"))
-
-        val bundle = Bundle()
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[0].resource = observation
-
-        val receiver = Receiver(
-            "full-elr-condition-test",
-            "co-phd",
-            Topic.FULL_ELR,
-            CustomerStatus.ACTIVE,
-            "one",
-            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7')")
-        )
-
-        val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
-        shorthandLookupTable["testPerformedCodes"] = "Bundle.entry.resource.ofType(Observation).code.coding.code"
-
-        val conditions = FHIRBundleHelpers.getConditionsForReceiver(bundle, receiver, shorthandLookupTable)
-
-        assertThat(conditions.size).isEqualTo(0)
-    }
-
-    @Test
-    fun `Test addObservationsToReceivers`() {
-        val observation = Observation()
-        observation.code.coding.add(Coding("blah", "600-8", "blah:600-8"))
-        observation.id = "observationId"
-
-        val observation2 = Observation()
-        observation2.code.coding.add(Coding("blah", "432-1", "blah:432-1"))
-        observation2.id = "observationId2"
-
-        val bundle = Bundle()
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[0].resource = observation
-        bundle.entry.add(Bundle.BundleEntryComponent())
-        bundle.entry[1].resource = observation2
-
-        val conditions = listOf("432-1")
-
-        val extension = addObservationsToReceivers(bundle, conditions)
-        assertThat(extension.size).isEqualTo(1)
-        assertThat(extension[0].url)
-            .isEqualTo(FHIRBundleHelpers.observationUrl)
-        assertThat((extension[0].value as Reference).reference).isEqualTo(observation2.id)
+        val extensions = getObservationExtensions(messages[0], receiver, shorthandLookupTable)
+        assertThat(extensions.size).isEqualTo(1)
+        assertThat((extensions[0].value as Reference).reference)
+            .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
 }
