@@ -527,7 +527,7 @@ abstract class CoolTest {
      */
     fun getSingleChildReportId(
         reportId: ReportId,
-    ): ReportId {
+    ): ReportId? {
         var childReportId: ReportId? = null
         db = WorkflowEngine().db
         db.transact { txn ->
@@ -537,7 +537,7 @@ abstract class CoolTest {
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
         }
-        return childReportId!!
+        return childReportId
     }
 
     /**
