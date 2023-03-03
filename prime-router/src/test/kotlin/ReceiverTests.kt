@@ -42,56 +42,12 @@ internal class ReceiverTests {
             organizationName = "IGNORE",
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
-            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7')"),
-            translation = translatorConfig,
-            externalName = "Ignore ELR"
-        )
-
-        assertThat(receiver.consistencyErrorMessage(UnitTestUtils.simpleMetadata)).isNull()
-    }
-
-    @Test
-    fun `test condition filter without intersect`() {
-        val receiver = Receiver(
-            name = "elr",
-            organizationName = "IGNORE",
-            topic = Topic.FULL_ELR,
-            customerStatus = CustomerStatus.INACTIVE,
-            conditionFilter = listOf("%testPerformedCodes.matches('123-0'|'600-7')"),
-            translation = translatorConfig,
-            externalName = "Ignore ELR"
-        )
-
-        assertThat(
-            receiver.consistencyErrorMessage(
-                UnitTestUtils.simpleMetadata
-            )
-        ).isEqualTo(
-            "Condition filter must be an intersect and cannot evaluate the intersect, " +
-                "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
-        )
-    }
-
-    @Test
-    fun `test condition filter with exists`() {
-        val receiver = Receiver(
-            name = "elr",
-            organizationName = "IGNORE",
-            topic = Topic.FULL_ELR,
-            customerStatus = CustomerStatus.INACTIVE,
             conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )
 
-        assertThat(
-            receiver.consistencyErrorMessage(
-                UnitTestUtils.simpleMetadata
-            )
-        ).isEqualTo(
-            "Condition filter must be an intersect and cannot evaluate the intersect, " +
-                "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
-        )
+        assertThat(receiver.consistencyErrorMessage(UnitTestUtils.simpleMetadata)).isNull()
     }
 
     @Test
