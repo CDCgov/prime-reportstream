@@ -9,44 +9,33 @@ import java.util.SortedMap
 /**
  * A converter schema.
  * @property name the schema name
- * @property hl7Type the HL7 message type for the output.  Only allowed at the top level schema
- * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
+ * @property hl7Class the HL7 message HAPI Hl7 v2 class name used for the output. Only allowed at the top level schema
  * @property elements the elements for the schema
  * @property constants schema level constants
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
 class ConverterSchema(
-    var hl7Type: String? = null,
-    var hl7Version: String? = null,
+    var hl7Class: String? = null,
     elements: MutableList<ConverterSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
 ) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
     override fun validate(isChildSchema: Boolean): List<String> {
         if (isChildSchema) {
-            if (!hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type can only be specified in top level schema")
-            }
-            if (!hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version can only be specified in top level schema")
+            if (!hl7Class.isNullOrBlank()) {
+                addError("Schema hl7Class can only be specified in top level schema")
             }
         } else {
-            if (hl7Type.isNullOrBlank()) {
-                addError("Schema hl7Type cannot be blank")
-            }
-            if (hl7Version.isNullOrBlank()) {
-                addError("Schema hl7Version cannot be blank")
+            if (hl7Class.isNullOrBlank()) {
+                addError("Schema hl7Class cannot be blank")
             }
         }
 
         // Do we support the provided HL7 type and version?
-        if (hl7Version != null && hl7Type != null) {
-            if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!)) {
-                addError(
-                    "Schema unsupported hl7 type and version. Must be one of: " +
-                        HL7Utils.SupportedMessages.getSupportedListAsString()
-                )
+        if (hl7Class != null) {
+            if (!HL7Utils.supports(hl7Class!!)) {
+                addError("Schema unsupported hl7 class of $hl7Class")
             }
         }
 
@@ -56,8 +45,7 @@ class ConverterSchema(
     override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
         apply {
             check(childSchema is ConverterSchema) { "Child schema ${childSchema.name} not a ConverterSchema." }
-            childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
-            childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
+            childSchema.hl7Class?.let { this.hl7Class = childSchema.hl7Class }
             super.merge(childSchema)
         }
 }

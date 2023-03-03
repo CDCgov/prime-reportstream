@@ -29,8 +29,9 @@ elements:
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
 
+    # Appending AOE questions at the end of all observations
   - name: observation-result
-    resource: '%resource.result.resolve()'
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve()'
     schema: observation-result
     resourceIndex: resultIndex
 
