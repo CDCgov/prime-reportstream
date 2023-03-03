@@ -1,8 +1,4 @@
-import {
-    act,
-    renderHook,
-    RenderHookResult,
-} from "@testing-library/react-hooks";
+import { act, renderHook, RenderHookResult } from "@testing-library/react";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
@@ -314,7 +310,10 @@ describe("useFileHandler", () => {
     });
 
     describe("when selecting a schema option", () => {
-        let renderer: RenderHookResult<undefined, UseFileHandlerHookResult>;
+        let renderer: RenderHookResult<
+            UseFileHandlerHookResult,
+            UseFileHandlerHookResult
+        >;
 
         function doDispatch(payload: SchemaOption | null) {
             renderer = renderHook(() => useFileHandler());
@@ -358,7 +357,10 @@ describe("useFileHandler", () => {
         });
 
         describe("when there's already file data in the useFileHandler state", () => {
-            let renderer: RenderHookResult<undefined, UseFileHandlerHookResult>;
+            let renderer: RenderHookResult<
+                UseFileHandlerHookResult,
+                UseFileHandlerHookResult
+            >;
 
             beforeEach(() => {
                 renderer = renderHook(() => useFileHandler());
