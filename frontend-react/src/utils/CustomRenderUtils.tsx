@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, ReactElement } from "react";
+import { PropsWithChildren, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
@@ -40,7 +40,7 @@ export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
     renderer across most tests. This will prevent hitting the
     React error when rendering for unit tests.
 */
-const RouterWrapper: FC = ({ children }) => {
+const RouterWrapper = ({ children }: PropsWithChildren<{}>) => {
     return (
         <BaseWrapper>
             <BrowserRouter>{children}</BrowserRouter>
@@ -74,7 +74,7 @@ export const QueryWrapper =
 export const BaseWrapper = ({ children }: PropsWithChildren<{}>) => (
     <HelmetProvider>{children}</HelmetProvider>
 );
-const FeatureFlagWrapper: FC = ({ children }) => {
+const FeatureFlagWrapper = ({ children }: PropsWithChildren<{}>) => {
     return (
         <BaseWrapper>
             <FeatureFlagProvider>{children}</FeatureFlagProvider>

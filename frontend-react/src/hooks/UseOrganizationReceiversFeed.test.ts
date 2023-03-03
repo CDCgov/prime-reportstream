@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 import {
@@ -101,12 +101,13 @@ describe("useOrganizationReceiversFeed", () => {
         });
 
         test("returns correct organization receivers feed", async () => {
-            const { result, waitForNextUpdate } = renderHook(
+            const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 { wrapper: QueryWrapper() }
             );
-            await waitForNextUpdate();
-            expect(result.current.services).toEqual(dummyReceivers);
+            await waitFor(() =>
+                expect(result.current.services).toEqual(dummyReceivers)
+            );
             expect(result.current.setActiveService).toBeDefined();
             expect(result.current.activeService).toEqual(dummyActiveReceiver);
             expect(result.current.loadingServices).toEqual(false);
@@ -129,12 +130,9 @@ describe("useOrganizationReceiversFeed", () => {
             isUserReceiver: true,
             isUserSender: false,
         });
-        const { result, waitFor } = renderHook(
-            () => useOrganizationReceiversFeed(),
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result } = renderHook(() => useOrganizationReceiversFeed(), {
+            wrapper: QueryWrapper(),
+        });
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "elr-0",
