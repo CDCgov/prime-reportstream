@@ -364,7 +364,7 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -374,11 +374,12 @@ class FhirTranslatorTests {
             queueMock.sendMessage(any(), any())
         }
         verify(exactly = 1) {
+
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
+            engine.removeUnwantedConditions(any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            engine.removeUnwantedConditions(any(), any())
         }
     }
 
