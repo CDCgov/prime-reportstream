@@ -12,7 +12,7 @@ import useSenderSchemaOptions, {
 } from "./";
 
 describe("useSenderSchemaOptions", () => {
-    let renderer: RenderHookResult<undefined, UseSenderSchemaOptionsHookResult>;
+    let renderer: RenderHookResult<UseSenderSchemaOptionsHookResult, unknown>;
 
     function doRenderHook({
         senderDetail = undefined,
