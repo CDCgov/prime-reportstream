@@ -17,3 +17,4 @@ HL7_to_FHIR_to_HL7/sample_co_1_20220518-0004.hl7,,HL7_to_FHIR_to_HL7/sample_co_1
 HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0014-expected-base.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"",""
 HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019.hl7,,HL7_to_FHIR_to_HL7/sample_co_1_20220518-0019-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS,"",""
 HL7_to_FHIR_to_HL7/test_playground_20220930-0001.hl7,,HL7_to_FHIR_to_HL7/test_playground_20220930-0001-expected-CO.hl7,metadata/hl7_mapping/STLTs/CO/CO,HL7,PASS,"",""
+FHIR_to_HL7/sample_AOE_1_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_1_20230220-0001.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-base,HL7,PASS,"",""

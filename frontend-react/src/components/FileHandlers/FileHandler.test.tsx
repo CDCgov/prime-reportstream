@@ -6,6 +6,7 @@ import {
     renderWithQueryProvider,
 } from "../../utils/CustomRenderUtils";
 import {
+    ErrorCode,
     OverallStatus,
     ResponseError,
     WatersResponse,
@@ -59,7 +60,7 @@ const mockSendFile: WatersResponse = {
             field: "MSH-7 (file_created_date)",
             message:
                 "Timestamp for file_created_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
-            errorCode: "INVALID_MSG_PARSE_DATE",
+            errorCode: ErrorCode.INVALID_MSG_PARSE_DATE,
         },
         {
             details: "",
@@ -69,7 +70,7 @@ const mockSendFile: WatersResponse = {
             field: "ORC-15 (order_test_date)",
             message:
                 "Timestamp for order_test_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
-            errorCode: "INVALID_MSG_PARSE_DATE",
+            errorCode: ErrorCode.INVALID_MSG_PARSE_DATE,
         },
     ],
 };

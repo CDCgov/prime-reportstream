@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 
 import {
     watersServer,
@@ -27,12 +27,9 @@ describe("useWatersUploader", () => {
         expect(result.current.uploaderError).toBeNull();
     });
     test("posts to /api/validate when validateOnly param is true", async () => {
-        const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(mockCallbackFn),
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result } = renderHook(() => useWatersUploader(mockCallbackFn), {
+            wrapper: QueryWrapper(),
+        });
         let response;
         await act(async () => {
             const post = result.current.sendFile({
@@ -44,7 +41,6 @@ describe("useWatersUploader", () => {
                 format: FileType.CSV,
                 schema: STANDARD_SCHEMA_OPTIONS[0].value,
             });
-            await waitForNextUpdate();
             response = await post;
         });
         expect(response).toEqual({

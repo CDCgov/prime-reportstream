@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
@@ -58,12 +58,10 @@ describe("useOrganizationSettings", () => {
         });
 
         test("returns correct organization settings", async () => {
-            const { result, waitForNextUpdate } = renderHook(
-                () => useOrganizationSettings(),
-                { wrapper: QueryWrapper() }
-            );
-            await waitForNextUpdate();
-            expect(result.current.data).toEqual(fakeOrg);
+            const { result } = renderHook(() => useOrganizationSettings(), {
+                wrapper: QueryWrapper(),
+            });
+            await waitFor(() => expect(result.current.data).toEqual(fakeOrg));
             expect(result.current.isLoading).toEqual(false);
         });
     });

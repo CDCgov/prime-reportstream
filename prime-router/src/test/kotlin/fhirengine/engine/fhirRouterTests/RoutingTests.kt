@@ -750,8 +750,8 @@ class RoutingTests {
         engine.doWork(message, actionLogger, actionHistory)
 
         // assert
-        assertThat(actionLogger.hasErrors()).isTrue()
-        assertThat(actionLogger.errors[0].detail.message).isEqualTo(nonBooleanMsg)
+        assertThat(actionLogger.hasWarnings()).isTrue()
+        assertThat(actionLogger.warnings[0].detail.message).isEqualTo(nonBooleanMsg)
     }
 
     @Test
