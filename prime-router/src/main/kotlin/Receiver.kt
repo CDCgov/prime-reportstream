@@ -232,18 +232,14 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (topic == Topic.FULL_ELR) {
-            if (conditionFilter.isNotEmpty()) {
-                conditionFilter.forEach {
-                    if (it.contains(".exists") || !it.contains(".intersect")) {
-                        return "Condition filter must be an intersect and cannot evaluate the intersect, " +
-                            "for example: conditionFilter: [\"%testPerformedCodes.intersect('123-0'|'600-7')\"]"
-                    }
-                }
+        if (conditionFilter.isNotEmpty()) {
+            if (topic != Topic.FULL_ELR) {
+                return "Condition filter only allowed for receiver with topic 'full_elr'"
             }
-
-            return null
         }
+
+        // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
+        if (topic == Topic.FULL_ELR) return null
 
         if (translation is CustomConfiguration) {
             when (this.topic) {
@@ -261,10 +257,6 @@ open class Receiver(
                     }
                 }
             }
-        }
-
-        if (conditionFilter.isNotEmpty() && conditionFilter[0].isNotEmpty()) {
-            return "Condition filter only allowed for receiver with topic 'full_elr'"
         }
 
         return null

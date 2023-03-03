@@ -390,6 +390,6 @@ class GetFilterTests {
 
         val filters = engine.getConditionFilter(receiverWithFilters, orgFilters)
         assert(filters.size == 1)
-        assert(filters.any { it == receiverWithFilters.conditionFilter[0] + ".exists()" })
+        assert(filters.any { it == receiverWithFilters.conditionFilter[0] })
     }
 }

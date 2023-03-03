@@ -29,6 +29,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -355,7 +356,8 @@ class FHIRRouter(
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
                 qualFilterDefaultResult,
-                receiver.reverseTheQualityFilter
+                receiver.reverseTheQualityFilter,
+
             )
 
             // ROUTING FILTER
@@ -382,15 +384,26 @@ class FHIRRouter(
 
             // CONDITION FILTER
             //  default: allowAll
-            passes = passes && evaluateFilterAndLogResult(
-                getConditionFilter(receiver, orgFilters),
+            val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+            val allObservations = FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle, shorthandLookupTable),
                 bundle,
-                report,
-                receiver,
-                ReportStreamFilterType.CONDITION_FILTER,
-                defaultResponse = true,
-                false
+                bundle,
+                allObservationsExpression
             )
+
+            passes = passes && allObservations.any { observation ->
+                evaluateFilterAndLogResult(
+                    getConditionFilter(receiver, orgFilters),
+                    bundle,
+                    report,
+                    receiver,
+                    ReportStreamFilterType.CONDITION_FILTER,
+                    defaultResponse = true,
+                    false,
+                    observation
+                )
+            }
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
@@ -415,13 +428,15 @@ class FHIRRouter(
         receiver: Receiver,
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
         val passes = evaluateFilterCondition(
             filters,
             bundle,
             defaultResponse,
-            reverseFilter
+            reverseFilter,
+            focusResource
         )
         if (!passes) {
             logFilterResults(filters, bundle, report, receiver, filterType)
@@ -439,7 +454,8 @@ class FHIRRouter(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
@@ -448,8 +464,8 @@ class FHIRRouter(
         } else try {
             filter.all {
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable),
-                    bundle,
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
                     bundle,
                     it
                 )
@@ -542,13 +558,6 @@ class FHIRRouter(
         return (
             orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
                 ?: emptyList()
-            ).plus(receiver.conditionFilter).map {
-                /*
-                    This needs to occur because the intersect needs to be evaluated later to get the conditions that
-                    match in order to add the diagnostic reports to the extensions. However, here we need the exists()
-                    because the filter evaluation requires that it evaluates to a boolean for it to pass.
-                 */
-            "$it.exists()"
-        }
+            ).plus(receiver.conditionFilter)
     }
 }

@@ -22,7 +22,7 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
-    const val observationURl = "http://hl7.org/fhir/StructureDefinition/Observation"
+    const val observationUrl = "http://hl7.org/fhir/StructureDefinition/Observation"
 
     /**
      * Adds [receiverList] to the [fhirBundle] as targets
@@ -44,8 +44,7 @@ object FHIRBundleHelpers {
         // check all active customers for receiver data
         receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
             val endpoint = Endpoint()
-            val conditions = getConditionsForReceiver(fhirBundle, receiver, shortHandLookupTable)
-            addObservationsToReceivers(fhirBundle, conditions).forEach { endpoint.addExtension(it) }
+            getObservationExtensions(fhirBundle, receiver, shortHandLookupTable).forEach { endpoint.addExtension(it) }
 
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
             endpoint.name = receiver.displayName
@@ -182,56 +181,50 @@ object FHIRBundleHelpers {
     }
 
     /**
-     * Evaluates the conditionFilter to get the individual LOINC codes from it
+     * Gets the observation extensions for those observations that pass the condition filter, unless they all pass for
+     * a diagnostic report
      * @param fhirBundle the bundle will hold the actual value that %testPerformedCodes will evaluate to
-     * @param receiver the receiver is used to get the condition filter
+     * @param receiver the receiver is used to get the condition filter(s)
      * @param shortHandLookupTable used to get the %testPerformedCodes and its associated fhir path
-     * @return is a list of the LOINC codes as strings
+     * @return is a list of extensions to add to the bundle
      */
-    internal fun getConditionsForReceiver(
+    internal fun getObservationExtensions(
         fhirBundle: Bundle,
         receiver: Receiver,
         shortHandLookupTable: MutableMap<String, String>
-    ): List<String> {
-        if (receiver.conditionFilter.isNotEmpty()) {
-            val conditions = mutableListOf<String>()
-            FhirPathUtils.pathEngine.evaluate(
-                CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
-                fhirBundle,
-                fhirBundle,
-                fhirBundle,
-                FhirPathUtils.parsePath(receiver.conditionFilter[0])
-            ).forEach {
-                conditions.add(it.toString())
-            }
-            return conditions
-        }
-        return listOf()
-    }
+    ): List<Extension> {
+        val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+        val allObservations = FhirPathUtils.evaluate(
+            CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
+            fhirBundle,
+            fhirBundle,
+            allObservationsExpression
+        )
 
-    /**
-     * Adds the observation for those that have a condition that matches the condition filter
-     * @param fhirBundle the bundle to look for matching observations in
-     * @param conditions the conditions to match on
-     * @return is a list of the extensions which will be added to the bundle
-     */
-    internal fun addObservationsToReceivers(fhirBundle: Bundle, conditions: List<String>): List<Extension> {
-        val extensions = mutableListOf<Extension>()
-        fhirBundle.entry.forEach {
-            if (it.resource.resourceType.name == "Observation") {
-                val observation = it.resource as Observation
-                observation.code.coding.forEach { coding ->
-                    if (conditions.contains(coding.code)) {
-                        extensions.add(
-                            Extension(
-                                observationURl,
-                                Reference(observation.id)
-                            )
-                        )
-                    }
-                }
+        val observationsToKeep = mutableListOf<Extension>()
+        allObservations.forEach { observation ->
+            val passes = receiver.conditionFilter.all { conditionFilter ->
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(fhirBundle, observation, shortHandLookupTable),
+                    observation,
+                    fhirBundle,
+                    conditionFilter
+                )
+            }
+
+            if (passes) {
+                observationsToKeep.add(
+                    Extension(
+                        observationUrl,
+                        Reference(observation.idBase)
+                    )
+                )
             }
         }
-        return extensions
+
+        if (observationsToKeep.size == allObservations.size) {
+            return listOf()
+        }
+        return observationsToKeep
     }
 }

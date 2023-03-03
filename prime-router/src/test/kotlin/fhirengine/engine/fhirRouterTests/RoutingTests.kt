@@ -765,8 +765,8 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        every { engine.evaluateFilterCondition(any(), any(), true, any()) } returns true
-        every { engine.evaluateFilterCondition(any(), any(), false, any()) } returns false
+        every { engine.evaluateFilterCondition(any(), any(), true, any(), any()) } returns true
+        every { engine.evaluateFilterCondition(any(), any(), false, any(), any()) } returns false
 
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
         verify(exactly = 0) {
