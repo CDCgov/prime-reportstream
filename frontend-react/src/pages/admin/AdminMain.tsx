@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { Helmet } from "react-helmet-async";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -15,18 +16,21 @@ export function AdminMain() {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Helmet>
-                <title>{FeatureName.ADMIN}</title>
-            </Helmet>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <section className="grid-container margin-top-0" />
-                    <OrgsTable />
-                </Suspense>
-            </NetworkErrorBoundary>
-            <HipaaNotice />
+            <GridContainer>
+                <article>
+                    <Helmet>
+                        <title>{FeatureName.ADMIN}</title>
+                    </Helmet>
+                    <NetworkErrorBoundary
+                        fallbackComponent={() => <ErrorPage type="message" />}
+                    >
+                        <Suspense fallback={<Spinner />}>
+                            <OrgsTable />
+                        </Suspense>
+                    </NetworkErrorBoundary>
+                    <HipaaNotice />
+                </article>
+            </GridContainer>
         </NetworkErrorBoundary>
     );
 }

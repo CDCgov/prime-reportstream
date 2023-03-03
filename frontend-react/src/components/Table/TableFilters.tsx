@@ -15,7 +15,7 @@ import {
 } from "../../hooks/filters/UseDateRange";
 
 export enum StyleClass {
-    CONTAINER = "grid-container filter-container",
+    CONTAINER = "filter-container",
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 

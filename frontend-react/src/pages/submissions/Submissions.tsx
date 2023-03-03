@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
@@ -16,16 +17,16 @@ function SubmissionHistoryContent() {
     const { description } = orgDetails || {};
 
     return (
-        <>
-            <Helmet>
-                <title>{FeatureName.SUBMISSIONS}</title>
-            </Helmet>
-            <section className="grid-container margin-top-5">
+        <GridContainer containerSize="widescreen">
+            <article className="padding-top-5">
+                <Helmet>
+                    <title>{FeatureName.SUBMISSIONS}</title>
+                </Helmet>
                 <Title title="Submission History" preTitle={description} />
-            </section>
-            <SubmissionTable />
-            <HipaaNotice />
-        </>
+                <SubmissionTable />
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 }
 

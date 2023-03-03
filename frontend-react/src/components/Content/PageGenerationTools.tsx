@@ -9,7 +9,7 @@ export const contentContainer = (
     crumbs: CrumbConfig[]
 ) => {
     const wrappedElement = (
-        <div className="grid-container rs-documentation usa-prose">
+        <div className="rs-documentation usa-prose">
             <Content />
         </div>
     );
