@@ -52,7 +52,7 @@ exports[`Pagination Renders the expected markup when the current page is between
       </li>
       <li
         class="usa-pagination__item usa-pagination__overflow"
-        role="presentation"
+        role="listitem presentation"
       >
         <span>
           …
@@ -109,7 +109,7 @@ exports[`Pagination Renders the expected markup when the current page is between
       </li>
       <li
         class="usa-pagination__item usa-pagination__overflow"
-        role="presentation"
+        role="listitem presentation"
       >
         <span>
           …
