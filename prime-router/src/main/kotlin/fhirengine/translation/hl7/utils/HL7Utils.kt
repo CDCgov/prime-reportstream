@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -21,71 +20,71 @@ object HL7Utils : Logging {
     private const val defaultHl7EncodingChars = "^~\\&#"
 
     /**
-     * The supported HL7 output messages.
+     * Gets a new object for the given [hl7Class].
+     * @return a message object
      */
-    enum class SupportedMessages(val type: Class<*>) {
-        ORU_R01_2_5_1(ORU_R01::class.java);
+    internal fun getMessage(hl7Class: String): Message {
+        return try {
+            val message = Class.forName(hl7Class).getDeclaredConstructor().newInstance()
+            if (message is Message) {
+                getMessageTypeString(message) // Just check we can get the type string
+                message
+            } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+        } catch (e: Exception) {
+            throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
+        }
+    }
 
-        /**
-         * Get an instance of a message.
-         * @return an instance of a supported message
-         */
-        fun getMessageInstance(): Message {
-            val message = type.getDeclaredConstructor().newInstance()
-            if (message !is Message)
-                throw IllegalArgumentException("Type ${type.name} is not of type ca.uhn.hl7v2.model.Message.")
+    /**
+     * Gets the type string for the given [message].
+     * @return a list with the message code and trigger event, or an empty list if the type could not be determined
+     */
+    internal fun getMessageTypeString(message: Message): List<String> {
+        val typeParts = message.javaClass.simpleName.split("_")
+        return if (typeParts.size != 2)
+            throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
+        else typeParts
+    }
 
-            // Add some default fields.  Note these could still be overridden in the schema
-            try {
-                val typeParts = type.simpleName.split("_")
-                check(typeParts.size == 2)
-                val terser = Terser(message)
-                val msh2Length = terser.getSegment("MSH").getLength(2)
+    /**
+     * Checks if a specific HL7 message [hl7Class] is supported.
+     * @return true if the HL7 message is supported, false otherwise
+     */
+    fun supports(hl7Class: String): Boolean {
+        return try {
+            getMessage(hl7Class)
+            true
+        } catch (e: java.lang.IllegalArgumentException) {
+            false
+        }
+    }
+
+    /**
+     * Get an instance of a message.
+     * @return an instance of a supported message
+     */
+    fun getMessageInstance(hl7Class: String): Message {
+        val message = getMessage(hl7Class)
+
+        // Add some default fields.  Note these could still be overridden in the schema
+        try {
+            val typeParts = getMessageTypeString(message)
+            val terser = Terser(message)
+            terser.getSegment("MSH").let {
+                val msh2Length = it.getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
                 terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
                 terser.set("MSH-9-1", typeParts[0])
                 terser.set("MSH-9-2", typeParts[1])
-                terser.set("MSH-9-3", type.simpleName)
+                terser.set("MSH-9-3", "${typeParts[0]}_${typeParts[1]}")
                 terser.set("MSH-12", message.version)
-            } catch (e: HL7Exception) {
-                logger.error("Could not set MSH delimiters.", e)
-                throw e
             }
-
-            // Sanity check: Check to make sure a mistake was not made when adding types.
-            return message
+        } catch (e: HL7Exception) {
+            logger.error("Could not set MSH delimiters.", e)
+            throw e
         }
 
-        companion object {
-            /**
-             * Get an instance of a message for the given HL7 message [type] and [version].
-             * @return an instance of a supported message
-             */
-            fun getMessageInstance(type: String, version: String): Message? {
-                val messageType = SupportedMessages.values().firstOrNull {
-                    it.getMessageInstance().version == version && it.type.simpleName == type
-                }
-                return messageType?.getMessageInstance()
-            }
-
-            /**
-             * Checks is a specific HL7 message [type] and [version] is supported.
-             * @return true if the HL7 message is supported, false otherwise
-             */
-            fun supports(type: String, version: String): Boolean {
-                return SupportedMessages.values()
-                    .any { it.getMessageInstance().version == version && it.type.simpleName == type }
-            }
-
-            /**
-             * Gets a list of comma separated HL7 message types and versions.  Useful for log messages.
-             * @return a comma separated list of supported HL7 types and versions (e.g. ORU_R01(2.5.1))
-             */
-            fun getSupportedListAsString(): String {
-                return SupportedMessages.values().joinToString(", ") {
-                    "${it.type.simpleName}(${it.getMessageInstance().version})"
-                }
-            }
-        }
+        // Sanity check: Check to make sure a mistake was not made when adding types.
+        return message
     }
 }
