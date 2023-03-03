@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
@@ -279,6 +280,14 @@ class ActionHistory(
             httpStatus.toString() +
                 if (responseBody != null) ": $responseBody" else ""
         )
+    }
+
+    /**
+     * Track the response result of an action by using its [httpStatus] and a [msg].
+     */
+    fun trackActionResult(httpStatus: HttpStatusCode, msg: String? = null) {
+        action.httpStatus = httpStatus.value
+        trackActionResult(msg ?: "")
     }
 
     /**

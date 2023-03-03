@@ -21,6 +21,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -36,6 +37,7 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
@@ -109,7 +111,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
                     // post the report
                     val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
-                    val responseBody = postReport(
+                    val response = postReport(
                         reportContent,
                         fileName,
                         restTransportInfo.reportUrl,
@@ -117,10 +119,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         logger,
                         reportClient
                     )
+                    val responseBody = response.bodyAsText()
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
                     logger.info("Message successfully sent!")
-                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackActionResult(response.status, msg)
                     actionHistory.trackSentReport(
                         receiver,
                         sentReportId,
@@ -156,7 +159,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         )
                     }
                     actionHistory.setActionType(TaskAction.send_error)
-                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackActionResult(t.response.status, msg)
                     null
                 }
                 is ServerResponseException -> {
@@ -172,14 +175,18 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         )
                     }
                     actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(msg)
+                    actionHistory.trackActionResult(t.response.status, msg)
                     RetryToken.allItems
                 }
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
                     actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(msg)
+                    if (t is ResponseException) {
+                        actionHistory.trackActionResult(t.response.status, msg)
+                    } else {
+                        actionHistory.trackActionResult(msg)
+                    }
                     RetryToken.allItems
                 }
             }
@@ -386,11 +393,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         headers: Map<String, String>,
         logger: Logger,
         httpClient: HttpClient
-    ): String {
+    ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
         httpClient.use { client ->
-            val theResponse: String = client.post(restUrl) {
+            val theResponse: HttpResponse = client.post(restUrl) {
                 logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
                 postHeaders(
@@ -426,7 +433,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 )
                 accept(ContentType.Application.Json)
-            }.bodyAsText()
+            }
             return theResponse
         }
     }

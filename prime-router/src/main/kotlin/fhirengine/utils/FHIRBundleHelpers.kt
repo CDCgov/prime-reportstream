@@ -22,10 +22,11 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
-    const val observationUrl = "http://hl7.org/fhir/StructureDefinition/Observation"
+    const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
 
     /**
-     * Adds [receiverList] to the [fhirBundle] as targets
+     * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
+     * to determine which observation extensions to add to each receiver.
      */
     internal fun addReceivers(
         fhirBundle: Bundle,
@@ -181,11 +182,9 @@ object FHIRBundleHelpers {
     }
 
     /**
-     * Gets the observation extensions for those observations that pass the condition filter, unless they all pass for
-     * a diagnostic report
-     * @param fhirBundle the bundle will hold the actual value that %testPerformedCodes will evaluate to
-     * @param receiver the receiver is used to get the condition filter(s)
-     * @param shortHandLookupTable used to get the %testPerformedCodes and its associated fhir path
+     * Gets the observation extensions for those observations that pass the condition filter for a [receiver]
+     * The [fhirBundle] and [shortHandLookupTable] will be used to evaluate whether the observation passes the filter
+     *
      * @return is a list of extensions to add to the bundle
      */
     internal fun getObservationExtensions(
@@ -215,7 +214,7 @@ object FHIRBundleHelpers {
             if (passes) {
                 observationsToKeep.add(
                     Extension(
-                        observationUrl,
+                        conditionExtensionurl,
                         Reference(observation.idBase)
                     )
                 )
