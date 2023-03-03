@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
@@ -68,11 +68,11 @@ describe("useMessageDetails", () => {
             isUserSender: false,
         });
 
-        const { result, waitForNextUpdate } = renderHook(
-            () => useMessageDetails("11"),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useMessageDetails("11"), {
+            wrapper: QueryWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.messageDetails?.id).toEqual(11)
         );
-        await waitForNextUpdate();
-        expect(result.current.messageDetails?.id).toEqual(11);
     });
 });

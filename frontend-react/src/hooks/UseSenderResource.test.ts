@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
@@ -50,12 +50,12 @@ describe("useSenderResource", () => {
             isUserReceiver: false,
             isUserSender: true,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useSenderResource(),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useSenderResource(), {
+            wrapper: QueryWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.senderDetail).toEqual(dummySender)
         );
-        await waitForNextUpdate();
-        expect(result.current.senderDetail).toEqual(dummySender);
         expect(result.current.senderIsLoading).toEqual(false);
     });
 });

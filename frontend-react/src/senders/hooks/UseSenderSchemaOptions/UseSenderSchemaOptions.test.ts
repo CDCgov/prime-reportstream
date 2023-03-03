@@ -1,4 +1,4 @@
-import { renderHook, RenderHookResult } from "@testing-library/react-hooks";
+import { renderHook, RenderHookResult } from "@testing-library/react";
 
 import { QueryWrapper } from "../../../utils/CustomRenderUtils";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";

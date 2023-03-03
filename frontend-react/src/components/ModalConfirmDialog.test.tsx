@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import React, { Ref, useRef } from "react";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 

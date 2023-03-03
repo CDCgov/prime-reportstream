@@ -9,55 +9,38 @@ import Pagination, {
 } from "./Pagination";
 
 describe("Pagination", () => {
-    // Text match for getting pagination elements by role to capture previous
-    // and next links, page numbers, and overflow indicators (which are for
-    // presentation).
-    const ITEM_ROLE = /listitem|presentation/i;
-
     test.each([
         {
             description: "on the first page of an unbounded set",
             slots: [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR],
             currentPageNum: 1,
-            expectedItems: ["1", "2", "3", "4", "5", "6", "…", "Next"],
         },
         {
             description: "on the second page of an unbounded set",
             slots: [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR],
             currentPageNum: 2,
-            expectedItems: [
-                "Previous",
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "…",
-                "Next",
-            ],
         },
         {
             description: "on the first page of a bounded set",
             slots: [1, 2],
             currentPageNum: 1,
-            expectedItems: ["1", "2", "Next"],
         },
         {
             description: "on the last page of a bounded set",
             slots: [1, 2],
             currentPageNum: 2,
-            expectedItems: ["Previous", "1", "2"],
         },
         {
             description: "when there is only one page",
             slots: [1],
             currentPageNum: 1,
-            expectedItems: ["1"],
         },
     ])(
         "Handles Previous and Next links $description",
-        ({ slots, currentPageNum, expectedItems }) => {
+        ({ slots, currentPageNum }) => {
+            const isNext = currentPageNum < slots.length;
+            const isPrev = currentPageNum > 1;
+            const isOverflow = slots.includes(OVERFLOW_INDICATOR);
             const props: PaginationProps = {
                 slots: slots as SlotItem[],
                 currentPageNum,
@@ -66,10 +49,34 @@ describe("Pagination", () => {
             renderWithBase(<Pagination {...props} />);
 
             const list = screen.getByRole("list");
-            const { getAllByRole } = within(list);
-            const items = getAllByRole(ITEM_ROLE);
-            const itemContents = items.map((item) => item.textContent);
-            expect(itemContents).toStrictEqual(expectedItems);
+            const { getAllByRole, getByRole } = within(list);
+            const items = getAllByRole("listitem");
+            const currentItem = getAllByRole("button").find((ele) =>
+                ele.hasAttribute("aria-current")
+            )?.parentElement;
+
+            if (isOverflow) {
+                const overflow = getByRole("presentation");
+                expect(overflow).toHaveTextContent(OVERFLOW_INDICATOR);
+            }
+
+            for (const [i, ele] of items.entries()) {
+                let expectedText;
+
+                if (i === 0 && isPrev) {
+                    expectedText = "Previous";
+                } else if (i === items.length - 1 && isNext) {
+                    expectedText = "Next";
+                } else {
+                    expectedText = isPrev ? i.toString() : (i + 1).toString();
+                }
+
+                if (expectedText === currentPageNum.toString()) {
+                    expect(ele).toStrictEqual(currentItem);
+                }
+
+                expect(ele).toHaveTextContent(expectedText);
+            }
         }
     );
 

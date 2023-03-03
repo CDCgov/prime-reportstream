@@ -1,7 +1,7 @@
 import classnames from "classnames";
 import { Button, Icon } from "@trussworks/react-uswds";
 
-export const OVERFLOW_INDICATOR = Symbol("…");
+export const OVERFLOW_INDICATOR = "…";
 export type SlotItem = number | typeof OVERFLOW_INDICATOR;
 
 const PaginationOverflow: React.FC = () => (
