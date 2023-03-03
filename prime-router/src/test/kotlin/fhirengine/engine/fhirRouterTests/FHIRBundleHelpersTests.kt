@@ -47,7 +47,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.lang.IllegalStateException
 import java.util.UUID
-import kotlin.streams.toList
+import java.util.stream.Collectors
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -363,12 +363,12 @@ class FHIRBundleHelpersTests {
 
         // Check that diagnostic report has multiple observations
         // and contains the observation being removed
-        assertThat(diagnosticReport.getResourceReferences().count()> 1).isTrue()
+        assertThat(diagnosticReport.getResourceReferences().count() > 1).isTrue()
         assertThat(diagnosticReport.getResourceReferences().contains(observation.idBase)).isTrue()
         messages[0].deleteResource(observation)
         // Check that the diagnostic report still has multiple observations and
         // no longer contains the observation removed
-        assertThat(diagnosticReport.getResourceReferences().count()> 1).isTrue()
+        assertThat(diagnosticReport.getResourceReferences().count() > 1).isTrue()
         assertThat(diagnosticReport.getResourceReferences().contains(observation.idBase)).isFalse()
     }
 
@@ -453,7 +453,7 @@ class FHIRBundleHelpersTests {
         diagnosticReport.result.add(reference)
         val property = Property("Diagnostic Report", null, null, 0, 0, diagnosticReport)
 
-        assertThat(FHIRBundleHelpers.getChildProperties(property).toList()).isNotEmpty()
+        assertThat(FHIRBundleHelpers.getChildProperties(property).collect(Collectors.toList())).isNotEmpty()
     }
 
     @Test

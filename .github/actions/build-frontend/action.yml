@@ -59,7 +59,7 @@ runs:
 
     - name: SonarCloud Scan
       if: inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
-      uses: sonarsource/sonarcloud-github-action@cb201f3b2d7a38231a8c042dfea4539c8bea180b
+      uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
