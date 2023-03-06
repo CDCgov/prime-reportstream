@@ -146,9 +146,32 @@ class FHIRBundleHelpersTests {
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
-        val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        val receiversOut = outs.map { it.resource }
+            .filterIsInstance<Endpoint>().map { it.identifier[0].value }
+        assertThat(receiversOut).isNotEmpty()
+        assertThat(receiversOut[0]).isEqualTo("co-phd.full-elr-hl7")
+    }
+
+    @Test
+    fun `test adding diagnosticreport references to bundle`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // act
+        FHIRBundleHelpers.addProvenanceReference(bundle)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val references = outs.filterNot { it.resource is Endpoint }
+            .map { it.reference as String }
+            .filter { it.substringBefore(delimiter = "/", missingDelimiterValue = "none") == "DiagnosticReport" }
+        assertThat(references).isNotEmpty()
     }
 
     @Test
@@ -164,7 +187,7 @@ class FHIRBundleHelpersTests {
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assert(receiversOut.isEmpty())
+        assertThat(receiversOut).isEmpty()
     }
 
     @Test
@@ -180,8 +203,8 @@ class FHIRBundleHelpersTests {
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        assertThat(receiversOut).isNotEmpty()
+        assertThat(receiversOut[0]).isEqualTo("co-phd.full-elr-hl7")
     }
 
     @Test
@@ -444,6 +467,34 @@ class FHIRBundleHelpersTests {
         observation.id = "test"
 
         assertFailsWith<IllegalStateException> { messages[0].deleteResource(observation) }
+    }
+
+    @Test
+    fun `Test manipulating bundle without provenance`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        val receiversIn = listOf(oneOrganization.receivers[0])
+        assertThat(bundle).isNotNull()
+        val provenance = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Provenance)"
+        )[0]
+        assertThat(provenance).isNotNull()
+        bundle.deleteResource(provenance)
+
+        // assert
+        assertFailsWith<IllegalStateException> {
+            FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        }
+        assertFailsWith<IllegalStateException> {
+            FHIRBundleHelpers.addProvenanceReference(bundle)
+        }
     }
 
     @Test
