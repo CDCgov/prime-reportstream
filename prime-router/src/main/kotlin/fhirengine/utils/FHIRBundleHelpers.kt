@@ -2,12 +2,14 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Property
@@ -20,10 +22,17 @@ import java.util.stream.Stream
  * A collection of helper functions that modify an existing FHIR bundle.
  */
 object FHIRBundleHelpers {
+    const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDefinition/reportable-condition"
+
     /**
-     * Adds [receiverList] to the [fhirBundle] as targets
+     * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
+     * to determine which observation extensions to add to each receiver.
      */
-    internal fun addReceivers(fhirBundle: Bundle, receiverList: List<Receiver>) {
+    internal fun addReceivers(
+        fhirBundle: Bundle,
+        receiverList: List<Receiver>,
+        shortHandLookupTable: MutableMap<String, String>
+    ) {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
@@ -36,6 +45,8 @@ object FHIRBundleHelpers {
         // check all active customers for receiver data
         receiverList.filter { it.customerStatus != CustomerStatus.INACTIVE }.forEach { receiver ->
             val endpoint = Endpoint()
+            getObservationExtensions(fhirBundle, receiver, shortHandLookupTable).forEach { endpoint.addExtension(it) }
+
             endpoint.id = Hl7RelatedGeneralUtils.generateResourceId()
             endpoint.name = receiver.displayName
             when (receiver.customerStatus) {
@@ -168,5 +179,51 @@ object FHIRBundleHelpers {
         when (resource) {
             is Observation -> getDiagnosticReportNoObservations(this).forEach { this.deleteResource(it) }
         }
+    }
+
+    /**
+     * Gets the observation extensions for those observations that pass the condition filter for a [receiver]
+     * The [fhirBundle] and [shortHandLookupTable] will be used to evaluate whether the observation passes the filter
+     *
+     * @return is a list of extensions to add to the bundle
+     */
+    internal fun getObservationExtensions(
+        fhirBundle: Bundle,
+        receiver: Receiver,
+        shortHandLookupTable: MutableMap<String, String>
+    ): List<Extension> {
+        val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+        val allObservations = FhirPathUtils.evaluate(
+            CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
+            fhirBundle,
+            fhirBundle,
+            allObservationsExpression
+        )
+
+        val observationsToKeep = mutableListOf<Extension>()
+        allObservations.forEach { observation ->
+            val passes = receiver.conditionFilter.all { conditionFilter ->
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(fhirBundle, observation, shortHandLookupTable),
+                    observation,
+                    fhirBundle,
+                    conditionFilter
+                )
+            }
+
+            if (passes) {
+                observationsToKeep.add(
+                    Extension(
+                        conditionExtensionurl,
+                        Reference(observation.idBase)
+                    )
+                )
+            }
+        }
+
+        if (observationsToKeep.size == allObservations.size) {
+            return listOf()
+        }
+        return observationsToKeep
     }
 }
