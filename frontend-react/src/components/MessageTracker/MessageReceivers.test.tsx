@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import {
     FilterOption,
@@ -114,9 +114,7 @@ describe("sortMessages function", () => {
 
 describe("MessageReceivers component", () => {
     test("renders expected content", async () => {
-        renderWithBase(
-            <MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />
-        );
+        renderApp(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
         expect(screen.getAllByText(/Name/)[0]).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { ReactNode, useMemo } from "react";
 import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
@@ -6,12 +6,9 @@ import {
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import {
-    ErrorCodeTranslation,
-    ResponseError,
-} from "../../config/endpoints/waters";
+import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USLink } from "../USLink";
+import { USLink, USExtLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -140,14 +137,6 @@ export const RequestedChangesDisplay = ({
         data.length &&
         data.some((responseItem) => responseItem.message);
 
-    useEffect(() => {
-        data.forEach((error: ResponseError) => {
-            if (title === RequestLevel.ERROR && error.details) {
-                console.error(`failure: ${error.details}`);
-            }
-        });
-    }, [data, title]);
-
     return (
         <>
             <StaticAlert type={alertType} heading={heading} message={message}>
@@ -220,21 +209,123 @@ export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
     );
 };
 
+const HL7_PRODUCT_MATRIX_URL =
+    "https://www.hl7.org/implement/standards/product_brief.cfm";
+const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
+
+export type ValidationErrorMessageProps = {
+    errorCode: ErrorCode;
+    field?: string;
+    message?: string;
+};
+
+export function ValidationErrorMessage({
+    errorCode,
+    field,
+    message,
+}: ValidationErrorMessageProps) {
+    let child: ReactNode;
+
+    switch (errorCode) {
+        case ErrorCode.INVALID_MSG_PARSE_BLANK:
+            child = (
+                <>
+                    Blank message(s) found within file. Blank messages cannot be
+                    processed.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_TYPE_MISSING:
+            child = (
+                <>
+                    Missing required HL7 message type field MSH-9. Fill in the
+                    blank field before resubmitting.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED:
+            child = (
+                <>
+                    We found an unsupported HL7 message type. Please reformat to
+                    ORU-RO1. Refer to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>{" "}
+                    for more details.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID:
+            child = (
+                <>
+                    Invalid HL7 message format. Check your formatting by
+                    referring to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>
+                    .
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_MSG_PARSE_DATETIME:
+            child = <>Reformat {field} as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.</>;
+            break;
+        case ErrorCode.INVALID_MSG_PARSE_TELEPHONE:
+            child = (
+                <>
+                    Reformat phone number to a 10-digit phone number (e.g. (555)
+                    555-5555).
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_VALIDATION:
+            child = (
+                <>
+                    Reformat {field} to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>
+                    .
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_MSG_MISSING_FIELD:
+            child = <>Fill in the required field {field}.</>;
+            break;
+        case ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING:
+            child = (
+                <>
+                    Reformat field {field}. Refer to{" "}
+                    <USExtLink href={CDC_LIVD_CODES_URL}>
+                        CDC LIVD table LOINC mapping spreadsheet
+                    </USExtLink>{" "}
+                    for acceptable values.
+                </>
+            );
+            break;
+        default:
+            child = <>{message || ""}</>;
+            break;
+    }
+
+    return <p data-testid="ValidationErrorMessage">{child}</p>;
+}
+
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
 }
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { message, field, errorCode, trackingIds } = error;
+    const { errorCode, field, message, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
             <td>
-                {errorCode &&
-                errorCode !== "UNKNOWN" &&
-                ErrorCodeTranslation[errorCode]
-                    ? ErrorCodeTranslation[errorCode]
-                    : message}
+                <ValidationErrorMessage
+                    errorCode={errorCode}
+                    field={field}
+                    message={message}
+                />
             </td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">

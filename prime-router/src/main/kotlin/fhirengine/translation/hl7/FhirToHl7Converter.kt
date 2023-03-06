@@ -73,12 +73,9 @@ class FhirToHl7Converter(
      */
     fun convert(bundle: Bundle): Message {
         // Sanity check, but the schema is assumed good to go here
-        check(!schemaRef.hl7Type.isNullOrBlank())
-        check(!schemaRef.hl7Version.isNullOrBlank())
-        val message = HL7Utils.SupportedMessages.getMessageInstance(schemaRef.hl7Type!!, schemaRef.hl7Version!!)
+        check(!schemaRef.hl7Class.isNullOrBlank())
+        val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
-        // Sanity check, but at this point we know we have a good schema
-        check(message != null)
         terser = Terser(message)
         val dupes = schemaRef.duplicateElements
         if (dupes.isNotEmpty()) { // value is the number of matches

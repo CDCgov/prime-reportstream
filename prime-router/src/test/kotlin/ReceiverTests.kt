@@ -42,7 +42,7 @@ internal class ReceiverTests {
             organizationName = "IGNORE",
             topic = Topic.FULL_ELR,
             customerStatus = CustomerStatus.INACTIVE,
-            conditionFilter = listOf("blah"),
+            conditionFilter = listOf("%testPerformedCodes.intersect('123-0'|'600-7').exists()"),
             translation = translatorConfig,
             externalName = "Ignore ELR"
         )

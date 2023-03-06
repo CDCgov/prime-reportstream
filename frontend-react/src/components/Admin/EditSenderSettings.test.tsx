@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { rest } from "msw";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
@@ -16,6 +16,7 @@ let editJsonAndSaveButton: HTMLElement;
 let nameField: HTMLElement;
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -30,6 +31,7 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
     },
@@ -77,7 +79,7 @@ describe("EditSenderSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithBase(<EditSenderSettings />);
+        renderApp(<EditSenderSettings />);
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });

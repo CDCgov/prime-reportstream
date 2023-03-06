@@ -106,7 +106,7 @@ object FhirPathUtils : Logging {
             // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
-                is SchemaException -> e.message ?: "Condition error in FHIR Path expression $expression"
+                is SchemaException -> throw e
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                         "Setting value of condition to false."

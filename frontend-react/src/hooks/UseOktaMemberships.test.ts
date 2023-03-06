@@ -1,5 +1,5 @@
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 
 import { mockToken } from "../utils/TestUtils";
 

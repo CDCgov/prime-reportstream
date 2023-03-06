@@ -2,11 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
-import {
-    renderWithRouter,
-    renderWithCustomWrapper,
-    renderWithBase,
-} from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
@@ -130,20 +126,20 @@ const FilteredTable = () => {
 
 describe("Table, basic tests", () => {
     test("Info renders", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Test Action")).toBeInTheDocument();
         expect(screen.getByText("Simple Legend")).toBeInTheDocument();
         expect(screen.getByText("Simple Table")).toBeInTheDocument();
     });
 
     test("DatasetAction fires onClick", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         fireEvent.click(screen.getByText("Test Action"));
         expect(mockAction).toHaveBeenCalledTimes(1);
     });
 
     test("Column names render", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         const idHeader = screen.getByText("Id");
         const itemHeader = screen.getByText("Item");
 
@@ -152,21 +148,21 @@ describe("Table, basic tests", () => {
     });
 
     test("Row values render", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getAllByRole("columnheader").length).toEqual(9);
         expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
         expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
 
     test("Edit button column renders and operates", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getAllByText("Edit").length).toEqual(10);
         fireEvent.click(screen.getAllByText("Edit")[0]);
         expect(screen.getAllByRole("textbox").length).toEqual(1);
     });
 
     test("Link columns are rendered as links", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         const linkInCell = screen.getByText("UUID-1");
         expect(linkInCell).toContainHTML(
             '<a class="usa-link" href="/base/UUID-1">UUID-1</a>'
@@ -174,19 +170,19 @@ describe("Table, basic tests", () => {
     });
 
     test("Map columns use mapped value", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Mapped Item")).toBeInTheDocument();
     });
 
     test("Transform columns use transformed value", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Transformed Value")).toBeInTheDocument();
     });
 });
 
 describe("Sorting integration", () => {
     test("(Locally) Sorting swaps on header click", () => {
-        renderWithRouter(<FilteredTable />);
+        renderApp(<FilteredTable />);
         const header = screen.getByText("Locallysortedcolumn");
         // click header
         fireEvent.click(header);
@@ -210,7 +206,7 @@ describe("Sorting integration", () => {
     });
 
     test("(Server) Sorting swaps on header click", () => {
-        renderWithRouter(<FilteredTable />);
+        renderApp(<FilteredTable />);
         const header = screen.getByText("Sortedcolumn");
         // click header
         fireEvent.click(header);
@@ -238,7 +234,7 @@ describe("Sorting integration", () => {
  *   Refactor these tests to use new functions instead of TestTable
  * */
 describe("Table, filter integration tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
+    beforeEach(() => renderApp(<TestTable />));
     test("date range selection and clearing", async () => {
         /* Workaround to assert changing state */
         const defaultState =
@@ -457,16 +453,17 @@ describe("ColumnData", () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeUpdate = jest.fn(() => Promise.resolve());
-        renderWithCustomWrapper(
-            <ColumnData
-                rowIndex={0}
-                colIndex={7} // this is the editable column
-                rowData={fakeRows}
-                columnConfig={fakeColumns[7]} // this is the editable column
-                editing={true}
-                setUpdatedRow={fakeUpdate}
-            />,
-            "tr"
+        renderApp(
+            <tr>
+                <ColumnData
+                    rowIndex={0}
+                    colIndex={7} // this is the editable column
+                    rowData={fakeRows}
+                    columnConfig={fakeColumns[7]} // this is the editable column
+                    editing={true}
+                    setUpdatedRow={fakeUpdate}
+                />
+            </tr>
         );
 
         // update value
@@ -488,7 +485,7 @@ describe("ColumnData", () => {
 
 describe("Adding New Rows", () => {
     test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", async () => {
-        renderWithBase(<TestTable linkable={false} editable={true} />);
+        renderApp(<TestTable linkable={false} editable={true} />);
 
         let rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(3); // 2 data rows and 1 header row
@@ -501,7 +498,7 @@ describe("Adding New Rows", () => {
     });
 
     test("All fields on new editable row are editable", async () => {
-        renderWithBase(<TestTable linkable={false} editable={true} />);
+        renderApp(<TestTable linkable={false} editable={true} />);
 
         const addRowButton = screen.getByText("Test Action");
         await userEvent.click(addRowButton);
