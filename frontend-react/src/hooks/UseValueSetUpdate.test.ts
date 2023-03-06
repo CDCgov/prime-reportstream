@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 
 import { useValueSetUpdate } from "./UseValueSets";
 
@@ -17,13 +17,13 @@ describe("useValueSetUpdate", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    const renderWithQueryWrapper = () =>
+    const renderWithAppWrapper = () =>
         renderHook(() => useValueSetUpdate(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
 
     test("returns trigger and loading indicator", async () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         const { saveData, isSaving, saveError } = result.current;
         expect(isSaving).toEqual(false);
         expect(saveData).toBeInstanceOf(Function);
@@ -31,7 +31,7 @@ describe("useValueSetUpdate", () => {
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         const { saveData, isSaving } = result.current;
         expect(isSaving).toEqual(false);
 
