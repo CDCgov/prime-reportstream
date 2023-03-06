@@ -74,6 +74,8 @@ const StatusEnum = {
     READY: "READY",
 };
 
+const noDataString = "N/A";
+
 const MessageReceiversCol = ({
     columnHeaderTitle,
     activeColumn,
@@ -178,11 +180,14 @@ const MessageReceiversRow = ({
             <td className={getColumnClasses(ColumnDataEnum.Main)}>
                 <p
                     className={classnames(
-                        "font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0",
+                        "font-mono-sm padding-left-1 padding-right-1 margin-top-0",
                         {
-                            "bg-blue-5": uppercaseMain === StatusEnum.BATCH,
-                            "bg-blue-10": uppercaseMain === StatusEnum.PROCESS,
-                            "bg-blue-20": uppercaseMain === StatusEnum.READY,
+                            "bg-blue-5 border-1px bg-primary-lighter radius-md":
+                                uppercaseMain === StatusEnum.BATCH,
+                            "bg-blue-10 border-1px bg-primary-lighter radius-md":
+                                uppercaseMain === StatusEnum.PROCESS,
+                            "bg-blue-2 border-1px bg-primary-lighter radius-md":
+                                uppercaseMain === StatusEnum.READY,
                         }
                     )}
                 >
@@ -262,7 +267,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 (receiverItem: ReceiverData): NormalizedReceiverData => {
                     const formattedData = Object.keys(ColumnDataEnum).reduce(
                         (accumulator: any, currentValue: string) => {
-                            accumulator[currentValue] = "N/A";
+                            accumulator[currentValue] = noDataString;
                             return accumulator;
                         },
                         {}
@@ -296,19 +301,19 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 break;
                             case ColumnDataEnum.Main:
                                 const { folderLocation } = parseFileLocation(
-                                    receiverItem?.fileUrl || ""
+                                    receiverItem?.fileUrl || noDataString
                                 );
                                 formattedData.Main = folderLocation;
                                 break;
                             case ColumnDataEnum.Sub:
                                 const { sendingOrg } = parseFileLocation(
-                                    receiverItem?.fileUrl || ""
+                                    receiverItem?.fileUrl || noDataString
                                 );
                                 formattedData.Sub = sendingOrg;
                                 break;
                             case ColumnDataEnum.FileName:
                                 const { fileName } = parseFileLocation(
-                                    receiverItem?.fileUrl || ""
+                                    receiverItem?.fileUrl || noDataString
                                 );
                                 formattedData.FileName = fileName;
                                 break;
