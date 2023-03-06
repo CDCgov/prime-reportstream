@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
@@ -26,11 +26,11 @@ describe("useReportsList", () => {
             isUserReceiver: true,
             isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useReportsDetail("123"),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useReportsDetail("123"), {
+            wrapper: QueryWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.reportDetail?.reportId).toEqual("123")
         );
-        await waitForNextUpdate();
-        expect(result.current.reportDetail?.reportId).toEqual("123");
     });
 });

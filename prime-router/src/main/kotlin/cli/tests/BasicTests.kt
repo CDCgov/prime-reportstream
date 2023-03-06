@@ -121,6 +121,8 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check route step
             val convertReportId = getSingleChildReportId(reportId)
+                ?: return bad("***async end2end_up FAILED***: Convert report id null")
+
             val routeResults = pollForStepResult(convertReportId, TaskAction.route)
             // verify each result is valid
             for (result in routeResults.values)
@@ -130,6 +132,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check translate step
             val routeReportId = getSingleChildReportId(convertReportId)
+                ?: return bad("***async end2end_up FAILED***: Route report id null")
             val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
             // verify each result is valid
             for (result in translateResults.values)
@@ -139,6 +142,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check batch step
             val translateReportId = getSingleChildReportId(routeReportId)
+                ?: return bad("***async end2end_up FAILED***: Translate report id null")
             val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
             // verify each result is valid
             for (result in batchResults.values)
@@ -148,6 +152,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check send step
             val batchReportId = getSingleChildReportId(translateReportId)
+                ?: return bad("***async end2end_up FAILED***: Convert report id null")
             val sendResults = pollForStepResult(batchReportId, TaskAction.send)
             // verify each result is valid
             for (result in sendResults.values)
@@ -276,6 +281,7 @@ class End2End : CoolTest() {
         if (reportId != null) {
             // gets back the id of the internal report
             val internalReportId = getSingleChildReportId(reportId)
+                ?: return bad("***end2end FAILED***: Single Child Report ID null")
 
             val processResults = pollForStepResult(internalReportId, TaskAction.process)
             // verify each result is valid
@@ -834,6 +840,7 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: Report id null")
 
                 val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
@@ -875,6 +882,7 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId2 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: InternalReportId2 report id null")
 
                 val processResults2 = pollForStepResult(internalReportId2, TaskAction.process)
                 // verify each result is valid
@@ -916,6 +924,7 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId3 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: InternalReportId3 report id null")
 
                 val processResults3 = pollForStepResult(internalReportId3, TaskAction.process)
                 // verify each result is valid
@@ -957,6 +966,7 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId4 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: internalReportId4 report id null")
 
                 val processResults4 = pollForStepResult(internalReportId4, TaskAction.process)
                 // verify each result is valid
@@ -1331,6 +1341,7 @@ class OtcProctored : CoolTest() {
                     if (reportId != null) {
                         // gets back the id of the internal report
                         val internalReportId = getSingleChildReportId(reportId)
+                            ?: return bad("***otcproctored FAILED***: Internal report id null")
 
                         val processResults = pollForStepResult(internalReportId, TaskAction.process)
                         // verify each result is valid

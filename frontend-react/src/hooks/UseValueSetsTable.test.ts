@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
@@ -17,9 +17,7 @@ describe("useValueSetsTable", () => {
     afterAll(() => lookupTableServer.close());
 
     test("returns expected data values when fetching table version", async () => {
-        const { result, waitFor } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET
-        );
+        const { result } = renderWithQueryWrapper(LookupTables.VALUE_SET);
 
         await waitFor(() => !!result.current.valueSetArray.length);
         const { name, system } = result.current.valueSetArray[0];
