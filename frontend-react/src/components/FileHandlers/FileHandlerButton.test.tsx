@@ -1,12 +1,12 @@
 import { screen, fireEvent } from "@testing-library/react";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
 describe("FileHandlerSubmitButton", () => {
     test("renders a submit button with proper props", async () => {
-        renderWithBase(
+        renderApp(
             <FileHandlerSubmitButton
                 submitted={false}
                 disabled={false}
@@ -23,7 +23,7 @@ describe("FileHandlerSubmitButton", () => {
 
     test("renders a reset button with proper props", async () => {
         const resetSpy = jest.fn();
-        renderWithBase(
+        renderApp(
             <FileHandlerSubmitButton
                 submitted={true}
                 disabled={false}
@@ -44,7 +44,7 @@ describe("FileHandlerSubmitButton", () => {
     });
 
     test("renders a disabled button with proper props", async () => {
-        renderWithBase(
+        renderApp(
             <FileHandlerSubmitButton
                 submitted={false}
                 disabled={true}

@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import Section from "./Section";
 
@@ -19,7 +19,7 @@ describe("Section rendering", () => {
     };
 
     beforeEach(() => {
-        renderWithRouter(<Section section={fakeSection} />);
+        renderApp(<Section section={fakeSection} />);
     });
 
     test("Section renders props", () => {
@@ -41,7 +41,7 @@ describe("CTA rendering", () => {
     };
 
     beforeEach(() => {
-        renderWithRouter(<Section section={fakeCtaSection} />);
+        renderApp(<Section section={fakeCtaSection} />);
     });
 
     test("Renders <CtaSection /> if type is cta", () => {
@@ -66,7 +66,7 @@ describe("Live Map rendering", () => {
     };
 
     beforeEach(() => {
-        renderWithRouter(<Section section={fakeLiveMapSection} />);
+        renderApp(<Section section={fakeLiveMapSection} />);
     });
 
     test("Renders <LiveMapSection /> if type is liveMap", () => {

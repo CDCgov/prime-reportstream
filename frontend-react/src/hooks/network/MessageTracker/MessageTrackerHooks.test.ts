@@ -6,7 +6,7 @@ import {
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -32,7 +32,7 @@ describe("useMessageSearch", () => {
         });
 
         const { result } = renderHook(() => useMessageSearch(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         let messages;
         await act(async () => {
@@ -69,7 +69,7 @@ describe("useMessageDetails", () => {
         });
 
         const { result } = renderHook(() => useMessageDetails("11"), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         await waitFor(() =>
             expect(result.current.messageDetails?.id).toEqual(11)

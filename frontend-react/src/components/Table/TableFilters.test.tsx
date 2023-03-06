@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
@@ -9,7 +9,7 @@ import TableFilters, { isValidDateString } from "./TableFilters";
 
 describe("Rendering", () => {
     beforeEach(() => {
-        renderWithRouter(
+        renderApp(
             <TableFilters
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
@@ -44,7 +44,7 @@ describe("when validating values", () => {
     let filterButtonNode: HTMLElement;
 
     beforeEach(() => {
-        renderWithRouter(
+        renderApp(
             <TableFilters
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
