@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import React, { useState } from "react";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";
 
 import { DropdownComponent, DropdownProps } from "./AdminFormEdit";
@@ -28,7 +28,7 @@ const DropdownComponentHelper = () => {
 
 describe("Render DropdownComponent", () => {
     beforeEach(() => {
-        renderWithBase(<DropdownComponentHelper />);
+        renderApp(<DropdownComponentHelper />);
     });
 
     test("Check data as object rendered", () => {

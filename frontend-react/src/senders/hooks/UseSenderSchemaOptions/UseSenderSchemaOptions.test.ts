@@ -1,6 +1,6 @@
 import { renderHook, RenderHookResult } from "@testing-library/react";
 
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
 import { CustomerStatus } from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
@@ -22,14 +22,14 @@ describe("useSenderSchemaOptions", () => {
         jest.spyOn(
             useSenderResourceExports,
             "useSenderResource"
-        ).mockReturnValueOnce({
+        ).mockReturnValue({
             senderDetail,
             senderIsLoading,
             isInitialLoading,
         });
 
         return renderHook(() => useSenderSchemaOptions(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
     }
 

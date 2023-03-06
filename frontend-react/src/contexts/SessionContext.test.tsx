@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { mockUseOktaMemberships } from "../hooks/__mocks__/UseOktaMemberships";
-import { renderWithSession } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import { useSessionContext } from "./SessionContext";
 
@@ -28,7 +28,7 @@ describe("SessionContext admin hard check", () => {
             },
             dispatch: () => {},
         });
-        renderWithSession(<TestComponent />);
+        renderApp(<TestComponent />);
         expect(screen.getByText("passed")).toBeInTheDocument();
     });
     test("admin hard check is false when user is not admin member type", () => {
@@ -42,7 +42,7 @@ describe("SessionContext admin hard check", () => {
             },
             dispatch: () => {},
         });
-        renderWithSession(<TestComponent />);
+        renderApp(<TestComponent />);
         expect(screen.getByText("failed")).toBeInTheDocument();
     });
 });

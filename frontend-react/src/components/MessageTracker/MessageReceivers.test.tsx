@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { MessageReceivers } from "./MessageReceivers";
 
@@ -31,9 +31,7 @@ describe("MessageReceivers component", () => {
                 qualityFilters: [],
             },
         ];
-        renderWithBase(
-            <MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />
-        );
+        renderApp(<MessageReceivers receiverDetails={MOCK_RECEIVER_DATA} />);
 
         expect(screen.getByText(/Receivers/)).toBeInTheDocument();
         expect(screen.getAllByText(/Name/)[0]).toBeInTheDocument();
