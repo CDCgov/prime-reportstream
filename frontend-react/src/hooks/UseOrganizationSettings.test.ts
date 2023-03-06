@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
@@ -31,7 +31,7 @@ describe("useOrganizationSettings", () => {
 
         test("returns undefined", () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: QueryWrapper(),
+                wrapper: AppWrapper(),
             });
             expect(result.current.data).toEqual(undefined);
             expect(result.current.isLoading).toEqual(true);
@@ -59,7 +59,7 @@ describe("useOrganizationSettings", () => {
 
         test("returns correct organization settings", async () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: QueryWrapper(),
+                wrapper: AppWrapper(),
             });
             await waitFor(() => expect(result.current.data).toEqual(fakeOrg));
             expect(result.current.isLoading).toEqual(false);
@@ -86,7 +86,7 @@ describe("useOrganizationSettings", () => {
 
         test("is disabled", async () => {
             const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: QueryWrapper(),
+                wrapper: AppWrapper(),
             });
             expect(result.current.fetchStatus).toEqual("idle");
             expect(result.current.status).toEqual("loading");

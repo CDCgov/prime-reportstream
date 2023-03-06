@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 
 import content from "../../content/content.json";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import Home from "./Home";
 
 describe("Home rendering", () => {
     beforeEach(() => {
-        renderWithRouter(<Home />);
+        renderApp(<Home />);
     });
 
     test("Container renders", () => {

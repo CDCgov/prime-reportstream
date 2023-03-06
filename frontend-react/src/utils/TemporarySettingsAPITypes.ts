@@ -7,9 +7,11 @@ enum Jurisdiction {
     COUNTY = "COUNTY",
 }
 
+// TODO: Consolidate with FileType in UseFileHandler.ts
 enum Format {
     CSV = "CSV",
     HL7 = "HL7",
+    FHIR = "FHIR",
 }
 
 enum CustomerStatus {
