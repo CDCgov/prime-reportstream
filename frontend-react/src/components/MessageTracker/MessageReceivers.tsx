@@ -74,7 +74,7 @@ const StatusEnum = {
     READY: "READY",
 };
 
-const noDataString = "N/A";
+const NO_DATA_STRING = "N/A";
 
 const MessageReceiversCol = ({
     columnHeaderTitle,
@@ -267,7 +267,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 (receiverItem: ReceiverData): NormalizedReceiverData => {
                     const formattedData = Object.keys(ColumnDataEnum).reduce(
                         (accumulator: any, currentValue: string) => {
-                            accumulator[currentValue] = noDataString;
+                            accumulator[currentValue] = NO_DATA_STRING;
                             return accumulator;
                         },
                         {}
@@ -301,19 +301,19 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                 break;
                             case ColumnDataEnum.Main:
                                 const { folderLocation } = parseFileLocation(
-                                    receiverItem?.fileUrl || noDataString
+                                    receiverItem?.fileUrl || NO_DATA_STRING
                                 );
                                 formattedData.Main = folderLocation;
                                 break;
                             case ColumnDataEnum.Sub:
                                 const { sendingOrg } = parseFileLocation(
-                                    receiverItem?.fileUrl || noDataString
+                                    receiverItem?.fileUrl || NO_DATA_STRING
                                 );
                                 formattedData.Sub = sendingOrg;
                                 break;
                             case ColumnDataEnum.FileName:
                                 const { fileName } = parseFileLocation(
-                                    receiverItem?.fileUrl || noDataString
+                                    receiverItem?.fileUrl || NO_DATA_STRING
                                 );
                                 formattedData.FileName = fileName;
                                 break;
