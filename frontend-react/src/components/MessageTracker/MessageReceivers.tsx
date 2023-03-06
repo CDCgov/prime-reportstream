@@ -34,7 +34,7 @@ export interface MessageReceiversRowProps {
 }
 
 export interface MessageReceiversColProps {
-    columnHeader: NormalizedReceiverKey;
+    columnKey: NormalizedReceiverKey;
     columnHeaderTitle: ColumnDataTitle;
     activeColumn?: NormalizedReceiverKey;
     setActiveColumn: (col: NormalizedReceiverKey) => void;
@@ -86,7 +86,7 @@ export const StatusEnum = {
 export type Status = (typeof StatusEnum)[keyof typeof StatusEnum];
 
 export const MessageReceiversCol = ({
-    columnHeader,
+    columnKey,
     columnHeaderTitle,
     activeColumn,
     setActiveColumn,
@@ -94,11 +94,11 @@ export const MessageReceiversCol = ({
     setActiveColumnSortOrder,
     rowSpan,
 }: MessageReceiversColProps) => {
-    const isCurrentlyActiveColumn = columnHeader === activeColumn;
+    const isCurrentlyActiveColumn = columnKey === activeColumn;
     const handleColHeaderClick = () => {
         if (!isCurrentlyActiveColumn) {
             // Reset active column and sort order on new column click
-            setActiveColumn(columnHeader);
+            setActiveColumn(columnKey);
             setActiveColumnSortOrder(FilterOptionsEnum.ASC);
         } else if (activeColumnSortOrder === FilterOptionsEnum.NONE) {
             // Explicitly set the proceeding sort order
@@ -394,25 +394,25 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         <tr>
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"name"}
+                                columnKey={"name"}
                                 columnHeaderTitle={ColumnDataTitles.name}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"service"}
+                                columnKey={"service"}
                                 columnHeaderTitle={ColumnDataTitles.service}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"date"}
+                                columnKey={"date"}
                                 columnHeaderTitle={ColumnDataTitles.date}
                                 rowSpan={2}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"reportId"}
+                                columnKey={"reportId"}
                                 columnHeaderTitle={ColumnDataTitles.reportId}
                                 rowSpan={2}
                             />
@@ -421,7 +421,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             </th>
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"transportResults"}
+                                columnKey={"transportResults"}
                                 columnHeaderTitle={
                                     ColumnDataTitles.transportResults
                                 }
@@ -431,19 +431,19 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                         <tr>
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"main"}
+                                columnKey={"main"}
                                 columnHeaderTitle={ColumnDataTitles.main}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"sub"}
+                                columnKey={"sub"}
                                 columnHeaderTitle={ColumnDataTitles.sub}
                                 rowSpan={1}
                             />
                             <MessageReceiversCol
                                 {...commonProps}
-                                columnHeader={"fileName"}
+                                columnKey={"fileName"}
                                 columnHeaderTitle={ColumnDataTitles.fileName}
                                 rowSpan={1}
                             />
