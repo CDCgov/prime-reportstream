@@ -1,9 +1,9 @@
 ##########################################################################
-# This is a temporary Simple Report transform. These settings need to be #
+# This is a temporary CA transform. These settings need to be #
 # moved to a sender transform once that feature is complete.             #
 ##########################################################################
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
-extends: ../ORU_R01/ORU_R01-base
+extends: ../../ORU_R01/ORU_R01-base
 constants:
   simpleReportClia: '"36D1332559"'
   simpleReportName: '"Simple Report"'
@@ -39,6 +39,11 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"2.16.840.1.114222.4.3.3.10.1.1"' ]
+
+  - name: receiving-application-universal-id-type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
 
   - name: receiving-facility-namespace-id
     condition: true
