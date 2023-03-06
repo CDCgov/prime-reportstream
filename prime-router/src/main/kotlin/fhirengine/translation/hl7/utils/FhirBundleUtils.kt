@@ -26,6 +26,7 @@ object FhirBundleUtils : Logging {
         DateTime("dateTime"),
         Id("id"),
         Instant("instant"),
+        Integer("integer"),
         Markdown("markdown"),
         Oid("oid"),
         String("string"),
@@ -42,7 +43,7 @@ object FhirBundleUtils : Logging {
     fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
-        } else if (sourceType == "integer" || StringCompatibleType.values().any { it.typeAsString == sourceType }) {
+        } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
             when (targetType) {
                 StringCompatibleType.Base64Binary.typeAsString -> Base64BinaryType(value.primitiveValue())
                 StringCompatibleType.Canonical.typeAsString -> CanonicalType(value.primitiveValue())
