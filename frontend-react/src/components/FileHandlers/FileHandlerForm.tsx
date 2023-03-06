@@ -58,7 +58,11 @@ export const FileHandlerForm = ({
         : BASE_ACCEPT_VALUE;
 
     return (
-        <Form onSubmit={(e) => handleSubmit(e)} className="rs-full-width-form">
+        <Form
+            name="fileValidation"
+            onSubmit={(e) => handleSubmit(e)}
+            className="rs-full-width-form"
+        >
             {!submitted && (
                 <FormGroup className="margin-bottom-3">
                     <Label

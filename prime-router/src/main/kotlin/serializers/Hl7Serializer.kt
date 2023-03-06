@@ -250,7 +250,7 @@ class Hl7Serializer(
                 InvalidHL7Message(
                     "Cannot parse empty HL7 message. Please " +
                         "refer to the HL7 specification and resubmit.",
-                    ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
+                    ErrorCode.INVALID_MSG_PARSE_BLANK
                 )
             )
             return MessageResult(emptyMap(), errors, warnings)

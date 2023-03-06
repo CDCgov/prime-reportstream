@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.InvalidFilterExpressionMessage
+import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -29,6 +29,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -189,7 +190,7 @@ class FHIRRouter(
             if (listOfReceivers.isNotEmpty()) {
                 // this bundle has receivers; send message to translate function
                 // add the receivers to the fhir bundle
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
 
                 // create translate event
                 val nextEvent = ProcessEvent(
@@ -342,11 +343,7 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = try {
-                evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
-            } catch (e: SchemaException) {
-                false
-            }
+            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
@@ -359,7 +356,8 @@ class FHIRRouter(
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
                 qualFilterDefaultResult,
-                receiver.reverseTheQualityFilter
+                receiver.reverseTheQualityFilter,
+
             )
 
             // ROUTING FILTER
@@ -384,6 +382,29 @@ class FHIRRouter(
                 processingModeDefaultResult
             )
 
+            // CONDITION FILTER
+            //  default: allowAll
+            val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+            val allObservations = FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle, shorthandLookupTable),
+                bundle,
+                bundle,
+                allObservationsExpression
+            )
+
+            passes = passes && allObservations.any { observation ->
+                evaluateFilterAndLogResult(
+                    getConditionFilter(receiver, orgFilters),
+                    bundle,
+                    report,
+                    receiver,
+                    ReportStreamFilterType.CONDITION_FILTER,
+                    defaultResponse = true,
+                    false,
+                    observation
+                )
+            }
+
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
                 listOfReceivers.add(receiver)
@@ -407,22 +428,20 @@ class FHIRRouter(
         receiver: Receiver,
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
-        return try {
-            val passes = evaluateFilterCondition(
-                filters,
-                bundle,
-                defaultResponse,
-                reverseFilter
-            )
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, filterType)
-            }
-            passes
-        } catch (e: SchemaException) {
-            false
+        val passes = evaluateFilterCondition(
+            filters,
+            bundle,
+            defaultResponse,
+            reverseFilter,
+            focusResource
+        )
+        if (!passes) {
+            logFilterResults(filters, bundle, report, receiver, filterType)
         }
+        return passes
     }
 
     /**
@@ -435,7 +454,8 @@ class FHIRRouter(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
@@ -444,15 +464,17 @@ class FHIRRouter(
         } else try {
             filter.all {
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable),
-                    bundle,
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
                     bundle,
                     it
                 )
             }
         } catch (e: SchemaException) {
-            actionLogger?.error(InvalidFilterExpressionMessage(e.message ?: ""))
-            throw e
+            actionLogger?.warn(
+                EvaluateFilterConditionErrorMessage(e.message)
+            )
+            return false
         }
         return if (reverseFilter) !result else result
     }
@@ -536,6 +558,6 @@ class FHIRRouter(
         return (
             orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
                 ?: emptyList()
-            ).plus(receiver.jurisdictionalFilter)
+            ).plus(receiver.conditionFilter)
     }
 }

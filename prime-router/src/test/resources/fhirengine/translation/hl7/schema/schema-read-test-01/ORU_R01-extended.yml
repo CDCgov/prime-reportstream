@@ -1,5 +1,4 @@
-hl7Type: ORU_R01
-hl7Version: 2.7
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 elements:
   - name: patient-last-name
     condition: true
@@ -9,5 +8,5 @@ elements:
     condition: false
 
   - name: new-element
-    value: [ 'some value']
-    hl7Spec: [ 'MSH-9']
+    value: [ 'some value' ]
+    hl7Spec: [ 'MSH-9' ]
