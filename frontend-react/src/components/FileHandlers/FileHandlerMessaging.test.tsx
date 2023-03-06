@@ -1,11 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import React from "react";
 
-import {
-    renderWithBase,
-    renderWithFullAppContext,
-    renderWithRouter,
-} from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
@@ -25,7 +21,7 @@ import {
 // think of a better way to do it. Is there a better pattern for this? - DWS
 describe("FileSuccessDisplay", () => {
     test("renders expected content", async () => {
-        renderWithRouter(
+        renderApp(
             <FileSuccessDisplay
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
@@ -68,7 +64,7 @@ describe("FileSuccessDisplay", () => {
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
         const restore = conditionallySuppressConsole("failure:");
-        renderWithFullAppContext(
+        renderApp(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
                 heading={"THE HEADING"}
@@ -132,7 +128,7 @@ describe("RequestedChangesDisplay", () => {
         };
 
         const errors = [fakeError1, fakeError2, fakeError3, fakeError4];
-        renderWithFullAppContext(
+        renderApp(
             <RequestedChangesDisplay
                 title={RequestLevel.ERROR}
                 heading={"THE HEADING"}
@@ -229,7 +225,7 @@ describe("FileQualityFilterDisplay", () => {
                 sending_at: "",
             },
         ];
-        renderWithBase(
+        renderApp(
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}
@@ -279,7 +275,7 @@ describe("ValidationErrorMessage", () => {
     let errorMessageNode: HTMLElement;
 
     function renderComponent(props: Partial<ValidationErrorMessageProps>) {
-        const view = renderWithBase(
+        const view = renderApp(
             <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />
         );
 
