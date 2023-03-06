@@ -148,8 +148,8 @@ class FHIRBundleHelpersTests {
         val outs = provenance.target
         val receiversOut = outs.map { it.resource }
             .filterIsInstance<Endpoint>().map { it.identifier[0].value }
-        assertThat(receiversOut.isNotEmpty())
-        assertThat(receiversOut[0] == "co-phd.full-elr-hl7")
+        assertThat(receiversOut).isNotEmpty()
+        assertThat(receiversOut[0]).isEqualTo("co-phd.full-elr-hl7")
     }
 
     @Test
@@ -171,7 +171,7 @@ class FHIRBundleHelpersTests {
         val references = outs.filterNot { it.resource is Endpoint }
             .map { it.reference as String }
             .filter { it.substringBefore(delimiter = "/", missingDelimiterValue = "none") == "DiagnosticReport" }
-        assertThat(references.isNotEmpty())
+        assertThat(references).isNotEmpty()
     }
 
     @Test
@@ -187,7 +187,7 @@ class FHIRBundleHelpersTests {
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assertThat(receiversOut.isEmpty())
+        assertThat(receiversOut).isEmpty()
     }
 
     @Test
@@ -203,8 +203,8 @@ class FHIRBundleHelpersTests {
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
-        assertThat(receiversOut.isNotEmpty())
-        assertThat(receiversOut[0] == "co-phd.full-elr-hl7")
+        assertThat(receiversOut).isNotEmpty()
+        assertThat(receiversOut[0]).isEqualTo("co-phd.full-elr-hl7")
     }
 
     @Test
@@ -489,8 +489,12 @@ class FHIRBundleHelpersTests {
         bundle.deleteResource(provenance)
 
         // assert
-        assertFailsWith<IllegalStateException> { FHIRBundleHelpers.addReceivers(bundle, receiversIn) }
-        assertFailsWith<IllegalStateException> { FHIRBundleHelpers.addProvenanceReference(bundle) }
+        assertFailsWith<IllegalStateException> {
+            FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        }
+        assertFailsWith<IllegalStateException> {
+            FHIRBundleHelpers.addProvenanceReference(bundle)
+        }
     }
 
     @Test
