@@ -1,5 +1,5 @@
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderWithBase } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
@@ -10,10 +10,10 @@ describe("DeliveryFacilitiesTable", () => {
      * unit inside DeliveryFacilitiesTable was the link between the reportId and the hook we pass it into to
      * fetch data. */
     test("url param (reportId) feeds into network hook", () => {
-        mockUseReportFacilities.mockReturnValueOnce({
+        mockUseReportFacilities.mockReturnValue({
             reportFacilities: [],
         });
-        renderWithBase(<DeliveryFacilitiesTable reportId={TEST_ID} />);
+        renderApp(<DeliveryFacilitiesTable reportId={TEST_ID} />);
         expect(mockUseReportFacilities).toHaveBeenCalledWith(TEST_ID);
     });
 });

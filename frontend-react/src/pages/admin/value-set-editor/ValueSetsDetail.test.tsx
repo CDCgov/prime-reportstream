@@ -2,7 +2,7 @@ import { screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
     ValueSetsMetaResponse,
@@ -44,6 +44,7 @@ let mockUseValueSetsMeta = jest.fn();
 
 jest.mock("../../../hooks/UseValueSets", () => {
     return {
+        ...jest.requireActual("../../../hooks/UseValueSets"),
         useValueSetsTable: (valueSetName: string) =>
             mockUseValueSetsTable(valueSetName),
         useValueSetUpdate: () => ({
@@ -57,6 +58,7 @@ jest.mock("../../../hooks/UseValueSets", () => {
 });
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useParams: () => ({ valueSetName: "a-path" }),
 }));
 
@@ -75,7 +77,7 @@ describe("ValueSetsDetail", () => {
                 } as ValueSetsMetaResponse)
         );
         // only render with query provider
-        renderWithQueryProvider(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetail />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Core Values");
         const datasetActionButton = screen.getByText("Add item");
@@ -100,7 +102,7 @@ describe("ValueSetsDetail", () => {
                     valueSetMeta: fakeMeta,
                 } as ValueSetsMetaResponse)
         );
-        renderWithQueryProvider(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetail />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
 
@@ -132,7 +134,7 @@ describe("ValueSetsDetail", () => {
         );
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderWithQueryProvider(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetail />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."
@@ -146,7 +148,7 @@ describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
         const restore = conditionallySuppressConsole("not-found: Test");
         const mockSetAlert = jest.fn();
-        renderWithQueryProvider(
+        renderApp(
             <ValueSetsDetailTable
                 valueSetName={"error"}
                 setAlert={mockSetAlert}
@@ -174,7 +176,7 @@ describe("ValueSetsDetailTable", () => {
         const mockSetAlert = jest.fn();
         const fakeRowsCopy = [...fakeRows];
 
-        renderWithQueryProvider(
+        renderApp(
             <ValueSetsDetailTable
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}

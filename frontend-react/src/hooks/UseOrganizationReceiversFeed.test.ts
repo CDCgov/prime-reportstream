@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
@@ -37,7 +37,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -70,7 +70,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -103,7 +103,7 @@ describe("useOrganizationReceiversFeed", () => {
         test("returns correct organization receivers feed", async () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
-                { wrapper: QueryWrapper() }
+                { wrapper: AppWrapper() }
             );
             await waitFor(() =>
                 expect(result.current.services).toEqual(dummyReceivers)
@@ -131,7 +131,7 @@ describe("useOrganizationReceiversFeed", () => {
             isUserSender: false,
         });
         const { result } = renderHook(() => useOrganizationReceiversFeed(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({

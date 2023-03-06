@@ -2,7 +2,7 @@ import { MatcherFunction, screen } from "@testing-library/react";
 
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../AppRouter";
 
@@ -23,6 +23,7 @@ const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL
 ).data;
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -34,7 +35,7 @@ jest.mock("rest-hooks", () => ({
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
-        renderWithRouter(<SubmissionDetails />);
+        renderApp(<SubmissionDetails />);
     });
 
     test("renders crumb nav to Submissions list", () => {
@@ -100,9 +101,7 @@ describe("SubmissionDetails", () => {
 
 describe("DetailItem", () => {
     beforeEach(() => {
-        renderWithRouter(
-            <DetailItem item="Test Item" content="Test Content" />
-        );
+        renderApp(<DetailItem item="Test Item" content="Test Content" />);
     });
 
     test("renders content", () => {
@@ -113,7 +112,7 @@ describe("DetailItem", () => {
 
 describe("DestinationItem", () => {
     beforeEach(() => {
-        renderWithRouter(
+        renderApp(
             <DestinationItem destinationObj={mockData.destinations[0]} />
         );
     });
