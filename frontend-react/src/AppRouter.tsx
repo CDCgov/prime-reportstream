@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -39,77 +39,76 @@ export enum FeatureName {
     UPLOAD = "Upload",
 }
 
-export const AppRouter = () => (
-    <Routes>
-        {/* Public Site */}
-        <Route path="/" element={<Home />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/login/callback" element={<LoginCallback />} />
-        <Route path="/sign-tos" element={<TermsOfServiceForm />} />
-        <Route path="/resources/*" element={<Resources />} />
-        <Route path="/product/*" element={<Product />} />
-        <Route path="/support/*" element={<Support />} />
-        {/* User pages */}
-        <Route path="/daily-data" element={<DeliveriesWithAuth />} />
-        <Route
-            path="/report-details/:reportId"
-            element={<DeliveryDetailWithAuth />}
-        />
-        <Route path="/upload" element={<UploadWithAuth />} />
-        <Route path="/submissions" element={<SubmissionsWithAuth />} />
-        <Route
-            path="/submissions/:actionId"
-            element={<SubmissionDetailsWithAuth />}
-        />
-        {/* Admin pages */}
-        <Route path="/admin/settings" element={<AdminMainWithAuth />} />
-        <Route path="/admin/new/org" element={<AdminOrgNewWithAuth />} />
-        <Route
-            path="/admin/orgsettings/org/:orgname"
-            element={<AdminOrgEditWithAuth />}
-        />
-        <Route
-            path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-            element={<EditReceiverSettingsWithAuth />}
-        />
-        <Route
-            path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-            element={<EditSenderSettingsWithAuth />}
-        />
-        <Route
-            path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-            element={<NewSettingWithAuth />}
-        />
-        <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
-        <Route
-            path="/admin/send-dash"
-            element={<AdminReceiverDashWithAuth />}
-        />
-        <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
-        <Route
-            path="/admin/message-tracker"
-            element={<AdminMessageTrackerWithAuth />}
-        />
-        <Route
-            path="/message-details/:id"
-            element={<MessageDetailsWithAuth />}
-        />
-        <Route
-            path={"/admin/value-sets/:valueSetName"}
-            element={<ValueSetsDetailWithAuth />}
-        />
-        <Route
-            path={"/admin/value-sets"}
-            element={<ValueSetsIndexWithAuth />}
-        />
-        <Route
-            path="/admin/revisionhistory/org/:org/settingtype/:settingType"
-            element={<AdminRevHistoryWithAuth />}
-        />
-        <Route path="/file-handler/validate" element={<ValidateWithAuth />} />
-        {/* Handles any undefined route */}
-        <Route path={"*"} element={<ErrorNoPage />} />
-    </Routes>
-);
+export const appRoutes = [
+    /* Public Site */
+    { path: "/", element: <Home /> },
+    { path: "/terms-of-service", element: <TermsOfService /> },
+    { path: "/about", element: <About /> },
+    { path: "/login", element: <Login /> },
+    { path: "/login/callback", element: <LoginCallback /> },
+    { path: "/sign-tos", element: <TermsOfServiceForm /> },
+    { path: "/resources/*", element: <Resources /> },
+    { path: "/product/*", element: <Product /> },
+    { path: "/support/*", element: <Support /> },
+    { path: "/daily-data", element: <DeliveriesWithAuth /> },
+    {
+        path: "/report-details/:reportId",
+        element: <DeliveryDetailWithAuth />,
+    },
+    { path: "/upload", element: <UploadWithAuth /> },
+    { path: "/submissions", element: <SubmissionsWithAuth /> },
+    {
+        path: "/submissions/:actionId",
+        element: <SubmissionDetailsWithAuth />,
+    },
+    /* Admin pages */
+    { path: "/admin/settings", element: <AdminMainWithAuth /> },
+    { path: "/admin/new/org", element: <AdminOrgNewWithAuth /> },
+    {
+        path: "/admin/orgsettings/org/:orgname",
+        element: <AdminOrgEditWithAuth />,
+    },
+    {
+        path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
+        element: <EditReceiverSettingsWithAuth />,
+    },
+    {
+        path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
+        element: <EditSenderSettingsWithAuth />,
+    },
+    {
+        path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
+        element: <NewSettingWithAuth />,
+    },
+    { path: "/admin/lastmile", element: <AdminLMFWithAuth /> },
+    {
+        path: "/admin/send-dash",
+        element: <AdminReceiverDashWithAuth />,
+    },
+    { path: "/admin/features", element: <FeatureFlagUIWithAuth /> },
+    {
+        path: "/admin/message-tracker",
+        element: <AdminMessageTrackerWithAuth />,
+    },
+    {
+        path: "/message-details/:id",
+        element: <MessageDetailsWithAuth />,
+    },
+    {
+        path: "/admin/value-sets/:valueSetName",
+        element: <ValueSetsDetailWithAuth />,
+    },
+    {
+        path: "/admin/value-sets",
+        element: <ValueSetsIndexWithAuth />,
+    },
+    {
+        path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
+        element: <AdminRevHistoryWithAuth />,
+    },
+    { path: "/file-handler/validate", element: <ValidateWithAuth /> },
+    /* Handles any undefined route */
+    { path: "*", element: <ErrorNoPage /> },
+];
+
+export const AppRouter = () => useRoutes(appRoutes);

@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
 import { useReportsFacilities } from "./DeliveryHooks";
 
@@ -27,7 +27,7 @@ describe("useReportsList", () => {
             isUserSender: false,
         });
         const { result } = renderHook(() => useReportsFacilities("123"), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         await waitFor(() =>
             expect(result.current.reportFacilities?.length).toEqual(2)

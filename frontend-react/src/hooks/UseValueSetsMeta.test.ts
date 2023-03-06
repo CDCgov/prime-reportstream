@@ -2,14 +2,14 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 
 import { useValueSetsMeta } from "./UseValueSets";
 
 describe("useValueSetsMeta", () => {
-    const renderWithQueryWrapper = (tableName?: LookupTables) =>
+    const renderWithAppWrapper = (tableName?: LookupTables) =>
         renderHook(() => useValueSetsMeta(tableName), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
 
     beforeAll(() =>
@@ -24,7 +24,7 @@ describe("useValueSetsMeta", () => {
     afterAll(() => lookupTableServer.close());
 
     test("returns expected meta values", async () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         await waitFor(() =>
             expect(result.current.valueSetMeta.createdAt).toBeDefined()
         );
@@ -34,7 +34,7 @@ describe("useValueSetsMeta", () => {
     });
 
     test("returns expected meta values when passed an optional table name", async () => {
-        const { result } = renderWithQueryWrapper(LookupTables.VALUE_SET_ROW);
+        const { result } = renderWithAppWrapper(LookupTables.VALUE_SET_ROW);
 
         await waitFor(() =>
             expect(result.current.valueSetMeta.createdAt).toBeDefined()
@@ -45,7 +45,7 @@ describe("useValueSetsMeta", () => {
     });
 
     test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         await waitFor(() => expect(result.current.valueSetMeta).toBeDefined());
         expect(result.current.valueSetMeta).toEqual({});
     });

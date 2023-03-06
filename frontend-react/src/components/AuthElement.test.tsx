@@ -5,13 +5,14 @@ import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { RSSessionContext } from "../contexts/SessionContext";
-import { renderWithBase } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import { AuthElement } from "./AuthElement";
 
 const mockUseNavigate = jest.fn();
 
 jest.mock("react-router", () => ({
+    ...jest.requireActual("react-router"),
     useNavigate: () => mockUseNavigate,
 }));
 
@@ -30,7 +31,7 @@ describe("AuthElement unit tests", () => {
     });
     test("Renders component when all checks pass", () => {
         mockCheckFlag = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -49,7 +50,7 @@ describe("AuthElement unit tests", () => {
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElementWithProp test={"Success!"} />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -60,7 +61,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: undefined,
             activeMembership: undefined,
             dispatch: () => {},
@@ -69,7 +70,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: false,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -78,7 +79,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
     test("Does not redirect when user refreshes app (token loads after membership)", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: undefined,
             activeMembership: {
                 memberType: MemberType.SENDER,
@@ -90,7 +91,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: true,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.SENDER}
@@ -100,7 +101,7 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Redirects when user is unauthorized user type", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -114,7 +115,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: true,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
@@ -125,7 +126,7 @@ describe("AuthElement unit tests", () => {
     });
     test("Redirects when user lacks feature flag", () => {
         mockCheckFlag = jest.fn((flag) => flag !== FeatureFlagName.FOR_TEST);
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -144,7 +145,7 @@ describe("AuthElement unit tests", () => {
             checkFlag: mockCheckFlag,
             featureFlags: [],
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
@@ -153,7 +154,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Considers all given authorized user types (affirmative)", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -167,7 +168,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: false,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -177,7 +178,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Considers all given authorized user types (negative)", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -191,7 +192,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: false,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -200,7 +201,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("renders a spinner when user hooks have not initialized", async () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -214,7 +215,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: false,
             isUserSender: false,
         });
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
@@ -229,7 +230,7 @@ describe("AuthElement unit tests", () => {
      *
      * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
-        mockSessionContext.mockReturnValueOnce({
+        mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -251,7 +252,7 @@ describe("AuthElement unit tests", () => {
             isUserReceiver: true,
             isUserSender: false,
         } as RSSessionContext);
-        renderWithBase(
+        renderApp(
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.PRIME_ADMIN}
