@@ -11,6 +11,7 @@ export enum ErrorType {
     FILE = "file",
 }
 
+// TODO: consolidate with Format in TemporarySettingsAPITypes.ts
 export enum FileType {
     "CSV" = "CSV",
     "HL7" = "HL7",
