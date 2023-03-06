@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import {
     ContentDirectoryTools,
     makeSectionFromTitles,
@@ -67,14 +67,14 @@ const TestSectionedCardGrid = () => <IACardGridTemplate {...mapPageProps} />;
 
 describe("IACardGridTemplate", () => {
     test("renders single card gird", () => {
-        renderWithRouter(<TestCardGrid />);
+        renderApp(<TestCardGrid />);
         // Asserts card for ElementDirectory "ONE" is there
         expect(screen.getByText(TestDirPages.ONE)).toBeInTheDocument();
         // Asserts card for ElementDirectory "TWO" is there
         expect(screen.getByText(TestDirPages.TWO)).toBeInTheDocument();
     });
     test("renders sectioned card grid", () => {
-        renderWithRouter(<TestSectionedCardGrid />);
+        renderApp(<TestSectionedCardGrid />);
         expect(screen.getByText("Title")).toBeInTheDocument();
         expect(screen.getByText("Subtitle")).toBeInTheDocument();
         expect(screen.getByText("Section 1")).toBeInTheDocument();

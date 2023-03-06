@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
@@ -26,7 +26,7 @@ describe("useOrganizationReceivers", () => {
             isUserSender: false,
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         expect(result.current.data).toEqual(undefined);
         expect(result.current.isLoading).toEqual(true);
@@ -48,7 +48,7 @@ describe("useOrganizationReceivers", () => {
             isUserSender: false,
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         await waitFor(() =>
             expect(result.current.data).toEqual(dummyReceivers)
