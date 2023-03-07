@@ -59,7 +59,8 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            val receivers = provenance.target.map { (it.resource as Endpoint).identifier[0].value }
+            val receivers = provenance.target.map { it.resource }
+                .filterIsInstance<Endpoint>().map { it.identifier[0].value }
 
             receivers.forEach { recName ->
                 val receiver = settings.findReceiver(recName)
