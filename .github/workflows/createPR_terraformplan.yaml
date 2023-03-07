@@ -36,14 +36,14 @@ jobs:
       - name: Run Terraform
         run: |
           terraform init -input=false
-          terraform plan -target=module.azure_dashboard
-      - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
-        id: stats1
-        with:
-          terraform-directory: operations/app/terraform/vars/prod
-          terraform-version: 1.2.0
-          add-args: "-refresh=false"
+          terraform plan -target=module.azure_dashboard > tfplan.txt
+      # - name: Collect Terraform stats
+      #   uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
+      #   id: stats1
+      #   with:
+      #     terraform-directory: operations/app/terraform/vars/prod
+      #     terraform-version: 1.2.0
+      #     add-args: "-refresh=false"
   
   auto_create_pull_request:
     runs-on: ubuntu-latest
@@ -60,10 +60,7 @@ jobs:
           base: master
           branch: feature/autocreatePR-with-tfplan-output 
           body: |
-            echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-              | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
-            echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-              | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
+            $(cat tfplan.txt)
           reviewers: |
             lucasdze
             JosiahSiegel
