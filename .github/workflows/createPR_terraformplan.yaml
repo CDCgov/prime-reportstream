@@ -44,7 +44,7 @@ jobs:
       - pre_job
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        uses: actions/checkout@v3
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@89265e8d24a5dea438a2577fdc409a11e9f855ca
         with:
@@ -58,10 +58,8 @@ jobs:
             lucasdze
             JosiahSiegel
             jeremy-page
-
           token: ${{ secrets.GITHUB_TOKEN }}
           delete-branch: false
-          merge-method: 'squash'
           draft: false
-          maintainer-can-modify: true
+
           
