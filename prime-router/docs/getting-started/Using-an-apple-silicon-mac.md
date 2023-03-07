@@ -136,7 +136,7 @@ Then:
 ```bash
 nvm install 18.14.x # refer to nvmrc for exact current version
 node -v # v18.14.x
-npm -v # v8.x.x
+npm -v # v9.5.x
 
 npm install --global yarn
 ```
