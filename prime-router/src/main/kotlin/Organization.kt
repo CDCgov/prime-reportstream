@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import gov.cdc.prime.router.tokens.JwkSet
 
 /**
  * Organization represents a partner organization of the hub. It has a jurisdiction.
@@ -14,9 +15,11 @@ open class Organization(
     val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic.
     // enabled features for organization. Features defined in lookup table rs_feature_flags
     val featureFlags: List<String>? = emptyList(),
+    val keys: List<JwkSet>?
 ) {
     constructor(org: Organization) : this(
-        org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags
+        org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags,
+        org.keys
     )
 
     enum class Jurisdiction {
@@ -63,12 +66,13 @@ class DeepOrganization(
     countyName: String? = null,
     filters: List<ReportStreamFilters>? = emptyList(),
     featureFlags: List<String>? = emptyList(),
+    keys: List<JwkSet>? = emptyList(),
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
-) : Organization(name, description, jurisdiction, stateCode, countyName, filters, featureFlags) {
+) : Organization(name, description, jurisdiction, stateCode, countyName, filters, featureFlags, keys) {
     constructor(org: Organization, senders: List<Sender>, receivers: List<Receiver>) :
         this(
             org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags,
-            senders, receivers
+            org.keys, senders, receivers
         )
 }

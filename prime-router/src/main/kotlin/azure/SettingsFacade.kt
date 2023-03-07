@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -332,6 +333,7 @@ class OrganizationAPI
     countyName: String?,
     filters: List<ReportStreamFilters>?,
     featureFlags: List<String>?,
+    keys: List<JwkSet>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
@@ -342,7 +344,8 @@ class OrganizationAPI
     stateCode.trimToNull(),
     countyName.trimToNull(),
     filters,
-    featureFlags
+    featureFlags,
+    keys
 ),
 
     SettingAPI {
