@@ -371,6 +371,123 @@ class FhirTransformerTests {
     }
 
     @Test
+    fun `test schema level constants`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+
+        val element = FHIRTransformSchemaElement(
+            "childElement",
+            value = listOf("%testId"),
+            resource = "%testRes",
+            bundleProperty = "%resource.id"
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(element),
+                constants = sortedMapOf(
+                    Pair("testId", "'12345'"),
+                    Pair("testRes", "Bundle.entry.resource.ofType(Patient)")
+                )
+            )
+        val transformer = FhirTransformer(schema)
+        transformer.transform(bundle)
+        assertThat(patient.id).isEqualTo("12345")
+    }
+
+    @Test
+    fun `test element level constants`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+
+        val elementA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("%testId"),
+            resource = "%testRes",
+            bundleProperty = "%resource.id",
+            constants = sortedMapOf(
+                Pair("testId", "'12345'"),
+                Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+            ),
+        )
+        val elementB = FHIRTransformSchemaElement(
+            "elementB",
+            value = listOf("%testId", "'backupValue'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name.text",
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA, elementB),
+            )
+        val transformer = FhirTransformer(schema)
+        transformer.transform(bundle)
+        assertThat(patient.id).isEqualTo("12345")
+        assertThat(patient.name[0].text).isEqualTo("backupValue")
+    }
+
+    @Test
+    fun `test element level constant inheritance`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+
+        val elementA = FHIRTransformSchemaElement(
+            "elementA",
+            value = listOf("%testActive"),
+            resource = "%testRes",
+            bundleProperty = "%resource.active",
+            constants = sortedMapOf(
+                Pair("testId", "'12345'"),
+                Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+                Pair("testActive", "true"),
+            ),
+        )
+        val elementB = FHIRTransformSchemaElement(
+            "elementB",
+            value = listOf("%testId", "%otherTestId", "'backupValue'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name.text",
+        )
+
+        val childElement = FHIRTransformSchemaElement(
+            "childElement",
+            value = listOf("%testId", "%otherTestId", "'backupId'"),
+            resource = "Bundle.entry",
+            bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
+        val elementWithChild = FHIRTransformSchemaElement(
+            "elementWithChild",
+            resource = "Bundle.entry",
+            resourceIndex = "myIndexVar",
+            constants = sortedMapOf(Pair("otherTestId", "'abc-def'")),
+            schemaRef = childSchema
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA, elementWithChild, elementB),
+            )
+        val transformer = FhirTransformer(schema)
+
+        transformer.transform(bundle)
+        // Element A used local constant
+        assertThat(patient.active).isTrue()
+        // Element w/ child used element constant in child element, didn't access constants from Element A
+        assertThat(patient.id).isEqualTo("abc-def")
+        // Element B used default value since no constants were accessible
+        assertThat(patient.name[0].text).isEqualTo("backupValue")
+    }
+
+    @Test
     fun `test resource index`() {
         val bundle = Bundle()
         bundle.id = "abc123"
