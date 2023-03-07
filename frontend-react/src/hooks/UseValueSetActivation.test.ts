@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 
 import { useValueSetActivation } from "./UseValueSets";
 
@@ -10,13 +10,13 @@ describe("useValueSetActivation", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    const renderWithQueryWrapper = () =>
+    const renderWithAppWrapper = () =>
         renderHook(() => useValueSetActivation(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
 
     test("returns trigger and loading indicator", () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         const { activateTable, isActivating, activationError } = result.current;
         expect(isActivating).toEqual(false);
         expect(activateTable).toBeInstanceOf(Function);
@@ -24,7 +24,7 @@ describe("useValueSetActivation", () => {
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
-        const { result } = renderWithQueryWrapper();
+        const { result } = renderWithAppWrapper();
         const { activateTable, isActivating } = result.current;
         expect(isActivating).toEqual(false);
 

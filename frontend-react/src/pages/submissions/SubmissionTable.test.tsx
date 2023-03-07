@@ -1,30 +1,13 @@
-import { Fixture, MockResolver } from "@rest-hooks/test";
+import { Fixture } from "@rest-hooks/test";
 import { screen, within } from "@testing-library/react";
-import { ReactElement } from "react";
-import { CacheProvider } from "rest-hooks";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 
 import SubmissionTable from "./SubmissionTable";
-
-// const { addFeatureFlag, removeFeatureFlag } = _exportForTesting;
-
-// TODO: Move this to CustomRenderUtils.tsx once we stop mocking rest-hooks.
-// MockResolver is the preferred method for testing components that use
-// rest-hooks (see https://resthooks.io/docs/guides/unit-testing-components) but
-// since it conflicts with our current approach to use jest.mock, this helper
-// can't be in a shared location util we update existing tests.
-// See https://github.com/CDCgov/prime-reportstream/issues/5623
-const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
-    renderWithRouter(
-        <CacheProvider>
-            <MockResolver fixtures={fixtures}>{ui}</MockResolver>
-        </CacheProvider>
-    );
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
@@ -61,7 +44,7 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-        renderWithResolver(<SubmissionTable />, fixtures);
+        renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
 
         const pagination = await screen.findByLabelText(
             /submissions pagination/i
@@ -93,7 +76,7 @@ describe("SubmissionTable", () => {
                 isUserSender: false,
             });
 
-            renderWithResolver(<SubmissionTable />, []);
+            renderApp(<SubmissionTable />, { restHookFixtures: [] });
         });
 
         test("renders a warning about not being able to request submission history", async () => {
