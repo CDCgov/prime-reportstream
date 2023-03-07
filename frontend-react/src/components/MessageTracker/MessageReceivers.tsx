@@ -266,7 +266,10 @@ export const MessageReceiversRow = ({
 //     fileName: string;
 //     transportResults: string;
 // }
-export function formatMessages(data: ReceiverData[]): NormalizedReceiverData[] {
+export function formatMessages(
+    data: ReceiverData[],
+    formatter: Intl.DateTimeFormat
+): NormalizedReceiverData[] {
     return data.map((receiverItem: ReceiverData): NormalizedReceiverData => {
         const formattedData: NormalizedReceiverData = Object.keys(
             ColumnDataTitles
@@ -289,7 +292,7 @@ export function formatMessages(data: ReceiverData[]): NormalizedReceiverData[] {
                     break;
                 case ColumnDataTitles.date:
                     if (receiverItem.createdAt)
-                        formattedData.date = dateTimeFormatter.format(
+                        formattedData.date = formatter.format(
                             new Date(receiverItem.createdAt)
                         );
                     break;
@@ -364,7 +367,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const [activeColumnSortOrder, setActiveColumnSortOrder] =
         useState<FilterOption>(FilterOptionsEnum.NONE);
     const normalizedData = useMemo(
-        () => formatMessages(receiverDetails),
+        () => formatMessages(receiverDetails, dateTimeFormatter),
         [receiverDetails]
     );
     const sortedData = useMemo(
