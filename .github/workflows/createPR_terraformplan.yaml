@@ -16,7 +16,7 @@ jobs:
       run:
         working-directory: operations/app/terraform/vars/prod
     steps:
-      - name: Check Out Changes
+      - name: Check Out Repo Changes
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -28,23 +28,16 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-      - name: Use specific version of Terraform
+      - name: Set up Terraform V1.2.0
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
         with:
           terraform_version: 1.2.0
           terraform_wrapper: false
-      - name: Run Terraform
+      - name: Run Terraform init & plan
         run: |
           terraform init -input=false
           terraform plan -target=module.azure_dashboard > tfplan.txt
-      # - name: Collect Terraform stats
-      #   uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
-      #   id: stats1
-      #   with:
-      #     terraform-directory: operations/app/terraform/vars/prod
-      #     terraform-version: 1.2.0
-      #     add-args: "-refresh=false"
-  
+          cat tfplan.txt
   auto_create_pull_request:
     runs-on: ubuntu-latest
     needs:
@@ -67,4 +60,8 @@ jobs:
             jeremy-page
 
           token: ${{ secrets.GITHUB_TOKEN }}
+          delete-branch: false
+          merge-method: 'squash'
+          draft: false
+          maintainer-can-modify: true
           
