@@ -10,12 +10,13 @@ import {
     TextInput,
 } from "@trussworks/react-uswds";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
+import { getAppInsightsHeaders } from "../../TelemetryService";
+import { USLink } from "../../components/USLink";
 
 import SuccessPage from "./SuccessPage";
 
@@ -90,6 +91,7 @@ function TermsOfServiceForm() {
         const response = await fetch(`${RS_API_URL}/api/email-registered`, {
             method: "POST",
             headers: {
+                ...getAppInsightsHeaders(),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
@@ -183,9 +185,9 @@ function TermsOfServiceForm() {
         return (
             <span className="maxw-2">
                 I have read and agree to the ReportSteam{" "}
-                <Link to="/terms-of-service" target="_blank" rel="noopener">
+                <USLink href="/terms-of-service" target="_blank" rel="noopener">
                     terms of service
-                </Link>
+                </USLink>
                 . <Required />
             </span>
         );
@@ -219,7 +221,9 @@ function TermsOfServiceForm() {
         <SuccessPage data={createBody()} />
     ) : (
         <>
-            <BasicHelmet pageTitle="Sign the Terms of Service" />
+            <Helmet>
+                <title>Sign the Terms of Service</title>
+            </Helmet>
             <div
                 data-testid="form-container"
                 className="grid-container tablet:grid-col-6 margin-x-auto"
@@ -429,6 +433,7 @@ function TermsOfServiceForm() {
                         Submit registration
                     </Button>
                     <Alert
+                        headingLevel="h4"
                         style={{
                             visibility: sendGridErrorFlag.isError
                                 ? "visible"

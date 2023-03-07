@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -44,7 +44,7 @@ jobs:
       - name: Send custom JSON data to Slack workflow
         if: steps.stats1.outputs.change-count > 0
         id: slack
-        uses: slackapi/slack-github-action@936158bbe252e9a6062e793ea4609642c966e302
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
         with:
           payload: |
             {

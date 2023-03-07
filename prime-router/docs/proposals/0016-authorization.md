@@ -84,9 +84,9 @@ If a user has this claim, they have the right to report data to the simple_repor
 
 | Meaning / Example / Use Case                                        | Okta Group                                          | Scope Claim that it Maps To  |
 |---------------------------------------------------------------------|-----------------------------------------------------|------------------------------|
-| Ability for a server to submit submissions to simple_report.default | n/a      (no human in this example)                 | simple_report.default.report |
-| Human Org accesses submission APIs at a user level role             | DHsimple_report, DHSender_simple_report             | simple_report.*.user         |
-| Human Org accesses submission APIs at an admin level role           | DHsimple_reportAdmins, DHSender_simple_reportAdmins | simple_report.*.admin        |
+| Ability for a server to submit submissions to simple_report.default | n/a      (no human in this example)                 | `simple_report.default.report` |
+| Human Org accesses submission APIs at a user level role             | DHsimple_report, DHSender_simple_report             | `simple_report.*.user`         |
+| Human Org accesses submission APIs at an admin level role           | DHsimple_reportAdmins, DHSender_simple_reportAdmins | `simple_report.*.admin`        |
 | Human Prime Admin role                                              | DHPrimeAdmins, `*.*.primeadmin`                     | `*.*.primeadmin`               |
 
 ### How Authorization Will Work
@@ -101,10 +101,10 @@ If a user has this claim, they have the right to report data to the simple_repor
 
 | Example / Use Case | Human or Server makes this claim | Azure Fn Requires (claim must be one of...)                          | Result |
 | ---------------------------- | ---------- |----------------------------------------------------------------------| ------------------ |
-| Server wants to submit data to oh-doh.default sender | oh-doh.default.report | oh-doh.default.report, oh-doh.*.user, oh-doh.*.admin, *.*.primeadmin | Authorized |
-| Human wants to submit data to oh-doh.default sender | oh-doh.*.user | oh-doh.default.report, oh-doh.*.user, oh-doh.*.admin, *.*.primeadmin | Authorized |
-| Human is member of two orgs; requests data about OH | oh-doh.*.user, md-phd.*.user | oh-doh.*.user, oh-doh.*.admin, *.*.primeadmin                        | Authorized |
-| OH User make illegal request for data about NY | oh-doh.*.user | ny.*.user, *.*.primeadmins                                           | Not authorized |
+| Server wants to submit data to oh-doh.default sender | `oh-doh.default.report` | `oh-doh.default.report`, `oh-doh.*.user`, `oh-doh.*.admin`, `*.*.primeadmin` | Authorized |
+| Human wants to submit data to oh-doh.default sender | `oh-doh.*.user` | `oh-doh.default.report`, `oh-doh.*.user`, `oh-doh.*.admin`, `*.*.primeadmin` | Authorized |
+| Human is member of two orgs; requests data about OH | `oh-doh.*.user`, `md-phd.*.user` | `oh-doh.*.user`, `oh-doh.*.admin`, `*.*.primeadmin`                        | Authorized |
+| OH User make illegal request for data about NY | `oh-doh.*.user` | `ny.*.user`, `*.*.primeadmins`                                          | Not authorized |
 
 ## Further Work
 

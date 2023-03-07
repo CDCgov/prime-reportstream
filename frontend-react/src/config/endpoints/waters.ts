@@ -39,14 +39,31 @@ export interface ResponseError {
     indices: number[] | undefined;
     message: string | undefined;
     scope: string | undefined;
+    errorCode: ErrorCode;
     trackingIds: string[] | undefined;
     details: any | undefined;
     rowList?: string;
 }
 
 export enum WatersUrls {
-    UPLOAD = "/waters",
     VALIDATE = "/validate",
+}
+
+/*
+The error codes map to the error types specified in the serializer
+ */
+export enum ErrorCode {
+    INVALID_MSG_PARSE_BLANK = "INVALID_MSG_PARSE_BLANK",
+    INVALID_HL7_MSG_TYPE_MISSING = "INVALID_HL7_MSG_TYPE_MISSING",
+    INVALID_HL7_MSG_TYPE_UNSUPPORTED = "INVALID_HL7_MSG_TYPE_UNSUPPORTED",
+    INVALID_HL7_MSG_FORMAT_INVALID = "INVALID_HL7_MSG_FORMAT_INVALID",
+    INVALID_MSG_PARSE_DATETIME = "INVALID_MSG_PARSE_DATETIME",
+    INVALID_MSG_PARSE_TELEPHONE = "INVALID_MSG_PARSE_TELEPHONE",
+    INVALID_MSG_PARSE_DATE = "INVALID_MSG_PARSE_DATE",
+    INVALID_HL7_MSG_VALIDATION = "INVALID_HL7_MSG_VALIDATION",
+    INVALID_MSG_MISSING_FIELD = "INVALID_MSG_MISSING_FIELD",
+    INVALID_MSG_EQUIPMENT_MAPPING = "INVALID_MSG_EQUIPMENT_MAPPING",
+    UNKNOWN = "UNKNOWN",
 }
 
 /*
@@ -55,11 +72,6 @@ Waters Endpoints
 * validate -> validates a file against ReportStream file requirements (filters, data quality, etc.)
 */
 export const watersEndpoints: RSApiEndpoints = {
-    upload: new RSEndpoint({
-        path: WatersUrls.UPLOAD,
-        method: HTTPMethods.POST,
-        queryKey: "watersPost",
-    }),
     validate: new RSEndpoint({
         path: WatersUrls.VALIDATE,
         method: HTTPMethods.POST,

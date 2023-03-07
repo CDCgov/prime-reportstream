@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 import Table, {
     ColumnConfig,
@@ -6,8 +6,6 @@ import Table, {
 } from "../../../components/Table/Table";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
-import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import {
     useOrgDeliveries,
     DeliveriesDataAttr,
@@ -18,53 +16,16 @@ import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import { RSReceiver } from "../../../config/endpoints/settings";
+import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
+import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
+import { FeatureName } from "../../../AppRouter";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
-
-interface ReceiverFeeds {
-    loadingServices: boolean;
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
- * between them */
-export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { activeMembership } = useSessionContext();
-    const {
-        data: receivers,
-        loading,
-        trigger: getReceiversList,
-    } = useReceiversList(activeMembership?.parsedName);
-    const [active, setActive] = useState<RSReceiver | undefined>();
-    useEffect(() => {
-        // IF activeMembership?.parsedName is not undefined
-        if (
-            activeMembership?.parsedName !== undefined &&
-            receivers === undefined
-        ) {
-            // Trigger useReceiversList()
-            getReceiversList();
-        }
-        // Ignoring getReceiverList() as dep
-    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
-
-    useEffect(() => {
-        if (receivers?.length) {
-            setActive(receivers[0]);
-        }
-    }, [receivers]);
-
-    return {
-        loadingServices: loading,
-        services: receivers,
-        activeService: active,
-        setActiveService: setActive,
-    };
-};
 
 const ServiceDisplay = ({
     services,
@@ -110,6 +71,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     serviceReportsList,
 }) => {
     const { oktaToken, activeMembership } = useSessionContext();
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -146,7 +108,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             columnHeader: "Items",
         },
         {
-            dataAttr: DeliveriesDataAttr.FILE_TYPE,
+            dataAttr: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "File",
             feature: {
                 action: handleFetchAndDownload,
@@ -164,7 +126,14 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <TableFilters filterManager={filterManager} />
+            <TableFilters
+                filterManager={filterManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(featureEvent, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
+            />
             <Table
                 config={resultsTableConfig}
                 filterManager={filterManager}
@@ -199,6 +168,7 @@ const DeliveriesTableWithNumberedPagination = ({
     // and the low value when the results are in ascending order.
     const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: serviceReportsList,
@@ -210,6 +180,7 @@ const DeliveriesTableWithNumberedPagination = ({
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
 
     if (paginationProps) {
@@ -234,10 +205,23 @@ const DeliveriesTableWithNumberedPagination = ({
 };
 
 export const DeliveriesTable = () => {
-    const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
+    const {
+        loadingServices,
+        services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
+
+    if (isDisabled) {
+        return (
+            <div className="grid-container">
+                <AdminFetchAlert />
+            </div>
+        );
+    }
 
     if (!loadingServices && !activeService)
         return (

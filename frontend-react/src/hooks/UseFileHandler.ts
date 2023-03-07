@@ -4,12 +4,14 @@ import pick from "lodash.pick";
 import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
+import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 
 export enum ErrorType {
     SERVER = "server",
     FILE = "file",
 }
 
+// TODO: consolidate with Format in TemporarySettingsAPITypes.ts
 export enum FileType {
     "CSV" = "CSV",
     "HL7" = "HL7",
@@ -37,6 +39,7 @@ export interface FileHandlerState {
     warnings: ResponseError[];
     localError: string;
     overallStatus: string;
+    selectedSchemaOption: SchemaOption | null;
 }
 
 export enum FileHandlerActionType {
@@ -44,6 +47,7 @@ export enum FileHandlerActionType {
     PREPARE_FOR_REQUEST = "PREPARE_FOR_REQUEST",
     FILE_SELECTED = "FILE_SELECTED",
     REQUEST_COMPLETE = "REQUEST_COMPLETE",
+    SCHEMA_SELECTED = "SCHEMA_SELECTED",
 }
 
 export interface RequestCompletePayload {
@@ -54,7 +58,13 @@ interface FileSelectedPayload {
     file: File;
 }
 
-type FileHandlerActionPayload = RequestCompletePayload | FileSelectedPayload;
+type SchemaSelectedPayload = SchemaOption;
+
+type FileHandlerActionPayload =
+    | RequestCompletePayload
+    | FileSelectedPayload
+    | SchemaSelectedPayload
+    | null;
 
 interface FileHandlerAction {
     type: FileHandlerActionType;
@@ -79,6 +89,7 @@ export const INITIAL_STATE = {
     warnings: [],
     localError: "",
     overallStatus: "",
+    selectedSchemaOption: null,
 };
 
 // Currently returning a static object, but leaving this as a function
@@ -155,7 +166,7 @@ function calculateFileSelectedState(
         };
     } catch (err: any) {
         // todo: have central error reporting mechanism.
-        console.error(err);
+        console.warn(err);
         return {
             ...state,
             localError: `An unexpected error happened: '${err.toString()}'`,
@@ -223,18 +234,40 @@ function reducer(
                 payload as RequestCompletePayload
             );
             return { ...state, ...requestCompleteState };
+        case FileHandlerActionType.SCHEMA_SELECTED:
+            const selectedSchemaOption = payload as SchemaOption | null;
+
+            // reset anything related to the file if the selected schema format
+            // and the file format don't match
+            if (selectedSchemaOption?.format !== state.fileType) {
+                return {
+                    ...state,
+                    fileContent: "",
+                    fileInputResetValue: state.fileInputResetValue + 1,
+                    fileName: "",
+                    contentType: undefined,
+                    selectedSchemaOption,
+                };
+            }
+
+            return {
+                ...state,
+                selectedSchemaOption,
+            };
         default:
             return state;
     }
 }
 
+export type UseFileHandlerHookResult = {
+    state: FileHandlerState;
+    dispatch: React.Dispatch<FileHandlerAction>;
+};
+
 // this layer of abstraction around the reducer may not be necessary, but following
 // the pattern laid down in UsePagination for now, in case we need to make this more
 // complex later - DWS
-function useFileHandler(): {
-    state: FileHandlerState;
-    dispatch: React.Dispatch<FileHandlerAction>;
-} {
+function useFileHandler(): UseFileHandlerHookResult {
     const [state, dispatch] = useReducer<FileHandlerReducer>(
         reducer,
         getInitialState()

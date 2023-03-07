@@ -42,6 +42,10 @@ variable "postgres_user" {}
 variable "postgres_pass" {
   sensitive = true
 }
+variable "postgres_readonly_user" {}
+variable "postgres_readonly_pass" {
+  sensitive = true
+}
 variable "db_sku_name" {}
 variable "db_version" {}
 variable "db_storage_mb" {}

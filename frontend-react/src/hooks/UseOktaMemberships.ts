@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useMemo } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
 import omit from "lodash.omit";
 
-import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
+import { parseOrgName, toRSClaims } from "../utils/OrganizationUtils";
 import {
     storeSessionMembershipState,
     getSessionMembershipState,
@@ -11,6 +11,10 @@ import {
 } from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 import { RSService } from "../config/endpoints/settings";
+
+const PRIME_ADMINS = "DHPrimeAdmins";
+const PREFIX_SENDER = "DHSender_";
+const PREFIX_GENERAL = "DH";
 
 export enum MemberType {
     SENDER = "sender",
@@ -40,8 +44,6 @@ export interface MembershipSettings {
 export interface MembershipState {
     // null here points specifically to an uninitialized state
     activeMembership?: MembershipSettings | null;
-    // Key is the OKTA group name, settings has parsedName
-    memberships?: Map<string, MembershipSettings>;
     initialized?: boolean;
 }
 
@@ -57,9 +59,9 @@ export interface MembershipAction {
 }
 
 export const getTypeOfGroup = (org: string) => {
-    const isStandardType = org.startsWith("DH");
-    const isSenderType = org.startsWith("DHSender_");
-    const isAdminType = org === "DHPrimeAdmins";
+    const isStandardType = org.startsWith(PREFIX_GENERAL);
+    const isSenderType = org.startsWith(PREFIX_SENDER);
+    const isAdminType = org === PRIME_ADMINS;
     if (isStandardType) {
         if (isAdminType) {
             return MemberType.PRIME_ADMIN;
@@ -96,46 +98,30 @@ export const getSettingsFromOrganization = (
     };
 };
 
-export const makeMembershipMapFromToken = (
-    token: AccessToken
-): Map<string, MembershipSettings> => {
-    // Extracts claims from token
-    const organizationClaim = getOktaGroups(token);
-    const settings: Map<string, MembershipSettings> = new Map();
-    // Creates map from claims
-    organizationClaim.forEach((org: string) => {
-        settings.set(org, getSettingsFromOrganization(org));
-    });
-    return settings;
-};
-
 const defaultState: MembershipState = {
     // note that active will be set to {} rather than undefined in most real world cases on initialization
     // see `calculateMembershipsWithOverride` for logic
     activeMembership: null,
-    memberships: undefined,
     initialized: false,
 };
 
 export const membershipsFromToken = (
     token: AccessToken | undefined
 ): Partial<MembershipState> => {
-    // One big undefined check to see if we have what we need for the next line
+    // Check if we even have claims
     if (!token?.claims) {
         return omit(defaultState, "initialized");
     }
-    const claimData: Map<string, MembershipSettings> =
-        makeMembershipMapFromToken(token);
-    // Catch anyone with no claim data
-    if (!claimData.size) {
+    const claims = toRSClaims(token.claims);
+    // Check if we have any organization claims
+    if (!claims?.organization?.length) {
         return omit(defaultState, "initialized");
     }
-    // Get defaults
-    const [first] = claimData.keys();
-    const active = claimData.get(first);
+    const orgClaim =
+        claims.organization.find((org) => org === PRIME_ADMINS) ||
+        claims.organization[0];
     return {
-        activeMembership: active,
-        memberships: claimData,
+        activeMembership: getSettingsFromOrganization(orgClaim),
     };
 };
 

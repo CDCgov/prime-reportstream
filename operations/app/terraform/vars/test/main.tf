@@ -84,6 +84,8 @@ module "database" {
   use_cdc_managed_vnet     = local.network.use_cdc_managed_vnet
   postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
+  postgres_readonly_user   = data.azurerm_key_vault_secret.postgres_readonly_user.value
+  postgres_readonly_pass   = data.azurerm_key_vault_secret.postgres_readonly_pass.value
   db_sku_name              = local.database.db_sku_name
   db_version               = local.database.db_version
   db_storage_mb            = local.database.db_storage_mb
@@ -150,6 +152,7 @@ module "function_app" {
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
+  storage_account                   = module.storage.storage_account_id
 }
 
 module "front_door" {
@@ -164,6 +167,13 @@ module "front_door" {
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
+module "azure_dashboard" {
+  source          = "../../modules/azure_dashboard"
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  resource_prefix = local.init.resource_prefix
+  location        = local.init.location
+}
 module "ssh" {
   source          = "../../modules/ssh"
   environment     = local.init.environment

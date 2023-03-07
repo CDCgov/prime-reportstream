@@ -21,9 +21,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -45,9 +47,11 @@ class ActionHistory(
      *
      */
     val action = Action()
+    val startTime: LocalDateTime
 
     init {
         action.actionName = taskAction
+        startTime = LocalDateTime.now()
     }
 
     /**
@@ -279,6 +283,14 @@ class ActionHistory(
     }
 
     /**
+     * Track the response result of an action by using its [httpStatus] and a [msg].
+     */
+    fun trackActionResult(httpStatus: HttpStatusCode, msg: String? = null) {
+        action.httpStatus = httpStatus.value
+        trackActionResult(msg ?: "")
+    }
+
+    /**
      * Calls trackActionParams with [request] as param, and then trackActionResult with the status of the
      * [response] as param
      */
@@ -307,6 +319,18 @@ class ActionHistory(
             }
         }
         action.externalName = payloadName
+    }
+
+    /**
+     * Adds information to the Action object about the organization and receiver channel affected by this action.
+     * Typically, this would be called when a report is batched for that receiver, sent to that receiver,
+     * downloaded by that receiver, or any other action taken by that receiver or on behalf of that receiver.
+     * @param organizationName  The name of the receiving organization to associate with this action.
+     * @param receiverName  The name of the receiver channel to associate with this action.
+     */
+    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+        action.receivingOrg = organizationName
+        action.receivingOrgSvc = receiverName
     }
 
     /**
@@ -361,6 +385,7 @@ class ActionHistory(
         reportFile.externalName = payloadName
         action.externalName = payloadName
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         reportsReceived[reportFile.reportId] = reportFile
 
         // check that we're dealing with an external file
@@ -489,6 +514,7 @@ class ActionHistory(
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
             reportFile.receivingOrgSvc = report.destination.name

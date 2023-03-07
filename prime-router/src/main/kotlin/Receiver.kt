@@ -24,6 +24,7 @@ import java.time.ZoneId
  * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+ * @param conditionFilter defines the filters that select the conditions that a STLT wants to receive
  * @param deidentify transform
  * @param deidentifiedValue is the replacement value for PII fields
  * @param timing defines how to delay reports to the org. If null, then send immediately
@@ -44,6 +45,7 @@ open class Receiver(
     val routingFilter: ReportStreamFilter = emptyList(),
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
+    val conditionFilter: ReportStreamFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -87,7 +89,9 @@ open class Receiver(
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
         qualityFilter: ReportStreamFilter = emptyList(),
         routingFilter: ReportStreamFilter = emptyList(),
-        processingModeFilter: ReportStreamFilter = emptyList()
+        processingModeFilter: ReportStreamFilter = emptyList(),
+        conditionFilter: ReportStreamFilter = emptyList(),
+        reverseTheQualityFilter: Boolean = false
     ) : this(
         name,
         organizationName,
@@ -98,9 +102,11 @@ open class Receiver(
         qualityFilter = qualityFilter,
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
+        conditionFilter = conditionFilter,
         timing = timing,
         timeZone = timeZone,
-        dateTimeFormat = dateTimeFormat
+        dateTimeFormat = dateTimeFormat,
+        reverseTheQualityFilter = reverseTheQualityFilter
     )
 
     /** A copy constructor for the receiver */
@@ -115,6 +121,7 @@ open class Receiver(
         copy.routingFilter,
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
+        copy.conditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -225,6 +232,12 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
+        if (conditionFilter.isNotEmpty()) {
+            if (topic != Topic.FULL_ELR) {
+                return "Condition filter only allowed for receiver with topic 'full_elr'"
+            }
+        }
+
         // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
         if (topic == Topic.FULL_ELR) return null
 
@@ -245,6 +258,7 @@ open class Receiver(
                 }
             }
         }
+
         return null
     }
 

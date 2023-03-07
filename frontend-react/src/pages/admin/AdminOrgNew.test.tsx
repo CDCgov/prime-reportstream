@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
@@ -12,6 +12,7 @@ const mockData: OrganizationResource = new TestResponse(
 ).data;
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -26,7 +27,7 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
-    ...(jest.requireActual("react-router-dom") as any),
+    ...jest.requireActual("react-router-dom"),
     __esModule: true,
     useNavigate: () => jest.fn(),
 }));
@@ -47,7 +48,7 @@ describe("AdminOrgNew", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithRouter(<AdminOrgNew />);
+        renderApp(<AdminOrgNew />);
     });
 
     test("should go to the new created organization's page", () => {

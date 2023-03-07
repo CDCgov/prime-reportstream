@@ -52,7 +52,8 @@ class ScopeTests {
         assertThat(
             Scope.isWellFormedScope(
                 """a.b.c
-             c"""
+             c
+                """
             )
         ).isFalse()
         assertThat(Scope.isWellFormedScope("a.b.c")).isTrue()

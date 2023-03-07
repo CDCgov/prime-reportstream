@@ -133,9 +133,9 @@ class FileSettingsTests {
     @Test
     fun `test find sender`() {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
-        val sender = settings.findSender("simple_report")
+        val sender = settings.findSender("ignore")
         assertThat(sender).isNotNull()
-        val sender2 = settings.findSender("simple_report.default")
+        val sender2 = settings.findSender("ignore.default")
         assertThat(sender2).isNotNull()
     }
 

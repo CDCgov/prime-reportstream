@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -39,15 +40,17 @@ class DeliveryFunction(
     var receivingOrgSvc: String? = null
 
     /**
-     * Get the correct name for an organization receiver based on the name.
+     * Verify the correct name for an organization based on the name
      *
-     * @param organization Name of organization and client in the format {orgName}.{client}
+     * @param organization Name of organization and optionally a receiver channel in the format {orgName}.{receiver}
      * @return Name for the organization
      */
-    override fun getOrgName(organization: String): String? {
-        val receiver = workflowEngine.settings.findReceiver(organization)
-        receivingOrgSvc = receiver?.name
-        return receiver?.organizationName
+    override fun validateOrgSvcName(organization: String): String? {
+        return if (organization.contains(Sender.fullNameSeparator)) {
+            workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }?.organizationName
+        } else {
+            workflowEngine.settings.findOrganization(organization)?.name
+        }
     }
 
     /**

@@ -7,26 +7,31 @@ import {
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../contexts/SessionContext";
 
+import { Organizations } from "./UseAdminSafeOrganizationName";
+
 const { settings } = servicesEndpoints;
 
 export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();
+    const parsedName = activeMembership?.parsedName;
+
     const { authorizedFetch, rsUseQuery } =
         useAuthorizedFetch<RSOrganizationSettings>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(settings, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    orgName: parsedName!!,
                 },
             }),
-        [activeMembership?.parsedName, authorizedFetch]
+        [parsedName, authorizedFetch]
     );
     return rsUseQuery(
         [settings.queryKey, activeMembership],
         memoizedDataFetch,
         {
-            enabled: !!activeMembership?.parsedName,
+            enabled:
+                Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
         }
     );
 };

@@ -1,4 +1,3 @@
-
 ### Schema: pa/pa-covid-19
 ### Topic: covid-19
 ### Tracking Element: (message_id)
@@ -31,9 +30,7 @@
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The name of the facility which the test was ordered from
-
 ---
 
 **Name**: PatientCity
@@ -47,9 +44,7 @@ The name of the facility which the test was ordered from
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's city
-
 ---
 
 **Name**: PatientDOB
@@ -63,11 +58,9 @@ The patient's city
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's date of birth. Default format is yyyyMMdd.
 
 Other states may choose to define their own formats.
-
 
 ---
 
@@ -92,10 +85,8 @@ N|Non Hispanic or Latino|HL7
 U|Unknown|HL7
 
 **Documentation**:
-
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
 consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -110,9 +101,7 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's first name
-
 ---
 
 **Name**: PatientGender
@@ -139,9 +128,7 @@ U|Unknown|HL7
 N|Not applicable|HL7
 
 **Documentation**:
-
 The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -156,9 +143,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Cardinality**: [1..1]
 
 **Documentation**:
-
 The patient's last name
-
 ---
 
 **Name**: PatientMiddleInitial
@@ -184,9 +169,7 @@ The patient's last name
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's phone number with area code
-
 ---
 
 **Name**: PatientRace
@@ -215,9 +198,7 @@ UNK|Unknown|NULLFL
 ASKU|Asked, but unknown|NULLFL
 
 **Documentation**:
-
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
 
 ---
 
@@ -236,9 +217,7 @@ The patient's race. There is a common valueset defined for race values, but some
 **Table Column**: State
 
 **Documentation**:
-
 The patient's state
-
 ---
 
 **Name**: PatientAddress1
@@ -252,9 +231,7 @@ The patient's state
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's street address
-
 ---
 
 **Name**: PatientSuffix
@@ -268,9 +245,7 @@ The patient's street address
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The suffix for the patient's name, (i.e. Jr, Sr, etc)
-
 ---
 
 **Name**: PatientZipCode
@@ -284,9 +259,7 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The patient's zip code
-
 ---
 
 **Name**: SpecimenCollectedDate
@@ -307,9 +280,7 @@ The patient's zip code
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -341,9 +312,7 @@ Code | Display | System
 1797002|Structure of anterior nares (body structure)|SNOMED_CT
 
 **Documentation**:
-
 Refers back to the specimen source site, which is then encoded into the SPM-8 segment
-
 ---
 
 **Name**: TestName
@@ -386,9 +355,7 @@ Code | Display | System
 309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
-
 The specimen source, such as Blood or Serum
-
 ---
 
 **Name**: TestQualitativeResult
@@ -429,9 +396,7 @@ Code | Display | System
 82334004|Indeterminate|SNOMED_CT
 
 **Documentation**:
-
 The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 ---
 
 **Name**: TestID
@@ -445,7 +410,5 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Cardinality**: [0..1]
 
 **Documentation**:
-
 The specimen-id from the testing lab
-
 ---

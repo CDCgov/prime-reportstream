@@ -157,7 +157,7 @@ class Huge : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             csvReceiver.name,
@@ -205,7 +205,7 @@ class TooBig : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             csvReceiver.name,

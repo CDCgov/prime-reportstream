@@ -407,3 +407,7 @@ elements:
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: symptomatic, format: $display}]
       default: ""
+
+############## These fields are calculated for filtering purposes
+    - name: test_type
+    - name: abnormal_flag

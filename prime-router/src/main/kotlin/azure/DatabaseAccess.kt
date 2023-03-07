@@ -41,6 +41,7 @@ import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
+import org.apache.logging.log4j.ThreadContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -54,6 +55,8 @@ import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -421,6 +424,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(CovidResultMetadata::class.java)
     }
 
+    /**
+     * Fetch CovidResultMetadatas by a message/tracking id.
+     * @param messageId an exact message/tracking id
+     * @param txn an optional database transaction
+     * @return a list of CovidResultMetadatas.
+     */
     fun fetchCovidResultMetadatasByMessageId(
         messageId: String,
         txn: DataAccessTransaction? = null
@@ -436,13 +445,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .from(COVID_RESULT_METADATA)
             .where(
-                COVID_RESULT_METADATA.MESSAGE_ID.likeIgnoreCase("%$messageId%")
+                COVID_RESULT_METADATA.MESSAGE_ID.eq(messageId)
             )
             .limit(100)
             .fetch()
             .into(CovidResultMetadata::class.java)
     }
 
+    /**
+     * Fetch ActionLogs by a report id, tracking id, and type.
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param type the type of action log to find (i.e. ActionLogType.warning)
+     * @param txn an optional database transaction
+     * @return a list of DetailedActionLogs.
+     */
     fun fetchActionLogsByReportIdAndTrackingIdAndType(
         reportId: ReportId,
         trackingId: String,
@@ -498,24 +515,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return itemLineages
     }
 
-    fun fetchItemLineagesByParentReportIdAndTrackingId(
-        parentReportId: ReportId,
-        trackingId: String,
-        txn: DataAccessTransaction? = null
-    ): List<ItemLineage> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.selectFrom(ITEM_LINEAGE)
-            .where(ITEM_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
-            .and(ITEM_LINEAGE.TRACKING_ID.eq(trackingId))
-            .orderBy(
-                ITEM_LINEAGE.CHILD_INDEX
-            )
-            .limit(100)
-            .fetch()
-            .into(ItemLineage::class.java)
-            .toList()
-    }
-
+    /**
+     * Fetch descendants of a report by a "parent" report id
+     * @param parentReportId an exact report id
+     * @param txn an optional database transaction
+     * @return a list of ReportFiles.
+     */
     fun fetchReportDescendantsFromReportId(
         parentReportId: ReportId,
         txn: DataAccessTransaction? = null
@@ -524,15 +529,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val sql = """select * FROM 
                 report_file where report_id in (
                 select * from report_descendants(?)
-                where report_id != ?
                 limit(100)
                 )
-              """
+        """
         return ctx.fetch(sql, parentReportId, parentReportId)
             .into(ReportFile::class.java)
             .toList()
     }
 
+    /**
+     * used by the Message Tracker feature: Fetch ActionLogs by a report id and a filter type
+     * @param reportId an exact report id
+     * @param trackingId an exact tracking/message id
+     * @param filterType a filter type, i.e. "QUALITY_FILTER"
+     * @param txn an optional database transaction
+     * @return a list of MessageActionLog.
+     */
     fun fetchActionLogsByReportIdAndFilterType(
         reportId: ReportId,
         trackingId: String,
@@ -1259,6 +1271,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         actionHistory.actionLogs.forEach {
             this.insertActionLog(it, txn)
         }
+
+        // log for app insights
+        val actionEndTime = LocalDateTime.now()
+        ThreadContext.put("action_id", actionHistory.action.actionId.toString())
+        ThreadContext.put("action_name", actionHistory.action.actionName.name)
+        ThreadContext.put("username", actionHistory.action.username)
+        ThreadContext.put("sending_organization", actionHistory.action.sendingOrg)
+        ThreadContext.put("start_time", actionHistory.startTime.toString())
+        ThreadContext.put("end_time", actionEndTime.toString())
+        ThreadContext.put("duration", Duration.between(actionHistory.startTime, actionEndTime).toMillis().toString())
+        logger.info("Action history for action '${actionHistory.action.actionName}' has been recorded")
+        ThreadContext.clearAll()
     }
 
     /**

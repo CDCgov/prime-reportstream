@@ -46,6 +46,38 @@ export const checkJson = (
     }
 };
 
+export function includesSpecialChars(text: string): boolean {
+    return /[^a-z\d\s]/i.test(text);
+}
+
+export const isProhibitedName = (
+    name: string
+): { prohibited: boolean; errorMsg: string } => {
+    const prohibitedNames = [
+        "sender",
+        "receiver",
+        "org",
+        "organization",
+        "list",
+        "all", //api/check issue
+        "revs", //org/{organizationName}/senders/revs issue
+    ];
+
+    if (prohibitedNames.indexOf(name.toLowerCase()) > -1) {
+        return {
+            prohibited: true,
+            errorMsg: `'${name}' is a prohibited name.`,
+        };
+    } else if (includesSpecialChars(name)) {
+        return {
+            prohibited: true,
+            errorMsg: `'${name}' cannot contain special character(s).`,
+        };
+    } else {
+        return { prohibited: false, errorMsg: "" };
+    }
+};
+
 /**
  * returns the error detail usually found in the "error" field of the JSON returned
  * otherwise, just return the general exception detail
@@ -96,18 +128,18 @@ export function formatDate(date: string): string {
             minute: "numeric",
         }).format(new Date(date));
     } catch (err: any) {
-        console.error(err);
+        console.warn(err);
         return date;
     }
 }
 
 /*
-  for strings in machine readable form:
+  for strings in machine-readable form:
     * camel cased
     * inconsistent caps
-    * whitespace deliminted by - or _
+    * whitespace delimited by - or _
 
-  translate into normal human readable strings with all words capitalized
+  translate into normal human-readable strings with all words capitalized
 */
 export const toHumanReadable = (machineString: string): string => {
     const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
@@ -142,3 +174,32 @@ export const groupBy = <T>(
         (acc[predicate(value, index, array)] ||= []).push(value);
         return acc;
     }, {} as { [key: string]: T[] });
+
+/* Takes a url that contains the 'report/' location and returns
+    the folder location, sending org, and filename
+*/
+export const parseFileLocation = (
+    urlFileLocation: string
+): {
+    folderLocation: string;
+    sendingOrg: string;
+    fileName: string;
+} => {
+    const fileReportsLocation = urlFileLocation.split("/").pop() || "";
+    const [folderLocation, sendingOrg, fileName] =
+        fileReportsLocation.split("%2F");
+
+    if (!(folderLocation && sendingOrg && fileName)) {
+        return {
+            folderLocation: "",
+            sendingOrg: "",
+            fileName: "",
+        };
+    }
+
+    return {
+        folderLocation,
+        sendingOrg,
+        fileName,
+    };
+};

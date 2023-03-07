@@ -12,11 +12,13 @@ import kotlin.test.Test
  * A collection of tests for the documentation generation
  */
 class DocumentationTests {
-    private val documentation = """
-        ##### This is a test documentation field
+    private val documentation =
+        """
+        #### This is a test documentation field
         `I am a code example`
         > This is preformatted text
-    """.trimIndent()
+        """.trimIndent()
+
     private val elem = Element(
         name = "a",
         type = Element.Type.TEXT,
@@ -81,14 +83,16 @@ class DocumentationTests {
     @Test
     @Ignore
     fun `test building documentation string from element`() {
-        val expected = """
-**Name**: a
-
-**Type**:           TEXT     
-
-**Cardinality**:    [0..1]
----
-"""
+        val expected =
+            """
+            **Name**: a
+            
+            **Type**:           TEXT     
+            
+            **Cardinality**:    [0..1]
+            ---
+            
+            """.trimIndent()
 
         val docString = MarkdownDocumentationFactory.getElementDocumentation(elem)
         assertThat(docString).isEqualTo(expected)
@@ -96,28 +100,30 @@ class DocumentationTests {
 
     @Test
     fun `test building documentation string from a schema`() {
-        val expected = """
-### Schema: Test Schema
-### Topic: test
-### Tracking Element: Test TrackingElement (a)
-### Base On: [TestBaseOn](./TestBaseOn.md)
-### Extends: [test/extends](./test-extends.md)
-#### Description: Test Description
-
----
-
-**Name**: Test TrackingElement
-
-**ReportStream Internal Name**: a
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-"""
+        val expected =
+            """
+            ### Schema: Test Schema
+            ### Topic: test
+            ### Tracking Element: Test TrackingElement (a)
+            ### Base On: [TestBaseOn](./TestBaseOn.md)
+            ### Extends: [test/extends](./test-extends.md)
+            #### Description: Test Description
+            
+            ---
+            
+            **Name**: Test TrackingElement
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: TEXT
+            
+            **PII**: No
+            
+            **Cardinality**: [0..1]
+            
+            ---
+            
+            """.trimIndent()
 
         val actual = MarkdownDocumentationFactory.getSchemaDocumentation(schema).joinToString(separator = "")
         assertThat(actual).isEqualTo(expected)
@@ -125,25 +131,31 @@ class DocumentationTests {
 
     @Test
     fun `test building documentation for element with documentation value`() {
-        val expected = """
-**Name**: a
+        val expected = StringBuilder()
 
-**ReportStream Internal Name**: a
+        expected.appendLine(
+            """
+            
+            **Name**: a
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: TEXT
+            
+            **PII**: No
+            
+            **Cardinality**: [0..1]
+            
+            **Documentation**:
+            """.trimIndent()
+        )
+        expected.appendLine(
+            documentation
+        )
+        expected.appendLine("---")
 
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-$documentation
-
----
-"""
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithDocumentation)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isEqualTo(expected.toString())
     }
 
     @Test
@@ -153,21 +165,24 @@ $documentation
             type = Element.Type.CODE,
             csvFields = Element.csvFields("b", format = "\$display")
         )
-        val expected = """
-**Name**: b
-
-**ReportStream Internal Name**: a
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Display column
-
-**Cardinality**: [0..1]
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: b
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: CODE
+            
+            **PII**: No
+            
+            **Format**: use value found in the Display column
+            
+            **Cardinality**: [0..1]
+            
+            ---
+        
+            """.trimIndent()
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -179,21 +194,24 @@ $documentation
             type = Element.Type.CODE,
             csvFields = Element.csvFields("b", format = "\$alt")
         )
-        val expected = """
-**Name**: b
-
-**ReportStream Internal Name**: a
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Display column
-
-**Cardinality**: [0..1]
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: b
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: CODE
+            
+            **PII**: No
+            
+            **Format**: use value found in the Display column
+            
+            **Cardinality**: [0..1]
+            
+            ---
+            
+            """.trimIndent()
         MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
             assertThat(actual).isEqualTo(expected)
         }
@@ -206,21 +224,24 @@ $documentation
             type = Element.Type.CODE,
             csvFields = Element.csvFields("b")
         )
-        val expected = """
-**Name**: b
-
-**ReportStream Internal Name**: a
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: b
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: CODE
+            
+            **PII**: No
+            
+            **Format**: use value found in the Code column
+            
+            **Cardinality**: [0..1]
+            
+            ---
+            
+            """.trimIndent()
         MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode).also { actual ->
             assertThat(actual).isEqualTo(expected)
         }
@@ -233,21 +254,24 @@ $documentation
             type = Element.Type.TEXT,
             csvFields = Element.csvFields("b", format = "Testing")
         )
-        val expected = """
-**Name**: b
-
-**ReportStream Internal Name**: a
-
-**Type**: TEXT
-
-**PII**: No
-
-**Format**: Testing
-
-**Cardinality**: [0..1]
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: b
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: TEXT
+            
+            **PII**: No
+            
+            **Format**: Testing
+            
+            **Cardinality**: [0..1]
+            
+            ---
+            
+            """.trimIndent()
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -261,27 +285,30 @@ $documentation
         )
 
         val elemWithTypeCode = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
-        val expected = """
-**Name**: a
-
-**ReportStream Internal Name**: a
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-&#62;|Above absolute high-off instrument scale|HL7
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: a
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: CODE
+            
+            **PII**: No
+            
+            **Format**: use value found in the Code column
+            
+            **Cardinality**: [0..1]
+            
+            **Value Sets**
+            
+            Code | Display | System
+            ---- | ------- | ------
+            &#62;|Above absolute high-off instrument scale|HL7
+            
+            ---
+            
+            """.trimIndent()
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithTypeCode)
         assertThat(actual).isEqualTo(expected)
     }
@@ -301,27 +328,30 @@ Code | Display | System
             )
         )
         val elemWithValuesSetValues = Element(name = "a", type = Element.Type.CODE, valueSetRef = valueSetA)
-        val expected = """
-**Name**: a
-
-**ReportStream Internal Name**: a
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-&#62;|Above absolute high-off instrument scale|LOINC
-
----
-"""
+        val expected =
+            """
+            
+            **Name**: a
+            
+            **ReportStream Internal Name**: a
+            
+            **Type**: CODE
+            
+            **PII**: No
+            
+            **Format**: use value found in the Code column
+            
+            **Cardinality**: [0..1]
+            
+            **Value Sets**
+            
+            Code | Display | System
+            ---- | ------- | ------
+            &#62;|Above absolute high-off instrument scale|LOINC
+            
+            ---
+            
+            """.trimIndent()
         val actual = MarkdownDocumentationFactory.getElementDocumentation(elemWithValuesSetValues)
         assertThat(actual).isEqualTo(expected)
     }

@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import React, { ReactNode, useMemo } from "react";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
-import { StaticAlert } from "../StaticAlert";
-import { ResponseError } from "../../config/endpoints/waters";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
+import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { USLink, USExtLink } from "../USLink";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -35,11 +35,13 @@ export const FileSuccessDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"success slim"}
+                type={[StaticAlertType.Success, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />
             <div>
+                {/* TODO: can probably remove since it's not being used now */}
+
                 {showExtendedMetadata && (
                     <>
                         {reportId && (
@@ -48,9 +50,9 @@ export const FileSuccessDisplay = ({
                                     Confirmation Code
                                 </p>
                                 <p className="margin-top-05">
-                                    <Link to={`/submissions/${reportId}`}>
+                                    <USLink href={`/submissions/${reportId}`}>
                                         {reportId}
-                                    </Link>
+                                    </USLink>
                                 </p>
                             </div>
                         )}
@@ -93,21 +95,6 @@ export const FileSuccessDisplay = ({
     );
 };
 
-/***
- * This function attempts to truncate an error message if it contains
- * a full stack trace
- * @param errorMessage - the error message to potentially reformat
- * @returns - the original or transformed error message
- */
-const truncateErrorMessage = (errorMessage: string | undefined): string => {
-    if (!errorMessage) return "";
-
-    if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
-        return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
-
-    return errorMessage;
-};
-
 export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
@@ -120,7 +107,7 @@ const TrackingIDTooltip = () => {
             position="right"
             label={"Defaults to MSH-10"}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
@@ -130,7 +117,6 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    handlerType: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -138,10 +124,12 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
-    handlerType,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
-        () => (title === RequestLevel.WARNING ? "warning" : "error"),
+        () =>
+            title === RequestLevel.WARNING
+                ? StaticAlertType.Warning
+                : StaticAlertType.Error,
         [title]
     );
     const showTable =
@@ -149,38 +137,23 @@ export const RequestedChangesDisplay = ({
         data.length &&
         data.some((responseItem) => responseItem.message);
 
-    useEffect(() => {
-        data.forEach((error: ResponseError) => {
-            if (title === RequestLevel.ERROR && error.details) {
-                console.error(`${handlerType} failure: ${error.details}`);
-            }
-        });
-    }, [data, handlerType, title]);
-
     return (
         <>
             <StaticAlert type={alertType} heading={heading} message={message}>
                 <h5 className="margin-bottom-1">Resources</h5>
                 <ul className={"margin-0"}>
                     <li>
-                        <NavLink
+                        <USLink
                             target="_blank"
-                            to={"/resources/programmers-guide"}
+                            href="/resources/programmers-guide"
                         >
                             ReportStream Programmers Guide
-                        </NavLink>
+                        </USLink>
                     </li>
                     <li>
-                        <a
-                            className={"usa-link--external"}
-                            target={"_blank"}
-                            href={
-                                "https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html"
-                            }
-                            rel="noreferrer"
-                        >
+                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
                             LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </a>
+                        </USLink>
                     </li>
                 </ul>
             </StaticAlert>
@@ -227,8 +200,116 @@ interface FileWarningBannerProps {
 }
 
 export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+    return (
+        <StaticAlert
+            type={StaticAlertType.Warning}
+            heading="Warning"
+            message={message}
+        />
+    );
 };
+
+const HL7_PRODUCT_MATRIX_URL =
+    "https://www.hl7.org/implement/standards/product_brief.cfm";
+const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
+
+export type ValidationErrorMessageProps = {
+    errorCode: ErrorCode;
+    field?: string;
+    message?: string;
+};
+
+export function ValidationErrorMessage({
+    errorCode,
+    field,
+    message,
+}: ValidationErrorMessageProps) {
+    let child: ReactNode;
+
+    switch (errorCode) {
+        case ErrorCode.INVALID_MSG_PARSE_BLANK:
+            child = (
+                <>
+                    Blank message(s) found within file. Blank messages cannot be
+                    processed.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_TYPE_MISSING:
+            child = (
+                <>
+                    Missing required HL7 message type field MSH-9. Fill in the
+                    blank field before resubmitting.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED:
+            child = (
+                <>
+                    We found an unsupported HL7 message type. Please reformat to
+                    ORU-RO1. Refer to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>{" "}
+                    for more details.
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID:
+            child = (
+                <>
+                    Invalid HL7 message format. Check your formatting by
+                    referring to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>
+                    .
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_MSG_PARSE_DATETIME:
+            child = <>Reformat {field} as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.</>;
+            break;
+        case ErrorCode.INVALID_MSG_PARSE_TELEPHONE:
+            child = (
+                <>
+                    Reformat phone number to a 10-digit phone number (e.g. (555)
+                    555-5555).
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_HL7_MSG_VALIDATION:
+            child = (
+                <>
+                    Reformat {field} to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
+                        HL7 specification
+                    </USExtLink>
+                    .
+                </>
+            );
+            break;
+        case ErrorCode.INVALID_MSG_MISSING_FIELD:
+            child = <>Fill in the required field {field}.</>;
+            break;
+        case ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING:
+            child = (
+                <>
+                    Reformat field {field}. Refer to{" "}
+                    <USExtLink href={CDC_LIVD_CODES_URL}>
+                        CDC LIVD table LOINC mapping spreadsheet
+                    </USExtLink>{" "}
+                    for acceptable values.
+                </>
+            );
+            break;
+        default:
+            child = <>{message || ""}</>;
+            break;
+    }
+
+    return <p data-testid="ValidationErrorMessage">{child}</p>;
+}
 
 interface ErrorRowProps {
     error: ResponseError;
@@ -236,10 +317,16 @@ interface ErrorRowProps {
 }
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { message, field, trackingIds } = error;
+    const { errorCode, field, message, trackingIds } = error;
     return (
         <tr key={"error_" + index}>
-            <td>{truncateErrorMessage(message)}</td>
+            <td>
+                <ValidationErrorMessage
+                    errorCode={errorCode}
+                    field={field}
+                    message={message}
+                />
+            </td>
             <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
                 {trackingIds?.length && trackingIds.length > 0 && (
@@ -264,7 +351,7 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={"error slim"}
+                type={[StaticAlertType.Error, StaticAlertType.Slim]}
                 heading={heading}
                 message={message}
             />

@@ -30,3 +30,9 @@ package-lock.json
 
 # .scss is compiled to .css
 /src/content/generated
+
+# Cypress
+cypress.*.json
+cypress/downloads
+cypress/videos
+cypress/screenshots

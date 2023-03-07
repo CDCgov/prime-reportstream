@@ -345,4 +345,5 @@ elements:
       csvFields: [{name: Comments}]
       documentation: This field is ignored.
 
-
+    - name: test_type
+    - name: abnormal_flag

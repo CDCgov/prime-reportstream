@@ -19,7 +19,7 @@ interface TranslatorProperties {
     val format: Report.Format
 
     /**
-     * [schemaName] is a the full name of the schema used in the translation
+     * [schemaName] is the full name of the schema used in the translation
      */
     val schemaName: String
 
@@ -48,7 +48,7 @@ interface TranslatorProperties {
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
     JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
-    JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM"),
+    JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM")
 )
 abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
 
@@ -114,7 +114,7 @@ data class Hl7Configuration
      * Some receivers need a higher precision batch and file header date time
      * value, so I am adding the option here for those who need it
      */
-    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
+    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields

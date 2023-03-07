@@ -2,16 +2,16 @@
 # Key Vaults #
 ##############
 
-10.0.5.14 pdhtest-app-config.vaultcore.azure.net. pdhtest-app-config.privatelink.vaultcore.azure.net.
+10.0.5.4 pdhtest-app-config.vaultcore.azure.net. pdhtest-app-config.privatelink.vaultcore.azure.net.
 10.0.5.5 pdhtest-clientconfig2.vaultcore.azure.net. pdhtest-clientconfig2.privatelink.vaultcore.azure.net.
-10.0.5.4 pdhtest-keyvault.vaultcore.azure.net pdhtest-keyvault.privatelink.vaultcore.azure.net
+10.0.5.8 pdhtest-keyvault.vaultcore.azure.net pdhtest-keyvault.privatelink.vaultcore.azure.net
 
 
 #############
 # Databases #
 #############
 
-10.0.5.12 pdhtest-pgsql.postgres.database.azure.com pdhtest-pgsql.privatelink.postgres.database.azure.com
+10.0.5.14 pdhtest-pgsql.postgres.database.azure.com pdhtest-pgsql.privatelink.postgres.database.azure.com
 10.1.5.4 pdhtest-pgsql-replica.postgres.database.azure.com pdhtest-pgsql-replica.privatelink.postgres.database.azure.com
 172.17.5.52 pdhtest-pgsql-flex.postgres.database.azure.com pdhtest-pgsql-flex.privatelink.postgres.database.azure.com
 
@@ -20,14 +20,14 @@
 # Storage Accounts #
 ####################
 
-10.0.5.9 pdhteststorageaccount.blob.core.windows.net pdhteststorageaccount.privatelink.blob.core.windows.net
-10.0.5.10 pdhteststorageaccount.file.core.windows.net pdhteststorageaccount.privatelink.file.core.windows.net
-10.0.5.7 pdhteststorageaccount.queue.core.windows.net pdhteststorageaccount.privatelink.queue.core.windows.net
+10.0.5.11 pdhteststorageaccount.blob.core.windows.net pdhteststorageaccount.privatelink.blob.core.windows.net
+10.0.5.9 pdhteststorageaccount.file.core.windows.net pdhteststorageaccount.privatelink.file.core.windows.net
+10.0.5.12 pdhteststorageaccount.queue.core.windows.net pdhteststorageaccount.privatelink.queue.core.windows.net
 
-10.0.5.13 pdhtestpartner.blob.core.windows.net pdhtestpartner.privatelink.blob.core.windows.net
+10.0.5.7 pdhtestpartner.blob.core.windows.net pdhtestpartner.privatelink.blob.core.windows.net
 
-10.0.5.15 pdhtestcandidate.blob.core.windows.net pdhtestcandidate.privatelink.blob.core.windows.net
-10.0.5.16 pdhtestcandidate.file.core.windows.net pdhtestcandidate.privatelink.file.core.windows.net
-10.0.5.17 pdhtestcandidate.queue.core.windows.net pdhtestcandidate.privatelink.queue.core.windows.net
+10.0.5.13 pdhtestcandidate.blob.core.windows.net pdhtestcandidate.privatelink.blob.core.windows.net
+10.0.5.10 pdhtestcandidate.file.core.windows.net pdhtestcandidate.privatelink.file.core.windows.net
+10.0.5.15 pdhtestcandidate.queue.core.windows.net pdhtestcandidate.privatelink.queue.core.windows.net
 
-10.0.5.8 pdhtestcandpartner.blob.core.windows.net pdhtestcandpartner.privatelink.blob.core.windows.net
+10.0.5.6 pdhtestcandpartner.blob.core.windows.net pdhtestcandpartner.privatelink.blob.core.windows.net

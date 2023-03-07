@@ -1,6 +1,6 @@
 import { fireEvent, screen, cleanup, within } from "@testing-library/react";
 
-import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 
 import { MessageTracker } from "./MessageTracker";
@@ -19,7 +19,7 @@ jest.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", () => {
 
 describe("MessageTracker component", () => {
     beforeEach(() => {
-        renderWithFullAppContext(<MessageTracker />);
+        renderApp(<MessageTracker />);
     });
 
     afterEach(cleanup);
@@ -77,5 +77,20 @@ describe("MessageTracker component", () => {
 
         const thirdCells = await within(rows[3]).findAllByRole("cell");
         expect(thirdCells[0]).toHaveTextContent("12-234567");
+    });
+
+    test("trims search value leading/trailing whitespace", async () => {
+        const searchField = screen.getByTestId("textInput");
+        expect(searchField).toBeInTheDocument();
+
+        const submitButton = await screen.findByText("Search");
+        expect(submitButton).toBeInTheDocument();
+
+        const textInput = await screen.findByTestId("textInput");
+        expect(textInput).toBeInTheDocument();
+
+        fireEvent.change(textInput, { target: { value: "    abc 123    " } });
+        fireEvent.click(submitButton);
+        expect(textInput).toHaveValue("abc 123");
     });
 });

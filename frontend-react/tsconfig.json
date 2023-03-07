@@ -24,9 +24,11 @@
       "cypress",
       "@testing-library/cypress"
     ],
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "inlineSourceMap": true
   },
   "include": [
-    "src"
+    "./src",
+    "./cypress",
   ]
 }

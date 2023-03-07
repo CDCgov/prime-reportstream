@@ -192,7 +192,8 @@ class LookupTableCommandsTest {
         // Good data
         every { mockResult.get().content } returns
             """{"tableName": "name", "tableVersion": 1, "isActive": true, 
-                        "createdBy": "developer", "createdAt": "2018-12-30T06:00:00Z"}"""
+                        "createdBy": "developer", "createdAt": "2018-12-30T06:00:00Z"}
+            """
         val info = LookupTableEndpointUtilities.getTableInfoFromResponse(mockResult, mockResponse)
         assertThat(info.tableName).isEqualTo("name")
     }

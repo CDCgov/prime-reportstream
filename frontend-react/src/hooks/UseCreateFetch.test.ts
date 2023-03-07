@@ -1,6 +1,7 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import * as axios from "axios";
 
+import config from "../config";
 import { RSEndpoint } from "../config/endpoints";
 import { mockToken } from "../utils/TestUtils";
 
@@ -12,6 +13,12 @@ let generatorSpy: jest.SpyInstance;
 // a possible pattern for mocking axios in the future, which is difficult
 jest.mock("axios");
 const mockedAxios = jest.mocked(axios);
+
+jest.mock("../TelemetryService", () => ({
+    getAppInsightsHeaders: () => ({
+        "x-ms-session-id": "DUMMY",
+    }),
+}));
 
 const fakeOktaToken = mockToken();
 const fakeMembership = {
@@ -84,7 +91,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,
@@ -92,6 +99,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "authentication-type": "okta",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });
@@ -110,7 +118,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,
@@ -119,6 +127,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "x-fake-header": "me",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });
@@ -135,7 +144,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
-            url: "https://test.prime.cdc.gov/api/anything",
+            url: `${config.API_ROOT}/anything`,
             method: "GET",
             data: "some data",
             timeout: 1,
@@ -143,6 +152,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
                 "authentication-type": "okta",
                 authorization: "Bearer this token",
                 organization: "any",
+                "x-ms-session-id": "DUMMY",
             },
         });
     });

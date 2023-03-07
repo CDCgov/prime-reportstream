@@ -38,7 +38,7 @@ open class LookupTable : Logging {
     /**
      * The table data.
      */
-    private var table: Table = Table.create()
+    var table: Table = Table.create()
 
     /**
      * The database access instance.

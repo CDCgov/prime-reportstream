@@ -638,4 +638,50 @@ class CsvSerializerTests {
         assertThat(report.getString(0, "c")).isEqualTo("c1")
         assertThat(report.getString(1, "c")).isEqualTo("c2")
     }
+
+    @Test
+    fun `test write as csv with repeating csvFields in schema with one being TEXT type`() {
+        val one = Schema(
+            name = "one",
+            topic = Topic.TEST,
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b")),
+                Element("c", csvFields = Element.csvFields("a"), type = Element.Type.TEXT)
+            )
+        )
+        val report1 = Report(one, listOf(listOf("1", "2", "3")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val expectedCsv = """
+            a,b
+            1,2
+            
+        """.trimIndent()
+        val output = ByteArrayOutputStream()
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        csvConverter.write(report1, output)
+        assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo(expectedCsv)
+    }
+
+    @Test
+    fun `test write as csv with repeating csvFields in schema with both being TEXT type`() {
+        val one = Schema(
+            name = "one",
+            topic = Topic.TEST,
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a"), type = Element.Type.TEXT),
+                Element("b", csvFields = Element.csvFields("b")),
+                Element("c", csvFields = Element.csvFields("a"), type = Element.Type.TEXT)
+            )
+        )
+        val report1 = Report(one, listOf(listOf("1", "2", "3")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val expectedCsv = """
+            a,b
+            1,2
+            
+        """.trimIndent()
+        val output = ByteArrayOutputStream()
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        csvConverter.write(report1, output)
+        assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo(expectedCsv)
+    }
 }

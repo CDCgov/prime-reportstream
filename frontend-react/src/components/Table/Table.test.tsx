@@ -2,10 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
-import {
-    renderWithRouter,
-    renderWithCustomWrapper,
-} from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
@@ -82,9 +79,7 @@ const getTestConfig = (rowCount: number): TableConfig => {
     };
 };
 
-/* Reusable complex actions to keep tests clean */
-
-const selectDatesFromRange = (dayOne: string, dayTwo: string) => {
+const selectDatesFromRange = async (dayOne: string, dayTwo: string) => {
     /* Borrowed some of this from Trussworks' own tests: their
      * components are tricky to test. */
     const datePickerButtons = screen.getAllByTestId("date-picker-button");
@@ -92,19 +87,19 @@ const selectDatesFromRange = (dayOne: string, dayTwo: string) => {
     const endDatePickerButton = datePickerButtons[1];
 
     /* Select Start Date */
-    userEvent.click(startDatePickerButton);
+    await userEvent.click(startDatePickerButton);
     const newStartDateButton = screen.getByText(`${dayOne}`);
-    userEvent.click(newStartDateButton);
+    await userEvent.click(newStartDateButton);
 
     /* Select End Date */
-    userEvent.click(endDatePickerButton);
+    await userEvent.click(endDatePickerButton);
     const newEndDateButton = screen.getByText(`${dayTwo}`);
-    userEvent.click(newEndDateButton);
+    await userEvent.click(newEndDateButton);
 };
 
-const clickFilterButton = () => {
+const clickFilterButton = async () => {
     const filterButton = screen.getByText("Filter");
-    userEvent.click(filterButton);
+    await userEvent.click(filterButton);
 };
 
 /* Sample components for test rendering */
@@ -131,20 +126,20 @@ const FilteredTable = () => {
 
 describe("Table, basic tests", () => {
     test("Info renders", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Test Action")).toBeInTheDocument();
         expect(screen.getByText("Simple Legend")).toBeInTheDocument();
         expect(screen.getByText("Simple Table")).toBeInTheDocument();
     });
 
     test("DatasetAction fires onClick", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         fireEvent.click(screen.getByText("Test Action"));
         expect(mockAction).toHaveBeenCalledTimes(1);
     });
 
     test("Column names render", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         const idHeader = screen.getByText("Id");
         const itemHeader = screen.getByText("Item");
 
@@ -153,21 +148,21 @@ describe("Table, basic tests", () => {
     });
 
     test("Row values render", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getAllByRole("columnheader").length).toEqual(9);
         expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
         expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
 
     test("Edit button column renders and operates", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getAllByText("Edit").length).toEqual(10);
         fireEvent.click(screen.getAllByText("Edit")[0]);
         expect(screen.getAllByRole("textbox").length).toEqual(1);
     });
 
     test("Link columns are rendered as links", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         const linkInCell = screen.getByText("UUID-1");
         expect(linkInCell).toContainHTML(
             '<a class="usa-link" href="/base/UUID-1">UUID-1</a>'
@@ -175,19 +170,19 @@ describe("Table, basic tests", () => {
     });
 
     test("Map columns use mapped value", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Mapped Item")).toBeInTheDocument();
     });
 
     test("Transform columns use transformed value", () => {
-        renderWithRouter(<SimpleTable />);
+        renderApp(<SimpleTable />);
         expect(screen.getByText("Transformed Value")).toBeInTheDocument();
     });
 });
 
 describe("Sorting integration", () => {
     test("(Locally) Sorting swaps on header click", () => {
-        renderWithRouter(<FilteredTable />);
+        renderApp(<FilteredTable />);
         const header = screen.getByText("Locallysortedcolumn");
         // click header
         fireEvent.click(header);
@@ -211,7 +206,7 @@ describe("Sorting integration", () => {
     });
 
     test("(Server) Sorting swaps on header click", () => {
-        renderWithRouter(<FilteredTable />);
+        renderApp(<FilteredTable />);
         const header = screen.getByText("Sortedcolumn");
         // click header
         fireEvent.click(header);
@@ -239,42 +234,42 @@ describe("Sorting integration", () => {
  *   Refactor these tests to use new functions instead of TestTable
  * */
 describe("Table, filter integration tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
-    test("date range selection and clearing", () => {
+    beforeEach(() => renderApp(<TestTable />));
+    test("date range selection and clearing", async () => {
         /* Workaround to assert changing state */
         const defaultState =
             "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
         expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
 
-        selectDatesFromRange("20", "23");
-        clickFilterButton();
+        await selectDatesFromRange("20", "23");
+        await clickFilterButton();
 
         /* Assert the value of state in string has changed */
         expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
         const clearButton = screen.getByText("Clear");
-        userEvent.click(clearButton);
+        await userEvent.click(clearButton);
 
         expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
     });
 
-    test("cursor sets properly according to sort order", () => {
+    test("cursor sets properly according to sort order", async () => {
         const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
         expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
 
-        selectDatesFromRange("10", "20");
-        clickFilterButton();
+        await selectDatesFromRange("10", "20");
+        await clickFilterButton();
 
         expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
             defaultCursor
         );
         // Checking for inclusive date
-        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.000Z/);
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
 
         // Change sort order and repeat
         userEvent.click(screen.getByText("Column Two"));
-        selectDatesFromRange("13", "23");
-        clickFilterButton();
+        await selectDatesFromRange("13", "23");
+        await clickFilterButton();
 
         // Checking for exclusive date
         expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
@@ -283,13 +278,13 @@ describe("Table, filter integration tests", () => {
 
 // TODO: expand these tests. For now mainly concerned with edit / save functionality - DWS 6/13/22
 describe("TableRows", () => {
-    test("does not call onSave function if nothing has been updated", () => {
+    test("does not call onSave function if nothing has been updated", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -298,15 +293,14 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button
         // do not edit a value
         const firstButton = screen.getAllByText("Edit")[0];
         expect(firstButton).toBeInTheDocument();
-        userEvent.click(firstButton);
+        await userEvent.click(firstButton);
         expect(fakeRowSetter).toHaveBeenCalled();
         expect(fakeRowSetter).toHaveBeenCalledWith(0);
 
@@ -334,13 +328,13 @@ describe("TableRows", () => {
         expect(fakeSave).toHaveBeenCalledTimes(0);
     });
 
-    test("does not call onSave function when closing edit state to edit a new row", () => {
+    test("does not call onSave function when closing edit state to edit a new row", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -349,15 +343,14 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button
         // do not edit a value
         const firstButton = screen.getAllByText("Edit")[0];
         expect(firstButton).toBeInTheDocument();
-        userEvent.click(firstButton);
+        await userEvent.click(firstButton);
         expect(fakeRowSetter).toHaveBeenCalled();
         expect(fakeRowSetter).toHaveBeenCalledWith(0);
 
@@ -381,7 +374,7 @@ describe("TableRows", () => {
         // enabled for that row
         const secondButton = screen.getAllByText("Edit")[0];
         expect(secondButton).toBeInTheDocument();
-        userEvent.click(secondButton);
+        await userEvent.click(secondButton);
 
         // expect onSave to have not been called
         expect(fakeSave).toHaveBeenCalledTimes(0);
@@ -393,7 +386,7 @@ describe("TableRows", () => {
         const fakeSave = jest.fn(() => Promise.resolve());
         const fakeRowSetter = jest.fn();
 
-        const { rerender } = renderWithCustomWrapper(
+        const { rerender } = render(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
@@ -402,15 +395,14 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />,
-            "tbody"
+            />
         );
 
         // click the edit button
         // do not edit a value
         const editButton = screen.getByText("Edit");
         expect(editButton).toBeInTheDocument();
-        userEvent.click(editButton);
+        await userEvent.click(editButton);
         expect(fakeRowSetter).toHaveBeenCalled();
         expect(fakeRowSetter).toHaveBeenCalledWith(0);
 
@@ -435,15 +427,15 @@ describe("TableRows", () => {
             "editableColumn-0"
         ) as HTMLInputElement;
         const initialValue = firstInput.value;
-        userEvent.click(firstInput);
-        userEvent.keyboard("fakeItem");
+        await userEvent.click(firstInput);
+        await userEvent.keyboard("fakeItem");
 
         // click save
         const saveButton = screen.getByText("Save");
         expect(saveButton).toBeInTheDocument();
         // eslint-disable-next-line testing-library/no-unnecessary-act
         await act(async () => {
-            userEvent.click(saveButton);
+            await userEvent.click(saveButton);
         });
 
         // expect onSave to have been called
@@ -457,20 +449,21 @@ describe("TableRows", () => {
 
 // TODO: expand these tests. For now mainly concerned with edit / save functionality - DWS 6/13/22
 describe("ColumnData", () => {
-    test("calls passed setUpdatedRow when editable field changes", () => {
+    test("calls passed setUpdatedRow when editable field changes", async () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeUpdate = jest.fn(() => Promise.resolve());
-        renderWithCustomWrapper(
-            <ColumnData
-                rowIndex={0}
-                colIndex={7} // this is the editable column
-                rowData={fakeRows}
-                columnConfig={fakeColumns[7]} // this is the editable column
-                editing={true}
-                setUpdatedRow={fakeUpdate}
-            />,
-            "tr"
+        renderApp(
+            <tr>
+                <ColumnData
+                    rowIndex={0}
+                    colIndex={7} // this is the editable column
+                    rowData={fakeRows}
+                    columnConfig={fakeColumns[7]} // this is the editable column
+                    editing={true}
+                    setUpdatedRow={fakeUpdate}
+                />
+            </tr>
         );
 
         // update value
@@ -478,8 +471,8 @@ describe("ColumnData", () => {
             "editableColumn-0"
         ) as HTMLInputElement;
         const initialValue = firstInput.value;
-        userEvent.click(firstInput);
-        userEvent.keyboard("fakeItem");
+        await userEvent.click(firstInput);
+        await userEvent.keyboard("fakeItem");
 
         // once for each character
         expect(fakeUpdate).toHaveBeenCalledTimes(8);
@@ -491,24 +484,24 @@ describe("ColumnData", () => {
 });
 
 describe("Adding New Rows", () => {
-    test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", () => {
-        render(<TestTable linkable={false} editable={true} />);
+    test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", async () => {
+        renderApp(<TestTable linkable={false} editable={true} />);
 
         let rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(3); // 2 data rows and 1 header row
 
         const addRowButton = screen.getByText("Test Action");
-        userEvent.click(addRowButton);
+        await userEvent.click(addRowButton);
 
         rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(4);
     });
 
-    test("All fields on new editable row are editable", () => {
-        render(<TestTable linkable={false} editable={true} />);
+    test("All fields on new editable row are editable", async () => {
+        renderApp(<TestTable linkable={false} editable={true} />);
 
         const addRowButton = screen.getByText("Test Action");
-        userEvent.click(addRowButton);
+        await userEvent.click(addRowButton);
 
         const rows = screen.getAllByRole("row");
         expect(rows).toHaveLength(4);

@@ -11,8 +11,8 @@ export enum ServicesUrls {
 export interface RSService {
     name: string;
     organizationName: string;
-    topic: string;
-    customerStatus: string;
+    topic?: string;
+    customerStatus?: string;
 }
 
 export interface RSOrganizationSettings {
@@ -48,6 +48,8 @@ export interface RSSender extends RSService {
     topic: string;
     version?: number;
 }
+
+export interface RSReceiver extends RSService {}
 
 /*
 Services Endpoints
