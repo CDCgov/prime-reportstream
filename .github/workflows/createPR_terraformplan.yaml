@@ -41,6 +41,7 @@ jobs:
         uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
         id: stats1
         with:
+          terraform-directory: operations/app/terraform/vars/prod
           terraform-version: 1.2.0
           add-args: "-refresh=false"
   
