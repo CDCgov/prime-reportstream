@@ -46,6 +46,8 @@ Branch names should follow the format:
 experience/XXXX/some-short-description-of-the-feature  
 ```  
 
+where `XXXX` refers to the GitHub issue/ZenHub ticket number
+
 > Why?
 >
 > - Git gets confused with purely numeric branches.
@@ -61,10 +63,12 @@ Experience-XXXX: Adds some new feature
   
 # empty line separating subject and description   
 # description  
-This changeset includes a new feature that allows users to sort tables by multiple columns.   
+This changeset includes a new feature that allows users to sort tables by multiple columns.
+   
 Also included in this changeset:  
 - A few backfilled tests  
-- - I listed this item  
+- I listed this item
+- Cleaned up some logic  
   
 ```  
 
@@ -73,6 +77,24 @@ Also included in this changeset:
 > Having a detailed commit message helps to track exactly why a change was made, which can come in handy while debugging or rewriting logic down the line.  Unlike pull request descriptions, commit messages are directly attached to the commits (hence the name), so they can be viewed as human-understandable snapshots of their changesets in Git history.  As such, they should provide context over why the changeset is being introduced (e.g., to facilitate another feature, to fix a critical user bug, et cetera) and a brief, high-level overview of what is changing.
 
 See [this GitHub blog post](https://github.blog/2022-06-30-write-better-commits-build-better-projects/) for more context about commit messages.
+
+### Pull request content
+
+Pull requests should be broken down into as many small, atomic pieces as possible.  Sizes and LOCs obviously depend on the logic, but generally speaking if a change exceeds ~500 LOC of production code (not tests or dependencies), breaking it down into smaller pieces is recommended.
+
+In cases in which there needs to be one "atomic" change, it's recommended to create a long-lived feature branch off of which smaller branches can be created.  This'll allow reviewers to inspect the changes in a stepwise manner, and each changeset will have an approval by the time the long-lived branch is merged back into `master`.
+
+> Why?
+> 
+> Smaller pull requests help reviewers by:
+> - Focusing their attention on individual logical changes to make suggestions and catch potential bugs
+> - Reducing the amount of complexity and overhead they need to maintain during reviews
+> - Not causing slowdown on GitHub
+> 
+> Smaller pull requests help developers by:
+> - Getting proposals in front of eyes sooner rather than later
+> - Allowing a more TDD-approach to think about edge/corner cases
+> - Breaking their work down into better stopping points
 
 ---
 
@@ -667,6 +689,44 @@ div {
 > Why?
 >
 > Low-specificity selectors in CSS rules makes them more easily overridden if a specific visual variant or ad hoc style needs to be applied.
+
+### Use specificity and comments to point out custom overrides
+
+```scss
+// bad - don't apply custom overrides globally (unless intended)
+.usa-table {
+    background-color: rebeccapurple;
+}
+.usa-table thead {
+    background-color: greenyellow;
+}
+
+// good - use a custom class for added specificity (0010)
+.message-receivers-table {
+    .usa-table {
+        background-color: rebeccapurple;
+    }
+    .usa-table thead {
+        background-color: greenyellow;
+    }
+}
+
+// better - use a custom class and wrap in feature comments
+// MessageReceivers.tsx
+.message-receivers-table {
+    .usa-table {
+        background-color: rebeccapurple;
+    }
+    .usa-table thead {
+        background-color: greenyellow;
+    }
+}
+// END -- MessageReceivers.tsx 
+```
+
+> Why?
+> 
+> Given the way that specificity and the cascade work, it's too easy to apply a global override in CSS.  Using custom classes ensures that we target exactly what we want to modify and adding comments helps future maintainers know where these classes are used.  Essentially, we want to approach CSS as a closed system when applying custom rules. 
 
 ---
 
