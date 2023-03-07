@@ -5,6 +5,12 @@ export enum SessionEvent {
     LOGOUT = "logout",
 }
 
+export async function getUserEmail(): Promise<string | undefined> {
+    const { idToken } = await OKTA_AUTH.tokenManager.getTokens();
+    const { email } = idToken?.claims ?? {};
+    return email;
+}
+
 async function logout(): Promise<void> {
     try {
         await OKTA_AUTH.signOut();

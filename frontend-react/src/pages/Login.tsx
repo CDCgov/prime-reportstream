@@ -9,6 +9,8 @@ import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
 import { USLink } from "../components/USLink";
+import { getUserEmail } from "../utils/UserUtils";
+import { setAuthenticatedUserContext } from "../utils/Analytics";
 
 const MonitoringAlert = () => {
     return (
@@ -31,6 +33,10 @@ export const Login = () => {
 
     const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
+
+        getUserEmail().then((email) => {
+            setAuthenticatedUserContext(email);
+        });
     };
 
     const onError = (err: any) => {

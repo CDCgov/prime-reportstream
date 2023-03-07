@@ -9,10 +9,19 @@ export enum EventName {
 
 export const trackAppInsightEvent = (eventName: string, eventData: any) => {
     const appInsights = getAppInsights();
+
     const telemetryEvent = {
         name: eventName,
         properties: eventData,
     };
 
     if (eventName !== "") appInsights?.trackEvent(telemetryEvent);
+};
+
+export const setAuthenticatedUserContext = (email: string | undefined) => {
+    // Add user email as user_AuthenticatedId to all tracking events
+    if (email) {
+        const appInsights = getAppInsights();
+        appInsights?.setAuthenticatedUserContext(email);
+    }
 };

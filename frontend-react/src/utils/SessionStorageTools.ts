@@ -34,7 +34,7 @@ const fetchJsonFromStorage = (storageKey: string) => {
 };
 
 // temporary solution.
-// TODO: replace all occurrances of this with reads from SessionContext
+// TODO: replace all occurrences of this with reads from SessionContext
 export function getStoredOktaToken(): string | undefined {
     const tokenJsonString = localStorage.getItem(
         GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN
