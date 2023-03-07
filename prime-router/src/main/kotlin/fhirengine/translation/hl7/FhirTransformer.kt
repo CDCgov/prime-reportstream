@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -21,6 +22,8 @@ import org.hl7.fhir.r4.model.Extension
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
     private val strict: Boolean = false,
+    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
+    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : ConfigSchemaProcessor() {
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
@@ -172,13 +175,15 @@ class FhirTransformer(
      * Set the [value] on [bundleProperty] using [bundle] as the root resource and [focusResource] as the focus resource
      */
     internal fun setBundleProperty(
-        bundleProperty: String?,
+        rawBundleProperty: String?,
         value: Base,
         context: CustomContext,
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (bundleProperty == null) return
+        if (rawBundleProperty == null) return
+
+        val bundleProperty = constantSubstitutor.replace(rawBundleProperty, context)
 
         val pathParts = bundleProperty.split(".")
         // We start one level down as we use the addChild function to set the value at the end

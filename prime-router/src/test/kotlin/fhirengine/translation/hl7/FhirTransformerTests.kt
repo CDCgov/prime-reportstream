@@ -378,23 +378,41 @@ class FhirTransformerTests {
         patient.id = "def456"
         bundle.addEntry().resource = patient
 
-        val element = FHIRTransformSchemaElement(
-            "childElement",
+        val elementA = FHIRTransformSchemaElement(
+            "elementA",
             value = listOf("%testId"),
             resource = "%testRes",
-            bundleProperty = "%resource.id"
+            bundleProperty = "%{testPropA}"
+        )
+        val elementB = FHIRTransformSchemaElement(
+            "elementB",
+            value = listOf("%testName"),
+            resource = "%testRes",
+            bundleProperty = "%{testPropB}"
+        )
+        val elementC = FHIRTransformSchemaElement(
+            "elementC",
+            value = listOf("%testActive"),
+            resource = "%testRes",
+            bundleProperty = "%resource.active"
         )
         val schema =
             FhirTransformSchema(
-                elements = mutableListOf(element),
+                elements = mutableListOf(elementA, elementB, elementC),
                 constants = sortedMapOf(
                     Pair("testId", "'12345'"),
-                    Pair("testRes", "Bundle.entry.resource.ofType(Patient)")
+                    Pair("testName", "'SomeName'"),
+                    Pair("testActive", "true"),
+                    Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+                    Pair("testPropA", "Bundle.entry.resource.ofType(Patient).id"),
+                    Pair("testPropB", "Bundle.entry.resource.ofType(Patient).name.text"),
                 )
             )
         val transformer = FhirTransformer(schema)
         transformer.transform(bundle)
         assertThat(patient.id).isEqualTo("12345")
+        assertThat(patient.name[0].text).isEqualTo("SomeName")
+        assertThat(patient.active).isTrue()
     }
 
     @Test
