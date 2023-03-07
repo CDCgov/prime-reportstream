@@ -71,6 +71,31 @@ object FHIRBundleHelpers {
     }
 
     /**
+     * Adds references to diagnostic reports within [fhirBundle] as provenance targets
+     */
+    internal fun addProvenanceReference(fhirBundle: Bundle) {
+        val provenanceResource = try {
+            fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        } catch (e: NoSuchElementException) {
+            throw IllegalStateException("The FHIR bundle does not contain a Provenance resource")
+        }
+
+        // Create the list of diagnostic reports to be added to the Provenance of the bundle
+        val diagnosticReportList = FhirPathUtils.evaluate(
+            null,
+            fhirBundle,
+            fhirBundle,
+            "Bundle.entry.resource.ofType(DiagnosticReport)"
+        )
+
+        diagnosticReportList.forEach { diagnosticReport ->
+            val diagnosticReportReference = Reference(diagnosticReport.idBase)
+            diagnosticReportReference.reference = diagnosticReport.idBase
+            provenanceResource.target.add(diagnosticReportReference)
+        }
+    }
+
+    /**
      * Gets all properties for a [Base] resource recursively and filters only its references
      *
      * @return a list of reference identifiers for a [Base] resource

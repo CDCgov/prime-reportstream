@@ -1,19 +1,19 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { NoServicesBanner } from "./NoServicesAlert";
 
 describe("NoServicesAlert", () => {
     test("displays with undefined props", () => {
-        renderWithBase(<NoServicesBanner />);
+        renderApp(<NoServicesBanner />);
         expect(screen.getByText("Feature unavailable")).toBeInTheDocument();
         expect(
             screen.getByText("No valid service found for your organization")
         ).toBeInTheDocument();
     });
     test("displays with props", () => {
-        renderWithBase(
+        renderApp(
             <NoServicesBanner
                 featureName={"testing"}
                 serviceType={"sender"}
