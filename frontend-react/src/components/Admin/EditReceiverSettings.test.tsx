@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { rest } from "msw";
 
 import config from "../../config";
-import { renderWithBase } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -55,6 +55,7 @@ const mockData = {
 };
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -69,6 +70,7 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
     },
@@ -93,7 +95,7 @@ describe("EditReceiverSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithBase(<EditReceiverSettings />);
+        renderApp(<EditReceiverSettings />);
     });
 
     test("should be able to edit keys field", () => {
