@@ -499,7 +499,7 @@ class FhirTransformerTests {
     }
 
     @Test
-    fun `test element level constant inheritance`() {
+    fun `test constant inheritance`() {
         val bundle = Bundle()
         bundle.id = "abc123"
         val patient = Patient()
@@ -519,14 +519,14 @@ class FhirTransformerTests {
         )
         val elementB = FHIRTransformSchemaElement(
             "elementB",
-            value = listOf("%testId", "%otherTestId", "'backupValue'"),
+            value = listOf("%testId", "%otherTestId", "%defaultName", "'none'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
             bundleProperty = "%resource.name.text",
         )
 
         val childElement = FHIRTransformSchemaElement(
             "childElement",
-            value = listOf("%testId", "%otherTestId", "'backupId'"),
+            value = listOf("%testId", "%otherTestId", "%defaultId"),
             resource = "Bundle.entry",
             bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
         )
@@ -542,6 +542,7 @@ class FhirTransformerTests {
         val schema =
             FhirTransformSchema(
                 elements = mutableListOf(elementA, elementWithChild, elementB),
+                constants = sortedMapOf(Pair("defaultName", "'backupName'"), Pair("defaultId", "'backupId'"))
             )
         val transformer = FhirTransformer(schema)
 
@@ -550,8 +551,8 @@ class FhirTransformerTests {
         assertThat(patient.active).isTrue()
         // Element w/ child used element constant in child element, didn't access constants from Element A
         assertThat(patient.id).isEqualTo("abc-def")
-        // Element B used default value since no constants were accessible
-        assertThat(patient.name[0].text).isEqualTo("backupValue")
+        // Element B used default value from parent schema since no element constants were accessible
+        assertThat(patient.name[0].text).isEqualTo("backupName")
     }
 
     @Test
