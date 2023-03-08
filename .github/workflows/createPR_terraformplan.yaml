@@ -52,6 +52,10 @@ jobs:
           head: feature/autocreatePR-with-tfplan-output 
           base: master
           title: "AutoPR With Terraform Plan Change to Prod"
+          reviewers: |
+            lucasdze
+            JosiahSiegel
+            jeremy-page
 
       # - name: Create Pull Request
       # #   uses: peter-evans/create-pull-request@6217f0d61d3e1fd1236b1cee861f010f84673f23
@@ -62,10 +66,10 @@ jobs:
       #     branch: feature/autocreatePR-with-tfplan-output 
       #     body: |
       #       $(cat tfplan.txt)
-      #     reviewers: |
-      #       lucasdze
-      #       JosiahSiegel
-      #       jeremy-page
+          # reviewers: |
+          #   lucasdze
+          #   JosiahSiegel
+          #   jeremy-page
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     delete-branch: false
       #     draft: false
