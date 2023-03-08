@@ -2,18 +2,6 @@ import {
     ApplicationInsights,
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
-import { OKTA_AUTH } from "./oktaConfig";
-
-const userEmail = "test@test.org";
-const mockAuthState = {
-    //@ts-ignore
-    idToken: {
-        claims: {
-            email: userEmail,
-        },
-    },
-    isAuthenticated: true,
-};
 
 jest.mock("@microsoft/applicationinsights-web", () => {
     return {
@@ -24,24 +12,10 @@ jest.mock("@microsoft/applicationinsights-web", () => {
                 trackEvent: jest.fn(),
                 trackException: jest.fn(),
                 addTelemetryInitializer: jest.fn(),
-                setAuthenticatedUserContext: jest.fn(),
                 context: {
                     getSessionId() {
                         return "test-session-id";
                     },
-                },
-            };
-        },
-    };
-});
-
-jest.mock("./oktaConfig", () => {
-    return {
-        ...jest.requireActual("./oktaConfig"),
-        OKTA_AUTH: () => {
-            return {
-                authStateManager: () => {
-                    authState: mockAuthState;
                 },
             };
         },
@@ -352,30 +326,6 @@ describe("TelemetryService", () => {
                         },
                     });
                 });
-            });
-        });
-    });
-
-    describe("#setAuthenticatedUserContext", () => {
-        let appInsights: ApplicationInsights | null;
-
-        beforeEach(() => {
-            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                "test-connection-string";
-
-            ai.initialize();
-        });
-
-        afterEach(() => {
-            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                oldConnectionString;
-        });
-
-        test("calls setAuthenticatedUserContext with the okta user email", () => {
-            OKTA_AUTH.authStateManager.subscribe((authState) => {
-                expect(appInsights?.setAuthenticatedUserContext).toBeCalledWith(
-                    userEmail
-                );
             });
         });
     });
