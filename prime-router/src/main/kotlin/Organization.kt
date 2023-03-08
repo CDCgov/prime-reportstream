@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
 /**
@@ -20,6 +21,17 @@ open class Organization(
     constructor(org: Organization) : this(
         org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags,
         org.keys
+    )
+
+    constructor(copy: Organization, newScope: String, newJwk: Jwk) : this(
+        copy.name,
+        copy.description,
+        copy.jurisdiction,
+        copy.stateCode,
+        copy.countyName,
+        copy.filters,
+        copy.featureFlags,
+        JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
     enum class Jurisdiction {
@@ -49,6 +61,10 @@ open class Organization(
                 else null
             }
         }
+    }
+
+    fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Organization {
+        return Organization(this, scope, jwk)
     }
 }
 

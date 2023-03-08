@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
@@ -71,23 +72,37 @@ class AddPublicKey : SettingCommand(
 
         val origSenderJson = get(environment, oktaAccessToken, SettingType.SENDER, settingName)
         val origSender = jsonMapper.readValue(origSenderJson, Sender::class.java)
+        val origOrganizationJson =
+            get(environment, oktaAccessToken, SettingType.ORGANIZATION, origSender.organizationName)
+        val origOrganization = jsonMapper.readValue(origOrganizationJson, Organization::class.java)
 
-        if (!Scope.isValidScope(scope, origSender)) {
-            echo("Sender full name in scope must match $settingName.  Instead got: $scope")
+        if (!Scope.isValidScope(scope, origOrganization)) {
+            echo("Organization name in scope must match $settingName.  Instead got: $scope")
             return
         }
 
         // TODO: This is to support original functionality, may be able to just reassign scope and jwk on
-        //  origSender instead of creating a new one
-        val newSender = origSender.makeCopyWithNewScopeAndJwk(scope, jwk)
-        val newSenderJson = jsonMapper.writeValueAsString(newSender)
+        //  origOrganization instead of creating a new one
+        val newOrganization = origOrganization.makeCopyWithNewScopeAndJwk(scope, jwk)
+        val newOrganizationJson = jsonMapper.writeValueAsString(newOrganization)
 
-        echo("*** Original Sender *** ")
-        if (useJson) writeOutput(origSenderJson) else writeOutput(toYaml(origSenderJson, SettingType.SENDER))
-        echo("*** End Original Sender *** ")
-        echo("*** Modified Sender, including new key *** ")
-        if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, SettingType.SENDER))
-        echo("*** End Modified Sender, including new key *** ")
+        echo("** Original Organization **")
+        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
+            toYaml(
+                origOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("** End Original Organization **")
+        echo("*** Modified Organization, including new key *** ")
+        if (useJson) writeOutput(newOrganizationJson) else writeOutput(
+            toYaml(
+                newOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("*** End Modified Organization, including new key *** ")
+
         if (!doIt) {
             echo(
                 """
@@ -98,7 +113,7 @@ class AddPublicKey : SettingCommand(
             )
             return
         }
-        val response = put(environment, oktaAccessToken, SettingType.SENDER, settingName, newSenderJson)
+        val response = put(environment, oktaAccessToken, SettingType.ORGANIZATION, settingName, newOrganizationJson)
         echo()
         echo(response)
         echo()
