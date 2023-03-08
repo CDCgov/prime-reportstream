@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { FileInputRef, Dropdown } from "@trussworks/react-uswds";
+import { FileInputRef, Dropdown, Button } from "@trussworks/react-uswds";
 
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../../hooks/UseFileHandler";
@@ -9,15 +9,15 @@ export interface FileHandlerFormProps {
     schemaOptions: SchemaOption[];
     selectedSchemaOption: SchemaOption | null;
     onSchemaChange: (schemaOption: SchemaOption | null) => void;
+    handleNextFileHandlerStep: () => void;
 }
 
-// form for submitting files to the api
-// all state is controlled from above, and necessary elements and control functions are passed in
 export const FileHandlerStepOne = ({
     fileType,
     schemaOptions,
     selectedSchemaOption,
     onSchemaChange,
+    handleNextFileHandlerStep,
 }: FileHandlerFormProps) => {
     const fileInputRef = useRef<FileInputRef>(null);
 
@@ -41,13 +41,20 @@ export const FileHandlerStepOne = ({
                     onSchemaChange(option);
                 }}
             >
-                <option value="">Select a schema</option>
+                <option value="">- Select -</option>
                 {schemaOptions.map(({ title, value }) => (
                     <option key={value} value={value}>
                         {title}
                     </option>
                 ))}
             </Dropdown>
+            <Button
+                disabled={!selectedSchemaOption?.value?.length}
+                type={"submit"}
+                onClick={handleNextFileHandlerStep}
+            >
+                Submit
+            </Button>
         </div>
     );
 };

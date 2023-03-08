@@ -71,6 +71,13 @@ enum FileHandlerSteps {
     STEP_FOUR = "stepFour",
 }
 
+const fileHandlerStepsArray = [
+    FileHandlerSteps.STEP_ONE,
+    FileHandlerSteps.STEP_TWO,
+    FileHandlerSteps.STEP_THREE,
+    FileHandlerSteps.STEP_FOUR,
+];
+
 /**
  * Given a user's membership settings and their Sender details,
  * return the client string to send to the validate endpoint
@@ -102,9 +109,16 @@ export function getClientHeader(
 function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
-    const [fileHandlerStep, useFileHandlerStep] = useState(
-        FileHandlerSteps.STEP_ONE
-    );
+    const [fileHandlerStepIndex, setFileHandlerStepIndex] = useState(0);
+    const fileHandlerStep = fileHandlerStepsArray[fileHandlerStepIndex];
+
+    const handlePrevFileHandlerStep = () => {
+        setFileHandlerStepIndex(fileHandlerStepIndex - 1);
+    };
+
+    const handleNextFileHandlerStep = () => {
+        setFileHandlerStepIndex(fileHandlerStepIndex + 1);
+    };
 
     const {
         fileInputResetValue,
@@ -277,6 +291,7 @@ function FileHandler() {
             type: FileHandlerActionType.SCHEMA_SELECTED,
             payload: schemaOption,
         });
+
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
@@ -351,6 +366,7 @@ function FileHandler() {
                     schemaOptions={schemaOptions}
                     selectedSchemaOption={selectedSchemaOption}
                     onSchemaChange={handleOnSchemaChange}
+                    handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
