@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -19,6 +19,8 @@ import useSenderSchemaOptions, {
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
+import site from "../../content/site.json";
+import { USExtLink } from "../USLink";
 
 import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
 import {
@@ -27,16 +29,14 @@ import {
     FileSuccessDisplay,
     RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
-import site from "../../content/site.json";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
-import { USExtLink } from "../USLink";
 
-const FileHandlerSpinner = ({ message }: { message: string }) => (
-    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
+export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
+    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
         <div className="grid-row">
             <Spinner />
         </div>
-        <div className="grid-row">{message}</div>
+        <div className="text-center">{message}</div>
     </div>
 );
 
@@ -285,7 +285,7 @@ function FileHandler() {
         !hasQualityFilterMessages;
 
     if (isSenderSchemaOptionsLoading) {
-        return <FileHandlerSpinner message="Loading..." />;
+        return <FileHandlerSpinner message={<p>Loading...</p>} />;
     }
 
     const handleOnSchemaChange = (schemaOption: SchemaOption | null) =>
@@ -363,7 +363,7 @@ function FileHandler() {
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-            {isWorking && <FileHandlerSpinner message="Processing file..." />}
+
             {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
                 <FileHandlerStepOne
                     fileType={fileType}
@@ -384,6 +384,7 @@ function FileHandler() {
                     cancellable={cancellable}
                     formLabel={formLabel}
                     selectedSchemaOption={selectedSchemaOption}
+                    isWorking={isWorking}
                     handlePrevFileHandlerStep={handlePrevFileHandlerStep}
                     handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
