@@ -4,7 +4,7 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../../hooks/UseFileHandler";
 
-import { FileHandlerForm, FileHandlerFormProps } from "./FileHandlerForm";
+import { FileHandlerStepTwo, FileHandlerFormProps } from "./FileHandlerStepTwo";
 
 describe("FileHandlerForm", () => {
     const DEFAULT_PROPS: FileHandlerFormProps = {
@@ -24,7 +24,7 @@ describe("FileHandlerForm", () => {
     };
 
     function doRender(props: Partial<FileHandlerFormProps> = {}) {
-        return renderApp(<FileHandlerForm {...DEFAULT_PROPS} {...props} />);
+        return renderApp(<FileHandlerStepTwo {...DEFAULT_PROPS} {...props} />);
     }
 
     describe("when unsubmitted (default state)", () => {

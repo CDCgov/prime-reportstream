@@ -35,7 +35,7 @@ const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
 
 // form for submitting files to the api
 // all state is controlled from above, and necessary elements and control functions are passed in
-export const FileHandlerForm = ({
+export const FileHandlerStepTwo = ({
     handleSubmit,
     handleFileChange,
     resetState,

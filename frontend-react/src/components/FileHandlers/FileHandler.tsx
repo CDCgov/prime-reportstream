@@ -13,12 +13,14 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
-import useSenderSchemaOptions from "../../senders/hooks/UseSenderSchemaOptions";
+import useSenderSchemaOptions, {
+    SchemaOption,
+} from "../../senders/hooks/UseSenderSchemaOptions";
 import { useSenderResource } from "../../hooks/UseSenderResource";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 
-import { FileHandlerForm } from "./FileHandlerForm";
+import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
 import {
     RequestLevel,
     FileQualityFilterDisplay,
@@ -61,6 +63,13 @@ export const UPLOAD_PROMPT_DESCRIPTIONS = {
         "Select an HL7 v2.5.1 formatted file to validate. Make sure that your file has a .hl7 extension.",
 };
 
+enum FileHandlerSteps {
+    STEP_ONE = "stepOne",
+    STEP_TWO = "stepTwo",
+    STEP_THREE = "stepThree",
+    STEP_FOUR = "stepFour",
+}
+
 /**
  * Given a user's membership settings and their Sender details,
  * return the client string to send to the validate endpoint
@@ -92,6 +101,9 @@ export function getClientHeader(
 function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
+    const [fileHandlerStep, useFileHandlerStep] = useState(
+        FileHandlerSteps.STEP_TWO
+    );
 
     const {
         fileInputResetValue,
@@ -259,6 +271,18 @@ function FileHandler() {
         return <FileHandlerSpinner message="Loading..." />;
     }
 
+    const handleOnSchemaChange = (schemaOption: SchemaOption | null) =>
+        dispatch({
+            type: FileHandlerActionType.SCHEMA_SELECTED,
+            payload: schemaOption,
+        });
+    // const renderFileValidateStep = () => {
+    //   switch(fileValidateStep) {
+    //     case FileHandlerProgress.STEP_ONE:
+    //       return <></>;
+    //     case FileHandlerProgress.STEP_TWO:
+    //       return <></>;
+    // }
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
@@ -312,8 +336,10 @@ function FileHandler() {
                 />
             )}
             {isWorking && <FileHandlerSpinner message="Processing file..." />}
-            {!isWorking && (
-                <FileHandlerForm
+
+            {fileHandlerStep === FileHandlerSteps.STEP_ONE && <></>}
+            {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
+                <FileHandlerStepTwo
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}
                     resetState={resetState}
@@ -327,12 +353,7 @@ function FileHandler() {
                     submitText="Validate"
                     schemaOptions={schemaOptions}
                     selectedSchemaOption={selectedSchemaOption}
-                    onSchemaChange={(schemaOption) =>
-                        dispatch({
-                            type: FileHandlerActionType.SCHEMA_SELECTED,
-                            payload: schemaOption,
-                        })
-                    }
+                    onSchemaChange={handleOnSchemaChange}
                 />
             )}
         </div>
