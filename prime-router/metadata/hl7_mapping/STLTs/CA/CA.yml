@@ -14,7 +14,7 @@ elements:
   - name: sending-application-namespace-id-no-endpoint
     condition: true
     resource: 'Bundle'
-    value: [ '"CDC PRIME - Atlanta, Georgia"' ]
+    value: [ '"CDC PRIME - Atlanta"' ]
 
   - name: sending-application-universal-id-no-endpoint
     condition: true
@@ -67,12 +67,12 @@ elements:
   - name: sending-facility_namespace-id
     condition: true
     resource: 'Bundle'
-    value: [ '%simpleReportName' ]
+    value: [ '"Simple Report"' ]
 
   - name: sending-facility-universal-id
     condition: true
     resource: 'Bundle'
-    value: [ '%simpleReportClia' ]
+    value: [ '"36D1332559"' ]
 
   - name: sending-facility-universal-id-type
     condition: true
@@ -108,3 +108,16 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"ISO"' ]
+
+  #SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle'
+    value: [ '"PRIME ReportStream"' ]
+
+    #SFT-3
+  - name: software-name
+    condition: true
+    resource: 'Bundle'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
