@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertThat
 import assertk.assertions.hasClass
+import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -11,6 +12,11 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIR
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import io.mockk.every
+import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.verify
+import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
@@ -22,6 +28,19 @@ import org.hl7.fhir.r4.model.StringType
 import kotlin.test.Test
 
 class FhirTransformerTests {
+
+    /**
+     * Return a FhirTransformer and a mocked KotlinLogger using the given [schema].
+     */
+    private fun setupFhirTransformer(schema: FhirTransformSchema): Pair<FhirTransformer, KotlinLogger> {
+        val logger = mockkClass(KotlinLogger::class)
+        val transformer = spyk(FhirTransformer(schema))
+        every { transformer.logger }.returns(logger)
+        every { logger.warn(any<String>()) }.returns(Unit)
+        every { logger.error(any<String>()) }.returns(Unit)
+        every { logger.trace(any<String>()) }.returns(Unit)
+        return Pair(transformer, logger)
+    }
 
     @Test
     fun `test transform with nested schemas`() {
@@ -332,12 +351,22 @@ class FhirTransformerTests {
 
     @Test
     fun `test set bundle property failures`() {
+        val (transformer, logger) = setupFhirTransformer(FhirTransformSchema())
+
         val bundle = Bundle()
         bundle.id = "abc123"
+
+        // Can't currently create entry on the fly
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure().hasMessage("Can't add missing entry.")
+
         val patient = Patient()
         patient.id = "def456"
         bundle.addEntry().resource = patient
-        val transformer = FhirTransformer(FhirTransformSchema())
 
         // Incompatible value types
         assertThat {
@@ -346,12 +375,15 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
+        verify(exactly = 1) { logger.error(match<String> { it.contains("between CodeableConcept and string") }) }
+
         assertThat {
             transformer.setBundleProperty(
                 "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
+        verify(exactly = 1) { logger.error(match<String> { it.contains("between string and boolean") }) }
 
         // Can't currently create new resources on the fly
         assertThat {
@@ -362,12 +394,28 @@ class FhirTransformerTests {
         }.isFailure()
 
         // Improper extension format
-        assertThat {
-            transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
-                CustomContext(bundle, bundle), bundle, bundle
-            )
-        }.isFailure()
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verify(exactly = 1) { logger.warn(match<String> { it.contains("Could not find property") }) }
+
+        // Invalid bundleProperties
+        transformer.setBundleProperty(
+            "", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verify(exactly = 1) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
+        transformer.setBundleProperty(
+            null, IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verify(exactly = 2) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
+        transformer.setBundleProperty(
+            "id", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verify(exactly = 1) { logger.warn(match<String> { it.contains("Expected at least 2 parts") }) }
     }
 
     @Test
@@ -394,7 +442,7 @@ class FhirTransformerTests {
             "elementC",
             value = listOf("%testActive"),
             resource = "%testRes",
-            bundleProperty = "%resource.active"
+            bundleProperty = "%resource.%{testPropC}"
         )
         val schema =
             FhirTransformSchema(
@@ -406,6 +454,7 @@ class FhirTransformerTests {
                     Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
                     Pair("testPropA", "Bundle.entry.resource.ofType(Patient).id"),
                     Pair("testPropB", "Bundle.entry.resource.ofType(Patient).name.text"),
+                    Pair("testPropC", "active")
                 )
             )
         val transformer = FhirTransformer(schema)

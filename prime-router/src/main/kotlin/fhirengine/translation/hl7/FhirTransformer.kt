@@ -181,11 +181,17 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (rawBundleProperty == null) return
-
+        if (rawBundleProperty == null || rawBundleProperty == "") {
+            logger.warn("bundleProperty was not set.")
+            return
+        }
         val bundleProperty = constantSubstitutor.replace(rawBundleProperty, context)
 
         val pathParts = bundleProperty.split(".")
+        if (pathParts.size < 2) {
+            logger.warn("Expected at least 2 parts in bundle property '$bundleProperty'.")
+            return
+        }
         // We start one level down as we use the addChild function to set the value at the end
         var pathToEvaluate = bundleProperty.dropLast(pathParts.last().length + 1)
         val childrenNames = pathParts.dropLast(1).reversed()
@@ -197,8 +203,8 @@ class FhirTransformer(
             } else return@forEach
         }
         if (missingChildren.isNotEmpty()) {
-            println("Missing $missingChildren children. Stopped at: $pathToEvaluate")
-            check(missingChildren.last() != "entry") // We do not need to support entries
+            logger.trace("Missing $missingChildren children. Stopped at: $pathToEvaluate")
+            check(missingChildren.last() != "entry") { "Can't add missing entry." } // We do not need to support entries
         }
         // Now go on reverse and create the needed children
         val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate)
@@ -218,7 +224,11 @@ class FhirTransformer(
         }
         // Finally set the value
         val property = childResource.getNamedProperty(pathParts.last())
-        val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode)
+        if (property == null) {
+            logger.warn("Could not find property '${pathParts.last()}'.")
+            return
+        }
+        val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
         childResource.setProperty(pathParts.last(), newValue)
     }
 }
