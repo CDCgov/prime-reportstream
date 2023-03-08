@@ -14,6 +14,7 @@ export interface FileHandlerFormProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     resetState: () => void; // to handle resetting any parent state
+    fileName: string;
     fileInputResetValue: number;
     submitted: boolean;
     cancellable: boolean;
@@ -31,6 +32,7 @@ export const FileHandlerStepTwo = ({
     handleSubmit,
     handleFileChange,
     resetState,
+    fileName,
     fileInputResetValue,
     submitted,
     cancellable,
@@ -72,7 +74,7 @@ export const FileHandlerStepTwo = ({
                     />
                 </FormGroup>
             )}
-            <div className="grid-row">
+            {/* <div className="grid-row">
                 <div className="grid-col flex-1 display-flex flex-column flex-align-start">
                     {cancellable && (
                         <Button onClick={resetState} type="button" outline>
@@ -80,7 +82,7 @@ export const FileHandlerStepTwo = ({
                         </Button>
                     )}
                 </div>
-            </div>
+            </div> */}
             <div className="grid-col display-flex">
                 <Button
                     className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
@@ -90,7 +92,7 @@ export const FileHandlerStepTwo = ({
                     Back
                 </Button>
                 <Button
-                    disabled={!selectedSchemaOption?.value?.length}
+                    disabled={!fileName.length}
                     className="usa-button flex-align-self-start height-5 margin-top-4"
                     type={"submit"}
                     onClick={handleNextFileHandlerStep}

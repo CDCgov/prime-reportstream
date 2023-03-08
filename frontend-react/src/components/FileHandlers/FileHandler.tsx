@@ -27,7 +27,9 @@ import {
     FileSuccessDisplay,
     RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
+import site from "../../content/site.json";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
+import { USExtLink } from "../USLink";
 
 const FileHandlerSpinner = ({ message }: { message: string }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
@@ -301,13 +303,16 @@ function FileHandler() {
             {(fileHandlerStep === FileHandlerSteps.STEP_ONE ||
                 fileHandlerStep === FileHandlerSteps.STEP_TWO) && (
                 <>
-                    <p>
+                    <p className="text-bold">
                         Check that public health departments can receive your
                         data through ReportStream by validating your file
                         format.{" "}
                     </p>
-                    <p>
-                        Reminder: Do not submit PII. Email reportstream.cdc.gov
+                    <p className="text-bold">
+                        Reminder: Do not submit PII. Email{" "}
+                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                            reportstream@cdc.gov
+                        </USExtLink>
                         if you need fake data to use.
                     </p>
                 </>
@@ -359,7 +364,6 @@ function FileHandler() {
                 />
             )}
             {isWorking && <FileHandlerSpinner message="Processing file..." />}
-
             {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
                 <FileHandlerStepOne
                     fileType={fileType}
@@ -375,6 +379,7 @@ function FileHandler() {
                     handleFileChange={handleFileChange}
                     resetState={resetState}
                     fileInputResetValue={fileInputResetValue}
+                    fileName={fileName}
                     submitted={submitted}
                     cancellable={cancellable}
                     formLabel={formLabel}
@@ -383,6 +388,12 @@ function FileHandler() {
                     handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
+            <p className="margin-top-10">
+                Question or feedback? Please email{" "}
+                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                    reportstream@cdc.gov
+                </USExtLink>
+            </p>
         </div>
     );
 }
