@@ -15,46 +15,32 @@ import org.hl7.fhir.r4.model.Extension
 
 /**
  * Transform a FHIR bundle based on the [schemaRef].
- * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
- * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
- * the schema validation process.
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-    private val strict: Boolean = false,
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : ConfigSchemaProcessor() {
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
-     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
-     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
-     * the schema validation process.
      */
     constructor(
         schema: String,
         schemaFolder: String,
-        strict: Boolean = false,
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
-        strict = strict,
     )
 
     /**
      * Transform a FHIR bundle based on the [schema] (which includes a folder location).
-     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
-     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
-     * the schema validation process.
      */
     constructor(
         schema: String,
-        strict: Boolean = false,
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
-        strict = strict,
     )
 
     /**
