@@ -113,6 +113,13 @@ main {
   overflow-x: auto;
 }
 
+// MODAL
+
+.usa-modal__main {
+  word-wrap: break-word;
+  width: 100%;
+}
+
 // MEDIA: DESKTOP
 
 @media (min-width: 64em) {
