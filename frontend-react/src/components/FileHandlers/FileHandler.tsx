@@ -30,6 +30,7 @@ import {
     RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
+import { FileHandlerStepThree } from "./FileHandlerStepThree";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
@@ -328,41 +329,6 @@ function FileHandler() {
                     <p className="margin-top-05">{fileName}</p>
                 </>
             )}
-            {isFileSuccess && warnings.length === 0 && (
-                <FileSuccessDisplay
-                    extendedMetadata={{
-                        destinations,
-                        timestamp: successTimestamp,
-                        reportId,
-                    }}
-                    heading="Validate another file"
-                    message={successDescription}
-                    showExtendedMetadata={false}
-                />
-            )}
-            {warnings.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.WARNING}
-                    data={warnings}
-                    message="The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
-                    heading="File validated with recommended edits"
-                />
-            )}
-            {errors.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.ERROR}
-                    data={errors}
-                    message={errorMessaging.message}
-                    heading={errorMessaging.heading}
-                />
-            )}
-            {hasQualityFilterMessages && (
-                <FileQualityFilterDisplay
-                    destinations={qualityFilterMessages}
-                    heading=""
-                    message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
-                />
-            )}
 
             {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
                 <FileHandlerStepOne
@@ -387,6 +353,20 @@ function FileHandler() {
                     isWorking={isWorking}
                     handlePrevFileHandlerStep={handlePrevFileHandlerStep}
                     handleNextFileHandlerStep={handleNextFileHandlerStep}
+                />
+            )}
+            {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
+                <FileHandlerStepThree
+                    destinations={destinations}
+                    errorMessaging={errorMessaging}
+                    errors={errors}
+                    hasQualityFilterMessages={hasQualityFilterMessages}
+                    isFileSuccess={isFileSuccess}
+                    qualityFilterMessages={qualityFilterMessages}
+                    reportId={reportId}
+                    successDescription={successDescription}
+                    successTimestamp={successTimestamp}
+                    warnings={warnings}
                 />
             )}
             <p className="margin-top-10">
