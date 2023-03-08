@@ -27,6 +27,7 @@ import {
     FileSuccessDisplay,
     RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
+import { FileHandlerStepOne } from "./FileHandlerStepOne";
 
 const FileHandlerSpinner = ({ message }: { message: string }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
@@ -102,7 +103,7 @@ function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
     const [fileHandlerStep, useFileHandlerStep] = useState(
-        FileHandlerSteps.STEP_TWO
+        FileHandlerSteps.STEP_ONE
     );
 
     const {
@@ -276,19 +277,26 @@ function FileHandler() {
             type: FileHandlerActionType.SCHEMA_SELECTED,
             payload: schemaOption,
         });
-    // const renderFileValidateStep = () => {
-    //   switch(fileValidateStep) {
-    //     case FileHandlerProgress.STEP_ONE:
-    //       return <></>;
-    //     case FileHandlerProgress.STEP_TWO:
-    //       return <></>;
-    // }
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
                 ReportStream File Validator
             </h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
+            {(fileHandlerStep === FileHandlerSteps.STEP_ONE ||
+                fileHandlerStep === FileHandlerSteps.STEP_TWO) && (
+                <>
+                    <p>
+                        Check that public health departments can receive your
+                        data through ReportStream by validating your file
+                        format.{" "}
+                    </p>
+                    <p>
+                        Reminder: Do not submit PII. Email reportstream.cdc.gov
+                        if you need fake data to use.
+                    </p>
+                </>
+            )}
             {fileName && (
                 <>
                     <p
@@ -337,7 +345,14 @@ function FileHandler() {
             )}
             {isWorking && <FileHandlerSpinner message="Processing file..." />}
 
-            {fileHandlerStep === FileHandlerSteps.STEP_ONE && <></>}
+            {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
+                <FileHandlerStepOne
+                    fileType={fileType}
+                    schemaOptions={schemaOptions}
+                    selectedSchemaOption={selectedSchemaOption}
+                    onSchemaChange={handleOnSchemaChange}
+                />
+            )}
             {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
                 <FileHandlerStepTwo
                     handleSubmit={handleSubmit}
