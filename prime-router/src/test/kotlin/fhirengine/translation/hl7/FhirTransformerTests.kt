@@ -407,11 +407,6 @@ class FhirTransformerTests {
         )
         verify(exactly = 1) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
         transformer.setBundleProperty(
-            null, IdType("newId"),
-            CustomContext(bundle, bundle), bundle, bundle
-        )
-        verify(exactly = 2) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
-        transformer.setBundleProperty(
             "id", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )

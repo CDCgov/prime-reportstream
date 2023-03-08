@@ -167,7 +167,7 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (rawBundleProperty == null || rawBundleProperty == "") {
+        if (rawBundleProperty.isNullOrBlank()) {
             logger.warn("bundleProperty was not set.")
             return
         }
