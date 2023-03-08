@@ -37,6 +37,8 @@ jobs:
         run: |
           terraform init -input=false
           terraform plan -target=module.azure_dashboard > tfplan.txt
+      - name: Output tf plan
+        run: |
           cat tfplan.txt
   auto_create_pull_request:
     runs-on: ubuntu-latest
@@ -46,16 +48,38 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Create Pull Request
-        uses: thomaseizinger/create-pull-request@e3972219c86a56550fb70708d96800d8e24ba862
-        with:
+        uses: gr2m/create-or-update-pull-request-action@df20b2c073090271599a08c55ae26e0c3522b329
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          head: feature/autocreatePR-with-tfplan-output 
-          base: master
+        with:
           title: "AutoPR With Terraform Plan Change to Prod"
-          reviewers: |
-            lucasdze
-            JosiahSiegel
-            jeremy-page
+          body: $(cat tfplan.txt) # "My pull request body"
+          branch: "feature/autocreatePR-with-tfplan-output"
+          commit-message: "Automatically created pull request with tf plan"
+          author: "Lucas Dze"
+          labels: DevOps, prime-reportstream
+          #assignees: user1, user2
+          reviewers: lucasdze, JosiahSiegel
+          #team_reviewers: team1, team2
+          auto-merge: squash
+          update-pull-request-title-and-body: false
+
+              # - name: Create Pull Request
+      #   uses: thomaseizinger/create-pull-request@e3972219c86a56550fb70708d96800d8e24ba862
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     head: feature/autocreatePR-with-tfplan-output 
+      #     base: master
+      #     title: "AutoPR With Terraform Plan Change to Prod"
+      #     body: |
+      #       ## Terraform Plan outputs
+      #       ````
+      #       $(cat tfplan.txt)
+      #       ````
+      #     reviewers: |
+      #       lucasdze
+      #       JosiahSiegel
+      #       jeremy-page
 
       # - name: Create Pull Request
       # #   uses: peter-evans/create-pull-request@6217f0d61d3e1fd1236b1cee861f010f84673f23
