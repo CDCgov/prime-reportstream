@@ -377,14 +377,10 @@ function FileHandler() {
                     fileInputResetValue={fileInputResetValue}
                     submitted={submitted}
                     cancellable={cancellable}
-                    fileName={fileName}
-                    fileType={fileType}
                     formLabel={formLabel}
-                    resetText="Validate another file"
-                    submitText="Validate"
-                    schemaOptions={schemaOptions}
                     selectedSchemaOption={selectedSchemaOption}
-                    onSchemaChange={handleOnSchemaChange}
+                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                    handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
         </div>

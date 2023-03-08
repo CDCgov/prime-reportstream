@@ -50,10 +50,11 @@ export const FileHandlerStepOne = ({
             </Dropdown>
             <Button
                 disabled={!selectedSchemaOption?.value?.length}
+                className="usa-button flex-align-self-start height-5 margin-top-4"
                 type={"submit"}
                 onClick={handleNextFileHandlerStep}
             >
-                Submit
+                Continue
             </Button>
         </div>
     );

@@ -6,13 +6,9 @@ import {
     Label,
     FileInput,
     FileInputRef,
-    Dropdown,
 } from "@trussworks/react-uswds";
 
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { FileType } from "../../hooks/UseFileHandler";
-
-import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
 export interface FileHandlerFormProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -21,14 +17,10 @@ export interface FileHandlerFormProps {
     fileInputResetValue: number;
     submitted: boolean;
     cancellable: boolean;
-    fileName: string;
-    fileType?: FileType;
     formLabel: string;
-    resetText: string;
-    submitText: string;
-    schemaOptions: SchemaOption[];
     selectedSchemaOption: SchemaOption | null;
-    onSchemaChange: (schemaOption: SchemaOption | null) => void;
+    handlePrevFileHandlerStep: () => void;
+    handleNextFileHandlerStep: () => void;
 }
 
 const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
@@ -42,16 +34,11 @@ export const FileHandlerStepTwo = ({
     fileInputResetValue,
     submitted,
     cancellable,
-    fileName,
-    fileType,
     formLabel,
-    resetText,
-    submitText,
-    schemaOptions,
     selectedSchemaOption,
-    onSchemaChange,
+    handlePrevFileHandlerStep,
+    handleNextFileHandlerStep,
 }: FileHandlerFormProps) => {
-    const isDisabled = fileName.length === 0 || !selectedSchemaOption;
     const fileInputRef = useRef<FileInputRef>(null);
     const accept = selectedSchemaOption
         ? `.${selectedSchemaOption.format.toLowerCase()}`
@@ -93,42 +80,23 @@ export const FileHandlerStepTwo = ({
                         </Button>
                     )}
                 </div>
-                <div className="grid-col flex-1" />
-                <div className="grid-col flex-1 display-flex flex-column flex-align-end">
-                    {!submitted && (
-                        <Dropdown
-                            id="upload-schema-select"
-                            name="upload-schema-select"
-                            value={selectedSchemaOption?.value || ""}
-                            onChange={(e) => {
-                                const option =
-                                    schemaOptions.find(
-                                        ({ value }) => value === e.target.value
-                                    ) || null;
-
-                                if (option?.format !== fileType) {
-                                    fileInputRef.current?.clearFiles();
-                                }
-
-                                onSchemaChange(option);
-                            }}
-                        >
-                            <option value="">Select a schema</option>
-                            {schemaOptions.map(({ title, value }) => (
-                                <option key={value} value={value}>
-                                    {title}
-                                </option>
-                            ))}
-                        </Dropdown>
-                    )}
-                    <FileHandlerSubmitButton
-                        submitted={submitted}
-                        disabled={isDisabled}
-                        reset={resetState}
-                        resetText={resetText}
-                        submitText={submitText}
-                    />
-                </div>
+            </div>
+            <div className="grid-col display-flex">
+                <Button
+                    className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                    type={"submit"}
+                    onClick={handlePrevFileHandlerStep}
+                >
+                    Back
+                </Button>
+                <Button
+                    disabled={!selectedSchemaOption?.value?.length}
+                    className="usa-button flex-align-self-start height-5 margin-top-4"
+                    type={"submit"}
+                    onClick={handleNextFileHandlerStep}
+                >
+                    Submit
+                </Button>
             </div>
         </Form>
     );
