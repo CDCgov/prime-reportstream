@@ -205,7 +205,7 @@ object FhirPathUtils : Logging {
 
             else -> {
                 var secs = dateTime.second.toFloat()
-                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
+//                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
                     secs

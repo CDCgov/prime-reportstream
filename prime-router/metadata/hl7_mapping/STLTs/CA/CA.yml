@@ -14,7 +14,7 @@ elements:
   - name: sending-application-namespace-id-no-endpoint
     condition: true
     resource: 'Bundle'
-    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    value: [ '"CDC PRIME - Atlanta, Georgia"' ]
 
   - name: sending-application-universal-id-no-endpoint
     condition: true
@@ -88,3 +88,23 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"P"' ]
+
+  - name: message_profile_id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"PHLabReport-NoAck"' ]
+
+  - name: message_profile_id_namespace_id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ELR_Receiver"' ]
+
+  - name: message_profile_id_universal_id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.113883.9.11"' ]
+
+  - name: message_profile_id_universal_id_type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
