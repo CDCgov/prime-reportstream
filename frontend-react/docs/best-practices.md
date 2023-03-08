@@ -398,15 +398,15 @@ function UserList({ users, sortProperty }: { users: User[], sortProperty: "age" 
 ```  
 
 
-### Strive for single-purpose ("dumb") components and hooks
+### Strive for single-purpose ("dumb" or purely presentational) components and hooks
 
 > Why?
 >
 > This keeps components and hooks much more flexible in usage, which lends to the React ethos of composition.  Additionally, this breaks complex logic down for easier maintenance; ensuring that each component is focused around one purpose helps break up long logic chains for easier testability, debuggability, and upkeep, and it (usually) also helps keep the components and hooks smaller so they're more likely to be reusable across the codebase.
 
-The concept of "dumb" components has been around in the React ecosystem for a while: components whose sole purpose is to present and display data.  And although this concept was much easier to abide by with the [container/presenter pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) before the introduction of hooks, keeping this clear separation of concerns is still important for scalability.
+The concept of "dumb"/purely presentational components has been around in the React ecosystem for a while: components whose sole purpose is to present and display data.  And although this concept was much easier to abide by with the [container/presenter pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) before the introduction of hooks, keeping this clear separation of concerns is still important for scalability.
 
-Put simply, **dumb components are presentational whereas smart components are concerned with maintaining events and state.**  When writing a new component, it's important to question whether all the logic should exist in one place or if it would be more maintainable (and possibly readable) split out between different components or utility functions.
+Put simply, **dumb components are presentational whereas container/smart components are concerned with maintaining events and state.**  When writing a new component, it's important to question whether all the logic should exist in one place or if it would be more maintainable (and possibly readable) split out between different components or utility functions.
 
 Take the following example:
 
