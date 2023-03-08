@@ -44,9 +44,12 @@ jobs:
       - pre_job
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v3
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@6217f0d61d3e1fd1236b1cee861f010f84673f23
+        uses: thomaseizinger/create-pull-request@e3972219c86a56550fb70708d96800d8e24ba862
+
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@6217f0d61d3e1fd1236b1cee861f010f84673f23
         with:
           commit-message: Automatically created pull request with tf plan
           title: AutoPR With Terraform Plan Change to Prod
