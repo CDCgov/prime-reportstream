@@ -60,6 +60,8 @@ import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
 
+const val BUFFER_CAPACITY = 40000
+const val MESSAGE_SEGMENT_LENGTH = 4000
 class Hl7Serializer(
     val metadata: Metadata,
     val settings: SettingsProvider
@@ -150,7 +152,7 @@ class Hl7Serializer(
         val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
-        val nextMessage = StringBuilder()
+        val nextMessage = StringBuilder(BUFFER_CAPACITY)
         var messageIndex = 1
 
         /**
@@ -193,7 +195,17 @@ class Hl7Serializer(
             }
 
             if (it.isNotBlank()) {
-                nextMessage.append("$it\r")
+                if (it.length + nextMessage.length <= nextMessage.capacity()) {
+                    if (it.length > MESSAGE_SEGMENT_LENGTH) {
+                        logger.warn("Message segment ${it.substring(0,3)} longer than 4000 characters, truncating")
+                        nextMessage.append("${it.substring(0, MESSAGE_SEGMENT_LENGTH)}\r")
+                    } else {
+                        nextMessage.append("$it\r")
+                    }
+                } else {
+                    logger.error("Message too long, returning.")
+                    error("Message too long")
+                }
             }
         }
 
