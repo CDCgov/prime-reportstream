@@ -5,7 +5,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.Scope
@@ -49,7 +48,12 @@ class AddPublicKey : SettingCommand(
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
 
-    private val settingName by nameOption
+    private val orgName by option(
+        "--orgName",
+        metavar = "<organization>",
+        help = "Specify the name of the organization to add the key to"
+    ).required()
+
     private val useJson by jsonOption
 
     val doIt by option(
@@ -68,16 +72,14 @@ class AddPublicKey : SettingCommand(
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
-        jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
+        jwk.kid = if (kid.isNullOrEmpty()) orgName else kid
 
-        val origSenderJson = get(environment, oktaAccessToken, SettingType.SENDER, settingName)
-        val origSender = jsonMapper.readValue(origSenderJson, Sender::class.java)
         val origOrganizationJson =
-            get(environment, oktaAccessToken, SettingType.ORGANIZATION, origSender.organizationName)
+            get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
         val origOrganization = jsonMapper.readValue(origOrganizationJson, Organization::class.java)
 
         if (!Scope.isValidScope(scope, origOrganization)) {
-            echo("Organization name in scope must match $settingName.  Instead got: $scope")
+            echo("Organization name in scope must match $orgName.  Instead got: $scope")
             return
         }
 
@@ -113,7 +115,7 @@ class AddPublicKey : SettingCommand(
             )
             return
         }
-        val response = put(environment, oktaAccessToken, SettingType.ORGANIZATION, settingName, newOrganizationJson)
+        val response = put(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName, newOrganizationJson)
         echo()
         echo(response)
         echo()
