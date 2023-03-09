@@ -77,7 +77,7 @@ class Scope {
 
         /**
          * @return true if this [scope] string is well-formed and has a valid DetailedScope,
-         * and the org portion of it matches the org of the [expectedOrganization].
+         * and the org portion of it matches [expectedOrganization].
          * Also returns true if scope is [primeAdminScope].
          * Otherwise, false.
          */
