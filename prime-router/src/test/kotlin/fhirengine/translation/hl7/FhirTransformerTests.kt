@@ -17,6 +17,7 @@ import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
 import kotlin.test.Test
 
@@ -367,5 +368,36 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
+    }
+
+    @Test
+    fun `test resource index`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val servRequest1 = ServiceRequest()
+        servRequest1.id = "def456"
+        val servRequest2 = ServiceRequest()
+        servRequest2.id = "ghi789"
+        bundle.addEntry().resource = servRequest1
+        bundle.addEntry().resource = servRequest2
+
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        val childElement = FHIRTransformSchemaElement(
+            "childElement",
+            value = listOf("%myIndexVar"),
+            resource = "Bundle.entry",
+            bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
+        val element = FHIRTransformSchemaElement(
+            "name",
+            resource = "Bundle.entry",
+            resourceIndex = "myIndexVar",
+            schemaRef = childSchema
+        )
+        transformer.transformBasedOnElement(element, bundle, bundle, CustomContext(bundle, bundle))
+        assertThat(servRequest1.id).isEqualTo("0")
+        assertThat(servRequest2.id).isEqualTo("1")
     }
 }

@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -18,13 +17,10 @@ import org.hl7.fhir.r4.model.Extension
  * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
  * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
  * the schema validation process.
- * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
     private val strict: Boolean = false,
-    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
-    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : ConfigSchemaProcessor() {
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
