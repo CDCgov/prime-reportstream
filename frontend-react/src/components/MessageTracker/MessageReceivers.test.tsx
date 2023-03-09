@@ -3,10 +3,8 @@ import userEvent from "@testing-library/user-event";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { createProxyNodeDateTimeFormatter } from "../../utils/TestUtils";
 
 import {
-    dateTimeFormatter,
     FilterOption,
     formatMessages,
     MessageReceivers,
@@ -100,13 +98,8 @@ const sortScenarios: {
 ];
 
 describe("formatMessages function", () => {
-    // Proxy formatter so we can replace node's unicode spaces
-    const alteredFormatter =
-        createProxyNodeDateTimeFormatter(dateTimeFormatter);
     test("formats data properly", () => {
-        expect(formatMessages(MOCK_RECEIVER_DATA, alteredFormatter)).toEqual(
-            formattedMockData
-        );
+        expect(formatMessages(MOCK_RECEIVER_DATA)).toEqual(formattedMockData);
     });
 });
 

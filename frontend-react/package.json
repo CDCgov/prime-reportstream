@@ -190,6 +190,6 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "engines": {
-    "node": "~18.14.2"
+    "node": "~18.15"
   }
 }

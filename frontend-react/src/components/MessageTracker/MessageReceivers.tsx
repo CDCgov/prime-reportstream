@@ -11,6 +11,8 @@ import classnames from "classnames";
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
 
+const NO_DATA_STRING = "N/A";
+
 export type MessageReceiverProps = {
     receiverDetails: ReceiverData[];
 };
@@ -192,11 +194,14 @@ export const MessageReceiversRow = ({
             <td className={getColumnClasses(ColumnDataTitles.main)}>
                 <p
                     className={classnames(
-                        "font-mono-sm border-1px bg-primary-lighter radius-md padding-left-1 padding-right-1 margin-top-0",
+                        "font-mono-sm padding-left-1 padding-right-1 margin-top-0",
                         {
-                            "bg-blue-5": receiver.main === StatusEnum.BATCH,
-                            "bg-blue-10": receiver.main === StatusEnum.PROCESS,
-                            "bg-blue-20": receiver.main === StatusEnum.READY,
+                            "bg-blue-5 border-1px bg-primary-lighter radius-md":
+                                receiver.main === StatusEnum.BATCH,
+                            "bg-blue-10 border-1px bg-primary-lighter radius-md":
+                                receiver.main === StatusEnum.PROCESS,
+                            "bg-blue-20 border-1px bg-primary-lighter radius-md":
+                                receiver.main === StatusEnum.READY,
                         }
                     )}
                 >
@@ -266,15 +271,12 @@ export const MessageReceiversRow = ({
 //     fileName: string;
 //     transportResults: string;
 // }
-export function formatMessages(
-    data: ReceiverData[],
-    formatter: Intl.DateTimeFormat
-): NormalizedReceiverData[] {
+export function formatMessages(data: ReceiverData[]): NormalizedReceiverData[] {
     return data.map((receiverItem: ReceiverData): NormalizedReceiverData => {
         const formattedData: NormalizedReceiverData = Object.keys(
             ColumnDataTitles
         ).reduce((accumulator: any, currentValue: string) => {
-            accumulator[currentValue] = "N/A";
+            accumulator[currentValue] = NO_DATA_STRING;
             return accumulator;
         }, {});
         for (const key of Object.keys(
@@ -292,7 +294,7 @@ export function formatMessages(
                     break;
                 case ColumnDataTitles.date:
                     if (receiverItem.createdAt)
-                        formattedData.date = formatter.format(
+                        formattedData.date = dateTimeFormatter.format(
                             new Date(receiverItem.createdAt)
                         );
                     break;
@@ -302,19 +304,19 @@ export function formatMessages(
                     break;
                 case ColumnDataTitles.main:
                     const { folderLocation } = parseFileLocation(
-                        receiverItem?.fileUrl || ""
+                        receiverItem?.fileUrl || NO_DATA_STRING
                     );
                     formattedData.main = folderLocation as Status;
                     break;
                 case ColumnDataTitles.sub:
                     const { sendingOrg } = parseFileLocation(
-                        receiverItem?.fileUrl || ""
+                        receiverItem?.fileUrl || NO_DATA_STRING
                     );
                     formattedData.sub = sendingOrg;
                     break;
                 case ColumnDataTitles.fileName:
                     const { fileName } = parseFileLocation(
-                        receiverItem?.fileUrl || ""
+                        receiverItem?.fileUrl || NO_DATA_STRING
                     );
                     formattedData.fileName = fileName;
                     break;
@@ -367,7 +369,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
     const [activeColumnSortOrder, setActiveColumnSortOrder] =
         useState<FilterOption>(FilterOptionsEnum.NONE);
     const normalizedData = useMemo(
-        () => formatMessages(receiverDetails, dateTimeFormatter),
+        () => formatMessages(receiverDetails),
         [receiverDetails]
     );
     const sortedData = useMemo(
