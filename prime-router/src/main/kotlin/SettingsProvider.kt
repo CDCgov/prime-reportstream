@@ -24,7 +24,7 @@ interface SettingsProvider {
 
     fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>?
 
-    // TODO:
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
     // this should be removed after all setting keys have been migrated to the organization
     // it is just a temporary helper function for consolidating the keys between organizations and senders
     fun getKeys(fullName: String): List<JwkSet>? {

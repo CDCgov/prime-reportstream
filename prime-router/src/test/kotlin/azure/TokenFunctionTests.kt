@@ -327,7 +327,7 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
     }
 
-    // TODO
+    // TODO https://github.com/CDCgov/prime-reportstream/issues/8659
     // This and the following test can be removed after all keys associated with senders have been moved to
     // the organization.  For now these tests cover the possibility that keys for the same scope might exist on the
     // organization and sender; in that case the organization keys are considered first.

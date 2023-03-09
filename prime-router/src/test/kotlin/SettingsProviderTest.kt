@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
+// This test class be removed
 class SettingsProviderTest {
 
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)

@@ -59,7 +59,7 @@ abstract class Sender(
     override val organizationName: String,
     val format: Format,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val keys: List<JwkSet>? = null,
+    val keys: List<JwkSet>? = null, // TODO https://github.com/CDCgov/prime-reportstream/issues/8659
     val processingType: ProcessingType = sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
