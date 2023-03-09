@@ -2,7 +2,7 @@ import * as OktaReact from "@okta/okta-react";
 import { screen } from "@testing-library/react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
-import { renderWithSession } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
@@ -28,7 +28,7 @@ describe("ReportStreamHeader", () => {
     test("renders without errors", () => {
         mockAuth.mockReturnValue({} as IOktaContext);
         mockSessionContext.mockReturnValue({} as RSSessionContext);
-        renderWithSession(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader />);
     });
 
     test("admins see all", async () => {
@@ -58,8 +58,11 @@ describe("ReportStreamHeader", () => {
             isAdminStrictCheck: true,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: true,
+            isUserReceiver: false,
+            isUserSender: false,
         } as RSSessionContext);
-        renderWithSession(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
         expect(screen.getByText(FeatureName.UPLOAD)).toBeInTheDocument();
@@ -92,8 +95,11 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
-        renderWithSession(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader />);
         expect(
             screen.queryByText(FeatureName.DAILY_DATA)
         ).not.toBeInTheDocument();
@@ -127,8 +133,11 @@ describe("ReportStreamHeader", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
-        renderWithSession(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
         expect(screen.queryByText(FeatureName.UPLOAD)).not.toBeInTheDocument();
         expect(

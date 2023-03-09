@@ -1,3 +1,5 @@
+@use 'uswds-core' as *;
+
 /*
 * * * * * ==============================
 * * * * * ==============================
@@ -19,6 +21,7 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
+
 html, body {
   height: 100%;
 }
@@ -72,7 +75,7 @@ main {
 }
 
 .usa-nav__primary-item a.usa-button {
-  color: #005ea2;
+  color: color('primary');
 }
 
 // Breadcrumb
@@ -110,6 +113,13 @@ main {
   overflow-x: auto;
 }
 
+// MODAL
+
+.usa-modal__main {
+  word-wrap: break-word;
+  width: 100%;
+}
+
 // MEDIA: DESKTOP
 
 @media (min-width: 64em) {
@@ -119,7 +129,7 @@ main {
     padding-right: 2rem;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     align-content: flex-start;
   }
@@ -137,6 +147,7 @@ main {
 
   .usa-header--basic .usa-nav__primary {
     flex: 1;
+    height: 100%;
   }
 
   .usa-header--basic .usa-nav__link {
@@ -144,6 +155,7 @@ main {
   }
 
   .usa-nav__primary > .usa-nav__primary-item > a {
+    height: 100%;
     font-weight: normal;
     color: #2e2e2e;
     padding: units(3);
@@ -164,8 +176,8 @@ main {
     color: #2e2e2e;
   }
 
-  .usa-nav__primary > .usa-nav__primary-item > a::after {
-
+  .usa-header--basic .usa-nav__link:hover::after {
+    bottom: 0;
   }
 
   .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
@@ -174,7 +186,7 @@ main {
   }
 
   .usa-nav__primary > .usa-current > a::after {
-    background-color: #005ea2;
+    background-color: color('primary');
     border-radius: 0;
     content: "";
     display: block;

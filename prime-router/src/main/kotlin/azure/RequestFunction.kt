@@ -114,7 +114,9 @@ abstract class RequestFunction(
         if (contentType.isBlank()) {
             actionLogs.error(InvalidParamMessage("Missing ${HttpHeaders.CONTENT_TYPE} header"))
         } else if (sender != null && sender.format.mimeType != contentType) {
-            actionLogs.error(InvalidParamMessage("Expecting content type of '${sender.format.mimeType}'"))
+            actionLogs.error(
+                InvalidParamMessage("Resubmit as '${sender.format.mimeType}'")
+            )
         }
 
         val content = request.body ?: ""
@@ -123,7 +125,7 @@ abstract class RequestFunction(
                 "application/hl7-v2" ->
                     actionLogs.error(
                         InvalidParamMessage(
-                            "Cannot parse empty HL7 message. Please refer to the HL7 specification and resubmit."
+                            "Blank message(s) found within file. Blank messages cannot be processed."
                         )
                     )
                 else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))

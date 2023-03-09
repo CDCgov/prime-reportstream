@@ -1,8 +1,8 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import { Route, Routes } from "react-router-dom";
 
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
-import { BasicHelmet } from "../../header/BasicHelmet";
 
 export interface IARouterProps {
     directories: ContentDirectory[];
@@ -27,5 +27,9 @@ export interface IAMetaProps {
     pageName: string;
 }
 export const IAMeta = ({ pageName }: IAMetaProps) => {
-    return <BasicHelmet pageTitle={pageName} />;
+    return (
+        <Helmet>
+            <title>{pageName}</title>
+        </Helmet>
+    );
 };

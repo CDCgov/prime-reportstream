@@ -10,19 +10,25 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.SftpTransport
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.Instant
 import java.util.UUID
+import java.util.logging.Logger
 
 /*
  * Check API
@@ -49,7 +55,7 @@ class CheckFunction : Logging {
 
     class TestFileFilter(val fileName: String) : RemoteResourceFilter {
         override fun accept(resource: RemoteResourceInfo?): Boolean {
-            resource?. let {
+            resource?.let {
                 return resource.isRegularFile && resource.name == fileName
             }
             return false
@@ -58,6 +64,7 @@ class CheckFunction : Logging {
 
     /**
      * Checks a single remote connection
+     * Deprecated, I mean like no-one uses this.
      */
     @FunctionName("check")
     fun run(
@@ -76,6 +83,7 @@ class CheckFunction : Logging {
             }
             val receiverFullName = request.queryParameters["sftpcheck"]
                 ?: return HttpUtilities.badRequestResponse(request, "Missing option sftpcheck")
+
             /**
              * The query parameter is not added unless it has a value, treating
              * sendfile as a flag in the URI. When the sendfile flag is present,
@@ -92,7 +100,7 @@ class CheckFunction : Logging {
                 else -> SftpFile("hello-${UUID.randomUUID()}.txt", "")
             }
             // size check on the sftp file contents, fails if more than 100K chars in length
-            sftpFile?. let {
+            sftpFile?.let {
                 if (sftpFile.contents.length > 100000) {
                     return HttpUtilities.badRequestResponse(request, "Test upload file exceeds 100K size limit")
                 }
@@ -174,7 +182,7 @@ class CheckFunction : Logging {
                 JsonResponse(
                     CheckResultsEnum.fail,
                     "Org:'$orgName' Receiver Setting: '$receiverName' " +
-                        "'transport' section of setting is missing or empty - SFTP only supported"
+                        "'transport' section of setting is missing or empty - SFTP and REST supported"
                 )
             } else {
                 // Could have an option to create a blank file like this:
@@ -210,9 +218,10 @@ class CheckFunction : Logging {
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
             if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
                 return false
-            // note: right now ONLY SFTP is supported, but we should expand!
+            // note: SFTP and REST are supports, but we should still expand!
             return when (receiverSetting.transport) {
                 is SFTPTransportType -> true
+                is RESTTransportType -> true
                 else -> false
             }
         }
@@ -301,83 +310,150 @@ class CheckFunction : Logging {
             responseBody.add("**** ${receiver.fullName}:  no transport defined.")
             return false
         }
-        try {
-            responseBody.add("**** Receiver Status: ${receiver.customerStatus}")
-            return when (receiver.transport) {
-                is SFTPTransportType -> {
-                    testSftp(receiver.transport, receiver, sftpFile, responseBody)
-                    responseBody.add("**** ${receiver.fullName}: OK")
-                    true
-                }
-                // todo add other types of transports as needed.
-                else -> {
-                    responseBody.add(
-                        "**** ${receiver.fullName}: No test implemented for transport type ${receiver.transport.type}"
-                    )
-                    false
-                }
+        responseBody.add("**** Receiver Status: ${receiver.customerStatus}")
+        val receiverConnected = when (receiver.transport) {
+            is SFTPTransportType -> testSftp(receiver.transport, receiver, sftpFile, responseBody)
+            is RESTTransportType -> testRest(receiver.transport, receiver, responseBody)
+            // todo add other types of transports as needed.
+            else -> {
+                responseBody.add(
+                    "**** ${receiver.fullName}: No test implemented for transport type ${receiver.transport.type}"
+                )
+                false
             }
-        } catch (t: Throwable) {
-            logger.info("Exception in health check: ${t.message}: ${t.cause?.message ?: "No root cause"}")
-            logger.info(t.stackTraceToString())
-            responseBody.add("${receiver.fullName}: ${t.localizedMessage}: ${t.cause?.message ?: "No root cause"}")
-            responseBody.add(t.stackTraceToString())
+        }
+        return if (receiverConnected) {
+            responseBody.add("**** ${receiver.fullName}: OK")
+        } else {
             responseBody.add("**** ${receiver.fullName}: FAILED")
             return false
         }
     }
 
     /**
+     * Check if the REST transport can connect to the receiver
+     * and authenticate with the credentials in the vault
+     * Any normal return is success.  Any exception thrown is failure.
+     */
+    private fun testRest(
+        restTransportType: RESTTransportType,
+        receiver: Receiver,
+        responseBody: MutableList<String>
+    ): Boolean {
+        logger.info("REST Transport $restTransportType")
+        responseBody.add("${receiver.fullName}: REST Transport")
+        try {
+            val theRESTTransport = RESTTransport()
+            val reportId = UUID.randomUUID().toString()
+            // REST transport throws exception with error method to handle fails
+            // get the username/password to authenticate with OAuth, fail throws exception
+            val credential: RestCredential = theRESTTransport.lookupDefaultCredential(receiver)
+
+            // get the TLS/SSL cert in a JKS if needed, NY uses a specific one, fail throws exception
+            val jksCredential = restTransportType.tlsKeystore?.let { theRESTTransport.lookupJksCredentials(it) }
+
+            responseBody.add("Attempting to authenticate at: ${restTransportType.authTokenUrl}")
+            val aLogger: Logger = Logger.getLogger(this.toString())
+            runBlocking {
+                launch {
+                    var (httpHeaders, bearerTokens: io.ktor.client.plugins.auth.providers.BearerTokens?) =
+                        theRESTTransport.getOAuthToken(
+                            restTransportType,
+                            reportId,
+                            jksCredential,
+                            credential,
+                            aLogger
+                        )
+
+                    val msg = when {
+                        bearerTokens != null -> "${receiver.fullName}: Success: received OAuth token"
+                        httpHeaders.isNotEmpty() -> "${receiver.fullName}: Success: received Authentication header"
+                        else -> error("${receiver.fullName}: Failure: no valid response from RESTTransport")
+                    }
+                    logger.info(msg)
+                    responseBody.add(msg)
+                }
+            }
+        } catch (t: Throwable) {
+            trackException(t, responseBody, receiver)
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Check if the SFTP transport can connect to the receiver
+     * and list the files with an 'ls' on their sftp server
      * Any normal return is success.  Any exception thrown is failure.
      */
     private fun testSftp(
         sftpTransportType: SFTPTransportType,
         receiver: Receiver,
-        sftpFile: SftpFile?,
+        sftpFile: CheckFunction.SftpFile?,
         responseBody: MutableList<String>
-    ) {
+    ): Boolean {
         val path = sftpTransportType.filePath
         logger.info("SFTP Transport $sftpTransportType")
         responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
-        val credential = SftpTransport.lookupCredentials(receiver)
-        var sshClient = SftpTransport.connect(receiver, credential)
-        responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
-        sftpFile?. let {
-            logger.info("Attempting to upload ${it.name} to $sftpTransportType")
-            if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isNotEmpty()) {
-                throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
+        try {
+            val credential = SftpTransport.lookupCredentials(receiver)
+            var sshClient = SftpTransport.connect(receiver, credential)
+            responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
+            sftpFile?.let {
+                logger.info("Attempting to upload ${it.name} to $sftpTransportType")
+                if (SftpTransport.ls(sshClient, path, CheckFunction.TestFileFilter(it.name)).isNotEmpty()) {
+                    throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
+                }
+                // the client connection is closed in the SftpTransport methods
+                sshClient = SftpTransport.connect(receiver, credential)
+                SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
+                responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
+                sshClient = SftpTransport.connect(receiver, credential)
             }
-            // the client connection is closed in the SftpTransport methods
-            sshClient = SftpTransport.connect(receiver, credential)
-            SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
-            responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
-            sshClient = SftpTransport.connect(receiver, credential)
-        }
-        logger.info("Now trying an `ls` on $path")
-        val lsList: List<String> = SftpTransport.ls(sshClient, path)
-        // Log what we found from ls, but don't return it.
-        logger.info("What we got back from ls (first few lines): ")
-        lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
-        var msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from SFTP Transport"
-        logger.info(msg)
-        responseBody.add(msg)
-        sftpFile?. let {
-            logger.info("Checking for uploaded file on SFTP Transport")
-            sshClient = SftpTransport.connect(receiver, credential)
-            msg = if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isEmpty()) {
-                "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
-            } else {
-                "${receiver.fullName}: Found uploaded file '${sftpFile.name}' on SFTP Transport"
+            logger.info("Now trying an `ls` on $path")
+            val lsList: List<String> = SftpTransport.ls(sshClient, path)
+            // Log what we found from ls, but don't return it.
+            logger.info("What we got back from ls (first few lines): ")
+            lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
+            var msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from SFTP Transport"
+            logger.info(msg)
+            responseBody.add(msg)
+            sftpFile?.let {
+                logger.info("Checking for uploaded file on SFTP Transport")
+                sshClient = SftpTransport.connect(receiver, credential)
+                msg = if (SftpTransport.ls(sshClient, path, CheckFunction.TestFileFilter(it.name)).isEmpty()) {
+                    "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
+                } else {
+                    "${receiver.fullName}: Found uploaded file '${sftpFile.name}' on SFTP Transport"
+                }
+                logger.info(msg)
+                responseBody.add(msg)
+                msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
+                logger.info(msg)
+                responseBody.add(msg)
+                SftpTransport.rm(SftpTransport.connect(receiver, credential), path, sftpFile.name)
+                msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
+                logger.info(msg)
+                responseBody.add(msg)
             }
-            logger.info(msg)
-            responseBody.add(msg)
-            msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
-            logger.info(msg)
-            responseBody.add(msg)
-            SftpTransport.rm(SftpTransport.connect(receiver, credential), path, sftpFile.name)
-            msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
-            logger.info(msg)
-            responseBody.add(msg)
+        } catch (t: Throwable) {
+            trackException(t, responseBody, receiver)
+            return false
         }
+        return true
+    }
+
+    /**
+     * record the exception in the log and the responseBody
+     */
+    private fun trackException(
+        t: Throwable,
+        responseBody: MutableList<String>,
+        receiver: Receiver
+    ) {
+        logger.info("Exception in health check: ${t.message}: ${t.cause?.message ?: "No root cause"}")
+        logger.info(t.stackTraceToString())
+        responseBody.add("${receiver.fullName}: ${t.localizedMessage}: ${t.cause?.message ?: "No root cause"}")
+        responseBody.add(t.stackTraceToString())
     }
 }

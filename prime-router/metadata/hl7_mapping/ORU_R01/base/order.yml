@@ -44,7 +44,8 @@ elements:
     hl7Spec: [ '%{hl7Order}-6' ]
 
   - name: order-transaction-time
-    value: [ '%service.authoredOn' ]
+    condition: "%resource.extension(%`rsext-business-event`).exists()"
+    value: [ "%resource.extension(%`rsext-business-event`).value" ]
     hl7Spec: [ '%{hl7Order}-9' ]
 
   - name: order-entered-by

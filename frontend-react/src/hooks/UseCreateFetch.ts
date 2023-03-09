@@ -39,25 +39,18 @@ function createTypeWrapperForAuthorizedFetch(
     ): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
-        // this system assumes that we want to be making authenticated
-        // requests whenever possible
-        if (!headers.authorization || headers.authorization.length < 8) {
-            console.warn(
-                `Unauthenticated request to '${EndpointConfig.url}'\n Options:`,
-                options,
-                `\n Endpoint: `,
-                EndpointConfig
-            );
-        }
+
         const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
             headers,
         });
-        return axios(axiosConfig)
-            .then(({ data }) => data)
-            .catch((e: AxiosError) => {
-                throw new RSNetworkError<T>(e as AxiosError<T>);
-            });
+
+        try {
+            const res = await axios(axiosConfig);
+            return res.data;
+        } catch (e: any) {
+            throw new RSNetworkError<T>(e as AxiosError<T>);
+        }
     };
 }
 

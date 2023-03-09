@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
@@ -6,7 +6,7 @@ import {
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -26,10 +26,13 @@ describe("useMessageSearch", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
 
         const { result } = renderHook(() => useMessageSearch(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         let messages;
         await act(async () => {
@@ -60,13 +63,16 @@ describe("useMessageDetails", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
 
-        const { result, waitForNextUpdate } = renderHook(
-            () => useMessageDetails("11"),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useMessageDetails("11"), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.messageDetails?.id).toEqual(11)
         );
-        await waitForNextUpdate();
-        expect(result.current.messageDetails?.id).toEqual(11);
     });
 });

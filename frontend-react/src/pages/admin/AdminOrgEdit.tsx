@@ -2,6 +2,7 @@ import React, { Suspense, useRef, useState } from "react";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -37,7 +38,6 @@ import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
@@ -155,7 +155,9 @@ export function AdminOrgEdit() {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <BasicHelmet pageTitle="Admin | Org Edit" />
+            <Helmet>
+                <title>Admin | Org Edit</title>
+            </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
                     Org name: {orgname} {" - "}

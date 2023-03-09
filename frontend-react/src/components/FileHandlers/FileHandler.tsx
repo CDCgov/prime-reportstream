@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useSenderResource } from "../../hooks/UseSenderResource";
 import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
@@ -12,18 +11,20 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { NoServicesBanner } from "../alerts/NoServicesAlert";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
+import useSenderSchemaOptions from "../../senders/hooks/UseSenderSchemaOptions";
+import { useSenderResource } from "../../hooks/UseSenderResource";
+import { RSSender } from "../../config/endpoints/settings";
+import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 
+import { FileHandlerForm } from "./FileHandlerForm";
 import {
     RequestLevel,
     FileQualityFilterDisplay,
     FileSuccessDisplay,
-    FileWarningBanner,
     RequestedChangesDisplay,
 } from "./FileHandlerMessaging";
-import { FileHandlerForm } from "./FileHandlerForm";
 
 const FileHandlerSpinner = ({ message }: { message: string }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
@@ -47,25 +48,48 @@ const errorMessagingMap = {
     },
 };
 
-interface FileHandlerProps {
-    headingText: string;
-    successMessage: string;
-    resetText: string;
-    submitText: string;
-    showSuccessMetadata: boolean;
-    showWarningBanner: boolean;
-    warningText?: string;
+export const SUCCESS_DESCRIPTIONS = {
+    [FileType.CSV]: "The file meets the standard CSV schema.",
+    [FileType.HL7]:
+        "The file meets the ReportStream standard HL7 v2.5.1 schema.",
+};
+
+export const UPLOAD_PROMPT_DESCRIPTIONS = {
+    [FileType.CSV]:
+        "Select a CSV formatted file to validate. Make sure that your file has a .csv extension.",
+    [FileType.HL7]:
+        "Select an HL7 v2.5.1 formatted file to validate. Make sure that your file has a .hl7 extension.",
+};
+
+/**
+ * Given a user's membership settings and their Sender details,
+ * return the client string to send to the validate endpoint
+ *
+ * Only send the client when the selected schema matches the Sender's schema --
+ * this is to account for factoring in Sender settings into the validation
+ * e.g., allowDuplicates in https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/azure/ValidateFunction.kt#L100
+ *
+ * @param selectedSchemaName { string | undefined }
+ * @param activeMembership { MembershipSettings | undefined}
+ * @param sender { RSSender | undefined }
+ * @returns {string} The value sent as the client header (can be a blank string)
+ */
+export function getClientHeader(
+    selectedSchemaName: string | undefined,
+    activeMembership: MembershipSettings | null | undefined,
+    sender: RSSender | undefined
+) {
+    const parsedName = activeMembership?.parsedName;
+    const senderName = activeMembership?.service;
+
+    if (parsedName && senderName && sender?.schemaName === selectedSchemaName) {
+        return `${parsedName}.${senderName}`;
+    }
+
+    return "";
 }
 
-const FileHandler = ({
-    headingText,
-    successMessage,
-    resetText,
-    submitText,
-    showSuccessMetadata,
-    showWarningBanner,
-    warningText,
-}: FileHandlerProps) => {
+function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
 
@@ -84,6 +108,7 @@ const FileHandler = ({
         localError,
         overallStatus,
         reportItems,
+        selectedSchemaOption,
     } = state;
 
     useEffect(() => {
@@ -93,15 +118,12 @@ const FileHandler = ({
     }, [localError]);
 
     const { activeMembership } = useSessionContext();
+    const { senderDetail } = useSenderResource();
     // TODO: Transition from isLoading to Suspense component
-    const { data: organization, isLoading: organizationLoading } =
-        useOrganizationSettings();
-    // need to fetch sender from API to grab cvs vs hl7 format info
-    const { senderDetail: sender, senderIsLoading } = useSenderResource();
+    const { data: organization } = useOrganizationSettings();
+    const { schemaOptions, isLoading: isSenderSchemaOptionsLoading } =
+        useSenderSchemaOptions();
 
-    const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.service;
-    const client = `${parsedName}.${senderName}`;
     const uploaderCallback = useCallback(
         (data?: WatersResponse) => {
             dispatch({
@@ -149,7 +171,12 @@ const FileHandler = ({
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError(`No File Contents To ${submitText}`);
+            showError("No file contents to validate");
+            return;
+        }
+
+        if (!selectedSchemaOption) {
+            showError("No schema selected");
             return;
         }
 
@@ -163,7 +190,13 @@ const FileHandler = ({
                 contentType: contentType,
                 fileContent: fileContent,
                 fileName: fileName,
-                client: client,
+                client: getClientHeader(
+                    selectedSchemaOption.value,
+                    activeMembership,
+                    senderDetail
+                ),
+                schema: selectedSchemaOption.value,
+                format: selectedSchemaOption.format,
             });
 
             eventData = {
@@ -182,7 +215,7 @@ const FileHandler = ({
         if (eventData) {
             trackAppInsightEvent(EventName.FILE_VALIDATOR, {
                 fileValidator: {
-                    schema: sender?.schemaName,
+                    schema: selectedSchemaOption?.value,
                     fileType: fileType,
                     sender: organization?.name,
                     ...eventData,
@@ -196,40 +229,21 @@ const FileHandler = ({
         dispatch({ type: FileHandlerActionType.RESET });
     };
 
-    const submitted = useMemo(
-        () => !!(reportId || errors.length || overallStatus),
-        [reportId, errors.length, overallStatus]
-    );
-
-    const successDescription =
-        fileType === FileType.HL7
-            ? "The file meets the ReportStream standard HL7 v2.5.1 schema."
-            : "The file meets the standard CSV schema.";
-
-    const warningHeading = `${successMessage} with recommended edits`;
-
-    const warningDescription =
-        "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity.";
+    const submitted = !!(reportId || errors.length || overallStatus);
 
     // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging = useMemo(
-        () => errorMessagingMap[errorType || ErrorType.FILE],
-        [errorType]
-    );
+    const errorMessaging = errorMessagingMap[errorType || ErrorType.FILE];
 
-    const formLabel = useMemo(() => {
-        if (!sender) {
-            return "";
-        }
-        const fileTypeDescription =
-            sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
-        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
-    }, [sender, submitText]);
+    let formLabel = "";
+    let successDescription = "";
+    if (selectedSchemaOption) {
+        formLabel = UPLOAD_PROMPT_DESCRIPTIONS[selectedSchemaOption.format];
+        successDescription = SUCCESS_DESCRIPTIONS[selectedSchemaOption.format];
+    }
 
     // Array containing only qualityFilterMessages that have filteredReportItems.
-    const qualityFilterMessages = useMemo(
-        () => reportItems?.filter((d) => d.filteredReportItems.length > 0),
-        [reportItems]
+    const qualityFilterMessages = reportItems?.filter(
+        (d) => d.filteredReportItems.length > 0
     );
 
     const hasQualityFilterMessages =
@@ -241,26 +255,15 @@ const FileHandler = ({
         (reportId || overallStatus === OverallStatus.VALID) &&
         !hasQualityFilterMessages;
 
-    if (senderIsLoading || organizationLoading) {
+    if (isSenderSchemaOptionsLoading) {
         return <FileHandlerSpinner message="Loading..." />;
-    }
-
-    if (!sender) {
-        return (
-            <div className="grid-container usa-section margin-bottom-10">
-                <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
-                <h2 className="font-sans-lg">{organization?.description}</h2>
-                <NoServicesBanner
-                    organization={organization?.description}
-                    serviceType={"sender"}
-                />
-            </div>
-        );
     }
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
-            <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
+            <h1 className="margin-top-0 margin-bottom-5">
+                ReportStream File Validator
+            </h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
             {fileName && (
                 <>
@@ -273,9 +276,6 @@ const FileHandler = ({
                     <p className="margin-top-05">{fileName}</p>
                 </>
             )}
-            {showWarningBanner && (
-                <FileWarningBanner message={warningText || ""} />
-            )}
             {isFileSuccess && warnings.length === 0 && (
                 <FileSuccessDisplay
                     extendedMetadata={{
@@ -283,17 +283,17 @@ const FileHandler = ({
                         timestamp: successTimestamp,
                         reportId,
                     }}
-                    heading={successMessage}
+                    heading="Validate another file"
                     message={successDescription}
-                    showExtendedMetadata={showSuccessMetadata}
+                    showExtendedMetadata={false}
                 />
             )}
             {warnings.length > 0 && (
                 <RequestedChangesDisplay
                     title={RequestLevel.WARNING}
                     data={warnings}
-                    message={warningDescription}
-                    heading={warningHeading}
+                    message="The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
+                    heading="File validated with recommended edits"
                 />
             )}
             {errors.length > 0 && (
@@ -321,13 +321,22 @@ const FileHandler = ({
                     submitted={submitted}
                     cancellable={cancellable}
                     fileName={fileName}
+                    fileType={fileType}
                     formLabel={formLabel}
-                    resetText={resetText}
-                    submitText={submitText}
+                    resetText="Validate another file"
+                    submitText="Validate"
+                    schemaOptions={schemaOptions}
+                    selectedSchemaOption={selectedSchemaOption}
+                    onSchemaChange={(schemaOption) =>
+                        dispatch({
+                            type: FileHandlerActionType.SCHEMA_SELECTED,
+                            payload: schemaOption,
+                        })
+                    }
                 />
             )}
         </div>
     );
-};
+}
 
 export default FileHandler;
