@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
 import {
@@ -53,7 +53,7 @@ describe("ValueSetsIndex tests", () => {
                     valueSetMeta: {},
                 } as ValueSetsMetaResponse)
         );
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndex />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
         const rows = screen.getAllByRole("row");
@@ -78,7 +78,7 @@ describe("ValueSetsIndex tests", () => {
                 } as ValueSetsMetaResponse)
         );
 
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndex />);
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(3); // +1 for header
 
@@ -111,7 +111,7 @@ describe("ValueSetsIndex tests", () => {
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderWithFullAppContext(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndex />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content."

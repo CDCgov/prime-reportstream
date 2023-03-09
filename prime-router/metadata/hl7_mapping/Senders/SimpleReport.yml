@@ -2,8 +2,7 @@
 # This is a temporary Simple Report transform. These settings need to be #
 # moved to a sender transform once that feature is complete.             #
 ##########################################################################
-hl7Type: ORU_R01
-hl7Version: 2.5.1
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: ../ORU_R01/ORU_R01-base
 constants:
   simpleReportClia: '"36D1332559"'

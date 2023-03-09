@@ -1,6 +1,5 @@
 constants:
-  hl7PIDField: '/PATIENT_RESULT/PATIENT/PID'
-  hl7PatientGroup: '/PATIENT_RESULT/PATIENT'
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
 elements:
   - name: patient-set-id
     value: [ '"1"' ]
@@ -176,13 +175,3 @@ elements:
     resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
     value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7PIDField}-35-6' ]
-
-  - name: patient-note
-    resource: '%resource.extension(%`rsext-patient-notes`).value.text.split(''\n'')'
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
-    schema: note
-    resourceIndex: noteIndex
-    constants:
-      hl7NotePath: '%{hl7PatientGroup}'
-      # Cannot use %resource here as this constant will be resolved in the note schema
-      noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'

@@ -23,8 +23,7 @@ class ConfigSchemaReaderTests {
     fun `test read one yaml schema`() {
         var yaml = """
             name: ORU-R01-Base
-            hl7Type: ORU_R01
-            hl7Version: 2.5.1
+            hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
             elements:
             - name: message-headers
               condition: >
@@ -58,8 +57,7 @@ class ConfigSchemaReaderTests {
         // Badly formatted YAML - First condition has incorrect identation
         yaml = """
             name: ORU-R01-Base
-            hl7Type: ORU_R01
-            hl7Version: 2.5.1
+            hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
             elements:
             - name: message-headers
               condition: >
@@ -95,8 +93,7 @@ class ConfigSchemaReaderTests {
         assertThat(schema is ConverterSchema).isTrue()
         if (schema is ConverterSchema) {
             assertThat(schema.name).isEqualTo("ORU_R01") // match filename
-            assertThat(schema.hl7Type).isEqualTo("ORU_R01")
-            assertThat(schema.hl7Version).isEqualTo("2.5.1")
+            assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
             assertThat(schema.elements).isNotEmpty()
         }
 
@@ -327,8 +324,7 @@ class ConfigSchemaReaderTests {
         if (schema is ConverterSchema) {
             assertThat(schema.errors).isEmpty()
             assertThat(schema.name).isEqualTo("ORU_R01-extended") // match filename
-            assertThat(schema.hl7Type).isEqualTo("ORU_R01")
-            assertThat(schema.hl7Version).isEqualTo("2.7")
+            assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
             assertThat(schema.elements).isNotEmpty()
         }
 

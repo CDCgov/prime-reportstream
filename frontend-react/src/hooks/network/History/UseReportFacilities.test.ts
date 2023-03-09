@@ -1,9 +1,9 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { QueryWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
 import { useReportsFacilities } from "./DeliveryHooks";
 
@@ -26,11 +26,11 @@ describe("useReportsList", () => {
             isUserReceiver: true,
             isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useReportsFacilities("123"),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useReportsFacilities("123"), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.reportFacilities?.length).toEqual(2)
         );
-        await waitForNextUpdate();
-        expect(result.current.reportFacilities?.length).toEqual(2);
     });
 });

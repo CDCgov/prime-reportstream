@@ -1,10 +1,10 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 
 import {
     watersServer,
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
-import { QueryWrapper } from "../../utils/CustomRenderUtils";
+import { AppWrapper } from "../../utils/CustomRenderUtils";
 import { ContentType, FileType } from "../UseFileHandler";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 
@@ -16,23 +16,20 @@ describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
-    const renderHookWithQueryWrapper = () =>
+    const renderHookWithAppWrapper = () =>
         renderHook(() => useWatersUploader(mockCallbackFn), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
     test("has default state", () => {
-        const { result } = renderHookWithQueryWrapper();
+        const { result } = renderHookWithAppWrapper();
         expect(result.current.isWorking).toEqual(false);
         expect(result.current.sendFile).toBeInstanceOf(Function);
         expect(result.current.uploaderError).toBeNull();
     });
     test("posts to /api/validate when validateOnly param is true", async () => {
-        const { result, waitForNextUpdate } = renderHook(
-            () => useWatersUploader(mockCallbackFn),
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result } = renderHook(() => useWatersUploader(mockCallbackFn), {
+            wrapper: AppWrapper(),
+        });
         let response;
         await act(async () => {
             const post = result.current.sendFile({
@@ -44,7 +41,6 @@ describe("useWatersUploader", () => {
                 format: FileType.CSV,
                 schema: STANDARD_SCHEMA_OPTIONS[0].value,
             });
-            await waitForNextUpdate();
             response = await post;
         });
         expect(response).toEqual({
