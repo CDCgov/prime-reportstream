@@ -77,7 +77,7 @@ class SettingsProviderTest {
     }
 
     @Test
-    fun `test getKeys favors organization key over sender`() {
+    fun `test getKeys returns keys for the same scope set for organization and sender`() {
         val settings = EmptySettings(
             listOf(organization.makeCopyWithNewScopeAndJwk(scopeOne, jwkOne)),
             listOf(sender.makeCopyWithNewScopeAndJwk(scopeOne, jwkTwo)),
