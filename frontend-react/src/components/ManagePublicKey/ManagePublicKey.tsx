@@ -16,7 +16,6 @@ export function ManagePublicKey() {
                     process.
                 </p>
             </div>
-            y
         </div>
     );
 }
