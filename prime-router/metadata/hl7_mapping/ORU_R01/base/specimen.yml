@@ -10,7 +10,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: specimen-identifier-filler
@@ -18,14 +18,14 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: specimen-type
     resource: '%resource.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-type-modifier
     value: [ '""' ]
@@ -44,7 +44,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-source-site-modifier
     value: [ '""' ]
@@ -96,4 +96,4 @@ elements:
     resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
