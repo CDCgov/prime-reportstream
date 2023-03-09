@@ -65,7 +65,6 @@ jobs:
   publish_dnsmasq:
     name: Publish dnsmasq
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
