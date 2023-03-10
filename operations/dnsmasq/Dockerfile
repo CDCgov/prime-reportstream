@@ -1,7 +1,7 @@
 FROM alpine:3.17
 
 # Install dnsmasq
-RUN apk --no-cache add dnsmasq
+RUN apk --no-cache add dnsmasq=2.89-r1
 
 # Expose the DNS port
 EXPOSE 53/udp
