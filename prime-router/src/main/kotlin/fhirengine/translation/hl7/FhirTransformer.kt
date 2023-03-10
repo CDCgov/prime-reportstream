@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -18,8 +17,6 @@ import org.hl7.fhir.r4.model.Extension
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
-    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : ConfigSchemaProcessor() {
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
@@ -161,21 +158,26 @@ class FhirTransformer(
      * Set the [value] on [bundleProperty] using [bundle] as the root resource and [focusResource] as the focus resource
      */
     internal fun setBundleProperty(
-        rawBundleProperty: String?,
+        bundleProperty: String?,
         value: Base,
         context: CustomContext,
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (rawBundleProperty.isNullOrBlank()) {
+        if (bundleProperty.isNullOrBlank()) {
             logger.warn("bundleProperty was not set.")
             return
         }
-        val bundleProperty = constantSubstitutor.replace(rawBundleProperty, context)
 
         val pathParts = bundleProperty.split(".")
         if (pathParts.size < 2) {
             logger.warn("Expected at least 2 parts in bundle property '$bundleProperty'.")
+            return
+        } else if (pathParts.last().contains('%')) {
+            logger.warn(
+                "Constants not supported in lowest level component of bundle property, found" +
+                    " '${pathParts.last()}'."
+            )
             return
         }
         // We start one level down as we use the addChild function to set the value at the end
@@ -184,6 +186,13 @@ class FhirTransformer(
         val missingChildren = mutableListOf<String>()
         childrenNames.forEach { childName ->
             if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate).isEmpty()) {
+                if (childName.contains('%')) {
+                    logger.warn(
+                        "Could not evaluate path '$pathToEvaluate', and cannot dynamically create" +
+                            " components relying on constants."
+                    )
+                    return
+                }
                 pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
                 missingChildren.add(childName)
             } else return@forEach

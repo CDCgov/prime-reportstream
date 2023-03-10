@@ -21,6 +21,7 @@ import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
@@ -368,23 +369,6 @@ class FhirTransformerTests {
         patient.id = "def456"
         bundle.addEntry().resource = patient
 
-        // Incompatible value types
-        assertThat {
-            transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
-                CustomContext(bundle, bundle), bundle, bundle
-            )
-        }.isFailure()
-        verify(exactly = 1) { logger.error(match<String> { it.contains("between CodeableConcept and string") }) }
-
-        assertThat {
-            transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
-                CustomContext(bundle, bundle), bundle, bundle
-            )
-        }.isFailure()
-        verify(exactly = 1) { logger.error(match<String> { it.contains("between string and boolean") }) }
-
         // Can't currently create new resources on the fly
         assertThat {
             transformer.setBundleProperty(
@@ -406,11 +390,48 @@ class FhirTransformerTests {
             CustomContext(bundle, bundle), bundle, bundle
         )
         verify(exactly = 1) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
+
         transformer.setBundleProperty(
             "id", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
         verify(exactly = 1) { logger.warn(match<String> { it.contains("Expected at least 2 parts") }) }
+
+        transformer.setBundleProperty(
+            "%key.text", StringType("SomeName"),
+            CustomContext(
+                bundle,
+                bundle,
+                constants = mutableMapOf(Pair("key", "Bundle.entry.resource.ofType(Patient).name"))
+            ),
+            bundle, bundle
+        )
+        verify(exactly = 1) {
+            logger.warn(match<String> { it.contains("cannot dynamically create components relying on constants") })
+        }
+
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).name.%key", StringType("SomeName"),
+            CustomContext(bundle, bundle, constants = mutableMapOf(Pair("key", "text"))), bundle, bundle
+        )
+        verify(exactly = 1) { logger.warn(match<String> { it.contains("Constants not supported in lowest level") }) }
+
+        // Incompatible value types
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+        verify(exactly = 1) { logger.error(match<String> { it.contains("between CodeableConcept and string") }) }
+
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+        verify(exactly = 1) { logger.error(match<String> { it.contains("between string and boolean") }) }
     }
 
     @Test
@@ -419,25 +440,26 @@ class FhirTransformerTests {
         bundle.id = "abc123"
         val patient = Patient()
         patient.id = "def456"
+        patient.name = listOf(HumanName())
         bundle.addEntry().resource = patient
 
         val elementA = FHIRTransformSchemaElement(
             "elementA",
             value = listOf("%testId"),
             resource = "%testRes",
-            bundleProperty = "%{testPropA}"
+            bundleProperty = "%testRes.id"
         )
         val elementB = FHIRTransformSchemaElement(
             "elementB",
             value = listOf("%testName"),
             resource = "%testRes",
-            bundleProperty = "%{testPropB}"
+            bundleProperty = "%testPath.text"
         )
         val elementC = FHIRTransformSchemaElement(
             "elementC",
             value = listOf("%testActive"),
             resource = "%testRes",
-            bundleProperty = "%resource.%{testPropC}"
+            bundleProperty = "%resource.active"
         )
         val schema =
             FhirTransformSchema(
@@ -447,9 +469,7 @@ class FhirTransformerTests {
                     Pair("testName", "'SomeName'"),
                     Pair("testActive", "true"),
                     Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
-                    Pair("testPropA", "Bundle.entry.resource.ofType(Patient).id"),
-                    Pair("testPropB", "Bundle.entry.resource.ofType(Patient).name.text"),
-                    Pair("testPropC", "active")
+                    Pair("testPath", "Bundle.entry.resource.ofType(Patient).name[0]"),
                 )
             )
         val transformer = FhirTransformer(schema)
