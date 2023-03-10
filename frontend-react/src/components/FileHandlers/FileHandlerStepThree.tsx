@@ -1,4 +1,5 @@
-import { Button } from "@trussworks/react-uswds";
+import { Button, Modal, ModalHeading, ModalRef } from "@trussworks/react-uswds";
+import { useRef } from "react";
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
@@ -41,6 +42,7 @@ export const FileHandlerStepThree = ({
     handlePrevFileHandlerStep,
     handleNextFileHandlerStep,
 }: FileHandlerStepThreeProps) => {
+    const modalRef = useRef<ModalRef>(null);
     return (
         <div className="file-handler-table">
             {isFileSuccess && warnings.length === 0 && (
@@ -93,11 +95,23 @@ export const FileHandlerStepThree = ({
                     disabled={errors.length > 0}
                     className="usa-button flex-align-self-start height-5 margin-top-4"
                     type={"button"}
-                    onClick={handleNextFileHandlerStep}
+                    onClick={() => modalRef?.current?.toggleModal()}
                 >
                     Continue without changes
                 </Button>
             </div>
+            <Modal id="file-validator-modal" ref={modalRef}>
+                <ModalHeading>
+                    Have you exported your recommended edits?
+                </ModalHeading>
+                <div className="usa-prose">
+                    <p>
+                        Before continuing to validation, we suggest saving your
+                        recommended edits so our team can better assist you with
+                        your files.
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };
