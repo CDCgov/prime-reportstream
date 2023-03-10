@@ -1,0 +1,20 @@
+constants:
+  hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR'
+  senderOrganization: '%resource[%orderIndex].basedOn.resolve().performer.resolve()'
+elements:
+  - name: ca-order-entity-namespace-id
+    value: [ '%senderOrganization.name']
+    hl7Spec: [ '%{hl7Order}-3-2' ]
+
+  - name: ca-order-entity-universal-id
+    value: [ '%senderOrganization.identifier.value' ]
+    hl7Spec: [ '%{hl7Order}-3-3' ]
+
+  - name: ca-order-entity-id-type
+    value: [ '%senderOrganization.identifier.type.coding.code']
+    hl7Spec: [ '%{hl7Order}-3-4' ]
+
+  - name: ca-observation-result
+    resource: '%resource.result.resolve()'
+    schema: ca-observation-result
+    resourceIndex: resultIndex

@@ -109,15 +109,39 @@ elements:
     resource: 'Bundle'
     value: [ '"ISO"' ]
 
-  #SFT-1-1
+    #SFT-1-1
   - name: software-vendor-name
     condition: true
     resource: 'Bundle'
-    value: [ '"PRIME ReportStream"' ]
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
+    #SFT-1-2
+  - name: software-vendor-name-type
+    condition: false
+
+    #SFT-1-6
+  - name: software-vendor-assigning-authority
+    condition: false
 
     #SFT-3
   - name: software-name
     condition: true
     resource: 'Bundle'
-    value: [ '"Centers for Disease Control and Prevention"' ]
+    value: [ '"PRIME ReportStream"' ]
 
+  - name: ca-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: ca-order-observation
+    resourceIndex: orderIndex
+
+##  #   PID-3-6
+#  - name: id-type-code
+#    condition: true
+#    resource: 'Bundle'
+#    value: [ '"PI"' ]
+
+  - name: ca-patient-information
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    schema: ca-patient

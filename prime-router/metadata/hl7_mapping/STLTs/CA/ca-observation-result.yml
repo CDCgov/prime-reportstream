@@ -1,0 +1,19 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  senderOrganization: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
+elements:
+  - name: ca-organization-namespace-id
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-1' ]
+    value: [ '"CLIA"' ]
+
+  - name: ca-organization-universal-id
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-2' ]
+    value: [ '"2.16.840.1.113883.4.7"' ]
+
+  - name: ca-software-vendor-assigning-authority-system
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-3' ]
+    value: [ '"ISO"' ]
+
+  - name: ca-software-vendor-assigning-authority-system
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-7' ]
+    value: [ '"XX"' ]
