@@ -25,10 +25,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js ${{ matrix.node-version }} with yarn
+
+    - name: Get node version
+      working-directory: frontend-react
+      run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
+
+    - name: Use Node.js ${{ env.node_version }} with yarn
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
-        node-version: "16.19.1"
+        node-version: "${{ env.node_version }}"
 
     - run: yarn install
       working-directory: frontend-react
