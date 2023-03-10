@@ -29,6 +29,7 @@ runs:
     - name: Get node version
       working-directory: frontend-react
       run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
+      shell: bash
 
     - name: Use Node.js ${{ env.node_version }} with yarn
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c

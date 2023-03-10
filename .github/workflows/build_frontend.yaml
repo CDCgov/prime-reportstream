@@ -14,7 +14,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
     steps:
@@ -23,13 +23,6 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50
-        id: skip_check
-        with:
-          list-files: csv
-          filters: |
-            frontend_react:
-              - 'frontend-react/**'
 
   build_frontend_react:
     name: Build Frontend React
