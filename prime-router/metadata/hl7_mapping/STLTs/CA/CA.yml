@@ -135,12 +135,6 @@ elements:
     schema: ca-order-observation
     resourceIndex: orderIndex
 
-##  #   PID-3-6
-#  - name: id-type-code
-#    condition: true
-#    resource: 'Bundle'
-#    value: [ '"PI"' ]
-
   - name: ca-patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
