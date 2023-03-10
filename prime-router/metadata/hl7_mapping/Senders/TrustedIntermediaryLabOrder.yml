@@ -1,0 +1,7 @@
+extends: ../OML_O21/OML_O21-base
+elements:
+
+  - name: message-control-id
+    value: [ 'Bundle.id' ]
+    required: true
+    hl7Spec: [ MSH-10 ]
