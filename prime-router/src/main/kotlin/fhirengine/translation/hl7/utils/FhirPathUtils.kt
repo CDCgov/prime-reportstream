@@ -205,6 +205,7 @@ object FhirPathUtils : Logging {
 
             else -> {
                 var secs = dateTime.second.toFloat()
+//                TODO: There's no way to turn this off at the moment. Need to add support to configure Date precision
 //                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,

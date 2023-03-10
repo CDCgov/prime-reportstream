@@ -3,10 +3,13 @@
 # moved to a sender transform once that feature is complete.             #
 ##########################################################################
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
-extends: ../../ORU_R01/ORU_R01-base
+
 constants:
+  #TODO: Constants are not currently working in sender transforms
   simpleReportClia: '"36D1332559"'
   simpleReportName: '"Simple Report"'
+  useAoe: '"false"'
+extends: ../../ORU_R01/ORU_R01-base
 elements:
   #########################
   # ReportStream specific #
@@ -129,6 +132,7 @@ elements:
     resource: 'Bundle'
     value: [ '"PRIME ReportStream"' ]
 
+  #The transforms below could be moved to the enrichment step for CA once FHIR transforms are ready
   - name: ca-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
@@ -139,3 +143,9 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     schema: ca-patient
+
+  - name: ca-aoe-notes
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    condition: '%resource.count() > 0'
+    schema: ca-aoe-note
+    resourceIndex: aoeNoteIndex

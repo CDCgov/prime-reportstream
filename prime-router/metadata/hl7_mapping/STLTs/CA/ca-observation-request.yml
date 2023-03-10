@@ -3,7 +3,7 @@ constants:
   senderOrganization: '%resource.basedOn.resolve().performer.resolve()'
 elements:
   - name: ca-order-entity-id
-    value: [ '%resource.identifier.value' ]
+    value: [ '%resource.identifier[0].value' ]
     hl7Spec: [ '%{hl7Order}-3-1' ]
 
   - name: ca-order-organization-identifier
@@ -12,7 +12,3 @@ elements:
       organizationIdFieldPath: '%{hl7Order}-3'
     schema: ../../common/organization-identifier
 
-  - name: ca-observation-result
-    resource: '%resource.result.resolve()'
-    schema: ca-observation-result
-    resourceIndex: resultIndex

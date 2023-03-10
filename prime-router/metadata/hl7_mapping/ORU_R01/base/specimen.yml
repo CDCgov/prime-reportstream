@@ -27,6 +27,10 @@ elements:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
+  - name: specimen-type-coding-system-version
+    value: [ '"2.67"' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-7' ]
+
   - name: specimen-type-modifier
     value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-5' ]
@@ -57,6 +61,11 @@ elements:
   - name: specimen-description
     value: [ '%resource.note.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
+
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not()'
+    value: [ '%diagnostic.issued' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
   - name: specimen-collection-time
     condition: '%resource.collection.collected is dateTime'

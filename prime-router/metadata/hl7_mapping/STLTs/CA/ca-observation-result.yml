@@ -1,6 +1,5 @@
 constants:
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
-  senderOrganization: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
 elements:
   - name: ca-organization-namespace-id
     hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-1' ]

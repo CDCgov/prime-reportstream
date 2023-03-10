@@ -6,6 +6,11 @@ elements:
   - name: ca-observation-request
     schema: ca-observation-request
 
+  - name: ca-observation-result
+    resource: '%resource.result.resolve()'
+    schema: ca-observation-result
+    resourceIndex: resultIndex
+
   - name: ca-specimen
     resource: '%resource.specimen.resolve()'
     condition: '%resource.exists()'

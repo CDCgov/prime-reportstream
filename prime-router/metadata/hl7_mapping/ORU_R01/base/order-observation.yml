@@ -30,8 +30,10 @@ elements:
     schema: timing-quantity
 
     # Appending AOE questions at the end of all observations
-  - name: observation-result
-    resource: '%resource.result.resolve() | %service.supportingInfo.resolve()'
+  - name: observation-result-with-aoe
+    #TODO: Enable this once we can suppress AOE questions in sender transforms
+#    resource: '%resource.result.resolve() | %service.supportingInfo.resolve()'
+    resource: '%resource.result.resolve()'
     schema: observation-result
     resourceIndex: resultIndex
 

@@ -1,0 +1,38 @@
+constants:
+  hl7NteFieldPath: '/PATIENT_RESULT/PATIENT/NTE'
+elements:
+  - name: aoe-note-id
+    value: [ '%aoeNoteIndex + 1' ]
+    hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-1' ]
+
+  - name: aoe-note-source
+    value:
+      - '"L"'
+    hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-2' ]
+
+  - name: aoe-note-comment-datetime
+    condition: '%resource.value is dateTime'
+    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value.toString()']
+    hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-3' ]
+
+  - name: aoe-note-comment-string
+    condition: '%resource.value is string'
+    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value' ]
+    hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-3' ]
+
+  - name: aoe-note-comment-cwe
+    condition: '%resource.value is CodeableConcept'
+    value: [ '%resource.code.coding.code 
+    + " " + %resource.code.text 
+    + ": " + %resource.value.coding.display 
+    + " " + %resource.value.coding.code 
+    + " " + %resource.value.coding.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-3' ]
+
+#  %resource.coding.system
+#      - name: code-system-url-2
+#    # Important to only check http since there are urls defined in the Linux4Health
+#    # coding system map file that are http and others that are https
+#    condition: '%resource.system.startsWith("http")'
+#    value: [ '%resource.system.getCodingSystemMapping()' ]
+#    hl7Spec: [ '%{ceFieldPath}-3' ]
