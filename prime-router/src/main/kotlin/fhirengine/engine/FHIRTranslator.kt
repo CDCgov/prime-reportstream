@@ -18,9 +18,13 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Provenance
 
@@ -59,14 +63,15 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            val receivers = provenance.target.map { it.resource }
-                .filterIsInstance<Endpoint>().map { it.identifier[0].value }
+            val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
 
-            receivers.forEach { recName ->
-                val receiver = settings.findReceiver(recName)
+            receiverEndpoints.forEach { receiverEndpoint ->
+                val receiverName = receiverEndpoint.identifier[0].value
+                val receiver = settings.findReceiver(receiverName)
                 // We only process receivers that are active and for this pipeline.
                 if (receiver != null && receiver.topic == Topic.FULL_ELR) {
-                    val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+                    val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
+                    val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()
 
                     // get a Report from the hl7 message
@@ -141,5 +146,40 @@ class FHIRTranslator(
         }
 
         return hl7Message
+    }
+
+    /**
+     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint]
+     *
+     * @return [Bundle] with the unwanted observations removed
+     */
+    internal fun removeUnwantedConditions(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
+
+        // Copy bundle to make sure original stays untouched
+        val newBundle = bundle.copy()
+
+        // Get observation references to keep from the receiver endpoint
+        val observationsToKeep = receiverEndpoint.extension.flatMap { it.getResourceReferences() }
+
+        // If endpoint doesn't have any references don't remove any
+        if (observationsToKeep.isNotEmpty()) {
+            // Get all diagnostic reports in the bundle
+            val diagnosticReports =
+                FhirPathUtils.evaluate(null, newBundle, newBundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+
+            // Get all observation references in the diagnostic reports
+            val allObservations =
+                diagnosticReports.filterIsInstance<DiagnosticReport>().flatMap { it.result }.map { it.reference }
+
+            // Determine observations ids to remove
+            val observationsIdsToRemove = allObservations - observationsToKeep.toSet()
+
+            // Get observation resources to be removed from the bundle
+            val observationsToRemove = newBundle.entry.filter { it.resource.id in observationsIdsToRemove }
+
+            observationsToRemove.forEach { newBundle.deleteResource(it.resource) }
+        }
+
+        return newBundle
     }
 }
