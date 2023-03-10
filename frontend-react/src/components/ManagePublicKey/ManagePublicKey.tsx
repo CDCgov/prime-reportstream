@@ -1,9 +1,9 @@
 import React from "react";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { GridContainer } from "@trussworks/react-uswds";
 
 export function ManagePublicKey() {
     return (
