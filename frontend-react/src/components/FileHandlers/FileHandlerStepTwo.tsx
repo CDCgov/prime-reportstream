@@ -93,7 +93,7 @@ export const FileHandlerStepTwo = ({
                     <div className="grid-col display-flex">
                         <Button
                             className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
-                            type={"submit"}
+                            type={"button"}
                             onClick={handlePrevFileHandlerStep}
                         >
                             Back

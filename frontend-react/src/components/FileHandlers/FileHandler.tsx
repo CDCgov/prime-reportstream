@@ -352,7 +352,7 @@ function FileHandler() {
                     formLabel={formLabel}
                     selectedSchemaOption={selectedSchemaOption}
                     isWorking={isWorking}
-                    handlePrevFileHandlerStep={handleNextFileHandlerStep}
+                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
                 />
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
@@ -368,6 +368,8 @@ function FileHandler() {
                     successTimestamp={successTimestamp}
                     warnings={warnings}
                     selectedSchemaOption={selectedSchemaOption}
+                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                    handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
             <p className="margin-top-10">

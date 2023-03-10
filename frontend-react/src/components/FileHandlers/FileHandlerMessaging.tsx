@@ -166,7 +166,7 @@ export const RequestedChangesDisplay = ({
                                 csvExporter.generateCsv(data);
                             }}
                         >
-                            Download edits as CSV
+                            Download edits as CSV <Icon.FileDownload />
                         </Button>
                     </div>
 

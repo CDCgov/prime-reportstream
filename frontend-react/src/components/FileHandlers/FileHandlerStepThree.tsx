@@ -1,3 +1,4 @@
+import { Button } from "@trussworks/react-uswds";
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
@@ -21,6 +22,8 @@ interface FileHandlerStepThreeProps {
     successTimestamp?: string;
     warnings: ResponseError[];
     selectedSchemaOption: SchemaOption | null;
+    handlePrevFileHandlerStep: () => void;
+    handleNextFileHandlerStep: () => void;
 }
 
 export const FileHandlerStepThree = ({
@@ -35,6 +38,8 @@ export const FileHandlerStepThree = ({
     successTimestamp,
     warnings,
     selectedSchemaOption,
+    handlePrevFileHandlerStep,
+    handleNextFileHandlerStep,
 }: FileHandlerStepThreeProps) => {
     return (
         <div className="file-handler-table">
@@ -76,6 +81,23 @@ export const FileHandlerStepThree = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
+            <div className="grid-col display-flex">
+                <Button
+                    className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                    type={"button"}
+                    onClick={handlePrevFileHandlerStep}
+                >
+                    Test another file
+                </Button>
+                <Button
+                    disabled={errors.length > 0}
+                    className="usa-button flex-align-self-start height-5 margin-top-4"
+                    type={"button"}
+                    onClick={handleNextFileHandlerStep}
+                >
+                    Continue without changes
+                </Button>
+            </div>
         </div>
     );
 };
