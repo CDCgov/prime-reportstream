@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -19,6 +21,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -28,6 +31,9 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -331,4 +337,137 @@ class FhirTranslatorTests {
         // assert
         assertThat(terser.get("MSH-11-1")).isEqualTo("T")
     }
+
+    @Test
+    fun `test full elr translation happy path, receiver with condition filter so extensions`() {
+        mockkObject(BlobAccess)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            queueMock.sendMessage(any(), any())
+        }
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackCreatedReport(any(), any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any())
+            engine.removeUnwantedConditions(any(), any())
+        }
+    }
+    @Test
+    fun `Test removing some filtered observations from a DiagnosticReport`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_some_filtered_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+
+        var observations = getResource(bundle, "Observation")
+
+        assertThat(observations.count()).isEqualTo(5)
+
+        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+
+        observations = getResource(updatedBundle, "Observation")
+
+        assertThat(observations.count()).isEqualTo(2)
+    }
+
+    @Test
+    fun `Test removing all filtered observations from a DiagnosticReport`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_all_filtered_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(provenance).isNotNull()
+        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+        assertThat(endpoint).isNotNull()
+        var observations = getResource(bundle, "Observation")
+        var diagnosticReport = getResource(bundle, "DiagnosticReport")
+
+        assertThat(observations.count()).isEqualTo(3)
+        assertThat(diagnosticReport.count()).isEqualTo(3)
+
+        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+
+        observations = getResource(updatedBundle, "Observation")
+        diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
+        assertThat(observations.count()).isEqualTo(1)
+        assertThat(diagnosticReport.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Test observations are not removed if receiver Endpoint is not populated`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(provenance).isNotNull()
+        val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+        assertThat(endpoint).isNotNull()
+        var observations = getResource(bundle, "Observation")
+        var diagnosticReport = getResource(bundle, "DiagnosticReport")
+        val observationsCount = observations.count()
+        val diagnosticReportCount = diagnosticReport.count()
+        assertThat(observationsCount).isEqualTo(3)
+        assertThat(diagnosticReportCount).isEqualTo(3)
+
+        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+
+        observations = getResource(updatedBundle, "Observation")
+        diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
+        assertThat(observations.count()).isEqualTo(observationsCount)
+        assertThat(diagnosticReport.count()).isEqualTo(diagnosticReportCount)
+    }
+
+    private fun getResource(bundle: Bundle, resource: String) =
+        FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
 }

@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "npmClient": "yarn",
-  "proxy": "http://localhost:7071",
+  "proxy": "http://127.0.0.1:7071",
   "dependencies": {
     "@microsoft/applicationinsights-react-js": "^3.4.1",
     "@microsoft/applicationinsights-web": "^2.8.10",
@@ -190,6 +190,6 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "engines": {
-    "node": "~16.19.1"
+    "node": "~18.15"
   }
 }
