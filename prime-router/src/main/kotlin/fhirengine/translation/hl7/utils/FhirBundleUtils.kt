@@ -26,6 +26,7 @@ object FhirBundleUtils : Logging {
         DateTime("dateTime"),
         Id("id"),
         Instant("instant"),
+        Integer("integer"),
         Markdown("markdown"),
         Oid("oid"),
         String("string"),
@@ -59,7 +60,7 @@ object FhirBundleUtils : Logging {
                 StringCompatibleType.Url.typeAsString -> UrlType(value.primitiveValue())
                 StringCompatibleType.Uuid.typeAsString -> UuidType(value.primitiveValue())
                 else -> {
-                    logger.error("Conversion between $sourceType and $targetType not yet implemented.")
+                    logger.error("Conversion between $sourceType and $targetType not supported.")
                     value
                 }
             }

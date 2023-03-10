@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import { renderWithBase } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import {
     CsvSchemaDocumentationItem,
@@ -22,7 +22,7 @@ const baseItem: CsvSchemaItem = {
 
 describe("CsvSchemaDocumentationItem", () => {
     test("renders a schema item", () => {
-        const { container } = renderWithBase(
+        const { container } = renderApp(
             <CsvSchemaDocumentationItem item={baseItem} />
         );
         expect(container.firstChild).toMatchSnapshot();
@@ -33,7 +33,7 @@ describe("CsvSchemaDocumentationItem", () => {
             ...baseItem,
             required: true,
         };
-        renderWithBase(<CsvSchemaDocumentationItem item={item} />);
+        renderApp(<CsvSchemaDocumentationItem item={item} />);
         expect(screen.getByText("Required")).toBeInTheDocument();
     });
 
@@ -42,7 +42,7 @@ describe("CsvSchemaDocumentationItem", () => {
             ...baseItem,
             requested: true,
         };
-        renderWithBase(<CsvSchemaDocumentationItem item={item} />);
+        renderApp(<CsvSchemaDocumentationItem item={item} />);
         expect(screen.queryByText("Required")).not.toBeInTheDocument();
         const header = screen.getByTestId("header");
         expect(within(header).getByText("Optional")).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe("CsvSchemaDocumentationItem", () => {
             ...baseItem,
             notes: ["foo", "bar"],
         };
-        renderWithBase(<CsvSchemaDocumentationItem item={item} />);
+        renderApp(<CsvSchemaDocumentationItem item={item} />);
         const notes = screen.getByTestId("notes");
         expect(within(notes).getByText("foo")).toBeInTheDocument();
         expect(within(notes).getByText("bar")).toBeInTheDocument();

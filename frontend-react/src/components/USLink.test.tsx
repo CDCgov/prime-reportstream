@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderWithRouter } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import {
     getHrefRoute,
@@ -77,13 +77,13 @@ describe("SafeLink", () => {
 
 describe("USLink", () => {
     test("renders without error", () => {
-        renderWithRouter(<USLink href={"/some/url"}>My Link</USLink>);
+        renderApp(<USLink href={"/some/url"}>My Link</USLink>);
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
         expect(link).toHaveTextContent("My Link");
     });
     test("renders with additional className values", () => {
-        renderWithRouter(
+        renderApp(
             <USLink href={"/some/url"} className={"my-custom-class"}>
                 My Link
             </USLink>
@@ -95,7 +95,7 @@ describe("USLink", () => {
     /** Specialization of USLink */
     describe("USExtLink", () => {
         test("renders with external link class", () => {
-            renderWithRouter(<USExtLink href={"/some/url"}>My Link</USExtLink>);
+            renderApp(<USExtLink href={"/some/url"}>My Link</USExtLink>);
             const link = screen.getByRole("link");
             expect(link).toHaveClass("usa-link");
             expect(link).toHaveClass("usa-link--external");
@@ -104,9 +104,7 @@ describe("USLink", () => {
     /** Specialization of USLink */
     describe("USCrumbLink", () => {
         test("renders with breadcrumb link class", () => {
-            renderWithRouter(
-                <USCrumbLink href={"/some/url"}>My Link</USCrumbLink>
-            );
+            renderApp(<USCrumbLink href={"/some/url"}>My Link</USCrumbLink>);
             const link = screen.getByRole("link");
             expect(link).toHaveClass("usa-link");
             expect(link).toHaveClass("usa-breadcrumb__link");
@@ -116,9 +114,7 @@ describe("USLink", () => {
 /** Specialization of NavLink from react-router-dom */
 describe("USNavLink", () => {
     test("renders without error", () => {
-        renderWithRouter(
-            <USNavLink href={"/some/url"}>Navigation Link</USNavLink>
-        );
+        renderApp(<USNavLink href={"/some/url"}>Navigation Link</USNavLink>);
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-nav__link");
     });
@@ -129,7 +125,7 @@ describe("USNavLink", () => {
 
 describe("USLinkButton", () => {
     test("boolean button styles applied", () => {
-        renderWithRouter(
+        renderApp(
             <USLinkButton href="#" secondary base outline inverse unstyled>
                 Test
             </USLinkButton>
@@ -151,7 +147,7 @@ describe("USLinkButton", () => {
             const className = prefix
                 ? `usa-button--${prefix}-${value}`
                 : `usa-button--${value}`;
-            renderWithRouter(
+            renderApp(
                 <USLinkButton {...prop} href="#">
                     Test
                 </USLinkButton>

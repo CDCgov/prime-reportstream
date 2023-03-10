@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import {
@@ -99,7 +99,7 @@ describe("DeliveriesTable", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderWithFullAppContext(<DeliveriesTable />);
+            renderApp(<DeliveriesTable />);
         });
 
         test("if no activeService display NoServicesBanner", async () => {
@@ -137,7 +137,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderWithFullAppContext(<DeliveriesTable />);
+                renderApp(<DeliveriesTable />);
             });
 
             test("renders with no error", async () => {
@@ -216,7 +216,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderWithFullAppContext(<DeliveriesTable />);
+                renderApp(<DeliveriesTable />);
             });
 
             test("renders the NoServicesBanner message", async () => {
@@ -270,7 +270,7 @@ describe("DeliveriesTableWithNumbered", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderWithFullAppContext(<DeliveriesTable />);
+            renderApp(<DeliveriesTable />);
         });
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {

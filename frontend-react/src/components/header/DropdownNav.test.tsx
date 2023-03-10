@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import React from "react";
 
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 
 import { AdminDropdown } from "./DropdownNav";
@@ -55,7 +55,7 @@ describe("AdminDropdownNav - value-sets", () => {
         });
     });
     test("Admin menu expands and contracts on click and selection", () => {
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
             "false"
@@ -73,10 +73,11 @@ describe("AdminDropdownNav - value-sets", () => {
     });
 
     test("Current admin pages", () => {
-        renderWithRouter(<AdminDropdown />);
+        renderApp(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
         const lastMileFailures = screen.getByText("Last Mile Failures");
+        const messageTracker = screen.getByText("Message Id Search");
         const receiverStatus = screen.getByText("Receiver Status Dashboard");
         const queryForNavItemValueSets = screen.queryByText("Value Sets");
         const validate = screen.queryByText("Validate");
@@ -84,55 +85,9 @@ describe("AdminDropdownNav - value-sets", () => {
         expect(settings).toBeInTheDocument();
         expect(featureFlags).toBeInTheDocument();
         expect(lastMileFailures).toBeInTheDocument();
+        expect(messageTracker).toBeInTheDocument();
         expect(receiverStatus).toBeInTheDocument();
         expect(queryForNavItemValueSets).toBeInTheDocument();
         expect(validate).toBeInTheDocument();
-    });
-});
-
-describe("AdminDropdownNav - message-tracker", () => {
-    beforeEach(() => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag === "message-tracker"),
-        });
-    });
-
-    test("Flagged message-tracker page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemMessageIdSearch =
-            screen.queryByText("Message Id Search");
-
-        // Assert they're hidden without flag
-        expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
-    });
-
-    test("Flagged message-tracker page is hidden by default", () => {
-        mockFeatureFlagContext.mockReturnValue({
-            dispatch: () => {},
-            featureFlags: [],
-            checkFlag: jest.fn((flag) => flag !== "message-tracker"),
-        });
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemMessageIdSearch =
-            screen.queryByText("Message Id Search");
-
-        // Assert they're hidden without flag
-        expect(queryForNavItemMessageIdSearch).not.toBeInTheDocument();
-    });
-
-    test("Flagged message-tracker page is shown when flag is set", () => {
-        renderWithRouter(<AdminDropdown />);
-        const queryForNavItemMessageIdSearch =
-            screen.queryByText("Message Id Search");
-
-        // Assert not hidden
-        expect(queryForNavItemMessageIdSearch).toBeInTheDocument();
     });
 });

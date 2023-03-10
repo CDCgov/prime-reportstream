@@ -12,6 +12,11 @@ elements:
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
+  - name: result-value-type-dt
+    condition: '%resource.value is dateTime'
+    value: [ '"DT"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
   - name: result-value-type-ce
     condition: '%resource.value is CodeableConcept'
     # Note that for v.2.5 and earlier CWE does not exist.
@@ -60,6 +65,11 @@ elements:
 
   - name: observation-value-st
     condition: '%resource.value is string'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+  - name: observation-value-dateTime
+    condition: '%resource.value is dateTime'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
