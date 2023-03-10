@@ -24,7 +24,6 @@ export interface FileHandlerFormProps {
     selectedSchemaOption: SchemaOption | null;
     isWorking: boolean;
     handlePrevFileHandlerStep: () => void;
-    handleNextFileHandlerStep: () => void;
 }
 
 const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
@@ -41,7 +40,6 @@ export const FileHandlerStepTwo = ({
     selectedSchemaOption,
     isWorking,
     handlePrevFileHandlerStep,
-    handleNextFileHandlerStep,
 }: FileHandlerFormProps) => {
     const fileInputRef = useRef<FileInputRef>(null);
     const accept = selectedSchemaOption
@@ -65,7 +63,9 @@ export const FileHandlerStepTwo = ({
             ) : (
                 <Form
                     name="fileValidation"
-                    onSubmit={(e) => handleSubmit(e)}
+                    onSubmit={(e) => {
+                        handleSubmit(e);
+                    }}
                     className="rs-full-width-form"
                 >
                     {!submitted && (
@@ -90,15 +90,6 @@ export const FileHandlerStepTwo = ({
                             />
                         </FormGroup>
                     )}
-                    {/* <div className="grid-row">
-                <div className="grid-col flex-1 display-flex flex-column flex-align-start">
-                    {cancellable && (
-                        <Button onClick={resetState} type="button" outline>
-                            Cancel
-                        </Button>
-                    )}
-                </div>
-            </div> */}
                     <div className="grid-col display-flex">
                         <Button
                             className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
@@ -111,7 +102,6 @@ export const FileHandlerStepTwo = ({
                             disabled={!fileName.length}
                             className="usa-button flex-align-self-start height-5 margin-top-4"
                             type={"submit"}
-                            onClick={handleNextFileHandlerStep}
                         >
                             Submit
                         </Button>

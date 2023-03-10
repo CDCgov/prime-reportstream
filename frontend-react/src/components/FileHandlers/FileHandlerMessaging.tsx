@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from "react";
-import { Icon, Tooltip } from "@trussworks/react-uswds";
-
+import { Button, Icon, Tooltip } from "@trussworks/react-uswds";
+import { ExportToCsv } from "export-to-csv";
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
@@ -117,6 +117,7 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
+    schemaColumnHeader: string;
 };
 
 export const RequestedChangesDisplay = ({
@@ -124,6 +125,7 @@ export const RequestedChangesDisplay = ({
     data,
     message,
     heading,
+    schemaColumnHeader,
 }: RequestedChangesDisplayProps) => {
     const alertType = useMemo(
         () =>
@@ -139,41 +141,46 @@ export const RequestedChangesDisplay = ({
 
     return (
         <>
-            <StaticAlert type={alertType} heading={heading} message={message}>
-                <h5 className="margin-bottom-1">Resources</h5>
-                <ul className={"margin-0"}>
-                    <li>
-                        <USLink
-                            target="_blank"
-                            href="/resources/programmers-guide"
-                        >
-                            ReportStream Programmers Guide
-                        </USLink>
-                    </li>
-                    <li>
-                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
-                            LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </USLink>
-                    </li>
-                </ul>
-            </StaticAlert>
+            <StaticAlert type={alertType} heading={heading} message={message} />
             {showTable && (
                 <>
-                    <h3>{title}</h3>
+                    <div className="display-flex flex-justify">
+                        <h3>{title}</h3>
+                        <Button
+                            className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                            type={"button"}
+                            onClick={() => {
+                                const options = {
+                                    fieldSeparator: ",",
+                                    quoteStrings: '"',
+                                    decimalSeparator: ".",
+                                    showLabels: true,
+                                    showTitle: true,
+                                    filename: `recommended_${schemaColumnHeader}_edits`,
+                                    title: `Recommended ${schemaColumnHeader} edits`,
+                                    useTextFile: false,
+                                    useBom: true,
+                                    useKeysAsHeaders: true,
+                                };
+                                const csvExporter = new ExportToCsv(options);
+                                csvExporter.generateCsv(data);
+                            }}
+                        >
+                            Download edits as CSV
+                        </Button>
+                    </div>
+
                     <table
-                        className="usa-table usa-table--borderless rs-width-100"
+                        className="usa-table usa-table--borderless rs-width-100 padding-2 radius-md"
                         data-testid="error-table"
                     >
                         <thead>
                             <tr>
                                 <th className="rs-table-column-minwidth">
-                                    Requested Edit
+                                    Recommended Edit
                                 </th>
                                 <th className="rs-table-column-minwidth">
-                                    Field
-                                </th>
-                                <th className="rs-table-column-minwidth">
-                                    Tracking ID(s) <TrackingIDTooltip />
+                                    {schemaColumnHeader} Row
                                 </th>
                             </tr>
                         </thead>

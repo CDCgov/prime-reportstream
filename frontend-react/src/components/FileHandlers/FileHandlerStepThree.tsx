@@ -1,5 +1,6 @@
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
+import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 
 import {
     FileQualityFilterDisplay,
@@ -12,13 +13,14 @@ interface FileHandlerStepThreeProps {
     destinations?: string;
     errorMessaging: { message: string; heading: string };
     errors: ResponseError[];
-    hasQualityFilterMessages: boolean;
-    isFileSuccess: boolean;
+    hasQualityFilterMessages: boolean | undefined;
+    isFileSuccess: string | boolean;
     qualityFilterMessages: Destination[] | undefined;
     reportId?: string;
     successDescription: string;
     successTimestamp?: string;
     warnings: ResponseError[];
+    selectedSchemaOption: SchemaOption | null;
 }
 
 export const FileHandlerStepThree = ({
@@ -32,9 +34,10 @@ export const FileHandlerStepThree = ({
     successDescription,
     successTimestamp,
     warnings,
+    selectedSchemaOption,
 }: FileHandlerStepThreeProps) => {
     return (
-        <>
+        <div className="file-handler-table">
             {isFileSuccess && warnings.length === 0 && (
                 <FileSuccessDisplay
                     extendedMetadata={{
@@ -47,22 +50,25 @@ export const FileHandlerStepThree = ({
                     showExtendedMetadata={false}
                 />
             )}
-            {warnings.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.WARNING}
-                    data={warnings}
-                    message="The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
-                    heading="File validated with recommended edits"
-                />
-            )}
             {errors.length > 0 && (
                 <RequestedChangesDisplay
                     title={RequestLevel.ERROR}
                     data={errors}
                     message={errorMessaging.message}
                     heading={errorMessaging.heading}
+                    schemaColumnHeader={selectedSchemaOption.format}
                 />
             )}
+            {warnings.length > 0 && (
+                <RequestedChangesDisplay
+                    title={RequestLevel.WARNING}
+                    data={warnings}
+                    message="To avoid problems when sending files later, we strongly recommend fixing these issues now."
+                    heading="Recommended edits found"
+                    schemaColumnHeader={selectedSchemaOption.format}
+                />
+            )}
+
             {hasQualityFilterMessages && (
                 <FileQualityFilterDisplay
                     destinations={qualityFilterMessages}
@@ -70,6 +76,6 @@ export const FileHandlerStepThree = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-        </>
+        </div>
     );
 };

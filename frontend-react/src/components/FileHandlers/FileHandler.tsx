@@ -49,8 +49,8 @@ const SERVER_ERROR_MESSAGING = {
 const errorMessagingMap = {
     server: SERVER_ERROR_MESSAGING,
     file: {
-        heading: "Your file has not passed validation",
-        message: "Please review the errors below.",
+        heading: "File did not pass validation",
+        message: "Resubmit with the required edits.",
     },
 };
 
@@ -252,6 +252,7 @@ function FileHandler() {
                 },
             });
         }
+        handleNextFileHandlerStep();
     };
 
     const resetState = () => {
@@ -351,8 +352,7 @@ function FileHandler() {
                     formLabel={formLabel}
                     selectedSchemaOption={selectedSchemaOption}
                     isWorking={isWorking}
-                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
-                    handleNextFileHandlerStep={handleNextFileHandlerStep}
+                    handlePrevFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
@@ -367,6 +367,7 @@ function FileHandler() {
                     successDescription={successDescription}
                     successTimestamp={successTimestamp}
                     warnings={warnings}
+                    selectedSchemaOption={selectedSchemaOption}
                 />
             )}
             <p className="margin-top-10">
