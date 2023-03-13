@@ -60,13 +60,28 @@ Services Endpoints
 */
 export const servicesEndpoints: RSApiEndpoints = {
     organizations: new RSEndpoint({
-        path: ServicesUrls.ORGANIZATION,
+        path: ServicesUrls.ORGANIZATIONS,
         method: HTTPMethods.GET,
         queryKey: "settingsOrganizations",
     }),
     organization: new RSEndpoint({
         path: ServicesUrls.ORGANIZATION,
         method: HTTPMethods.GET,
+        queryKey: "settingsOrganization",
+    }),
+    createOrganization: new RSEndpoint({
+        path: ServicesUrls.ORGANIZATION,
+        method: HTTPMethods.POST,
+        queryKey: "settingsOrganization",
+    }),
+    updateOrganization: new RSEndpoint({
+        path: ServicesUrls.ORGANIZATION,
+        method: HTTPMethods.PUT,
+        queryKey: "settingsOrganization",
+    }),
+    deleteOrganization: new RSEndpoint({
+        path: ServicesUrls.ORGANIZATION,
+        method: HTTPMethods.DELETE,
         queryKey: "settingsOrganization",
     }),
     senders: new RSEndpoint({
@@ -79,6 +94,21 @@ export const servicesEndpoints: RSApiEndpoints = {
         method: HTTPMethods.GET,
         queryKey: "settingsOrganizationSender",
     }),
+    createSender: new RSEndpoint({
+        path: ServicesUrls.SENDER,
+        method: HTTPMethods.POST,
+        queryKey: "settingsOrganizationSender",
+    }),
+    updateSender: new RSEndpoint({
+        path: ServicesUrls.SENDER,
+        method: HTTPMethods.PUT,
+        queryKey: "settingsOrganizationSender",
+    }),
+    deleteSender: new RSEndpoint({
+        path: ServicesUrls.SENDER,
+        method: HTTPMethods.DELETE,
+        queryKey: "settingsOrganizationSender",
+    }),
     receivers: new RSEndpoint({
         path: ServicesUrls.RECEIVERS,
         method: HTTPMethods.GET,
@@ -87,6 +117,21 @@ export const servicesEndpoints: RSApiEndpoints = {
     receiver: new RSEndpoint({
         path: ServicesUrls.RECEIVER,
         method: HTTPMethods.GET,
+        queryKey: "settingsOrganizationReceiver",
+    }),
+    createReceiver: new RSEndpoint({
+        path: ServicesUrls.RECEIVER,
+        method: HTTPMethods.POST,
+        queryKey: "settingsOrganizationReceiver",
+    }),
+    updateReceiver: new RSEndpoint({
+        path: ServicesUrls.RECEIVER,
+        method: HTTPMethods.PUT,
+        queryKey: "settingsOrganizationReceiver",
+    }),
+    deleteReceiver: new RSEndpoint({
+        path: ServicesUrls.RECEIVER,
+        method: HTTPMethods.DELETE,
         queryKey: "settingsOrganizationReceiver",
     }),
 };

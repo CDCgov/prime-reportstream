@@ -3,8 +3,8 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import {
     dummySender,
-    orgServer,
-} from "../../../__mocks__/OrganizationMockServer";
+    settingsServer,
+} from "../../../__mocks__/SettingsMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MembershipSettings, MemberType } from "../../UseOktaMemberships";
 
@@ -12,10 +12,10 @@ import { useOrganizationSenderSettings } from "./UseOrganizationSenderSettings";
 
 describe("useOrganizationSenderSettings", () => {
     beforeAll(() => {
-        orgServer.listen();
+        settingsServer.listen();
     });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
     test("returns undefined if no sender available on membership", () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {

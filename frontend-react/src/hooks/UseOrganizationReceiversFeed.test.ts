@@ -4,8 +4,8 @@ import { AppWrapper } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
-    orgServer,
-} from "../__mocks__/OrganizationMockServer";
+    settingsServer,
+} from "../__mocks__/SettingsMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
@@ -14,10 +14,10 @@ import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationReceiversFeed", () => {
     beforeAll(() => {
-        orgServer.listen();
+        settingsServer.listen();
     });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
     describe("with no active membership parsed name", () => {
         beforeEach(() => {
             mockSessionContext.mockReturnValue({

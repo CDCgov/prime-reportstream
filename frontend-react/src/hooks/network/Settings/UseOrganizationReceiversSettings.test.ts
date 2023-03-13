@@ -3,8 +3,8 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import {
     dummyReceivers,
-    orgServer,
-} from "../../../__mocks__/OrganizationMockServer";
+    settingsServer,
+} from "../../../__mocks__/SettingsMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 
@@ -12,10 +12,10 @@ import { useOrganizationReceiversSettings } from "./UseOrganizationReceiversSett
 
 describe("useOrganizationReceiversSettings", () => {
     beforeAll(() => {
-        orgServer.listen();
+        settingsServer.listen();
     });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
     test("returns undefined if no active membership parsed name", () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {

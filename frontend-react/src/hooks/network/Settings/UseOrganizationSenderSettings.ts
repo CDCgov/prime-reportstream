@@ -15,6 +15,7 @@ export type UseOrganizationSenderSettingsHookResult = {
     isInitialLoading: boolean;
 };
 
+// FUTURE_TODO: Return results of rsUseQuery directly
 export const useOrganizationSenderSettings =
     (): UseOrganizationSenderSettingsHookResult => {
         const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();

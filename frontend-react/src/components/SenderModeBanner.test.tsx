@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
+import { settingsServer } from "../__mocks__/SettingsMockServer";
 import { renderApp } from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
@@ -9,10 +9,10 @@ import SenderModeBanner from "./SenderModeBanner";
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {
-        orgServer.listen();
+        settingsServer.listen();
     });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
 
     test("renders when sender is testing", async () => {
         mockSessionContext.mockReturnValue({
