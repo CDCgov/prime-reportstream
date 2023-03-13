@@ -39,7 +39,6 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |
-          git pull origin master
           terraform plan -target=module.azure_dashboard8 -out=tfplan
           cat tfplan
           terraform plan -target=module.azure_dashboard8 > tfplan.txt
