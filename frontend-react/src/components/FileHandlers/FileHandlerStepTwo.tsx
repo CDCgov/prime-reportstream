@@ -18,7 +18,6 @@ export interface FileHandlerFormProps {
     resetState: () => void; // to handle resetting any parent state
     fileName: string;
     fileInputResetValue: number;
-    submitted: boolean;
     cancellable: boolean;
     formLabel: string;
     selectedSchemaOption: SchemaOption | null;
@@ -35,7 +34,6 @@ export const FileHandlerStepTwo = ({
     handleFileChange,
     fileName,
     fileInputResetValue,
-    submitted,
     formLabel,
     selectedSchemaOption,
     isWorking,
@@ -68,28 +66,26 @@ export const FileHandlerStepTwo = ({
                     }}
                     className="rs-full-width-form"
                 >
-                    {!submitted && (
-                        <FormGroup className="margin-bottom-3">
-                            <Label
-                                className="font-sans-xs"
-                                id="upload-csv-input-label"
-                                htmlFor="upload-csv-input"
-                            >
-                                {formLabel}
-                            </Label>
-                            <FileInput
-                                key={fileInputResetValue}
-                                id="upload-csv-input"
-                                name="upload-csv-input"
-                                aria-describedby="upload-csv-input-label"
-                                data-testid="upload-csv-input"
-                                onChange={(e) => handleFileChange(e)}
-                                required
-                                ref={fileInputRef}
-                                accept={accept}
-                            />
-                        </FormGroup>
-                    )}
+                    <FormGroup className="margin-bottom-3">
+                        <Label
+                            className="font-sans-xs"
+                            id="upload-csv-input-label"
+                            htmlFor="upload-csv-input"
+                        >
+                            {formLabel}
+                        </Label>
+                        <FileInput
+                            key={fileInputResetValue}
+                            id="upload-csv-input"
+                            name="upload-csv-input"
+                            aria-describedby="upload-csv-input-label"
+                            data-testid="upload-csv-input"
+                            onChange={(e) => handleFileChange(e)}
+                            required
+                            ref={fileInputRef}
+                            accept={accept}
+                        />
+                    </FormGroup>
                     <div className="grid-col display-flex">
                         <Button
                             className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"

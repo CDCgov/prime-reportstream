@@ -52,7 +52,7 @@ export const FileHandlerStepOne = ({
                 disabled={!selectedSchemaOption?.value?.length}
                 className="usa-button flex-align-self-start height-5 margin-top-4"
                 type={"submit"}
-                onClick={handleNextFileHandlerStep}
+                onClick={() => handleNextFileHandlerStep()}
             >
                 Continue
             </Button>

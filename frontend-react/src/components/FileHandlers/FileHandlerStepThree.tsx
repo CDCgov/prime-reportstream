@@ -46,8 +46,6 @@ export const FileHandlerStepThree = ({
     handleNextFileHandlerStep,
 }: FileHandlerStepThreeProps) => {
     const modalRef = useRef<ModalRef>(null);
-    console.log("errors = ", errors);
-    console.log("warnings = ", warnings);
     return (
         <div className="file-handler-table">
             {errors.length > 0 && (
@@ -116,7 +114,7 @@ export const FileHandlerStepThree = ({
                         <Button
                             className="usa-button flex-align-self-start height-5 margin-top-4"
                             type={"button"}
-                            onClick={handleNextFileHandlerStep}
+                            onClick={() => handleNextFileHandlerStep()}
                         >
                             Continue
                         </Button>

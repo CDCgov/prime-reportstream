@@ -112,18 +112,6 @@ export function getClientHeader(
 
 function FileHandler() {
     const { state, dispatch } = useFileHandler();
-    const [fileContent, setFileContent] = useState("");
-    const [fileHandlerStepIndex, setFileHandlerStepIndex] = useState(0);
-    const fileHandlerStep = fileHandlerStepsArray[fileHandlerStepIndex];
-
-    const handlePrevFileHandlerStep = () => {
-        setFileHandlerStepIndex(fileHandlerStepIndex - 1);
-    };
-
-    const handleNextFileHandlerStep = () => {
-        setFileHandlerStepIndex(fileHandlerStepIndex + 1);
-    };
-
     const {
         fileInputResetValue,
         contentType,
@@ -141,6 +129,31 @@ function FileHandler() {
         reportItems,
         selectedSchemaOption,
     } = state;
+    const [fileContent, setFileContent] = useState("");
+    const [fileHandlerStepIndex, setFileHandlerStepIndex] = useState(0);
+    const fileHandlerStep = fileHandlerStepsArray[fileHandlerStepIndex];
+    const resetState = () => {
+        setFileContent("");
+        dispatch({ type: FileHandlerActionType.RESET });
+    };
+
+    const handlePrevFileHandlerStep = () => {
+        if (fileHandlerStep === FileHandlerSteps.STEP_TWO) {
+            resetState();
+            setFileHandlerStepIndex(fileHandlerStepIndex - 1);
+        } else if (fileHandlerStep === FileHandlerSteps.STEP_THREE) {
+            setFileContent("");
+            dispatch({
+                type: FileHandlerActionType.SCHEMA_SELECTED,
+                payload: selectedSchemaOption,
+            });
+            setFileHandlerStepIndex(fileHandlerStepIndex - 1);
+        }
+    };
+
+    const handleNextFileHandlerStep = (nextStep = fileHandlerStepIndex + 1) => {
+        setFileHandlerStepIndex(nextStep);
+    };
 
     useEffect(() => {
         if (localError) {
@@ -253,15 +266,12 @@ function FileHandler() {
                 },
             });
         }
-        handleNextFileHandlerStep();
+        if (eventData?.errorCount || eventData?.warningCount) {
+            handleNextFileHandlerStep();
+        } else {
+            handleNextFileHandlerStep(3);
+        }
     };
-
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: FileHandlerActionType.RESET });
-    };
-
-    const submitted = !!(reportId || errors.length || overallStatus);
 
     // default to FILE messaging here, partly to simplify typecheck
     const errorMessaging = errorMessagingMap[errorType || ErrorType.FILE];
@@ -348,7 +358,6 @@ function FileHandler() {
                     resetState={resetState}
                     fileInputResetValue={fileInputResetValue}
                     fileName={fileName}
-                    submitted={submitted}
                     cancellable={cancellable}
                     formLabel={formLabel}
                     selectedSchemaOption={selectedSchemaOption}
