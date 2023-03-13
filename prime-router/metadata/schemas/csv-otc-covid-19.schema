@@ -464,6 +464,55 @@ elements:
       csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
       nullifyValue: true
 
+    - name: pregnant
+      type: CODE
+      valueSet: sender-automation/pregnant
+      documentation: Translate multiple inbound values into the Pregnancy SNOMED Codes
+      csvFields: [{ name: pregnant, format: $display}]
+      default: ""
+
+    - name: first_test
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: first_test, format: $display}]
+      default: ""
+
+    - name: employed_in_healthcare
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: employed_in_healthcare, format: $display}]
+      default: ""
+
+    - name: hospitalized
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: hospitalized, format: $display}]
+      default: ""
+
+    - name: icu
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: icu, format: $display}]
+      default: ""
+
+    - name: resident_congregate_setting
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: resident_congregate_setting, format: $display}]
+      default: ""
+
+    - name: residence_type
+      type: CODE
+      valueSet: sender-automation/residence_type
+      documentation: Translate multiple inbound values into Residence Type SNOMED codes.
+      csvFields: [{ name: residence_type, format: $display}]
+      default: ""
+
 ######### These fields are calculated - for filtering purposes
     - name: test_type
     - name: abnormal_flag
