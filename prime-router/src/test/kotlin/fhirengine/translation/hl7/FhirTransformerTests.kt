@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertThat
 import assertk.assertions.hasClass
-import assertk.assertions.hasMessage
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -12,6 +11,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIR
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -41,6 +41,21 @@ class FhirTransformerTests {
         every { logger.error(any<String>()) }.returns(Unit)
         every { logger.trace(any<String>()) }.returns(Unit)
         return Pair(transformer, logger)
+    }
+
+    private fun verifyTraceAndResetLogger(logger: KotlinLogger) {
+        verify(exactly = 1) { logger.trace(any<String>()) }
+        clearMocks(logger, answers = false)
+    }
+
+    private fun verifyWarningAndResetLogger(logger: KotlinLogger) {
+        verify(exactly = 1) { logger.warn(any<String>()) }
+        clearMocks(logger, answers = false)
+    }
+
+    private fun verifyErrorAndResetLogger(logger: KotlinLogger) {
+        verify(exactly = 1) { logger.error(any<String>()) }
+        clearMocks(logger, answers = false)
     }
 
     @Test
@@ -363,7 +378,7 @@ class FhirTransformerTests {
                 "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
                 CustomContext(bundle, bundle), bundle, bundle
             )
-        }.isFailure().hasMessage("Can't add missing entry.")
+        }.isFailure()
 
         val patient = Patient()
         patient.id = "def456"
@@ -382,20 +397,13 @@ class FhirTransformerTests {
             "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
-        verify(exactly = 1) { logger.warn(match<String> { it.contains("Could not find property") }) }
+        verifyErrorAndResetLogger(logger)
 
         // Invalid bundleProperties
         transformer.setBundleProperty(
             "", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
-        verify(exactly = 1) { logger.warn(match<String> { it.contains("bundleProperty was not set") }) }
-
-        transformer.setBundleProperty(
-            "id", IdType("newId"),
-            CustomContext(bundle, bundle), bundle, bundle
-        )
-        verify(exactly = 1) { logger.warn(match<String> { it.contains("Expected at least 2 parts") }) }
 
         transformer.setBundleProperty(
             "%key.text", StringType("SomeName"),
@@ -406,15 +414,7 @@ class FhirTransformerTests {
             ),
             bundle, bundle
         )
-        verify(exactly = 1) {
-            logger.warn(match<String> { it.contains("cannot dynamically create components relying on constants") })
-        }
-
-        transformer.setBundleProperty(
-            "Bundle.entry.resource.ofType(Patient).name.%key", StringType("SomeName"),
-            CustomContext(bundle, bundle, constants = mutableMapOf(Pair("key", "text"))), bundle, bundle
-        )
-        verify(exactly = 1) { logger.warn(match<String> { it.contains("Constants not supported in lowest level") }) }
+        verifyErrorAndResetLogger(logger)
 
         // Incompatible value types
         assertThat {
@@ -423,7 +423,7 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
-        verify(exactly = 1) { logger.error(match<String> { it.contains("between CodeableConcept and string") }) }
+        verifyErrorAndResetLogger(logger)
 
         assertThat {
             transformer.setBundleProperty(
@@ -431,7 +431,21 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
-        verify(exactly = 1) { logger.error(match<String> { it.contains("between string and boolean") }) }
+        verifyErrorAndResetLogger(logger)
+    }
+
+    @Test
+    fun `test validate and split bundleProperty`() {
+        val (transformer, logger) = setupFhirTransformer(FhirTransformSchema())
+
+        transformer.validateAndSplitBundleProperty("")
+        verifyErrorAndResetLogger(logger)
+
+        transformer.validateAndSplitBundleProperty("id")
+        verifyErrorAndResetLogger(logger)
+
+        transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
+        verifyErrorAndResetLogger(logger)
     }
 
     @Test

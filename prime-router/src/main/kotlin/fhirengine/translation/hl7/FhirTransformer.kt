@@ -18,6 +18,8 @@ import org.hl7.fhir.r4.model.Extension
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
 ) : ConfigSchemaProcessor() {
+    private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()
+
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
      */
@@ -164,22 +166,9 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (bundleProperty.isNullOrBlank()) {
-            logger.warn("bundleProperty was not set.")
+        val pathParts = validateAndSplitBundleProperty(bundleProperty)
+        if (pathParts.isNullOrEmpty() || bundleProperty == null)
             return
-        }
-
-        val pathParts = bundleProperty.split(".")
-        if (pathParts.size < 2) {
-            logger.warn("Expected at least 2 parts in bundle property '$bundleProperty'.")
-            return
-        } else if (pathParts.last().contains('%')) {
-            logger.warn(
-                "Constants not supported in lowest level component of bundle property, found" +
-                    " '${pathParts.last()}'."
-            )
-            return
-        }
         // We start one level down as we use the addChild function to set the value at the end
         var pathToEvaluate = bundleProperty.dropLast(pathParts.last().length + 1)
         val childrenNames = pathParts.dropLast(1).reversed()
@@ -187,7 +176,7 @@ class FhirTransformer(
         childrenNames.forEach { childName ->
             if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate).isEmpty()) {
                 if (childName.contains('%')) {
-                    logger.warn(
+                    logger.error(
                         "Could not evaluate path '$pathToEvaluate', and cannot dynamically create" +
                             " components relying on constants."
                     )
@@ -219,13 +208,35 @@ class FhirTransformer(
         }
         // Finally set the value
         val property = childResource.getNamedProperty(pathParts.last())
-        if (property == null) {
-            logger.warn("Could not find property '${pathParts.last()}'.")
-            return
+        if (property != null) {
+            val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
+            childResource.setProperty(pathParts.last(), newValue)
+        } else {
+            logger.error("Could not find property '${pathParts.last()}'.")
         }
-        val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
-        childResource.setProperty(pathParts.last(), newValue)
+    }
+
+    /**
+     * Returns a non-empty list of path parts represented by the `bundleProperty`,
+     * or an empty list if the input was not usable.
+     */
+    internal fun validateAndSplitBundleProperty(bundleProperty: String?): List<String> {
+        if (bundleProperty.isNullOrBlank()) {
+            logger.error("bundleProperty was not set.")
+            return emptyList()
+        }
+
+        val pathParts = bundleProperty.split(".")
+        if (pathParts.size < 2) {
+            logger.error("Expected at least 2 parts in bundle property '$bundleProperty'.")
+            return emptyList()
+        } else if (pathParts.last().contains('%')) {
+            logger.error(
+                "Constants not supported in lowest level component of bundle property, found" +
+                    " '${pathParts.last()}'."
+            )
+            return emptyList()
+        }
+        return pathParts
     }
 }
-
-private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()
