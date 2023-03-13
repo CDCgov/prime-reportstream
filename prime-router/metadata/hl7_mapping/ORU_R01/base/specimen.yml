@@ -22,14 +22,12 @@ elements:
     resourceIndex: entityIdIndex
 
   - name: specimen-type
+#    condition: '%resource.type.exists()'
     resource: '%resource.type'
     constants:
+      versionId: '2.67'
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
     schema: ../../common/datatype/ce-coded-with-exceptions
-
-  - name: specimen-type-coding-system-version
-    value: [ '"2.67"' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-7' ]
 
   - name: specimen-type-modifier
     value: [ '""' ]

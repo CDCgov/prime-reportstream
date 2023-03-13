@@ -118,19 +118,3 @@ elements:
   - name: message-character-set
     value: [ '"UNICODE UTF-8"' ]
     hl7Spec: [ MSH-18 ]
-
-  - name: message_profile_id
-    value: [ '"PHLabReport-NoAck"' ]
-    hl7Spec: [ MSH-21-1 ]
-
-  - name: message_profile_id_namespace_id
-    value: [ '"ELR_Receiver"' ]
-    hl7Spec: [ MSH-21-2 ]
-
-  - name: message_profile_id_universal_id
-    value: [ '"2.16.840.1.113883.9.11"' ]
-    hl7Spec: [ MSH-21-3 ]
-
-  - name: message_profile_id_universal_id_type
-    value: [ '"ISO"' ]
-    hl7Spec: [ MSH-21-4 ]

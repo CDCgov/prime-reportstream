@@ -69,6 +69,7 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-10-6' ]
 
   - name: patient-race-coding-system-version
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
     value: [ '"2.5.1"' ]
     hl7Spec: [ '%{hl7PIDField}-10-7' ]
 
@@ -112,6 +113,7 @@ elements:
     schema: datatype/ce-coded-element
 
   - name: patient-ethnicity-coding-system-version
+    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
     value: [ '"2.9"' ]
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
 

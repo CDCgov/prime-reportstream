@@ -82,36 +82,26 @@ elements:
     resource: 'Bundle'
     value: [ '"CLIA"' ]
 
-  - name: message-date-time
-    condition: true
-    resource: 'Bundle'
-    value: [ 'now()' ]
-
   - name: processing-id
     condition: true
     resource: 'Bundle'
     value: [ '"P"' ]
 
   - name: message_profile_id
-    condition: true
-    resource: 'Bundle'
     value: [ '"PHLabReport-NoAck"' ]
+    hl7Spec: [ MSH-21-1 ]
 
   - name: message_profile_id_namespace_id
-    condition: true
-    resource: 'Bundle'
     value: [ '"ELR_Receiver"' ]
+    hl7Spec: [ MSH-21-2 ]
 
   - name: message_profile_id_universal_id
-    condition: true
-    resource: 'Bundle'
     value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ MSH-21-3 ]
 
   - name: message_profile_id_universal_id_type
-    condition: true
-    resource: 'Bundle'
     value: [ '"ISO"' ]
-
+    hl7Spec: [ MSH-21-4 ]
     #SFT-1-1
   - name: software-vendor-name
     condition: true
