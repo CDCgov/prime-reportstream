@@ -43,16 +43,6 @@ class FhirTransformerTests {
         return Pair(transformer, logger)
     }
 
-    private fun verifyTraceAndResetLogger(logger: KotlinLogger) {
-        verify(exactly = 1) { logger.trace(any<String>()) }
-        clearMocks(logger, answers = false)
-    }
-
-    private fun verifyWarningAndResetLogger(logger: KotlinLogger) {
-        verify(exactly = 1) { logger.warn(any<String>()) }
-        clearMocks(logger, answers = false)
-    }
-
     private fun verifyErrorAndResetLogger(logger: KotlinLogger) {
         verify(exactly = 1) { logger.error(any<String>()) }
         clearMocks(logger, answers = false)
@@ -404,6 +394,7 @@ class FhirTransformerTests {
             "", IdType("newId"),
             CustomContext(bundle, bundle), bundle, bundle
         )
+        verifyErrorAndResetLogger(logger)
 
         transformer.setBundleProperty(
             "%key.text", StringType("SomeName"),
