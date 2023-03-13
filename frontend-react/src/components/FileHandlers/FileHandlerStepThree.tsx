@@ -1,8 +1,17 @@
-import { Button, Modal, ModalHeading, ModalRef } from "@trussworks/react-uswds";
+import {
+    Button,
+    ButtonGroup,
+    Modal,
+    ModalFooter,
+    ModalHeading,
+    ModalRef,
+    ModalToggleButton,
+} from "@trussworks/react-uswds";
 import { useRef } from "react";
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
+import { ModalConfirmSaveButton } from "../Admin/CompareJsonModal";
 
 import {
     FileQualityFilterDisplay,
@@ -111,6 +120,24 @@ export const FileHandlerStepThree = ({
                         your files.
                     </p>
                 </div>
+                <ModalFooter>
+                    <ButtonGroup>
+                        <Button
+                            className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                            type={"button"}
+                            onClick={() => modalRef?.current?.toggleModal()}
+                        >
+                            Go back and save
+                        </Button>
+                        <Button
+                            className="usa-button flex-align-self-start height-5 margin-top-4"
+                            type={"button"}
+                            onClick={handleNextFileHandlerStep}
+                        >
+                            Continue
+                        </Button>
+                    </ButtonGroup>
+                </ModalFooter>
             </Modal>
         </div>
     );

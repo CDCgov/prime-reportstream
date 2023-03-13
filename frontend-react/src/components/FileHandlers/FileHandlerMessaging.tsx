@@ -138,7 +138,6 @@ export const RequestedChangesDisplay = ({
         data &&
         data.length &&
         data.some((responseItem) => responseItem.message);
-
     return (
         <>
             <StaticAlert type={alertType} heading={heading} message={message} />
