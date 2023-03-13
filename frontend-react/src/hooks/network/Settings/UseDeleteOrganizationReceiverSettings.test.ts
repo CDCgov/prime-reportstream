@@ -1,1 +1,2 @@
-import { UseDeleteOrganizationReceiverSettings } from "./UseDeleteOrganizationReceiverSettings";
+import { useDeleteOrganizationReceiverSettings } from "./UseDeleteOrganizationReceiverSettings";
+const hook = useDeleteOrganizationReceiverSettings;
