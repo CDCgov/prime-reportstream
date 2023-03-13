@@ -25,7 +25,7 @@ class ApiKeysFunctions : Logging {
             name = "getApiKeys",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "settings/organizations/{organizationName}/api-keys"
+            route = "settings/organizations/{organizationName}/public-keys"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
