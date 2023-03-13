@@ -1,0 +1,141 @@
+name: Auto Create Pull Request 
+on:
+  push:
+    branches:
+      - feature/autocreatePR-with-tfplan-output  
+  # push:
+  #   branches:
+  #     - master
+  #     - production
+  #   paths:
+  #     - '**.tf'
+jobs:
+  Auto_Create_PR:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/prod
+    steps:
+      - name: Check Out Repo Changes
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      - name: Set up Terraform V1.2.0
+        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
+        with:
+          terraform_version: 1.2.0
+          terraform_wrapper: false
+      - name: Run Terraform init 
+        run: terraform init -input=false
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          git pull origin master
+          terraform plan -target=module.azure_dashboard8 -out=tfplan
+          cat tfplan
+          terraform plan -target=module.azure_dashboard8 > tfplan.txt
+          cat tfplan.txt
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Latest terraform changes to prod
+          signoff: false
+          base: master
+          branch: feature/autocreatePR-with-tfplan-output
+          delete-branch: false
+          title: 'AutoPR With Terraform Plan Change to Prod'
+          body: |
+            ## Terraform Plan outputs
+            ````
+            $(cat tfplan.txt)
+            ````
+          labels: |
+            reportstream
+            DevOps
+          assignees: |
+            lucasdze
+            JosiahSiegel
+            jeremy-page
+            supriyaaddagada
+          reviewers: |
+            lucasdze
+            JosiahSiegel
+            jeremy-page
+            supriyaaddagada 
+          draft: false
+      
+      - name: Add Terraform Plan Output as Comment
+        uses: mshick/add-pr-comment@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: |
+            Terraform plan output:
+            ```
+            ${{ steps.plan.outputs.stdout }}
+            ```
+
+      # - name: Create Pull Request
+      #   uses: gr2m/create-or-update-pull-request-action@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     title: "AutoPR With Terraform Plan Change to Prod"
+      #     body: $(cat tfplan.txt) # "My pull request body"
+      #     branch: "feature/autocreatePR-with-tfplan-output"
+      #     commit-message: "Automatically created pull request with tf plan"
+      #     author: "Lucas Dze"
+      #     labels: DevOps, prime-reportstream
+      #     #assignees: user1, user2
+      #     reviewers: lucasdze, JosiahSiegel
+      #     #team_reviewers: team1, team2
+      #     auto-merge: squash
+      #     update-pull-request-title-and-body: false
+
+              # - name: Create Pull Request
+      #   uses: thomaseizinger/create-pull-request@e3972219c86a56550fb70708d96800d8e24ba862
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     head: feature/autocreatePR-with-tfplan-output 
+      #     base: master
+      #     title: "AutoPR With Terraform Plan Change to Prod"
+      #     body: |
+      #       ## Terraform Plan outputs
+      #       ````
+      #       $(cat tfplan.txt)
+      #       ````
+      #     reviewers: |
+      #       lucasdze
+      #       JosiahSiegel
+      #       jeremy-page
+
+      # - name: Create Pull Request
+      # #   uses: peter-evans/create-pull-request@6217f0d61d3e1fd1236b1cee861f010f84673f23
+      #   with:
+      #     #commit-message: Automatically created pull request with tf plan
+      #     title: AutoPR With Terraform Plan Change to Prod
+      #     base: master
+      #     branch: feature/autocreatePR-with-tfplan-output 
+      #     body: |
+      #       $(cat tfplan.txt)
+          # reviewers: |
+          #   lucasdze
+          #   JosiahSiegel
+          #   jeremy-page
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     delete-branch: false
+      #     draft: false
+
+          
