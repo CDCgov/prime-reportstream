@@ -1,0 +1,1521 @@
+[0m[1mmodule.azure_dashboard8.data.azurerm_subscription.current: Reading...[0m[0m
+[0m[1mmodule.azure_dashboard8.data.azurerm_subscription.current: Read complete after 0s [id=/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create
+[0m
+Terraform will perform the following actions:
+
+[1m  # module.azure_dashboard8.azurerm_dashboard.az_dashboard[0m will be created[0m[0m
+[0m  [32m+[0m[0m resource "azurerm_dashboard" "az_dashboard" {
+      [32m+[0m [0m[1m[0mdashboard_properties[0m[0m = jsonencode(
+            {
+              [32m+[0m [0mlenses   = {
+                  [32m+[0m [0m"0" = {
+                      [32m+[0m [0morder = 0
+                      [32m+[0m [0mparts = {
+                          [32m+[0m [0m"0"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0masset  = {
+                                      [32m+[0m [0midInputName = "id"
+                                      [32m+[0m [0mtype        = "ApplicationInsights"
+                                    }
+                                  [32m+[0m [0minputs = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0mname  = "id"
+                                          [32m+[0m [0mvalue = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0mname  = "Version"
+                                          [32m+[0m [0mvalue = "1.0"
+                                        },
+                                    ]
+                                  [32m+[0m [0mtype   = "Extension/AppInsightsExtension/PartType/MonitoredApplicationsTile"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 2
+                                  [32m+[0m [0mrowSpan = 1
+                                  [32m+[0m [0mx       = 0
+                                  [32m+[0m [0my       = 0
+                                }
+                            }
+                          [32m+[0m [0m"1"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0masset  = {
+                                      [32m+[0m [0midInputName = "id"
+                                      [32m+[0m [0mtype        = "ApplicationInsights"
+                                    }
+                                  [32m+[0m [0minputs = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0mname  = "id"
+                                          [32m+[0m [0mvalue = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0mname  = "Version"
+                                          [32m+[0m [0mvalue = "1.0"
+                                        },
+                                    ]
+                                  [32m+[0m [0mtype   = "Extension/AppInsightsExtension/PartType/MonitoredApplicationsTile"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 2
+                                  [32m+[0m [0mrowSpan = 1
+                                  [32m+[0m [0mx       = 2
+                                  [32m+[0m [0my       = 0
+                                }
+                            }
+                          [32m+[0m [0m"10" = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "5fc74968-4b70-41a1-862f-9726e124425e"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(200h)
+                                                    | where isempty(operation_SyntheticSource) //filtering out HTTP requests made by bots
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                let splitTable =  () {
+                                                    queryTable
+                                                    | extend timeInSeconds = todynamic(tostring(customDimensions["sessionLength"]))
+                                                    | evaluate bag_unpack(timeInSeconds)
+                                                    | order by timestamp desc
+                                                };
+                                                splitTable
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "AnalyticsGrid"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mPartTitle = "Session Duration with Membership Metadata"
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 6
+                                  [32m+[0m [0mrowSpan = 4
+                                  [32m+[0m [0mx       = 0
+                                  [32m+[0m [0my       = 16
+                                }
+                            }
+                          [32m+[0m [0m"2"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "12caea22-3545-459f-8f05-9618d2003711"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                let splitTable =  () {
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend member_type = iif(isempty(memberType), "<undefined>", memberType)
+                                                };
+                                                let cohortedTable = splitTable
+                                                    //| where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))
+                                                    | summarize ['Page Views'] = count() by bin(timestamp, 1d), member_type
+                                                    | project
+                                                    ["Date/Time"] = timestamp,
+                                                    member_type,
+                                                    ["Page Views"]
+                                                | render columnchart; 
+                                                cohortedTable
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "FrameControlChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                          [32m+[0m [0mvalue      = "StackedColumn"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "member_type"
+                                                      [32m+[0m [0mtype = "string"
+                                                    },
+                                                ]
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "Date/Time"
+                                                  [32m+[0m [0mtype = "datetime"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Page Views"
+                                                      [32m+[0m [0mtype = "long"
+                                                    },
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0misEnabled = true
+                                              [32m+[0m [0mposition  = "Bottom"
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mPartTitle = "Total Page Views by Member Type"
+                                          [32m+[0m [0mQuery     = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                let splitTable =  () {
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend member_type = iif(isempty(memberType), "<undefined>", memberType)
+                                                };
+                                                let cohortedTable = splitTable
+                                                    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))
+                                                    | summarize ['Page Views'] = count() by bin(timestamp, 1d), member_type
+                                                    | project
+                                                    ["Date/Time"] = timestamp,
+                                                    member_type,
+                                                    ["Page Views"]
+                                                | render columnchart; 
+                                                cohortedTable
+                                                
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 6
+                                  [32m+[0m [0mrowSpan = 4
+                                  [32m+[0m [0mx       = 0
+                                  [32m+[0m [0my       = 2
+                                }
+                            }
+                          [32m+[0m [0m"3"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "7db41bbc-9a0a-4311-9130-8493cd13c8fa"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews, customEvents, requests
+                                                    | where timestamp > ago(1d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                let splitTable = () {
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend memberType = iif(isempty(memberType), "<undefined>", memberType)
+                                                };
+                                                let cohortedTable = splitTable
+                                                    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))
+                                                    | where memberType != "<undefined>"
+                                                    | extend byDimension = bin(timestamp, 1h)
+                                                    | summarize metricHll = hll(session_Id) by byDimension, memberType;
+                                                let topSegments = cohortedTable
+                                                    | summarize mergedMetricHll = hll_merge(metricHll) by memberType
+                                                    | project memberType, dcount_session_Id = dcount_hll(mergedMetricHll)
+                                                    | top 5 by dcount_session_Id desc nulls last
+                                                    | summarize makelist(memberType);
+                                                cohortedTable
+                                                | extend userId = iff(memberType in (topSegments), memberType, "Other")
+                                                | project byDimension, userId, metricHll
+                                                | summarize metric = hll_merge(metricHll) by userId, byDimension
+                                                | order by userId asc, byDimension desc
+                                                | project ["Date/time"]=byDimension, ["Membership Type"]=userId, ["Session Count"] = dcount_hll(metric)
+                                                | render columnchart
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "FrameControlChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                          [32m+[0m [0mvalue      = "StackedColumn"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Membership Type"
+                                                      [32m+[0m [0mtype = "string"
+                                                    },
+                                                ]
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "Date/time"
+                                                  [32m+[0m [0mtype = "datetime"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Session Count"
+                                                      [32m+[0m [0mtype = "long"
+                                                    },
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0misEnabled = true
+                                              [32m+[0m [0mposition  = "Bottom"
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mDimensions = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Membership Type"
+                                                      [32m+[0m [0mtype = "string"
+                                                    },
+                                                ]
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "Date/Time"
+                                                  [32m+[0m [0mtype = "datetime"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Session Count"
+                                                      [32m+[0m [0mtype = "long"
+                                                    },
+                                                ]
+                                            }
+                                          [32m+[0m [0mPartTitle  = "Session Count by Member Type"
+                                          [32m+[0m [0mQuery      = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews, customEvents
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                let splitTable = () {
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend memberType = iif(isempty(memberType), "<undefined>", memberType)
+                                                };
+                                                let cohortedTable = splitTable
+                                                    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))
+                                                    | where memberType != "<undefined>"
+                                                    | extend byDimension = bin(timestamp, 1d)
+                                                    | summarize metricHll = hll(session_Id) by byDimension, memberType;
+                                                let topSegments = cohortedTable
+                                                    | summarize mergedMetricHll = hll_merge(metricHll) by memberType
+                                                    | project memberType, dcount_session_Id = dcount_hll(mergedMetricHll)
+                                                    | top 5 by dcount_session_Id desc nulls last
+                                                    | summarize makelist(memberType);
+                                                cohortedTable
+                                                | extend userId = iff(memberType in (topSegments), memberType, "Other")
+                                                | project byDimension, userId, metricHll
+                                                | summarize metric = hll_merge(metricHll) by userId, byDimension
+                                                | order by userId asc, byDimension desc
+                                                | project ["Date/Time"]=byDimension, ["Membership Type"]=userId, ["Session Count"] = dcount_hll(metric)
+                                                | render columnchart
+                                                
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 6
+                                  [32m+[0m [0mrowSpan = 4
+                                  [32m+[0m [0mx       = 6
+                                  [32m+[0m [0my       = 2
+                                }
+                            }
+                          [32m+[0m [0m"4"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/Microsoft.Insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "9ef4b7a4-9076-4f6a-8644-13efc1293899"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["*"]);let grain = iff(true, 1d, 1h);  let mainTable = union pageViews     | where timestamp > ago(90d) | where isempty(operation_SyntheticSource) | extend name =replace("\n", "",name) | extend name =replace("\r", "",name) | where '*' in (usg_events) or name in (usg_events) | where customDimensions["activeMembership"] !contains "prime-admin" ; let resultTable = mainTable; resultTable     | make-series Users = dcountif(user_Id, 'user_Id' != 'user_AuthenticatedId' or ('user_Id' =='user_AuthenticatedId' and isnotempty(user_Id))) default = 0 on timestamp from ago(90d) to now() step grain| render barchart
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "FrameControlChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                          [32m+[0m [0mvalue      = "StackedColumn"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = []
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "timestamp"
+                                                  [32m+[0m [0mtype = "datetime"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Users"
+                                                      [32m+[0m [0mtype = "real"
+                                                    },
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0misEnabled = true
+                                              [32m+[0m [0mposition  = "Bottom"
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mDimensions = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = []
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "timestamp"
+                                                  [32m+[0m [0mtype = "datetime"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Page Views"
+                                                      [32m+[0m [0mtype = "real"
+                                                    },
+                                                ]
+                                            }
+                                          [32m+[0m [0mPartTitle  = "Page Views Excluding 'prime-admin'"
+                                          [32m+[0m [0mQuery      = <<-EOT
+                                                let usg_events = dynamic(["*"]);let grain = iff(true, 1d, 1h);  let mainTable = union pageViews     | where timestamp > ago(30d) | where isempty(operation_SyntheticSource) | extend name =replace("\n", "",name) | extend name =replace("\r", "",name) | where '*' in (usg_events) or name in (usg_events) | where customDimensions["activeMembership"] !contains "prime-admin" ; let resultTable = mainTable; resultTable     | make-series ["Page Views"] = dcountif(user_Id, 'user_Id' != 'user_AuthenticatedId' or ('user_Id' =='user_AuthenticatedId' and isnotempty(user_Id))) default = 0 on timestamp from ago(30d) to now() step grain
+                                                
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 6
+                                  [32m+[0m [0mrowSpan = 4
+                                  [32m+[0m [0mx       = 12
+                                  [32m+[0m [0my       = 2
+                                }
+                            }
+                          [32m+[0m [0m"5"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "4c473b58-a778-417c-a144-8ba938108f7b"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["Daily Data | Table Pagination", "Submissions | Table Pagination"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(90d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where true;
+                                                let byTable = mainTable;
+                                                let queryTable = () {
+                                                    byTable
+                                                    | extend dimension = customDimensions["tablePagination"]
+                                                    | extend dimension = iif(isempty(dimension), "<undefined>", dimension)
+                                                };
+                                                let byCohortTable = queryTable
+                                                    | project name, dimension;
+                                                let topSegments = byCohortTable
+                                                    | summarize Events = count() by name, dimension
+                                                    | summarize make_list(dimension,1000);    //Returns a dynamic JSON array of all the values of Expr in the group. Needed here.
+                                                let topEventMetrics = byCohortTable
+                                                    | where dimension in (topSegments);
+                                                let otherEventUsers = byCohortTable
+                                                    | where dimension !in (topSegments)
+                                                    | extend dimension = "Other";
+                                                otherEventUsers
+                                                | union topEventMetrics
+                                                | summarize Events = count() by name, dimension
+                                                | order by dimension asc
+                                                | render columnchart
+                                                with (
+                                                    xtitle="Table",
+                                                    ytitle="Counts",
+                                                    title="Pagination Usage by Table")
+                                                
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "FrameControlChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                          [32m+[0m [0mvalue      = "StackedColumn"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Pagination Usage by Table"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0maggregation = "Sum"
+                                              [32m+[0m [0msplitBy     = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "dimension"
+                                                      [32m+[0m [0mtype = "string"
+                                                    },
+                                                ]
+                                              [32m+[0m [0mxAxis       = {
+                                                  [32m+[0m [0mname = "name"
+                                                  [32m+[0m [0mtype = "string"
+                                                }
+                                              [32m+[0m [0myAxis       = [
+                                                  [32m+[0m [0m{
+                                                      [32m+[0m [0mname = "Events"
+                                                      [32m+[0m [0mtype = "long"
+                                                    },
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0misEnabled = true
+                                              [32m+[0m [0mposition  = "Bottom"
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mQuery         = <<-EOT
+                                                let usg_events = dynamic(["Daily Data | Table Pagination", "Submissions | Table Pagination"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where true;
+                                                let byTable = mainTable;
+                                                let queryTable = () {
+                                                    byTable
+                                                    | extend dimension = customDimensions["tablePagination"]
+                                                    | extend dimension = iif(isempty(dimension), "<undefined>", dimension)
+                                                };
+                                                let byCohortTable = queryTable
+                                                    | project name, dimension;
+                                                let topSegments = byCohortTable
+                                                    | summarize Events = count() by name, dimension
+                                                    | summarize make_list(dimension,1000);    //Returns a dynamic JSON array of all the values of Expr in the group. Needed here.
+                                                let topEventMetrics = byCohortTable
+                                                    | where dimension in (topSegments);
+                                                let otherEventUsers = byCohortTable
+                                                    | where dimension !in (topSegments)
+                                                    | extend dimension = "Other";
+                                                otherEventUsers
+                                                | union topEventMetrics
+                                                | summarize Events = count() by name, dimension
+                                                | order by dimension asc
+                                                | render columnchart
+                                                with (
+                                                    xtitle="Table",
+                                                    ytitle="Counts",
+                                                    title="Pagination Usage by Table")
+                                                
+                                            EOT
+                                          [32m+[0m [0mSpecificChart = "UnstackedColumn"
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 6
+                                  [32m+[0m [0mrowSpan = 4
+                                  [32m+[0m [0mx       = 18
+                                  [32m+[0m [0my       = 2
+                                }
+                            }
+                          [32m+[0m [0m"6"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "7f10e6c8-aa3b-48fd-9534-fe194127357b"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(90d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where isnotempty(customDimensions["tableFilter"])
+                                                    | extend ActiveMembership = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(ActiveMembership)
+                                                    | extend TableFilter = todynamic(tostring(customDimensions["tableFilter"]))
+                                                    | evaluate bag_unpack(TableFilter);
+                                                let queryTable = mainTable;
+                                                queryTable
+                                                | extend TimeDiff = datetime_diff('day', todatetime(endRange), todatetime(startRange))
+                                                | order by timestamp desc 
+                                                | project
+                                                    ["No. Days in Range"] = TimeDiff,
+                                                    ["Start Date"] = todatetime(startRange),
+                                                    ["Table Filter Name"] = name,
+                                                    ["Organization Name"] = parsedName,
+                                                    ["Date filter was Used"] = todatetime(timestamp);
+                                                queryTable
+                                                
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "AnalyticsGrid"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mPartTitle = "Table Filter Event Usage"
+                                          [32m+[0m [0mQuery     = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where isnotempty(customDimensions["tableFilter"])
+                                                    | extend ActiveMembership = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(ActiveMembership)
+                                                    | extend TableFilter = todynamic(tostring(customDimensions["tableFilter"]))
+                                                    | evaluate bag_unpack(TableFilter);
+                                                let queryTable = mainTable;
+                                                queryTable
+                                                | extend TimeDiff = datetime_diff('day', todatetime(endRange), todatetime(startRange))
+                                                | order by timestamp desc 
+                                                | project
+                                                    ["No. Days in Range"] = TimeDiff,
+                                                    ["Start Date"] = todatetime(startRange),
+                                                    ["Table Filter Name"] = name,
+                                                    ["Organization Name"] = parsedName,
+                                                    ["Date filter was Used"] = todatetime(timestamp),
+                                                    memberType;
+                                                queryTable
+                                                
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 9
+                                  [32m+[0m [0mrowSpan = 5
+                                  [32m+[0m [0mx       = 0
+                                  [32m+[0m [0my       = 6
+                                }
+                            }
+                          [32m+[0m [0m"7"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "1a5f54c6-441c-4164-b54b-2ea880afdcee"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                          [32m+[0m [0mvalue      = "P1D"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                // select count from page where member type ='prime-admin'
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews
+                                                    | where timestamp > ago(90d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend member_type = iif(isempty(memberType), "<undefined>", memberType)
+                                                    | summarize PageCount = count() by member_type, operation_Name
+                                                | project ["Page Viewed"] = operation_Name, p = pack(strcat(member_type, " visit count"), PageCount)
+                                                | summarize b = make_bag(p) by ["Page Viewed"]
+                                                | evaluate bag_unpack(b)
+                                                
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "AnalyticsGrid"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = false
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mIsQueryContainTimeRange = true
+                                          [32m+[0m [0mPartTitle               = "Page Views by Member Type"
+                                          [32m+[0m [0mQuery                   = <<-EOT
+                                                let usg_events = dynamic(["*"]);
+                                                let mainTable = union pageViews
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events);
+                                                let queryTable = mainTable;
+                                                    queryTable
+                                                    | extend dimension = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend member_type = iif(isempty(memberType), "unauthenticated", memberType)
+                                                    | summarize PageCount = count() by member_type, operation_Name
+                                                | project ["Page Viewed"] = operation_Name, p = pack(strcat(member_type, " visit count"), PageCount)
+                                                | summarize b = make_bag(p) by ["Page Viewed"]
+                                                | order by ['Page Viewed'] asc 
+                                                | evaluate bag_unpack(b)
+                                                
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 9
+                                  [32m+[0m [0mrowSpan = 5
+                                  [32m+[0m [0mx       = 9
+                                  [32m+[0m [0my       = 6
+                                }
+                            }
+                          [32m+[0m [0m"8"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "526d8e53-6d5e-4c42-81af-9ef1c9ccfba1"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["Daily Data | Table Pagination", "Submissions | Table Pagination"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(2d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where true;
+                                                let byTable = mainTable;
+                                                let queryTable = () {
+                                                    byTable
+                                                    | extend dimActiveMembership = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimActiveMembership)
+                                                    | extend member_type = iif(isempty(memberType), "unauthenticated", memberType)
+                                                    | extend dimTablePagination = todynamic(tostring(customDimensions["tablePagination"]))
+                                                    | evaluate bag_unpack(dimTablePagination)
+                                                };
+                                                let byCohortTable = queryTable
+                                                    | project name, member_type, pageSize, pageNumber;
+                                                let topSegments = byCohortTable
+                                                    | summarize PageCount = count() by name, member_type, pageSize, pageNumber
+                                                    | project
+                                                    ["Event Name"] = name,
+                                                    ["Page Size"] = pageSize,
+                                                    ["Page Number"] = pageNumber,
+                                                    p = pack(strcat(member_type, " Table Page Count"), PageCount)
+                                                | summarize b = make_bag(p) by ["Event Name"], ["Page Size"], ["Page Number"]
+                                                | evaluate bag_unpack(b)
+                                                | order by ["Event Name"] asc, ["Page Size"] asc, ["Page Number"] asc;
+                                                topSegments
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "AnalyticsGrid"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mPartTitle = "Table Pagination Counts by Member Type"
+                                          [32m+[0m [0mQuery     = <<-EOT
+                                                let usg_events = dynamic(["Daily Data | Table Pagination", "Submissions | Table Pagination"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | where true;
+                                                let byTable = mainTable;
+                                                let queryTable = () {
+                                                    byTable
+                                                    | extend dimActiveMembership = todynamic(tostring(customDimensions["activeMembership"]))
+                                                    | evaluate bag_unpack(dimActiveMembership)
+                                                    | extend member_type = iif(isempty(memberType), "unauthenticated", memberType)
+                                                    | extend dimTablePagination = todynamic(tostring(customDimensions["tablePagination"]))
+                                                    | evaluate bag_unpack(dimTablePagination)
+                                                };
+                                                let byCohortTable = queryTable
+                                                    | project name, member_type, pageSize, pageNumber;
+                                                let topSegments = byCohortTable
+                                                    | summarize PageCount = count() by name, member_type, pageSize, pageNumber
+                                                    | project
+                                                    ["Event Name"] = name,
+                                                    ["Page Size"] = pageSize,
+                                                    ["Page Number"] = pageNumber,
+                                                    p = pack(strcat(member_type, " Table Page Count"), PageCount)
+                                                | summarize b = make_bag(p) by ["Event Name"], ["Page Size"], ["Page Number"]
+                                                | evaluate bag_unpack(b)
+                                                | order by ["Event Name"] asc, ["Page Size"] asc, ["Page Number"] asc;
+                                                topSegments
+                                            EOT
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 9
+                                  [32m+[0m [0mrowSpan = 5
+                                  [32m+[0m [0mx       = 0
+                                  [32m+[0m [0my       = 11
+                                }
+                            }
+                          [32m+[0m [0m"9"  = {
+                              [32m+[0m [0mmetadata = {
+                                  [32m+[0m [0minputs   = [
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "resourceTypeMode"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ComponentId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Scope"
+                                          [32m+[0m [0mvalue      = {
+                                              [32m+[0m [0mresourceIds = [
+                                                  [32m+[0m [0m"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights",
+                                                ]
+                                            }
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartId"
+                                          [32m+[0m [0mvalue      = "1071a5f0-114e-4c2f-bb11-5362584215c3"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Version"
+                                          [32m+[0m [0mvalue      = "2.0"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "TimeRange"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DashboardId"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "DraftRequestParameters"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Query"
+                                          [32m+[0m [0mvalue      = <<-EOT
+                                                let usg_events = dynamic(["File Validator"]);
+                                                let mainTable = union customEvents
+                                                    | where timestamp > ago(30d)
+                                                    | where isempty(operation_SyntheticSource)
+                                                    | extend name =replace("\n", "", name)
+                                                    | extend name =replace("\r", "", name)
+                                                    | where '*' in (usg_events) or name in (usg_events)
+                                                    | extend fileValidatorProps = tostring(customDimensions["fileValidator"]);
+                                                let queryTable = mainTable
+                                                    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))
+                                                    // | summarize ['Count'] = count() by bin(timestamp, 1d), session_Id, fileValidatorProps
+                                                    | extend dimension = todynamic(fileValidatorProps)
+                                                    | evaluate bag_unpack(dimension)
+                                                    | extend ['Pass/Fail'] = iif(errorCount == 0, "Pass", "Fail")
+                                                    | order by timestamp desc 
+                                                    | project
+                                                        ["Date"] = format_datetime(timestamp, 'MM/dd/yyyy'),
+                                                        ["Session Id"] = session_Id,
+                                                        // ["Count"],
+                                                        ['Pass/Fail'],
+                                                        ["Error Count"] = errorCount,
+                                                        ["Warning Count"] = warningCount,
+                                                        ["Sender"] = sender,
+                                                        ["Schema"] = schema,
+                                                        ["File Type"] = fileType; 
+                                                queryTable
+                                                
+                                            EOT
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "ControlType"
+                                          [32m+[0m [0mvalue      = "AnalyticsGrid"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "SpecificChart"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartTitle"
+                                          [32m+[0m [0mvalue      = "Analytics"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "PartSubTitle"
+                                          [32m+[0m [0mvalue      = "pdhprod-appinsights"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "Dimensions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "LegendOptions"
+                                        },
+                                      [32m+[0m [0m{
+                                          [32m+[0m [0misOptional = true
+                                          [32m+[0m [0mname       = "IsQueryContainTimeRange"
+                                          [32m+[0m [0mvalue      = true
+                                        },
+                                    ]
+                                  [32m+[0m [0msettings = {
+                                      [32m+[0m [0mcontent = {
+                                          [32m+[0m [0mPartTitle = "File Validator Statistics"
+                                        }
+                                    }
+                                  [32m+[0m [0mtype     = "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+                                }
+                              [32m+[0m [0mposition = {
+                                  [32m+[0m [0mcolSpan = 9
+                                  [32m+[0m [0mrowSpan = 5
+                                  [32m+[0m [0mx       = 9
+                                  [32m+[0m [0my       = 11
+                                }
+                            }
+                        }
+                    }
+                }
+              [32m+[0m [0mmetadata = {
+                  [32m+[0m [0mmodel = {
+                      [32m+[0m [0mfilterLocale = {
+                          [32m+[0m [0mvalue = "en-us"
+                        }
+                      [32m+[0m [0mfilters      = {
+                          [32m+[0m [0mvalue = {
+                              [32m+[0m [0mMsPortalFx_TimeRange = {
+                                  [32m+[0m [0mdisplayCache    = {
+                                      [32m+[0m [0mname  = "UTC Time"
+                                      [32m+[0m [0mvalue = "Past 30 days"
+                                    }
+                                  [32m+[0m [0mfilteredPartIds = [
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-474730cc-d9f7-4265-b616-7c5e5575ec43",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-5b8c5fda-eccc-4eaa-8781-fb435376f4c9",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-0a2227e3-fa86-46b0-960a-b2c6c531d90c",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269e85",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-c52af3ae-3577-450d-a4b4-bdb19c269fe7",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-4f1ca6dd-eee2-4ea3-8c92-97fa8b6702a5",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-0e6386ee-24a5-46d1-96b6-80a0ae9fd14f",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5713c5",
+                                      [32m+[0m [0m"StartboardPart-LogsDashboardPart-839425fe-018b-4550-a18e-a9b83e5712d7",
+                                    ]
+                                  [32m+[0m [0mmodel           = {
+                                      [32m+[0m [0mformat      = "utc"
+                                      [32m+[0m [0mgranularity = "auto"
+                                      [32m+[0m [0mrelative    = "30d"
+                                    }
+                                }
+                            }
+                        }
+                      [32m+[0m [0mtimeRange    = {
+                          [32m+[0m [0mtype  = "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+                          [32m+[0m [0mvalue = {
+                              [32m+[0m [0mrelative = {
+                                  [32m+[0m [0mduration = 24
+                                  [32m+[0m [0mtimeUnit = 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+      [32m+[0m [0m[1m[0mid[0m[0m                   = (known after apply)
+      [32m+[0m [0m[1m[0mlocation[0m[0m             = "eastus"
+      [32m+[0m [0m[1m[0mname[0m[0m                 = "pdhprod-RS-Dashboard"
+      [32m+[0m [0m[1m[0mresource_group_name[0m[0m  = "prime-data-hub-prod"
+      [32m+[0m [0m[1m[0mtags[0m[0m                 = {
+          [32m+[0m [0m"environment" = "prod"
+          [32m+[0m [0m"source"      = "terraform"
+        }
+    }
+
+[0m[1mPlan:[0m 1 to add, 0 to change, 0 to destroy.
+[0m[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the
+[33m│[0m [0mresult of this plan may not represent all of the changes requested by the
+[33m│[0m [0mcurrent configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for
+[33m│[0m [0mexceptional situations such as recovering from errors or mistakes, or when
+[33m│[0m [0mTerraform specifically suggests to use it as part of an error message.
+[33m╵[0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mRedundant ignore_changes element[0m
+[33m│[0m [0m
+[33m│[0m [0m[0m  on ../../modules/storage/candidate_slot.tf line 159, in resource "azurerm_storage_account" "storage_partner_candidate":
+[33m│[0m [0m 159: resource [4m"azurerm_storage_account"[0m "storage_partner_candidate" {[0m
+[33m│[0m [0m
+[33m│[0m [0mAdding an attribute name to ignore_changes tells Terraform to ignore future
+[33m│[0m [0mchanges to the argument in configuration after the object has been created,
+[33m│[0m [0mretaining the value originally configured.
+[33m│[0m [0m
+[33m│[0m [0mThe attribute secondary_blob_connection_string is decided by the provider
+[33m│[0m [0malone and therefore there can be no configured value to compare with.
+[33m│[0m [0mIncluding this attribute in ignore_changes has no effect. Remove the
+[33m│[0m [0mattribute from ignore_changes to quiet this warning.
+[33m│[0m [0m
+[33m│[0m [0m(and 2 more similar warnings elsewhere)
+[33m╵[0m[0m
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
