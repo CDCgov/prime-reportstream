@@ -1,8 +1,13 @@
 import React, { createContext, useContext } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import {
+    MutationFunction,
+    MutationKey,
     QueryFunction,
     QueryKey,
+    useMutation,
+    UseMutationOptions,
+    UseMutationResult,
     useQuery,
     UseQueryOptions,
     UseQueryResult,
@@ -33,6 +38,23 @@ type RSUseQuery<
             "queryKey" | "queryFn" | "initialData"
         > & { initialData?: () => undefined }
     ): UseQueryResult<TData, TError>;
+};
+
+type RSUseMutation<
+    TData = unknown,
+    TError = unknown,
+    TVariables = unknown,
+    TContext = unknown,
+    TMutationKey extends MutationKey = MutationKey
+> = {
+    (
+        mutationKey: MutationKey,
+        mutationFn: MutationFunction<TData, TVariables>,
+        options?: Omit<
+            UseMutationOptions<TData, TError, TVariables, TContext>,
+            "mutationKey" | "mutationFn"
+        >
+    ): UseMutationResult<TData, TError, TVariables, TContext>;
 };
 
 interface IAuthorizedFetchContext {
@@ -66,6 +88,30 @@ export function wrapUseQuery<
                 enabled: options?.enabled
                     ? options.enabled && initialized
                     : initialized,
+                ...options,
+            }
+        );
+    };
+}
+export function wrapUseMutation<
+    TData,
+    TError,
+    TVariables,
+    TContext,
+    TMutationKey extends MutationKey
+>() {
+    return function (
+        mutationKey: MutationKey,
+        mutationFn: MutationFunction<TData, TVariables>,
+        options?: Omit<
+            UseMutationOptions<TData, TError, TVariables, TContext>,
+            "mutationKey" | "mutationFn"
+        >
+    ) {
+        return useMutation<TData, TError, TVariables, TContext>(
+            mutationKey as TMutationKey,
+            mutationFn,
+            {
                 ...options,
             }
         );
@@ -112,5 +158,34 @@ export function useAuthorizedFetch<
         rsUseQuery: wrapUseQuery<TQueryFnData, TError, TData, TQueryKey>(
             initialized
         ),
+    };
+}
+
+export function useAuthorizedMutationFetch<
+    TData = unknown,
+    TError = unknown,
+    TVariables = unknown,
+    TContext = unknown,
+    TMutationKey extends MutationKey = MutationKey
+>(): {
+    authorizedFetch: AuthorizedFetcher<TData>;
+    rsUseMutation: RSUseMutation<
+        TData,
+        TError,
+        TVariables,
+        TContext,
+        TMutationKey
+    >;
+} {
+    const { authorizedFetchGenerator } = useContext(AuthorizedFetchContext);
+    return {
+        authorizedFetch: authorizedFetchGenerator<TData>(),
+        rsUseMutation: wrapUseMutation<
+            TData,
+            TError,
+            TVariables,
+            TContext,
+            TMutationKey
+        >(),
     };
 }

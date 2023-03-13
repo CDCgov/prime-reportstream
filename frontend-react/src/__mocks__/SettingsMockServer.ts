@@ -51,13 +51,34 @@ const handlers = [
     rest.get(`${base}/testOrg`, (req, res, ctx) => {
         return res(ctx.json(fakeOrg), ctx.status(200));
     }),
+    rest.post(`${base}/testOrg`, (req, res, ctx) => {
+        return res(ctx.json(fakeOrg), ctx.status(200));
+    }),
+    rest.put(`${base}/testOrg`, (req, res, ctx) => {
+        return res(ctx.json(fakeOrg), ctx.status(200));
+    }),
+    rest.delete(`${base}/testOrg`, (req, res, ctx) => {
+        return res(ctx.json(fakeOrg), ctx.status(200));
+    }),
+    rest.get(`${base}/testOrg/senders`, (req, res, ctx) => {
+        return res(
+            ctx.json([dummySender, dummySender, dummySender, dummySender]),
+            ctx.status(200)
+        );
+    }),
     rest.get(`${base}/testOrg/senders/testSender`, (req, res, ctx) => {
         return res(ctx.json(dummySender), ctx.status(200));
     }),
     rest.get(`${base}/firstOrg/senders/firstSender`, (req, res, ctx) => {
         return res(ctx.status(200));
     }),
+    rest.post(`${base}/abbott/senders/user1234`, (req, res, ctx) => {
+        return res(ctx.status(200));
+    }),
     rest.put(`${base}/abbott/senders/user1234`, (req, res, ctx) => {
+        return res(ctx.status(200));
+    }),
+    rest.delete(`${base}/abbott/senders/user1234`, (req, res, ctx) => {
         return res(ctx.status(200));
     }),
     rest.get(`${base}/testOrg/receivers`, (req, res, ctx) => {
@@ -65,6 +86,18 @@ const handlers = [
     }),
     rest.get(`${base}/testOrgNoReceivers/receivers`, (req, res, ctx) => {
         return res(ctx.json([]), ctx.status(200));
+    }),
+    rest.get(`${base}/testOrg/receivers/testReceiver`, (req, res, ctx) => {
+        return res(ctx.json(dummyReceivers), ctx.status(200));
+    }),
+    rest.post(`${base}/testOrg/receivers/testReceiver`, (req, res, ctx) => {
+        return res(ctx.json(dummyReceivers), ctx.status(200));
+    }),
+    rest.put(`${base}/testOrg/receivers/testReceiver`, (req, res, ctx) => {
+        return res(ctx.json(dummyReceivers), ctx.status(200));
+    }),
+    rest.delete(`${base}/testOrg/receivers/testReceiver`, (req, res, ctx) => {
+        return res(ctx.json(dummyReceivers), ctx.status(200));
     }),
 ];
 

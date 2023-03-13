@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 
 import {
-    servicesEndpoints,
+    settingsEndpoints,
     RSSender,
 } from "../../../config/endpoints/settings";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
 
-const { senders } = servicesEndpoints;
+const { senders } = settingsEndpoints;
 
 export const useOrganizationSendersSettings = () => {
     const { activeMembership } = useSessionContext();

@@ -58,7 +58,7 @@ Services Endpoints
 * senders -> fetches a list of organization's senders
 * receivers -> fetches a list of organization's receivers
 */
-export const servicesEndpoints: RSApiEndpoints = {
+export const settingsEndpoints = {
     organizations: new RSEndpoint({
         path: ServicesUrls.ORGANIZATIONS,
         method: HTTPMethods.GET,
@@ -134,4 +134,4 @@ export const servicesEndpoints: RSApiEndpoints = {
         method: HTTPMethods.DELETE,
         queryKey: "settingsOrganizationReceiver",
     }),
-};
+} satisfies RSApiEndpoints;

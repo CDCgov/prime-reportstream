@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 
 import {
-    servicesEndpoints,
+    settingsEndpoints,
     RSOrganizationSettings,
 } from "../../../config/endpoints/settings";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
 
-const { organizations } = servicesEndpoints;
+const { organizations } = settingsEndpoints;
 
 export const useOrganizationsSettings = () => {
     const { activeMembership } = useSessionContext();

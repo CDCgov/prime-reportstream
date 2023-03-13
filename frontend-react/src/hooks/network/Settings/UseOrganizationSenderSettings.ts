@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 
 import {
-    servicesEndpoints,
+    settingsEndpoints,
     RSSender,
 } from "../../../config/endpoints/settings";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../../../contexts/SessionContext";
 
-const { sender } = servicesEndpoints;
+const { sender } = settingsEndpoints;
 
 export type UseOrganizationSenderSettingsHookResult = {
     senderDetail?: RSSender;
