@@ -52,6 +52,8 @@ export const FileHandlerStepThree = ({
     handleNextFileHandlerStep,
 }: FileHandlerStepThreeProps) => {
     const modalRef = useRef<ModalRef>(null);
+    console.log("errors = ", errors);
+    console.log("warnings = ", warnings);
     return (
         <div className="file-handler-table">
             {isFileSuccess && warnings.length === 0 && (

@@ -9,6 +9,7 @@ import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USLink, USExtLink } from "../USLink";
+import { FileType } from "../../hooks/UseFileHandler";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -190,6 +191,7 @@ export const RequestedChangesDisplay = ({
                                         error={e}
                                         index={i}
                                         key={`error${i}`}
+                                        schemaColumnHeader={schemaColumnHeader}
                                     />
                                 );
                             })}
@@ -320,10 +322,11 @@ export function ValidationErrorMessage({
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
+    schemaColumnHeader: string;
 }
 
-const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { errorCode, field, message, trackingIds } = error;
+const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
+    const { errorCode, field, message, trackingIds, indices } = error;
     return (
         <tr key={"error_" + index}>
             <td>
@@ -333,10 +336,15 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
                     message={message}
                 />
             </td>
-            <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
-                {trackingIds?.length && trackingIds.length > 0 && (
-                    <span>{trackingIds.join(", ")}</span>
+                {schemaColumnHeader === FileType.CSV && indices?.length && (
+                    <span>{indices.join(" + ")}</span>
+                )}
+                {schemaColumnHeader === FileType.HL7 && trackingIds?.length && (
+                    <span>{trackingIds.join(" + ")}</span>
+                )}
+                {!indices?.length && !trackingIds?.length && (
+                    <span>Not applicable</span>
                 )}
             </td>
         </tr>
