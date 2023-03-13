@@ -31,6 +31,7 @@ import {
 } from "./FileHandlerMessaging";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
 import { FileHandlerStepThree } from "./FileHandlerStepThree";
+import { FileHandlerStepFour } from "./FileHandlerStepFour";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
@@ -370,6 +371,13 @@ function FileHandler() {
                     selectedSchemaOption={selectedSchemaOption}
                     handlePrevFileHandlerStep={handlePrevFileHandlerStep}
                     handleNextFileHandlerStep={handleNextFileHandlerStep}
+                />
+            )}
+            {fileHandlerStep === FileHandlerSteps.STEP_FOUR && (
+                <FileHandlerStepFour
+                    destinations={destinations}
+                    successTimestamp={successTimestamp}
+                    reportId={reportId}
                 />
             )}
             <p className="margin-top-10">

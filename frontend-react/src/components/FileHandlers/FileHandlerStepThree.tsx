@@ -5,13 +5,12 @@ import {
     ModalFooter,
     ModalHeading,
     ModalRef,
-    ModalToggleButton,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
+
 import { ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { ModalConfirmSaveButton } from "../Admin/CompareJsonModal";
 
 import {
     FileQualityFilterDisplay,
@@ -37,15 +36,10 @@ interface FileHandlerStepThreeProps {
 }
 
 export const FileHandlerStepThree = ({
-    destinations,
     errorMessaging,
     errors,
     hasQualityFilterMessages,
-    isFileSuccess,
     qualityFilterMessages,
-    reportId,
-    successDescription,
-    successTimestamp,
     warnings,
     selectedSchemaOption,
     handlePrevFileHandlerStep,
@@ -56,18 +50,6 @@ export const FileHandlerStepThree = ({
     console.log("warnings = ", warnings);
     return (
         <div className="file-handler-table">
-            {isFileSuccess && warnings.length === 0 && (
-                <FileSuccessDisplay
-                    extendedMetadata={{
-                        destinations,
-                        timestamp: successTimestamp,
-                        reportId,
-                    }}
-                    heading="Validate another file"
-                    message={successDescription}
-                    showExtendedMetadata={false}
-                />
-            )}
             {errors.length > 0 && (
                 <RequestedChangesDisplay
                     title={RequestLevel.ERROR}
