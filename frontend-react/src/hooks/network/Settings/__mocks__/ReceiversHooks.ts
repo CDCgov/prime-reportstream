@@ -1,9 +1,9 @@
-import * as UseOrganizationReceiversHook from "../../../UseOrganizationReceivers";
+import * as UseOrganizationReceiversHook from "../UseOrganizationReceiversSettings";
 import * as UseOrganizationReceiversFeedHook from "../../../UseOrganizationReceiversFeed";
 
 export const mockUseOrganizationReceivers = jest.spyOn(
     UseOrganizationReceiversHook,
-    "useOrganizationReceivers"
+    "useOrganizationReceiversSettings"
 );
 
 export const mockUseOrganizationReceiversFeed = jest.spyOn(

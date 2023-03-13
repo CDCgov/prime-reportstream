@@ -1,10 +1,12 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "./index";
 
 export enum ServicesUrls {
-    SETTINGS = "/settings/organizations/:orgName",
+    ORGANIZATIONS = "/settings/organizations",
+    ORGANIZATION = "/settings/organizations/:orgName",
     SENDERS = "/settings/organizations/:orgName/senders",
-    SENDER_DETAIL = "/settings/organizations/:orgName/senders/:sender",
+    SENDER = "/settings/organizations/:orgName/senders/:sender",
     RECEIVERS = "/settings/organizations/:orgName/receivers",
+    RECEIVER = "/settings/organizations/:orgName/receivers/:receiver",
 }
 
 /** Response is much larger than this but not all of it is used for front-end yet */
@@ -57,24 +59,34 @@ Services Endpoints
 * receivers -> fetches a list of organization's receivers
 */
 export const servicesEndpoints: RSApiEndpoints = {
-    settings: new RSEndpoint({
-        path: ServicesUrls.SETTINGS,
+    organizations: new RSEndpoint({
+        path: ServicesUrls.ORGANIZATION,
         method: HTTPMethods.GET,
-        queryKey: "servicesSettings",
+        queryKey: "settingsOrganizations",
+    }),
+    organization: new RSEndpoint({
+        path: ServicesUrls.ORGANIZATION,
+        method: HTTPMethods.GET,
+        queryKey: "settingsOrganization",
     }),
     senders: new RSEndpoint({
         path: ServicesUrls.SENDERS,
         method: HTTPMethods.GET,
-        queryKey: "servicesSenders",
+        queryKey: "settingsOrganizationSenders",
     }),
-    senderDetail: new RSEndpoint({
-        path: ServicesUrls.SENDER_DETAIL,
+    sender: new RSEndpoint({
+        path: ServicesUrls.SENDER,
         method: HTTPMethods.GET,
-        queryKey: "servicesSenderDetail",
+        queryKey: "settingsOrganizationSender",
     }),
     receivers: new RSEndpoint({
         path: ServicesUrls.RECEIVERS,
         method: HTTPMethods.GET,
-        queryKey: "servicesReceivers",
+        queryKey: "settingsOrganizationReceivers",
+    }),
+    receiver: new RSEndpoint({
+        path: ServicesUrls.RECEIVER,
+        method: HTTPMethods.GET,
+        queryKey: "settingsOrganizationReceiver",
     }),
 };

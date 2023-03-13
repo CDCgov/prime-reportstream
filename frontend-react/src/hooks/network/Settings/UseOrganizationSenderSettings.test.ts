@@ -1,13 +1,16 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
-import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import {
+    dummySender,
+    orgServer,
+} from "../../../__mocks__/OrganizationMockServer";
+import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { MembershipSettings, MemberType } from "../../UseOktaMemberships";
 
-import { useSenderResource } from "./UseSenderResource";
-import { MembershipSettings, MemberType } from "./UseOktaMemberships";
+import { useOrganizationSenderSettings } from "./UseOrganizationSenderSettings";
 
-describe("useSenderResource", () => {
+describe("useOrganizationSenderSettings", () => {
     beforeAll(() => {
         orgServer.listen();
     });
@@ -28,7 +31,7 @@ describe("useSenderResource", () => {
             isUserReceiver: false,
             isUserSender: true,
         });
-        const { result } = renderHook(() => useSenderResource(), {
+        const { result } = renderHook(() => useOrganizationSenderSettings(), {
             wrapper: AppWrapper(),
         });
         expect(result.current.senderDetail).toEqual(undefined);
@@ -50,7 +53,7 @@ describe("useSenderResource", () => {
             isUserReceiver: false,
             isUserSender: true,
         });
-        const { result } = renderHook(() => useSenderResource(), {
+        const { result } = renderHook(() => useOrganizationSenderSettings(), {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>

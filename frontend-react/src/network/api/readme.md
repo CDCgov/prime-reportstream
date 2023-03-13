@@ -32,7 +32,7 @@ const SenderAPI: API = {
     ]),
 };
 
-const useSenderResource = () => {
+const useOrganizationSenderSettings = () => {
     /* Access the session if you need a token and active memebrship. */
     const { memberships, oktaToken } = useSessionContext();
     /* Create a stable config reference with useMemo(). */

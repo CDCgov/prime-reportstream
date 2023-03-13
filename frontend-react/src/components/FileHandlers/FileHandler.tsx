@@ -11,10 +11,10 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../hooks/network/Settings/UseOrganizationSettings";
 import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import useSenderSchemaOptions from "../../senders/hooks/UseSenderSchemaOptions";
-import { useSenderResource } from "../../hooks/UseSenderResource";
+import { useOrganizationSenderSettings } from "../../hooks/network/Settings/UseOrganizationSenderSettings";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 
@@ -118,7 +118,7 @@ function FileHandler() {
     }, [localError]);
 
     const { activeMembership } = useSessionContext();
-    const { senderDetail } = useSenderResource();
+    const { senderDetail } = useOrganizationSenderSettings();
     // TODO: Transition from isLoading to Suspense component
     const { data: organization } = useOrganizationSettings();
     const { schemaOptions, isLoading: isSenderSchemaOptionsLoading } =

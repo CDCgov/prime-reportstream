@@ -1,6 +1,6 @@
-import * as SenderHooks from "../UseSenderResource";
+import * as SenderHooks from "../UseOrganizationSenderSettings";
 
-export const mockUseSenderResource = jest.spyOn(
+export const mockUseOrganizationSenderSettings = jest.spyOn(
     SenderHooks,
-    "useSenderResource"
+    "UseOrganizationSenderSettings"
 );
