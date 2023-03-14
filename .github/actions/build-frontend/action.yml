@@ -25,10 +25,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js ${{ matrix.node-version }} with yarn
+
+    - name: Use Node.js with yarn
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
-        node-version: "16.19.1"
+        node-version-file: 'frontend-react/package.json'
 
     - run: yarn install
       working-directory: frontend-react
