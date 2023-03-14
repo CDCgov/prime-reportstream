@@ -14,12 +14,12 @@ import java.util.SortedMap
  */
 @JsonIgnoreProperties
 class FhirTransformSchema(
-    elements: MutableList<FHIRTransformSchemaElement> = mutableListOf(),
+    elements: MutableList<FhirTransformSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
-) : ConfigSchema<FHIRTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
-    override fun merge(childSchema: ConfigSchema<FHIRTransformSchemaElement>):
-        ConfigSchema<FHIRTransformSchemaElement> =
+) : ConfigSchema<FhirTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
+    override fun merge(childSchema: ConfigSchema<FhirTransformSchemaElement>):
+        ConfigSchema<FhirTransformSchemaElement> =
         apply {
             check(childSchema is FhirTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
             super.merge(childSchema)
@@ -42,7 +42,7 @@ class FhirTransformSchema(
  * @property bundleProperty a FHIR path denoting where to store the value
  */
 @JsonIgnoreProperties
-class FHIRTransformSchemaElement(
+class FhirTransformSchemaElement(
     name: String? = null,
     condition: String? = null,
     required: Boolean? = null,
@@ -80,7 +80,7 @@ class FHIRTransformSchemaElement(
     }
 
     override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        check(overwritingElement is FHIRTransformSchemaElement) {
+        check(overwritingElement is FhirTransformSchemaElement) {
             "Overwriting element ${overwritingElement.name} was not a FHIRTransformSchemaElement."
         }
         overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
