@@ -169,14 +169,6 @@ module "azure_dashboard" {
   resource_prefix = local.init.resource_prefix
   location        = local.init.location
 }
-
-module "azure_dashboard8" {
-  source          = "../../modules/azure_dashboard8"
-  environment     = local.init.environment
-  resource_group  = local.init.resource_group_name
-  resource_prefix = local.init.resource_prefix
-  location        = local.init.location
-}
 module "ssh" {
   source          = "../../modules/ssh"
   environment     = local.init.environment
