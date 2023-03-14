@@ -8,7 +8,7 @@ import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import kotlin.test.Test
 
 class ConverterSchemaTests {
@@ -246,7 +246,7 @@ class ConverterSchemaTests {
     @Test
     fun `test invalid merge of element`() {
         val elementA = ConverterSchemaElement("name")
-        val elementB = FHIRTransformSchemaElement("name")
+        val elementB = FhirTransformSchemaElement("name")
         assertThat { elementA.merge(elementB) }.isFailure()
     }
 

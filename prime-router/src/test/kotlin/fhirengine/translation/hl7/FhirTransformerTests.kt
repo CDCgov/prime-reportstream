@@ -7,8 +7,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import io.mockk.clearMocks
@@ -57,16 +57,16 @@ class FhirTransformerTests {
         // root -> A -> C
         //      -> B
         val elemB =
-            FHIRTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
+            FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
         val elemC =
-            FHIRTransformSchemaElement(
+            FhirTransformSchemaElement(
                 "elementC",
                 value = listOf("'654321'"),
                 bundleProperty = "%resource.id"
             )
 
         val childSchema = FhirTransformSchema(elements = mutableListOf(elemC))
-        val elemA = FHIRTransformSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
+        val elemA = FhirTransformSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
 
         val rootSchema =
             FhirTransformSchema(elements = mutableListOf(elemA, elemB))
@@ -103,7 +103,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -140,7 +140,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -175,7 +175,7 @@ class FhirTransformerTests {
         origBundle.addEntry().resource = resource
 
         // Resource doesn't exist, so make sure bundle isn't updated
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient).contact",
@@ -191,7 +191,7 @@ class FhirTransformerTests {
         assertThat(newValue).isEmpty()
 
         // Resource does exist, make sure bundle is updated with Patient.contact
-        val elemB = FHIRTransformSchemaElement(
+        val elemB = FhirTransformSchemaElement(
             "elementB",
             value = listOf("'other'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -245,7 +245,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("true"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -273,7 +273,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'someValue'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -301,7 +301,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("Bundle.entry.resource.ofType(Patient).contact.name", "%resource.contact.name", "Bundle.id"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -448,19 +448,19 @@ class FhirTransformerTests {
         patient.name = listOf(HumanName())
         bundle.addEntry().resource = patient
 
-        val elementA = FHIRTransformSchemaElement(
+        val elementA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("%testId"),
             resource = "%testRes",
             bundleProperty = "%testRes.id"
         )
-        val elementB = FHIRTransformSchemaElement(
+        val elementB = FhirTransformSchemaElement(
             "elementB",
             value = listOf("%testName"),
             resource = "%testRes",
             bundleProperty = "%testPath.text"
         )
-        val elementC = FHIRTransformSchemaElement(
+        val elementC = FhirTransformSchemaElement(
             "elementC",
             value = listOf("%testActive"),
             resource = "%testRes",
@@ -492,7 +492,7 @@ class FhirTransformerTests {
         patient.id = "def456"
         bundle.addEntry().resource = patient
 
-        val elementA = FHIRTransformSchemaElement(
+        val elementA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("%testId"),
             resource = "%testRes",
@@ -502,7 +502,7 @@ class FhirTransformerTests {
                 Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
             ),
         )
-        val elementB = FHIRTransformSchemaElement(
+        val elementB = FhirTransformSchemaElement(
             "elementB",
             value = listOf("%testId", "'backupValue'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -526,7 +526,7 @@ class FhirTransformerTests {
         patient.id = "def456"
         bundle.addEntry().resource = patient
 
-        val elementA = FHIRTransformSchemaElement(
+        val elementA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("%testActive"),
             resource = "%testRes",
@@ -537,21 +537,21 @@ class FhirTransformerTests {
                 Pair("testActive", "true"),
             ),
         )
-        val elementB = FHIRTransformSchemaElement(
+        val elementB = FhirTransformSchemaElement(
             "elementB",
             value = listOf("%testId", "%otherTestId", "%defaultName", "'none'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
             bundleProperty = "%resource.name.text",
         )
 
-        val childElement = FHIRTransformSchemaElement(
+        val childElement = FhirTransformSchemaElement(
             "childElement",
             value = listOf("%testId", "%otherTestId", "%defaultId"),
             resource = "Bundle.entry",
             bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
         )
         val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
-        val elementWithChild = FHIRTransformSchemaElement(
+        val elementWithChild = FhirTransformSchemaElement(
             "elementWithChild",
             resource = "Bundle.entry",
             resourceIndex = "myIndexVar",
@@ -588,14 +588,14 @@ class FhirTransformerTests {
 
         val transformer = FhirTransformer(FhirTransformSchema())
 
-        val childElement = FHIRTransformSchemaElement(
+        val childElement = FhirTransformSchemaElement(
             "childElement",
             value = listOf("%myIndexVar"),
             resource = "Bundle.entry",
             bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
         )
         val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
-        val element = FHIRTransformSchemaElement(
+        val element = FhirTransformSchemaElement(
             "name",
             resource = "Bundle.entry",
             resourceIndex = "myIndexVar",

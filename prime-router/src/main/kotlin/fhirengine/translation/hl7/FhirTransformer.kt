@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
@@ -82,7 +82,7 @@ class FhirTransformer(
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     internal fun transformBasedOnElement(
-        element: FHIRTransformSchemaElement,
+        element: FhirTransformSchemaElement,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
