@@ -123,6 +123,9 @@ function FileHandler() {
     } = state;
     const [fileContent, setFileContent] = useState("");
     const [fileHandlerStepIndex, setFileHandlerStepIndex] = useState(0);
+    // The File Validate tool now has 4 discrete steps,
+    // Schema Select, File Select, [optional]Show Errors, Success Page
+    // The stages can be seen here: https://figma.fun/fGCeo4
     const fileHandlerStep = fileHandlerStepsArray[fileHandlerStepIndex];
     const resetState = () => {
         setFileContent("");
@@ -130,6 +133,11 @@ function FileHandler() {
     };
 
     const handlePrevFileHandlerStep = () => {
+        // We have to clear different parts of state depending
+        // on what step they're coming from. From 3 -> 2, we
+        // need to reset everything EXCEPT the selected schema
+        // since they're just re-selecting a file, otherwise,
+        // we can reset all of state.
         if (fileHandlerStep === FileHandlerSteps.STEP_TWO) {
             resetState();
             setFileHandlerStepIndex(fileHandlerStepIndex - 1);
@@ -208,11 +216,6 @@ function FileHandler() {
 
         if (fileContent.length === 0) {
             showError("No file contents to validate");
-            return;
-        }
-
-        if (!selectedSchemaOption) {
-            showError("No schema selected");
             return;
         }
 
