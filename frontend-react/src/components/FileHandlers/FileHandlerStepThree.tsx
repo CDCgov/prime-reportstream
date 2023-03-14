@@ -14,36 +14,30 @@ import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 
 import {
     FileQualityFilterDisplay,
-    FileSuccessDisplay,
     RequestedChangesDisplay,
     RequestLevel,
 } from "./FileHandlerMessaging";
 
 interface FileHandlerStepThreeProps {
-    destinations?: string;
     errorMessaging: { message: string; heading: string };
     errors: ResponseError[];
-    hasQualityFilterMessages: boolean | undefined;
-    isFileSuccess: string | boolean;
-    qualityFilterMessages: Destination[] | undefined;
-    reportId?: string;
-    successDescription: string;
-    successTimestamp?: string;
-    warnings: ResponseError[];
-    selectedSchemaOption: SchemaOption | null;
-    handlePrevFileHandlerStep: () => void;
     handleNextFileHandlerStep: () => void;
+    handlePrevFileHandlerStep: () => void;
+    hasQualityFilterMessages: boolean | undefined;
+    qualityFilterMessages: Destination[] | undefined;
+    selectedSchemaOption: SchemaOption;
+    warnings: ResponseError[];
 }
 
 export const FileHandlerStepThree = ({
     errorMessaging,
     errors,
+    handleNextFileHandlerStep,
+    handlePrevFileHandlerStep,
     hasQualityFilterMessages,
     qualityFilterMessages,
-    warnings,
     selectedSchemaOption,
-    handlePrevFileHandlerStep,
-    handleNextFileHandlerStep,
+    warnings,
 }: FileHandlerStepThreeProps) => {
     const modalRef = useRef<ModalRef>(null);
     return (

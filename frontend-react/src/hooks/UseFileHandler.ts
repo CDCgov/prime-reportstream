@@ -39,7 +39,7 @@ export interface FileHandlerState {
     warnings: ResponseError[];
     localError: string;
     overallStatus: string;
-    selectedSchemaOption: SchemaOption | null;
+    selectedSchemaOption: SchemaOption;
 }
 
 export enum FileHandlerActionType {
@@ -89,7 +89,7 @@ export const INITIAL_STATE = {
     warnings: [],
     localError: "",
     overallStatus: "",
-    selectedSchemaOption: null,
+    selectedSchemaOption: { value: "", format: "" as FileType, title: "" },
 };
 
 // Currently returning a static object, but leaving this as a function
@@ -235,7 +235,7 @@ function reducer(
             );
             return { ...state, ...requestCompleteState };
         case FileHandlerActionType.SCHEMA_SELECTED:
-            const selectedSchemaOption = payload as SchemaOption | null;
+            const selectedSchemaOption = payload as SchemaOption;
 
             // reset anything related to the file if the selected schema format
             // and the file format don't match

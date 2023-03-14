@@ -10,19 +10,16 @@ import {
 
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 
-import { FileHandlerSpinner } from "./FileHandler";
+import { FileHandlerSpinner, UPLOAD_PROMPT_DESCRIPTIONS } from "./FileHandler";
 
 export interface FileHandlerFormProps {
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    resetState: () => void; // to handle resetting any parent state
-    fileName: string;
     fileInputResetValue: number;
-    cancellable: boolean;
-    formLabel: string;
-    selectedSchemaOption: SchemaOption | null;
-    isWorking: boolean;
+    fileName: string;
+    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handlePrevFileHandlerStep: () => void;
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    isWorking: boolean;
+    selectedSchemaOption: SchemaOption;
 }
 
 const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
@@ -30,14 +27,13 @@ const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
 // form for submitting files to the api
 // all state is controlled from above, and necessary elements and control functions are passed in
 export const FileHandlerStepTwo = ({
-    handleSubmit,
-    handleFileChange,
-    fileName,
     fileInputResetValue,
-    formLabel,
-    selectedSchemaOption,
-    isWorking,
+    fileName,
+    handleFileChange,
     handlePrevFileHandlerStep,
+    handleSubmit,
+    isWorking,
+    selectedSchemaOption,
 }: FileHandlerFormProps) => {
     const fileInputRef = useRef<FileInputRef>(null);
     const accept = selectedSchemaOption
@@ -72,7 +68,11 @@ export const FileHandlerStepTwo = ({
                             id="upload-csv-input-label"
                             htmlFor="upload-csv-input"
                         >
-                            {formLabel}
+                            {
+                                UPLOAD_PROMPT_DESCRIPTIONS[
+                                    selectedSchemaOption.format
+                                ]
+                            }
                         </Label>
                         <FileInput
                             key={fileInputResetValue}

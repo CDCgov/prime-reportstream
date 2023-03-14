@@ -1,4 +1,5 @@
 import React from "react";
+
 import { USExtLink } from "../USLink";
 import site from "../../content/site.json";
 
@@ -6,20 +7,17 @@ import { FileSuccessDisplay } from "./FileHandlerMessaging";
 
 export interface FileHandlerStepFourProps {
     destinations?: string;
-    successTimestamp?: string;
     reportId?: string;
+    successTimestamp?: string;
 }
 
 export const FileHandlerStepFour = ({
     destinations,
-    successTimestamp,
     reportId,
+    successTimestamp,
 }: FileHandlerStepFourProps) => {
     return (
         <div className="grid-col flex-1 display-flex flex-column">
-            {/* {isFileSuccess && warnings.length === 0 && (
-                
-            )} */}
             <FileSuccessDisplay
                 extendedMetadata={{
                     destinations,

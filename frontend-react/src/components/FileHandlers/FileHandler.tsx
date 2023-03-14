@@ -23,12 +23,6 @@ import site from "../../content/site.json";
 import { USExtLink } from "../USLink";
 
 import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
-import {
-    RequestLevel,
-    FileQualityFilterDisplay,
-    FileSuccessDisplay,
-    RequestedChangesDisplay,
-} from "./FileHandlerMessaging";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
 import { FileHandlerStepThree } from "./FileHandlerStepThree";
 import { FileHandlerStepFour } from "./FileHandlerStepFour";
@@ -118,14 +112,12 @@ function FileHandler() {
         fileType,
         fileName,
         errors,
+        errorType,
         destinations,
         reportId,
         successTimestamp,
-        cancellable,
-        errorType,
         warnings,
         localError,
-        overallStatus,
         reportItems,
         selectedSchemaOption,
     } = state;
@@ -142,7 +134,7 @@ function FileHandler() {
             resetState();
             setFileHandlerStepIndex(fileHandlerStepIndex - 1);
         } else if (fileHandlerStep === FileHandlerSteps.STEP_THREE) {
-            setFileContent("");
+            resetState();
             dispatch({
                 type: FileHandlerActionType.SCHEMA_SELECTED,
                 payload: selectedSchemaOption,
@@ -242,10 +234,10 @@ function FileHandler() {
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,
             });
-
             eventData = {
                 warningCount: response?.warnings?.length,
                 errorCount: response?.errors?.length,
+                overallStatus: response?.overallStatus,
             };
         } catch (e: any) {
             if (e.data) {
@@ -266,42 +258,34 @@ function FileHandler() {
                 },
             });
         }
-        if (eventData?.errorCount || eventData?.warningCount) {
-            handleNextFileHandlerStep();
-        } else {
+        const isFileSuccess =
+            eventData?.overallStatus === OverallStatus.VALID &&
+            !(eventData?.errorCount || eventData?.warningCount);
+        if (isFileSuccess) {
             handleNextFileHandlerStep(3);
+        } else {
+            handleNextFileHandlerStep();
         }
     };
-
-    // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging = errorMessagingMap[errorType || ErrorType.FILE];
-
-    let formLabel = "";
-    let successDescription = "";
-    if (selectedSchemaOption) {
-        formLabel = UPLOAD_PROMPT_DESCRIPTIONS[selectedSchemaOption.format];
-        successDescription = SUCCESS_DESCRIPTIONS[selectedSchemaOption.format];
-    }
 
     // Array containing only qualityFilterMessages that have filteredReportItems.
     const qualityFilterMessages = reportItems?.filter(
         (d) => d.filteredReportItems.length > 0
     );
 
+    // default to FILE messaging here, partly to simplify typecheck
+    const errorMessaging = errorMessagingMap[errorType || ErrorType.FILE];
+
     const hasQualityFilterMessages =
         destinations.length > 0 &&
         qualityFilterMessages &&
         qualityFilterMessages.length > 0;
 
-    const isFileSuccess =
-        (reportId || overallStatus === OverallStatus.VALID) &&
-        !hasQualityFilterMessages;
-
     if (isSenderSchemaOptionsLoading) {
         return <FileHandlerSpinner message={<p>Loading...</p>} />;
     }
 
-    const handleOnSchemaChange = (schemaOption: SchemaOption | null) =>
+    const handleOnSchemaChange = (schemaOption: SchemaOption) =>
         dispatch({
             type: FileHandlerActionType.SCHEMA_SELECTED,
             payload: schemaOption,
@@ -345,21 +329,18 @@ function FileHandler() {
             {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
                 <FileHandlerStepOne
                     fileType={fileType}
+                    handleNextFileHandlerStep={handleNextFileHandlerStep}
+                    onSchemaChange={handleOnSchemaChange}
                     schemaOptions={schemaOptions}
                     selectedSchemaOption={selectedSchemaOption}
-                    onSchemaChange={handleOnSchemaChange}
-                    handleNextFileHandlerStep={handleNextFileHandlerStep}
                 />
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
                 <FileHandlerStepTwo
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}
-                    resetState={resetState}
                     fileInputResetValue={fileInputResetValue}
                     fileName={fileName}
-                    cancellable={cancellable}
-                    formLabel={formLabel}
                     selectedSchemaOption={selectedSchemaOption}
                     isWorking={isWorking}
                     handlePrevFileHandlerStep={handlePrevFileHandlerStep}
@@ -367,26 +348,21 @@ function FileHandler() {
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
                 <FileHandlerStepThree
-                    destinations={destinations}
-                    errorMessaging={errorMessaging}
                     errors={errors}
-                    hasQualityFilterMessages={hasQualityFilterMessages}
-                    isFileSuccess={isFileSuccess}
-                    qualityFilterMessages={qualityFilterMessages}
-                    reportId={reportId}
-                    successDescription={successDescription}
-                    successTimestamp={successTimestamp}
-                    warnings={warnings}
-                    selectedSchemaOption={selectedSchemaOption}
-                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                    errorMessaging={errorMessaging}
                     handleNextFileHandlerStep={handleNextFileHandlerStep}
+                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                    hasQualityFilterMessages={hasQualityFilterMessages}
+                    qualityFilterMessages={qualityFilterMessages}
+                    selectedSchemaOption={selectedSchemaOption}
+                    warnings={warnings}
                 />
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_FOUR && (
                 <FileHandlerStepFour
                     destinations={destinations}
-                    successTimestamp={successTimestamp}
                     reportId={reportId}
+                    successTimestamp={successTimestamp}
                 />
             )}
             <p className="margin-top-10">

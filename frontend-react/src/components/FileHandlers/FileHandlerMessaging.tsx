@@ -1,6 +1,7 @@
 import React, { ReactNode, useMemo } from "react";
-import { Button, Icon, Tooltip } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 import { ExportToCsv } from "export-to-csv";
+
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
@@ -100,18 +101,6 @@ export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
 }
-
-const TrackingIDTooltip = () => {
-    return (
-        <Tooltip
-            className="fixed-tooltip"
-            position="right"
-            label={"Defaults to MSH-10"}
-        >
-            <Icon.Help />
-        </Tooltip>
-    );
-};
 
 type RequestedChangesDisplayProps = {
     title: RequestLevel;

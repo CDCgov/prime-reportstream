@@ -6,18 +6,18 @@ import { FileType } from "../../hooks/UseFileHandler";
 
 export interface FileHandlerFormProps {
     fileType?: FileType;
-    schemaOptions: SchemaOption[];
-    selectedSchemaOption: SchemaOption | null;
-    onSchemaChange: (schemaOption: SchemaOption | null) => void;
     handleNextFileHandlerStep: () => void;
+    onSchemaChange: (schemaOption: SchemaOption) => void;
+    schemaOptions: SchemaOption[];
+    selectedSchemaOption: SchemaOption;
 }
 
 export const FileHandlerStepOne = ({
     fileType,
+    handleNextFileHandlerStep,
+    onSchemaChange,
     schemaOptions,
     selectedSchemaOption,
-    onSchemaChange,
-    handleNextFileHandlerStep,
 }: FileHandlerFormProps) => {
     const fileInputRef = useRef<FileInputRef>(null);
 
@@ -27,12 +27,11 @@ export const FileHandlerStepOne = ({
             <Dropdown
                 id="upload-schema-select"
                 name="upload-schema-select"
-                value={selectedSchemaOption?.value || ""}
+                value={selectedSchemaOption.value}
                 onChange={(e) => {
-                    const option =
-                        schemaOptions.find(
-                            ({ value }) => value === e.target.value
-                        ) || null;
+                    const option = schemaOptions.find(
+                        ({ value }: SchemaOption) => value === e.target.value
+                    )!;
 
                     if (option?.format !== fileType) {
                         fileInputRef.current?.clearFiles();
@@ -41,7 +40,9 @@ export const FileHandlerStepOne = ({
                     onSchemaChange(option);
                 }}
             >
-                <option value="">- Select -</option>
+                <option value="" disabled>
+                    - Select -
+                </option>
                 {schemaOptions.map(({ title, value }) => (
                     <option key={value} value={value}>
                         {title}
