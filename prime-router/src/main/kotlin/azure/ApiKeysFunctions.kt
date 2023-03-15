@@ -18,7 +18,7 @@ import gov.cdc.prime.router.tokens.SenderUtils
 import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
-class ApiKeysFunctions : Logging {
+class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
 
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
@@ -90,7 +90,6 @@ class ApiKeysFunctions : Logging {
 
             val updatedOrganization = Organization(organization, updatedKeys)
 
-            val settingsFacade = SettingsFacade.common
             settingsFacade.putSetting(
                 SettingType.ORGANIZATION.name,
                 JacksonMapperUtilities.defaultMapper.writeValueAsString(updatedOrganization),
