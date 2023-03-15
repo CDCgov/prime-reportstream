@@ -32,14 +32,12 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.DateUtilities
@@ -52,7 +50,6 @@ import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDate
@@ -61,7 +58,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
-import kotlin.IllegalStateException
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1304,69 +1300,5 @@ OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
         val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(rawMessage, "\r")
         return parser.parse(cleanedMessage)
-    }
-
-    @Test
-    fun `test convertBatchMessagesToMap long row`() {
-        val batchMessageLongNote =
-            File("./src/test/hl7_test_files/batch_message_too_long_note.hl7")
-                .inputStream().readBytes().toString(Charsets.UTF_8)
-        val oneOrganization = DeepOrganization(
-            "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(
-                Receiver(
-                    "elr",
-                    "phd",
-                    Topic.TEST,
-                    CustomerStatus.INACTIVE,
-                    "one"
-                )
-            )
-        )
-        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val serializer = Hl7Serializer(metadata, settings)
-        val schema = Schema("Name", Topic.FULL_ELR)
-        val sender = FullELRSender("Name", "orgName", Sender.Format.HL7, CustomerStatus.ACTIVE)
-
-        assertThat(
-            serializer.convertBatchMessagesToMap(
-                batchMessageLongNote,
-                schema,
-                sender
-            )
-        ).isNotNull()
-    }
-
-    @Test
-    fun `test convertBatchMessagesToMap long message`() {
-        val batchMessageLongNote =
-            File("./src/test/hl7_test_files/batch_message_too_long_message.hl7")
-                .inputStream().readBytes().toString(Charsets.UTF_8)
-        val oneOrganization = DeepOrganization(
-            "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(
-                Receiver(
-                    "elr",
-                    "phd",
-                    Topic.TEST,
-                    CustomerStatus.INACTIVE,
-                    "one"
-                )
-            )
-        )
-        val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val serializer = Hl7Serializer(metadata, settings)
-
-        assertThrows<IllegalStateException> {
-            serializer.convertBatchMessagesToMap(
-                batchMessageLongNote,
-                Schema("Name", Topic.FULL_ELR),
-                FullELRSender("Name", "orgName", Sender.Format.HL7, CustomerStatus.ACTIVE)
-            )
-        }
     }
 }
