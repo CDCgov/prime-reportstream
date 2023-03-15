@@ -1,0 +1,12 @@
+#defaultAoeToUnknown - would need to add default for each field
+- name: telecommunication-use-code
+  hl7Spec: [ 'PID-14-2' ]
+  value: ['''NET''']
+
+- name: telecommunication-equipment-type
+  hl7Spec: [ 'PID-14-3' ]
+  value: ['''Internet''']
+
+- name: email address
+  hl7Spec: [ 'PID-13-4' ]
+  value: ['''truncated(%resource,8)''']
