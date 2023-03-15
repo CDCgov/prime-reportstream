@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Accordion } from "@trussworks/react-uswds";
+import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 
 import { AuthElement } from "../AuthElement";
@@ -67,11 +67,8 @@ export function MessageDetails() {
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (
-        <>
-            <div
-                className="grid-container margin-bottom-10"
-                data-testid="container"
-            >
+        <GridContainer containerSize="widescreen">
+            <article className="margin-bottom-10" data-testid="container">
                 <div>
                     <h2>Message ID Search</h2>
                     <Button
@@ -190,8 +187,8 @@ export function MessageDetails() {
                         <h3>No Data to Display</h3>
                     </>
                 )}
-            </div>
-        </>
+            </article>
+        </GridContainer>
     );
 }
 

@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../../components/HipaaNotice";
 import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
@@ -15,14 +16,16 @@ const DetailsContent = () => {
     const { reportDetail } = useReportsDetail(reportId!!);
 
     return (
-        <>
-            <Summary report={reportDetail} />
-            <DeliveryInfo report={reportDetail} />
-            {withCatchAndSuspense(
-                <DeliveryFacilitiesTable reportId={reportId!!} />
-            )}
-            <HipaaNotice />
-        </>
+        <GridContainer containerSize="widescreen">
+            <article>
+                <Summary report={reportDetail} />
+                <DeliveryInfo report={reportDetail} />
+                {withCatchAndSuspense(
+                    <DeliveryFacilitiesTable reportId={reportId!!} />
+                )}
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 };
 
