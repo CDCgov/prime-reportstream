@@ -28,11 +28,3 @@ elements:
     + " " + %resource.value.coding.code 
     + " " + %resource.value.coding.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{hl7NteFieldPath}(%{aoeNoteIndex})-3' ]
-
-#  %resource.coding.system
-#      - name: code-system-url-2
-#    # Important to only check http since there are urls defined in the Linux4Health
-#    # coding system map file that are http and others that are https
-#    condition: '%resource.system.startsWith("http")'
-#    value: [ '%resource.system.getCodingSystemMapping()' ]
-#    hl7Spec: [ '%{ceFieldPath}-3' ]

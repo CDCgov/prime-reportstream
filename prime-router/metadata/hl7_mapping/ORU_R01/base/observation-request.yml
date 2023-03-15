@@ -1,5 +1,6 @@
 constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+  senderOrganization: '%resource.basedOn.resolve().performer.resolve()'
 elements:
   - name: request-set-id
     value: [ '%orderIndex  + 1' ]
@@ -20,6 +21,18 @@ elements:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
     schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
+
+  - name: order-identifier
+    condition: '%resource.identifier.type.empty()'
+    value: [ '%resource.identifier[0].value' ]
+    hl7Spec: [ '%{fieldPath}-3-1' ]
+
+  - name: order-organization-identifier
+    condition: '%diagnostic.identifier.type.empty()'
+    resource: '%senderOrganization'
+    constants:
+      organizationIdFieldPath: '%{fieldPath}-3'
+    schema: ../../common/organization-identifier
 
   - name: universal-service
     resource: '%resource.code'

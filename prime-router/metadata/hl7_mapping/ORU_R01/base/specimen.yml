@@ -1,5 +1,7 @@
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
+  senderOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
+  specimen: '%resource'
 elements:
   - name: specimen-set-id
     value: [ '"1"' ]
@@ -20,6 +22,25 @@ elements:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
     schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
+
+  - name: specimen-identifier
+    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
+    value: [ '%resource.identifier[0].value' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-1-1','%{hl7SpecimenFieldPath}-2-2-1' ]
+
+  - name: specimen-organization-identifier
+    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
+    resource: '%senderOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
+    schema: ../../common/organization-identifier
+
+  - name: specimen-organization-identifier-2
+    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
+    resource: '%senderOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
+    schema: ../../common/organization-identifier
 
   - name: specimen-type
 #    condition: '%resource.type.exists()'
