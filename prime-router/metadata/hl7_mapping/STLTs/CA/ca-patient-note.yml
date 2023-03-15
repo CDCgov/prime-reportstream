@@ -1,10 +1,8 @@
 elements:
   - name: aoe-note
     condition: '%resource is Observation'
-    debug: true
-    schema: 'aoe-note'
+    schema: 'ca-aoe-note'
 
-  - name: patient-note
-    debug: true
+  - name: note
     condition: '%resource is String'
-    schema: 'note'
+    schema: '../../ORU_R01/base/note'

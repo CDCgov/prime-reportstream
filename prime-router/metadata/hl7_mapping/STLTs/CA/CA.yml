@@ -136,6 +136,7 @@ elements:
 
   #California requirement: map AOE questions to NTE segments under Patient
   #Appending AOE questions to patient notes
-  - name: patient-notes
+  - name: patient-note
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
+    schema: 'ca-patient-note'
