@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
@@ -14,44 +14,32 @@ import org.hl7.fhir.r4.model.Extension
 
 /**
  * Transform a FHIR bundle based on the [schemaRef].
- * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
- * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
- * the schema validation process.
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-    private val strict: Boolean = false,
 ) : ConfigSchemaProcessor() {
+    private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()
+
     /**
      * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
-     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
-     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
-     * the schema validation process.
      */
     constructor(
         schema: String,
         schemaFolder: String,
-        strict: Boolean = false,
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, schemaFolder),
-        strict = strict,
     )
 
     /**
      * Transform a FHIR bundle based on the [schema] (which includes a folder location).
-     * The transformer will error out if [strict] is set to true and there is an error during the translation. If [strict]
-     * is set to false (the default) then any translation errors are logged as a warning. Note [strict] does not affect
-     * the schema validation process.
      */
     constructor(
         schema: String,
-        strict: Boolean = false,
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
-        strict = strict,
     )
 
     /**
@@ -94,7 +82,7 @@ class FhirTransformer(
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     internal fun transformBasedOnElement(
-        element: FHIRTransformSchemaElement,
+        element: FhirTransformSchemaElement,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
@@ -178,22 +166,29 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base
     ) {
-        if (bundleProperty == null) return
-
-        val pathParts = bundleProperty.split(".")
+        val pathParts = validateAndSplitBundleProperty(bundleProperty)
+        if (pathParts.isNullOrEmpty() || bundleProperty == null)
+            return
         // We start one level down as we use the addChild function to set the value at the end
         var pathToEvaluate = bundleProperty.dropLast(pathParts.last().length + 1)
         val childrenNames = pathParts.dropLast(1).reversed()
         val missingChildren = mutableListOf<String>()
         childrenNames.forEach { childName ->
             if (FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate).isEmpty()) {
+                if (childName.contains('%')) {
+                    logger.error(
+                        "Could not evaluate path '$pathToEvaluate', and cannot dynamically create" +
+                            " components relying on constants."
+                    )
+                    return
+                }
                 pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
                 missingChildren.add(childName)
             } else return@forEach
         }
         if (missingChildren.isNotEmpty()) {
-            println("Missing $missingChildren children. Stopped at: $pathToEvaluate")
-            check(missingChildren.last() != "entry") // We do not need to support entries
+            logger.trace("Missing $missingChildren children. Stopped at: $pathToEvaluate")
+            check(missingChildren.last() != "entry") { "Can't add missing entry." } // We do not need to support entries
         }
         // Now go on reverse and create the needed children
         val parent = FhirPathUtils.evaluate(context, focusResource, bundle, pathToEvaluate)
@@ -213,9 +208,35 @@ class FhirTransformer(
         }
         // Finally set the value
         val property = childResource.getNamedProperty(pathParts.last())
-        val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode)
-        childResource.setProperty(pathParts.last(), newValue)
+        if (property != null) {
+            val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
+            childResource.setProperty(pathParts.last(), newValue)
+        } else {
+            logger.error("Could not find property '${pathParts.last()}'.")
+        }
+    }
+
+    /**
+     * Returns a non-empty list of path parts represented by the `bundleProperty`,
+     * or an empty list if the input was not usable.
+     */
+    internal fun validateAndSplitBundleProperty(bundleProperty: String?): List<String> {
+        if (bundleProperty.isNullOrBlank()) {
+            logger.error("bundleProperty was not set.")
+            return emptyList()
+        }
+
+        val pathParts = bundleProperty.split(".")
+        if (pathParts.size < 2) {
+            logger.error("Expected at least 2 parts in bundle property '$bundleProperty'.")
+            return emptyList()
+        } else if (pathParts.last().contains('%')) {
+            logger.error(
+                "Constants not supported in lowest level component of bundle property, found" +
+                    " '${pathParts.last()}'."
+            )
+            return emptyList()
+        }
+        return pathParts
     }
 }
-
-private val extensionRegex = """^extension\(["']([^'"]+)["']\)""".toRegex()

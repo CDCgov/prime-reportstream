@@ -18,7 +18,7 @@ class FhirTransformSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        val goodElement = FHIRTransformSchemaElement(value = listOf("final"), bundleProperty = "%resource.status")
+        val goodElement = FhirTransformSchemaElement(value = listOf("final"), bundleProperty = "%resource.status")
         schema = FhirTransformSchema(mutableListOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
@@ -44,34 +44,34 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test validate schema element`() {
-        var element = FHIRTransformSchemaElement()
+        var element = FhirTransformSchemaElement()
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement("name")
+        element = FhirTransformSchemaElement("name")
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement("name", value = listOf("final"))
+        element = FhirTransformSchemaElement("name", value = listOf("final"))
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement("name", value = listOf("final"), bundleProperty = "%resource.status")
+        element = FhirTransformSchemaElement("name", value = listOf("final"), bundleProperty = "%resource.status")
         assertThat(element.validate()).isEmpty()
 
         element =
-            FHIRTransformSchemaElement("name", value = listOf("final", "partial"), bundleProperty = "%resource.status")
+            FhirTransformSchemaElement("name", value = listOf("final", "partial"), bundleProperty = "%resource.status")
         assertThat(element.validate()).isEmpty()
 
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", value = listOf("final"), schema = "schema", bundleProperty = "%resource.status"
         )
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement("name", schema = "schema")
+        element = FhirTransformSchemaElement("name", schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement("name", value = listOf("final"), schema = "schema")
+        element = FhirTransformSchemaElement("name", value = listOf("final"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name",
             value = listOf("final"),
             resource = "%resource.status",
@@ -83,37 +83,37 @@ class FhirTransformSchemaTests {
         // Check on resource index
         val aSchema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement(
+                FhirTransformSchemaElement(
                     "name",
                     value = listOf("final"),
                     bundleProperty = "%resource.status"
                 )
             )
         )
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", schema = "someSchema", schemaRef = aSchema, resourceIndex = "someIndex"
         )
         assertThat(element.validate()).isNotEmpty()
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", schema = "someSchema", schemaRef = aSchema, resourceIndex = "someIndex",
             resource = "someResource"
         )
         assertThat(element.validate()).isEmpty()
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", value = listOf("someValue"), resourceIndex = "someIndex",
             resource = "someResource"
         )
         assertThat(element.validate()).isNotEmpty()
 
         // Check on constants
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", value = listOf("someValue"), constants = sortedMapOf("const1" to ""),
             bundleProperty = "%resource.status"
         )
         val errors = element.validate()
         assertThat(errors).isEmpty()
 
-        element = FHIRTransformSchemaElement(
+        element = FhirTransformSchemaElement(
             "name", value = listOf("someValue"),
             constants = sortedMapOf("const1" to "value"),
             bundleProperty = "%resource.status"
@@ -123,19 +123,19 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test validate schema with schemas`() {
-        val goodElement = FHIRTransformSchemaElement(
+        val goodElement = FhirTransformSchemaElement(
             "name", value = listOf("final"),
             bundleProperty = "%resource.status"
         )
         var childSchema = FhirTransformSchema(elements = mutableListOf(goodElement))
-        var elementWithSchema = FHIRTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
+        var elementWithSchema = FhirTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
         var topSchema = FhirTransformSchema(mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
-        var badElement = FHIRTransformSchemaElement("name", value = listOf("final")) // No bundleProperty = error
+        var badElement = FhirTransformSchemaElement("name", value = listOf("final")) // No bundleProperty = error
         childSchema = FhirTransformSchema(elements = mutableListOf(badElement))
-        elementWithSchema = FHIRTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
+        elementWithSchema = FhirTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
         topSchema = FhirTransformSchema(mutableListOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()
         assertThat(topSchema.errors).isNotEmpty()
@@ -143,8 +143,8 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test merge of element`() {
-        fun newParent(): FHIRTransformSchemaElement {
-            return FHIRTransformSchemaElement(
+        fun newParent(): FhirTransformSchemaElement {
+            return FhirTransformSchemaElement(
                 "name", condition = "condition1",
                 schema = "schema1", schemaRef = FhirTransformSchema(), resource = "resource1", resourceIndex = "index1",
                 value = listOf("value1"), constants = sortedMapOf("k1" to "v1"), bundleProperty = "%resource.status"
@@ -152,10 +152,10 @@ class FhirTransformSchemaTests {
         }
 
         val originalElement = newParent()
-        val elementA = FHIRTransformSchemaElement("name")
+        val elementA = FhirTransformSchemaElement("name")
         val parentElement = newParent().merge(elementA)
-        assertThat(parentElement is FHIRTransformSchemaElement)
-        if (parentElement is FHIRTransformSchemaElement) {
+        assertThat(parentElement is FhirTransformSchemaElement)
+        if (parentElement is FhirTransformSchemaElement) {
             assertAll {
                 assertThat(parentElement.condition).isEqualTo(originalElement.condition)
                 assertThat(parentElement.schema).isEqualTo(originalElement.schema)
@@ -172,7 +172,7 @@ class FhirTransformSchemaTests {
             }
         }
 
-        val elementB = FHIRTransformSchemaElement(
+        val elementB = FhirTransformSchemaElement(
             "name",
             condition = "condition2",
             schema = "schema2",
@@ -182,8 +182,8 @@ class FhirTransformSchemaTests {
             bundleProperty = "%resource.status"
         )
         val parentElementB = newParent().merge(elementB)
-        assertThat(parentElementB is FHIRTransformSchemaElement)
-        if (parentElementB is FHIRTransformSchemaElement) {
+        assertThat(parentElementB is FhirTransformSchemaElement)
+        if (parentElementB is FhirTransformSchemaElement) {
             assertAll {
                 assertThat(parentElementB.condition).isEqualTo(elementB.condition)
                 assertThat(parentElementB.schema).isEqualTo(elementB.schema)
@@ -200,15 +200,15 @@ class FhirTransformSchemaTests {
             }
         }
 
-        val elementC = FHIRTransformSchemaElement(
+        val elementC = FhirTransformSchemaElement(
             "name", condition = "condition3",
             schema = "schema3", schemaRef = FhirTransformSchema(), resource = "resource3", resourceIndex = "index3",
             value = listOf("value3"), constants = sortedMapOf("k3" to "v3"), bundleProperty = "%resource.status"
         )
         val parentElementC = newParent().merge(elementC)
 
-        assertThat(parentElementC is FHIRTransformSchemaElement)
-        if (parentElementC is FHIRTransformSchemaElement) {
+        assertThat(parentElementC is FhirTransformSchemaElement)
+        if (parentElementC is FhirTransformSchemaElement) {
             assertAll {
                 assertThat(parentElementC.condition).isEqualTo(elementC.condition)
                 assertThat(parentElementC.schema).isEqualTo(elementC.schema)
@@ -228,7 +228,7 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test invalid merge of element`() {
-        val elementA = FHIRTransformSchemaElement("name")
+        val elementA = FhirTransformSchemaElement("name")
         val elementB = ConverterSchemaElement("name")
         assertThat { elementA.merge(elementB) }.isFailure()
     }
@@ -237,17 +237,17 @@ class FhirTransformSchemaTests {
     fun `test find element`() {
         val childSchema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement("child1"),
-                FHIRTransformSchemaElement("child2"),
-                FHIRTransformSchemaElement("child3")
+                FhirTransformSchemaElement("child1"),
+                FhirTransformSchemaElement("child2"),
+                FhirTransformSchemaElement("child3")
             )
         )
         val schema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement("parent1"),
-                FHIRTransformSchemaElement("parent2"),
-                FHIRTransformSchemaElement("parent3"),
-                FHIRTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
+                FhirTransformSchemaElement("parent1"),
+                FhirTransformSchemaElement("parent2"),
+                FhirTransformSchemaElement("parent3"),
+                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
             )
         )
 
@@ -259,25 +259,25 @@ class FhirTransformSchemaTests {
     fun `test merge of schemas`() {
         val childSchema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement("child1"),
-                FHIRTransformSchemaElement("child2"),
-                FHIRTransformSchemaElement("child3")
+                FhirTransformSchemaElement("child1"),
+                FhirTransformSchemaElement("child2"),
+                FhirTransformSchemaElement("child3")
             )
         )
         val schema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement("parent1"),
-                FHIRTransformSchemaElement("parent2"),
-                FHIRTransformSchemaElement("parent3"),
-                FHIRTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
+                FhirTransformSchemaElement("parent1"),
+                FhirTransformSchemaElement("parent2"),
+                FhirTransformSchemaElement("parent3"),
+                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
             )
         )
 
         val extendedSchema = FhirTransformSchema(
             elements = mutableListOf(
-                FHIRTransformSchemaElement("parent1"),
-                FHIRTransformSchemaElement("child2", condition = "condition1"),
-                FHIRTransformSchemaElement("newElement1"),
+                FhirTransformSchemaElement("parent1"),
+                FhirTransformSchemaElement("child2", condition = "condition1"),
+                FhirTransformSchemaElement("newElement1"),
             )
         )
 

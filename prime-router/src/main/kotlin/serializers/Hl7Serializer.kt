@@ -60,6 +60,7 @@ import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
 
+const val BUFFER_CAPACITY = 40000
 class Hl7Serializer(
     val metadata: Metadata,
     val settings: SettingsProvider
@@ -150,7 +151,7 @@ class Hl7Serializer(
         val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
-        val nextMessage = StringBuilder()
+        val nextMessage = StringBuilder(BUFFER_CAPACITY)
         var messageIndex = 1
 
         /**

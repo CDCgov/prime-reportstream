@@ -1,4 +1,5 @@
 @use 'uswds-core' as *;
+@use "uswds_custom_theme" as *;
 
 /*
 * * * * * ==============================
@@ -109,8 +110,19 @@ main {
 // TABLE
 
 .usa-table {
-  display: block;
-  overflow-x: auto;
+    width: 100%;
+
+    @media (max-width: $tablet) {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+// MODAL
+
+.usa-modal__main {
+  word-wrap: break-word;
+  width: 100%;
 }
 
 // MEDIA: DESKTOP

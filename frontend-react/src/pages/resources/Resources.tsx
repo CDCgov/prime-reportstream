@@ -1,3 +1,5 @@
+import { GridContainer } from "@trussworks/react-uswds";
+
 import { IACardGridProps } from "../../components/Content/Templates/IACardGridTemplate";
 import {
     resourcesDirectories,
@@ -22,4 +24,10 @@ const rootProps: IATemplateProps<IACardGridProps> = {
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */
-export const Resources = () => <IATemplate {...rootProps} {...rootProps} />;
+export function Resources() {
+    return (
+        <GridContainer>
+            <IATemplate {...rootProps} />
+        </GridContainer>
+    );
+}

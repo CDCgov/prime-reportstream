@@ -31,6 +31,43 @@
 
 ---
 
+**Name**: employed_in_healthcare
+
+**ReportStream Internal Name**: employed_in_healthcare
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95418-0
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+Y|Y|LOCAL
+N|NO|LOCAL
+N|N|LOCAL
+UNK|Unknown|LOCAL
+UNK|U|LOCAL
+UNK|UNK|LOCAL
+UNK|N/A|LOCAL
+UNK|NA|LOCAL
+UNK|NR|LOCAL
+UNK|NP|LOCAL
+UNK|maybe|LOCAL
+
+**Documentation**:
+Translate multiple inbound Y/N/U AOE values to RS values
+---
+
 **Name**: equipment_model_name
 
 **ReportStream Internal Name**: equipment_model_name
@@ -69,6 +106,117 @@
 
 **Documentation**:
 Accension number
+---
+
+**Name**: first_test
+
+**ReportStream Internal Name**: first_test
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95417-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+Y|Y|LOCAL
+N|NO|LOCAL
+N|N|LOCAL
+UNK|Unknown|LOCAL
+UNK|U|LOCAL
+UNK|UNK|LOCAL
+UNK|N/A|LOCAL
+UNK|NA|LOCAL
+UNK|NR|LOCAL
+UNK|NP|LOCAL
+UNK|maybe|LOCAL
+
+**Documentation**:
+Translate multiple inbound Y/N/U AOE values to RS values
+---
+
+**Name**: hospitalized
+
+**ReportStream Internal Name**: hospitalized
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+Y|Y|LOCAL
+N|NO|LOCAL
+N|N|LOCAL
+UNK|Unknown|LOCAL
+UNK|U|LOCAL
+UNK|UNK|LOCAL
+UNK|N/A|LOCAL
+UNK|NA|LOCAL
+UNK|NR|LOCAL
+UNK|NP|LOCAL
+UNK|maybe|LOCAL
+
+**Documentation**:
+Translate multiple inbound Y/N/U AOE values to RS values
+---
+
+**Name**: icu
+
+**ReportStream Internal Name**: icu
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+Y|Y|LOCAL
+N|NO|LOCAL
+N|N|LOCAL
+UNK|Unknown|LOCAL
+UNK|U|LOCAL
+UNK|UNK|LOCAL
+UNK|N/A|LOCAL
+UNK|NA|LOCAL
+UNK|NR|LOCAL
+UNK|NP|LOCAL
+UNK|maybe|LOCAL
+
+**Documentation**:
+Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
 **Name**: illness_onset_date
@@ -1080,6 +1228,50 @@ The patient's second address line
 The patient's zip code
 ---
 
+**Name**: pregnant
+
+**ReportStream Internal Name**: pregnant
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 82810-3
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+77386006|Pregnant|SNOMED_CT
+77386006|Currently Pregnant|SNOMED_CT
+77386006|Y|SNOMED_CT
+77386006|YES|SNOMED_CT
+77386006|77386006|SNOMED_CT
+60001007|Not Pregnant|SNOMED_CT
+60001007|Not Currently Pregnant|SNOMED_CT
+60001007|N|SNOMED_CT
+60001007|NO|SNOMED_CT
+60001007|60001007|SNOMED_CT
+261665006|Unknown|SNOMED_CT
+261665006|U|SNOMED_CT
+261665006|UNK|SNOMED_CT
+261665006|N/A|SNOMED_CT
+261665006|NA|SNOMED_CT
+261665006|NR|SNOMED_CT
+261665006|NP|SNOMED_CT
+261665006|maybe|SNOMED_CT
+261665006|261665006|SNOMED_CT
+
+**Documentation**:
+Translate multiple inbound values into the Pregnancy SNOMED Codes
+---
+
 **Name**: processing_mode_code
 
 **ReportStream Internal Name**: processing_mode_code
@@ -1119,6 +1311,110 @@ P|P|HL7
 
 **Documentation**:
 P, D, or T for Production, Debugging, or Training
+---
+
+**Name**: residence_type
+
+**ReportStream Internal Name**: residence_type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 75617-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+22232009|22232009|SNOMED_CT
+2081004|Hospital Ship|SNOMED_CT
+2081004|2081004|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+32074000|32074000|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+224929004|224929004|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+42665001|42665001|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+30629002|30629002|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+74056004|74056004|SNOMED_CT
+722173008|Prison-based Care Site|SNOMED_CT
+722173008|Prison Based Care Site|SNOMED_CT
+722173008|722173008|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+20078004|20078004|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+257573002|257573002|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+224683003|224683003|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+284546000|284546000|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+257628001|257628001|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+310207003|310207003|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+57656006|Prison|SNOMED_CT
+57656006|Correctional Facility|SNOMED_CT
+57656006|Jail|SNOMED_CT
+57656006|County Jail|SNOMED_CT
+57656006|City Jail|SNOMED_CT
+57656006|57656006|SNOMED_CT
+285113009|Religious Institutional Residence|SNOMED_CT
+285113009|285113009|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+285141008|Work|SNOMED_CT
+285141008|285141008|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+
+**Documentation**:
+Translate multiple inbound values into Residence Type SNOMED codes.
+---
+
+**Name**: resident_congregate_setting
+
+**ReportStream Internal Name**: resident_congregate_setting
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+Y|YES|LOCAL
+Y|Y|LOCAL
+N|NO|LOCAL
+N|N|LOCAL
+UNK|Unknown|LOCAL
+UNK|U|LOCAL
+UNK|UNK|LOCAL
+UNK|N/A|LOCAL
+UNK|NA|LOCAL
+UNK|NR|LOCAL
+UNK|NP|LOCAL
+UNK|maybe|LOCAL
+
+**Documentation**:
+Translate multiple inbound Y/N/U AOE values to RS values
 ---
 
 **Name**: specimen_collection_date

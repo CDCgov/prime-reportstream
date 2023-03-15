@@ -875,7 +875,7 @@ export function AdminReceiverDashboard() {
     }, []);
 
     return (
-        <section className="grid-container">
+        <article>
             <h4>Receiver Status Dashboard</h4>
             <section>
                 CRON job results that check if receivers are working.
@@ -1017,7 +1017,7 @@ export function AdminReceiverDashboard() {
             >
                 <ModalInfoRender subData={currentDataForModal} />
             </Modal>
-        </section>
+        </article>
     );
 }
 

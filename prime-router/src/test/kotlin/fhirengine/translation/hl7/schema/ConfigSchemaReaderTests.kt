@@ -13,8 +13,8 @@ import assertk.assertions.messageContains
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import kotlin.test.Test
 
@@ -234,8 +234,8 @@ class ConfigSchemaReaderTests {
 
         val statusElement = schema.elements.single { it.name == "status" }
 
-        assertThat(statusElement is FHIRTransformSchemaElement).isTrue()
-        if (statusElement is FHIRTransformSchemaElement) {
+        assertThat(statusElement is FhirTransformSchemaElement).isTrue()
+        if (statusElement is FhirTransformSchemaElement) {
             assertThat(statusElement.schema).isNull()
             assertThat(statusElement.constants).isNotNull()
             assertThat(statusElement.condition).isNotNull()
