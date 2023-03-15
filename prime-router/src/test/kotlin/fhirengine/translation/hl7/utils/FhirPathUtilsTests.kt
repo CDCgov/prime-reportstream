@@ -169,6 +169,10 @@ class FhirPathUtilsTests {
         // Hour only or hour and minute only is not supported by FHIR type
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11")))
             .isEqualTo("20150405122211")
+//              TODO: There's no way to turn this off at the moment.
+//                 Need to add support to configure Date precision.
+//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
+
 //        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567")))
 //            .isEqualTo("20150405122211.567")
 //        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891")))
