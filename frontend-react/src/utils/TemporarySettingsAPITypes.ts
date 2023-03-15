@@ -12,6 +12,13 @@ enum Format {
     CSV = "CSV",
     HL7 = "HL7",
     FHIR = "FHIR",
+    PEM = "PEM",
+}
+
+export enum ContentType {
+    "CSV" = "text/csv",
+    "HL7" = "application/hl7-v2",
+    "PEM" = "application/x-x509-ca-cert",
 }
 
 export enum FileType {
