@@ -1,5 +1,7 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: ORU_R01
+constants:
+  lowLevelConstant: "lowLevelValue"
 elements:
   - name: patient-information
     resource: Bundle.entry.resource.ofType(Patient)
