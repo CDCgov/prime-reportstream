@@ -25,10 +25,10 @@ elements:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
     schema: ../common/patient
 
-  - name: patient-note
+  - name: patient-notes
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
-    schema: base/note
+    schema: base/patient-note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '/PATIENT_RESULT/PATIENT'

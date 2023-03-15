@@ -1,0 +1,10 @@
+elements:
+  - name: aoe-note
+    condition: '%resource is Observation'
+    debug: true
+    schema: 'aoe-note'
+
+  - name: patient-note
+    debug: true
+    condition: '%resource is String'
+    schema: 'note'
