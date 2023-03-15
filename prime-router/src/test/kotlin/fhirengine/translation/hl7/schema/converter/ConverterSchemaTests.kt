@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import kotlin.test.Test
@@ -155,7 +156,7 @@ class ConverterSchemaTests {
     }
 
     @Test
-    fun `test merge of element`() {
+    fun `test extension of element`() {
         fun newParent(): ConverterSchemaElement {
             return ConverterSchemaElement(
                 "name", condition = "condition1", required = true,
@@ -166,24 +167,24 @@ class ConverterSchemaTests {
 
         val originalElement = newParent()
         val elementA = ConverterSchemaElement("name")
-        val parentElement = newParent().merge(elementA)
-        assertThat(parentElement is ConverterSchemaElement)
-        if (parentElement is ConverterSchemaElement) {
+        val mergedElement = elementA.extend(newParent())
+        assertThat(mergedElement is ConverterSchemaElement)
+        if (mergedElement is ConverterSchemaElement) {
             assertAll {
-                assertThat(parentElement.condition).isEqualTo(originalElement.condition)
-                assertThat(parentElement.required).isEqualTo(originalElement.required)
-                assertThat(parentElement.schema).isEqualTo(originalElement.schema)
-                assertThat(parentElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
-                assertThat(parentElement.resource).isEqualTo(originalElement.resource)
-                assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
-                assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-                assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
-                parentElement.value
+                assertThat(mergedElement.condition).isEqualTo(originalElement.condition)
+                assertThat(mergedElement.required).isEqualTo(originalElement.required)
+                assertThat(mergedElement.schema).isEqualTo(originalElement.schema)
+                assertThat(mergedElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
+                assertThat(mergedElement.resource).isEqualTo(originalElement.resource)
+                assertThat(mergedElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
+                assertThat(mergedElement.value.size).isEqualTo(originalElement.value.size)
+                assertThat(mergedElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
+                assertThat(mergedElement.constants.size).isEqualTo(originalElement.constants.size)
+                mergedElement.value
                     .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElement.hl7Spec
+                mergedElement.hl7Spec
                     .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElement.constants
+                mergedElement.constants
                     .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
@@ -192,24 +193,24 @@ class ConverterSchemaTests {
             "name", condition = "condition2", required = false,
             schema = "schema2", schemaRef = ConverterSchema(), resource = "resource2", resourceIndex = "index2"
         )
-        val parentElementB = newParent().merge(elementB)
-        assertThat(parentElementB is ConverterSchemaElement)
-        if (parentElementB is ConverterSchemaElement) {
+        val mergedElementB = elementB.extend(newParent())
+        assertThat(mergedElementB is ConverterSchemaElement)
+        if (mergedElementB is ConverterSchemaElement) {
             assertAll {
-                assertThat(parentElementB.condition).isEqualTo(elementB.condition)
-                assertThat(parentElementB.required).isEqualTo(elementB.required)
-                assertThat(parentElementB.schema).isEqualTo(elementB.schema)
-                assertThat(parentElementB.schemaRef).isEqualTo(elementB.schemaRef)
-                assertThat(parentElementB.resource).isEqualTo(elementB.resource)
-                assertThat(parentElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
-                assertThat(parentElementB.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElementB.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-                assertThat(parentElementB.constants.size).isEqualTo(originalElement.constants.size)
-                parentElementB.value
+                assertThat(mergedElementB.condition).isEqualTo(elementB.condition)
+                assertThat(mergedElementB.required).isEqualTo(elementB.required)
+                assertThat(mergedElementB.schema).isEqualTo(elementB.schema)
+                assertThat(mergedElementB.schemaRef).isEqualTo(elementB.schemaRef)
+                assertThat(mergedElementB.resource).isEqualTo(elementB.resource)
+                assertThat(mergedElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
+                assertThat(mergedElementB.value.size).isEqualTo(originalElement.value.size)
+                assertThat(mergedElementB.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
+                assertThat(mergedElementB.constants.size).isEqualTo(originalElement.constants.size)
+                mergedElementB.value
                     .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElementB.hl7Spec
+                mergedElementB.hl7Spec
                     .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElementB.constants
+                mergedElementB.constants
                     .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
@@ -219,35 +220,42 @@ class ConverterSchemaTests {
             schema = "schema3", schemaRef = ConverterSchema(), resource = "resource3", resourceIndex = "index3",
             value = listOf("value3"), hl7Spec = listOf("hl7spec3"), constants = sortedMapOf("k3" to "v3")
         )
-        val parentElementC = newParent().merge(elementC)
+        val mergedElementC = elementC.extend(newParent())
 
-        assertThat(parentElementC is ConverterSchemaElement)
-        if (parentElementC is ConverterSchemaElement) {
+        assertThat(mergedElementC is ConverterSchemaElement)
+        if (mergedElementC is ConverterSchemaElement) {
             assertAll {
-                assertThat(parentElementC.condition).isEqualTo(elementC.condition)
-                assertThat(parentElementC.required).isEqualTo(originalElement.required)
-                assertThat(parentElementC.schema).isEqualTo(elementC.schema)
-                assertThat(parentElementC.schemaRef).isEqualTo(elementC.schemaRef)
-                assertThat(parentElementC.resource).isEqualTo(elementC.resource)
-                assertThat(parentElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
-                assertThat(parentElementC.value.size).isEqualTo(elementC.value.size)
-                assertThat(parentElementC.hl7Spec.size).isEqualTo(elementC.hl7Spec.size)
-                assertThat(parentElementC.constants.size).isEqualTo(elementC.constants.size)
-                parentElementC.value
+                assertThat(mergedElementC.condition).isEqualTo(elementC.condition)
+                assertThat(mergedElementC.required).isEqualTo(originalElement.required)
+                assertThat(mergedElementC.schema).isEqualTo(elementC.schema)
+                assertThat(mergedElementC.schemaRef).isEqualTo(elementC.schemaRef)
+                assertThat(mergedElementC.resource).isEqualTo(elementC.resource)
+                assertThat(mergedElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
+                assertThat(mergedElementC.value.size).isEqualTo(elementC.value.size)
+                assertThat(mergedElementC.hl7Spec.size).isEqualTo(elementC.hl7Spec.size)
+                assertThat(mergedElementC.constants.size).isEqualTo(elementC.constants.size)
+                mergedElementC.value
                     .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
-                parentElementC.hl7Spec
+                mergedElementC.hl7Spec
                     .forEachIndexed { index, hl7Spec -> assertThat(elementC.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElementC.constants
+                mergedElementC.constants
                     .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
             }
         }
     }
 
     @Test
-    fun `test invalid merge of element`() {
+    fun `test invalid extension of element`() {
         val elementA = ConverterSchemaElement("name")
         val elementB = FhirTransformSchemaElement("name")
-        assertThat { elementA.merge(elementB) }.isFailure()
+        assertThat { elementA.extend(elementB) }.isFailure()
+    }
+
+    @Test
+    fun `test extension of schema with unnamed element`() {
+        val schemaA = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
+        val schemaB = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
+        assertThat { schemaA.extend(schemaB) }.isFailure()
     }
 
     @Test
@@ -273,36 +281,65 @@ class ConverterSchemaTests {
     }
 
     @Test
-    fun `test merge of schemas`() {
-        val childSchema = ConverterSchema(
-            elements = mutableListOf(
-                ConverterSchemaElement("child1"),
-                ConverterSchemaElement("child2"),
-                ConverterSchemaElement("child3")
-            )
-        )
-        val schema = ConverterSchema(
-            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
-            elements = mutableListOf(
-                ConverterSchemaElement("parent1"),
-                ConverterSchemaElement("parent2"),
-                ConverterSchemaElement("parent3"),
-                ConverterSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
-            )
-        )
-
-        val extendedSchema = ConverterSchema(
+    fun `test extension of schemas`() {
+        val baseSchema = ConverterSchema(
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(
                 ConverterSchemaElement("parent1", required = true),
                 ConverterSchemaElement("child2", condition = "condition1"),
                 ConverterSchemaElement("newElement1"),
-            )
+            ),
+            constants = sortedMapOf(Pair("K1", "baseV1"), Pair("K2", "baseV2"), Pair("K3", "baseV3")),
         )
+        baseSchema.name = "baseSchema"
 
-        schema.merge(extendedSchema)
-        assertThat((schema.elements[0]).required).isEqualTo((extendedSchema.elements[0]).required)
-        assertThat(childSchema.elements[1].condition).isEqualTo(extendedSchema.elements[1].condition)
-        assertThat(schema.elements.last().name).isEqualTo(extendedSchema.elements[2].name)
+        val parentSchema = ConverterSchema(constants = sortedMapOf(Pair("K2", "parentV2")))
+        parentSchema.name = "parentSchema"
+        parentSchema.extend(baseSchema)
+
+        val referencedSchema = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement("child1"),
+                ConverterSchemaElement("child2"),
+                ConverterSchemaElement("child3")
+            ),
+            constants = sortedMapOf(Pair("K3", "refV3"), Pair("K5", "refV5")),
+        )
+        val schema = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement("parent1"),
+                ConverterSchemaElement("parent2"),
+                ConverterSchemaElement("parent3"),
+                ConverterSchemaElement("schemaElement", schema = "childSchema", schemaRef = referencedSchema)
+            ),
+            constants = sortedMapOf(Pair("K1", "testV1"), Pair("K4", "testV4")),
+        )
+        schema.name = "testSchema"
+        schema.extend(parentSchema)
+
+        assertThat((schema.elements[0]).required).isEqualTo((baseSchema.elements[0]).required)
+        assertThat(referencedSchema.elements[1].condition).isEqualTo(baseSchema.elements[1].condition)
+        assertThat(schema.elements.last().name).isEqualTo(baseSchema.elements[2].name)
+        assertThat(schema.name).isEqualTo("testSchema")
+        assertThat(schema.hl7Class).isEqualTo("ca.uhn.hl7v2.model.v251.message.ORU_R01")
+        assertThat(schema.constants["K1"]).isEqualTo("testV1")
+        assertThat(schema.constants["K2"]).isEqualTo("parentV2")
+        assertThat(schema.constants["K3"]).isEqualTo("baseV3")
+        assertThat(schema.constants["K4"]).isEqualTo("testV4")
+        assertThat(schema.constants["K5"]).isNull()
+        assertThat(parentSchema.name).isEqualTo("parentSchema")
+        assertThat(parentSchema.constants["K1"]).isEqualTo("baseV1")
+        assertThat(parentSchema.constants["K2"]).isEqualTo("parentV2")
+        assertThat(parentSchema.constants["K4"]).isNull()
+        assertThat(parentSchema.constants["K5"]).isNull()
+        assertThat(baseSchema.name).isEqualTo("baseSchema")
+        assertThat(baseSchema.constants["K1"]).isEqualTo("baseV1")
+        assertThat(baseSchema.constants["K2"]).isEqualTo("baseV2")
+        assertThat(baseSchema.constants["K4"]).isNull()
+        assertThat(baseSchema.constants["K5"]).isNull()
+        assertThat(referencedSchema.constants["K1"]).isNull()
+        assertThat(referencedSchema.constants["K3"]).isEqualTo("refV3")
+        assertThat(referencedSchema.constants["K4"]).isNull()
+        assertThat(referencedSchema.constants["K5"]).isEqualTo("refV5")
     }
 }

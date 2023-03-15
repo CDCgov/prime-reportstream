@@ -42,11 +42,11 @@ class ConverterSchema(
         return super.validate(isChildSchema)
     }
 
-    override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
+    override fun extend(parentSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
         apply {
-            check(childSchema is ConverterSchema) { "Child schema ${childSchema.name} not a ConverterSchema." }
-            childSchema.hl7Class?.let { this.hl7Class = childSchema.hl7Class }
-            super.merge(childSchema)
+            check(parentSchema is ConverterSchema) { "Parent schema ${parentSchema.name} not a ConverterSchema." }
+            this.hl7Class = this.hl7Class ?: parentSchema.hl7Class
+            super.extend(parentSchema)
         }
 }
 
@@ -103,11 +103,11 @@ class ConverterSchemaElement(
         return super.validate()
     }
 
-    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        check(overwritingElement is ConverterSchemaElement) {
-            "Overwriting element ${overwritingElement.name} was not a ConverterSchemaElement."
+    override fun extend(parentElement: ConfigSchemaElement): ConfigSchemaElement = apply {
+        check(parentElement is ConverterSchemaElement) {
+            "Overwriting element ${parentElement.name} was not a ConverterSchemaElement."
         }
-        if (overwritingElement.hl7Spec.isNotEmpty()) this.hl7Spec = overwritingElement.hl7Spec
-        super.merge(overwritingElement)
+        if (this.hl7Spec.isEmpty()) this.hl7Spec = parentElement.hl7Spec
+        super.extend(parentElement)
     }
 }

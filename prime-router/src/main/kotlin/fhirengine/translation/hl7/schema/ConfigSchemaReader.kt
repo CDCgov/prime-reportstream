@@ -54,20 +54,21 @@ object ConfigSchemaReader : Logging {
      * @return a merged schema
      */
     private fun mergeSchemas(schemaList: List<ConfigSchema<*>>): ConfigSchema<*> {
-        val parentSchema = schemaList.last()
+        var parentSchema = schemaList.last()
         for (i in (schemaList.size - 2) downTo 0) {
             val childSchema = schemaList[i]
             when {
                 // Need to smart cast so the compiler knows which merge is being called
                 parentSchema is ConverterSchema && childSchema is ConverterSchema ->
-                    parentSchema.merge(childSchema)
+                    childSchema.extend(parentSchema)
                 parentSchema is FhirTransformSchema && childSchema is FhirTransformSchema ->
-                    parentSchema.merge(childSchema)
+                    childSchema.extend(parentSchema)
                 else ->
                     throw SchemaException(
                         "Parent schema ${parentSchema.name} and child schema ${childSchema.name} of incompatible types"
                     )
             }
+            parentSchema = childSchema
         }
         return parentSchema
     }

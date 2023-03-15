@@ -18,11 +18,13 @@ class FhirTransformSchema(
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
 ) : ConfigSchema<FhirTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
-    override fun merge(childSchema: ConfigSchema<FhirTransformSchemaElement>):
+    override fun extend(parentSchema: ConfigSchema<FhirTransformSchemaElement>):
         ConfigSchema<FhirTransformSchemaElement> =
         apply {
-            check(childSchema is FhirTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
-            super.merge(childSchema)
+            check(parentSchema is FhirTransformSchema) {
+                "Parent schema ${parentSchema.name} not a FHIRTransformSchema."
+            }
+            super.extend(parentSchema)
         }
 }
 
@@ -79,11 +81,11 @@ class FhirTransformSchemaElement(
         return super.validate()
     }
 
-    override fun merge(overwritingElement: ConfigSchemaElement): ConfigSchemaElement = apply {
-        check(overwritingElement is FhirTransformSchemaElement) {
-            "Overwriting element ${overwritingElement.name} was not a FHIRTransformSchemaElement."
+    override fun extend(parentElement: ConfigSchemaElement): ConfigSchemaElement = apply {
+        check(parentElement is FhirTransformSchemaElement) {
+            "Parent element ${parentElement.name} was not a FhirTransformSchemaElement."
         }
-        overwritingElement.bundleProperty?.let { this.bundleProperty = overwritingElement.bundleProperty }
-        super.merge(overwritingElement)
+        this.bundleProperty = this.bundleProperty ?: parentElement.bundleProperty
+        super.extend(parentElement)
     }
 }

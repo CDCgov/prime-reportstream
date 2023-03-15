@@ -89,21 +89,25 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Merge a [childSchema] into this one.
+     * Extend a [parentSchema] by pulling content from the parent into this one.
      * @return the reference to the schema
      */
-    open fun merge(childSchema: ConfigSchema<T>) = apply {
-        childSchema.elements.forEach { childElement ->
+    open fun extend(parentSchema: ConfigSchema<T>) = apply {
+        parentSchema.elements.forEach { parentElement ->
             // If we find the element in the schema then replace it, otherwise add it.
-            if (childElement.name.isNullOrBlank()) {
-                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+            if (parentElement.name.isNullOrBlank()) {
+                throw SchemaException("Parent schema ${parentSchema.name} found with element with no name.")
             }
-            val elementInSchema = findElement(childElement.name!!)
-            if (elementInSchema != null) {
-                elementInSchema.merge(childElement)
+            val elementInChildSchema = findElement(parentElement.name!!)
+            if (elementInChildSchema != null) {
+                elementInChildSchema.extend(parentElement)
             } else {
-                this.elements.add(childElement)
+                this.elements.add(parentElement)
             }
+        }
+        parentSchema.constants.forEach { parentConstant ->
+            if (!this.constants.containsKey(parentConstant.key))
+                this.constants += Pair(parentConstant.key, parentConstant.value)
         }
     }
 
@@ -208,19 +212,19 @@ abstract class ConfigSchemaElement(
     }
 
     /**
-     * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
+     * Extend an [parentElement] taking on only those properties that don't already have values.
      * @return the reference to the element
      */
-    open fun merge(overwritingElement: ConfigSchemaElement) = apply {
-        overwritingElement.condition?.let { this.condition = overwritingElement.condition }
-        overwritingElement.required?.let { this.required = overwritingElement.required }
-        overwritingElement.schema?.let { this.schema = overwritingElement.schema }
-        overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
-        overwritingElement.resource?.let { this.resource = overwritingElement.resource }
-        overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
-        if (overwritingElement.debug) this.debug = overwritingElement.debug
-        if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
-        if (overwritingElement.valueSet.isNotEmpty()) this.valueSet = overwritingElement.valueSet
-        if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
+    open fun extend(parentElement: ConfigSchemaElement) = apply {
+        this.condition = this.condition ?: parentElement.condition
+        this.required = this.required ?: parentElement.required
+        this.schema = this.schema ?: parentElement.schema
+        this.schemaRef = this.schemaRef ?: parentElement.schemaRef
+        this.resource = this.resource ?: parentElement.resource
+        this.resourceIndex = this.resourceIndex ?: parentElement.resourceIndex
+        if (!this.debug) this.debug = parentElement.debug
+        if (this.value.isEmpty()) this.value = parentElement.value
+        if (this.valueSet.isEmpty()) this.valueSet = parentElement.valueSet
+        if (this.constants.isEmpty()) this.constants = parentElement.constants
     }
 }

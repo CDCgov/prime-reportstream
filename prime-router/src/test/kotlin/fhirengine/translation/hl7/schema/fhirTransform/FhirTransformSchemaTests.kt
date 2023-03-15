@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import kotlin.test.Test
@@ -133,7 +134,7 @@ class FhirTransformSchemaTests {
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
-        var badElement = FhirTransformSchemaElement("name", value = listOf("final")) // No bundleProperty = error
+        val badElement = FhirTransformSchemaElement("name", value = listOf("final")) // No bundleProperty = error
         childSchema = FhirTransformSchema(elements = mutableListOf(badElement))
         elementWithSchema = FhirTransformSchemaElement("name", schema = "schemaName", schemaRef = childSchema)
         topSchema = FhirTransformSchema(mutableListOf(elementWithSchema))
@@ -142,7 +143,7 @@ class FhirTransformSchemaTests {
     }
 
     @Test
-    fun `test merge of element`() {
+    fun `test extension of element`() {
         fun newParent(): FhirTransformSchemaElement {
             return FhirTransformSchemaElement(
                 "name", condition = "condition1",
@@ -153,21 +154,21 @@ class FhirTransformSchemaTests {
 
         val originalElement = newParent()
         val elementA = FhirTransformSchemaElement("name")
-        val parentElement = newParent().merge(elementA)
-        assertThat(parentElement is FhirTransformSchemaElement)
-        if (parentElement is FhirTransformSchemaElement) {
+        val mergedElement = elementA.extend(newParent())
+        assertThat(mergedElement is FhirTransformSchemaElement)
+        if (mergedElement is FhirTransformSchemaElement) {
             assertAll {
-                assertThat(parentElement.condition).isEqualTo(originalElement.condition)
-                assertThat(parentElement.schema).isEqualTo(originalElement.schema)
-                assertThat(parentElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
-                assertThat(parentElement.resource).isEqualTo(originalElement.resource)
-                assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
-                assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
-                assertThat(parentElement.bundleProperty).isEqualTo(originalElement.bundleProperty)
-                parentElement.value
+                assertThat(mergedElement.condition).isEqualTo(originalElement.condition)
+                assertThat(mergedElement.schema).isEqualTo(originalElement.schema)
+                assertThat(mergedElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
+                assertThat(mergedElement.resource).isEqualTo(originalElement.resource)
+                assertThat(mergedElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
+                assertThat(mergedElement.value.size).isEqualTo(originalElement.value.size)
+                assertThat(mergedElement.constants.size).isEqualTo(originalElement.constants.size)
+                assertThat(mergedElement.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                mergedElement.value
                     .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElement.constants
+                mergedElement.constants
                     .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
@@ -181,21 +182,21 @@ class FhirTransformSchemaTests {
             resourceIndex = "index2",
             bundleProperty = "%resource.status"
         )
-        val parentElementB = newParent().merge(elementB)
-        assertThat(parentElementB is FhirTransformSchemaElement)
-        if (parentElementB is FhirTransformSchemaElement) {
+        val mergedElementB = elementB.extend(newParent())
+        assertThat(mergedElementB is FhirTransformSchemaElement)
+        if (mergedElementB is FhirTransformSchemaElement) {
             assertAll {
-                assertThat(parentElementB.condition).isEqualTo(elementB.condition)
-                assertThat(parentElementB.schema).isEqualTo(elementB.schema)
-                assertThat(parentElementB.schemaRef).isEqualTo(elementB.schemaRef)
-                assertThat(parentElementB.resource).isEqualTo(elementB.resource)
-                assertThat(parentElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
-                assertThat(parentElementB.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElementB.constants.size).isEqualTo(originalElement.constants.size)
-                assertThat(parentElementB.bundleProperty).isEqualTo(originalElement.bundleProperty)
-                parentElementB.value
+                assertThat(mergedElementB.condition).isEqualTo(elementB.condition)
+                assertThat(mergedElementB.schema).isEqualTo(elementB.schema)
+                assertThat(mergedElementB.schemaRef).isEqualTo(elementB.schemaRef)
+                assertThat(mergedElementB.resource).isEqualTo(elementB.resource)
+                assertThat(mergedElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
+                assertThat(mergedElementB.value.size).isEqualTo(originalElement.value.size)
+                assertThat(mergedElementB.constants.size).isEqualTo(originalElement.constants.size)
+                assertThat(mergedElementB.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                mergedElementB.value
                     .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElementB.constants
+                mergedElementB.constants
                     .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
@@ -205,32 +206,39 @@ class FhirTransformSchemaTests {
             schema = "schema3", schemaRef = FhirTransformSchema(), resource = "resource3", resourceIndex = "index3",
             value = listOf("value3"), constants = sortedMapOf("k3" to "v3"), bundleProperty = "%resource.status"
         )
-        val parentElementC = newParent().merge(elementC)
+        val mergedElementC = elementC.extend(newParent())
 
-        assertThat(parentElementC is FhirTransformSchemaElement)
-        if (parentElementC is FhirTransformSchemaElement) {
+        assertThat(mergedElementC is FhirTransformSchemaElement)
+        if (mergedElementC is FhirTransformSchemaElement) {
             assertAll {
-                assertThat(parentElementC.condition).isEqualTo(elementC.condition)
-                assertThat(parentElementC.schema).isEqualTo(elementC.schema)
-                assertThat(parentElementC.schemaRef).isEqualTo(elementC.schemaRef)
-                assertThat(parentElementC.resource).isEqualTo(elementC.resource)
-                assertThat(parentElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
-                assertThat(parentElementC.value.size).isEqualTo(elementC.value.size)
-                assertThat(parentElementC.constants.size).isEqualTo(elementC.constants.size)
-                assertThat(parentElementC.bundleProperty).isEqualTo(originalElement.bundleProperty)
-                parentElementC.value
+                assertThat(mergedElementC.condition).isEqualTo(elementC.condition)
+                assertThat(mergedElementC.schema).isEqualTo(elementC.schema)
+                assertThat(mergedElementC.schemaRef).isEqualTo(elementC.schemaRef)
+                assertThat(mergedElementC.resource).isEqualTo(elementC.resource)
+                assertThat(mergedElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
+                assertThat(mergedElementC.value.size).isEqualTo(elementC.value.size)
+                assertThat(mergedElementC.constants.size).isEqualTo(elementC.constants.size)
+                assertThat(mergedElementC.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                mergedElementC.value
                     .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
-                parentElementC.constants
+                mergedElementC.constants
                     .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
             }
         }
     }
 
     @Test
-    fun `test invalid merge of element`() {
+    fun `test invalid extension of element`() {
         val elementA = FhirTransformSchemaElement("name")
         val elementB = ConverterSchemaElement("name")
-        assertThat { elementA.merge(elementB) }.isFailure()
+        assertThat { elementA.extend(elementB) }.isFailure()
+    }
+
+    @Test
+    fun `test extension of schema with unnamed element`() {
+        val schemaA = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        val schemaB = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        assertThat { schemaA.extend(schemaB) }.isFailure()
     }
 
     @Test
@@ -256,33 +264,63 @@ class FhirTransformSchemaTests {
     }
 
     @Test
-    fun `test merge of schemas`() {
-        val childSchema = FhirTransformSchema(
+    fun `test extension of schemas`() {
+        val baseSchema = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement("parent1", required = true),
+                FhirTransformSchemaElement("child2", condition = "condition1"),
+                FhirTransformSchemaElement("newElement1"),
+            ),
+            constants = sortedMapOf(Pair("K1", "baseV1"), Pair("K2", "baseV2"), Pair("K3", "baseV3")),
+        )
+        baseSchema.name = "baseSchema"
+
+        val parentSchema = FhirTransformSchema(constants = sortedMapOf(Pair("K2", "parentV2")))
+        parentSchema.name = "parentSchema"
+        parentSchema.extend(baseSchema)
+
+        val referencedSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FhirTransformSchemaElement("child1"),
                 FhirTransformSchemaElement("child2"),
                 FhirTransformSchemaElement("child3")
-            )
+            ),
+            constants = sortedMapOf(Pair("K3", "refV3"), Pair("K5", "refV5")),
         )
         val schema = FhirTransformSchema(
             elements = mutableListOf(
                 FhirTransformSchemaElement("parent1"),
                 FhirTransformSchemaElement("parent2"),
                 FhirTransformSchemaElement("parent3"),
-                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
-            )
+                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = referencedSchema)
+            ),
+            constants = sortedMapOf(Pair("K1", "testV1"), Pair("K4", "testV4")),
         )
+        schema.name = "testSchema"
+        schema.extend(parentSchema)
 
-        val extendedSchema = FhirTransformSchema(
-            elements = mutableListOf(
-                FhirTransformSchemaElement("parent1"),
-                FhirTransformSchemaElement("child2", condition = "condition1"),
-                FhirTransformSchemaElement("newElement1"),
-            )
-        )
-
-        schema.merge(extendedSchema)
-        assertThat(childSchema.elements[1].condition).isEqualTo(extendedSchema.elements[1].condition)
-        assertThat(schema.elements.last().name).isEqualTo(extendedSchema.elements[2].name)
+        assertThat((schema.elements[0]).required).isEqualTo((baseSchema.elements[0]).required)
+        assertThat(referencedSchema.elements[1].condition).isEqualTo(baseSchema.elements[1].condition)
+        assertThat(schema.elements.last().name).isEqualTo(baseSchema.elements[2].name)
+        assertThat(schema.name).isEqualTo("testSchema")
+        assertThat(schema.constants["K1"]).isEqualTo("testV1")
+        assertThat(schema.constants["K2"]).isEqualTo("parentV2")
+        assertThat(schema.constants["K3"]).isEqualTo("baseV3")
+        assertThat(schema.constants["K4"]).isEqualTo("testV4")
+        assertThat(schema.constants["K5"]).isNull()
+        assertThat(parentSchema.name).isEqualTo("parentSchema")
+        assertThat(parentSchema.constants["K1"]).isEqualTo("baseV1")
+        assertThat(parentSchema.constants["K2"]).isEqualTo("parentV2")
+        assertThat(parentSchema.constants["K4"]).isNull()
+        assertThat(parentSchema.constants["K5"]).isNull()
+        assertThat(baseSchema.name).isEqualTo("baseSchema")
+        assertThat(baseSchema.constants["K1"]).isEqualTo("baseV1")
+        assertThat(baseSchema.constants["K2"]).isEqualTo("baseV2")
+        assertThat(baseSchema.constants["K4"]).isNull()
+        assertThat(baseSchema.constants["K5"]).isNull()
+        assertThat(referencedSchema.constants["K1"]).isNull()
+        assertThat(referencedSchema.constants["K3"]).isEqualTo("refV3")
+        assertThat(referencedSchema.constants["K4"]).isNull()
+        assertThat(referencedSchema.constants["K5"]).isEqualTo("refV5")
     }
 }
