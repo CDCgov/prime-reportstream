@@ -37,7 +37,7 @@ const ServiceDisplay = ({
     handleSetActive: (v: string) => void;
 }) => {
     return (
-        <div className="grid-container grid-col-12">
+        <div className="grid-col-12">
             {services && services?.length > 1 ? (
                 <ServicesDropdown
                     services={services}
@@ -216,16 +216,12 @@ export const DeliveriesTable = () => {
     if (loadingServices) return <Spinner />;
 
     if (isDisabled) {
-        return (
-            <div className="grid-container">
-                <AdminFetchAlert />
-            </div>
-        );
+        return <AdminFetchAlert />;
     }
 
     if (!loadingServices && !activeService)
         return (
-            <div className="grid-container usa-section margin-bottom-10">
+            <div className="usa-section margin-bottom-10">
                 <NoServicesBanner
                     featureName="Active Services"
                     organization=""
