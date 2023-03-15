@@ -19,7 +19,7 @@ export interface ManagePublicKeyFormProps {
 
 const BASE_ACCEPT_VALUE = ".pem";
 
-export const ManagePublicKeyForm = ({
+export const ManagePublicKeyUpload = ({
     handleSubmit,
     handleFileChange,
     handleBack,

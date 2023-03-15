@@ -23,7 +23,7 @@ import useManagePublicKey, {
 } from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
 import { ContentType } from "../../utils/TemporarySettingsAPITypes";
 
-import { ManagePublicKeyForm } from "./ManagePublicKeyForm";
+import { ManagePublicKeyUpload } from "./ManagePublicKeyUpload";
 
 const LightbulbIcon = Icon.Lightbulb;
 
@@ -159,7 +159,7 @@ const SendersDisplay = ({ senders }: { senders: RSSender[] }) => {
             )}
             {showUploadDisplay && !isWorking && (
                 // Do we want to reuse the FileHandlerForm component???
-                <ManagePublicKeyForm
+                <ManagePublicKeyUpload
                     handleSubmit={handleSubmit}
                     handleFileChange={handleFileChange}
                     handleBack={handleBack}
