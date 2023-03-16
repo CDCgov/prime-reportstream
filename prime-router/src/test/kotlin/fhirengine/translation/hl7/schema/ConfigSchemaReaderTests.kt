@@ -218,6 +218,7 @@ class ConfigSchemaReaderTests {
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.constants["baseConstant"]).isEqualTo("baseValue")
         assertThat(schema.constants["lowLevelConstant"]).isEqualTo("lowLevelValue")
+        assertThat(schema.constants["overriddenConstant"]).isEqualTo("overriddenValue")
         assertThat(schema.name).isEqualTo("ORU_R01_extends")
     }
 
