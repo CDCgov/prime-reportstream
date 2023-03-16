@@ -74,6 +74,10 @@ abstract class Sender(
      */
     abstract fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender
 
+    // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8659
+    // This is a utility created to help migrate keys to organizations and can be removed after the migration is done
+    abstract fun makeCopyWithKeyList(): Sender
+
     /**
      * Makes a copy of the concrete Sender
      */
@@ -223,12 +227,12 @@ class FullELRSender : Sender {
         primarySubmissionMethod
     )
 
-    constructor(copy: FullELRSender) : this(
+    constructor(copy: FullELRSender, shouldEmptyKeys: Boolean = false) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
-        if (copy.keys != null) ArrayList(copy.keys) else null
+        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -246,6 +250,10 @@ class FullELRSender : Sender {
      */
     override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
         return FullELRSender(this, scope, jwk)
+    }
+
+    override fun makeCopyWithKeyList(): Sender {
+        return FullELRSender(this, true)
     }
 
     /**
@@ -294,14 +302,14 @@ open class TopicSender : Sender, HasSchema {
         this.schemaName = schemaName
     }
 
-    constructor(copy: TopicSender) : this(
+    constructor(copy: TopicSender, shouldEmptyKeys: Boolean = false) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
         copy.topic,
-        if (copy.keys != null) ArrayList(copy.keys) else null
+        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -321,6 +329,10 @@ open class TopicSender : Sender, HasSchema {
      */
     override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
         return TopicSender(this, scope, jwk)
+    }
+
+    override fun makeCopyWithKeyList(): Sender {
+        return TopicSender(this, true)
     }
 
     /**
@@ -371,13 +383,13 @@ class CovidSender : TopicSender, HasSchema {
         primarySubmissionMethod
     )
 
-    constructor(copy: CovidSender) : this(
+    constructor(copy: CovidSender, shouldEmptyKeys: Boolean = false) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null) ArrayList(copy.keys) else null
+        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -403,6 +415,10 @@ class CovidSender : TopicSender, HasSchema {
      */
     override fun makeCopy(): Sender {
         return CovidSender(this)
+    }
+
+    override fun makeCopyWithKeyList(): Sender {
+        return CovidSender(this, true)
     }
 }
 
@@ -436,13 +452,13 @@ class MonkeypoxSender : TopicSender, HasSchema {
         primarySubmissionMethod
     )
 
-    constructor(copy: MonkeypoxSender) : this(
+    constructor(copy: MonkeypoxSender, shouldEmptyKeys: Boolean = false) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null) ArrayList(copy.keys) else null
+        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -475,5 +491,9 @@ class MonkeypoxSender : TopicSender, HasSchema {
      */
     override fun consistencyErrorMessage(metadata: Metadata): String? {
         return null
+    }
+
+    override fun makeCopyWithKeyList(): Sender {
+        return MonkeypoxSender(this, true)
     }
 }
