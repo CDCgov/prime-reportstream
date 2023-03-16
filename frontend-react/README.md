@@ -12,9 +12,9 @@ Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--u
 Then:
 
 ```bash
-nvm install 16.19.x # refer to nvmrc for exact current version
-node -v # v16.19.x
-npm -v # v8.x.x
+nvm install 18.15.x # refer to nvmrc for exact current version
+node -v # v18.15.x
+npm -v # v9.5.x
 
 npm install --global yarn
 ```

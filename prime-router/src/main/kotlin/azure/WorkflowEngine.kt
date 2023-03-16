@@ -358,7 +358,7 @@ class WorkflowEngine(
                         Event.EventAction.RESEND,
                         nextEvent.eventAction,
                         nextEvent.at,
-                        RetryToken(1, retryItems).toJSON(),
+                        RetryToken(0, retryItems).toJSON(), // retryCount=0 will start at [1]
                         txn
                     )
                     msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
