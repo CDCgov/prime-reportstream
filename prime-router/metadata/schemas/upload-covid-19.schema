@@ -420,7 +420,7 @@ elements:
       cardinality: ONE 
       csvFields: [{name: ordering_facility_city}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_city)
 
     - name: ordering_facility_state_fromCSV
       type: TEXT
@@ -444,13 +444,13 @@ elements:
       cardinality: ONE 
       csvFields: [{name: ordering_facility_zip_code}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_zip_code)
 
     - name: ordering_facility_phone_number
       cardinality: ONE 
       csvFields: [{name: ordering_facility_phone_number}]
       mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number, ordering_facility_street_temp)
+      mapper: ifNotPresent($mode:lookup, testing_lab_phone_number)
 
 
 ################ Reporting Facility Info
