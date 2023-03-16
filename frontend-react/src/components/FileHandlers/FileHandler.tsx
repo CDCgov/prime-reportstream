@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -260,82 +261,86 @@ function FileHandler() {
     }
 
     return (
-        <div className="grid-container usa-section margin-bottom-10">
-            <h1 className="margin-top-0 margin-bottom-5">
-                ReportStream File Validator
-            </h1>
-            <h2 className="font-sans-lg">{organization?.description}</h2>
-            {fileName && (
-                <>
-                    <p
-                        id="validatedFilename"
-                        className="text-normal text-base margin-bottom-0"
-                    >
-                        File name
-                    </p>
-                    <p className="margin-top-05">{fileName}</p>
-                </>
-            )}
-            {isFileSuccess && warnings.length === 0 && (
-                <FileSuccessDisplay
-                    extendedMetadata={{
-                        destinations,
-                        timestamp: successTimestamp,
-                        reportId,
-                    }}
-                    heading="Validate another file"
-                    message={successDescription}
-                    showExtendedMetadata={false}
-                />
-            )}
-            {warnings.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.WARNING}
-                    data={warnings}
-                    message="The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
-                    heading="File validated with recommended edits"
-                />
-            )}
-            {errors.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.ERROR}
-                    data={errors}
-                    message={errorMessaging.message}
-                    heading={errorMessaging.heading}
-                />
-            )}
-            {hasQualityFilterMessages && (
-                <FileQualityFilterDisplay
-                    destinations={qualityFilterMessages}
-                    heading=""
-                    message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
-                />
-            )}
-            {isWorking && <FileHandlerSpinner message="Processing file..." />}
-            {!isWorking && (
-                <FileHandlerForm
-                    handleSubmit={handleSubmit}
-                    handleFileChange={handleFileChange}
-                    resetState={resetState}
-                    fileInputResetValue={fileInputResetValue}
-                    submitted={submitted}
-                    cancellable={cancellable}
-                    fileName={fileName}
-                    fileType={fileType}
-                    formLabel={formLabel}
-                    resetText="Validate another file"
-                    submitText="Validate"
-                    schemaOptions={schemaOptions}
-                    selectedSchemaOption={selectedSchemaOption}
-                    onSchemaChange={(schemaOption) =>
-                        dispatch({
-                            type: FileHandlerActionType.SCHEMA_SELECTED,
-                            payload: schemaOption,
-                        })
-                    }
-                />
-            )}
-        </div>
+        <GridContainer>
+            <article className="usa-section">
+                <h1 className="margin-top-0 margin-bottom-5">
+                    ReportStream File Validator
+                </h1>
+                <h2 className="font-sans-lg">{organization?.description}</h2>
+                {fileName && (
+                    <>
+                        <p
+                            id="validatedFilename"
+                            className="text-normal text-base margin-bottom-0"
+                        >
+                            File name
+                        </p>
+                        <p className="margin-top-05">{fileName}</p>
+                    </>
+                )}
+                {isFileSuccess && warnings.length === 0 && (
+                    <FileSuccessDisplay
+                        extendedMetadata={{
+                            destinations,
+                            timestamp: successTimestamp,
+                            reportId,
+                        }}
+                        heading="Validate another file"
+                        message={successDescription}
+                        showExtendedMetadata={false}
+                    />
+                )}
+                {warnings.length > 0 && (
+                    <RequestedChangesDisplay
+                        title={RequestLevel.WARNING}
+                        data={warnings}
+                        message="The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
+                        heading="File validated with recommended edits"
+                    />
+                )}
+                {errors.length > 0 && (
+                    <RequestedChangesDisplay
+                        title={RequestLevel.ERROR}
+                        data={errors}
+                        message={errorMessaging.message}
+                        heading={errorMessaging.heading}
+                    />
+                )}
+                {hasQualityFilterMessages && (
+                    <FileQualityFilterDisplay
+                        destinations={qualityFilterMessages}
+                        heading=""
+                        message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
+                    />
+                )}
+                {isWorking && (
+                    <FileHandlerSpinner message="Processing file..." />
+                )}
+                {!isWorking && (
+                    <FileHandlerForm
+                        handleSubmit={handleSubmit}
+                        handleFileChange={handleFileChange}
+                        resetState={resetState}
+                        fileInputResetValue={fileInputResetValue}
+                        submitted={submitted}
+                        cancellable={cancellable}
+                        fileName={fileName}
+                        fileType={fileType}
+                        formLabel={formLabel}
+                        resetText="Validate another file"
+                        submitText="Validate"
+                        schemaOptions={schemaOptions}
+                        selectedSchemaOption={selectedSchemaOption}
+                        onSchemaChange={(schemaOption) =>
+                            dispatch({
+                                type: FileHandlerActionType.SCHEMA_SELECTED,
+                                payload: schemaOption,
+                            })
+                        }
+                    />
+                )}
+            </article>
+        </GridContainer>
     );
 }
 
