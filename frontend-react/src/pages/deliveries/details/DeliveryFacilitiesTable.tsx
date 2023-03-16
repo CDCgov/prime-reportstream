@@ -24,7 +24,7 @@ function DeliveryFacilitiesTable(props: FacilitiesTableProps) {
     };
 
     return (
-        <section id="facilities" className="grid-container margin-bottom-5">
+        <section id="facilities" className="margin-bottom-5">
             <h2>Facilities reporting ({reportFacilities?.length || 0})</h2>
             <Table config={tableConfig} />
         </section>

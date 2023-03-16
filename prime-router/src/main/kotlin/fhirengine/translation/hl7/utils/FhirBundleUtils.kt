@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Base64BinaryType
@@ -40,7 +41,7 @@ object FhirBundleUtils : Logging {
      * Converts a [value] of type [sourceType] into a compatible Base of type [targetType]. Returns the original value
      * and logs an error if the conversion is not supported.
      */
-    fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
+    fun convertFhirType(value: Base, sourceType: String, targetType: String, logger: KotlinLogger = this.logger): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
         } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {

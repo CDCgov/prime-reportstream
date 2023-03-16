@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import React from "react";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDashboard";
@@ -8,14 +9,15 @@ import { AuthElement } from "../../components/AuthElement";
 
 export function AdminReceiverDashPage() {
     return (
-        <>
+        <GridContainer containerSize="widescreen">
             <Helmet>
                 <title>Admin Destination Dashboard</title>
             </Helmet>
-            <section className="grid-container margin-top-0" />
-            <AdminReceiverDashboard />
-            <HipaaNotice />
-        </>
+            <article>
+                <AdminReceiverDashboard />
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 }
 

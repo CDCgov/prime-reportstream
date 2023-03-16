@@ -7,14 +7,21 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.verify
+import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
@@ -22,6 +29,24 @@ import org.hl7.fhir.r4.model.StringType
 import kotlin.test.Test
 
 class FhirTransformerTests {
+
+    /**
+     * Return a FhirTransformer and a mocked KotlinLogger using the given [schema].
+     */
+    private fun setupFhirTransformer(schema: FhirTransformSchema): Pair<FhirTransformer, KotlinLogger> {
+        val logger = mockkClass(KotlinLogger::class)
+        val transformer = spyk(FhirTransformer(schema))
+        every { transformer.logger }.returns(logger)
+        every { logger.warn(any<String>()) }.returns(Unit)
+        every { logger.error(any<String>()) }.returns(Unit)
+        every { logger.trace(any<String>()) }.returns(Unit)
+        return Pair(transformer, logger)
+    }
+
+    private fun verifyErrorAndResetLogger(logger: KotlinLogger) {
+        verify(exactly = 1) { logger.error(any<String>()) }
+        clearMocks(logger, answers = false)
+    }
 
     @Test
     fun `test transform with nested schemas`() {
@@ -32,16 +57,16 @@ class FhirTransformerTests {
         // root -> A -> C
         //      -> B
         val elemB =
-            FHIRTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
+            FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
         val elemC =
-            FHIRTransformSchemaElement(
+            FhirTransformSchemaElement(
                 "elementC",
                 value = listOf("'654321'"),
                 bundleProperty = "%resource.id"
             )
 
         val childSchema = FhirTransformSchema(elements = mutableListOf(elemC))
-        val elemA = FHIRTransformSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
+        val elemA = FhirTransformSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
 
         val rootSchema =
             FhirTransformSchema(elements = mutableListOf(elemA, elemB))
@@ -78,7 +103,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -115,7 +140,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -150,7 +175,7 @@ class FhirTransformerTests {
         origBundle.addEntry().resource = resource
 
         // Resource doesn't exist, so make sure bundle isn't updated
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'First Last'"),
             resource = "Bundle.entry.resource.ofType(Patient).contact",
@@ -166,7 +191,7 @@ class FhirTransformerTests {
         assertThat(newValue).isEmpty()
 
         // Resource does exist, make sure bundle is updated with Patient.contact
-        val elemB = FHIRTransformSchemaElement(
+        val elemB = FhirTransformSchemaElement(
             "elementB",
             value = listOf("'other'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -220,7 +245,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("true"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -248,7 +273,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("'someValue'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -276,7 +301,7 @@ class FhirTransformerTests {
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
-        val elemA = FHIRTransformSchemaElement(
+        val elemA = FhirTransformSchemaElement(
             "elementA",
             value = listOf("Bundle.entry.resource.ofType(Patient).contact.name", "%resource.contact.name", "Bundle.id"),
             resource = "Bundle.entry.resource.ofType(Patient)",
@@ -332,26 +357,22 @@ class FhirTransformerTests {
 
     @Test
     fun `test set bundle property failures`() {
+        val (transformer, logger) = setupFhirTransformer(FhirTransformSchema())
+
         val bundle = Bundle()
         bundle.id = "abc123"
+
+        // Can't currently create entry on the fly
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(DiagnosticReport).status", CodeType("final"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+
         val patient = Patient()
         patient.id = "def456"
         bundle.addEntry().resource = patient
-        val transformer = FhirTransformer(FhirTransformSchema())
-
-        // Incompatible value types
-        assertThat {
-            transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
-                CustomContext(bundle, bundle), bundle, bundle
-            )
-        }.isFailure()
-        assertThat {
-            transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
-                CustomContext(bundle, bundle), bundle, bundle
-            )
-        }.isFailure()
 
         // Can't currently create new resources on the fly
         assertThat {
@@ -362,12 +383,196 @@ class FhirTransformerTests {
         }.isFailure()
 
         // Improper extension format
+        transformer.setBundleProperty(
+            "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verifyErrorAndResetLogger(logger)
+
+        // Invalid bundleProperties
+        transformer.setBundleProperty(
+            "", IdType("newId"),
+            CustomContext(bundle, bundle), bundle, bundle
+        )
+        verifyErrorAndResetLogger(logger)
+
+        transformer.setBundleProperty(
+            "%key.text", StringType("SomeName"),
+            CustomContext(
+                bundle,
+                bundle,
+                constants = mutableMapOf(Pair("key", "Bundle.entry.resource.ofType(Patient).name"))
+            ),
+            bundle, bundle
+        )
+        verifyErrorAndResetLogger(logger)
+
+        // Incompatible value types
         assertThat {
             transformer.setBundleProperty(
-                "Bundle.entry.resource.ofType(Patient).extension(regexNonMatch).value[x]", IdType("newId"),
+                "Bundle.entry.resource.ofType(Patient).name.text", CodeableConcept(),
                 CustomContext(bundle, bundle), bundle, bundle
             )
         }.isFailure()
+        verifyErrorAndResetLogger(logger)
+
+        assertThat {
+            transformer.setBundleProperty(
+                "Bundle.entry.resource.ofType(Patient).active", StringType("nonBoolean"),
+                CustomContext(bundle, bundle), bundle, bundle
+            )
+        }.isFailure()
+        verifyErrorAndResetLogger(logger)
+    }
+
+    @Test
+    fun `test validate and split bundleProperty`() {
+        val (transformer, logger) = setupFhirTransformer(FhirTransformSchema())
+
+        transformer.validateAndSplitBundleProperty("")
+        verifyErrorAndResetLogger(logger)
+
+        transformer.validateAndSplitBundleProperty("id")
+        verifyErrorAndResetLogger(logger)
+
+        transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
+        verifyErrorAndResetLogger(logger)
+    }
+
+    @Test
+    fun `test schema level constants`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        patient.name = listOf(HumanName())
+        bundle.addEntry().resource = patient
+
+        val elementA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("%testId"),
+            resource = "%testRes",
+            bundleProperty = "%testRes.id"
+        )
+        val elementB = FhirTransformSchemaElement(
+            "elementB",
+            value = listOf("%testName"),
+            resource = "%testRes",
+            bundleProperty = "%testPath.text"
+        )
+        val elementC = FhirTransformSchemaElement(
+            "elementC",
+            value = listOf("%testActive"),
+            resource = "%testRes",
+            bundleProperty = "%resource.active"
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA, elementB, elementC),
+                constants = sortedMapOf(
+                    Pair("testId", "'12345'"),
+                    Pair("testName", "'SomeName'"),
+                    Pair("testActive", "true"),
+                    Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+                    Pair("testPath", "Bundle.entry.resource.ofType(Patient).name[0]"),
+                )
+            )
+        val transformer = FhirTransformer(schema)
+        transformer.transform(bundle)
+        assertThat(patient.id).isEqualTo("12345")
+        assertThat(patient.name[0].text).isEqualTo("SomeName")
+        assertThat(patient.active).isTrue()
+    }
+
+    @Test
+    fun `test element level constants`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+
+        val elementA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("%testId"),
+            resource = "%testRes",
+            bundleProperty = "%resource.id",
+            constants = sortedMapOf(
+                Pair("testId", "'12345'"),
+                Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+            ),
+        )
+        val elementB = FhirTransformSchemaElement(
+            "elementB",
+            value = listOf("%testId", "'backupValue'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name.text",
+        )
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA, elementB),
+            )
+        val transformer = FhirTransformer(schema)
+        transformer.transform(bundle)
+        assertThat(patient.id).isEqualTo("12345")
+        assertThat(patient.name[0].text).isEqualTo("backupValue")
+    }
+
+    @Test
+    fun `test constant inheritance`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        patient.id = "def456"
+        bundle.addEntry().resource = patient
+
+        val elementA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("%testActive"),
+            resource = "%testRes",
+            bundleProperty = "%resource.active",
+            constants = sortedMapOf(
+                Pair("testId", "'12345'"),
+                Pair("testRes", "Bundle.entry.resource.ofType(Patient)"),
+                Pair("testActive", "true"),
+            ),
+        )
+        val elementB = FhirTransformSchemaElement(
+            "elementB",
+            value = listOf("%testId", "%otherTestId", "%defaultName", "'none'"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name.text",
+        )
+
+        val childElement = FhirTransformSchemaElement(
+            "childElement",
+            value = listOf("%testId", "%otherTestId", "%defaultId"),
+            resource = "Bundle.entry",
+            bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
+        val elementWithChild = FhirTransformSchemaElement(
+            "elementWithChild",
+            resource = "Bundle.entry",
+            resourceIndex = "myIndexVar",
+            constants = sortedMapOf(Pair("otherTestId", "'abc-def'")),
+            schemaRef = childSchema
+        )
+
+        val schema =
+            FhirTransformSchema(
+                elements = mutableListOf(elementA, elementWithChild, elementB),
+                constants = sortedMapOf(Pair("defaultName", "'backupName'"), Pair("defaultId", "'backupId'"))
+            )
+        val transformer = FhirTransformer(schema)
+
+        transformer.transform(bundle)
+        // Element A used local constant
+        assertThat(patient.active).isTrue()
+        // Element w/ child used element constant in child element, didn't access constants from Element A
+        assertThat(patient.id).isEqualTo("abc-def")
+        // Element B used default value from parent schema since no element constants were accessible
+        assertThat(patient.name[0].text).isEqualTo("backupName")
     }
 
     @Test
@@ -383,14 +588,14 @@ class FhirTransformerTests {
 
         val transformer = FhirTransformer(FhirTransformSchema())
 
-        val childElement = FHIRTransformSchemaElement(
+        val childElement = FhirTransformSchemaElement(
             "childElement",
             value = listOf("%myIndexVar"),
             resource = "Bundle.entry",
             bundleProperty = "Bundle.entry[%myIndexVar].resource.id"
         )
         val childSchema = FhirTransformSchema(elements = mutableListOf(childElement))
-        val element = FHIRTransformSchemaElement(
+        val element = FhirTransformSchemaElement(
             "name",
             resource = "Bundle.entry",
             resourceIndex = "myIndexVar",
