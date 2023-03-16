@@ -234,6 +234,13 @@ class FhirTransformSchemaTests {
     }
 
     @Test
+    fun `test merge of schema with unnamed element`() {
+        val schemaA = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        val schemaB = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        assertThat { schemaA.merge(schemaB) }.isFailure()
+    }
+
+    @Test
     fun `test find element`() {
         val childSchema = FhirTransformSchema(
             elements = mutableListOf(
