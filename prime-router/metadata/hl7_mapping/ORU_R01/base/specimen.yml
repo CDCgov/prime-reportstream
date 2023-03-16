@@ -1,7 +1,6 @@
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
-  senderOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
-  specimen: '%resource'
+  performerOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
 elements:
   - name: specimen-set-id
     value: [ '"1"' ]
@@ -23,27 +22,25 @@ elements:
     schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-  - name: specimen-identifier
-    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
-    value: [ '%resource.identifier[0].value' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-1-1','%{hl7SpecimenFieldPath}-2-2-1' ]
-
+#  If there's only one identifier and system is empty get identifier from performer org
   - name: specimen-organization-identifier
     condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
-    resource: '%senderOrganization'
+    resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
+      identifier: '%specimen.identifier[0].value'
     schema: ../../common/organization-identifier
 
+  #  If there's only one identifier and system is empty get identifier from performer org
   - name: specimen-organization-identifier-2
     condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
-    resource: '%senderOrganization'
+    resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
+      identifier: '%specimen.identifier[0].value'
     schema: ../../common/organization-identifier
 
   - name: specimen-type
-#    condition: '%resource.type.exists()'
     resource: '%resource.type'
     constants:
       versionId: '2.67'
@@ -81,10 +78,7 @@ elements:
     value: [ '%resource.note.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
-  - name: specimen-collection-time-diagnostic
-    condition: '%resource.collection.collected.exists().not()'
-    value: [ '%diagnostic.issued' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
 
   - name: specimen-collection-time
     condition: '%resource.collection.collected is dateTime'
@@ -94,6 +88,12 @@ elements:
   - name: specimen-observation-date-time-start
     condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.start' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+# Alternative to getting specimen collection time from DiagnosticReport instead
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not()'
+    value: [ '%diagnostic.issued' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
   - name: specimen-observation-date-time-end

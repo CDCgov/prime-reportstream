@@ -22,16 +22,12 @@ elements:
     schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-  - name: order-identifier
-    condition: '%resource.identifier.type.empty()'
-    value: [ '%resource.identifier[0].value' ]
-    hl7Spec: [ '%{fieldPath}-3-1' ]
-
   - name: order-organization-identifier
     condition: '%diagnostic.identifier.type.empty()'
     resource: '%senderOrganization'
     constants:
       organizationIdFieldPath: '%{fieldPath}-3'
+      identifier: '%diagnostic.identifier[0].value'
     schema: ../../common/organization-identifier
 
   - name: universal-service

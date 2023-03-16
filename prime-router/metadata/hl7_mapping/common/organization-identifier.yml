@@ -1,4 +1,8 @@
 elements:
+  - name: organization-identifier
+    value: [ '%identifier' ]
+    hl7Spec: [ '%{organizationIdFieldPath}-1' ]
+
   - name: organization-entity-namespace-id
     value: [ '%resource.name' ]
     hl7Spec: [ '%{organizationIdFieldPath}-2' ]
