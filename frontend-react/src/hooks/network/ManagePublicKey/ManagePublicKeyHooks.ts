@@ -2,19 +2,10 @@ import { useReducer } from "react";
 import pick from "lodash.pick";
 
 import {
-    ResponseError,
-    WatersResponse,
-} from "../../../config/endpoints/waters";
-import {
     PAYLOAD_MAX_BYTES,
     PAYLOAD_MAX_KBYTES,
 } from "../../../utils/FileUtils";
 import { ContentType, Format } from "../../../utils/TemporarySettingsAPITypes";
-
-export enum ErrorType {
-    SERVER = "server",
-    FILE = "file",
-}
 
 // Internal state for the hook.
 export interface ManagePublicKeyState {
@@ -23,13 +14,10 @@ export interface ManagePublicKeyState {
     contentType?: ContentType.PEM;
     fileType?: Format.PEM;
     fileName: string;
-    errors: ResponseError[];
+    selectedSender: string;
     reportId: string;
     successTimestamp?: string;
-    cancellable: boolean;
-    errorType?: ErrorType;
     localError: string;
-    overallStatus: string;
 }
 
 export enum ManagePublicKeyActionType {
@@ -39,8 +27,12 @@ export enum ManagePublicKeyActionType {
     REQUEST_COMPLETE = "REQUEST_COMPLETE",
 }
 
+// TODO: Update with correct class when implementing saving of key
 export interface RequestCompletePayload {
-    response: WatersResponse;
+    response: {
+        id?: string;
+        timestamp?: string;
+    };
 }
 
 interface FileSelectedPayload {
@@ -66,12 +58,10 @@ export const INITIAL_STATE = {
     fileInputResetValue: 0,
     fileContent: "",
     fileName: "",
-    errors: [],
+    selectedSender: "",
     reportId: "",
     successTimestamp: "",
-    cancellable: false,
     localError: "",
-    overallStatus: "",
 };
 
 function getInitialState(): ManagePublicKeyState {
@@ -81,13 +71,7 @@ function getInitialState(): ManagePublicKeyState {
 // state for resetting / setting state at beginning of submission
 function getPreSubmitState(): Partial<ManagePublicKeyState> {
     return {
-        ...pick(INITIAL_STATE, [
-            "errors",
-            "reportId",
-            "successTimestamp",
-            "localError",
-            "overallStatus",
-        ]),
+        ...pick(INITIAL_STATE, ["reportId", "successTimestamp", "localError"]),
     };
 }
 
@@ -127,14 +111,12 @@ function calculateFileSelectedState(
             fileType,
             fileName: file.name,
             contentType,
-            cancellable: true,
         };
     } catch (err: any) {
         console.warn(err);
         return {
             ...state,
             localError: `An unexpected error happened: '${err.toString()}'`,
-            cancellable: false,
         };
     }
 }
@@ -145,17 +127,13 @@ function calculateRequestCompleteState(
     payload: RequestCompletePayload
 ): Partial<ManagePublicKeyState> {
     const {
-        response: { id, timestamp, errors, status, overallStatus },
+        response: { id, timestamp },
     } = payload;
 
     return {
         fileInputResetValue: state.fileInputResetValue + 1,
-        errors,
-        cancellable: errors?.length ? true : false,
-        errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
         reportId: id || "",
-        successTimestamp: errors?.length ? "" : timestamp,
-        overallStatus: overallStatus,
+        successTimestamp: timestamp,
     };
 }
 

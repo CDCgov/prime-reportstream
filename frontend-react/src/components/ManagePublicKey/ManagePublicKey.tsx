@@ -173,7 +173,7 @@ const SendersDisplay = ({ senders }: { senders: RSSender[] }) => {
 };
 
 export function ManagePublicKey() {
-    const { sendersIsLoading, senders } = UseOrganizationSenders();
+    const { isLoading, senders } = UseOrganizationSenders();
 
     return (
         <div className="manage-public-key grid-container margin-bottom-5 tablet:margin-top-6">
@@ -196,7 +196,8 @@ export function ManagePublicKey() {
                     </USLink>
                 </span>
             </SiteAlert>
-            {!sendersIsLoading && senders && (
+            {isLoading && <ManagePublicKeySpinner message="Loading..." />}
+            {!isLoading && senders && (
                 <SendersDisplay senders={senders}></SendersDisplay>
             )}
         </GridContainer>

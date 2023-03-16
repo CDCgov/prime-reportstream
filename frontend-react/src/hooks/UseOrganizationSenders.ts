@@ -6,6 +6,11 @@ import { useSessionContext } from "../contexts/SessionContext";
 
 const { senders } = servicesEndpoints;
 
+export type UseOrganizationSendersResult = {
+    senders: RSSender[];
+    isLoading: boolean;
+};
+
 export const UseOrganizationSenders = () => {
     const { activeMembership } = useSessionContext();
 
@@ -19,14 +24,14 @@ export const UseOrganizationSenders = () => {
             }),
         [activeMembership?.parsedName, authorizedFetch]
     );
-    const { data, isLoading, isInitialLoading } = rsUseQuery(
+    const { data, isLoading } = rsUseQuery(
         [senders.queryKey, activeMembership],
-        memoizedDataFetch
-        // {
-        //     enabled:
-        // !!activeMembership?.parsedName && !!activeMembership.service,
-        // }
+        memoizedDataFetch,
+        {
+            enabled:
+                !!activeMembership?.parsedName && !!activeMembership.service,
+        }
     );
 
-    return { senders: data, sendersIsLoading: isLoading, isInitialLoading };
+    return { senders: data, isLoading };
 };
