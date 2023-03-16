@@ -55,6 +55,7 @@ const SendersDisplay = ({ senders }: { senders: RSSender[] }) => {
 
     // TODO: mocked for now - make the call you need when sending the file
     const { sendFile, isWorking } = {
+        // eslint-disable-next-line no-empty-pattern
         sendFile: ({}) => {
             return { fileName: "fileName" };
         },
