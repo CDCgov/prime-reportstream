@@ -18,6 +18,8 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.UUID
 
 class CustomFHIRFunctionsTests {
@@ -68,7 +70,9 @@ class CustomFHIRFunctionsTests {
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
             // todo: this is temporary until this code is moved
-            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
+            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup &&
+                it != CustomFHIRFunctions.CustomFHIRFunctionNames.ChangeTimezone
+            ) {
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
@@ -320,6 +324,56 @@ class CustomFHIRFunctionsTests {
         assertThat {
             CustomFHIRFunctions.livdTableLookup(
                 mutableListOf(Device()), mutableListOf(), UnitTestUtils.simpleMetadata
+            )
+        }.isFailure()
+    }
+
+    @Test
+    fun `test changeTimezone`() {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
+
+        // need to choose place without daylight savings time so that the test is not brittle
+        val pst = StringType().also { it.value = "America/Phoenix" }
+
+        val pstDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(date)),
+            mutableListOf(mutableListOf(pst))
+        )
+        assertThat(pstDate[0].primitiveValue()).isEqualTo("2021-08-09T05:52-07:00[America/Phoenix]")
+
+        // Japan also doesn't have daylight savings time and is an example of a positive time change
+        val jst = StringType().also { it.value = "Asia/Tokyo" }
+        val jstDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(date)),
+            mutableListOf(mutableListOf(jst))
+        )
+        assertThat(jstDate[0].primitiveValue()).isEqualTo("2021-08-09T21:52+09:00[Asia/Tokyo]")
+    }
+
+    @Test
+    fun `test changeTimezone invalid timezone`() {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
+
+        val pst = StringType().also { it.value = "America/Blah" }
+
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType(date)),
+                mutableListOf(mutableListOf(pst))
+            )
+        }.isFailure()
+    }
+
+    @Test
+    fun `test changeTimezone no timezone passed`() {
+        val pst = StringType().also { it.value = "Asia/Tokyo" }
+
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(StringType("2021-08-09T08:52:00W")),
+                mutableListOf(mutableListOf(pst))
             )
         }.isFailure()
     }

@@ -12,6 +12,11 @@ import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.zone.ZoneRulesException
+import java.util.Date
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -33,7 +38,8 @@ object CustomFHIRFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        LivdTableLookup;
+        LivdTableLookup,
+        ChangeTimezone;
 
         companion object {
             /**
@@ -104,6 +110,15 @@ object CustomFHIRFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.ChangeTimezone -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "looks changes the timezome of the date resource to the timezome passed in as the " +
+                        "variable",
+                    1,
+                    1
+                )
+            }
+
             else -> null
         }
     }
@@ -158,6 +173,10 @@ object CustomFHIRFunctions {
 
                 CustomFHIRFunctionNames.LivdTableLookup -> {
                     livdTableLookup(focus, parameters)
+                }
+
+                CustomFHIRFunctionNames.ChangeTimezone -> {
+                    changeTimezone(focus, parameters)
                 }
 
                 else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
@@ -429,6 +448,37 @@ object CustomFHIRFunctions {
             mutableListOf(StringType(null))
         } else {
             mutableListOf(StringType(result))
+        }
+    }
+
+    /**
+     * Using the [focus] as the date to be changed and the [parameters] as the timezone to change it to
+     * @return a date in the new timezone
+     */
+    fun changeTimezone(
+        focus: MutableList<Base>,
+        parameters: MutableList<MutableList<Base>>?
+    ): MutableList<Base> {
+        if (focus.size != 1) {
+            throw SchemaException("Must call changeTimezone on a Date")
+        }
+
+        if (parameters != null && parameters[0].size != 1) {
+            throw SchemaException("Must pass a timezone as the parameter")
+        }
+
+        val timezonePassed = parameters!!.first().first().primitiveValue()
+
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+
+        try {
+            val date: Date = isoFormat.parse(focus[0].primitiveValue())
+            val changedDate = date.toInstant().atZone(ZoneId.of(timezonePassed))
+            return mutableListOf(StringType(changedDate.toString()))
+        } catch (zoneRulesException: ZoneRulesException) {
+            throw SchemaException("Invalid timezone passed. See ZoneId for available timezone values.")
+        } catch (parseException: ParseException) {
+            throw SchemaException("Date does not match expected format.")
         }
     }
 }
