@@ -4,7 +4,9 @@
 ##########################################################################
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-# TODO: Constants are not currently working in sender transforms
+constants:
+  simpleReportClia: '"CDPH000085"'
+  simpleReportName: '"Simple Report"'
 extends: ../../ORU_R01/ORU_R01-base
 elements:
   #########################
@@ -66,12 +68,12 @@ elements:
   - name: sending-facility_namespace-id
     condition: true
     resource: 'Bundle'
-    value: [ '"Simple Report"' ]
+    value: [ '%simpleReportName' ]
 
   - name: sending-facility-universal-id
     condition: true
     resource: 'Bundle'
-    value: [ '"CDPH000085"' ]
+    value: [ '%simpleReportClia' ]
 
   - name: sending-facility-universal-id-type
     condition: true
