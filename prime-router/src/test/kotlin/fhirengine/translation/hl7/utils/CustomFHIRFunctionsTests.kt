@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -8,6 +9,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.DateTimeType
@@ -70,9 +72,13 @@ class CustomFHIRFunctionsTests {
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
             // todo: this is temporary until this code is moved
-            if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup &&
-                it != CustomFHIRFunctions.CustomFHIRFunctionNames.ChangeTimezone
-            ) {
+            if (it == CustomFHIRFunctions.CustomFHIRFunctionNames.ChangeTimezone) {
+                // With bad inputs this will cause an error, but still verifies access to the function
+                assertThat {
+                    CustomFHIRFunctions
+                        .executeFunction(focus, it.name, null)
+                }.isFailure().hasClass(SchemaException::class.java)
+            } else if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)

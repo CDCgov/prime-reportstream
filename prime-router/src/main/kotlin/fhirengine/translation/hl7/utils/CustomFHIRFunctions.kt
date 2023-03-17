@@ -452,7 +452,7 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Using the [focus] as the date to be changed and the [parameters] as the timezone to change it to
+     * Applies a timezone given by [parameters] to a date in [focus] and returns the result
      * @return a date in the new timezone
      */
     fun changeTimezone(
@@ -460,7 +460,7 @@ object CustomFHIRFunctions {
         parameters: MutableList<MutableList<Base>>?
     ): MutableList<Base> {
         if (focus.size != 1) {
-            throw SchemaException("Must call changeTimezone on a Date")
+            throw SchemaException("Must call changeTimezone on a single element")
         }
 
         if (parameters == null || parameters[0].size != 1) {
@@ -476,9 +476,9 @@ object CustomFHIRFunctions {
             val changedDate = date.toInstant().atZone(ZoneId.of(timezonePassed))
             return mutableListOf(StringType(changedDate.toString()))
         } catch (zoneRulesException: ZoneRulesException) {
-            throw SchemaException("Invalid timezone passed. See ZoneId for available timezone values.")
+            throw SchemaException("Invalid timezone $timezonePassed passed. See ZoneId for available timezone values.")
         } catch (parseException: ParseException) {
-            throw SchemaException("Date does not match expected format.")
+            throw SchemaException("DateTime of the expected format not found.")
         }
     }
 }
