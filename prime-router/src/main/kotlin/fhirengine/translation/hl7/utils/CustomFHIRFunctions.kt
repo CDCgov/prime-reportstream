@@ -463,11 +463,11 @@ object CustomFHIRFunctions {
             throw SchemaException("Must call changeTimezone on a Date")
         }
 
-        if (parameters != null && parameters[0].size != 1) {
+        if (parameters == null || parameters[0].size != 1) {
             throw SchemaException("Must pass a timezone as the parameter")
         }
 
-        val timezonePassed = parameters!!.first().first().primitiveValue()
+        val timezonePassed = parameters.first().first().primitiveValue()
 
         val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
 
