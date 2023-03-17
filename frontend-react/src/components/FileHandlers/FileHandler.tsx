@@ -243,6 +243,13 @@ function FileHandler() {
                     errorCount: e.data.errorCount,
                 };
             }
+            showError("File validation error. Please try again.");
+            resetState();
+            dispatch({
+                type: FileHandlerActionType.SCHEMA_SELECTED,
+                payload: selectedSchemaOption,
+            });
+            return;
         }
         if (eventData) {
             trackAppInsightEvent(EventName.FILE_VALIDATOR, {

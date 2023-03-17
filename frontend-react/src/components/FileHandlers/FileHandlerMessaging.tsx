@@ -1,6 +1,4 @@
 import React, { ReactNode, useMemo } from "react";
-import { Button, Icon } from "@trussworks/react-uswds";
-import { ExportToCsv } from "export-to-csv-fix-source-map";
 
 import {
     formattedDateFromTimestamp,
@@ -11,6 +9,7 @@ import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USLink, USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import { DownloadCSVButton } from "../DownloadCSVButton";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -135,28 +134,23 @@ export const RequestedChangesDisplay = ({
                 <>
                     <div className="display-flex flex-justify">
                         <h3>{title}</h3>
-                        <Button
-                            className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
-                            type={"button"}
-                            onClick={() => {
-                                const options = {
-                                    fieldSeparator: ",",
-                                    quoteStrings: '"',
-                                    decimalSeparator: ".",
-                                    showLabels: true,
-                                    showTitle: true,
-                                    filename: `recommended_${schemaColumnHeader}_edits`,
-                                    title: `Recommended ${schemaColumnHeader} edits`,
-                                    useTextFile: false,
-                                    useBom: true,
-                                    useKeysAsHeaders: true,
-                                };
-                                const csvExporter = new ExportToCsv(options);
-                                csvExporter.generateCsv(data);
+                        <DownloadCSVButton
+                            secondaryButton={true}
+                            csvOptions={{
+                                fieldSeparator: ",",
+                                quoteStrings: '"',
+                                decimalSeparator: ".",
+                                showLabels: true,
+                                showTitle: true,
+                                filename: `recommended_${schemaColumnHeader}_edits`,
+                                title: `Recommended ${schemaColumnHeader} edits`,
+                                useTextFile: false,
+                                useBom: true,
+                                useKeysAsHeaders: true,
                             }}
-                        >
-                            Download edits as CSV <Icon.FileDownload />
-                        </Button>
+                            data={data}
+                            buttonText="Download edits as CSV"
+                        />
                     </div>
 
                     <table
