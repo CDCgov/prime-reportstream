@@ -1,8 +1,8 @@
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
+import { OverallStatus } from "../../config/endpoints/waters";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     ErrorType,
@@ -168,16 +168,7 @@ function FileHandler() {
     const { schemaOptions, isLoading: isSenderSchemaOptionsLoading } =
         useSenderSchemaOptions();
 
-    const uploaderCallback = useCallback(
-        (data?: WatersResponse) => {
-            dispatch({
-                type: FileHandlerActionType.REQUEST_COMPLETE,
-                payload: { response: data!! }, // Strong asserting that this won't be undefined
-            });
-        },
-        [dispatch]
-    );
-    const { sendFile, isWorking } = useWatersUploader(uploaderCallback);
+    const { sendFile, isWorking } = useWatersUploader();
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -223,7 +214,6 @@ function FileHandler() {
         dispatch({ type: FileHandlerActionType.PREPARE_FOR_REQUEST });
 
         let eventData;
-
         try {
             const response = await sendFile({
                 contentType: contentType,
@@ -236,6 +226,10 @@ function FileHandler() {
                 ),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,
+            });
+            dispatch({
+                type: FileHandlerActionType.REQUEST_COMPLETE,
+                payload: { response: response!! }, // Strong asserting that this won't be undefined
             });
             eventData = {
                 warningCount: response?.warnings?.length,
@@ -250,7 +244,6 @@ function FileHandler() {
                 };
             }
         }
-
         if (eventData) {
             trackAppInsightEvent(EventName.FILE_VALIDATOR, {
                 fileValidator: {
@@ -288,11 +281,12 @@ function FileHandler() {
         return <FileHandlerSpinner message={<p>Loading...</p>} />;
     }
 
-    const handleOnSchemaChange = (schemaOption: SchemaOption) =>
+    const handleOnSchemaChange = (schemaOption: SchemaOption) => {
         dispatch({
             type: FileHandlerActionType.SCHEMA_SELECTED,
             payload: schemaOption,
         });
+    };
 
     return (
         <div className="grid-container usa-section margin-bottom-10">

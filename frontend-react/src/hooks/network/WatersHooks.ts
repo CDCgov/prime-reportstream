@@ -35,7 +35,7 @@ export const FORMAT_TO_CONTENT_TYPE = {
 
 /** Uploads a file to ReportStream */
 export const useWatersUploader = (
-    callback: (data?: WatersResponse) => void
+    callback?: (data?: WatersResponse) => void
 ) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
 
@@ -64,9 +64,9 @@ export const useWatersUploader = (
         RSNetworkError<WatersResponse>,
         WatersPostArgs
     >(mutationFunction, {
-        onSuccess: (data) => callback(data),
+        onSuccess: (data) => callback?.(data),
         // pass response data we stored in RSNetworkError on throw
-        onError: (error) => callback(error.data),
+        onError: (error) => callback?.(error.data),
     });
     return {
         sendFile: mutation.mutateAsync,

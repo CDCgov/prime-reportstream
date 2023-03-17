@@ -6,6 +6,7 @@ import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
+import { FileType } from "../../hooks/UseFileHandler";
 
 import {
     RequestLevel,
@@ -70,6 +71,7 @@ describe("RequestedChangesDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
+                schemaColumnHeader={FileType.CSV}
             />
         );
 
@@ -92,7 +94,7 @@ describe("RequestedChangesDisplay", () => {
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "first field error",
-            indices: [1],
+            indices: [1, 10, 100],
             field: "first field",
             trackingIds: ["first_id"],
             scope: "unclear",
@@ -134,6 +136,7 @@ describe("RequestedChangesDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
+                schemaColumnHeader={FileType.CSV}
             />
         );
 
@@ -144,10 +147,9 @@ describe("RequestedChangesDisplay", () => {
         expect(rows).toHaveLength(5); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(3);
+        expect(firstCells).toHaveLength(2);
         expect(firstCells[0]).toHaveTextContent("first field error");
-        expect(firstCells[1]).toHaveTextContent("first field");
-        expect(firstCells[2]).toHaveTextContent("first_id");
+        expect(firstCells[1]).toHaveTextContent("1 + 10 + 100");
 
         const secondCells = await within(rows[2]).findAllByRole("cell");
         expect(secondCells[0]).toHaveTextContent("second field error");
