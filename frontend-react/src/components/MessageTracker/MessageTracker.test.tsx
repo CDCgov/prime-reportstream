@@ -1,6 +1,6 @@
 import { fireEvent, screen, cleanup, within } from "@testing-library/react";
 
-import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
 
 import { MessageTracker } from "./MessageTracker";
@@ -19,7 +19,7 @@ jest.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", () => {
 
 describe("MessageTracker component", () => {
     beforeEach(() => {
-        renderWithFullAppContext(<MessageTracker />);
+        renderApp(<MessageTracker />);
     });
 
     afterEach(cleanup);

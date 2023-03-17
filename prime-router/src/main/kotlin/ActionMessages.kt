@@ -99,7 +99,7 @@ class InvalidCodeMessage(
     private val format: String? = null
 ) : ItemActionLogDetail(fieldMapping) {
     override val message: String get() {
-        var msg = "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping."
+        var msg = "The code '$formattedValue' for field $fieldMapping is invalid. Reformat to HL7 specification."
         if (format !== null) {
             msg += " Reformat to $format."
         }
@@ -257,8 +257,8 @@ class UnsupportedProcessingTypeMessage() : ActionLogDetail {
 /**
  * A [message] for when a filter has an invalid expression
  */
-class InvalidFilterExpressionMessage(message: String) : ActionLogDetail {
+class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
     override val scope = ActionLogScope.internal
-    override val message = message
+    override val message = message ?: "An unknown filter condition error occurred."
     override val errorCode = ErrorCode.UNKNOWN
 }

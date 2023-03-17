@@ -21,11 +21,10 @@ function Summary(props: Props) {
             { label: FeatureName.DAILY_DATA, path: "/daily-data" },
             { label: "Details" },
         ],
-        noPadding: true,
     };
 
     return (
-        <div className="grid-container grid-row tablet:margin-top-6">
+        <div className="grid-row tablet:margin-top-6">
             <div className="grid-col-fill">
                 <Crumbs {...crumbProps} />
                 <Title preTitle={description} title={report?.reportId || ""} />

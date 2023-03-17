@@ -60,6 +60,7 @@ import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
 
+const val BUFFER_CAPACITY = 40000
 class Hl7Serializer(
     val metadata: Metadata,
     val settings: SettingsProvider
@@ -150,7 +151,7 @@ class Hl7Serializer(
         val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
-        val nextMessage = StringBuilder()
+        val nextMessage = StringBuilder(BUFFER_CAPACITY)
         var messageIndex = 1
 
         /**
@@ -250,7 +251,7 @@ class Hl7Serializer(
                 InvalidHL7Message(
                     "Cannot parse empty HL7 message. Please " +
                         "refer to the HL7 specification and resubmit.",
-                    ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
+                    ErrorCode.INVALID_MSG_PARSE_BLANK
                 )
             )
             return MessageResult(emptyMap(), errors, warnings)
@@ -1395,8 +1396,11 @@ class Hl7Serializer(
     ) {
         if (value.isEmpty()) return
         val parts = value.split(Element.phoneDelimiter)
-        val areaCode = parts[0].substring(0, 3)
-        val local = parts[0].substring(3)
+        val (areaCode, local) = if (parts[0].length == 7 && parts[1].isEmpty() && parts[2].isEmpty()) {
+            Pair("", parts[0])
+        } else {
+            Pair(parts[0].substring(0, 3), parts[0].substring(3))
+        }
         val country = parts[1]
         val extension = parts[2]
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
@@ -1436,7 +1440,7 @@ class Hl7Serializer(
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    val phoneNumber = "($areaCode)$localWithDash" +
+                    val phoneNumber = if (areaCode.isEmpty()) "$localWithDash" else "($areaCode)$localWithDash" +
                         if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
@@ -2003,18 +2007,22 @@ class Hl7Serializer(
             if (xtnValue is XTN) {
                 when (element.type) {
                     Element.Type.TELEPHONE -> {
-                        // If we have an area code or local number use the new fields, otherwise try the deprecated field
-                        if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
-                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                            if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                                xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
-                            ) {
-                                strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
-                                    "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
-                            }
-                        } else if (!xtnValue.telephoneNumber.isEmpty) {
+                        // 1st - If there is a full phone number use it.
+                        if (!xtnValue.telephoneNumber.isEmpty) {
                             strValue = element.toNormalized(xtnValue.telephoneNumber.valueOrEmpty)
-                        }
+                        } else
+                        // Otherwise, if there is a local number use it.
+                            if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                                // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                                if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                                    xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
+                                ) {
+                                    strValue = "${xtnValue.areaCityCode.value ?: ""}" +
+                                        "${xtnValue.localNumber.value ?: ""}:" +
+                                        "${xtnValue.countryCode.value ?: ""}:" +
+                                        "${xtnValue.extension.value ?: ""}"
+                                }
+                            }
                     }
                     Element.Type.EMAIL -> {
                         if (xtnValue.telecommunicationEquipmentType.isEmpty ||

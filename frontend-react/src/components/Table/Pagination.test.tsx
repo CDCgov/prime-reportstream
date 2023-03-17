@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
+
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import Pagination, {
     PaginationProps,
@@ -7,11 +9,6 @@ import Pagination, {
 } from "./Pagination";
 
 describe("Pagination", () => {
-    // Text match for getting pagination elements by role to capture previous
-    // and next links, page numbers, and overflow indicators (which are for
-    // presentation).
-    const ITEM_ROLE = /listitem|presentation/i;
-
     test.each([
         {
             description: "on the first page of an unbounded set",
@@ -61,13 +58,14 @@ describe("Pagination", () => {
                 currentPageNum,
                 setSelectedPage: jest.fn(),
             };
-            render(<Pagination {...props} />);
+            renderApp(<Pagination {...props} />);
 
             const list = screen.getByRole("list");
             const { getAllByRole } = within(list);
-            const items = getAllByRole(ITEM_ROLE);
-            const itemContents = items.map((item) => item.textContent);
-            expect(itemContents).toStrictEqual(expectedItems);
+            const items = getAllByRole("listitem");
+            for (const [i, item] of items.entries()) {
+                expect(item).toHaveTextContent(expectedItems[i]);
+            }
         }
     );
 
@@ -78,7 +76,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: mockSetSelectedPage,
         };
-        render(<Pagination {...props} />);
+        renderApp(<Pagination {...props} />);
 
         fireEvent.click(screen.getByText("Previous"));
         expect(mockSetSelectedPage).toHaveBeenLastCalledWith(1);
@@ -102,7 +100,7 @@ describe("Pagination", () => {
             currentPageNum: 7,
             setSelectedPage: jest.fn(),
         };
-        const { asFragment } = render(<Pagination {...props} />);
+        const { asFragment } = renderApp(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -112,7 +110,7 @@ describe("Pagination", () => {
             currentPageNum: 2,
             setSelectedPage: jest.fn(),
         };
-        const { asFragment } = render(<Pagination {...props} />);
+        const { asFragment } = renderApp(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

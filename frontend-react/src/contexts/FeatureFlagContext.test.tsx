@@ -1,5 +1,4 @@
-import { render } from "@testing-library/react";
-
+import { renderApp } from "../utils/CustomRenderUtils";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
@@ -13,8 +12,11 @@ import {
 } from "./FeatureFlagContext";
 
 jest.mock("../config", () => {
+    const originalModule = jest.requireActual("../config");
     return {
+        ...originalModule,
         default: {
+            ...originalModule.default,
             DEFAULT_FEATURE_FLAGS: ["flag-3"],
         },
         __esModule: true,
@@ -82,7 +84,7 @@ describe("FeatureFlagProvider", () => {
     const mockSavedFlags = ["flag-1", "flag-2"];
     beforeEach(() => {
         mockGetSavedFeatureFlags.mockReturnValue(mockSavedFlags);
-        render(<FeatureFlagProviderTestRenderer />);
+        renderApp(<FeatureFlagProviderTestRenderer />);
     });
     test("provides initial state with saved flags and env level flags", async () => {
         expect(providerValueMonitor).toHaveBeenCalledTimes(1);

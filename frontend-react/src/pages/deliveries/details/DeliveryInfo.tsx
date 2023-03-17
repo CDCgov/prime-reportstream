@@ -14,7 +14,7 @@ function DeliveryInfo(props: Props) {
 
     if (!report) return <></>;
     return (
-        <section className="grid-container margin-top-0 margin-bottom-5">
+        <section className="margin-top-0 margin-bottom-5">
             <hr />
             <div id="details" className="grid-row grid-gap margin-top-0">
                 <div className="tablet:grid-col">

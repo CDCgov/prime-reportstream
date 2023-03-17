@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { CacheProvider } from "rest-hooks";
 // need to include browser here for now so that app can have easy access to history
 import { BrowserRouter as Router } from "react-router-dom";
@@ -13,11 +13,11 @@ import { ai, withInsights } from "./TelemetryService";
 ai.initialize();
 withInsights(console);
 
-ReactDOM.render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
     <CacheProvider>
         <Router>
             <App />
         </Router>
-    </CacheProvider>,
-    document.getElementById("root")
+    </CacheProvider>
 );

@@ -8,7 +8,7 @@ import {
     TextInput,
 } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -88,10 +88,7 @@ export function OrgsTable() {
             <Helmet>
                 <title>Admin-Organizations</title>
             </Helmet>
-            <section
-                id="orgsettings"
-                className="grid-container margin-bottom-5"
-            >
+            <section id="orgsettings" className="margin-bottom-5">
                 <h2>Organizations ({orgs.length})</h2>
                 <form autoComplete="off" className="grid-row">
                     <div className="flex-fill">

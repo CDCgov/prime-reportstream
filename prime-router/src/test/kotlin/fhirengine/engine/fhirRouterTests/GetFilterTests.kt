@@ -76,7 +76,8 @@ class GetFilterTests {
         jurisdictionalFilter = listOf("testJuris"),
         qualityFilter = listOf("testQual"),
         routingFilter = listOf("testRouting"),
-        processingModeFilter = listOf("testProcMode")
+        processingModeFilter = listOf("testProcMode"),
+        conditionFilter = listOf("testCondition")
     )
 
     private val orgFilters = listOf(
@@ -380,5 +381,15 @@ class GetFilterTests {
         assert(filters.size == 1)
         assert(filters.any { it == "testProcMode" })
         assert(filters.none { it == "testOrgProcMode" })
+    }
+
+    @Test
+    fun `test getConditionFilter`() {
+        val settings = FileSettings().loadOrganizations(orgNoFilters)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        val filters = engine.getConditionFilter(receiverWithFilters, orgFilters)
+        assert(filters.size == 1)
+        assert(filters.any { it == receiverWithFilters.conditionFilter[0] })
     }
 }

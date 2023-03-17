@@ -41,12 +41,12 @@ export const IACardGridTemplate = ({
     return (
         <>
             <div className="rs-hero__index">
-                <div className="grid-container">
+                <div>
                     <h1>{pageName}</h1>
                     <h2>{subtitle}</h2>
                 </div>
             </div>
-            <div className="grid-container usa-prose margin-top-6">
+            <div className="usa-prose margin-top-6">
                 <div className="grid-row grid-gap">
                     {!contentIsMapped ? (
                         <ArraySection dirs={directories} />

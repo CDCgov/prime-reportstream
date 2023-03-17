@@ -10,11 +10,11 @@ import {
     TextInput,
 } from "@trussworks/react-uswds";
 import React, { useState } from "react";
+import { Helmet } from "react-helmet-async";
 
 import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
 
@@ -221,7 +221,9 @@ function TermsOfServiceForm() {
         <SuccessPage data={createBody()} />
     ) : (
         <>
-            <BasicHelmet pageTitle="Sign the Terms of Service" />
+            <Helmet>
+                <title>Sign the Terms of Service</title>
+            </Helmet>
             <div
                 data-testid="form-container"
                 className="grid-container tablet:grid-col-6 margin-x-auto"

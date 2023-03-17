@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { renderWithFullAppContext } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { OrgSenderTable } from "./OrgSenderTable";
 
@@ -147,6 +147,7 @@ const mockData = [
 ];
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -165,9 +166,7 @@ describe("OrgReceiverTable", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderWithFullAppContext(
-            <OrgSenderTable orgname={"test"} key={"test"} />
-        );
+        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />);
     });
 
     test("renders correctly", () => {

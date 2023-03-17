@@ -174,7 +174,7 @@ class FhirConverterTests {
 
         // assert
         verify(exactly = 1) {
-            engine.getContentFromFHIR(any())
+            engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
@@ -212,6 +212,7 @@ class FhirConverterTests {
 
     @Test
     fun `test getContentFromFHIR`() {
+        val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
             spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
@@ -219,7 +220,7 @@ class FhirConverterTests {
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
 
-        val result = engine.getContentFromFHIR(message)
+        val result = engine.getContentFromFHIR(message, actionLogger)
         assertThat(result).isNotEmpty()
     }
 }

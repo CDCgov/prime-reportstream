@@ -100,13 +100,13 @@ object FhirPathUtils : Logging {
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
-                throw SchemaException("Condition did not evaluate to a boolean type")
+                throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
-                is SchemaException -> e.message ?: "Condition error in FHIR Path expression $expression"
+                is SchemaException -> throw e
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                         "Setting value of condition to false."

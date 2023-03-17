@@ -78,7 +78,7 @@
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
 # It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.
-# Please try to always make the reciever name identical to the county jurisdictionalFilter name.
+# Please try to always make the receiver name identical to the county jurisdictionalFilter name.
 # This is to aid in readability.
 - name: ignore
   description: FOR TESTING ONLY
@@ -90,9 +90,9 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
       jurisdictionalFilter:
-        - "%performerState = 'IG' or %patientState = 'IG'"
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
-        - "%hl7MessageType = 'R01'"
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
     - name: default
       organizationName: ignore
@@ -185,7 +185,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "%performerState = 'IG' or %patientState = 'IG'" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -787,7 +787,7 @@
     - topic: covid-19
       jurisdictionalFilter: [ "orEquals(ordering_facility_state, MD, patient_state, MD)" ]
     - topic: full-elr
-      jurisdictionalFilter: [ "%performerState = 'MD' or %patientState = 'MD'" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'MD') or (%patientState.exists() and %patientState = 'MD')" ]
   stateCode: MD
   receivers:
     - name: elr

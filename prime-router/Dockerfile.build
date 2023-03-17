@@ -13,7 +13,7 @@
 # (and in fact, probably less than the actual builder container image). This is a small optimization that will make your life
 # a tad bit easier when you are rebuilding the builder image
 #
-FROM alpine:latest AS downloader
+FROM alpine:3.17 AS downloader
 ARG GRADLE_VERSION=7.1
 ARG AFCT_VERSION=3.0.3568
 

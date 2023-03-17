@@ -143,7 +143,6 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             doLogging = true
         )
         if (processingModeFilteredReport.isEmpty()) return processingModeFilteredReport
-
         return processingModeFilteredReport
     }
 
