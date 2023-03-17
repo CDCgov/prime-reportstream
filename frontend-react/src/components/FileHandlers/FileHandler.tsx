@@ -19,13 +19,14 @@ import { useSenderResource } from "../../hooks/UseSenderResource";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 import site from "../../content/site.json";
-import { USExtLink } from "../USLink";
+import { USExtLink, USLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
 import { FileHandlerStepThree } from "./FileHandlerStepThree";
 import { FileHandlerStepFour } from "./FileHandlerStepFour";
+import { Icon, SiteAlert } from "@trussworks/react-uswds";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
@@ -295,6 +296,21 @@ function FileHandler() {
         });
     };
 
+    const siteTooltip = () => (
+        <SiteAlert className="margin-top-4" variant="info" showIcon={false}>
+            <Icon.Lightbulb />
+            <span className="padding-left-1">
+                Pages 18-29 in the{" "}
+                <USLink href="/resources/programmers-guide">
+                    API Programmer’s Guide.
+                </USLink>{" "}
+                have the information you need to validate your file
+                successfully. Pay special attention to which fields are required
+                and common mistakes.
+            </span>
+        </SiteAlert>
+    );
+
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
@@ -331,24 +347,30 @@ function FileHandler() {
             )}
 
             {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
-                <FileHandlerStepOne
-                    fileType={fileType}
-                    handleNextFileHandlerStep={handleNextFileHandlerStep}
-                    onSchemaChange={handleOnSchemaChange}
-                    schemaOptions={schemaOptions}
-                    selectedSchemaOption={selectedSchemaOption}
-                />
+                <>
+                    <FileHandlerStepOne
+                        fileType={fileType}
+                        handleNextFileHandlerStep={handleNextFileHandlerStep}
+                        onSchemaChange={handleOnSchemaChange}
+                        schemaOptions={schemaOptions}
+                        selectedSchemaOption={selectedSchemaOption}
+                    />
+                    {siteTooltip()}
+                </>
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
-                <FileHandlerStepTwo
-                    handleSubmit={handleSubmit}
-                    handleFileChange={handleFileChange}
-                    fileInputResetValue={fileInputResetValue}
-                    fileName={fileName}
-                    selectedSchemaOption={selectedSchemaOption}
-                    isWorking={isWorking}
-                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
-                />
+                <>
+                    <FileHandlerStepTwo
+                        handleSubmit={handleSubmit}
+                        handleFileChange={handleFileChange}
+                        fileInputResetValue={fileInputResetValue}
+                        fileName={fileName}
+                        selectedSchemaOption={selectedSchemaOption}
+                        isWorking={isWorking}
+                        handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                    />
+                    {siteTooltip()}
+                </>
             )}
             {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
                 <FileHandlerStepThree
@@ -369,6 +391,7 @@ function FileHandler() {
                     successTimestamp={successTimestamp}
                 />
             )}
+
             <p className="margin-top-10">
                 Question or feedback? Please email{" "}
                 <USExtLink href={`mailto: ${site.orgs.RS.email}`}>

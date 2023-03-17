@@ -6,6 +6,7 @@ import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import {
     RequestLevel,
@@ -15,7 +16,6 @@ import {
     ValidationErrorMessageProps,
     ValidationErrorMessage,
 } from "./FileHandlerMessaging";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
 // then asserting className. This is not ideal, and seems kinda backwards, but I couldn't

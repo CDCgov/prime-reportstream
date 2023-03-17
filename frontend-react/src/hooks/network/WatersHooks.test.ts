@@ -6,9 +6,9 @@ import {
 } from "../../__mocks__/WatersMockServer";
 import { AppWrapper } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
+import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import { useWatersUploader } from "./WatersHooks";
-import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
 const mockCallbackFn = jest.fn();
 

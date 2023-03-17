@@ -4,6 +4,7 @@ import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { FileType } from "../utils/TemporarySettingsAPITypes";
 
 import useFileHandler, {
     INITIAL_STATE,
@@ -11,7 +12,6 @@ import useFileHandler, {
     RequestCompletePayload,
     UseFileHandlerHookResult,
 } from "./UseFileHandler";
-import { FileType } from "../utils/TemporarySettingsAPITypes";
 
 const fakeDestination: Destination = {
     organization_id: "an org id",
