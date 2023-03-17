@@ -305,7 +305,7 @@ function FileHandler() {
                     <p className="text-bold">
                         Reminder: Do not submit PII. Email{" "}
                         <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                            reportstream@cdc.gov
+                            {site.orgs.RS.email}
                         </USExtLink>
                         if you need fake data to use.
                     </p>
@@ -365,7 +365,7 @@ function FileHandler() {
             <p className="margin-top-10">
                 Question or feedback? Please email{" "}
                 <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                    reportstream@cdc.gov
+                    {site.orgs.RS.email}
                 </USExtLink>
             </p>
         </div>

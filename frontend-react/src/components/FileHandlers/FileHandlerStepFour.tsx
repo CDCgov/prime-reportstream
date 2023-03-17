@@ -31,7 +31,7 @@ export const FileHandlerStepFour = ({
             <p className="margin-top-4">
                 To continue your onboarding, email{" "}
                 <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                    reportstream@cdc.gov
+                    {site.orgs.RS.email}
                 </USExtLink>{" "}
                 to let us know you have validated your file. Our team will be in
                 touch soon to help you get set up in staging.
