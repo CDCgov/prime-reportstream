@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
+import { Icon, SiteAlert } from "@trussworks/react-uswds";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -26,7 +27,6 @@ import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";
 import { FileHandlerStepThree } from "./FileHandlerStepThree";
 import { FileHandlerStepFour } from "./FileHandlerStepFour";
-import { Icon, SiteAlert } from "@trussworks/react-uswds";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
     <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
