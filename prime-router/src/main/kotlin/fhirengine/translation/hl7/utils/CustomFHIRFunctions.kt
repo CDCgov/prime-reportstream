@@ -112,7 +112,7 @@ object CustomFHIRFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "looks changes the timezome of the date resource to the timezome passed in as the " +
+                    "changes the timezome of the date resource to the timezome passed in as the " +
                         "variable",
                     1,
                     1
