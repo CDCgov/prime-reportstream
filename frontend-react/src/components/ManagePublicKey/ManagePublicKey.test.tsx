@@ -1,14 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import {
-    ManagePublicKeyState,
-    INITIAL_STATE,
-} from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { RSSender } from "../../config/endpoints/settings";
-import * as useManagePublicKeyExports from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
-import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 
 import { ManagePublicKey } from "./ManagePublicKey";
 
@@ -46,17 +41,6 @@ describe("ManagePublicKey", () => {
         jest.restoreAllMocks();
     });
 
-    function mockUseFileHandler(
-        managePublicKeyState: Partial<ManagePublicKeyState> = {}
-    ) {
-        jest.spyOn(useManagePublicKeyExports, "default").mockReturnValue({
-            state: {
-                ...managePublicKeyState,
-            } as ManagePublicKeyState,
-            dispatch: () => {},
-        });
-    }
-
     function mockUseOrganizationSenders(
         result: Partial<UseOrganizationSendersResult> = {}
     ) {
@@ -72,7 +56,6 @@ describe("ManagePublicKey", () => {
 
     describe("when the sender options are loading", () => {
         beforeEach(() => {
-            mockUseFileHandler(INITIAL_STATE);
             mockUseOrganizationSenders({ isLoading: true });
 
             renderApp(<ManagePublicKey />);
@@ -86,7 +69,6 @@ describe("ManagePublicKey", () => {
     describe("when the sender options have been loaded", () => {
         describe("when in the prompt state", () => {
             beforeEach(() => {
-                mockUseFileHandler(INITIAL_STATE);
                 mockUseOrganizationSenders({
                     isLoading: false,
                     senders: DEFAULT_SENDERS,

@@ -1,75 +1,76 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    GridContainer,
-    SiteAlert,
-    Icon,
-    Form,
-    FormGroup,
-    Dropdown,
-    Button,
-} from "@trussworks/react-uswds";
+import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
-import { showError } from "../AlertNotifications";
-import Spinner from "../Spinner";
 import { USLink } from "../USLink";
+import Spinner from "../Spinner";
+import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { UseOrganizationSenders } from "../../hooks/UseOrganizationSenders";
-import { RSSender } from "../../config/endpoints/settings";
-import useManagePublicKey, {
-    ManagePublicKeyActionType,
+import {
+    validateFileSelectedState,
+    ManagePublicKeyAction,
 } from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
 import { ContentType } from "../../utils/TemporarySettingsAPITypes";
 
+import { ManagePublicKeyChooseSender } from "./ManagePublicKeyChooseSender";
 import { ManagePublicKeyUpload } from "./ManagePublicKeyUpload";
 
 const LightbulbIcon = Icon.Lightbulb;
 
-// TODO: create common component???
-const ManagePublicKeySpinner = ({ message }: { message: ReactNode }) => (
-    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
-        <div className="grid-row">
-            <Spinner />
-        </div>
-        <div className="text-center">{message}</div>
-    </div>
-);
-
-const SendersDisplay = ({ senders }: { senders: RSSender[] }) => {
+const ManagePublicKeySwitchDisplay = () => {
     const navigate = useNavigate();
-    const { state, dispatch } = useManagePublicKey();
+    const [action, setAction] = useState(ManagePublicKeyAction.SELECT_SENDER);
     const [fileContent, setFileContent] = useState("");
-    const [selectedSender, setSelectedSender] = useState(
-        senders.length === 1 ? senders[0].name : ""
-    );
-    const [showUploadDisplay, setShowUploadDisplay] = useState(
-        senders.length === 1 ? true : false
-    );
-    const { fileInputResetValue, fileName, localError } = state;
-
-    const handleSenderSubmit = () => {
-        setShowUploadDisplay(true);
-    };
+    const [fileName, setFileName] = useState("");
 
     // TODO: mocked for now - make the call you need when sending the file
-    const { sendFile, isWorking } = {
+    const { sendFile, isProcessingFile } = {
         // eslint-disable-next-line no-empty-pattern
         sendFile: ({}) => {
             return { fileName: "fileName" };
         },
-        isWorking: false,
+        isProcessingFile: false,
     };
 
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: ManagePublicKeyActionType.RESET });
+    const onSenderSelect = (selectedSender: string) => {
+        if (selectedSender !== "") {
+            setAction(ManagePublicKeyAction.SELECT_PUBLIC_KEY);
+        }
     };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>
+    const onBack = () => {
+        navigate("/resources");
+    };
+
+    const onPublicKeySubmit = async (
+        event: React.FormEvent<HTMLFormElement>
     ) => {
+        event.preventDefault();
+
+        if (fileContent.length === 0) {
+            showError("No file contents to validate.");
+            return;
+        }
+
+        try {
+            setAction(ManagePublicKeyAction.SAVE_PUBLIC_KEY);
+            sendFile({
+                contentType: ContentType.PEM,
+                fileContent: fileContent,
+                fileName: fileName,
+            });
+            // based on !isProcessing
+            setAction(ManagePublicKeyAction.PUBLIC_KEY_SAVED);
+        } catch (e: any) {
+            console.trace(e);
+            showError(`Uploading public key failed. ${e.toString()}`);
+            setAction(ManagePublicKeyAction.SELECT_PUBLIC_KEY);
+        }
+    };
+
+    const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         // No file selected
         if (!event?.target?.files?.length) return;
 
@@ -78,104 +79,41 @@ const SendersDisplay = ({ senders }: { senders: RSSender[] }) => {
 
         const content = await file.text();
 
+        setFileName(file.name);
         setFileContent(content);
 
-        dispatch({
-            type: ManagePublicKeyActionType.FILE_SELECTED,
-            payload: { file },
-        });
-    };
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (fileContent.length === 0) {
-            showError("No file contents to validate.");
-            return;
-        }
-
-        // initializes necessary state and sets `isSubmitting`
-        dispatch({ type: ManagePublicKeyActionType.PREPARE_FOR_REQUEST });
-
-        try {
-            sendFile({
-                contentType: ContentType.PEM,
-                fileContent: fileContent,
-                fileName: fileName,
-                selectedSender: selectedSender,
-            });
-        } catch (e: any) {
-            console.trace(e);
-            showError(`Uploading public key failed. ${e.toString()}`);
+        const { fileError } = validateFileSelectedState(file);
+        if (fileError) {
+            showError(fileError);
         }
     };
 
-    const handleBack = () => {
-        resetState();
-        navigate("/resources");
-    };
-
-    // TODO: add more logic here to toggle between true/false
-    const submitted = false;
-
-    useEffect(() => {
-        if (localError) {
-            showError(localError);
-        }
-    }, [localError]);
-
-    return (
-        <div className="grid-col-12">
-            {senders?.length > 1 && !showUploadDisplay && (
-                <Form name="senderSelect" onSubmit={() => handleSenderSubmit()}>
-                    <FormGroup>
-                        <Dropdown
-                            id="senders-dropdown"
-                            name="senders-dropdown"
-                            onChange={(e) => {
-                                setSelectedSender(e.target.value);
-                            }}
-                        >
-                            <option value="">-Select-</option>
-                            {senders.map(({ name }) => (
-                                <option key={name} value={name}>
-                                    {name}
-                                </option>
-                            ))}
-                        </Dropdown>
-                        <Button
-                            key="submit-sender"
-                            type="submit"
-                            outline
-                            className="padding-bottom-1 padding-top-1"
-                            disabled={selectedSender === ""}
-                        >
-                            Submit
-                        </Button>
-                    </FormGroup>
-                </Form>
-            )}
-            {showUploadDisplay && isWorking && (
-                <ManagePublicKeySpinner message="Processing file..." />
-            )}
-            {showUploadDisplay && !isWorking && (
-                // Do we want to reuse the FileHandlerForm component???
+    switch (action) {
+        case ManagePublicKeyAction.SELECT_SENDER:
+            return (
+                <ManagePublicKeyChooseSender onSenderSelect={onSenderSelect} />
+            );
+        case ManagePublicKeyAction.SELECT_PUBLIC_KEY:
+            return (
                 <ManagePublicKeyUpload
-                    handleSubmit={handleSubmit}
-                    handleFileChange={handleFileChange}
-                    handleBack={handleBack}
-                    fileInputResetValue={fileInputResetValue}
-                    submitted={submitted}
+                    onPublicKeySubmit={onPublicKeySubmit}
+                    onFileChange={onFileChange}
+                    onBack={onBack}
                     fileName={fileName}
                 />
-            )}
-        </div>
-    );
+            );
+        case ManagePublicKeyAction.SAVE_PUBLIC_KEY:
+            return <Spinner message="Processing file..." />;
+        case ManagePublicKeyAction.PUBLIC_KEY_SAVED:
+            return <h1> Do something once public key has been saved. </h1>;
+        case ManagePublicKeyAction.PUBLIC_KEY_NOT_SAVED:
+            return <h1> Error saving public key. </h1>;
+        default:
+            return null;
+    }
 };
 
 export function ManagePublicKey() {
-    const { isLoading, senders } = UseOrganizationSenders();
-
     return (
         <div className="manage-public-key grid-container margin-bottom-5 tablet:margin-top-6">
             <div>
@@ -197,10 +135,7 @@ export function ManagePublicKey() {
                     </USLink>
                 </span>
             </SiteAlert>
-            {isLoading && <ManagePublicKeySpinner message="Loading..." />}
-            {!isLoading && senders && (
-                <SendersDisplay senders={senders}></SendersDisplay>
-            )}
+            <ManagePublicKeySwitchDisplay />
         </GridContainer>
     );
 }
