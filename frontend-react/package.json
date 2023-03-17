@@ -7,6 +7,7 @@
   "dependencies": {
     "@microsoft/applicationinsights-react-js": "^3.4.1",
     "@microsoft/applicationinsights-web": "^2.8.11",
+    "@mswjs/data": "^0.11.2",
     "@okta/okta-auth-js": "^7.2.0",
     "@okta/okta-react": "^6.7.0",
     "@okta/okta-signin-widget": "^7.4.0",
@@ -90,11 +91,12 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
+    "@babel/core": "^7.21.3",
     "@babel/plugin-syntax-flow": "^7.14.5",
     "@babel/plugin-transform-react-jsx": "^7.14.9",
-    "@babel/plugin-transform-typescript": "^7.20.13",
+    "@babel/plugin-transform-typescript": "^7.21.3",
     "@babel/preset-typescript": "^7.21.0",
+    "@faker-js/faker": "^7.6.0",
     "@jest/globals": "^29.5.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@rest-hooks/test": "^7.3.1",
@@ -116,8 +118,8 @@
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-scroll-sync": "^0.8.3",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
     "babel-jest": "^29.5.0",
     "babel-loader": "^9.1.2",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -182,12 +184,19 @@
     "terser-webpack-plugin": "^5.3.6",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
-    "typescript": "^4.9.5",
+    "typescript": "^5.0.2",
     "webpack": "^5.76.0",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-dev-server": "^4.11.1",
     "webpack-manifest-plugin": "^5.0.0",
     "workbox-webpack-plugin": "^6.5.4"
+  },
+  "resolutions": {
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
+    "@babel/core": "^7.21.3",
+    "@babel/plugin-transform-typescript": "^7.21.3",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0"
   },
   "engines": {
     "node": "~18.15"
