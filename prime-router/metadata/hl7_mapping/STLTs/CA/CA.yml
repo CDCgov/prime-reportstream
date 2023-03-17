@@ -71,7 +71,7 @@ elements:
   - name: sending-facility-universal-id
     condition: true
     resource: 'Bundle'
-    value: [ '"36D1332559"' ]
+    value: [ '"CDPH000085"' ]
 
   - name: sending-facility-universal-id-type
     condition: true

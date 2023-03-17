@@ -1,6 +1,5 @@
 constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
-  senderOrganization: '%resource.basedOn.resolve().performer.resolve()'
 elements:
   - name: request-set-id
     value: [ '%orderIndex  + 1' ]
@@ -24,7 +23,7 @@ elements:
 
   - name: order-organization-identifier
     condition: '%diagnostic.identifier.type.empty()'
-    resource: '%senderOrganization'
+    resource: '%resource.basedOn.resolve().performer.resolve()'
     constants:
       organizationIdFieldPath: '%{fieldPath}-3'
       identifier: '%diagnostic.identifier[0].value'

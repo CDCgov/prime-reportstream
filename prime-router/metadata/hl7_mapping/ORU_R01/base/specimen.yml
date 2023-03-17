@@ -78,8 +78,6 @@ elements:
     value: [ '%resource.note.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
-
-
   - name: specimen-collection-time
     condition: '%resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected' ]
@@ -90,7 +88,7 @@ elements:
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
-# Alternative to getting specimen collection time from DiagnosticReport instead
+  # Alternative to getting specimen collection time from DiagnosticReport instead
   - name: specimen-collection-time-diagnostic
     condition: '%resource.collection.collected.exists().not()'
     value: [ '%diagnostic.issued' ]
