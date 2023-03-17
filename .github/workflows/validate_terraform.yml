@@ -17,7 +17,7 @@ jobs:
       has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
         with:
@@ -44,10 +44,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
 
       - name: Run Checkov action
-        uses: bridgecrewio/checkov-action@50699f0d664f994024fca76e6daba1311293d31e
+        uses: bridgecrewio/checkov-action@5a1a208b82a3f403449979f7e122be158727b480
         with:
           directory: operations/app/terraform
           skip_check: CKV_AZURE_139,CKV_AZURE_137,CKV_AZURE_103,CKV_AZURE_104,CKV_AZURE_102,CKV_AZURE_130,CKV_AZURE_121,CKV_AZURE_159,CKV_AZURE_67,CKV_AZURE_56,CKV_AZURE_78,CKV_AZURE_17,CKV_AZURE_63,CKV_AZURE_18,CKV_AZURE_88,CKV_AZURE_65,CKV_AZURE_13,CKV_AZURE_66,CKV_AZURE_33,CKV_AZURE_80,CKV_AZURE_35,CKV_AZURE_36,CKV_AZURE_98,CKV_AZURE_1,CKV_AZURE_15,CKV2_AZURE_1,CKV2_AZURE_8,CKV2_AZURE_15,CKV2_AZURE_21,CKV2_AZURE_18,CKV_SECRET_6,CKV_AZURE_190,CKV_AZURE_213,CKV_AZURE_59

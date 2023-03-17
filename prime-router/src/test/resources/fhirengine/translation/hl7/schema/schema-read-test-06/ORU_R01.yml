@@ -1,4 +1,7 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+constants:
+  baseConstant: "baseValue"
+  overriddenConstant: "defaultValue"
 elements:
   - name: message-headers
     condition: >
