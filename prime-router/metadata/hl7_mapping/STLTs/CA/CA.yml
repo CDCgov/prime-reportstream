@@ -6,6 +6,7 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 constants:
   simpleReportClia: '"CDPH000085"'
+  outOfStateSimpleReportClia: '"CDPH000075"'
   simpleReportName: '"Simple Report"'
 extends: ../../ORU_R01/ORU_R01-base
 elements:
@@ -71,9 +72,17 @@ elements:
     value: [ '%simpleReportName' ]
 
   - name: sending-facility-universal-id
-    condition: true
+    condition: 'true'
     resource: 'Bundle'
     value: [ '%simpleReportClia' ]
+
+  # If state where the test was requested or performed is not in CA
+  # set to Simple Report's CLIA out of sate
+  - name: sending-facility-universal-id-out-of-state
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.where(state != "CA").exists() 
+      or Bundle.entry.resource.ofType(Observation).performer.resolve().address.where(state != "CA").exists()'
+    value: [ '%outOfStateSimpleReportClia' ]
+    hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
     condition: true
