@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Base64BinaryType
@@ -26,6 +27,7 @@ object FhirBundleUtils : Logging {
         DateTime("dateTime"),
         Id("id"),
         Instant("instant"),
+        Integer("integer"),
         Markdown("markdown"),
         Oid("oid"),
         String("string"),
@@ -39,7 +41,7 @@ object FhirBundleUtils : Logging {
      * Converts a [value] of type [sourceType] into a compatible Base of type [targetType]. Returns the original value
      * and logs an error if the conversion is not supported.
      */
-    fun convertFhirType(value: Base, sourceType: String, targetType: String): Base {
+    fun convertFhirType(value: Base, sourceType: String, targetType: String, logger: KotlinLogger = this.logger): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
         } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
@@ -59,7 +61,7 @@ object FhirBundleUtils : Logging {
                 StringCompatibleType.Url.typeAsString -> UrlType(value.primitiveValue())
                 StringCompatibleType.Uuid.typeAsString -> UuidType(value.primitiveValue())
                 else -> {
-                    logger.error("Conversion between $sourceType and $targetType not yet implemented.")
+                    logger.error("Conversion between $sourceType and $targetType not supported.")
                     value
                 }
             }

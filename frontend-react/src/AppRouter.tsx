@@ -31,6 +31,7 @@ import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSet
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
+import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -105,6 +106,10 @@ export const appRoutes = [
     {
         path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
         element: <AdminRevHistoryWithAuth />,
+    },
+    {
+        path: "/resources/manage-public-key",
+        element: <ManagePublicKeyWithAuth />,
     },
     { path: "/file-handler/validate", element: <ValidateWithAuth /> },
     /* Handles any undefined route */

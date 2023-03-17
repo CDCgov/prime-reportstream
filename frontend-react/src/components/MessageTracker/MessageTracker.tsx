@@ -65,7 +65,7 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
             {hasSearched && (
                 <Table
                     title=""
-                    classes={"rs-no-padding margin-top-5"}
+                    classes="rs-no-padding margin-top-5"
                     config={tableConfig}
                 />
             )}
@@ -97,7 +97,7 @@ export function MessageTracker() {
     };
 
     return (
-        <section className="grid-container margin-bottom-5 tablet:margin-top-6">
+        <section className="margin-bottom-5 tablet:margin-top-6">
             <h1>Message ID Search</h1>
 
             <Form onSubmit={(e) => searchMessageId(e)} className="maxw-full">

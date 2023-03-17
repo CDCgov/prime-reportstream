@@ -84,7 +84,9 @@ elements:
     hl7Spec: [ MSH-6-3 ]
 
   - name: message-date-time
-    value: [ 'Bundle.entry.resource.ofType(Provenance).recorded' ]
+    value:
+      - Bundle.entry.resource.ofType(Provenance).recorded
+      - Bundle.timestamp
     required: true
     hl7Spec: [ MSH-7 ]
 

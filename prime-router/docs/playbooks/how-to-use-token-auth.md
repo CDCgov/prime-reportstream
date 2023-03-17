@@ -42,8 +42,8 @@ First, make sure you have Reportstream running.   These calls below are what the
 
 #### The first call (without --doit) just tests that it works.  Then use --doit to execute.
 ```
-./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --name healthy-labs.default 
-./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --name healthy-labs.default --doit
+./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs 
+./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs --doit
 ./prime sender get --name healthy-labs.default
 ```
 
@@ -56,7 +56,7 @@ The actual call would be a call to the REST API endpoint, which is hidden in thi
 Note:  No, we are NOT intending that our customers use the prime CLI to do this!   This is just a convenience, for us (only) to test and demo.  And yes, more work is needed to provide documentation and helper tools for our senders.
 
 ```
-./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs.default
+./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs
 ```
 
 If it works, you should get something like this back:
@@ -80,7 +80,7 @@ curl -H "authorization:bearer ???" -H "client:healthy-labs"  -H "content-type:te
 To avoid cutting and pasting by hand, this glorious string of unixy gibberish will request a signed 5minute access token (Same as STEP 2 above), and then paste it into an environment variable called `$TOK`:
 
 ```
-export TOK=$(./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs.default |  grep access_token | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+export TOK=$(./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs |  grep access_token | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 ```
 
 Which can then be used very simply like this (Same as STEP 3 above):

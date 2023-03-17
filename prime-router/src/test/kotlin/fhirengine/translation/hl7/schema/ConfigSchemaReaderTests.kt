@@ -13,8 +13,8 @@ import assertk.assertions.messageContains
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FHIRTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import kotlin.test.Test
 
@@ -210,13 +210,16 @@ class ConfigSchemaReaderTests {
             )
         }.isFailure().messageContains("Schema circular dependency")
 
-        assertThat(
-            ConfigSchemaReader.fromFile(
-                "ORU_R01_extends",
-                "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
-                schemaClass = ConverterSchema::class.java,
-            ).isValid()
-        ).isTrue()
+        val schema = ConfigSchemaReader.fromFile(
+            "ORU_R01_extends",
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-06",
+            schemaClass = ConverterSchema::class.java,
+        )
+        assertThat(schema.isValid()).isTrue()
+        assertThat(schema.constants["baseConstant"]).isEqualTo("baseValue")
+        assertThat(schema.constants["lowLevelConstant"]).isEqualTo("lowLevelValue")
+        assertThat(schema.constants["overriddenConstant"]).isEqualTo("overriddenValue")
+        assertThat(schema.name).isEqualTo("ORU_R01_extends")
     }
 
     @Test
@@ -234,8 +237,8 @@ class ConfigSchemaReaderTests {
 
         val statusElement = schema.elements.single { it.name == "status" }
 
-        assertThat(statusElement is FHIRTransformSchemaElement).isTrue()
-        if (statusElement is FHIRTransformSchemaElement) {
+        assertThat(statusElement is FhirTransformSchemaElement).isTrue()
+        if (statusElement is FhirTransformSchemaElement) {
             assertThat(statusElement.schema).isNull()
             assertThat(statusElement.constants).isNotNull()
             assertThat(statusElement.condition).isNotNull()

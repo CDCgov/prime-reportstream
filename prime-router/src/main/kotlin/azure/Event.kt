@@ -207,10 +207,11 @@ class ProcessEvent(
     }
 
     override fun hashCode(): Int {
+        // vars used in hashCode() must match those in equals()
         return (7 * eventAction.hashCode()) +
             (31 * reportId.hashCode()) +
             (17 * at.hashCode()) +
-            (19 * retryDuration.hashCode())
+            (19 * retryToken.hashCode())
     }
 
     companion object {
@@ -244,7 +245,7 @@ class ReportEvent(
         return (7 * eventAction.hashCode()) +
             (31 * reportId.hashCode()) +
             (17 * at.hashCode()) +
-            (19 * retryDuration.hashCode())
+            (19 * retryToken.hashCode())
     }
 
     companion object {

@@ -26,7 +26,7 @@ class FhirToHl7Converter(
     private val schemaRef: ConverterSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null,
-    // the constant substitutor is not thread save, so we need one instance per converter instead of using a shared copy
+    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
 ) : ConfigSchemaProcessor() {
     /**
