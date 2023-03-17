@@ -4,6 +4,25 @@
 
 
 ---
+### February 2023
+
+* The ReportStream [Terms of Service](https://reportstream.cdc.gov/terms-of-service) have been updated. 
+
+#### Improvements
+
+* Usability: Based on user feedback, the file name is now shown on the Daily Data table for data receivers. Previously, it only showed the data type without a file name.
+
+* Usability: On the Daily Data table, if the user has multiple ELR settings, the first, active one is automatically selected. This prevents an inactive setting from being selected upon table load.
+
+* Visual differences that appeared in the past few weeks after the ReportStream website updated to USWDS 3.0 have been fixed.
+
+* Bug fix: When typing a non-numeric character into the Daily Data table date range, the table would show an error and disable use of the table. Now, the table remains active and allows for the user to fix the entry into a numeric character. This prevents the user from needing to reload the table.
+
+You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
+
+
+---
+
 ### January 2023
 
 See Github release notes anytime at [https://github.com/CDCgov/prime-reportstream/releases](https://github.com/CDCgov/prime-reportstream/releases). 
