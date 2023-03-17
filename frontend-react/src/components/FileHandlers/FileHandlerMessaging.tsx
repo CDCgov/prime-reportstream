@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
-import { ExportToCsv } from "export-to-csv";
+import { ExportToCsv } from "export-to-csv-fix-source-map";
 
 import {
     formattedDateFromTimestamp,
@@ -10,7 +10,7 @@ import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USLink, USExtLink } from "../USLink";
-import { FileType } from "../../hooks/UseFileHandler";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;

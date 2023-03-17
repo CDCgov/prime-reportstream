@@ -5,10 +5,10 @@ import {
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
 import { AppWrapper } from "../../utils/CustomRenderUtils";
-import { ContentType, FileType } from "../UseFileHandler";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 
 import { useWatersUploader } from "./WatersHooks";
+import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
 const mockCallbackFn = jest.fn();
 

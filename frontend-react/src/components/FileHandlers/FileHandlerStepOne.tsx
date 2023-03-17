@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { FileInputRef, Dropdown, Button } from "@trussworks/react-uswds";
 
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { FileType } from "../../hooks/UseFileHandler";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 export interface FileHandlerFormProps {
     fileType?: FileType;

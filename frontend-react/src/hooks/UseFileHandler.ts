@@ -5,21 +5,11 @@ import { ResponseError, WatersResponse } from "../config/endpoints/waters";
 import { Destination } from "../resources/ActionDetailsResource";
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { ContentType, FileType } from "../utils/TemporarySettingsAPITypes";
 
 export enum ErrorType {
     SERVER = "server",
     FILE = "file",
-}
-
-// TODO: consolidate with Format in TemporarySettingsAPITypes.ts
-export enum FileType {
-    "CSV" = "CSV",
-    "HL7" = "HL7",
-}
-
-export enum ContentType {
-    "CSV" = "text/csv",
-    "HL7" = "application/hl7-v2",
 }
 
 // Internal state for the hook.

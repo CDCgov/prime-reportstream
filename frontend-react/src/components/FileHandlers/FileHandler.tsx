@@ -7,7 +7,6 @@ import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     ErrorType,
     FileHandlerActionType,
-    FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
@@ -21,6 +20,7 @@ import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 import site from "../../content/site.json";
 import { USExtLink } from "../USLink";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
 import { FileHandlerStepOne } from "./FileHandlerStepOne";

@@ -9,9 +9,9 @@ import useFileHandler, {
     INITIAL_STATE,
     FileHandlerActionType,
     RequestCompletePayload,
-    FileType,
     UseFileHandlerHookResult,
 } from "./UseFileHandler";
+import { FileType } from "../utils/TemporarySettingsAPITypes";
 
 const fakeDestination: Destination = {
     organization_id: "an org id",
