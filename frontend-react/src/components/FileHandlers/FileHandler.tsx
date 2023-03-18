@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Icon, SiteAlert } from "@trussworks/react-uswds";
+import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -29,7 +29,7 @@ import { FileHandlerStepThree } from "./FileHandlerStepThree";
 import { FileHandlerStepFour } from "./FileHandlerStepFour";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
-    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-10">
+    <div className="margin-top-10">
         <div className="grid-row">
             <Spinner />
         </div>
@@ -312,93 +312,99 @@ function FileHandler() {
     );
 
     return (
-        <div className="grid-container usa-section margin-bottom-10">
-            <h1 className="margin-top-0 margin-bottom-5">
-                ReportStream File Validator
-            </h1>
-            <h2 className="font-sans-lg">{organization?.description}</h2>
-            {(fileHandlerStep === FileHandlerSteps.STEP_ONE ||
-                fileHandlerStep === FileHandlerSteps.STEP_TWO) && (
-                <>
-                    <p className="text-bold">
-                        Check that public health departments can receive your
-                        data through ReportStream by validating your file
-                        format.{" "}
-                    </p>
-                    <p className="text-bold">
-                        Reminder: Do not submit PII. Email{" "}
-                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                            {site.orgs.RS.email}
-                        </USExtLink>
-                        if you need fake data to use.
-                    </p>
-                </>
-            )}
-            {fileName && (
-                <>
-                    <p
-                        id="validatedFilename"
-                        className="text-normal text-base margin-bottom-0"
-                    >
-                        File name
-                    </p>
-                    <p className="margin-top-05">{fileName}</p>
-                </>
-            )}
+        <GridContainer>
+            <article className="usa-section">
+                <h1 className="margin-top-0 margin-bottom-5">
+                    ReportStream File Validator
+                </h1>
+                <h2 className="font-sans-lg">{organization?.description}</h2>
+                {(fileHandlerStep === FileHandlerSteps.STEP_ONE ||
+                    fileHandlerStep === FileHandlerSteps.STEP_TWO) && (
+                    <>
+                        <p className="text-bold">
+                            Check that public health departments can receive
+                            your data through ReportStream by validating your
+                            file format.{" "}
+                        </p>
+                        <p className="text-bold">
+                            Reminder: Do not submit PII. Email{" "}
+                            <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                                {site.orgs.RS.email}
+                            </USExtLink>
+                            if you need fake data to use.
+                        </p>
+                    </>
+                )}
+                {fileName && (
+                    <>
+                        <p
+                            id="validatedFilename"
+                            className="text-normal text-base margin-bottom-0"
+                        >
+                            File name
+                        </p>
+                        <p className="margin-top-05">{fileName}</p>
+                    </>
+                )}
 
-            {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
-                <>
-                    <FileHandlerStepOne
-                        fileType={fileType}
+                {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
+                    <>
+                        <FileHandlerStepOne
+                            fileType={fileType}
+                            handleNextFileHandlerStep={
+                                handleNextFileHandlerStep
+                            }
+                            onSchemaChange={handleOnSchemaChange}
+                            schemaOptions={schemaOptions}
+                            selectedSchemaOption={selectedSchemaOption}
+                        />
+                        {siteTooltip()}
+                    </>
+                )}
+                {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
+                    <>
+                        <FileHandlerStepTwo
+                            handleSubmit={handleSubmit}
+                            handleFileChange={handleFileChange}
+                            fileInputResetValue={fileInputResetValue}
+                            fileName={fileName}
+                            selectedSchemaOption={selectedSchemaOption}
+                            isWorking={isWorking}
+                            handlePrevFileHandlerStep={
+                                handlePrevFileHandlerStep
+                            }
+                        />
+                        {siteTooltip()}
+                    </>
+                )}
+                {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
+                    <FileHandlerStepThree
+                        errors={errors}
+                        errorMessaging={errorMessaging}
                         handleNextFileHandlerStep={handleNextFileHandlerStep}
-                        onSchemaChange={handleOnSchemaChange}
-                        schemaOptions={schemaOptions}
-                        selectedSchemaOption={selectedSchemaOption}
-                    />
-                    {siteTooltip()}
-                </>
-            )}
-            {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
-                <>
-                    <FileHandlerStepTwo
-                        handleSubmit={handleSubmit}
-                        handleFileChange={handleFileChange}
-                        fileInputResetValue={fileInputResetValue}
-                        fileName={fileName}
-                        selectedSchemaOption={selectedSchemaOption}
-                        isWorking={isWorking}
                         handlePrevFileHandlerStep={handlePrevFileHandlerStep}
+                        hasQualityFilterMessages={hasQualityFilterMessages}
+                        qualityFilterMessages={qualityFilterMessages}
+                        selectedSchemaOption={selectedSchemaOption}
+                        warnings={warnings}
                     />
-                    {siteTooltip()}
-                </>
-            )}
-            {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
-                <FileHandlerStepThree
-                    errors={errors}
-                    errorMessaging={errorMessaging}
-                    handleNextFileHandlerStep={handleNextFileHandlerStep}
-                    handlePrevFileHandlerStep={handlePrevFileHandlerStep}
-                    hasQualityFilterMessages={hasQualityFilterMessages}
-                    qualityFilterMessages={qualityFilterMessages}
-                    selectedSchemaOption={selectedSchemaOption}
-                    warnings={warnings}
-                />
-            )}
-            {fileHandlerStep === FileHandlerSteps.STEP_FOUR && (
-                <FileHandlerStepFour
-                    destinations={destinations}
-                    reportId={reportId}
-                    successTimestamp={successTimestamp}
-                />
-            )}
+                )}
+                {fileHandlerStep === FileHandlerSteps.STEP_FOUR && (
+                    <FileHandlerStepFour
+                        destinations={destinations}
+                        reportId={reportId}
+                        successTimestamp={successTimestamp}
+                    />
+                )}
 
-            <p className="margin-top-10">
-                Question or feedback? Please email{" "}
-                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                    {site.orgs.RS.email}
-                </USExtLink>
-            </p>
-        </div>
+                <p className="margin-top-10">
+                    Question or feedback? Please email{" "}
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                        {site.orgs.RS.email}
+                    </USExtLink>
+                </p>
+            </article>
+        </GridContainer>
     );
 }
 
