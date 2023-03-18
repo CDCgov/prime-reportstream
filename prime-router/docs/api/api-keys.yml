@@ -90,10 +90,14 @@ components:
             type: object
             properties:
               kty:
+                description: The family of cryptographic algorithms used with the key.
                 type: string
               kid:
+                description: 	The unique identifier for the key.
                 type: string
               n:
+                description: The modulus for the RSA public key
                 type: string
               e:
+                description: The exponent for the RSA public key
                 type: string
