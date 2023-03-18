@@ -9,10 +9,12 @@ import Spinner from "../Spinner";
 import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import {
-    validateFileSelectedState,
+    validateFileType,
     ManagePublicKeyAction,
+    CONTENT_TYPE,
+    FORMAT,
+    validateFileSize,
 } from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
-import { ContentType } from "../../utils/TemporarySettingsAPITypes";
 
 import { ManagePublicKeyChooseSender } from "./ManagePublicKeyChooseSender";
 import { ManagePublicKeyUpload } from "./ManagePublicKeyUpload";
@@ -57,7 +59,7 @@ const ManagePublicKeySwitchDisplay = () => {
         try {
             setAction(ManagePublicKeyAction.SAVE_PUBLIC_KEY);
             sendFile({
-                contentType: ContentType.PEM,
+                contentType: CONTENT_TYPE,
                 fileContent: fileContent,
                 fileName: fileName,
             });
@@ -82,9 +84,13 @@ const ManagePublicKeySwitchDisplay = () => {
         setFileName(file.name);
         setFileContent(content);
 
-        const { fileError } = validateFileSelectedState(file);
-        if (fileError) {
-            showError(fileError);
+        const { fileTypeError } = validateFileType(file, FORMAT);
+        if (fileTypeError) {
+            showError(fileTypeError);
+        }
+        const { fileSizeError } = validateFileSize(file);
+        if (fileSizeError) {
+            showError(fileSizeError);
         }
     };
 
@@ -115,16 +121,12 @@ const ManagePublicKeySwitchDisplay = () => {
 
 export function ManagePublicKey() {
     return (
-        <div className="manage-public-key grid-container margin-bottom-5 tablet:margin-top-6">
-            <div>
-                <h1 className="margin-top-0 margin-bottom-5">
-                    Manage Public Key
-                </h1>
-                <p className="font-sans-md">
-                    Send your public key to begin the REST API authentication
-                    process.
-                </p>
-            </div>
+        <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
+            <h1 className="margin-top-0 margin-bottom-5">Manage Public Key</h1>
+            <p className="font-sans-md">
+                Send your public key to begin the REST API authentication
+                process.
+            </p>
             <SiteAlert variant="info" showIcon={false}>
                 <LightbulbIcon />
                 <span className="padding-left-1">
