@@ -20,6 +20,8 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
 
+    private val maximumNumberOfKeysPerScope = (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
+
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
     @FunctionName("getApiKeys")
@@ -83,11 +85,19 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             val kid = request.queryParameters["kid"] ?: return HttpUtilities.bad(request, "kid must be provided")
             jwk.kid = kid
 
-            val newJwkSet = JwkSet(scope, listOf(jwk))
             val currentKeys = organization.keys ?: emptyList()
+            val updatedJwkSet = (currentKeys.find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
+                {
+                    if (jwkSet.keys.size >= maximumNumberOfKeysPerScope) {
+                        val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
+                        JwkSet(scope, updatedKeys)
+                    } else {
+                        JwkSet(scope, jwkSet.keys + listOf(jwk))
+                    }
+                }
+            }()
 
-            val updatedKeys = currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(newJwkSet)
-
+            val updatedKeys = currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
             val updatedOrganization = Organization(organization, updatedKeys)
 
             settingsFacade.putSetting(

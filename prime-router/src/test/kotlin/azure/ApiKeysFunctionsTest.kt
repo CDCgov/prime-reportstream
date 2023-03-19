@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.BaseEngine
@@ -19,6 +18,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.json.JSONObject
@@ -48,6 +48,8 @@ class ApiKeysFunctionsTest {
     val pubKey = keyPair.getPublic() as RSAPublicKey
     val keyPair2 = Keys.keyPairFor(SignatureAlgorithm.RS256)
     val pubKey2 = keyPair2.getPublic() as RSAPublicKey
+    val keyPair3 = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    val pubKey3 = keyPair2.getPublic() as RSAPublicKey
 
     var encodedPubKey: String? = null
     val jwk = Jwk(
@@ -61,6 +63,13 @@ class ApiKeysFunctionsTest {
         pubKey.getAlgorithm(),
         n = Base64.getUrlEncoder().encodeToString(pubKey2.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey2.getPublicExponent().toByteArray()),
+        alg = "RS256",
+        use = "sig",
+    )
+    val jwk3 = Jwk(
+        pubKey.getAlgorithm(),
+        n = Base64.getUrlEncoder().encodeToString(pubKey3.getModulus().toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey3.getPublicExponent().toByteArray()),
         alg = "RS256",
         use = "sig",
     )
@@ -130,7 +139,7 @@ class ApiKeysFunctionsTest {
         }
 
         @Test
-        fun `Test successfully overwrites a key`() {
+        fun `Test successfully adds a new key when not over the key limit`() {
             settings.organizationStore.put(
                 organization.name,
                 organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
@@ -152,8 +161,48 @@ class ApiKeysFunctionsTest {
             val updatedOrg = settings.organizationStore.get(organization.name)
             assertThat(updatedOrg?.keys?.size).isEqualTo(1)
             assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(wildcardReportScope))
-            assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isEqualTo(jwk.toRSAPublicKey())
-            assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isNotEqualTo(jwk2.toRSAPublicKey())
+            assertThat(updatedOrg?.keys?.get(0)?.keys?.size).isEqualTo(2)
+            updatedOrg?.keys?.get(0)?.keys?.map { key -> key.toRSAPublicKey() }?.let {
+                assertThat(
+                    it
+                        .toSet()
+                ).isEqualTo(setOf(jwk.toRSAPublicKey(), jwk2.toRSAPublicKey()))
+            }
+        }
+
+        @Test
+        fun `Test successfully removes the oldest key and adds the new one when over the limit`() {
+            mockkStatic(System::class)
+            every { System.getenv("MAX_NUM_KEY_PER_SCOPE") } returns "2"
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
+                    .makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk3)
+            )
+
+            val httpRequestMessage = MockHttpRequestMessage(encodedPubKey)
+            httpRequestMessage.queryParameters["scope"] = wildcardReportScope
+            httpRequestMessage.queryParameters["kid"] = organization.name
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+
+            val updatedOrg = settings.organizationStore.get(organization.name)
+            assertThat(updatedOrg?.keys?.size).isEqualTo(1)
+            assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(wildcardReportScope))
+            assertThat(updatedOrg?.keys?.get(0)?.keys?.size).isEqualTo(2)
+            updatedOrg?.keys?.get(0)?.keys?.map { key -> key.toRSAPublicKey() }?.let {
+                assertThat(
+                    it
+                        .toSet()
+                ).isEqualTo(setOf(jwk3.toRSAPublicKey(), jwk.toRSAPublicKey()))
+            }
         }
 
         @Test
