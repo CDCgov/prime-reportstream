@@ -520,31 +520,25 @@ object DateUtilities {
     fun TemporalAccessor.formatDateTimeForReceiver(report: Report? = null): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
 
-        return when (isTimeGreaterThanZero(this)) {
-            true -> formatDateForReceiver(
-                this,
-                report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
-                report?.destination?.dateTimeFormat ?: DateTimeFormat.OFFSET,
-                hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
-                hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
-            )
-            false -> this.toString()
-        }
+        return formatDateForReceiver(
+            this,
+            report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
+            report?.destination?.dateTimeFormat ?: DateTimeFormat.OFFSET,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
+        )
     }
 
     /** Format the date for the receiver, but overriding the format with one specifically passed in */
     fun TemporalAccessor.formatDateTimeForReceiver(dateTimeFormat: DateTimeFormat, report: Report? = null): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
-        return when (isTimeGreaterThanZero(this)) {
-            true -> formatDateForReceiver(
-                this,
-                report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
-                dateTimeFormat,
-                hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
-                hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
-            )
-            false -> this.toString()
-        }
+        return formatDateForReceiver(
+            this,
+            report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
+            dateTimeFormat,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
+        )
     }
 
     /**
