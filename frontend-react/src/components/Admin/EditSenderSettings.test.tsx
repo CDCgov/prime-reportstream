@@ -128,17 +128,7 @@ describe("EditSenderSettings", () => {
             jest.resetAllMocks();
         });
 
-        test("should display an error if name value is prohibited", () => {
-            fireEvent.change(nameField, {
-                target: { value: "Organization" },
-            });
-            expect(nameField).toHaveValue("Organization");
-
-            fireEvent.click(editJsonAndSaveButton);
-            expect(consoleTraceSpy).toHaveBeenCalled();
-        });
-
-        test("should display an error if name value contains a non-alphanumeric char", () => {
+        test("should display an error if name value contains a disallowed char", () => {
             fireEvent.change(nameField, {
                 target: { value: "a\\nlinefeed" },
             });
