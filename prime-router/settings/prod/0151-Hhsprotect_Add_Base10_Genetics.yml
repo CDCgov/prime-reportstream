@@ -1,0 +1,49 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0151-Hhsprotect_Add_Base10_Genetics.yml
+---
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: null
+  featureFlags: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "hhsprotect"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<CUSTOM>
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+        defaults: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - "matches(sender_id, SafeHealth,ImageMover,Cue,InBios,Strac,.*CueHlth.*,reddyfmc-la,primary,cuc-al,guc-la,abbott,lifepoint,hca,pmg,ihealthlabs,mns,all-in-one-health-ca,corebiolabs-oh,covidclinic-org,elitemedlabs-co,warrior-dx-co,stemexpress-ca,newport-childrens-hospital-ca,sdilabs-ca,naval-health-clinic-lemoore,prescryptive,pcl-ca,jrslab-ca,mycarelabs-ca,biovisiondx-il,youthclinic-co,kwokmandx-ca,toprankdx-ca,hollywoodsmiles-ca,hcintegrations,signetic,xtrava,intrivo,neurolab,limsabc-nova,clxhealth,genabio,osang-otc,base10genetics)"
+      qualityFilter:
+        - "allowAll()"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 144
+        initialTime: "00:02"
+        timeZone: "EASTERN"
+        maxReportCount: 1000
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<BLOBSTORE>
+        storageName: "PartnerStorage"
+        containerName: "hhsprotect"
+        type: "BLOBSTORE"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
