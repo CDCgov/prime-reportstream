@@ -392,18 +392,20 @@ class FHIRRouter(
                 allObservationsExpression
             )
 
-            passes = passes && allObservations.any { observation ->
-                evaluateFilterAndLogResult(
-                    getConditionFilter(receiver, orgFilters),
-                    bundle,
-                    report,
-                    receiver,
-                    ReportStreamFilterType.CONDITION_FILTER,
-                    defaultResponse = true,
-                    false,
-                    observation
+            passes = passes && (
+                allObservations.isEmpty() || allObservations.any { observation ->
+                    evaluateFilterAndLogResult(
+                        getConditionFilter(receiver, orgFilters),
+                        bundle,
+                        report,
+                        receiver,
+                        ReportStreamFilterType.CONDITION_FILTER,
+                        defaultResponse = true,
+                        false,
+                        observation
+                    )
+                }
                 )
-            }
 
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
