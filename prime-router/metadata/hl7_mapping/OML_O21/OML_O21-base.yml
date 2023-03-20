@@ -39,4 +39,8 @@ elements:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
     schema: ../ORU_R01/base/patient-visit
 
-# TODO Add more segments as they are converted.
+  - name: common-order
+    resource: Bundle.entry.resource.ofType(ServiceRequest)
+    condition: '%resource.exists()'
+    required: true
+    schema: ./base/common-order
