@@ -82,20 +82,20 @@ jobs:
       # - name: Terraform Plan
       #   id: plan
       #   run: |
-      #     terraform plan -target=module.azure_dashboard8 -out=tfplan
+      #     terraform plan -out=tfplan
       #     cat tfplan
-      #     terraform plan -target=module.azure_dashboard8 > tfplan.txt
+      #     terraform plan > tfplan.txt
       #     cat tfplan.txt
 
       # - name: Create Pull Request
       #   id: cpr
-      #   uses: peter-evans/create-pull-request@v4
+      #   uses: peter-evans/create-pull-request@v3
       #   with:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     commit-message: Latest terraform changes to prod
       #     signoff: false
       #     base: master
-      #     branch: feature/autocreate-pr-with-tfplan-output-prod
+      #     branch: feature/myfeaturebranchname
       #     delete-branch: false
       #     title: 'AutoPR With Terraform Plan Change to Prod'
       #     body: |
@@ -104,18 +104,13 @@ jobs:
       #       $(cat tfplan.txt)
       #       ````
       #     labels: |
-      #       reportstream
+      #       production
       #       DevOps
       #     assignees: |
-      #       lucasdze
-      #       JosiahSiegel
-      #       jeremy-page
-      #       supriyaaddagada
+      #       johnsmith
       #     reviewers: |
-      #       lucasdze
-      #       JosiahSiegel
-      #       jeremy-page
-      #       supriyaaddagada 
+      #       johnsmith
+      #       michaelkosh 
       #     draft: false
       
       # - name: Add Terraform Plan Output as Comment
