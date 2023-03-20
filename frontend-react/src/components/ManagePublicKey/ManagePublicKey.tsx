@@ -80,9 +80,6 @@ const ManagePublicKeySwitchDisplay = () => {
 
         const content = await file.text();
 
-        setFileName(file.name);
-        setFileContent(content);
-
         const { fileTypeError } = validateFileType(file, FORMAT);
         if (fileTypeError) {
             showError(fileTypeError);
@@ -90,6 +87,11 @@ const ManagePublicKeySwitchDisplay = () => {
         const { fileSizeError } = validateFileSize(file);
         if (fileSizeError) {
             showError(fileSizeError);
+        }
+
+        if (!fileTypeError && !fileSizeError) {
+            setFileName(file.name);
+            setFileContent(content);
         }
     };
 
