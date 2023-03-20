@@ -61,6 +61,34 @@ class FhirBundleUtilsTests {
     }
 
     @Test
+    fun `test convert to datetime`() {
+        var convertedValue =
+            FhirBundleUtils.convertFhirType(StringType("2015-02-07T13:28:17-05:00"), "string", "dateTime")
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        convertedValue =
+            FhirBundleUtils.convertFhirType(InstantType("2015-02-07T13:28:17.239+02:00"), "instant", "dateTime")
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        convertedValue =
+            FhirBundleUtils.convertFhirType(DateTimeType("2015-02-07T13:28:17.239+02:00"), "dateTime", "dateTime")
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+        convertedValue =
+            FhirBundleUtils.convertFhirType(DateType("2015-02-07"), "date", "dateTime")
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+
+        // Test that extra text in brackets for the timezone gets removed
+        convertedValue =
+            FhirBundleUtils.convertFhirType(
+                StringType("2015-02-07T13:28:17-07:00[\"America/Phoenix\"]"),
+                "string",
+                "dateTime"
+            )
+        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
+
+        // Incompatible type
+        assertThat { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }.isFailure()
+    }
+
+    @Test
     fun `test convert incompatible fhir types`() {
         var convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "id")
         assertThat(convertedValue).isInstanceOf(BooleanType::class)

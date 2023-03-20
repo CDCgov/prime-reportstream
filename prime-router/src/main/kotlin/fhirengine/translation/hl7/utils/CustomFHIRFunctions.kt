@@ -7,16 +7,15 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
+import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.zone.ZoneRulesException
-import java.util.Date
+import java.util.TimeZone
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -463,22 +462,23 @@ object CustomFHIRFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
+        val inputDate = FhirBundleUtils.convertFhirType(focus[0], focus[0].fhirType(), "dateTime") as? DateTimeType
+            ?: throw SchemaException("Must call changeTimezone on a dateTime compatible value")
+
         if (parameters == null || parameters[0].size != 1) {
             throw SchemaException("Must pass a timezone as the parameter")
         }
 
-        val timezonePassed = parameters.first().first().primitiveValue()
-
-        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-
-        try {
-            val date: Date = isoFormat.parse(focus[0].primitiveValue())
-            val changedDate = date.toInstant().atZone(ZoneId.of(timezonePassed))
-            return mutableListOf(StringType(changedDate.toString()))
+        val inputTimeZone = parameters.first().first().primitiveValue()
+        val timezonePassed = try {
+            TimeZone.getTimeZone(ZoneId.of(inputTimeZone))
         } catch (zoneRulesException: ZoneRulesException) {
-            throw SchemaException("Invalid timezone $timezonePassed passed. See ZoneId for available timezone values.")
-        } catch (parseException: ParseException) {
-            throw SchemaException("DateTime of the expected format not found.")
+            throw SchemaException(
+                "Invalid timezone $inputTimeZone passed. See FHIR timezone valueset " +
+                    "for available timezone values."
+            )
         }
+
+        return mutableListOf(DateTimeType(inputDate.value, inputDate.precision, timezonePassed))
     }
 }

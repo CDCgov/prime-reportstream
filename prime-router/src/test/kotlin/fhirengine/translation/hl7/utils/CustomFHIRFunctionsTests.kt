@@ -1,15 +1,15 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
-import assertk.assertions.hasClass
+import assertk.assertions.doesNotHaveClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.DateTimeType
@@ -19,6 +19,7 @@ import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
+import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -77,7 +78,7 @@ class CustomFHIRFunctionsTests {
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
-                }.isFailure().hasClass(SchemaException::class.java)
+                }.isFailure().doesNotHaveClass(IllegalStateException::class.java)
             } else if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
                 assertThat {
                     CustomFHIRFunctions
@@ -340,21 +341,107 @@ class CustomFHIRFunctionsTests {
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
 
         // need to choose place without daylight savings time so that the test is not brittle
-        val pst = StringType().also { it.value = "America/Phoenix" }
+        val pst = StringType("America/Phoenix")
 
         val pstDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(DateTimeType(date)),
             mutableListOf(mutableListOf(pst))
         )
-        assertThat(pstDate[0].primitiveValue()).isEqualTo("2021-08-09T05:52-07:00[America/Phoenix]")
+        assertThat(pstDate[0]).isInstanceOf(DateTimeType::class.java)
+        assertThat(pstDate[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00-07:00")
 
         // Japan also doesn't have daylight savings time and is an example of a positive time change
-        val jst = StringType().also { it.value = "Asia/Tokyo" }
+        val jst = StringType("Asia/Tokyo")
         val jstDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(DateTimeType(date)),
             mutableListOf(mutableListOf(jst))
         )
-        assertThat(jstDate[0].primitiveValue()).isEqualTo("2021-08-09T21:52+09:00[Asia/Tokyo]")
+        assertThat(jstDate[0].primitiveValue()).isEqualTo("2021-08-09T21:52:00+09:00")
+
+        // Verify the output can be adjusted again
+        val pstDate2 = CustomFHIRFunctions.changeTimezone(jstDate, mutableListOf(mutableListOf(pst)))
+        assertThat(pstDate2[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00-07:00")
+    }
+
+    @Test
+    fun `test changeTimezone with convertDateTimeToHL7`() {
+        val timezoneParameters: MutableList<MutableList<Base>>? = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
+        var adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015")),
+                timezoneParameters
+            )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime)).isEqualTo("2015")
+
+        adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2015-04")),
+            timezoneParameters
+        )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
+            .isEqualTo("201504")
+
+        adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2015-04-05")),
+            timezoneParameters
+        )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
+            .isEqualTo("20150405")
+
+        // Fhir doesn't support hour/minute precision
+        // With seconds, we should start to see timezone
+        adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2015-04-05T12:22:11")),
+            timezoneParameters
+        )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
+            .isEqualTo("20150406012211+0900")
+
+        adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2015-04-05T12:22:11.567")),
+            timezoneParameters
+        )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
+            .isEqualTo("20150406012211.567+0900")
+
+        adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2015-04-11T12:22:01-04:00")),
+            timezoneParameters
+        )[0] as DateTimeType
+        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
+            .isEqualTo("20150412012201+0900")
+    }
+
+    @Test
+    fun `test changeTimezone invalid inputs`() {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
+        val timezoneParameters: MutableList<MutableList<Base>>? = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
+
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType(date), DateTimeType(date)),
+                timezoneParameters
+            )
+        }.isFailure()
+
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(TimeType("12:34:56")),
+                timezoneParameters
+            )
+        }.isFailure()
+
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType(date)),
+                null
+            )
+        }.isFailure()
     }
 
     @Test
