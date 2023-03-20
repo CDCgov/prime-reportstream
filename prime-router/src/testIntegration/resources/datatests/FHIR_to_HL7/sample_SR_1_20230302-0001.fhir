@@ -1,16 +1,16 @@
 {
   "resourceType": "Bundle",
   "identifier": {
-    "value": "f1265313-2bcd-4585-8482-96264c4f8abe"
+    "value": "da0e2889-49da-4dfe-b2f6-cb963a91f046"
   },
   "type": "message",
-  "timestamp": "2023-03-02T21:30:42.962+00:00",
+  "timestamp": "2023-03-15T12:12:25.710+00:00",
   "entry": [
     {
-      "fullUrl": "MessageHeader/e8baa39a-33ad-4efc-8cbf-1ed28429ba98",
+      "fullUrl": "MessageHeader/d5a47347-6943-4a3c-9b85-69d3e85e33eb",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "e8baa39a-33ad-4efc-8cbf-1ed28429ba98",
+        "id": "d5a47347-6943-4a3c-9b85-69d3e85e33eb",
         "meta": {
           "tag": [
             {
@@ -32,17 +32,17 @@
           }
         ],
         "sender": {
-          "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+          "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
         },
         "source": {
           "extension": [
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
-              "valueString": "d78782e"
+              "valueString": "de16f33"
             },
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
-              "valueInstant": "2023-03-02T19:44:54Z"
+              "valueInstant": "2023-03-14T19:20:06Z"
             },
             {
               "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
@@ -52,30 +52,25 @@
             }
           ],
           "software": "PRIME SimpleReport",
-          "version": "d78782e",
+          "version": "de16f33",
           "endpoint": "https://simplereport.gov"
         },
         "focus": [
           {
-            "reference": "Provenance/cd2e9813-d9cd-4cb9-bf05-7dcdb6b5fe10"
+            "reference": "Provenance/47f62e92-33a3-4ba8-859c-27507a84b6e2"
           },
           {
-            "reference": "DiagnosticReport/f1265313-2bcd-4585-8482-96264c4f8abe"
+            "reference": "DiagnosticReport/da0e2889-49da-4dfe-b2f6-cb963a91f046"
           }
         ]
       }
     },
     {
-      "fullUrl": "Provenance/cd2e9813-d9cd-4cb9-bf05-7dcdb6b5fe10",
+      "fullUrl": "Provenance/47f62e92-33a3-4ba8-859c-27507a84b6e2",
       "resource": {
         "resourceType": "Provenance",
-        "id": "cd2e9813-d9cd-4cb9-bf05-7dcdb6b5fe10",
-        "target": [
-          {
-            "reference": "Endpoint/1677793124522597000.c54a4971-1b34-4b31-a3bc-2a3cfb64a844"
-          }
-        ],
-        "recorded": "2023-03-02T21:30:42.888+00:00",
+        "id": "47f62e92-33a3-4ba8-859c-27507a84b6e2",
+        "recorded": "2023-03-15T12:12:25.710+00:00",
         "activity": {
           "coding": [
             {
@@ -88,20 +83,25 @@
         "agent": [
           {
             "who": {
-              "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+              "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
             }
           }
         ]
       }
     },
     {
-      "fullUrl": "DiagnosticReport/f1265313-2bcd-4585-8482-96264c4f8abe",
+      "fullUrl": "DiagnosticReport/da0e2889-49da-4dfe-b2f6-cb963a91f046",
       "resource": {
         "resourceType": "DiagnosticReport",
-        "id": "f1265313-2bcd-4585-8482-96264c4f8abe",
+        "id": "da0e2889-49da-4dfe-b2f6-cb963a91f046",
+        "identifier": [
+          {
+            "value": "da0e2889-49da-4dfe-b2f6-cb963a91f046"
+          }
+        ],
         "basedOn": [
           {
-            "reference": "ServiceRequest/7e35fb9d-113a-4c48-bd6e-eca7f42c234b"
+            "reference": "ServiceRequest/66151daf-cc20-4ac4-b8e1-f9f7c60d8c0e"
           }
         ],
         "status": "final",
@@ -109,36 +109,38 @@
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "95423-0"
+              "code": "97097-0"
             }
           ]
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         },
+        "effectiveDateTime": "2023-03-15T12:12:25+00:00",
+        "issued": "2023-03-15T12:12:25.683+00:00",
         "specimen": [
           {
-            "reference": "Specimen/8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28"
+            "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
           }
         ],
         "result": [
           {
-            "reference": "Observation/5dcbbac6-03e8-4e37-b200-1309878c5e1e"
+            "reference": "Observation/5ed99883-4586-4374-af17-c9e578146863"
           },
           {
-            "reference": "Observation/875ad74a-3fe3-40de-bcea-d500bd82ac08"
+            "reference": "Observation/6559cde0-9c51-42d7-a520-9dbd30078c9c"
           },
           {
-            "reference": "Observation/a17ff8e5-4291-43c2-a8c2-6bcb554b41d4"
+            "reference": "Observation/978d7989-b8c0-4b22-9e84-2ce462f0b68f"
           }
         ]
       }
     },
     {
-      "fullUrl": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6",
+      "fullUrl": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3",
       "resource": {
         "resourceType": "Patient",
-        "id": "16eaac89-db3b-4983-8bfb-fa468ecabff6",
+        "id": "7ac161f0-052e-4872-afbe-d9382e291bf3",
         "extension": [
           {
             "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
@@ -168,52 +170,48 @@
         ],
         "identifier": [
           {
-            "value": "16eaac89-db3b-4983-8bfb-fa468ecabff6"
+            "value": "7ac161f0-052e-4872-afbe-d9382e291bf3"
           }
         ],
         "name": [
           {
-            "family": "Aaron Beck",
+            "family": "Weasley",
             "given": [
-              "Tom"
+              "Ron"
             ]
           }
         ],
         "telecom": [
           {
             "system": "phone",
-            "value": "(248) 555 1234",
-            "use": "mobile"
-          },
-          {
-            "system": "email",
-            "value": "foo@example.com",
+            "value": "(201) 281 9701",
             "use": "home"
           }
         ],
         "gender": "male",
-        "birthDate": "1933-05-11",
+        "birthDate": "1989-12-16",
         "address": [
           {
             "line": [
-              "123 Main Street"
+              "123 Main St"
             ],
-            "city": "Washington",
-            "state": "IG",
-            "postalCode": "20008",
+            "city": "Hackensack",
+            "district": "Bergen",
+            "state": "NJ",
+            "postalCode": "07601-7103",
             "country": "USA"
           }
         ],
         "managingOrganization": {
-          "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+          "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
         }
       }
     },
     {
-      "fullUrl": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e",
+      "fullUrl": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78",
       "resource": {
         "resourceType": "Organization",
-        "id": "bb914bc7-ecb1-412f-a543-70e930bd061e",
+        "id": "1e37071a-51ec-4a42-9a52-7d03613e5d78",
         "identifier": [
           {
             "use": "official",
@@ -225,14 +223,14 @@
                 }
               ]
             },
-            "value": "12D3456789"
+            "value": "11D1111111"
           }
         ],
-        "name": "Third",
+        "name": "Gryffindor",
         "telecom": [
           {
             "system": "phone",
-            "value": "(248) 555 1234",
+            "value": "(201) 281 9701",
             "use": "work"
           },
           {
@@ -243,32 +241,34 @@
         "address": [
           {
             "line": [
-              "1 Main St"
+              "123 Main St"
             ],
-            "state": "IG",
-            "postalCode": "99551",
+            "city": "Hackensack",
+            "district": "Bergen",
+            "state": "NJ",
+            "postalCode": "07601-7103",
             "country": "USA"
           }
         ]
       }
     },
     {
-      "fullUrl": "Practitioner/c481a0ec-cda7-4b08-adf6-b43e985d6b43",
+      "fullUrl": "Practitioner/d6de846b-c3ae-4edb-ae66-6da63642a3c4",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "c481a0ec-cda7-4b08-adf6-b43e985d6b43",
+        "id": "d6de846b-c3ae-4edb-ae66-6da63642a3c4",
         "name": [
           {
-            "family": "John",
+            "family": "Potter",
             "given": [
-              "John"
+              "Harry"
             ]
           }
         ],
         "telecom": [
           {
             "system": "phone",
-            "value": "(248) 555 1234",
+            "value": "(201) 281 9701",
             "use": "work"
           }
         ],
@@ -280,84 +280,86 @@
       }
     },
     {
-      "fullUrl": "Specimen/8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28",
+      "fullUrl": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d",
       "resource": {
         "resourceType": "Specimen",
-        "id": "8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28",
+        "id": "52a582e4-d389-42d0-b738-bee51cf5244d",
+        "identifier": [
+          {
+            "value": "52a582e4-d389-42d0-b738-bee51cf5244d"
+          }
+        ],
         "type": {
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "258500001"
+              "code": "697989009"
             }
           ],
-          "text": "Nasopharyngeal Swab"
+          "text": "Anterior Nasal Swab"
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         }
       }
     },
     {
-      "fullUrl": "ServiceRequest/7e35fb9d-113a-4c48-bd6e-eca7f42c234b",
+      "fullUrl": "ServiceRequest/66151daf-cc20-4ac4-b8e1-f9f7c60d8c0e",
       "resource": {
         "resourceType": "ServiceRequest",
-        "id": "7e35fb9d-113a-4c48-bd6e-eca7f42c234b",
+        "id": "66151daf-cc20-4ac4-b8e1-f9f7c60d8c0e",
         "status": "completed",
         "intent": "order",
         "code": {
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "95423-0"
+              "code": "97097-0"
             }
           ]
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         },
         "requester": {
-          "reference": "PractitionerRole/ad81f02f-faa7-4b2f-bedd-96ee14e2d8af"
+          "reference": "PractitionerRole/d79d71c5-8cea-4085-bd8b-14964e7c6a5b"
         },
         "performer": [
           {
-            "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+            "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
           }
         ],
         "supportingInfo": [
           {
-            "reference": "Observation/a7fdb411-c3dc-40ba-b1d3-2b721ed05e6d"
-          },
-          {
-            "reference": "Observation/ef827dc7-141e-49bb-8994-ab366d8e5366"
+            "reference": "Observation/dcc8efcc-bed5-37f2-aa6f-19098098bbe0"
           }
         ]
       }
     },
     {
-      "fullUrl": "Device/cefa6607-96c2-4776-b2bc-7e4715055ee6",
+      "fullUrl": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698",
       "resource": {
         "resourceType": "Device",
-        "id": "cefa6607-96c2-4776-b2bc-7e4715055ee6",
-        "manufacturer": "Centers for Disease Control and Prevention (CDC)",
+        "id": "78dc4d98-2958-43a3-a445-76ceef8c0698",
+        "manufacturer": "Becton, Dickinson and Company (BD)",
         "deviceName": [
           {
-            "name": "Influenza SARS-CoV-2 (Flu SC2) Multiplex Assay*",
+            "name": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*",
             "type": "model-name"
           }
         ]
       }
     },
     {
-      "fullUrl": "PractitionerRole/ad81f02f-faa7-4b2f-bedd-96ee14e2d8af",
+      "fullUrl": "PractitionerRole/d79d71c5-8cea-4085-bd8b-14964e7c6a5b",
       "resource": {
         "resourceType": "PractitionerRole",
-        "id": "ad81f02f-faa7-4b2f-bedd-96ee14e2d8af",
+        "id": "d79d71c5-8cea-4085-bd8b-14964e7c6a5b",
         "practitioner": {
-          "reference": "Practitioner/c481a0ec-cda7-4b08-adf6-b43e985d6b43"
+          "reference": "Practitioner/d6de846b-c3ae-4edb-ae66-6da63642a3c4"
         },
         "organization": {
-          "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+          "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
         }
       }
     },
@@ -370,68 +372,26 @@
       }
     },
     {
-      "fullUrl": "Observation/5dcbbac6-03e8-4e37-b200-1309878c5e1e",
+      "fullUrl": "Observation/5ed99883-4586-4374-af17-c9e578146863",
       "resource": {
         "resourceType": "Observation",
-        "id": "5dcbbac6-03e8-4e37-b200-1309878c5e1e",
+        "id": "5ed99883-4586-4374-af17-c9e578146863",
         "status": "final",
         "code": {
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "95423-0",
-              "display": "COVID-19"
-            }
-          ],
-          "text": "COVID-19"
-        },
-        "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
-        },
-        "performer": [
-          {
-            "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
-          }
-        ],
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "system": "http://snomed.info/sct",
-              "code": "260373001",
-              "display": "POSITIVE"
-            }
-          ]
-        },
-        "specimen": {
-          "reference": "Specimen/8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28"
-        },
-        "device": {
-          "reference": "Device/cefa6607-96c2-4776-b2bc-7e4715055ee6"
-        }
-      }
-    },
-    {
-      "fullUrl": "Observation/875ad74a-3fe3-40de-bcea-d500bd82ac08",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "875ad74a-3fe3-40de-bcea-d500bd82ac08",
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "95423-0",
-              "display": "Flu B"
+              "code": "80383-3"
             }
           ],
           "text": "Flu B"
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         },
         "performer": [
           {
-            "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+            "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
           }
         ],
         "valueCodeableConcept": {
@@ -444,35 +404,34 @@
           ]
         },
         "specimen": {
-          "reference": "Specimen/8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28"
+          "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
         },
         "device": {
-          "reference": "Device/cefa6607-96c2-4776-b2bc-7e4715055ee6"
+          "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
         }
       }
     },
     {
-      "fullUrl": "Observation/a17ff8e5-4291-43c2-a8c2-6bcb554b41d4",
+      "fullUrl": "Observation/6559cde0-9c51-42d7-a520-9dbd30078c9c",
       "resource": {
         "resourceType": "Observation",
-        "id": "a17ff8e5-4291-43c2-a8c2-6bcb554b41d4",
+        "id": "6559cde0-9c51-42d7-a520-9dbd30078c9c",
         "status": "final",
         "code": {
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "95423-0",
-              "display": "Flu A"
+              "code": "97097-0"
             }
           ],
-          "text": "Flu A"
+          "text": "COVID-19"
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         },
         "performer": [
           {
-            "reference": "Organization/bb914bc7-ecb1-412f-a543-70e930bd061e"
+            "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
           }
         ],
         "valueCodeableConcept": {
@@ -485,18 +444,58 @@
           ]
         },
         "specimen": {
-          "reference": "Specimen/8e07cba1-7a0f-42b7-ba36-df3bd1bf2e28"
+          "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
         },
         "device": {
-          "reference": "Device/cefa6607-96c2-4776-b2bc-7e4715055ee6"
+          "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
         }
       }
     },
     {
-      "fullUrl": "Observation/a7fdb411-c3dc-40ba-b1d3-2b721ed05e6d",
+      "fullUrl": "Observation/978d7989-b8c0-4b22-9e84-2ce462f0b68f",
       "resource": {
         "resourceType": "Observation",
-        "id": "a7fdb411-c3dc-40ba-b1d3-2b721ed05e6d",
+        "id": "978d7989-b8c0-4b22-9e84-2ce462f0b68f",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "80382-5"
+            }
+          ],
+          "text": "Flu A"
+        },
+        "subject": {
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
+        },
+        "performer": [
+          {
+            "reference": "Organization/1e37071a-51ec-4a42-9a52-7d03613e5d78"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260373001",
+              "display": "POSITIVE"
+            }
+          ]
+        },
+        "specimen": {
+          "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
+        },
+        "device": {
+          "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
+        }
+      }
+    },
+    {
+      "fullUrl": "Observation/dcc8efcc-bed5-37f2-aa6f-19098098bbe0",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "dcc8efcc-bed5-37f2-aa6f-19098098bbe0",
         "identifier": [
           {
             "use": "official",
@@ -507,8 +506,7 @@
                   "code": "81959-9",
                   "display": "Public health laboratory ask at order entry panel"
                 }
-              ],
-              "text": "Public health laboratory ask at order entry panel"
+              ]
             }
           }
         ],
@@ -524,69 +522,17 @@
           "text": "Has symptoms related to condition of interest"
         },
         "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
+          "reference": "Patient/7ac161f0-052e-4872-afbe-d9382e291bf3"
         },
         "valueCodeableConcept": {
           "coding": [
             {
-              "system": "http://terminology.hl7.org/ValueSet/v2-0136",
-              "code": "Y",
-              "display": "Yes"
+              "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+              "code": "UNK",
+              "display": "unknown"
             }
           ]
         }
-      }
-    },
-    {
-      "fullUrl": "Observation/ef827dc7-141e-49bb-8994-ab366d8e5366",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "ef827dc7-141e-49bb-8994-ab366d8e5366",
-        "identifier": [
-          {
-            "use": "official",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "81959-9",
-                  "display": "Public health laboratory ask at order entry panel"
-                }
-              ],
-              "text": "Public health laboratory ask at order entry panel"
-            }
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "11368-8",
-              "display": "Illness or injury onset date and time"
-            }
-          ],
-          "text": "Illness or injury onset date and time"
-        },
-        "subject": {
-          "reference": "Patient/16eaac89-db3b-4983-8bfb-fa468ecabff6"
-        },
-        "valueDateTime": "2023-03-01"
-      }
-    },
-    {
-      "fullUrl": "Endpoint/1677793124522597000.c54a4971-1b34-4b31-a3bc-2a3cfb64a844",
-      "resource": {
-        "resourceType": "Endpoint",
-        "id": "1677793124522597000.c54a4971-1b34-4b31-a3bc-2a3cfb64a844",
-        "identifier": [
-          {
-            "system": "https://reportstream.cdc.gov/prime-router",
-            "value": "ignore.FULL_ELR"
-          }
-        ],
-        "status": "active",
-        "name": "Ignore FULL_ELR"
       }
     }
   ]

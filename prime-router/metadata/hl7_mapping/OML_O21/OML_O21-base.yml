@@ -10,12 +10,12 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: ../ORU_R01/base/message-header
+    schema: ../common/message-header
 
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: ../ORU_R01/base/software
+    schema: ../common/software
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
@@ -23,20 +23,20 @@ elements:
     required: true
     constants:
       hl7SegmentGroup: '/PATIENT'
-    schema: ../ORU_R01/base/patient
+    schema: ../common/patient
 
   - name: patient-contact
     resource: 'Bundle.entry.resource.ofType(Patient).contact'
     condition: '%resource.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT'
-    schema: ../ORU_R01/base/patient-contact
+    schema: ../common/patient-contact
 
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
     constants:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
-    schema: ../ORU_R01/base/patient-visit
+    schema: ../common/patient-visit
 
 # TODO Add more segments as they are converted.
