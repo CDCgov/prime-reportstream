@@ -28,12 +28,11 @@ const ManagePublicKeySwitchDisplay = () => {
     const [fileName, setFileName] = useState("");
 
     // TODO: mocked for now - make the call you need when sending the file
-    const { sendFile, isProcessingFile } = {
+    const { sendFile } = {
         // eslint-disable-next-line no-empty-pattern
         sendFile: ({}) => {
             return { fileName: "fileName" };
         },
-        isProcessingFile: false,
     };
 
     const onSenderSelect = (selectedSender: string) => {
