@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.common.PhonePart
-import gov.cdc.prime.router.common.PhoneUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
