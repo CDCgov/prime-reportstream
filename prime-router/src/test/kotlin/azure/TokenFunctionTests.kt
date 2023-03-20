@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.tokens.AccessToken
@@ -48,10 +49,28 @@ class TokenFunctionTests {
         CustomerStatus.INACTIVE,
         "default"
     )
+    val organization = Organization(
+        sender.organizationName,
+        "simple_report_org",
+        Organization.Jurisdiction.FEDERAL,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
     var validScope = "simple_report.default.report"
 
     val jwk = Jwk(
         pubKey.getAlgorithm(),
+        n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
+        alg = "RS256",
+        use = "sig",
+    )
+
+    val badJwk = Jwk(
+        "invalid",
         n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
         alg = "RS256",
@@ -188,6 +207,7 @@ class TokenFunctionTests {
     @Test
     fun `Test expired key`() {
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, organization)
 
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() - 1000)
@@ -211,6 +231,7 @@ class TokenFunctionTests {
             sender.fullName,
             sender
         )
+        settings.organizationStore.put(organization.name, organization)
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
         httpRequestMessage.parameters.put("scope", validScope)
@@ -229,6 +250,7 @@ class TokenFunctionTests {
     @Test
     fun `Test invalid scope for sender`() {
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, organization)
         listOf(
             // Wrong org
             listOf(
@@ -261,6 +283,7 @@ class TokenFunctionTests {
     fun `Test no key for scope`() {
 
         settings.senderStore.put(sender.fullName, CovidSender(sender, "test.scope", jwk))
+        settings.organizationStore.put(organization.name, organization)
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -279,6 +302,91 @@ class TokenFunctionTests {
     }
 
     @Test
+    fun `Test success with organization`() {
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
+            "test",
+            "test",
+            "test",
+            10,
+            10,
+            "test"
+        )
+
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
+
+        var httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.parameters.put("client_assertion", token)
+        httpRequestMessage.parameters.put("scope", validScope)
+        // Invoke
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        // Verify
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+    }
+
+    // TODO https://github.com/CDCgov/prime-reportstream/issues/8659
+    // This and the following test can be removed after all keys associated with senders have been moved to
+    // the organization.  For now these tests cover the possibility that keys for the same scope might exist on the
+    // organization and sender; in that case the organization keys are considered first.
+    @Test
+    fun `Test success when sender key is broken, but organization key is not`() {
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
+            "test",
+            "test",
+            "test",
+            10,
+            10,
+            "test"
+        )
+
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, badJwk))
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
+
+        var httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.parameters.put("client_assertion", token)
+        httpRequestMessage.parameters.put("scope", validScope)
+        // Invoke
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        // Verify
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `Test success when organization key is broken, but sender key is not`() {
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
+            "test",
+            "test",
+            "test",
+            10,
+            10,
+            "test"
+        )
+
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, badJwk))
+
+        var httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.parameters.put("client_assertion", token)
+        httpRequestMessage.parameters.put("scope", validScope)
+        // Invoke
+        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
+        // Verify
+        // This fails because the current logic short circuits if the JWK scope matches the requested scope; the
+        // organization JwkSet has the correct scope, but the key is not valid, so not key is returned.
+        // See: Server2ServerAuthentication.kt#225
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
     fun `Test success using parameters in URL`() {
 
         mockkConstructor(Server2ServerAuthentication::class)
@@ -294,6 +402,7 @@ class TokenFunctionTests {
         )
 
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, organization)
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -320,6 +429,7 @@ class TokenFunctionTests {
         )
 
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, organization)
 
         var httpRequestMessage = MockHttpRequestMessage("client_assertion=$token\n&scope=$validScope")
 
@@ -332,6 +442,7 @@ class TokenFunctionTests {
     @Test
     fun `Test crazy params in body`() {
         settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
+        settings.organizationStore.put(organization.name, organization)
 
         var httpRequestMessage = MockHttpRequestMessage("client_assertion=&scope=$validScope")
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
