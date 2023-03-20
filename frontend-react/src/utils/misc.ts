@@ -46,37 +46,9 @@ export const checkJson = (
     }
 };
 
-export function includesSpecialChars(text: string): boolean {
-    return /[^a-z\d\s]/i.test(text);
+export function isValidServiceName(text: string): boolean {
+    return /^[a-z\d-_]+$/i.test(text);
 }
-
-export const isProhibitedName = (
-    name: string
-): { prohibited: boolean; errorMsg: string } => {
-    const prohibitedNames = [
-        "sender",
-        "receiver",
-        "org",
-        "organization",
-        "list",
-        "all", //api/check issue
-        "revs", //org/{organizationName}/senders/revs issue
-    ];
-
-    if (prohibitedNames.indexOf(name.toLowerCase()) > -1) {
-        return {
-            prohibited: true,
-            errorMsg: `'${name}' is a prohibited name.`,
-        };
-    } else if (includesSpecialChars(name)) {
-        return {
-            prohibited: true,
-            errorMsg: `'${name}' cannot contain special character(s).`,
-        };
-    } else {
-        return { prohibited: false, errorMsg: "" };
-    }
-};
 
 /**
  * returns the error detail usually found in the "error" field of the JSON returned
