@@ -29,9 +29,13 @@ const ManagePublicKeySwitchDisplay = () => {
 
     // TODO: mocked for now - make the call you need when sending the file
     const { sendFile } = {
-        // eslint-disable-next-line no-empty-pattern
-        sendFile: ({}) => {
-            return { fileName: "fileName" };
+        sendFile: (data: {
+            contentType?: string;
+            fileContent?: string;
+            fileName?: string;
+        }) => {
+            data = { fileName: "filename" };
+            return data;
         },
     };
 
