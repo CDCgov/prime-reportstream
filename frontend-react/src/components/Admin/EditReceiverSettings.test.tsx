@@ -1,6 +1,8 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { rest } from "msw";
 
-import { render } from "../../utils/CustomRenderUtils";
+import config from "../../config";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
 import { EditReceiverSettings } from "./EditReceiverSettings";
@@ -53,6 +55,7 @@ const mockData = {
 };
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -67,24 +70,32 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
     },
     useParams: () => {
         return {
-            orgName: "abbott",
-            senderName: "user1234",
+            orgname: "abbott",
+            receivername: "user1234",
             action: "edit",
         };
     },
 }));
 
 describe("EditReceiverSettings", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
+    beforeAll(() => {
+        settingsServer.listen();
+        settingsServer.use(
+            rest.get(
+                `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
+                (req, res, ctx) => res(ctx.json(mockData))
+            )
+        );
+    });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditReceiverSettings />);
+        renderApp(<EditReceiverSettings />);
     });
 
     test("should be able to edit keys field", () => {

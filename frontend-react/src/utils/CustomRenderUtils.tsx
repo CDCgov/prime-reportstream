@@ -1,153 +1,100 @@
-import { FC, PropsWithChildren, ReactElement } from "react";
+import { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { OktaAuth } from "@okta/okta-auth-js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter, useRoutes } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
+import { Fixture, MockResolver } from "@rest-hooks/test";
+import { CacheProvider } from "rest-hooks";
 
-import SessionProvider, { OktaHook } from "../contexts/SessionContext";
+import SessionProvider from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
-import { testQueryClient } from "../network/QueryClients";
+import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
+import { appRoutes } from "../AppRouter";
 
-import { mockToken } from "./TestUtils";
+interface AppWrapperProps {
+    children: React.ReactNode;
+}
 
-/* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
- * This serves as our way of mocking different token, auth, and claims values */
-export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
-    return () => ({
-        authState: {
-            accessToken: mockToken(),
-            ..._init?.authState,
-        },
-        oktaAuth: {
-            ..._init?.oktaAuth,
-        } as OktaAuth,
-    });
+interface AppWrapperOptions {
+    initialRouteEntries?: string[];
+    restHookFixtures?: Fixture[];
+}
+
+interface TestRouterProps {
+    children: React.ReactNode;
+    initialEntries?: string[];
+}
+
+/**
+ * Dynamically makes the supplied children the return element for all
+ * routes.
+ * FUTURE_TODO: Remove this once okta user/session mocking is easier
+ * and use <AppRouter /> instead.
+ */
+const TestRoutes = ({ children }: TestRouterProps) => {
+    const routes = useRoutes(
+        appRoutes.map((r) => ({ ...r, element: children }))
+    );
+
+    return routes;
 };
 
-/*
-    To create a custom renderer, you must create a functional
-    component and a custom render function.
-
-    @see: https://testing-library.com/docs/react-testing-library/setup/#custom-render
-*/
-
-/*
-    Use `renderWithRouter()` from this module as our standard
-    renderer across most tests. This will prevent hitting the
-    React error when rendering for unit tests.
-*/
-const RouterWrapper: FC = ({ children }) => {
-    return <BrowserRouter>{children}</BrowserRouter>;
-};
-
-export const SessionWrapper =
-    (mockOkta: OktaHook) =>
-    ({ children }: PropsWithChildren<{}>) => {
+export const AppWrapper = ({
+    initialRouteEntries,
+    restHookFixtures,
+}: AppWrapperOptions = {}) => {
+    // FUTURE_TODO: Replace children with <AppRouter /> if initialRouteEntries after mocking okta users
+    // in tests is made easier for better coverage as we'd be able to test through
+    // any custom route wrappers.
+    // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
+    return ({ children }: AppWrapperProps) => {
         return (
-            <RouterWrapper>
-                <SessionProvider oktaHook={mockOkta}>
-                    {children}
-                </SessionProvider>
-            </RouterWrapper>
+            <CacheProvider>
+                <MemoryRouter initialEntries={initialRouteEntries}>
+                    <HelmetProvider>
+                        <SessionProvider>
+                            <QueryClientProvider client={getTestQueryClient()}>
+                                <AuthorizedFetchProvider
+                                    initializedOverride={true}
+                                >
+                                    <FeatureFlagProvider>
+                                        {restHookFixtures ? (
+                                            <MockResolver
+                                                fixtures={restHookFixtures}
+                                            >
+                                                <TestRoutes>
+                                                    {children}
+                                                </TestRoutes>
+                                            </MockResolver>
+                                        ) : (
+                                            <TestRoutes>{children}</TestRoutes>
+                                        )}
+                                    </FeatureFlagProvider>
+                                </AuthorizedFetchProvider>
+                            </QueryClientProvider>
+                        </SessionProvider>
+                    </HelmetProvider>
+                </MemoryRouter>
+            </CacheProvider>
         );
     };
-
-export const QueryWrapper =
-    (client: QueryClient = new QueryClient()) =>
-    ({ children }: PropsWithChildren<{}>) =>
-        (
-            <QueryClientProvider client={client}>
-                <AuthorizedFetchProvider initializedOverride={true}>
-                    {children}
-                </AuthorizedFetchProvider>
-            </QueryClientProvider>
-        );
-
-const FeatureFlagWrapper: FC = ({ children }) => {
-    return <FeatureFlagProvider>{children}</FeatureFlagProvider>;
 };
 
-const AppWrapper =
-    (mockOkta: OktaHook) =>
-    ({ children }: PropsWithChildren<{}>) => {
-        return (
-            <RouterWrapper>
-                <SessionProvider oktaHook={mockOkta}>
-                    <QueryClientProvider client={testQueryClient}>
-                        <AuthorizedFetchProvider>
-                            <FeatureFlagProvider>
-                                {children}
-                            </FeatureFlagProvider>
-                        </AuthorizedFetchProvider>
-                    </QueryClientProvider>
-                </SessionProvider>
-            </RouterWrapper>
-        );
-    };
+interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}
 
-const renderWithRouter = (
+export const renderApp = (
     ui: ReactElement,
-    options?: Omit<RenderOptions, "wrapper">
-) => render(ui, { wrapper: RouterWrapper, ...options });
-
-const renderWithSession = (
-    ui: ReactElement,
-    oktaHook?: OktaHook,
-    options?: Omit<RenderOptions, "wrapper">
-) =>
-    render(ui, {
-        wrapper: SessionWrapper(oktaHook || makeOktaHook()),
-        ...options,
-    });
-
-// render an element with parent wrapper other than a div
-// used to silence testing library errors when wrapping elements
-// that should not be children of divs (such as <td> etc)
-export const renderWithCustomWrapper = (
-    ui: ReactElement,
-    wrapperType: string
+    {
+        initialRouteEntries,
+        restHookFixtures,
+        ...options
+    }: Omit<RenderAppOptions, "wrapper"> = {}
 ) => {
     return render(ui, {
-        container: document.body.appendChild(
-            document.createElement(wrapperType)
-        ),
-    });
-};
-
-// render wrapped with BrowserRouter, SessionProvider, and QueryClientProvider
-export const renderWithFullAppContext = (
-    ui: ReactElement,
-    oktaHook?: OktaHook,
-    options?: Omit<RenderOptions, "wrapper">
-) => {
-    return render(ui, {
-        wrapper: AppWrapper(oktaHook || makeOktaHook()),
+        wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),
         ...options,
     });
 };
-
-// for testing components that need access to react-query
-export const renderWithQueryProvider = (
-    ui: ReactElement,
-    options?: Omit<RenderOptions, "wrapper">
-) =>
-    render(ui, {
-        wrapper: QueryWrapper(),
-        ...options,
-    });
-
-// for testing components that need access to feature flags
-export const renderWithFeatureFlags = (
-    ui: ReactElement,
-    options?: Omit<RenderOptions, "wrapper">
-) =>
-    render(ui, {
-        wrapper: FeatureFlagWrapper,
-        ...options,
-    });
 
 export * from "@testing-library/react";
-export { renderWithRouter };
-export { renderWithSession };

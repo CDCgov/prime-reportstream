@@ -1,12 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import content from "../../content/content.json";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import Hero from "./Hero";
 
 describe("Hero rendering", () => {
     beforeEach(() => {
-        render(<Hero />);
+        renderApp(<Hero />);
     });
 
     test("Title and Summary render on Hero", () => {

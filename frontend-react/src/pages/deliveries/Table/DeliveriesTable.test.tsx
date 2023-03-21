@@ -1,8 +1,9 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import {
@@ -52,6 +53,9 @@ beforeEach(() => {
         },
         dispatch: () => {},
         initialized: true,
+        isUserAdmin: false,
+        isUserReceiver: true,
+        isUserSender: false,
     });
 });
 describe("DeliveriesTable", () => {
@@ -82,6 +86,9 @@ describe("DeliveriesTable", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
             });
 
             // Mock the response from the Deliveries hook
@@ -92,7 +99,7 @@ describe("DeliveriesTable", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderWithFullAppContext(<DeliveriesTable />);
+            renderApp(<DeliveriesTable />);
         });
 
         test("if no activeService display NoServicesBanner", async () => {
@@ -130,7 +137,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderWithFullAppContext(<DeliveriesTable />);
+                renderApp(<DeliveriesTable />);
             });
 
             test("renders with no error", async () => {
@@ -154,8 +161,8 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             describe("TableFilter", () => {
-                test("Clicking on filter invokes the trackAppInsightEvent", () => {
-                    fireEvent.click(screen.getByText("Filter"));
+                test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                    await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
                         name: "Daily Data | Table Filter",
@@ -193,6 +200,9 @@ describe("DeliveriesTableWithNumbered", () => {
                     },
                     dispatch: () => {},
                     initialized: true,
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
                 });
 
                 // Mock the response from the Deliveries hook
@@ -206,7 +216,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 );
 
                 // Render the component
-                renderWithFullAppContext(<DeliveriesTable />);
+                renderApp(<DeliveriesTable />);
             });
 
             test("renders the NoServicesBanner message", async () => {
@@ -246,6 +256,9 @@ describe("DeliveriesTableWithNumbered", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
             });
 
             // Mock the response from the Deliveries hook
@@ -257,7 +270,7 @@ describe("DeliveriesTableWithNumbered", () => {
             mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
 
             // Render the component
-            renderWithFullAppContext(<DeliveriesTable />);
+            renderApp(<DeliveriesTable />);
         });
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {

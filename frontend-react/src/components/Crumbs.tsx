@@ -11,14 +11,13 @@ interface CrumbConfig {
 
 interface CrumbsProps {
     crumbList?: CrumbConfig[];
-    noPadding?: boolean;
     previousPage?: string;
 }
 
-const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
+const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
     if (crumbList || previousPage) {
         return (
-            <div className={!noPadding ? "grid-container" : ""}>
+            <div>
                 {Boolean(previousPage) ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
                         <IconButton
@@ -33,7 +32,6 @@ const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
                 ) : null}
                 {crumbList !== undefined && crumbList.length > 0 ? (
                     <>
-                        <hr />
                         <BreadcrumbBar>
                             {crumbList?.map((crumbConfig) => (
                                 <Breadcrumb
@@ -52,14 +50,13 @@ const Crumbs = ({ crumbList, noPadding, previousPage }: CrumbsProps) => {
                                 </Breadcrumb>
                             ))}
                         </BreadcrumbBar>
-                        <hr />
                     </>
                 ) : null}
             </div>
         );
     } else {
         return (
-            <div className="grid-container margin-top-5">
+            <div className="margin-top-5">
                 <span>No crumbs given</span>
             </div>
         );

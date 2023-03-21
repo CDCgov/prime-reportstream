@@ -1,6 +1,6 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
@@ -27,6 +27,9 @@ describe("useOrganizationReceiversFeed", () => {
                 activeMembership: undefined,
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -34,7 +37,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -57,6 +60,9 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: true,
+                isUserReceiver: false,
+                isUserSender: false,
             });
         });
 
@@ -64,7 +70,7 @@ describe("useOrganizationReceiversFeed", () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 {
-                    wrapper: QueryWrapper(),
+                    wrapper: AppWrapper(),
                 }
             );
             expect(result.current.services).toEqual([]);
@@ -88,16 +94,20 @@ describe("useOrganizationReceiversFeed", () => {
                 },
                 dispatch: () => {},
                 initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
             });
         });
 
         test("returns correct organization receivers feed", async () => {
-            const { result, waitForNextUpdate } = renderHook(
+            const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
-                { wrapper: QueryWrapper() }
+                { wrapper: AppWrapper() }
             );
-            await waitForNextUpdate();
-            expect(result.current.services).toEqual(dummyReceivers);
+            await waitFor(() =>
+                expect(result.current.services).toEqual(dummyReceivers)
+            );
             expect(result.current.setActiveService).toBeDefined();
             expect(result.current.activeService).toEqual(dummyActiveReceiver);
             expect(result.current.loadingServices).toEqual(false);
@@ -116,12 +126,14 @@ describe("useOrganizationReceiversFeed", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useOrganizationReceiversFeed(),
-            { wrapper: QueryWrapper() }
-        );
-        await waitForNextUpdate();
+        const { result } = renderHook(() => useOrganizationReceiversFeed(), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",

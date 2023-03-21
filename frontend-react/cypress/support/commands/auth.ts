@@ -17,9 +17,10 @@ const SECRET = Cypress.env("oktaSecret");
 const CLIENT_ID = Cypress.env("oktaClientId");
 const REDIRECT_URI = `${Cypress.env("baseUrl")}/login/callback`;
 const RESPONSE_MODE = "okta_post_message";
+const URL = Cypress.env("oktaUrl");
 
 const oktaAuthConfig: OktaAuthOptions = {
-    issuer: "https://hhs-prime.oktapreview.com/oauth2/default",
+    issuer: `${URL}/oauth2/default`,
     clientId: CLIENT_ID,
     redirectUri: REDIRECT_URI,
     responseMode: RESPONSE_MODE,
@@ -34,7 +35,7 @@ function loginByOktaApi() {
     // log in with username and password
     return (
         cy
-            .request("POST", "https://hhs-prime.oktapreview.com/api/v1/authn", {
+            .request("POST", `${URL}/api/v1/authn`, {
                 username: USERNAME,
                 password: PASSWORD,
                 options: {
@@ -49,7 +50,7 @@ function loginByOktaApi() {
                 const passCode = authenticator.generate(SECRET);
                 return cy.request(
                     "POST",
-                    `https://hhs-prime.oktapreview.com/api/v1/authn/factors/${factorId}/verify`,
+                    `${URL}/api/v1/authn/factors/${factorId}/verify`,
                     {
                         passCode,
                         stateToken,

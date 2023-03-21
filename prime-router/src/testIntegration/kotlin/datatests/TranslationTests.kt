@@ -243,6 +243,15 @@ class TranslationTests {
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
                         }
+                        // Compare the output of a FHIR to HL7 conversion
+                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
+                            check(!config.expectedSchema.isNullOrBlank())
+                            val actualStream =
+                                translateFromFhir(inputStream, config.expectedSchema)
+                            result.merge(
+                                CompareData().compare(expectedStream, actualStream, null, null)
+                            )
+                        }
 
                         // All other conversions related to the Topic pipeline
                         else -> {

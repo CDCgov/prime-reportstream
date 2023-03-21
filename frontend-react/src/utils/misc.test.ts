@@ -10,8 +10,8 @@ import {
     capitalizeFirst,
     groupBy,
     checkJson,
-    isProhibitedName,
-    includesSpecialChars,
+    isValidServiceName,
+    parseFileLocation,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -132,9 +132,10 @@ describe("groupBy ", () => {
     });
 });
 
-describe("includesSpecialChars", () => {
-    describe("returns true if the string contains a non-ascii char", () => {
-        const stringsWithSpecialChars = [
+describe("isValidServiceName", () => {
+    describe("when the string is empty or contains characters outside of the allowed set", () => {
+        const names = [
+            "",
             "test/",
             "te.st",
             "te$t",
@@ -143,78 +144,61 @@ describe("includesSpecialChars", () => {
             "te,st",
             "te)",
             "a\\ttest",
-            "|test ",
+            "|test",
+            "test hello",
         ];
 
-        stringsWithSpecialChars.forEach((name) => {
-            test(`string ${name} contains a non-ascii char `, () => {
-                expect(includesSpecialChars(name)).toBeTruthy();
+        names.forEach((name) => {
+            test(`return false for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(false);
             });
         });
     });
 
-    describe("returns false if the string does not contain a non-ascii char", () => {
-        const stringsWithSpecialChars = ["orgname", "org name"];
+    describe("when the string only contains characters within the allowed set", () => {
+        const names = [
+            "orgname",
+            "org-name",
+            "org_name",
+            "ORG-NAME",
+            "org-name-1",
+        ];
 
-        stringsWithSpecialChars.forEach((name) => {
-            test(`string ${name} does not contain a non-ascii char `, () => {
-                expect(includesSpecialChars(name)).toBeFalsy();
+        names.forEach((name) => {
+            test(`returns true for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(true);
             });
         });
     });
 });
 
-describe("isProhibitedName", () => {
-    describe("returns false if the orgName is not prohibited", () => {
-        test("valid org name", () => {
-            expect(isProhibitedName("test")).toStrictEqual({
-                prohibited: false,
-                errorMsg: "",
-            });
-        });
+describe("parseFileLocation", () => {
+    test("returns the folder location, sending org, and filename when valid url", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
+        expect(folderLocation).toEqual("receive");
+        expect(sendingOrg).toEqual("simple_report.csvuploader");
+        expect(fileName).toEqual(
+            "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
     });
 
-    describe("returns true if the orgName is prohibited", () => {
-        const prohibitedNames = [
-            "sender",
-            "receiver",
-            "org",
-            "ORG",
-            "organization",
-            "list",
-            "List",
-            "all",
-            "revs",
-        ];
-
-        prohibitedNames.forEach((name) => {
-            test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedName(name)).toEqual({
-                    errorMsg: `'${name}' is a prohibited name.`,
-                    prohibited: true,
-                });
-            });
-        });
+    test("returns empty strings for sendingOrg and fileName when string is missing all three fragments split on %2F", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
+        expect(folderLocation).toEqual("");
+        expect(sendingOrg).toEqual("");
+        expect(fileName).toEqual("");
     });
 
-    describe("returns true if the orgName contains a non-ascii character", () => {
-        const specialChar = [
-            "test/",
-            "te.st",
-            "te$t",
-            "tes#",
-            "@est",
-            "te,st",
-            "te)",
-        ];
-
-        specialChar.forEach((name) => {
-            test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedName(name)).toEqual({
-                    errorMsg: `'${name}' cannot contain special character(s).`,
-                    prohibited: true,
-                });
-            });
-        });
+    test("returns empty strings for sendingOrg and fileName when string is missing %2F", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive"
+        );
+        expect(folderLocation).toEqual("");
+        expect(sendingOrg).toEqual("");
+        expect(fileName).toEqual("");
     });
 });

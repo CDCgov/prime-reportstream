@@ -382,7 +382,7 @@ ${data.receiver}`;
     };
 
     return (
-        <section className="grid-container rs-maxwidth-vw80">
+        <section>
             <h2>Last Mile failures</h2>
 
             <form autoComplete="off" className="grid-row margin-0">

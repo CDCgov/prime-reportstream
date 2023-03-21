@@ -3,16 +3,14 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
@@ -25,12 +23,12 @@ import org.hl7.fhir.r4.model.Bundle
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
 class FhirToHl7Converter(
-    private val schemaRef: ConfigSchema,
+    private val schemaRef: ConverterSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null,
-    // the constant substitutor is not thread save, so we need one instance per converter instead of using a shared copy
+    // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
-) : Logging {
+) : ConfigSchemaProcessor() {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
      * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
@@ -43,7 +41,11 @@ class FhirToHl7Converter(
         schemaFolder: String,
         strict: Boolean = false,
         terser: Terser? = null
-    ) : this(ConfigSchemaReader.fromFile(schema, schemaFolder), strict, terser)
+    ) : this(
+        schemaRef = converterSchemaFromFile(schema, schemaFolder),
+        strict = strict,
+        terser = terser
+    )
 
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] which includes it folder location to perform the conversion.
@@ -57,12 +59,12 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null
     ) : this(
-        ConfigSchemaReader.fromFile(
+        schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
-        strict,
-        terser
+        strict = strict,
+        terser = terser
     )
 
     /**
@@ -71,18 +73,11 @@ class FhirToHl7Converter(
      */
     fun convert(bundle: Bundle): Message {
         // Sanity check, but the schema is assumed good to go here
-        check(!schemaRef.hl7Type.isNullOrBlank())
-        check(!schemaRef.hl7Version.isNullOrBlank())
-        val message = HL7Utils.SupportedMessages.getMessageInstance(schemaRef.hl7Type!!, schemaRef.hl7Version!!)
+        check(!schemaRef.hl7Class.isNullOrBlank())
+        val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
-        // Sanity check, but at this point we know we have a good schema
-        check(message != null)
         terser = Terser(message)
-        val dupes = (
-            schemaRef.elements.filter { it.name != null } +
-                schemaRef.elements.flatMap { it.schemaRef?.elements ?: emptyList() }
-            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
-
+        val dupes = schemaRef.duplicateElements
         if (dupes.isNotEmpty()) { // value is the number of matches
             throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
         }
@@ -95,7 +90,7 @@ class FhirToHl7Converter(
      * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
-        schema: ConfigSchema,
+        schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext = CustomContext(bundle, bundle),
@@ -117,7 +112,7 @@ class FhirToHl7Converter(
      * Set [debug] to true to enable debug statements to the logs.
      */
     internal fun processElement(
-        element: ConfigSchemaElement,
+        element: ConverterSchemaElement,
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
@@ -130,7 +125,7 @@ class FhirToHl7Converter(
         var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
-        val focusResources = getFocusResources(element, bundle, focusResource, elementContext)
+        val focusResources = getFocusResources(element.resource, bundle, focusResource, elementContext)
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
@@ -152,7 +147,7 @@ class FhirToHl7Converter(
                         )
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
-                            element.schemaRef!!,
+                            element.schemaRef!! as ConverterSchema,
                             bundle,
                             singleFocusResource,
                             indexContext,
@@ -162,7 +157,7 @@ class FhirToHl7Converter(
 
                     // A value
                     element.value.isNotEmpty() && element.hl7Spec.isNotEmpty() -> {
-                        val value = getValue(element, bundle, singleFocusResource, elementContext)
+                        val value = getValueAsString(element, bundle, singleFocusResource, elementContext)
                         setHl7Value(element, value, context)
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
                             "value: $value, hl7Spec: ${element.hl7Spec}"
@@ -184,91 +179,9 @@ class FhirToHl7Converter(
     }
 
     /**
-     * Get the first valid string from the list of values specified in the schema for a given [element] using
-     * [bundle] and [context] starting at the [focusResource].
-     * @return the value for the element or an empty string if no value found
-     */
-    internal fun getValue(
-        element: ConfigSchemaElement,
-        bundle: Bundle,
-        focusResource: Base,
-        context: CustomContext
-    ): String {
-        var retVal = ""
-        run findValue@{
-            element.value.forEach {
-                val value = if (it.isBlank()) ""
-                else try {
-                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
-                } catch (e: SchemaException) {
-                    logger.error("Error while getting value for element ${element.name}", e)
-                    ""
-                }
-                logger.trace("Evaluated value expression '$it' to '$value'")
-                if (value.isNotBlank()) {
-                    retVal = value
-                    return@findValue
-                }
-            }
-        }
-
-        // when valueSet is available, use the matching value else just pass the value as is
-        // does a lowerCase comparison
-        if (element.valueSet.isNotEmpty()) {
-            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
-            retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
-        }
-        return retVal
-    }
-
-    /**
-     * Determine the focus resource for an [element] using [bundle] and the [previousFocusResource].
-     * @return a list of focus resources containing at least one resource.  Multiple resources are returned for collections
-     */
-    internal fun getFocusResources(
-        element: ConfigSchemaElement,
-        bundle: Bundle,
-        previousFocusResource: Base,
-        context: CustomContext
-    ): List<Base> {
-        val resourceList = if (element.resource == null) {
-            listOf(previousFocusResource)
-        } else {
-            val evaluatedResource = FhirPathUtils
-                .evaluate(context, previousFocusResource, bundle, element.resource!!)
-            evaluatedResource
-        }
-
-        return resourceList
-    }
-
-    /**
-     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle] and [focusResource] * to evaluate the condition expression.
-     * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
-     */
-    internal fun canEvaluate(
-        element: ConfigSchemaElement,
-        bundle: Bundle,
-        focusResource: Base,
-        context: CustomContext
-    ): Boolean {
-        return element.condition?.let {
-            try {
-                FhirPathUtils.evaluateCondition(context, focusResource, bundle, it)
-            } catch (e: SchemaException) {
-                logger.warn(
-                    "Condition for element ${element.name} did not evaluate to a boolean type, " +
-                        "so the condition failed."
-                )
-                false
-            }
-        } ?: true
-    }
-
-    /**
      * Set the [value] an [element]'s HL7 spec.
      */
-    internal fun setHl7Value(element: ConfigSchemaElement, value: String, context: CustomContext) {
+    internal fun setHl7Value(element: ConverterSchemaElement, value: String, context: CustomContext) {
         if (value.isBlank() && element.required == true) {
             // The value is empty, but the element was required
             throw RequiredElementException(element)

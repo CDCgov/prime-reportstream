@@ -4,6 +4,43 @@
 
 
 ---
+### February 2023
+
+* The ReportStream [Terms of Service](https://reportstream.cdc.gov/terms-of-service) have been updated. 
+
+#### Improvements
+
+* Usability: Based on user feedback, the file name is now shown on the Daily Data table for data receivers. Previously, it only showed the data type without a file name.
+
+* Usability: On the Daily Data table, if the user has multiple ELR settings, the first, active one is automatically selected. This prevents an inactive setting from being selected upon table load.
+
+* Visual differences that appeared in the past few weeks after the ReportStream website updated to USWDS 3.0 have been fixed.
+
+* Bug fix: When typing a non-numeric character into the Daily Data table date range, the table would show an error and disable use of the table. Now, the table remains active and allows for the user to fix the entry into a numeric character. This prevents the user from needing to reload the table.
+
+You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
+
+
+---
+
+### January 2023
+
+See Github release notes anytime at [https://github.com/CDCgov/prime-reportstream/releases](https://github.com/CDCgov/prime-reportstream/releases). 
+
+#### Improvements
+
+* Accessibility: The ReportStream website now has a "skip navigation" link that takes users with screen readers to the main page content instead of tabbing through each nav item. To access it with a keyboard, for example, a user just hits TAB once, then ENTER to "click" the link.
+
+* Usability: Now you don't need to re-login or re-logout across multiple browser tabs open on the ReportStream website. When logged in to the ReportStream website, if you open a new browser tab to the ReportStream website, you will already be logged in to the website. When you log out of the website on one browser tab, you will be logged out of all ReportStream browser tabs.
+
+* Usability: On Daily Data table, to make it easier to find the file you are looking for, the "File" column now displays the entire filename instead of just the file type.
+
+#### New State Connections
+
+We’re excited to announce that ReportStream has recently established connections to send and report public health data with the following state: Utah.
+
+
+---
 
 ### December 2022
 
