@@ -1,7 +1,7 @@
 constants:
   hl7ORCField: '%{hl7SegmentGroup}/ORC'
 elements:
-  - name: order-control-id
+  - name: order-control
     value: [ '"NW"' ]
     required: true
     hl7Spec: [ '%{hl7ORCField}-1' ]
@@ -16,7 +16,6 @@ elements:
       active: IP
     hl7Spec: [ '%{hl7ORCField}-5' ]
 
-  - name: order-authored-on
-    condition: '%resource.authoredOn.exists()'
+  - name: order-date-time-of-transaction
     value: [ '%resource.authoredOn' ]
     hl7Spec: [ '%{hl7ORCField}-9' ]
