@@ -105,6 +105,8 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
                 this.elements.add(childElement)
             }
         }
+        this.constants.putAll(childSchema.constants)
+        this.name = childSchema.name
     }
 
     /**

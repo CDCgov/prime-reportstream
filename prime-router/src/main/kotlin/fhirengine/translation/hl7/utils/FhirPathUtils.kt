@@ -205,7 +205,11 @@ object FhirPathUtils : Logging {
 
             else -> {
                 var secs = dateTime.second.toFloat()
-                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
+//                TODO: There's no way to turn this off at the moment.
+//                 Need to add support to configure Date precision.
+//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
+
+//                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
                     secs

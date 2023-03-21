@@ -1,0 +1,38 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+  alternateIdentifierExtension: '%resource.value.extension(%`rsext-alternate-identifier`)'
+  originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
+elements:
+
+  - name: ca-organization-performer-identifier
+    resource: '%resource.performer.resolve()'
+    value: [ '%resource.name + "-"+ %resource.identifier[0].value ' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-1' ]
+
+  - name: ca-organization-namespace-id
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-1' ]
+    value: [ '"CLIA"' ]
+
+  - name: ca-organization-universal-id
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-2' ]
+    value: [ '"2.16.840.1.113883.4.7"' ]
+
+  - name: ca-software-vendor-assigning-authority-system
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-3' ]
+    value: [ '"ISO"' ]
+
+  - name: ca-software-vendor-assigning-authority-system
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-7' ]
+    value: [ '"XX"' ]
+
+  - name: observation-method-identifier
+    value: [ "" ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-1' ]
+
+  - name: ca-observation-original-text
+    condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
+    value: [ '%originalTextExtension.value' ]
+
+#
