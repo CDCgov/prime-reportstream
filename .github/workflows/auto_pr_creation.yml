@@ -2,7 +2,7 @@ name: Auto Create Pull Request
 on:
   push:
     branches:
-      - feature/autocreate-pr-with-tfplan-ouput
+      - feature/autocreate-pr-tfplan-output
 jobs:
   Auto_Create_PR:
     runs-on: ubuntu-latest
