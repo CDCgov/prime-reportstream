@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
 import assertk.assertions.doesNotHaveClass
+import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -10,6 +11,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.DateTimeType
@@ -451,13 +453,21 @@ class CustomFHIRFunctionsTests {
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
 
         val pst = StringType().also { it.value = "America/Blah" }
-
         assertThat {
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType(date)),
                 mutableListOf(mutableListOf(pst))
             )
-        }.isFailure()
+        }.isFailure().hasClass(SchemaException::class.java)
+
+        // Different exception for single character, confirm still gets converted to schema exception
+        pst.value = "A"
+        assertThat {
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType(date)),
+                mutableListOf(mutableListOf(pst))
+            )
+        }.isFailure().hasClass(SchemaException::class.java)
     }
 
     @Test

@@ -4,6 +4,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Device
@@ -109,8 +110,7 @@ object CustomFHIRFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "changes the timezone of a resource representing a dateTime " +
-                        "(either a Date, DateTime, Instant, or appropriate String) to the timezone passed in",
+                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
                     1,
                     1
                 )
@@ -449,7 +449,7 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Applies a timezone given by [parameters] to a date in [focus] and returns the result
+     * Applies a timezone given by [parameters] to a dateTime in [focus] and returns the result.
      * @return a date in the new timezone
      */
     fun changeTimezone(
@@ -460,11 +460,10 @@ object CustomFHIRFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
-        val inputDate = FhirBundleUtils.convertFhirType(focus[0], focus[0].fhirType(), "dateTime") as? DateTimeType
-            ?: throw SchemaException(
-                "Must call changeTimezone on a date, instant, dateTime, or string compatible " +
-                    "with the Regex for FHIR dateTimes"
-            )
+        val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
+            "Must call changeTimezone on a dateTime, instant, or date; " +
+                "was attempted on a ${focus[0].fhirType()}"
+        )
 
         if (parameters == null || parameters[0].size != 1) {
             throw SchemaException("Must pass a timezone as the parameter")
@@ -475,7 +474,7 @@ object CustomFHIRFunctions {
             TimeZone.getTimeZone(ZoneId.of(inputTimeZone))
         } catch (e: DateTimeException) {
             throw SchemaException(
-                "Invalid timezone $inputTimeZone passed. See FHIR timezone valueset " +
+                "Invalid timezone $inputTimeZone passed. See FHIR timezone valueSet " +
                     "(https://hl7.org/fhir/valueset-timezones.html) for available timezone values."
             )
         }

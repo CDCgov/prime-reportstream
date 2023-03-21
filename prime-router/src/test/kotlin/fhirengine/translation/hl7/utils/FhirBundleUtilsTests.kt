@@ -75,15 +75,6 @@ class FhirBundleUtilsTests {
             FhirBundleUtils.convertFhirType(DateType("2015-02-07"), "date", "dateTime")
         assertThat(convertedValue).isInstanceOf(DateTimeType::class)
 
-        // Test that extra text in brackets for the timezone gets removed
-        convertedValue =
-            FhirBundleUtils.convertFhirType(
-                StringType("2015-02-07T13:28:17-07:00[\"America/Phoenix\"]"),
-                "string",
-                "dateTime"
-            )
-        assertThat(convertedValue).isInstanceOf(DateTimeType::class)
-
         // Incompatible type
         assertThat { FhirBundleUtils.convertFhirType(DateType("13:28:17"), "time", "dateTime") }.isFailure()
     }

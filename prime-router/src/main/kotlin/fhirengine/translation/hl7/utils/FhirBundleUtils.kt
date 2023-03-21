@@ -44,29 +44,13 @@ object FhirBundleUtils : Logging {
     fun convertFhirType(value: Base, sourceType: String, targetType: String, logger: KotlinLogger = this.logger): Base {
         return if (sourceType == targetType || targetType == "*") {
             value
-        } else if (targetType == StringCompatibleType.DateTime.typeAsString) {
-            when (sourceType) {
-                StringCompatibleType.DateTime.typeAsString -> value
-                StringCompatibleType.Instant.typeAsString -> DateTimeType(value.primitiveValue())
-                StringCompatibleType.Date.typeAsString -> DateTimeType(value.primitiveValue())
-                StringCompatibleType.String.typeAsString -> {
-                    var strValue = value.primitiveValue()
-                    // Some strings will have the timezone's ID included, i.e. 2015-02-07T13:28:17-07:00["America/Phoenix"]
-                    // We need to remove the bracketed portion of those before converting the string to a DateTime
-                    strValue = strValue.replace("""\[[a-zA-Z0-9/_+\-"']+]""".toRegex(), "")
-                    DateTimeType(strValue)
-                }
-                else -> {
-                    logger.error("Conversion between $sourceType and $targetType not supported.")
-                    value
-                }
-            }
         } else if (StringCompatibleType.values().any { it.typeAsString == sourceType }) {
             when (targetType) {
                 StringCompatibleType.Base64Binary.typeAsString -> Base64BinaryType(value.primitiveValue())
                 StringCompatibleType.Canonical.typeAsString -> CanonicalType(value.primitiveValue())
                 StringCompatibleType.Code.typeAsString -> CodeType(value.primitiveValue())
                 StringCompatibleType.Date.typeAsString -> DateType(value.primitiveValue())
+                StringCompatibleType.DateTime.typeAsString -> DateTimeType(value.primitiveValue())
                 StringCompatibleType.Id.typeAsString -> IdType(value.primitiveValue())
                 StringCompatibleType.Instant.typeAsString -> InstantType(value.primitiveValue())
                 StringCompatibleType.Markdown.typeAsString -> MarkdownType(value.primitiveValue())
