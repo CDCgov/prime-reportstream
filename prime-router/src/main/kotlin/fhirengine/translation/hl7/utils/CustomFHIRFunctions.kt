@@ -11,8 +11,8 @@ import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.time.DateTimeException
 import java.time.ZoneId
-import java.time.zone.ZoneRulesException
 import java.util.TimeZone
 
 /**
@@ -109,8 +109,8 @@ object CustomFHIRFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "changes the timezome of the date resource to the timezome passed in as the " +
-                        "variable",
+                    "changes the timezone of a resource representing a dateTime " +
+                        "(either a Date, DateTime, Instant, or appropriate String) to the timezone passed in",
                     1,
                     1
                 )
@@ -461,7 +461,10 @@ object CustomFHIRFunctions {
         }
 
         val inputDate = FhirBundleUtils.convertFhirType(focus[0], focus[0].fhirType(), "dateTime") as? DateTimeType
-            ?: throw SchemaException("Must call changeTimezone on a dateTime compatible value")
+            ?: throw SchemaException(
+                "Must call changeTimezone on a date, instant, dateTime, or string compatible " +
+                    "with the Regex for FHIR dateTimes"
+            )
 
         if (parameters == null || parameters[0].size != 1) {
             throw SchemaException("Must pass a timezone as the parameter")
@@ -470,10 +473,10 @@ object CustomFHIRFunctions {
         val inputTimeZone = parameters.first().first().primitiveValue()
         val timezonePassed = try {
             TimeZone.getTimeZone(ZoneId.of(inputTimeZone))
-        } catch (zoneRulesException: ZoneRulesException) {
+        } catch (e: DateTimeException) {
             throw SchemaException(
                 "Invalid timezone $inputTimeZone passed. See FHIR timezone valueset " +
-                    "for available timezone values."
+                    "(https://hl7.org/fhir/valueset-timezones.html) for available timezone values."
             )
         }
 

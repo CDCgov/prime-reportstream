@@ -51,6 +51,8 @@ object FhirBundleUtils : Logging {
                 StringCompatibleType.Date.typeAsString -> DateTimeType(value.primitiveValue())
                 StringCompatibleType.String.typeAsString -> {
                     var strValue = value.primitiveValue()
+                    // Some strings will have the timezone's ID included, i.e. 2015-02-07T13:28:17-07:00["America/Phoenix"]
+                    // We need to remove the bracketed portion of those before converting the string to a DateTime
                     strValue = strValue.replace("""\[[a-zA-Z0-9/_+\-"']+]""".toRegex(), "")
                     DateTimeType(strValue)
                 }
