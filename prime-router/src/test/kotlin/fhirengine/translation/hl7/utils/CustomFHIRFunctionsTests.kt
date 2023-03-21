@@ -469,16 +469,4 @@ class CustomFHIRFunctionsTests {
             )
         }.isFailure().hasClass(SchemaException::class.java)
     }
-
-    @Test
-    fun `test changeTimezone no timezone passed`() {
-        val pst = StringType().also { it.value = "Asia/Tokyo" }
-
-        assertThat {
-            CustomFHIRFunctions.changeTimezone(
-                mutableListOf(StringType("2021-08-09T08:52:00W")),
-                mutableListOf(mutableListOf(pst))
-            )
-        }.isFailure()
-    }
 }

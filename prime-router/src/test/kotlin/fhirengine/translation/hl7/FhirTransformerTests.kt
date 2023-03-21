@@ -240,6 +240,34 @@ class FhirTransformerTests {
     }
 
     @Test
+    fun `test transform boolean property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("true"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.active"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
+                "Bundle.entry.resource.ofType(Patient).active"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("true")
+    }
+
+    @Test
     fun `test transform extension property`() {
         val bundle = Bundle()
         bundle.id = "abc123"
