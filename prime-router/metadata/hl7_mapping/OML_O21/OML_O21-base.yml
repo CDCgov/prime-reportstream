@@ -39,8 +39,11 @@ elements:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
     schema: ../common/patient-visit
 
-  - name: common-order
+  - name: order
     resource: Bundle.entry.resource.ofType(ServiceRequest)
-    condition: '%resource.exists()'
+    condition: '%resource.count() > 0'
     required: true
-    schema: ./base/common-order
+    schema: ./base/service-request-order
+    constants:
+      hl7SegmentGroup: '/ORDER'
+#    resourceIndex: orderIndex
