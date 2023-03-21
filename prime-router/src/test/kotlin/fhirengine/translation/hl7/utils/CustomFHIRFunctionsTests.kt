@@ -399,13 +399,14 @@ class CustomFHIRFunctionsTests {
         assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
             .isEqualTo("20150405212211+0900")
 
+        // Note:  if conversion supports millisecond precision in the future, this test will need to be adjusted
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
             mutableListOf(DateTimeType("2015-04-05T12:22:11.567Z")),
             timezoneParameters
         )[0] as DateTimeType
         assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150405212211.567+0900")
+            .isEqualTo("20150405212211+0900")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
