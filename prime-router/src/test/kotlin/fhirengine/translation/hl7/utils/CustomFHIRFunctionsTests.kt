@@ -393,19 +393,19 @@ class CustomFHIRFunctionsTests {
         // With seconds, we should start to see timezone
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11")),
+            mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
             timezoneParameters
         )[0] as DateTimeType
         assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150406012211+0900")
+            .isEqualTo("20150405212211+0900")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11.567")),
+            mutableListOf(DateTimeType("2015-04-05T12:22:11.567Z")),
             timezoneParameters
         )[0] as DateTimeType
         assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150406012211.567+0900")
+            .isEqualTo("20150405212211.567+0900")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
