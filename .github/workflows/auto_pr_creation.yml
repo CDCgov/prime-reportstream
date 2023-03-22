@@ -72,6 +72,12 @@ jobs:
           reviewers: |
              supriyaaddagada 
           draft: false
+        
+      - name: Terraform cmt
+        id: cmt
+        run: |
+            tfcmt -repo "prime-reportstream" -pr 8802 plan -- terraform plan
+        continue-on-error: tru
 
       # - name: Post Plan
       #   uses: robburger/terraform-pr-commenter@v1
