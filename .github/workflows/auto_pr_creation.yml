@@ -43,7 +43,8 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -target=module.azure_dashboard -no-color -out=tfplan
+          # terraform plan -target=module.azure_dashboard -no-color -out=tfplan
+          terraform plan -no-color -out=tfplan
           echo ::set-output name=tfplan::$(cat tfplan)
           echo "$tfplan" >> $(cat tfplan)
         continue-on-error: true
