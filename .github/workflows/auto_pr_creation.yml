@@ -84,9 +84,9 @@ jobs:
               </details>
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;   
 
-             echo output
+             Write-Host output
             }
-        shell: bash
+        shell: pwsh
         
       - name: Create Pull Request
         id: cpr
