@@ -54,18 +54,9 @@ jobs:
           run: terraform show -no-color tf.plan 2>&1 > /tmp/plan.txt
         continue-on-error: true
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Latest terraform changes to prod
-          signoff: false
-          base: feature/autocreate-pr-with-tfplan-output
-          branch: feature/autocreate-pr-tfplan-ouput
-          delete-branch: false
-          title: 'AutoPR With Terraform Plan Change to Prod'
-          body: |
+      - name: Format
+        id: format
+        run: |
             const fs = require("fs");
             const plan = fs.readFileSync("/tmp/plan.txt", "utf8");
             const maxGitHubBodyCharacters = 65536;
@@ -95,6 +86,20 @@ jobs:
 
              echo output
             }
+        shell: cmd
+        
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Latest terraform changes to prod
+          signoff: false
+          base: feature/autocreate-pr-with-tfplan-output
+          branch: feature/autocreate-pr-tfplan-ouput
+          delete-branch: false
+          title: 'AutoPR With Terraform Plan Change to Prod'
+          body: {{steps.format.output.output}}
           labels: |
             reportstream
             DevOps
