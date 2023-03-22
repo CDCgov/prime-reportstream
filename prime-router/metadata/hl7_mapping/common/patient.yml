@@ -1,5 +1,6 @@
 constants:
   hl7PIDField: '%{hl7SegmentGroup}/PID'
+  patientOrganization: '%resource.managingOrganization.resolve()'
 elements:
   - name: patient-set-id
     value: [ '"1"' ]
@@ -11,6 +12,21 @@ elements:
       hl7CXField: '%{hl7PIDField}-3'
     schema: datatype/cx-extended-composite-id
     resourceIndex: idIndex
+
+  - name: patient-assigning-authority
+    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+    value: [ '%patientOrganization.name' ]
+    hl7Spec: [ '%{hl7PIDField}-3-4-1' ]
+
+  - name: patient-assigning-authority-type
+    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+    value: [ '%patientOrganization.identifier.value' ]
+    hl7Spec: [ '%{hl7PIDField}-3-4-2' ]
+
+  - name: patient-assigning-authority-type-code
+    condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
+    value: [ '%patientOrganization.identifier.type.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-3-4-3' ]
 
   - name: patient-name
     resource: '%resource.name'
@@ -75,6 +91,11 @@ elements:
     value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7PIDField}-10-6' ]
 
+  - name: patient-race-coding-system-version
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ '%{hl7PIDField}-10-7' ]
+
   - name: patient-address
     resource: '%resource.address'
     condition: '%resource.exists()'
@@ -113,6 +134,11 @@ elements:
     constants:
       ceFieldPath: '%{hl7PIDField}-22'
     schema: datatype/ce-coded-element
+
+  - name: patient-ethnicity-coding-system-version
+    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"2.9"' ]
+    hl7Spec: [ '%{hl7PIDField}-22-7' ]
 
   - name: patient-death-date-time
     condition: '%resource.deceased.exists() and %resource.deceased is DateTime'

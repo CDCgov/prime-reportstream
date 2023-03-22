@@ -1,7 +1,10 @@
 FROM ubuntu:22.04
 
+# Latest patches
+RUN apt-get update && apt-get upgrade -y
+
 # Install dnsmasq
-RUN apt-get update && apt-get install -y dnsmasq
+RUN apt-get install -y dnsmasq
 
 # Expose the DNS port
 EXPOSE 53/udp
