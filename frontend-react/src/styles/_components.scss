@@ -13,13 +13,12 @@ hr {
 
 // FileHandler.tsx
 .file-handler-table {
-  .usa-table {
-    background-color: #f5f5f5;
-    
-    td {
-      background-color: transparent;
+    .usa-table {
+        // @override _table.scss
+        td {
+            background-color: transparent;
+        }
     }
-  }
 }
 // End -- FileHandler.tsx
 

@@ -1,4 +1,5 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
+import { Button, Icon } from "@trussworks/react-uswds";
 
 import {
     formattedDateFromTimestamp,
@@ -9,7 +10,7 @@ import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { USLink, USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import { DownloadCSVButton } from "../DownloadCSVButton";
+import { saveToCsv } from "../../utils/FileUtils";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -116,73 +117,75 @@ export const RequestedChangesDisplay = ({
     heading,
     schemaColumnHeader,
 }: RequestedChangesDisplayProps) => {
-    const alertType = useMemo(
-        () =>
-            title === RequestLevel.WARNING
-                ? StaticAlertType.Warning
-                : StaticAlertType.Error,
-        [title]
-    );
+    const alertType =
+        title === RequestLevel.WARNING
+            ? StaticAlertType.Warning
+            : StaticAlertType.Error;
+
     const showTable =
         data &&
         data.length &&
         data.some((responseItem) => responseItem.message);
+
+    function handleSaveToCsvClick() {
+        return saveToCsv(data, {
+            filename:
+                `${schemaColumnHeader}_${alertType}s_${new Date().getTime()}`.toLowerCase(),
+        });
+    }
+
     return (
-        <>
+        <div>
             <StaticAlert type={alertType} heading={heading} message={message} />
+
             {showTable && (
-                <>
-                    <div className="display-flex flex-justify">
-                        <h3>{title}</h3>
-                        <DownloadCSVButton
-                            secondaryButton={true}
-                            csvOptions={{
-                                fieldSeparator: ",",
-                                quoteStrings: '"',
-                                decimalSeparator: ".",
-                                showLabels: true,
-                                showTitle: true,
-                                filename: `recommended_${schemaColumnHeader}_edits`,
-                                title: `Recommended ${schemaColumnHeader} edits`,
-                                useTextFile: false,
-                                useBom: true,
-                                useKeysAsHeaders: true,
-                            }}
-                            data={data}
-                            buttonText="Download edits as CSV"
-                        />
+                <div className="padding-y-4">
+                    <div className="margin-bottom-4 display-flex flex-justify flex-align-center">
+                        <h3 className="margin-0">{title}</h3>
+
+                        <Button
+                            className="usa-button usa-button--outline display-flex flex-align-center"
+                            type="button"
+                            onClick={handleSaveToCsvClick}
+                        >
+                            Download edits as CSV <Icon.FileDownload />
+                        </Button>
                     </div>
 
-                    <table
-                        className="usa-table usa-table--borderless rs-width-100 padding-2 radius-md"
-                        data-testid="error-table"
-                    >
-                        <thead>
-                            <tr>
-                                <th className="rs-table-column-minwidth">
-                                    Recommended Edit
-                                </th>
-                                <th className="rs-table-column-minwidth">
-                                    {schemaColumnHeader} Row
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.map((e, i) => {
-                                return (
-                                    <ErrorRow
-                                        error={e}
-                                        index={i}
-                                        key={`error${i}`}
-                                        schemaColumnHeader={schemaColumnHeader}
-                                    />
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </>
+                    <div className="padding-x-4 padding-y-2 radius-md bg-base-lightest">
+                        <table
+                            className="usa-table usa-table--borderless"
+                            data-testid="error-table"
+                        >
+                            <thead>
+                                <tr>
+                                    <th className="rs-table-column-minwidth">
+                                        Recommended Edit
+                                    </th>
+                                    <th className="rs-table-column-minwidth">
+                                        {schemaColumnHeader} Row
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.map((e, i) => {
+                                    return (
+                                        <ErrorRow
+                                            error={e}
+                                            index={i}
+                                            key={`error${i}`}
+                                            schemaColumnHeader={
+                                                schemaColumnHeader
+                                            }
+                                        />
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             )}
-        </>
+        </div>
     );
 };
 
