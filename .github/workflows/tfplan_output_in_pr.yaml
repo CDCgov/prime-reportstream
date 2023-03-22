@@ -38,14 +38,14 @@ jobs:
           terraform plan -target=module.azure_dashboard -no-color -out=tfplan  
           echo ::set-output name=tfplan::$(cat tfplan)
           echo "$tfplan" >> $tfplan
+        env:
+          PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
         continue-on-error: true
     
       - name: Create Pull Request
         id: cpr
-        #uses: peter-evans/create-pull-request@v3
-        uses: peter-evans/create-or-update-comment@384c114887453534544cab66743e0ed42a1342a8
+        uses: peter-evans/create-pull-request@v3
         with:
-          comment-id: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Latest terraform changes to prod
           signoff: false
@@ -65,6 +65,18 @@ jobs:
           reviewers: |
             lucasdze 
           draft: false
+
+      - name: Add comment to PR
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Terraform Plan:
+            ```
+            ${{ env.PLAN_OUTPUT }}
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
