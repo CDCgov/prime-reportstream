@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
@@ -479,6 +480,13 @@ object CustomFHIRFunctions {
             )
         }
 
-        return mutableListOf(DateTimeType(inputDate.value, inputDate.precision, timezonePassed))
+        return when (inputDate.precision) {
+            TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
+                inputDate
+            )
+            TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
+                DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
+            )
+        }
     }
 }

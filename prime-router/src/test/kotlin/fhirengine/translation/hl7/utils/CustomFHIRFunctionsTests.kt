@@ -11,9 +11,11 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
@@ -25,6 +27,7 @@ import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.TimeZone
 import java.util.UUID
 
 class CustomFHIRFunctionsTests {
@@ -74,14 +77,15 @@ class CustomFHIRFunctionsTests {
         // Just checking we can access all the functions.
         // Individual function results are tested on their own unit tests.
         CustomFHIRFunctions.CustomFHIRFunctionNames.values().forEach {
-            // todo: this is temporary until this code is moved
             if (it == CustomFHIRFunctions.CustomFHIRFunctionNames.ChangeTimezone) {
                 // With bad inputs this will cause an error, but still verifies access to the function
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
                 }.isFailure().doesNotHaveClass(IllegalStateException::class.java)
-            } else if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
+            }
+            // todo: this is temporary until this code is moved
+            else if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
                 assertThat {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
@@ -339,35 +343,129 @@ class CustomFHIRFunctionsTests {
 
     @Test
     fun `test changeTimezone`() {
-        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-        val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
-
         // need to choose place without daylight savings time so that the test is not brittle
-        val pst = StringType("America/Phoenix")
+        val azt = StringType("America/Phoenix")
 
-        val pstDate = CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType(date)),
-            mutableListOf(mutableListOf(pst))
+        val aztDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType("2021-08-09T08:52:34.567-04:00")),
+            mutableListOf(mutableListOf(azt))
         )
-        assertThat(pstDate[0]).isInstanceOf(DateTimeType::class.java)
-        assertThat(pstDate[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00-07:00")
+        assertThat(aztDate[0]).isInstanceOf(DateTimeType::class.java)
+        assertThat(aztDate[0].primitiveValue()).isEqualTo("2021-08-09T05:52:34.567-07:00")
 
         // Japan also doesn't have daylight savings time and is an example of a positive time change
         val jst = StringType("Asia/Tokyo")
         val jstDate = CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType(date)),
+            mutableListOf(DateTimeType("2021-08-09T08:52:34.567-04:00")),
             mutableListOf(mutableListOf(jst))
         )
-        assertThat(jstDate[0].primitiveValue()).isEqualTo("2021-08-09T21:52:00+09:00")
+        assertThat(jstDate[0].primitiveValue()).isEqualTo("2021-08-09T21:52:34.567+09:00")
 
         // Verify the output can be adjusted again
-        val pstDate2 = CustomFHIRFunctions.changeTimezone(jstDate, mutableListOf(mutableListOf(pst)))
-        assertThat(pstDate2[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00-07:00")
+        val aztDate2 = CustomFHIRFunctions.changeTimezone(jstDate, mutableListOf(mutableListOf(azt)))
+        assertThat(aztDate2[0].primitiveValue()).isEqualTo("2021-08-09T05:52:34.567-07:00")
+    }
+
+    @Test
+    fun `test changeTimezone with different precisions`() {
+        // need to choose place without daylight savings time so that the test is not brittle
+        val azt = StringType("America/Phoenix")
+        val jst = StringType("Asia/Tokyo")
+        val dateMilli = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").parse("2021-08-09T08:52:34.567-04:00")
+        val dateSecond = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse("2021-08-09T08:52:34-04:00")
+        val dateDay = SimpleDateFormat("yyyy-MM-dd").parse("2021-08-09")
+        val dateMonth = SimpleDateFormat("yyyy-MM").parse("2021-08")
+        val dateYear = SimpleDateFormat("yyyy").parse("2021")
+
+        val aztDateMilli = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateMilli, TemporalPrecisionEnum.MILLI)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateMilli?.value).isEqualTo(dateMilli)
+        assertThat(aztDateMilli?.precision).isEqualTo(TemporalPrecisionEnum.MILLI)
+        assertThat(aztDateMilli?.primitiveValue()).isEqualTo("2021-08-09T05:52:34.567-07:00")
+        assertThat(aztDateMilli?.timeZone).isEqualTo(TimeZone.getTimeZone(azt.value))
+
+        val aztDateSecond = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateSecond, TemporalPrecisionEnum.SECOND)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateSecond?.value).isEqualTo(dateSecond)
+        assertThat(aztDateSecond?.precision).isEqualTo(TemporalPrecisionEnum.SECOND)
+        assertThat(aztDateSecond?.primitiveValue()).isEqualTo("2021-08-09T05:52:34-07:00")
+        assertThat(aztDateSecond?.timeZone).isEqualTo(TimeZone.getTimeZone(azt.value))
+
+        val aztDateDay = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateDay, TemporalPrecisionEnum.DAY)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateDay?.value).isEqualTo(dateDay)
+        assertThat(aztDateDay?.precision).isEqualTo(TemporalPrecisionEnum.DAY)
+        assertThat(aztDateDay?.primitiveValue()).isEqualTo("2021-08-09")
+
+        val aztDateMonth = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateMonth, TemporalPrecisionEnum.MONTH)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateMonth?.value).isEqualTo(dateMonth)
+        assertThat(aztDateMonth?.precision).isEqualTo(TemporalPrecisionEnum.MONTH)
+        assertThat(aztDateMonth?.primitiveValue()).isEqualTo("2021-08")
+
+        val aztDateYear = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateYear, TemporalPrecisionEnum.YEAR)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateYear?.value).isEqualTo(dateYear)
+        assertThat(aztDateYear?.precision).isEqualTo(TemporalPrecisionEnum.YEAR)
+        assertThat(aztDateYear?.primitiveValue()).isEqualTo("2021")
+
+        // Japan also doesn't have daylight savings time and is an example of a positive time change
+        val jstDateMilli = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateMilli, TemporalPrecisionEnum.MILLI)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateMilli?.value).isEqualTo(dateMilli)
+        assertThat(jstDateMilli?.precision).isEqualTo(TemporalPrecisionEnum.MILLI)
+        assertThat(jstDateMilli?.primitiveValue()).isEqualTo("2021-08-09T21:52:34.567+09:00")
+        assertThat(jstDateMilli?.timeZone).isEqualTo(TimeZone.getTimeZone(jst.value))
+
+        val jstDateSecond = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateSecond, TemporalPrecisionEnum.SECOND)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateSecond?.value).isEqualTo(dateSecond)
+        assertThat(jstDateSecond?.precision).isEqualTo(TemporalPrecisionEnum.SECOND)
+        assertThat(jstDateSecond?.primitiveValue()).isEqualTo("2021-08-09T21:52:34+09:00")
+        assertThat(jstDateSecond?.timeZone).isEqualTo(TimeZone.getTimeZone(jst.value))
+
+        val jstDateDay = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateDay, TemporalPrecisionEnum.DAY)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateDay?.value).isEqualTo(dateDay)
+        assertThat(jstDateDay?.precision).isEqualTo(TemporalPrecisionEnum.DAY)
+        assertThat(jstDateDay?.primitiveValue()).isEqualTo("2021-08-09")
+
+        val jstDateMonth = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateMonth, TemporalPrecisionEnum.MONTH)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateMonth?.value).isEqualTo(dateMonth)
+        assertThat(jstDateMonth?.precision).isEqualTo(TemporalPrecisionEnum.MONTH)
+        assertThat(jstDateMonth?.primitiveValue()).isEqualTo("2021-08")
+
+        val jstDateYear = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(DateTimeType(dateYear, TemporalPrecisionEnum.YEAR)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateYear?.value).isEqualTo(dateYear)
+        assertThat(jstDateYear?.precision).isEqualTo(TemporalPrecisionEnum.YEAR)
+        assertThat(jstDateYear?.primitiveValue()).isEqualTo("2021")
     }
 
     @Test
     fun `test changeTimezone with convertDateTimeToHL7`() {
-        val timezoneParameters: MutableList<MutableList<Base>>? = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
+        val timezoneParameters: MutableList<MutableList<Base>> = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
         var adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType("2015")),
@@ -423,7 +521,7 @@ class CustomFHIRFunctionsTests {
     fun `test changeTimezone invalid inputs`() {
         val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
-        val timezoneParameters: MutableList<MutableList<Base>>? = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
+        val timezoneParameters: MutableList<MutableList<Base>> = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
 
         assertThat {
             CustomFHIRFunctions.changeTimezone(
