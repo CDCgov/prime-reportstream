@@ -1,9 +1,7 @@
 name: "Terraform"
-
 on:
   pull_request:
-    branches:
-      - feature/autocreate-pr-with-tfplan-output
+  
 jobs:
   terraform:
     name: "Terraform"
