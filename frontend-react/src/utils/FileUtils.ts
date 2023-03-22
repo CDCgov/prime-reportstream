@@ -34,3 +34,55 @@ export const parseCsvForError = (
     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
 };
+
+export const validateFileType = (
+    file: File,
+    fileExt: string,
+    mimeType: string
+) => {
+    try {
+        // look at the filename extension.
+        const fileNameArray = file.name.split(".");
+        const uploadFileExtension = fileNameArray[fileNameArray.length - 1];
+
+        if (uploadFileExtension.toUpperCase() !== fileExt) {
+            return {
+                fileTypeError: `The file extension must be of type .'${fileExt.toLowerCase()}'`,
+            };
+        }
+
+        if (file.type !== mimeType) {
+            return {
+                fileTypeError: `The file MIME type must be of type .'${mimeType}'`,
+            };
+        }
+
+        return {
+            fileName: file.name,
+        };
+    } catch (err: any) {
+        console.warn(err);
+        return {
+            fileTypeError: `An unexpected error happened: '${err.toString()}'`,
+        };
+    }
+};
+
+export const validateFileSize = (file: File) => {
+    try {
+        if (file.size > PAYLOAD_MAX_BYTES) {
+            return {
+                fileSizeError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
+            };
+        }
+
+        return {
+            fileName: file.name,
+        };
+    } catch (err: any) {
+        console.warn(err);
+        return {
+            fileSizeError: `An unexpected error happened: '${err.toString()}'`,
+        };
+    }
+};

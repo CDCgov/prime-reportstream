@@ -5,6 +5,7 @@ import {
     FileInputRef,
     Form,
     FormGroup,
+    Grid,
     Label,
 } from "@trussworks/react-uswds";
 
@@ -12,23 +13,21 @@ export interface ManagePublicKeyFormProps {
     onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
-    fileName: string;
+    file: File | null;
 }
 
-const BASE_ACCEPT_VALUE = ".pem";
-
-export const ManagePublicKeyUpload = ({
+export default function ManagePublicKeyUpload({
     onPublicKeySubmit,
     onFileChange,
     onBack,
-    fileName,
-}: ManagePublicKeyFormProps) => {
-    const isDisabled = fileName.length === 0;
+    file,
+}: ManagePublicKeyFormProps) {
+    const isDisabled = !file;
     const fileInputRef = useRef<FileInputRef>(null);
 
     return (
         <Form
-            name="managePublicKey"
+            name="manage-public-key"
             onSubmit={(e) => onPublicKeySubmit(e)}
             className="rs-full-width-form"
         >
@@ -38,8 +37,7 @@ export const ManagePublicKeyUpload = ({
                     id="upload-pem-input-label"
                     htmlFor="upload-pem-input"
                 >
-                    Upload public key
-                    <br />
+                    <span className="display-block">Upload public key</span>
                     <span className="text-gray-50">
                         Make sure your file has a .pem extension and is properly
                         configured.
@@ -53,21 +51,19 @@ export const ManagePublicKeyUpload = ({
                     onChange={(e) => onFileChange(e)}
                     required
                     ref={fileInputRef}
-                    accept={BASE_ACCEPT_VALUE}
+                    accept=".pem"
                 />
             </FormGroup>
-            <div className="grid-row">
-                <div className="grid-col flex-1 display-flex flex-column flex-align-start">
-                    <div className="grid-col flex-1 display-flex flex-row flex-align-start">
-                        <Button onClick={onBack} type="button" outline>
-                            Back
-                        </Button>
-                        <Button disabled={isDisabled} type={"submit"}>
-                            Submit
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <Grid row>
+                <Grid col="auto">
+                    <Button onClick={onBack} type="button" outline>
+                        Back
+                    </Button>
+                    <Button disabled={isDisabled} type="submit">
+                        Submit
+                    </Button>
+                </Grid>
+            </Grid>
         </Form>
     );
-};
+}

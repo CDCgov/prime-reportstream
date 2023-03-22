@@ -11,7 +11,7 @@ export type UseOrganizationSendersResult = {
     isLoading: boolean;
 };
 
-export const UseOrganizationSenders = () => {
+export const useOrganizationSenders = () => {
     const { activeMembership } = useSessionContext();
 
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender[]>();

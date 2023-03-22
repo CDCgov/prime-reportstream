@@ -5,48 +5,40 @@ import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { USLink } from "../USLink";
-import Spinner from "../Spinner";
 import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import {
-    validateFileType,
-    ManagePublicKeyAction,
-    CONTENT_TYPE,
-    FORMAT,
-    validateFileSize,
-} from "../../hooks/network/ManagePublicKey/ManagePublicKeyHooks";
+import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 
-import { ManagePublicKeyChooseSender } from "./ManagePublicKeyChooseSender";
-import { ManagePublicKeyUpload } from "./ManagePublicKeyUpload";
+import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
+import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 
-const LightbulbIcon = Icon.Lightbulb;
+export const CONTENT_TYPE = "application/x-x509-ca-cert";
+export const FORMAT = "PEM";
 
-const ManagePublicKeySwitchDisplay = () => {
+function ManagePublicKeySwitchDisplay() {
     const navigate = useNavigate();
-    const [action, setAction] = useState(ManagePublicKeyAction.SELECT_SENDER);
+    const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
-    const [fileName, setFileName] = useState("");
+    const [file, setFile] = useState<File | null>(null);
 
     // TODO: mocked for now - make the call you need when sending the file
     const { sendFile } = {
         sendFile: (data: {
             contentType?: string;
             fileContent?: string;
-            fileName?: string;
+            file?: File | null;
         }) => {
-            data = { fileName: "filename" };
+            data = { file: null };
             return data;
         },
     };
 
     const onSenderSelect = (selectedSender: string) => {
-        if (selectedSender !== "") {
-            setAction(ManagePublicKeyAction.SELECT_PUBLIC_KEY);
-        }
+        setSender(selectedSender);
     };
 
     const onBack = () => {
-        navigate("/resources");
+        navigate(-1);
     };
 
     const onPublicKeySubmit = async (
@@ -60,18 +52,14 @@ const ManagePublicKeySwitchDisplay = () => {
         }
 
         try {
-            setAction(ManagePublicKeyAction.SAVE_PUBLIC_KEY);
             sendFile({
                 contentType: CONTENT_TYPE,
                 fileContent: fileContent,
-                fileName: fileName,
+                file: file,
             });
-            // based on !isProcessing
-            setAction(ManagePublicKeyAction.PUBLIC_KEY_SAVED);
         } catch (e: any) {
             console.trace(e);
             showError(`Uploading public key failed. ${e.toString()}`);
-            setAction(ManagePublicKeyAction.SELECT_PUBLIC_KEY);
         }
     };
 
@@ -80,11 +68,11 @@ const ManagePublicKeySwitchDisplay = () => {
         if (!event?.target?.files?.length) return;
 
         const file = event.target.files.item(0);
-        if (!file) return;
+        if (!file) return; // so typescript doesnt complain
 
         const content = await file.text();
 
-        const { fileTypeError } = validateFileType(file, FORMAT);
+        const { fileTypeError } = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
             showError(fileTypeError);
         }
@@ -94,35 +82,28 @@ const ManagePublicKeySwitchDisplay = () => {
         }
 
         if (!fileTypeError && !fileSizeError) {
-            setFileName(file.name);
+            setFile(file);
             setFileContent(content);
         }
     };
 
-    switch (action) {
-        case ManagePublicKeyAction.SELECT_SENDER:
-            return (
+    return (
+        <>
+            {sender.length === 0 && (
                 <ManagePublicKeyChooseSender onSenderSelect={onSenderSelect} />
-            );
-        case ManagePublicKeyAction.SELECT_PUBLIC_KEY:
-            return (
+            )}
+            {sender && !file && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={onPublicKeySubmit}
                     onFileChange={onFileChange}
                     onBack={onBack}
-                    fileName={fileName}
+                    file={file}
                 />
-            );
-        case ManagePublicKeyAction.SAVE_PUBLIC_KEY:
-            return <Spinner message="Processing file..." />;
-        case ManagePublicKeyAction.PUBLIC_KEY_SAVED:
-            return <h1> Do something once public key has been saved. </h1>;
-        case ManagePublicKeyAction.PUBLIC_KEY_NOT_SAVED:
-            return <h1> Error saving public key. </h1>;
-        default:
-            return null;
-    }
-};
+            )}
+            {file && <h1> Do something once public key has been saved. </h1>}
+        </>
+    );
+}
 
 export function ManagePublicKey() {
     return (
@@ -133,7 +114,7 @@ export function ManagePublicKey() {
                 process.
             </p>
             <SiteAlert variant="info" showIcon={false}>
-                <LightbulbIcon />
+                <Icon.Lightbulb />
                 <span className="padding-left-1">
                     If you need more information on generating your public key,
                     reference page 7 in the{" "}

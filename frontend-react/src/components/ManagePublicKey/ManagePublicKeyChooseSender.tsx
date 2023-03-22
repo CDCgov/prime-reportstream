@@ -1,32 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Dropdown, Button, FormGroup } from "@trussworks/react-uswds";
 
-import { UseOrganizationSenders } from "../../hooks/UseOrganizationSenders";
+import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
 import Spinner from "../Spinner";
 
-type Props = {
-    onSenderSelect: any; //What type should this be???
-};
+export interface ManagePublicKeyChooseSenderProps {
+    onSenderSelect: (sender: string) => void;
+}
 
-export function ManagePublicKeyChooseSender({ onSenderSelect }: Props) {
-    const { isLoading, senders } = UseOrganizationSenders();
+export default function ManagePublicKeyChooseSender({
+    onSenderSelect,
+}: ManagePublicKeyChooseSenderProps) {
+    const { isLoading, senders } = useOrganizationSenders();
     const [selectedSender, setSelectedSender] = useState(
         senders?.length === 1 ? senders[0].name : ""
     );
 
-    if (senders?.length === 1) {
-        onSenderSelect(selectedSender);
-    }
+    useEffect(() => {
+        if (senders?.length === 1) {
+            onSenderSelect(selectedSender);
+        }
+    }, [senders?.length]);
 
     function handleSubmit() {
         onSenderSelect(selectedSender);
     }
 
     return (
-        <>
-            {isLoading && <Spinner message="Processing file..." />}
-            {!isLoading && senders && (
-                <Form name="senderSelect" onSubmit={handleSubmit}>
+        <div data-testid="ManagePublicKeyChooseSender">
+            {isLoading && <Spinner message="Loading..." />}
+            {!isLoading && senders && senders?.length > 1 && (
+                <Form name="sender-select" onSubmit={handleSubmit}>
                     <FormGroup>
                         <Dropdown
                             id="senders-dropdown"
@@ -46,7 +50,7 @@ export function ManagePublicKeyChooseSender({ onSenderSelect }: Props) {
                             key="submit-sender"
                             type="submit"
                             outline
-                            className="padding-bottom-1 padding-top-1"
+                            className="padding-y-1"
                             disabled={selectedSender === ""}
                         >
                             Submit
@@ -54,6 +58,6 @@ export function ManagePublicKeyChooseSender({ onSenderSelect }: Props) {
                     </FormGroup>
                 </Form>
             )}
-        </>
+        </div>
     );
 }
