@@ -1,0 +1,36 @@
+[0m[1mmodule.azure_dashboard.data.azurerm_subscription.current: Reading...[0m[0m
+[0m[1mmodule.azure_dashboard.data.azurerm_subscription.current: Read complete after 0s [id=/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677][0m
+[0m[1mmodule.azure_dashboard.azurerm_dashboard.az_dashboard: Refreshing state... [id=/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-prod/providers/Microsoft.Portal/dashboards/pdhprod-RS-Dashboard][0m
+
+[0m[1m[32mNo changes.[0m[1m Your infrastructure matches the configuration.[0m
+
+[0mTerraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the
+[33m│[0m [0mresult of this plan may not represent all of the changes requested by the
+[33m│[0m [0mcurrent configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for
+[33m│[0m [0mexceptional situations such as recovering from errors or mistakes, or when
+[33m│[0m [0mTerraform specifically suggests to use it as part of an error message.
+[33m╵[0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mRedundant ignore_changes element[0m
+[33m│[0m [0m
+[33m│[0m [0m[0m  on ../../modules/storage/candidate_slot.tf line 159, in resource "azurerm_storage_account" "storage_partner_candidate":
+[33m│[0m [0m 159: resource [4m"azurerm_storage_account"[0m "storage_partner_candidate" {[0m
+[33m│[0m [0m
+[33m│[0m [0mAdding an attribute name to ignore_changes tells Terraform to ignore future
+[33m│[0m [0mchanges to the argument in configuration after the object has been created,
+[33m│[0m [0mretaining the value originally configured.
+[33m│[0m [0m
+[33m│[0m [0mThe attribute secondary_blob_connection_string is decided by the provider
+[33m│[0m [0malone and therefore there can be no configured value to compare with.
+[33m│[0m [0mIncluding this attribute in ignore_changes has no effect. Remove the
+[33m│[0m [0mattribute from ignore_changes to quiet this warning.
+[33m│[0m [0m
+[33m│[0m [0m(and 2 more similar warnings elsewhere)
+[33m╵[0m[0m
