@@ -3,7 +3,7 @@ name: "Terraform"
 on:
   push:
     branches:
-      - feature/autocreate-pr-with-tfplan-as-comment
+      - feature/autocreate-pr-with-tfplan-output
   pull_request:
 
 jobs:

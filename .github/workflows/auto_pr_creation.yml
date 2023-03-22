@@ -62,8 +62,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Latest terraform changes to prod
           signoff: false
-          base: feature/autocreate-pr-with-tfplan-as-comment
-          branch: feature/autocreate-pr-with-tfplan-ouput
+          base: feature/autocreate-pr-with-tfplan-output
+          branch: feature/autocreate-pr-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
           body: ${{  steps.plan.outputs.tfplan}}
