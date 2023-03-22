@@ -23,10 +23,10 @@ import site from "../../content/site.json";
 import { USExtLink, USLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
-import { FileHandlerStepTwo } from "./FileHandlerStepTwo";
-import { FileHandlerStepOne } from "./FileHandlerStepOne";
-import { FileHandlerStepThree } from "./FileHandlerStepThree";
-import { FileHandlerStepFour } from "./FileHandlerStepFour";
+import { FileHandlerFileUploadStep } from "./FileHandlerFileUploadStep";
+import { FileHandlerSchemaSelectionStep } from "./FileHandlerSchemaSelectionStep";
+import { FileHandlerErrorsWarningsStep } from "./FileHandlerErrorsWarningsStep";
+import { FileHandlerSuccessStep } from "./FileHandlerSuccessStep";
 
 export const FileHandlerSpinner = ({ message }: { message: ReactNode }) => (
     <div className="margin-top-10">
@@ -349,7 +349,7 @@ function FileHandler() {
 
                 {fileHandlerStep === FileHandlerSteps.STEP_ONE && (
                     <>
-                        <FileHandlerStepOne
+                        <FileHandlerSchemaSelectionStep
                             fileType={fileType}
                             handleNextFileHandlerStep={
                                 handleNextFileHandlerStep
@@ -363,7 +363,7 @@ function FileHandler() {
                 )}
                 {fileHandlerStep === FileHandlerSteps.STEP_TWO && (
                     <>
-                        <FileHandlerStepTwo
+                        <FileHandlerFileUploadStep
                             handleSubmit={handleSubmit}
                             handleFileChange={handleFileChange}
                             fileInputResetValue={fileInputResetValue}
@@ -378,7 +378,7 @@ function FileHandler() {
                     </>
                 )}
                 {fileHandlerStep === FileHandlerSteps.STEP_THREE && (
-                    <FileHandlerStepThree
+                    <FileHandlerErrorsWarningsStep
                         errors={errors}
                         errorMessaging={errorMessaging}
                         handleNextFileHandlerStep={handleNextFileHandlerStep}
@@ -390,7 +390,7 @@ function FileHandler() {
                     />
                 )}
                 {fileHandlerStep === FileHandlerSteps.STEP_FOUR && (
-                    <FileHandlerStepFour
+                    <FileHandlerSuccessStep
                         destinations={destinations}
                         reportId={reportId}
                         successTimestamp={successTimestamp}

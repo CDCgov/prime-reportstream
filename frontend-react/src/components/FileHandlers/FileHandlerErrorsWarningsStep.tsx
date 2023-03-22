@@ -29,7 +29,7 @@ interface FileHandlerStepThreeProps {
     warnings: ResponseError[];
 }
 
-export const FileHandlerStepThree = ({
+export const FileHandlerErrorsWarningsStep = ({
     errorMessaging,
     errors,
     handleNextFileHandlerStep,

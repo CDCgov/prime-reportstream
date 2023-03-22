@@ -12,7 +12,7 @@ export interface FileHandlerFormProps {
     selectedSchemaOption: SchemaOption;
 }
 
-export const FileHandlerStepOne = ({
+export const FileHandlerSchemaSelectionStep = ({
     fileType,
     handleNextFileHandlerStep,
     onSchemaChange,

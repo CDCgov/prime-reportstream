@@ -24,7 +24,7 @@ export interface FileHandlerFormProps {
 
 const BASE_ACCEPT_VALUE = [".csv", ".hl7"].join(",");
 
-export const FileHandlerStepTwo = ({
+export const FileHandlerFileUploadStep = ({
     fileInputResetValue,
     fileName,
     handleFileChange,

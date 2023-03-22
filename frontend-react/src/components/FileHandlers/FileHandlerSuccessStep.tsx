@@ -11,7 +11,7 @@ export interface FileHandlerStepFourProps {
     successTimestamp?: string;
 }
 
-export const FileHandlerStepFour = ({
+export const FileHandlerSuccessStep = ({
     destinations,
     reportId,
     successTimestamp,
