@@ -43,8 +43,7 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          # terraform plan -target=module.azure_dashboard -no-color -out=tfplan
-          terraform plan -no-color -out=tfplan
+          terraform plan -target=module.azure_dashboard -no-color -out=tfplan
           echo ::set-output name=tfplan::$(cat tfplan)
           echo "$tfplan" >> $(cat tfplan)
         continue-on-error: true
@@ -60,7 +59,7 @@ jobs:
           branch: feature/autocreate-pr-with-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body: ${{ steps.plan.outputs.tfplan }}
+          body: ${{  steps.plan.outputs.stdout}}
           labels: |
             reportstream
             DevOps
