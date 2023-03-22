@@ -19,7 +19,7 @@ paths:
             type: string
           required: true
           name: organizationName
-          description: The name of the organization to fetch keys for
+          description: The name of the organization
       responses:
         '200':
           description: OK
@@ -32,26 +32,26 @@ paths:
         '404':
           description: Not Found
     post:
-      description: Adds or overwrites a key for a specific scope.  Currently, is only implemented for orgName.*.report scope
+      description: Adds or overwrites a key for a specific scope.
       security:
         - OAuth2: [ system_admin ]
       parameters:
         - in: path
           required: true
           name: organizationName
-          description: The name of the organization to fetch keys for
+          description: The name of the organization storing this key
           schema:
             type: string
         - in: query
           name: scope
           required: true
-          description: The scope to add the key for
+          description: The scope for this key (currently only orgName.*.report)
           schema:
             type: string
         - in: query
           name: kid
           required: true
-          description: The kid that will be stored with the public key
+          description: The key id identifying the public key
           schema:
             type: string
       responses:
@@ -75,7 +75,7 @@ components:
       $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
   schemas:
     ApiKeysResponse:
-      description: Fetched or modified API Keys
+      description: Fetch or modify API Keys
       type: object
       properties:
         orgName:
@@ -93,7 +93,7 @@ components:
                 description: The family of cryptographic algorithms used with the key.
                 type: string
               kid:
-                description: 	The unique identifier for the key.
+                description: The unique identifier for the key.
                 type: string
               n:
                 description: The modulus for the RSA public key
