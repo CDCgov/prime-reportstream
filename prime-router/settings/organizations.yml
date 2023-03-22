@@ -810,3 +810,41 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+# THIS ORGANIZATION IS FOR DEVELOPMENT PURPOSES ONLY - CHANGING IT WILL HAVE NO IMPACT ON TESTS
+- name: development
+  description: FOR DEVELOPMENT PURPOSES ONLY
+  jurisdiction: FEDERAL
+  receivers:
+    # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
+    - name: DEV_FULL_ELR
+      externalName: Ignore FULL_ELR Development
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')" ]
+      qualityFilter:
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
+      # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
+      # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
+      # Special Snowflake LOINC - 95423-0
+      # Accept all positive flu A and B results
+      # Accept Neg Flu results for X counties
+      conditionFilter:
+        - >-
+          %resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()
+          or (%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
