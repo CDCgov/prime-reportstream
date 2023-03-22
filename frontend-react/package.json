@@ -138,8 +138,8 @@
     "dotenv": "^16.0.3",
     "dotenv-expand": "^10.0.0",
     "env-cmd": "^10.1.0",
-    "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.7.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-chai-friendly": "^0.7.2",
     "eslint-plugin-cypress": "^2.12.1",
@@ -166,7 +166,7 @@
     "postcss-loader": "^7.0.2",
     "postcss-normalize": "^10.0.1",
     "postcss-preset-env": "^8.0.1",
-    "prettier": "^2.8.4",
+    "prettier": "^2.8.6",
     "prompts": "^2.4.2",
     "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^12.0.1",
@@ -195,8 +195,8 @@
     "fork-ts-checker-webpack-plugin": "^8.0.0",
     "@babel/core": "^7.21.3",
     "@babel/plugin-transform-typescript": "^7.21.3",
-    "@typescript-eslint/eslint-plugin": "^5.55.0",
-    "@typescript-eslint/parser": "^5.55.0"
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0"
   },
   "engines": {
     "node": "~18.15"

@@ -2,8 +2,9 @@ import { createDbMock } from "../utils/MSWData";
 
 import { createSettingsModels } from "./SettingsMock";
 
-//let { db, reset } = createDbMock([createSettingsModels]);
-const test = createDbMock([createSettingsModels, { test: String }]);
+let { db, reset } = createDbMock((faker) => ({
+    ...createSettingsModels(faker),
+}));
 
 describe("DBMock", () => {
     beforeEach(() => {
@@ -19,15 +20,23 @@ describe("DBMock", () => {
         test("multiple all initial", () => {
             db.organizationSettings.createMany(2, [
                 {
-                    asdf: "",
+                    name: "test1",
+                },
+                {
+                    name: "test2",
                 },
             ]);
             expect(db.organizationSettings.count()).toStrictEqual(2);
+            const all = db.organizationSettings.getAll();
+            expect(all[0].name).toStrictEqual("test1");
+            expect(all[1].name).toStrictEqual("test2");
         });
 
         test("multiple some initial", () => {
-            db.organizationSettings.createMany(2, [{}]);
+            db.organizationSettings.createMany(2, [{ stateCode: "LA" }]);
             expect(db.organizationSettings.count()).toStrictEqual(2);
+            const all = db.organizationSettings.getAll();
+            expect(all[0].stateCode).toStrictEqual("LA");
         });
     });
 

@@ -1,4 +1,4 @@
-import { nullable, factory } from "@mswjs/data";
+import { nullable, factory, drop } from "@mswjs/data";
 import { Database } from "@mswjs/data/lib/db/Database";
 import {
     ModelValueTypeGetter,
@@ -73,11 +73,10 @@ export type EnhancedFactoryAPI<Dictionary extends ModelDictionary> = {
     [DATABASE_INSTANCE]: Database<Dictionary>;
 };
 
-// eslint-disable-next-line prettier/prettier
 export function enhancedFactory<const Dictionary extends ModelDictionary>(
     dictionary: Dictionary
 ) {
-    const db = factory(dictionary) //as EnhancedFactoryAPI<Dictionary>;
+    const db = factory(dictionary); //as EnhancedFactoryAPI<Dictionary>;
     for (const key in dictionary) {
         db[key] = {
             ...db[key],
@@ -91,45 +90,23 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
             },
         };
     }
-    return db;
+    return db as EnhancedFactoryAPI<Dictionary>;
 }
 
-export type CalledModels<
-    T extends (((faker: Faker) => ModelDictionary) | ModelDictionary)[]
-> = {
-    [key in keyof T]: T[key] extends (faker: Faker) => infer Dictionary
-        ? Dictionary
-        : T[key];
-};
-
-export type ReducedModels<
-    T extends (((faker: Faker) => ModelDictionary) | ModelDictionary)[]
-> = {
-    [key in keyof CalledModels<T>[number][keyof CalledModels<T>[number]]]: CalledModels<T>[number][keyof CalledModels<T>[number]][key];
-};
-
-export type CallableModel<Dictionary extends ModelDictionary> = (((faker: Faker) => Dictionary) | Dictionary)
-
-// Remove when prettier supports typescript 5.0
-// eslint-disable-next-line prettier/prettier
-export function createDbMock<const T extends CallableModel<any>[]>(
-    models: T extends CallableModel<infer T1>[] ? CallableModel<T1>[] : never,
+export function createDbMock<const Dictionary extends ModelDictionary>(
+    cb: (faker: Faker) => Dictionary,
     {
-        faker = _faker,
-        seed = DEFAULT_SEED,
         date = DEFAULT_DATE,
+        seed = DEFAULT_SEED,
+        faker = _faker,
     }: CreateDbMockOptions = {}
 ) {
-    return models;/*
-    const calledModels = models.map((m) =>
-        typeof m === "function" ? m(faker) : m
-    );
-    return calledModels;
-    const db = enhancedFactory(Object.assign(test, ...calledModels));
+    const models = cb(faker);
+    const db = enhancedFactory(models);
 
     /**
      * Empty the db and reset faker sequence.
-     *//*
+     */
     function reset() {
         drop(db);
         faker.seed(seed);
@@ -142,5 +119,5 @@ export function createDbMock<const T extends CallableModel<any>[]>(
         db,
         faker,
         reset,
-    };*/
+    };
 }
