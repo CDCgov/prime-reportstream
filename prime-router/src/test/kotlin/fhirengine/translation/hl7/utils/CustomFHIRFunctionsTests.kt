@@ -18,6 +18,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Device
+import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
@@ -377,6 +378,15 @@ class CustomFHIRFunctionsTests {
         val dateMonth = SimpleDateFormat("yyyy-MM").parse("2021-08")
         val dateYear = SimpleDateFormat("yyyy").parse("2021")
 
+        val aztDateInstant = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(InstantType(dateMilli)),
+            mutableListOf(mutableListOf(azt))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(aztDateInstant?.value).isEqualTo(dateMilli)
+        assertThat(aztDateInstant?.precision).isEqualTo(TemporalPrecisionEnum.MILLI)
+        assertThat(aztDateInstant?.primitiveValue()).isEqualTo("2021-08-09T05:52:34.567-07:00")
+        assertThat(aztDateInstant?.timeZone).isEqualTo(TimeZone.getTimeZone(azt.value))
+
         val aztDateMilli = CustomFHIRFunctions.changeTimezone(
             mutableListOf(DateTimeType(dateMilli, TemporalPrecisionEnum.MILLI)),
             mutableListOf(mutableListOf(azt))
@@ -420,6 +430,15 @@ class CustomFHIRFunctionsTests {
         assertThat(aztDateYear?.primitiveValue()).isEqualTo("2021")
 
         // Japan also doesn't have daylight savings time and is an example of a positive time change
+        val jstDateInstant = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(InstantType(dateMilli)),
+            mutableListOf(mutableListOf(jst))
+        ).getOrNull(0) as? BaseDateTimeType
+        assertThat(jstDateInstant?.value).isEqualTo(dateMilli)
+        assertThat(jstDateInstant?.precision).isEqualTo(TemporalPrecisionEnum.MILLI)
+        assertThat(jstDateInstant?.primitiveValue()).isEqualTo("2021-08-09T21:52:34.567+09:00")
+        assertThat(jstDateInstant?.timeZone).isEqualTo(TimeZone.getTimeZone(jst.value))
+
         val jstDateMilli = CustomFHIRFunctions.changeTimezone(
             mutableListOf(DateTimeType(dateMilli, TemporalPrecisionEnum.MILLI)),
             mutableListOf(mutableListOf(jst))
