@@ -99,7 +99,7 @@ jobs:
           branch: feature/autocreate-pr-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body: {{steps.format.output.output}}
+          body: {{steps.format.outputs.output}}
           labels: |
             reportstream
             DevOps
