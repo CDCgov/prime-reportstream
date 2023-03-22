@@ -63,7 +63,7 @@ jobs:
           branch: feature/autocreate-pr-with-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body: ${{ github.workspace }}/terraform.text
+          body:  ${{ steps.plan.outputs.terraform.plan }}
           labels: |
             reportstream
             DevOps
