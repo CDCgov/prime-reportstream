@@ -43,7 +43,7 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -target=module.azure_dashboard -no-color -json -out=tfplan
+          terraform plan -target=module.azure_dashboard -no-color -json -out tf.plan
           echo ::set-output name=tfplan::$(cat tfplan)
           echo "$tfplan" >> $tfplan
         continue-on-error: true
@@ -51,10 +51,45 @@ jobs:
       - name: Terraform Show
         id: show
         run: |
-          terraform show -target=module.azure_dashboard -no-color -json -out=tfshow
-          echo ::set-output name=tfshow::$(cat tfshow)
-          echo "$tfshow" >> $tfshow
+          run: terraform show -no-color tf.plan 2>&1 > /tmp/plan.txt
         continue-on-error: true
+      
+      - name: Format plan
+        uses: actions/github-script@v6
+        id: format
+        with:
+          github-token: ${{ inputs.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            const plan = fs.readFileSync("/tmp/plan.txt", "utf8");
+            const maxGitHubBodyCharacters = 65536;
+
+            function chunkSubstr(str, size) {
+              const numChunks = Math.ceil(str.length / size)
+              const chunks = new Array(numChunks)
+              for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+                chunks[i] = str.substr(o, size)
+              }
+              return chunks
+            }
+
+            // Split the Terraform plan into chunks if it's too big and can't fit into the GitHub Action
+            var plans = chunkSubstr(plan, maxGitHubBodyCharacters); 
+            for (let i = 0; i < plans.length; i++) {
+              const output = `### ${{ inputs.plan-title }} Part # ${i + 1}
+              #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+              #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+              #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+              <details><summary>Show Plan</summary>
+              \`\`\`\n
+              ${plans[i]}
+              \`\`\`
+              </details>
+              *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;   
+
+               echo ::set-output name=tfplanshow::$(cat output)
+              echo "$tfplanshow" >> output
+            }
 
       - name: Create Pull Request
         id: cpr
@@ -67,7 +102,7 @@ jobs:
           branch: feature/autocreate-pr-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body: ${{  steps.plan.outputs.tfshow}}
+          body: ${{  steps.format.outputs.tfplanshow}}
           labels: |
             reportstream
             DevOps
