@@ -1,10 +1,8 @@
 import { createDbMock } from "../utils/MSWData";
 
-import { createSettingsModels } from "./SettingsMock";
+import { createModels } from "./DBMock";
 
-let { db, reset } = createDbMock((faker) => ({
-    ...createSettingsModels(faker),
-}));
+let { db, reset } = createDbMock(createModels);
 
 describe("DBMock", () => {
     beforeEach(() => {

@@ -1,5 +1,11 @@
+import { Faker } from "../utils/Faker";
 import { createDbMock } from "../utils/MSWData";
 
 import { createSettingsModels } from "./SettingsMock";
 
-export const db = createDbMock([createSettingsModels]);
+export function createModels(faker: Faker) {
+    return {
+        ...createSettingsModels(faker),
+    };
+}
+export const db = createDbMock(createModels);

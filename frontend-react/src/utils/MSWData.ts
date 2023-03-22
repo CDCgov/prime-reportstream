@@ -51,12 +51,6 @@ export function undefinable<T>(value: T) {
     });
 }
 
-export interface CreateDbMockOptions {
-    faker?: Faker;
-    seed?: number;
-    date?: number | Date | string;
-}
-
 export interface EnhancedModelAPI<
     Dictionary extends ModelDictionary,
     ModelName extends keyof Dictionary
@@ -73,13 +67,21 @@ export type EnhancedFactoryAPI<Dictionary extends ModelDictionary> = {
     [DATABASE_INSTANCE]: Database<Dictionary>;
 };
 
+/**
+ * Factory with our custom additions (ex: createMany).
+ */
 export function enhancedFactory<const Dictionary extends ModelDictionary>(
     dictionary: Dictionary
 ) {
-    const db = factory(dictionary); //as EnhancedFactoryAPI<Dictionary>;
+    const db = factory(dictionary) as EnhancedFactoryAPI<Dictionary>;
     for (const key in dictionary) {
         db[key] = {
             ...db[key],
+            /**
+             * Create many helper function. Creates {num} entities with first
+             * {initialValues}.length initialized with provided values and the
+             * rest fully mocked.
+             */
             createMany(
                 num: number,
                 initialValues: InitialValues<Dictionary, typeof key>[] = []
@@ -88,11 +90,31 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
                     this.create(initialValues[k])
                 );
             },
+            /**
+             * Create enhanced rest handlers.
+             */
+            toEnhancedRestHandlers(baseUrl: string): any {
+                // TODO
+                return this.toHandlers("rest", baseUrl);
+                //return generateRestHandlers(modelName, definition, api, baseUrl)
+            },
         };
     }
-    return db as EnhancedFactoryAPI<Dictionary>;
+    return db;
 }
 
+export interface CreateDbMockOptions {
+    faker?: Faker;
+    seed?: number;
+    date?: number | Date | string;
+}
+
+/**
+ * Takes a callback and options. Calls callback with faker instance to use
+ * to receive ModelDictionary (whose type information has not been lost and
+ * generified to ModelDictionary). Returns db, faker instance, and a reset
+ * helper.
+ */
 export function createDbMock<const Dictionary extends ModelDictionary>(
     cb: (faker: Faker) => Dictionary,
     {
