@@ -321,16 +321,16 @@ function FileHandler() {
                 {(fileHandlerStep === FileHandlerSteps.STEP_ONE ||
                     fileHandlerStep === FileHandlerSteps.STEP_TWO) && (
                     <>
-                        <p className="text-bold">
+                        <p>
                             Check that public health departments can receive
                             your data through ReportStream by validating your
                             file format.{" "}
                         </p>
-                        <p className="text-bold">
+                        <p>
                             Reminder: Do not submit PII. Email{" "}
                             <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                                 {site.orgs.RS.email}
-                            </USExtLink>
+                            </USExtLink>{" "}
                             if you need fake data to use.
                         </p>
                     </>
