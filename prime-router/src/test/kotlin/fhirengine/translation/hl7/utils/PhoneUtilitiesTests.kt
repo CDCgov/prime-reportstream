@@ -1,6 +1,7 @@
-package gov.cdc.prime.router.common
+package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -84,8 +85,8 @@ class PhoneUtilitiesTests {
         val withCountryCode = "+91(213) 555 5555 # 1234" // International (India) with extension number
         val usCountryCode = "+1 356-683-6541"
         val noCountryCode = "356-683-6541"
-        assertThat(PhoneUtilities.getPhoneNumberPart(withCountryCode, PhonePart.Country)).equals("91")
-        assertThat(PhoneUtilities.getPhoneNumberPart(usCountryCode, PhonePart.Country)).equals("1")
-        assertThat(PhoneUtilities.getPhoneNumberPart(noCountryCode, PhonePart.Country)).equals("1")
+        assertThat(PhoneUtilities.getPhoneNumberPart(withCountryCode, PhonePart.Country)).isEqualTo("91")
+        assertThat(PhoneUtilities.getPhoneNumberPart(usCountryCode, PhonePart.Country)).isEqualTo("1")
+        assertThat(PhoneUtilities.getPhoneNumberPart(noCountryCode, PhonePart.Country)).isEqualTo("1")
     }
 }
