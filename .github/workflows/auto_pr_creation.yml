@@ -86,7 +86,7 @@ jobs:
 
              echo output
             }
-        shell: cmd
+        shell: bash
         
       - name: Create Pull Request
         id: cpr
