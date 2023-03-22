@@ -45,6 +45,7 @@ jobs:
         #uses: peter-evans/create-pull-request@v3
         uses: peter-evans/create-or-update-comment@384c114887453534544cab66743e0ed42a1342a8
         with:
+          issue-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Latest terraform changes to prod
           signoff: false
