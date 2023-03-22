@@ -32,6 +32,13 @@ elements:
       hl7SegmentGroup: '/PATIENT'
     schema: ../common/patient-contact
 
+  - name: patient-visit
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
+    schema: ../common/patient-visit
+
   - name: order
     resource: Bundle.entry.resource.ofType(ServiceRequest)
     condition: '%resource.count() > 0'
