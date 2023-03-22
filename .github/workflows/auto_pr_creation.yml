@@ -43,15 +43,10 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -target=module.azure_dashboard -no-color -out terraform.plan
+          terraform plan -target=module.azure_dashboard -no-color -out=tfplan
+          echo "$tfplan" >> $tfplan
         continue-on-error: true
     
-    # generate plain output
-      - run: terraform show -no-color terraform.plan > terraform.text
-
-      # generate json output
-      - run: terraform show -json terraform.plan > terraform.json
-
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v3
@@ -63,7 +58,7 @@ jobs:
           branch: feature/autocreate-pr-with-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body:  tfcmt -repo "prime-reportstream" -pr 8802 plan -- terraform plan
+          body: ${{  steps.plan.outputs.tfplan}}
           labels: |
             reportstream
             DevOps
@@ -72,12 +67,6 @@ jobs:
           reviewers: |
              supriyaaddagada 
           draft: false
-        
-      - name: Terraform cmt
-        id: cmt
-        run: |
-            tfcmt -repo "prime-reportstream" -pr 8802 plan -- terraform plan
-        continue-on-error: true
 
       # - name: Post Plan
       #   uses: robburger/terraform-pr-commenter@v1
