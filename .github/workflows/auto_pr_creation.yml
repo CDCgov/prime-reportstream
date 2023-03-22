@@ -87,7 +87,6 @@ jobs:
               </details>
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;   
 
-               echo ::set-output name=tfplanshow::$(cat output)
               echo "$tfplanshow" >> output
             }
 
