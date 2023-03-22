@@ -50,9 +50,9 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -target=module.azure_dashboard -no-color -out=tfplan  
-          echo ::set-output name=tfplan::$(cat tfplan)
-          echo "$tfplan" >> $tfplan
+          terraform plan -target=module.azure_dashboard > tfplan.txt 
+          echo ::set-output name=tfplan.txt::$(cat tfplan.txt)
+          echo "$tfplan.txt" >> $tfplan.txt
         continue-on-error: true
     
       - name: Create Pull Request
@@ -65,8 +65,8 @@ jobs:
           base: master
           branch: feature/tfplan-output-in-pr
           delete-branch: false
-          title: 'AutoPR With Terraform Plan Change to Prod'
-          body: ${{  steps.plan.outputs.tfplan}}
+          title: 'AutoPR With Terraform Plan'
+          body: ${{  steps.plan.outputs.tfplan.txt}}
           labels: |
             reportstream
             DevOps
