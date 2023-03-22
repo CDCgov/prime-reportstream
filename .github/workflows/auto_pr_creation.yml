@@ -77,13 +77,7 @@ jobs:
           draft: false
 
 
-      - name: Terraform Plan
-        id: plan
-        run: |
-          terraform plan -out=tfplan
-          cat tfplan
-          terraform plan > tfplan.txt
-          cat tfplan.txt
+
 
       # - name: Post Plan
       #   uses: robburger/terraform-pr-commenter@v1
