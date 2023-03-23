@@ -392,6 +392,10 @@ class FHIRRouter(
                 allObservationsExpression
             )
 
+            // Automatically passing if observations are empty is necessary for messages that may not 
+            // contain any observations but messages that must have observations are now at risk of getting
+            // routed if they contain no observations. This case must be handled in one of the filters above
+            // while UP validation is still being designed/implemented.
             passes = passes && (
                 allObservations.isEmpty() || allObservations.any { observation ->
                     evaluateFilterAndLogResult(
