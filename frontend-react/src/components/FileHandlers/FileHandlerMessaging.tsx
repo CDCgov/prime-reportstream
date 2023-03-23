@@ -8,6 +8,10 @@ import { USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 
+const HL7_PRODUCT_MATRIX_URL =
+    "https://www.hl7.org/implement/standards/product_brief.cfm";
+const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
+
 export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
@@ -18,8 +22,25 @@ type RequestedChangesDisplayProps = {
     data: ResponseError[];
     message: string;
     heading: string;
-    schemaColumnHeader: string;
+    schemaColumnHeader: FileType;
+    file?: File;
 };
+
+/**
+ * Given a filename and the alert type, generate a safe filename for the errors/warnings CSV
+ *
+ * @param originalFileName
+ * @param fileType
+ * @param requestLevel
+ */
+export function getSafeFileName(
+    originalFileName: string,
+    requestLevel: RequestLevel
+) {
+    const joinedStr = [originalFileName, requestLevel].join("-").toLowerCase();
+
+    return joinedStr.replace(/[^a-z0-9]/gi, "-");
+}
 
 export const RequestedChangesDisplay = ({
     title,
@@ -27,6 +48,7 @@ export const RequestedChangesDisplay = ({
     message,
     heading,
     schemaColumnHeader,
+    file,
 }: RequestedChangesDisplayProps) => {
     const alertType =
         title === RequestLevel.WARNING
@@ -40,8 +62,7 @@ export const RequestedChangesDisplay = ({
 
     function handleSaveToCsvClick() {
         return saveToCsv(data, {
-            filename:
-                `${schemaColumnHeader}_${alertType}s_${new Date().getTime()}`.toLowerCase(),
+            filename: getSafeFileName(file?.name || "", title),
         });
     }
 
@@ -99,24 +120,6 @@ export const RequestedChangesDisplay = ({
         </div>
     );
 };
-
-interface FileWarningBannerProps {
-    message: string;
-}
-
-export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return (
-        <StaticAlert
-            type={StaticAlertType.Warning}
-            heading="Warning"
-            message={message}
-        />
-    );
-};
-
-const HL7_PRODUCT_MATRIX_URL =
-    "https://www.hl7.org/implement/standards/product_brief.cfm";
-const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
 
 export type ValidationErrorMessageProps = {
     errorCode: ErrorCode;
@@ -267,8 +270,8 @@ export const FileQualityFilterDisplay = ({
                 message={message}
             />
             <h3>Jurisdictions</h3>
-            {destinations?.map((d) => (
-                <React.Fragment key={d.organization_id}>
+            {destinations?.map((d, idx) => (
+                <React.Fragment key={`${d.organization_id}_${idx}`}>
                     <table
                         className="usa-table usa-table--borderless width-full"
                         data-testid="error-table"

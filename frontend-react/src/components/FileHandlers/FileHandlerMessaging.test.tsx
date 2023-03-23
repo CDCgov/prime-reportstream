@@ -2,7 +2,6 @@ import { screen, within } from "@testing-library/react";
 import React from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
@@ -14,6 +13,7 @@ import {
     RequestedChangesDisplay,
     ValidationErrorMessageProps,
     ValidationErrorMessage,
+    getSafeFileName,
 } from "./FileHandlerMessaging";
 
 // Note: following a pattern of finding elements by text (often text passed as props)
@@ -422,5 +422,29 @@ describe("ValidationErrorMessage", () => {
                 expect(errorMessageNode).toHaveTextContent("");
             });
         });
+    });
+});
+
+describe("getSafeFileName", () => {
+    test("returns a safe file name, replacing non-alphanumeric characters with hyphens", () => {
+        expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual(
+            "aaa-warnings"
+        );
+        expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual(
+            "aaa-----csv-warnings"
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.WARNING)
+        ).toEqual("hello-i-am-a-file-warnings");
+
+        expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual(
+            "aaa-errors"
+        );
+        expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual(
+            "aaa----csv-errors"
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.ERROR)
+        ).toEqual("hello-i-am-a-file-errors");
     });
 });

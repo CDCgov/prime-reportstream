@@ -40,6 +40,7 @@ export default function FileHandlerErrorsWarningsStep({
     destinations,
     errorType,
     errors,
+    file,
     onNextStepClick,
     onTestAnotherFileClick,
     reportItems,
@@ -69,6 +70,7 @@ export default function FileHandlerErrorsWarningsStep({
                     message={errorMessaging.message}
                     heading={errorMessaging.heading}
                     schemaColumnHeader={selectedSchemaOption.format}
+                    file={file}
                 />
             )}
             {warnings.length > 0 && (
@@ -78,6 +80,7 @@ export default function FileHandlerErrorsWarningsStep({
                     message="To avoid problems when sending files later, we strongly recommend fixing these issues now."
                     heading="Recommended edits found"
                     schemaColumnHeader={selectedSchemaOption.format}
+                    file={file}
                 />
             )}
 

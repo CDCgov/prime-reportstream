@@ -40,34 +40,38 @@ export default function FileHandlerSchemaSelectionStep({
 
             <p>Select data model</p>
 
-            <Dropdown
-                id="upload-schema-select"
-                name="upload-schema-select"
-                value={selectedSchemaOption.value}
-                onChange={(e) => {
-                    const option = schemaOptions.find(
-                        ({ value }: SchemaOption) => value === e.target.value
-                    )!;
+            <div className="margin-bottom-4">
+                <Dropdown
+                    id="upload-schema-select"
+                    name="upload-schema-select"
+                    value={selectedSchemaOption.value}
+                    onChange={(e) => {
+                        const option = schemaOptions.find(
+                            ({ value }: SchemaOption) =>
+                                value === e.target.value
+                        )!;
 
-                    if (option?.format !== fileType) {
-                        fileInputRef.current?.clearFiles();
-                    }
+                        if (option?.format !== fileType) {
+                            fileInputRef.current?.clearFiles();
+                        }
 
-                    onSchemaChange(option);
-                }}
-            >
-                <option value="" disabled>
-                    - Select -
-                </option>
-                {schemaOptions.map(({ title, value }) => (
-                    <option key={value} value={value}>
-                        {title}
+                        onSchemaChange(option);
+                    }}
+                >
+                    <option value="" disabled>
+                        - Select -
                     </option>
-                ))}
-            </Dropdown>
+                    {schemaOptions.map(({ title, value }) => (
+                        <option key={value} value={value}>
+                            {title}
+                        </option>
+                    ))}
+                </Dropdown>
+            </div>
+
             <Button
                 disabled={!isValid}
-                className="usa-button flex-align-self-start height-5 margin-top-4"
+                className="usa-button"
                 type="submit"
                 onClick={onNextStepClick}
             >
