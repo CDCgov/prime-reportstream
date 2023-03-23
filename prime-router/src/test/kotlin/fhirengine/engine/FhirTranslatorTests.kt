@@ -416,7 +416,6 @@ class FhirTranslatorTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
-        every { actionLogger.error(any<List<ActionLogDetail>>()) } returns Unit
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
