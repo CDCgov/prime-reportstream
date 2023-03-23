@@ -54,12 +54,12 @@ jobs:
           run: terraform show -no-color tf.plan 2>&1 > /tmp/plan.txt
         continue-on-error: true
 
-      - name: Format
+      - name: Format terraform
         id: format
         run: |
-           
-            $output=Get-Content "/tmp/plan.txt" -Raw
-             Write-Host $output
+          $output=Get-Content "/tmp/plan.txt" -Raw
+          Write-Host $output
+          echo "tfplan=$output" 
         shell: pwsh
         
       - name: Create Pull Request
@@ -73,7 +73,7 @@ jobs:
           branch: feature/autocreate-pr-tfplan-ouput
           delete-branch: false
           title: 'AutoPR With Terraform Plan Change to Prod'
-          body:  ${{ steps.format.outputs.output }}
+          body:  ${{ steps.format.outputs.tfplan }}
           labels: |
             reportstream
             DevOps
