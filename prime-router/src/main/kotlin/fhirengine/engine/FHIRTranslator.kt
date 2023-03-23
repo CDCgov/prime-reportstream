@@ -18,9 +18,6 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
-import gov.cdc.prime.router.fhirengine.translation.hl7.RequiredElementException
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
@@ -105,19 +102,8 @@ class FHIRTranslator(
                         null
                     )
                 } catch (e: Exception) { // handle translation errors
-                    when (e) {
-                        is SchemaException,
-                        is HL7ConversionException,
-                        is RequiredElementException -> {
-                            logger.warn(e)
-                            actionLogger.error(InvalidReportMessage(e.message ?: ""))
-                            return@forEach
-                        }
-                        else -> {
-                            logger.error(e)
-                            actionLogger.error(InvalidReportMessage(e.message ?: ""))
-                        }
-                    }
+                    logger.error(e)
+                    actionLogger.error(InvalidReportMessage(e.message ?: ""))
                 }
             }
         }
