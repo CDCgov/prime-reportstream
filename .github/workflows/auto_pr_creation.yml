@@ -57,9 +57,7 @@ jobs:
       - name: Format
         id: format
         run: |
-            const fs = require("fs");
-            const plan = fs.readFileSync("/tmp/plan.txt", "utf8");
-            const maxGitHubBodyCharacters = 65536;
+           
             $output=Get-Content "/tmp/plan.txt" -Raw
              Write-Host $output
         shell: pwsh
