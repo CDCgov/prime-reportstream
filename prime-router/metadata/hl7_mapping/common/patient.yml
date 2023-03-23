@@ -43,7 +43,9 @@ elements:
     schema: datatype/xpn-person-name
 
   - name: patient-dob
-    value: [ '%resource.birthDate' ]
+    value:
+      - '%resource.birthDate.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
+      - '%resource.birthDate'
     hl7Spec: [ '%{hl7PIDField}-7' ]
 
   - name: patient-sex
