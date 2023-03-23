@@ -324,6 +324,35 @@ class FhirTransformerTests {
     }
 
     @Test
+    fun `test transform with value set`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemA = FhirTransformSchemaElement(
+            "elementA",
+            value = listOf("Bundle.id"),
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.contact.name.text",
+            valueSet = sortedMapOf(Pair("abc123", "ghi789"))
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
+                "Bundle.entry.resource.ofType(Patient).contact.name.text"
+            )
+        assertThat(newValue[0].primitiveValue()).isEqualTo("ghi789")
+    }
+
+    @Test
     fun `test set bundle property`() {
         val bundle = Bundle()
         bundle.id = "abc123"
