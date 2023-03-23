@@ -11,7 +11,6 @@ import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import {
     RequestLevel,
     FileQualityFilterDisplay,
-    FileSuccessDisplay,
     RequestedChangesDisplay,
     ValidationErrorMessageProps,
     ValidationErrorMessage,
@@ -20,48 +19,6 @@ import {
 // Note: following a pattern of finding elements by text (often text passed as props)
 // then asserting className. This is not ideal, and seems kinda backwards, but I couldn't
 // think of a better way to do it. Is there a better pattern for this? - DWS
-describe("FileSuccessDisplay", () => {
-    test("renders expected content", async () => {
-        renderApp(
-            <FileSuccessDisplay
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                showExtendedMetadata={true}
-                extendedMetadata={{
-                    destinations: "1, 2",
-                    reportId: "IDIDID",
-                    timestamp: new Date(0).toString(),
-                }}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--success");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text");
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading");
-
-        const destinations = await screen.findByText("1, 2");
-        expect(destinations).toHaveClass("margin-top-05");
-
-        const reportLink = await screen.findByRole("link");
-        expect(reportLink).toHaveTextContent("IDIDID");
-        expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
-
-        const timestampDate = await screen.findByText(
-            formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
-        );
-        expect(timestampDate).toHaveClass("margin-top-05");
-
-        // // this may break if run outside of us east - commenting out until we confirm, or figure out a better way
-        // const timestampTime = await screen.findByText("7:00 America/New_York");
-        // expect(timestampTime).toHaveClass("margin-top-05");
-    });
-});
-
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
         const restore = conditionallySuppressConsole("failure:");

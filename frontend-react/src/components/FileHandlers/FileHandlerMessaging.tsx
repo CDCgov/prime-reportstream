@@ -1,101 +1,12 @@
 import React, { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
 
-import {
-    formattedDateFromTimestamp,
-    timeZoneAbbreviated,
-} from "../../utils/DateTimeUtils";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USLink, USExtLink } from "../USLink";
+import { USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
-
-type ExtendedSuccessMetadata = {
-    destinations?: string;
-    reportId?: string;
-    timestamp?: string;
-};
-
-type FileSuccessDisplayProps = {
-    heading: string;
-    message: string;
-    showExtendedMetadata: boolean;
-    extendedMetadata?: ExtendedSuccessMetadata;
-};
-
-export const FileSuccessDisplay = ({
-    heading,
-    message,
-    showExtendedMetadata,
-    extendedMetadata = {},
-}: FileSuccessDisplayProps) => {
-    const { destinations, timestamp, reportId } = extendedMetadata;
-    const destinationsDisplay =
-        destinations || "There are no known recipients at this time.";
-    return (
-        <>
-            <StaticAlert
-                type={[StaticAlertType.Success, StaticAlertType.Slim]}
-                heading={heading}
-                message={message}
-            />
-            <div>
-                {/* TODO: can probably remove since it's not being used now */}
-
-                {showExtendedMetadata && (
-                    <>
-                        {reportId && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Confirmation Code
-                                </p>
-                                <p className="margin-top-05">
-                                    <USLink href={`/submissions/${reportId}`}>
-                                        {reportId}
-                                    </USLink>
-                                </p>
-                            </div>
-                        )}
-                        {timestamp && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Date Received
-                                </p>
-                                <p className="margin-top-05">
-                                    {formattedDateFromTimestamp(
-                                        timestamp,
-                                        "DD MMMM YYYY"
-                                    )}
-                                </p>
-                            </div>
-                        )}
-                        {timestamp && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Time Received
-                                </p>
-                                <p className="margin-top-05">{`${formattedDateFromTimestamp(
-                                    timestamp,
-                                    "h:mm"
-                                )} ${timeZoneAbbreviated()}`}</p>
-                            </div>
-                        )}
-                        <div>
-                            <p className="text-normal text-base margin-bottom-0">
-                                Recipients
-                            </p>
-                            <p className="margin-top-05">
-                                {destinationsDisplay}
-                            </p>
-                        </div>
-                    </>
-                )}
-            </div>
-        </>
-    );
-};
 
 export enum RequestLevel {
     WARNING = "Warnings",

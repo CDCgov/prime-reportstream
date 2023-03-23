@@ -8,37 +8,57 @@ import {
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
-import { ResponseError } from "../../config/endpoints/waters";
-import { Destination } from "../../resources/ActionDetailsResource";
-import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
+import { OverallStatus } from "../../config/endpoints/waters";
+import { ErrorType } from "../../hooks/UseFileHandler";
 
 import {
     FileQualityFilterDisplay,
     RequestedChangesDisplay,
     RequestLevel,
 } from "./FileHandlerMessaging";
+import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
+import { FileHandlerStepProps } from "./FileHandler";
 
-interface FileHandlerStepThreeProps {
-    errorMessaging: { message: string; heading: string };
-    errors: ResponseError[];
-    handleNextFileHandlerStep: () => void;
-    handlePrevFileHandlerStep: () => void;
-    hasQualityFilterMessages: boolean | undefined;
-    qualityFilterMessages: Destination[] | undefined;
-    selectedSchemaOption: SchemaOption;
-    warnings: ResponseError[];
+const SERVER_ERROR_MESSAGING = {
+    heading: OverallStatus.ERROR,
+    message: "There was a server error. Your file has not been accepted.",
+};
+
+const ERROR_MESSAGING_MAP = {
+    server: SERVER_ERROR_MESSAGING,
+    file: {
+        heading: "File did not pass validation",
+        message: "Resubmit with the required edits.",
+    },
+};
+
+interface FileHandlerErrorsWarningsStepProps extends FileHandlerStepProps {
+    onTestAnotherFileClick: () => void;
 }
 
-export const FileHandlerErrorsWarningsStep = ({
-    errorMessaging,
+export default function FileHandlerErrorsWarningsStep({
+    destinations,
+    errorType,
     errors,
-    handleNextFileHandlerStep,
-    handlePrevFileHandlerStep,
-    hasQualityFilterMessages,
-    qualityFilterMessages,
+    onNextStepClick,
+    onTestAnotherFileClick,
+    reportItems,
     selectedSchemaOption,
     warnings,
-}: FileHandlerStepThreeProps) => {
+}: FileHandlerErrorsWarningsStepProps) {
+    // default to FILE messaging here, partly to simplify typecheck
+    const errorMessaging = ERROR_MESSAGING_MAP[errorType || ErrorType.FILE];
+
+    // Array containing only qualityFilterMessages that have filteredReportItems.
+    const qualityFilterMessages = reportItems?.filter(
+        (d) => d.filteredReportItems.length > 0
+    );
+
+    const hasQualityFilterMessages =
+        destinations.length > 0 &&
+        qualityFilterMessages &&
+        qualityFilterMessages.length > 0;
+
     const modalRef = useRef<ModalRef>(null);
     return (
         <div className="file-handler-table">
@@ -68,23 +88,27 @@ export const FileHandlerErrorsWarningsStep = ({
                     message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
                 />
             )}
-            <div className="grid-col display-flex">
+
+            <div className="display-flex margin-bottom-2">
                 <Button
-                    className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                    className="usa-button usa-button--outline"
                     type={"button"}
-                    onClick={handlePrevFileHandlerStep}
+                    onClick={onTestAnotherFileClick}
                 >
                     Test another file
                 </Button>
                 <Button
                     disabled={errors.length > 0}
-                    className="usa-button flex-align-self-start height-5 margin-top-4"
+                    className="usa-button"
                     type={"button"}
                     onClick={() => modalRef?.current?.toggleModal()}
                 >
                     Continue without changes
                 </Button>
             </div>
+
+            <FileHandlerProgrammersGuideTip />
+
             <Modal id="file-validator-modal" ref={modalRef}>
                 <ModalHeading>
                     Have you exported your recommended edits?
@@ -99,16 +123,16 @@ export const FileHandlerErrorsWarningsStep = ({
                 <ModalFooter>
                     <ButtonGroup>
                         <Button
-                            className="usa-button flex-align-self-start height-5 margin-top-4 usa-button--outline"
+                            className="usa-button usa-button--outline"
                             type={"button"}
                             onClick={() => modalRef?.current?.toggleModal()}
                         >
                             Go back and save
                         </Button>
                         <Button
-                            className="usa-button flex-align-self-start height-5 margin-top-4"
+                            className="usa-button"
                             type={"button"}
-                            onClick={() => handleNextFileHandlerStep()}
+                            onClick={onNextStepClick}
                         >
                             Continue
                         </Button>
@@ -117,4 +141,4 @@ export const FileHandlerErrorsWarningsStep = ({
             </Modal>
         </div>
     );
-};
+}

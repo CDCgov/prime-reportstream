@@ -1,29 +1,45 @@
 import React, { useRef } from "react";
 import { FileInputRef, Dropdown, Button } from "@trussworks/react-uswds";
 
-import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import useSenderSchemaOptions, {
+    SchemaOption,
+} from "../../senders/hooks/UseSenderSchemaOptions";
+import Spinner from "../Spinner";
 
-export interface FileHandlerFormProps {
-    fileType?: FileType;
-    handleNextFileHandlerStep: () => void;
+import { FileHandlerStepProps } from "./FileHandler";
+import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
+
+export interface FileHandlerSchemaSelectionStepProps
+    extends FileHandlerStepProps {
     onSchemaChange: (schemaOption: SchemaOption) => void;
-    schemaOptions: SchemaOption[];
-    selectedSchemaOption: SchemaOption;
 }
 
-export const FileHandlerSchemaSelectionStep = ({
+export default function FileHandlerSchemaSelectionStep({
     fileType,
-    handleNextFileHandlerStep,
-    onSchemaChange,
-    schemaOptions,
+    isValid,
     selectedSchemaOption,
-}: FileHandlerFormProps) => {
+    onSchemaChange,
+    onNextStepClick,
+}: FileHandlerSchemaSelectionStepProps) {
+    const { schemaOptions, isLoading } = useSenderSchemaOptions();
     const fileInputRef = useRef<FileInputRef>(null);
 
+    if (isLoading) {
+        return (
+            <div>
+                <Spinner />
+
+                <div className="text-center">Loading...</div>
+            </div>
+        );
+    }
+
     return (
-        <div className="grid-col flex-1 display-flex flex-column">
+        <div>
+            <FileHandlerPiiWarning />
+
             <p>Select data model</p>
+
             <Dropdown
                 id="upload-schema-select"
                 name="upload-schema-select"
@@ -50,13 +66,13 @@ export const FileHandlerSchemaSelectionStep = ({
                 ))}
             </Dropdown>
             <Button
-                disabled={!selectedSchemaOption?.value?.length}
+                disabled={!isValid}
                 className="usa-button flex-align-self-start height-5 margin-top-4"
-                type={"submit"}
-                onClick={() => handleNextFileHandlerStep()}
+                type="submit"
+                onClick={onNextStepClick}
             >
                 Continue
             </Button>
         </div>
     );
-};
+}
