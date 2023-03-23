@@ -234,6 +234,13 @@ class FhirTransformSchemaTests {
     }
 
     @Test
+    fun `test merge of schema with unnamed element`() {
+        val schemaA = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        val schemaB = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
+        assertThat { schemaA.merge(schemaB) }.isFailure()
+    }
+
+    @Test
     fun `test find element`() {
         val childSchema = FhirTransformSchema(
             elements = mutableListOf(
@@ -257,32 +264,48 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test merge of schemas`() {
-        val childSchema = FhirTransformSchema(
+        val referencedSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FhirTransformSchemaElement("child1"),
                 FhirTransformSchemaElement("child2"),
                 FhirTransformSchemaElement("child3")
-            )
+            ),
+            constants = sortedMapOf(Pair("K3", "refV3"), Pair("K5", "refV5")),
         )
-        val schema = FhirTransformSchema(
+        referencedSchema.name = "referencedSchema"
+
+        val baseSchema = FhirTransformSchema(
             elements = mutableListOf(
                 FhirTransformSchemaElement("parent1"),
                 FhirTransformSchemaElement("parent2"),
                 FhirTransformSchemaElement("parent3"),
-                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = childSchema)
-            )
+                FhirTransformSchemaElement("schemaElement", schema = "childSchema", schemaRef = referencedSchema)
+            ),
+            constants = sortedMapOf(Pair("K1", "baseV1"), Pair("K2", "baseV2"), Pair("K3", "baseV3")),
         )
+        baseSchema.name = "baseSchema"
 
-        val extendedSchema = FhirTransformSchema(
+        val parentSchema = FhirTransformSchema(constants = sortedMapOf(Pair("K2", "parentV2")))
+        parentSchema.name = "parentSchema"
+
+        val schema = FhirTransformSchema(
             elements = mutableListOf(
-                FhirTransformSchemaElement("parent1"),
+                FhirTransformSchemaElement("parent1", required = true),
                 FhirTransformSchemaElement("child2", condition = "condition1"),
-                FhirTransformSchemaElement("newElement1"),
-            )
+                FhirTransformSchemaElement("newElement"),
+            ),
+            constants = sortedMapOf(Pair("K1", "testV1"), Pair("K4", "testV4")),
         )
+        schema.name = "testSchema"
 
-        schema.merge(extendedSchema)
-        assertThat(childSchema.elements[1].condition).isEqualTo(extendedSchema.elements[1].condition)
-        assertThat(schema.elements.last().name).isEqualTo(extendedSchema.elements[2].name)
+        baseSchema.merge(parentSchema).merge(schema)
+        assertThat((baseSchema.elements[0]).required).isEqualTo((schema.elements[0]).required)
+        assertThat(referencedSchema.elements[1].condition).isEqualTo(schema.elements[1].condition)
+        assertThat(baseSchema.elements.last().name).isEqualTo(schema.elements[2].name)
+        assertThat(baseSchema.name).isEqualTo("testSchema")
+        assertThat(baseSchema.constants["K1"]).isEqualTo("testV1")
+        assertThat(baseSchema.constants["K2"]).isEqualTo("parentV2")
+        assertThat(baseSchema.constants["K3"]).isEqualTo("baseV3")
+        assertThat(baseSchema.constants["K4"]).isEqualTo("testV4")
     }
 }

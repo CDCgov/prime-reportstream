@@ -10,8 +10,7 @@ import {
     capitalizeFirst,
     groupBy,
     checkJson,
-    isProhibitedName,
-    includesSpecialChars,
+    isValidServiceName,
     parseFileLocation,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
@@ -133,9 +132,10 @@ describe("groupBy ", () => {
     });
 });
 
-describe("includesSpecialChars", () => {
-    describe("returns true if the string contains a non-ascii char", () => {
-        const stringsWithSpecialChars = [
+describe("isValidServiceName", () => {
+    describe("when the string is empty or contains characters outside of the allowed set", () => {
+        const names = [
+            "",
             "test/",
             "te.st",
             "te$t",
@@ -144,77 +144,29 @@ describe("includesSpecialChars", () => {
             "te,st",
             "te)",
             "a\\ttest",
-            "|test ",
+            "|test",
+            "test hello",
         ];
 
-        stringsWithSpecialChars.forEach((name) => {
-            test(`string ${name} contains a non-ascii char `, () => {
-                expect(includesSpecialChars(name)).toBeTruthy();
+        names.forEach((name) => {
+            test(`return false for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(false);
             });
         });
     });
 
-    describe("returns false if the string does not contain a non-ascii char", () => {
-        const stringsWithSpecialChars = ["orgname", "org name"];
-
-        stringsWithSpecialChars.forEach((name) => {
-            test(`string ${name} does not contain a non-ascii char `, () => {
-                expect(includesSpecialChars(name)).toBeFalsy();
-            });
-        });
-    });
-});
-
-describe("isProhibitedName", () => {
-    describe("returns false if the orgName is not prohibited", () => {
-        test("valid org name", () => {
-            expect(isProhibitedName("test")).toStrictEqual({
-                prohibited: false,
-                errorMsg: "",
-            });
-        });
-    });
-
-    describe("returns true if the orgName is prohibited", () => {
-        const prohibitedNames = [
-            "sender",
-            "receiver",
-            "org",
-            "ORG",
-            "organization",
-            "list",
-            "List",
-            "all",
-            "revs",
+    describe("when the string only contains characters within the allowed set", () => {
+        const names = [
+            "orgname",
+            "org-name",
+            "org_name",
+            "ORG-NAME",
+            "org-name-1",
         ];
 
-        prohibitedNames.forEach((name) => {
-            test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedName(name)).toEqual({
-                    errorMsg: `'${name}' is a prohibited name.`,
-                    prohibited: true,
-                });
-            });
-        });
-    });
-
-    describe("returns true if the orgName contains a non-ascii character", () => {
-        const specialChar = [
-            "test/",
-            "te.st",
-            "te$t",
-            "tes#",
-            "@est",
-            "te,st",
-            "te)",
-        ];
-
-        specialChar.forEach((name) => {
-            test(`name containing the prohibited word ${name}`, () => {
-                expect(isProhibitedName(name)).toEqual({
-                    errorMsg: `'${name}' cannot contain special character(s).`,
-                    prohibited: true,
-                });
+        names.forEach((name) => {
+            test(`returns true for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(true);
             });
         });
     });
