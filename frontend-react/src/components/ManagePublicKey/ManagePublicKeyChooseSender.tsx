@@ -20,7 +20,8 @@ export default function ManagePublicKeyChooseSender({
         if (senders?.length === 1) {
             onSenderSelect(selectedSender);
         }
-    }, [senders?.length]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [senders]);
 
     function handleSubmit() {
         onSenderSelect(selectedSender);

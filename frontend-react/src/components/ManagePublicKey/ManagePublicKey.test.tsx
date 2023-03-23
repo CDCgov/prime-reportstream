@@ -1,21 +1,11 @@
-import { screen } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-
-import { ManagePublicKey } from "./ManagePublicKey";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { RSSender } from "../../config/endpoints/settings";
 
-// jest.mock("./ManagePublicKeyChooseSender", () => ({
-//     ManagePublicKeyChooseSender: () => (
-//         <div data-testid="ManagePublicKeyChooseSender" />
-//     ),
-// }));
-
-jest.mock("./ManagePublicKeyUpload", () => ({
-    ManagePublicKeyUpload: () => <div data-testid="ManagePublicKeyUpload" />,
-}));
+import { ManagePublicKey } from "./ManagePublicKey";
 
 const DEFAULT_SENDERS: RSSender[] = [
     {
@@ -58,19 +48,7 @@ describe("ManagePublicKey", () => {
         });
     }
 
-    describe("when the sender options are loading", () => {
-        beforeEach(() => {
-            mockUseOrganizationSenders({ isLoading: true });
-
-            renderApp(<ManagePublicKey />);
-        });
-
-        test("renders a spinner", () => {
-            expect(screen.getByLabelText("loading-indicator")).toBeVisible();
-        });
-    });
-
-    describe("when the sender options have been loaded", () => {
+    describe("on load", () => {
         describe("when more than one sender", () => {
             beforeEach(() => {
                 mockUseOrganizationSenders({
@@ -83,11 +61,42 @@ describe("ManagePublicKey", () => {
 
             test("renders ManagePublicKeyChooseSender", () => {
                 expect(
-                    screen.getByText(/Manage Public Key/i)
+                    screen.getByText(/Manage Public Key/)
                 ).toBeInTheDocument();
                 expect(
                     screen.getByTestId("ManagePublicKeyChooseSender")
                 ).toBeVisible();
+                expect(
+                    screen.queryByTestId("ManagePublicKeyUpload")
+                ).not.toBeInTheDocument();
+            });
+
+            describe("when sender is selected", () => {
+                test("renders ManagePublicKeyUpload", async () => {
+                    const submit = await screen.findByRole("button");
+                    expect(submit).toHaveAttribute("type", "submit");
+                    expect(submit).toBeDisabled();
+
+                    const selectSender = screen.getByRole("combobox");
+                    expect(selectSender).toBeInTheDocument();
+                    expect(selectSender).toHaveValue("");
+                    fireEvent.change(selectSender, {
+                        target: { value: "default" },
+                    });
+
+                    expect(selectSender).toHaveValue("default");
+
+                    expect(submit).toBeEnabled();
+                    // Instead of clicking the submit button, fire submit on the form to prevent console error
+                    fireEvent.submit(screen.getByTestId("form"));
+
+                    expect(
+                        screen.queryByTestId("ManagePublicKeyChooseSender")
+                    ).not.toBeInTheDocument();
+                    expect(
+                        screen.getByTestId("ManagePublicKeyUpload")
+                    ).toBeVisible();
+                });
             });
         });
 
@@ -103,8 +112,11 @@ describe("ManagePublicKey", () => {
 
             test("renders ManagePublicKeyUpload", () => {
                 expect(
-                    screen.getByText(/Manage Public Key/i)
+                    screen.getByText(/Manage Public Key/)
                 ).toBeInTheDocument();
+                expect(
+                    screen.queryByTestId("ManagePublicKeyChooseSender")
+                ).not.toBeInTheDocument();
                 expect(
                     screen.getByTestId("ManagePublicKeyUpload")
                 ).toBeVisible();

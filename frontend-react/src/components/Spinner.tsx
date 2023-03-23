@@ -35,7 +35,11 @@ function Spinner({
                     ariaLabel="loading-indicator"
                 />
             </div>
-            {message && <span className="text-center">{message}</span>}
+            {message && (
+                <span className="text-center" data-testid="spinner-message">
+                    {message}
+                </span>
+            )}
         </div>
     );
 }

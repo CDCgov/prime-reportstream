@@ -100,7 +100,7 @@ function ManagePublicKeySwitchDisplay() {
                     file={file}
                 />
             )}
-            {file && <h1> Do something once public key has been saved. </h1>}
+            {file && <h1> Do something once public key has been saved.</h1>}
         </>
     );
 }
