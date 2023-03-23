@@ -47,7 +47,7 @@ abstract class Message {
 
 /**
  * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
- * and [sender]. A [digest] is also provided for checksum verification.
+ * and [schemaName] from the sender of the data. A [digest] is also provided for checksum verification.
  *
  * TODO: Need to determine if options, defaults and routeTo need to be supported
  */
@@ -57,6 +57,7 @@ data class RawSubmission(
     val blobURL: String,
     val digest: String,
     val blobSubFolderName: String,
+    val schemaName: String = "",
 //    val options: Options,
 //    val defaults: Map<String, String>,
 //    val routeTo: List<String>,

@@ -19,13 +19,6 @@ import gov.cdc.prime.router.tokens.JwkSet
 import java.time.OffsetDateTime
 
 /**
- * Used by senders to indicate that they carry a schema, so we can get the schema name
- */
-interface HasSchema {
-    var schemaName: String
-}
-
-/**
  * A `Sender` represents the agent that is sending reports to
  * the data hub (minus the credentials used by that agent, of course). It is an abstract base class that represents
  * either a full ELR sender or a Covid sender. In the former case, it will be used to pass data into the FHIR
@@ -199,12 +192,15 @@ abstract class Sender(
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
 class FullELRSender : Sender {
+    var schemaName: String
+
     @JsonCreator
     constructor(
         name: String,
         organizationName: String,
         format: Format,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+        schemaName: String = "",
         keys: List<JwkSet>? = null,
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
@@ -221,13 +217,16 @@ class FullELRSender : Sender {
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-    )
+    ) {
+        this.schemaName = schemaName
+    }
 
     constructor(copy: FullELRSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
+        copy.schemaName,
         if (copy.keys != null) ArrayList(copy.keys) else null
     )
 
@@ -237,6 +236,7 @@ class FullELRSender : Sender {
         copy.organizationName,
         copy.format,
         copy.customerStatus,
+        copy.schemaName,
         JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
@@ -263,8 +263,8 @@ class FullELRSender : Sender {
     }
 }
 
-open class TopicSender : Sender, HasSchema {
-    final override var schemaName: String
+open class TopicSender : Sender {
+    var schemaName: String
 
     @JsonCreator
     constructor(
@@ -344,7 +344,7 @@ open class TopicSender : Sender, HasSchema {
  *
  * @property schemaName the name of the schema used by the sender
  */
-class CovidSender : TopicSender, HasSchema {
+class CovidSender : TopicSender {
     @JsonCreator
     constructor(
         name: String,
@@ -409,7 +409,7 @@ class CovidSender : TopicSender, HasSchema {
 /**
  * Our monkeypox sender
  */
-class MonkeypoxSender : TopicSender, HasSchema {
+class MonkeypoxSender : TopicSender {
     @JsonCreator
     constructor(
         name: String,

@@ -104,11 +104,13 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
+      schemaName: metadata/fhir_transforms/fhir-transform-sample
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
+      schemaName: metadata/fhir_transforms/fhir-transform-sample
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -613,7 +615,7 @@
       transport:
         type: REST
         authTokenUrl: http://rest-webservice:3001/token
-        reportUrl:  http://rest-webservice:3001/report
+        reportUrl: http://rest-webservice:3001/report
         headers:
           UPHN-INFOMAP: '{}'
     - name: SOAP_TEST
@@ -628,8 +630,8 @@
         endpoint: "http://soap-webservice:8080/castlemock/mock/soap/project/eUAvaN/BasicHttpBinding_IUploadFile"
         soapAction: "" #"http://nedss.state.pa.us/2012/B01/elrwcf/IUploadFile/UploadFiles"
         credentialName: null
-#        namespaces:
-#          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
+      #        namespaces:
+      #          "xmlns:elr": "http://nedss.state.pa.us/2012/B01/elrwcf"
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -641,12 +643,12 @@
       jurisdictionalFilter: [ "matches(ordering_facility_county, REST_TEST)" ]
       timing: null
       translation:
-       type: GAEN
+        type: GAEN
       transport:
-       type: GAEN
-       uuidFormat: WA_NOTIFY
-       uuidIV: 1
-       apiUrl: ""
+        type: GAEN
+        uuidFormat: WA_NOTIFY
+        uuidIV: 1
+        apiUrl: ""
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY

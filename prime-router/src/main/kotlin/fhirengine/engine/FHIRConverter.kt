@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -60,9 +61,15 @@ class FHIRConverter(
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
+            val transformer = if (message.schemaName != "") {
+                FhirTransformer(message.schemaName)
+            } else null
             // operate on each fhir bundle
             var bundleIndex = 1
             for (bundle in fhirBundles) {
+                // conduct FHIR Transform
+                transformer?.transform(bundle)
+
                 // make a 'report'
                 val report = Report(
                     Report.Format.FHIR,
