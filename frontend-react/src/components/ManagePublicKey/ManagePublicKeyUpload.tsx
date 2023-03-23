@@ -9,7 +9,7 @@ import {
     Label,
 } from "@trussworks/react-uswds";
 
-export interface ManagePublicKeyFormProps {
+export interface ManagePublicKeyUploadProps {
     onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
@@ -21,7 +21,7 @@ export default function ManagePublicKeyUpload({
     onFileChange,
     onBack,
     file,
-}: ManagePublicKeyFormProps) {
+}: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
     const fileInputRef = useRef<FileInputRef>(null);
 
