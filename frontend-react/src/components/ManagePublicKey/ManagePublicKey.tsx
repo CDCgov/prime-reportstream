@@ -20,6 +20,7 @@ function ManagePublicKeySwitchDisplay() {
     const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
+    const [fileSubmitted, setFileSubmitted] = useState(false);
 
     // TODO: mocked for now - make the call you need when sending the file
     const { sendFile } = {
@@ -57,6 +58,7 @@ function ManagePublicKeySwitchDisplay() {
                 fileContent: fileContent,
                 file: file,
             });
+            setFileSubmitted(true);
         } catch (e: any) {
             console.trace(e);
             showError(`Uploading public key failed. ${e.toString()}`);
@@ -65,7 +67,10 @@ function ManagePublicKeySwitchDisplay() {
 
     const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         // No file selected
-        if (!event?.target?.files?.length) return;
+        if (!event?.target?.files?.length) {
+            setFile(null);
+            return;
+        }
 
         const file = event.target.files.item(0);
         if (!file) return; // so typescript doesnt complain
@@ -92,7 +97,7 @@ function ManagePublicKeySwitchDisplay() {
             {sender.length === 0 && (
                 <ManagePublicKeyChooseSender onSenderSelect={onSenderSelect} />
             )}
-            {sender && !file && (
+            {sender && !fileSubmitted && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={onPublicKeySubmit}
                     onFileChange={onFileChange}
@@ -100,7 +105,9 @@ function ManagePublicKeySwitchDisplay() {
                     file={file}
                 />
             )}
-            {file && <h1> Do something once public key has been saved.</h1>}
+            {fileSubmitted && (
+                <h1> Do something once public key has been saved.</h1>
+            )}
         </>
     );
 }
