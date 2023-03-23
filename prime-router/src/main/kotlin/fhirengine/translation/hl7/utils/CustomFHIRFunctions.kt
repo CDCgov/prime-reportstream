@@ -1,15 +1,21 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
+import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.time.DateTimeException
+import java.time.ZoneId
+import java.util.TimeZone
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -31,7 +37,8 @@ object CustomFHIRFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        LivdTableLookup;
+        LivdTableLookup,
+        ChangeTimezone;
 
         companion object {
             /**
@@ -102,6 +109,14 @@ object CustomFHIRFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.ChangeTimezone -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
+                    1,
+                    1
+                )
+            }
+
             else -> null
         }
     }
@@ -156,6 +171,10 @@ object CustomFHIRFunctions {
 
                 CustomFHIRFunctionNames.LivdTableLookup -> {
                     livdTableLookup(focus, parameters)
+                }
+
+                CustomFHIRFunctionNames.ChangeTimezone -> {
+                    changeTimezone(focus, parameters)
                 }
 
                 else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
@@ -427,6 +446,47 @@ object CustomFHIRFunctions {
             mutableListOf(StringType(null))
         } else {
             mutableListOf(StringType(result))
+        }
+    }
+
+    /**
+     * Applies a timezone given by [parameters] to a dateTime in [focus] and returns the result.
+     * @return a date in the new timezone
+     */
+    fun changeTimezone(
+        focus: MutableList<Base>,
+        parameters: MutableList<MutableList<Base>>?
+    ): MutableList<Base> {
+        if (focus.size != 1) {
+            throw SchemaException("Must call changeTimezone on a single element")
+        }
+
+        val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
+            "Must call changeTimezone on a dateTime, instant, or date; " +
+                "was attempted on a ${focus[0].fhirType()}"
+        )
+
+        if (parameters == null || parameters[0].size != 1) {
+            throw SchemaException("Must pass a timezone as the parameter")
+        }
+
+        val inputTimeZone = parameters.first().first().primitiveValue()
+        val timezonePassed = try {
+            TimeZone.getTimeZone(ZoneId.of(inputTimeZone))
+        } catch (e: DateTimeException) {
+            throw SchemaException(
+                "Invalid timezone $inputTimeZone passed. See FHIR timezone valueSet " +
+                    "(https://hl7.org/fhir/valueset-timezones.html) for available timezone values."
+            )
+        }
+
+        return when (inputDate.precision) {
+            TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
+                inputDate
+            )
+            TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
+                DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
+            )
         }
     }
 }
