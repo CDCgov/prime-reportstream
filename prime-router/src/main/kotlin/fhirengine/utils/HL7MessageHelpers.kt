@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.utils
 
-import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
@@ -16,8 +15,9 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportEvent
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.DateUtilities
 import org.apache.logging.log4j.kotlin.Logging
-import java.util.Date
+import java.time.ZoneId
 
 object HL7MessageHelpers : Logging {
     /**
@@ -129,30 +129,48 @@ object HL7MessageHelpers : Logging {
         } else null
 
         // The extraction of these values mimics how the COVID HL7 serializer works
-        var sendingApp = firstMessage?.get("MSH-3-1")
-        if (sendingApp.isNullOrBlank()) sendingApp = "CDC PRIME - Atlanta"
+        var sendingApp =
+            "${firstMessage?.get("MSH-3-1") ?: "CDC PRIME - Atlanta"}^" +
+                "${firstMessage?.get("MSH-3-2") ?: "2.16.840.1.114222.4.1.237821"}^" +
+                "${firstMessage?.get("MSH-3-3") ?: "ISO"}"
         val receivingApp = receiver.translation.receivingApplicationName ?: firstMessage?.get("MSH-5-1") ?: ""
         val receivingFacility = receiver.translation.receivingFacilityName ?: firstMessage?.get("MSH-6-1") ?: ""
-        val time = DTM(null)
-        time.setValue(Date())
+//        val time = DTM(null)
+//        time.setValue(Date())
+        val hl7Config = receiver.translation
+        val zoneId = if (
+            hl7Config.convertDateTimesToReceiverLocalTime == true && receiver.timeZone != null
+        ) {
+            ZoneId.of(receiver.timeZone.zoneId)
+        } else {
+            // default to UTC
+            ZoneId.of("UTC")
+        }
+
+        val date = DateUtilities.nowTimestamp(
+            zoneId,
+            receiver.dateTimeFormat,
+            hl7Config.convertPositiveDateTimeOffsetToNegative,
+            hl7Config.useHighPrecisionHeaderDateTimeFormat
+        )
 
         val builder = StringBuilder()
         builder.append(
             "FHS|$hl7BatchHeaderEncodingChar|" +
                 "$sendingApp|" +
-                "|" +
+                "$sendingApp|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
-                time.value
+                date
         )
         builder.append(hl7SegmentDelimiter)
         builder.append(
             "BHS|$hl7BatchHeaderEncodingChar|" +
                 "$sendingApp|" +
-                "|" +
+                "$sendingApp|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
-                time.value
+                date
         )
         builder.append(hl7SegmentDelimiter)
 
