@@ -59,7 +59,7 @@ abstract class Sender(
     override val organizationName: String,
     val format: Format,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val keys: List<JwkSet>? = null,
+    val keys: List<JwkSet>? = null, // TODO https://github.com/CDCgov/prime-reportstream/issues/8659
     val processingType: ProcessingType = sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
@@ -166,40 +166,6 @@ abstract class Sender(
         const val fullNameSeparator = "."
 
         /**
-         * Copy an old set of authorizations to a new set, and add one to it, if needed.
-         * This whole list of lists thing is confusing:
-         * The 'orig' obj, and the return val, are list of JwkSets.   And each JwkSet has a list of Jwks.
-         */
-        fun addJwkSet(orig: List<JwkSet>?, newScope: String, newJwk: Jwk): List<JwkSet> {
-            if (orig == null) {
-                return listOf(JwkSet(newScope, listOf(newJwk))) // create brand new
-            }
-            val newJwkSetList = mutableListOf<JwkSet>()
-            var done = false
-            orig.forEach {
-                if (it.scope == newScope) {
-                    if (it.keys.contains(newJwk)) {
-                        // The orig already has this key with this scope.  Just use it.
-                        newJwkSetList.add(it)
-                    } else {
-                        // Don't create a whole new JwkSet.   Instead, add this Jwk to existing JwkSet.
-                        val newJwkList = it.keys.toMutableList()
-                        newJwkList.add(newJwk)
-                        newJwkSetList.add(JwkSet(newScope, newJwkList))
-                    }
-                    done = true
-                } else {
-                    newJwkSetList.add(it) // existing different scope, make sure we keep it.
-                }
-            }
-            // If the old/new scopes didn't match, then the new scope was never added.  Add a new JwkSet now.
-            if (!done) {
-                newJwkSetList.add(JwkSet(newScope, listOf(newJwk)))
-            }
-            return newJwkSetList
-        }
-
-        /**
          * returns a tuple of the sender name split into parts, with the
          * second part defaulted to 'default' if not provided
          */
@@ -271,7 +237,7 @@ class FullELRSender : Sender {
         copy.organizationName,
         copy.format,
         copy.customerStatus,
-        addJwkSet(copy.keys, newScope, newJwk)
+        JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**
@@ -346,7 +312,7 @@ open class TopicSender : Sender, HasSchema {
         copy.customerStatus,
         copy.schemaName,
         copy.topic,
-        addJwkSet(copy.keys, newScope, newJwk)
+        JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**
@@ -421,7 +387,7 @@ class CovidSender : TopicSender, HasSchema {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        addJwkSet(copy.keys, newScope, newJwk)
+        JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**
@@ -486,7 +452,7 @@ class MonkeypoxSender : TopicSender, HasSchema {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        addJwkSet(copy.keys, newScope, newJwk)
+        JwkSet.addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**

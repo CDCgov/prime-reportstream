@@ -17,6 +17,11 @@ elements:
     value: [ '%resource.type.coding.code' ]
     hl7Spec: [ '%{hl7CXFieldPath}-5' ]
 
+  - name: id-type-code-pi
+    condition: '%resource.type.coding.code.empty()'
+    value: [ '"PI"' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-5' ]
+
   - name: assigning-facility
     constants:
       hl7HDField: '%{hl7CXFieldPath}-6'

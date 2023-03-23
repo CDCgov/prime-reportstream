@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
@@ -15,16 +16,16 @@ function Deliveries() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails || {};
     return (
-        <>
+        <GridContainer containerSize="widescreen">
             <Helmet>
                 <title>{FeatureName.DAILY_DATA}</title>
             </Helmet>
-            <section className="grid-container margin-bottom-5 tablet:margin-top-6">
+            <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title preTitle={description} title={FeatureName.DAILY_DATA} />
-            </section>
-            {withCatchAndSuspense(<DeliveriesTable />)}
-            <HipaaNotice />
-        </>
+                {withCatchAndSuspense(<DeliveriesTable />)}
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 }
 

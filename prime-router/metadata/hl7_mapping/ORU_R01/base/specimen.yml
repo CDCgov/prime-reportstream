@@ -1,5 +1,6 @@
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
+  performerOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
 elements:
   - name: specimen-set-id
     value: [ '"1"' ]
@@ -10,7 +11,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: specimen-identifier-filler
@@ -18,14 +19,33 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
+
+#  If there's only one identifier and system is empty get identifier from performer org
+  - name: specimen-organization-identifier
+    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
+    resource: '%performerOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
+      identifier: '%specimen.identifier[0].value'
+    schema: ../../common/organization-identifier
+
+  #  If there's only one identifier and system is empty get identifier from performer org
+  - name: specimen-organization-identifier-2
+    condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
+    resource: '%performerOrganization'
+    constants:
+      organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
+      identifier: '%specimen.identifier[0].value'
+    schema: ../../common/organization-identifier
 
   - name: specimen-type
     resource: '%resource.type'
     constants:
+      versionId: '2.67'
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-type-modifier
     value: [ '""' ]
@@ -44,7 +64,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-source-site-modifier
     value: [ '""' ]
@@ -68,6 +88,12 @@ elements:
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
+  # Alternative to getting specimen collection time from DiagnosticReport instead
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not()'
+    value: [ '%diagnostic.issued' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
   - name: specimen-observation-date-time-end
     condition: '%resource.collection.collected is Period'
     value: [ '%resource.collection.collected.end' ]
@@ -76,6 +102,11 @@ elements:
   - name: specimen-received-time
     condition: '%resource.receivedTime is dateTime'
     value: [ '%resource.receivedTime' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
+
+  - name: specimen-received-time-diagnostic
+    condition: '%resource.receivedTime.exists().not()'
+    value: [ '%diagnostic.effective' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
   - name: specimen-reject-reason
@@ -96,4 +127,4 @@ elements:
     resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
-    schema: datatype/ce-coded-with-exceptions
+    schema: ../../common/datatype/ce-coded-with-exceptions
