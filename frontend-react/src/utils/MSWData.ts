@@ -14,11 +14,23 @@ import {
 import { NullableProperty } from "@mswjs/data/lib/nullable";
 import { PrimaryKey } from "@mswjs/data/lib/primaryKey";
 import { OneOf, ManyOf } from "@mswjs/data/lib/relations/Relation";
+import {
+    ResponseResolver,
+    RestHandler,
+    Path,
+    DefaultBodyType,
+    MockedRequest,
+} from "msw";
+import { j } from "msw/lib/glossary-de6278a9";
 
 import { Faker, faker as _faker } from "../utils/Faker";
 
 export const DEFAULT_SEED = 123;
 export const DEFAULT_DATE = "2023-03-16T21:04:23.800Z";
+
+export type RequestParams<Key extends PrimaryKeyType> = {
+    [K in Key]: string;
+};
 
 export type TypedModelDefinitionValue<T> =
     | (T extends PrimaryKeyType ? PrimaryKey<T> : never)
@@ -41,6 +53,21 @@ export type DBFactoryModel<T> = {
 };
 
 /**
+ * DB Entity type -> original javascript type
+ * Returns the original type provided to DBFactoryModel to represent
+ * the entity as it would be when json serialized (this assumes the
+ * the type provided was already json-safe!).
+ */
+export type JSONEntity<T extends Entity<any, any> | null> = T extends Entity<
+    infer Dictionary,
+    infer ModelName
+>
+    ? Dictionary[ModelName] extends DBFactoryModel<infer M>
+        ? M
+        : never
+    : never;
+
+/**
  * Replacement for nullable() for properties that can return undefined (ex: when
  * using mocking libraries for properties that are optional).
  */
@@ -59,6 +86,21 @@ export interface EnhancedModelAPI<
         num: number,
         initialValues?: InitialValues<Dictionary, ModelName>[]
     ): Entity<Dictionary, ModelName>;
+    toEnhancedRestHandlers<
+        const P extends PartialFactoryHandlerMap,
+        const R extends PartialFactoryHandlerMap
+    >(
+        baseUrl: string,
+        relativePathMap?: P,
+        parentResolversMap?: R
+    ): RestHandler<MockedRequest<DefaultBodyType>>[];
+    getAllJson: () => JSONEntity<ReturnType<this["getAll"]>[0]>[];
+    findFirstJson: (
+        ...args: Parameters<this["findFirst"]>
+    ) => JSONEntity<ReturnType<this["findFirst"]>> | null;
+    findManyJson: (
+        ...args: any[]
+    ) => JSONEntity<ReturnType<this["findMany"]>[0]>;
 }
 
 export type EnhancedFactoryAPI<Dictionary extends ModelDictionary> = {
@@ -66,6 +108,85 @@ export type EnhancedFactoryAPI<Dictionary extends ModelDictionary> = {
 } & {
     [DATABASE_INSTANCE]: Database<Dictionary>;
 };
+
+export type FactoryHandlerMap<T = unknown> = Record<
+    "getList" | "get" | "post" | "put" | "delete",
+    T
+>;
+export type PartialFactoryHandlerMap<T = unknown> = Partial<
+    FactoryHandlerMap<T>
+>;
+
+export interface EnhancedRestHandlersOptions {
+    relativePaths?: FactoryHandlerMap<string>;
+    parentHandlers: FactoryHandlerMap;
+}
+
+export type RestHandlerMethod = string | RegExp;
+
+export interface ProxyResolutionContext extends j {
+    proxy: {
+        res?: any;
+        error?: Error;
+    };
+}
+
+export class ProxyRestHandler extends RestHandler {
+    targetRestHandler: RestHandler;
+
+    constructor(
+        method: RestHandlerMethod,
+        path: Path,
+        resolver: ResponseResolver<any, any>,
+        targetRestHandler: RestHandler
+    ) {
+        super(method, path, resolver);
+        this.targetRestHandler = targetRestHandler;
+    }
+
+    run(
+        ...[request, resolutionContext]: Parameters<RestHandler["run"]>
+    ): ReturnType<RestHandler["run"]> {
+        const proxyCtx: ProxyResolutionContext["proxy"] = {
+            res: undefined,
+            error: undefined,
+        };
+
+        try {
+            proxyCtx.res = this.targetRestHandler.run(
+                request,
+                resolutionContext
+            );
+        } catch (e: any) {
+            proxyCtx.error = e;
+        }
+
+        return super.run(request, {
+            ...resolutionContext,
+            proxy: proxyCtx,
+        } as ProxyResolutionContext);
+    }
+}
+
+export const FactoryRestHandlerTupleMap = {
+    0: "getList",
+    1: "get",
+    2: "post",
+    3: "put",
+    4: "delete",
+} as const;
+
+export function factoryRestHandlerMapToTuple<const T>(
+    map: PartialFactoryHandlerMap<T>
+) {
+    return [
+        map[FactoryRestHandlerTupleMap[0]],
+        map[FactoryRestHandlerTupleMap[1]],
+        map[FactoryRestHandlerTupleMap[2]],
+        map[FactoryRestHandlerTupleMap[3]],
+        map[FactoryRestHandlerTupleMap[4]],
+    ];
+}
 
 /**
  * Factory with our custom additions (ex: createMany).
@@ -93,10 +214,61 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
             /**
              * Create enhanced rest handlers.
              */
-            toEnhancedRestHandlers(baseUrl: string): any {
-                // TODO
-                return this.toHandlers("rest", baseUrl);
-                //return generateRestHandlers(modelName, definition, api, baseUrl)
+            toEnhancedRestHandlers<
+                const P extends PartialFactoryHandlerMap,
+                const R extends PartialFactoryHandlerMap
+            >(baseUrl: string, relativePathMap?: P, parentResolversMap?: R) {
+                const parentResolvers = factoryRestHandlerMapToTuple(
+                    parentResolversMap ?? {}
+                );
+                const relativePaths = factoryRestHandlerMapToTuple(
+                    relativePathMap ?? {}
+                );
+                const handlers = this.toHandlers("rest", baseUrl).map(
+                    (h, i) => {
+                        const parentResolver = parentResolvers[i];
+                        const method = h.info.method;
+                        const relativePath = relativePaths[i] ?? h.info.path;
+
+                        if (parentResolver) {
+                            return new ProxyRestHandler(
+                                method,
+                                relativePath as Path,
+                                parentResolver as any,
+                                h
+                            );
+                        }
+
+                        return h;
+                    }
+                );
+
+                return handlers;
+            },
+            // Getters that return JSON serializable data
+            getAllJson() {
+                return JSON.parse(JSON.stringify(this.getAll()));
+            },
+            findFirstJson(
+                ...args: Parameters<
+                    (typeof db)[keyof typeof db & string]["findFirst"]
+                >
+            ) {
+                const record = this.findFirst(...(args as [any]));
+                if (record === null) {
+                    return null;
+                }
+
+                return JSON.parse(JSON.stringify(record));
+            },
+            findManyJson(
+                ...args: Parameters<
+                    (typeof db)[keyof typeof db & string]["findMany"]
+                >
+            ) {
+                return JSON.parse(
+                    JSON.stringify(this.findMany(...(args as [any])))
+                );
             },
         };
     }

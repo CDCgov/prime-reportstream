@@ -9,6 +9,8 @@ process.env.TZ = "UTC";
 // Ensure environment variables are read.
 require("./config/env");
 
+const IS_DEBUG = process.env.NODE_OPTIONS?.match(/--inspect/);
+
 const config: Config.InitialOptions = {
     roots: ["<rootDir>/src"],
     collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
@@ -18,7 +20,7 @@ const config: Config.InitialOptions = {
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
         "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
     ],
-    testEnvironment: "jsdom",
+    testEnvironment: "./config/fixJSDOMEnvironment.ts",
     transform: {
         "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$":
             "<rootDir>/config/jest/babelTransform.js",
@@ -59,6 +61,7 @@ const config: Config.InitialOptions = {
         "jest-watch-typeahead/testname",
     ],
     resetMocks: true,
+    testTimeout: IS_DEBUG ? 1000 * 60 * 5 : undefined, // Relax test timeout when debugging
 };
 
 export default config;
