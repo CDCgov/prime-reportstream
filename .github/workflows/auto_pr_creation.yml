@@ -62,7 +62,7 @@ jobs:
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'plan'
-          args: '-var="is_temp_env=true" -var="env_prefix=${{ env.BRANCH_NAME }}." -out tf.plan'
+          args: '-var="is_temp_env=true" -target=module.azure_dashboard -out tf.plan'
         continue-on-error: true
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
@@ -83,7 +83,7 @@ jobs:
           echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
           echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
 
-      - run: node //prime-reportstream/.github/actions/pr-comment/comment.js
+      - run: node /prime-reportstream/.github/actions/pr-comment/comment.js
         env:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_number: ${{ steps.pr.outputs.pr_nr }}
