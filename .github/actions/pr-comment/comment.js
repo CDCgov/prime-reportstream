@@ -1,4 +1,4 @@
-const github = require('@actions/github');
+// const github = require('@actions/github');
 
 async function run() {
   const { issue_number, github_token, owner, repo, website_link } = process.env
