@@ -76,15 +76,15 @@ jobs:
           run: terraform show -no-color ${{ steps.plan.outputs.tfplan }} 2>&1 > /tmp/plan.txt
         continue-on-error: true
 
-      - name: Read and assign
-        id: output_test
-        run: |
-          input_file="/tmp/plan.txt"
-          while read line
-          do
-            file_text=$line
-          done < "$input_file"
-          echo ::set-output name=new_value::$file_text
+      - name: Read tfplan
+        id: terraformplan
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: /tmp/plan.txt
+    
+      - name: Echo terraformplan
+        run: echo "${{ steps.terraformplan.outputs.content }}"
+        
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
@@ -96,7 +96,7 @@ jobs:
           pr_target: "feature/autocreate-pr-with-tfplan-output"
           pr_labels: DevOps,reportstream
           pr_assignees: supriyaaddagada
-          pr_body: ${{ steps.output_test.outputs.new_value }}
+          pr_body: ${{ steps.terraformplan.outputs.content }}
 
       - name: "Produce Pull Request URL"
         run: |
