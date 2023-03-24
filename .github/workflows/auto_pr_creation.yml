@@ -79,8 +79,12 @@ jobs:
       - name: Read and assign
         id: output_test
         run: |
-          $file_text = Get-Content "/tmp/plan.txt"
-          echo "::set-output name=new_value::$file_text"
+          input_file="/tmp/plan.txt"
+          while read line
+          do
+            file_text=$line
+          done < "$input_file"
+          echo ::set-output name=new_value::$file_text
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
