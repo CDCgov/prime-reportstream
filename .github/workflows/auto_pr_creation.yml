@@ -71,13 +71,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
-          pr_source: "${{ env.BRANCH_NAME }}"
+          pr_source: feature/autocreate-pr-tfplan-ouput
           pr_target: "feature/autocreate-pr-with-tfplan-output"
           pr_labels: DevOps,reportstream
           pr_assignees: supriyaaddagada
           pr_body: |
-            ## Deployment of ${{ env.DEPLOYMENT_DATE }}
-            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
+            This PR contains the changes that will have terraform changes.
 
       - name: "Produce Pull Request URL"
         run: |
@@ -92,26 +91,7 @@ jobs:
           owner: supriyaaddagada
           website_link: ${{ steps.terraform.outputs.tf_actions_output }}
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Latest terraform changes to prod
-          signoff: false
-          base: feature/autocreate-pr-with-tfplan-output
-          branch: feature/autocreate-pr-tfplan-ouput
-          delete-branch: false
-          title: 'AutoPR With Terraform Plan Change to Prod'
-          body:  ${{ steps.format.outputs.tfplan }}
-          labels: |
-            reportstream
-            DevOps
-          assignees: |
-            supriyaaddagada
-          reviewers: |
-             supriyaaddagada 
-          draft: false
+     
 
 
 
