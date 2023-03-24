@@ -83,7 +83,7 @@ jobs:
     
       - name: Echo terraformplan
         run: echo "${{ steps.terraformplan.outputs.content }}"
-        
+        continue-on-error: true
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
