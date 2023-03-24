@@ -13,15 +13,20 @@ import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
 import * as analyticsExports from "../../utils/Analytics";
-
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
-} from "./FileHandler.test";
+} from "../../__mocks__/validation";
+
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
+
+jest.mock("../AlertNotifications", () => ({
+    ...jest.requireActual("../AlertNotifications"),
+    showError: jest.fn(),
+}));
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {

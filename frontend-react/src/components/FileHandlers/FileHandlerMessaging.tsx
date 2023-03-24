@@ -30,7 +30,6 @@ type RequestedChangesDisplayProps = {
  * Given a filename and the alert type, generate a safe filename for the errors/warnings CSV
  *
  * @param originalFileName
- * @param fileType
  * @param requestLevel
  */
 export function getSafeFileName(

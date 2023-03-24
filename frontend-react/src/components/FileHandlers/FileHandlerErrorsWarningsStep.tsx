@@ -32,7 +32,8 @@ const ERROR_MESSAGING_MAP = {
     },
 };
 
-interface FileHandlerErrorsWarningsStepProps extends FileHandlerStepProps {
+export interface FileHandlerErrorsWarningsStepProps
+    extends FileHandlerStepProps {
     onTestAnotherFileClick: () => void;
 }
 
@@ -95,7 +96,7 @@ export default function FileHandlerErrorsWarningsStep({
             <div className="display-flex margin-bottom-2">
                 <Button
                     className="usa-button usa-button--outline"
-                    type={"button"}
+                    type="button"
                     onClick={onTestAnotherFileClick}
                 >
                     Test another file
@@ -103,7 +104,7 @@ export default function FileHandlerErrorsWarningsStep({
                 <Button
                     disabled={errors.length > 0}
                     className="usa-button"
-                    type={"button"}
+                    type="button"
                     onClick={() => modalRef?.current?.toggleModal()}
                 >
                     Continue without changes
