@@ -61,9 +61,7 @@ class FHIRConverter(
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
-            val transformer = if (message.schemaName != "") {
-                FhirTransformer(message.schemaName)
-            } else null
+            val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
             var bundleIndex = 1
             for (bundle in fhirBundles) {
@@ -148,6 +146,18 @@ class FHIRConverter(
                 )
             }
         }
+    }
+
+    /**
+     * Loads a transformer schema with [schemaName] and returns it.
+     * Returns null if [schemaName] is the empty string.
+     * Using this function instead of calling the constructor directly simplifies the process of mocking the
+     * transformer in tests.
+     */
+    internal fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
+        return if (schemaName != "") {
+            FhirTransformer(schemaName)
+        } else null
     }
 
     /**

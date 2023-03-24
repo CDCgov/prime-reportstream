@@ -144,7 +144,7 @@ abstract class RequestFunction(
                     return@mapNotNull null
                 }
 
-                // only non full ELR senders will have a schema
+                // only topic sender schemas are relevant here
                 if (sender is TopicSender && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {

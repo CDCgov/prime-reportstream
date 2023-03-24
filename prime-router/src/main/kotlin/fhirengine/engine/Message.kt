@@ -47,7 +47,8 @@ abstract class Message {
 
 /**
  * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
- * and [schemaName] from the sender of the data. A [digest] is also provided for checksum verification.
+ * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
+ * A [digest] is also provided for checksum verification.
  *
  * TODO: Need to determine if options, defaults and routeTo need to be supported
  */
