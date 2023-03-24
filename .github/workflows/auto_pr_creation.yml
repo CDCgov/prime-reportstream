@@ -72,8 +72,7 @@ jobs:
           
       - name: Terraform Show
         id: show
-        run: |
-          run: terraform show -no-color ${{ steps.plan.outputs.tfplan }} 2>&1 > /tmp/plan.txt
+        run: terraform show -no-color ${{ steps.plan.outputs.tfplan }} 2>&1 > /tmp/plan.txt
         continue-on-error: true
 
       - name: Read tfplan
