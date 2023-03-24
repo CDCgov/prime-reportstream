@@ -65,7 +65,7 @@ jobs:
           args: '-var="is_temp_env=true" -var="env_prefix=${{ env.BRANCH_NAME }}." -out tf.plan'
         continue-on-error: true
 
-       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
+      - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
         id: pr
         with:
