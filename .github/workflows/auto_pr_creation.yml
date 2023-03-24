@@ -35,33 +35,63 @@ jobs:
       - name: Terraform format
         id: fmt
         run: terraform fmt -check
+        continue-on-error: true
     
       - name: Terraform validate
         id: validate
         run: terraform validate
- 
-      - name: Terraform plan
-        id: plan
-        run: |
-          terraform plan -target=module.azure_dashboard -no-color -json -out tf.plan
-          echo ::set-output name=tfplan::$(cat tfplan)
-          echo "$tfplan" >> $tfplan
         continue-on-error: true
-    
-      - name: Terraform Show
-        id: show
-        run: |
-          run: terraform show -no-color ${{ steps.plan.outputs.tfplan }} 2>&1 > /tmp/plan.txt
+ 
+      # - name: Terraform Show
+      #   id: show
+      #   run: |
+      #     run: terraform show -no-color ${{ steps.plan.outputs.tfplan }} 2>&1 > /tmp/plan.txt
+      #   continue-on-error: true
+
+      # - name: Format terraform
+      #   id: format
+      #   run: |
+      #     $output=Get-Content "/tmp/plan.txt" -Raw
+      #     Write-Host $output
+      #     echo "tfplan=$output" 
+      #   shell: pwsh
+      #   continue-on-error: true
+        
+      - name: Terraform Plan
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'plan'
+          args: '-var="is_temp_env=true" -var="env_prefix=${{ env.BRANCH_NAME }}." -out tf.plan'
         continue-on-error: true
 
-      - name: Format terraform
-        id: format
+       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
+        uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
+        id: pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          pr_source: "${{ env.BRANCH_NAME }}"
+          pr_target: "feature/autocreate-pr-with-tfplan-output"
+          pr_labels: DevOps,reportstream
+          pr_assignees: supriyaaddagada
+          pr_body: |
+            ## Deployment of ${{ env.DEPLOYMENT_DATE }}
+            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
+
+      - name: "Produce Pull Request URL"
         run: |
-          $output=Get-Content "/tmp/plan.txt" -Raw
-          Write-Host $output
-          echo "tfplan=$output" 
-        shell: pwsh
-        
+          echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
+          echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
+
+      - run: node .github/actions/pr-comment/comment.js
+        env:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_number: ${{ steps.pr.outputs.pr_nr }}
+          repo: 'prime-reportstream'
+          owner: supriyaaddagada
+          website_link: ${{ steps.terraform.outputs.tf_actions_output }}
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v3
