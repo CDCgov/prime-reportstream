@@ -90,7 +90,7 @@ jobs:
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
+          pr_title: "Deployment of terraform"
           pr_source: feature/autocreate-pr-tfplan-ouput
           pr_target: "feature/autocreate-pr-with-tfplan-output"
           pr_labels: DevOps,reportstream
@@ -102,13 +102,13 @@ jobs:
           echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
           echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
 
-      - run: node ./.github/actions/pr-comment/comment.js
-        env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_number: ${{ steps.pr.outputs.pr_nr }}
-          repo: 'prime-reportstream'
-          owner: supriyaaddagada
-          website_link: ${{ steps.terraform.outputs.tf_actions_output }}
+      # - run: node ./.github/actions/pr-comment/comment.js
+      #   env:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     issue_number: ${{ steps.pr.outputs.pr_nr }}
+      #     repo: 'prime-reportstream'
+      #     owner: supriyaaddagada
+      #     website_link: ${{ steps.terraform.outputs.tf_actions_output }}
 
      
 
