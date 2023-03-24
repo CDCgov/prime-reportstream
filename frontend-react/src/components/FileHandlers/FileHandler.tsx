@@ -137,7 +137,9 @@ export default function FileHandler() {
             <article className="usa-section">
                 <h1>ReportStream File Validator</h1>
 
-                <h2 className="font-sans-lg">{organization?.description}</h2>
+                {organization?.description && (
+                    <h2 className="font-sans-lg">{organization.description}</h2>
+                )}
 
                 {fileName && (
                     <div className="margin-bottom-4">

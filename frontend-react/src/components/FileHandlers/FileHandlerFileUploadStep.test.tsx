@@ -1,4 +1,5 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as UseSenderResourceExports from "../../hooks/UseSenderResource";
@@ -10,7 +11,14 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import * as analyticsExports from "../../utils/Analytics";
 
+import {
+    fakeFile,
+    mockSendFileWithErrors,
+    mockSendValidFile,
+} from "./FileHandler.test";
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
@@ -104,6 +112,198 @@ describe("FileHandlerFileUploadStep", () => {
                         "Make sure that your file has a .hl7 extension"
                     )
                 ).toBeVisible();
+            });
+        });
+
+        describe("when a file is selected", () => {
+            const onFileChangeSpy = jest.fn();
+
+            beforeEach(async () => {
+                renderApp(
+                    <FileHandlerFileUploadStep
+                        {...DEFAULT_PROPS}
+                        selectedSchemaOption={{
+                            format: FileType.CSV,
+                            title: "whatever",
+                            value: "whatever",
+                        }}
+                        onFileChange={onFileChangeSpy}
+                    />
+                );
+
+                await userEvent.upload(
+                    screen.getByTestId("file-input-input"),
+                    fakeFile
+                );
+            });
+
+            test("calls onFileChange with the file and content", async () => {
+                expect(onFileChangeSpy).toHaveBeenCalledWith(
+                    fakeFile,
+                    "foo,bar\r\nbar,foo"
+                );
+            });
+        });
+
+        describe("when a file is being submitted", () => {
+            beforeEach(async () => {
+                jest.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader"
+                ).mockReturnValue({
+                    isWorking: true,
+                    uploaderError: null,
+                    sendFile: () => Promise.resolve({}),
+                });
+
+                renderApp(
+                    <FileHandlerFileUploadStep
+                        {...DEFAULT_PROPS}
+                        selectedSchemaOption={{
+                            format: FileType.CSV,
+                            title: "whatever",
+                            value: "whatever",
+                        }}
+                    />
+                );
+            });
+
+            test("renders the loading message", () => {
+                expect(
+                    screen.getByText(
+                        "Checking your file for any errors that will prevent your data from being reported successfully..."
+                    )
+                ).toBeVisible();
+            });
+        });
+
+        describe("when a valid file is submitted", () => {
+            const onFileSubmitSuccessSpy = jest.fn();
+            const onNextStepClickSpy = jest.fn();
+
+            beforeEach(async () => {
+                jest.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader"
+                ).mockReturnValue({
+                    isWorking: false,
+                    uploaderError: null,
+                    sendFile: () => Promise.resolve(mockSendValidFile),
+                });
+
+                jest.spyOn(analyticsExports, "trackAppInsightEvent");
+
+                renderApp(
+                    <FileHandlerFileUploadStep
+                        {...DEFAULT_PROPS}
+                        isValid
+                        selectedSchemaOption={{
+                            format: FileType.CSV,
+                            title: "whatever",
+                            value: "whatever",
+                        }}
+                        fileContent="whatever"
+                        onFileSubmitSuccess={onFileSubmitSuccessSpy}
+                        onNextStepClick={onNextStepClickSpy}
+                    />
+                );
+
+                await userEvent.upload(
+                    screen.getByTestId("file-input-input"),
+                    fakeFile
+                );
+                await userEvent.click(screen.getByText("Submit"));
+                fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            afterEach(() => {
+                jest.restoreAllMocks();
+            });
+
+            test("it calls onFileSubmitSuccess with the response", () => {
+                expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(
+                    mockSendValidFile
+                );
+            });
+
+            test("it calls onNextStepClick", () => {
+                expect(onNextStepClickSpy).toHaveBeenCalled();
+            });
+
+            test("it calls trackAppInsightEvent with event data", () => {
+                expect(
+                    analyticsExports.trackAppInsightEvent
+                ).toHaveBeenCalledWith("File Validator", {
+                    fileValidator: {
+                        errorCount: 0,
+                        fileType: undefined,
+                        overallStatus: "Valid",
+                        schema: "whatever",
+                        sender: undefined,
+                        warningCount: 0,
+                    },
+                });
+            });
+        });
+
+        describe("when a valid file is submitted", () => {
+            const onFileSubmitErrorSpy = jest.fn();
+
+            beforeEach(async () => {
+                jest.spyOn(
+                    useWatersUploaderExports,
+                    "useWatersUploader"
+                ).mockReturnValue({
+                    isWorking: false,
+                    uploaderError: null,
+                    sendFile: () =>
+                        Promise.reject({ data: mockSendFileWithErrors }),
+                });
+
+                jest.spyOn(analyticsExports, "trackAppInsightEvent");
+
+                renderApp(
+                    <FileHandlerFileUploadStep
+                        {...DEFAULT_PROPS}
+                        isValid
+                        selectedSchemaOption={{
+                            format: FileType.CSV,
+                            title: "whatever",
+                            value: "whatever",
+                        }}
+                        fileContent="whatever"
+                        onFileSubmitError={onFileSubmitErrorSpy}
+                    />
+                );
+
+                await userEvent.upload(
+                    screen.getByTestId("file-input-input"),
+                    fakeFile
+                );
+                await userEvent.click(screen.getByText("Submit"));
+                fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            afterEach(() => {
+                jest.restoreAllMocks();
+            });
+
+            test("it calls onFileSubmitErrorSpy with the response", () => {
+                expect(onFileSubmitErrorSpy).toHaveBeenCalled();
+            });
+
+            test("it calls trackAppInsightEvent with event data", () => {
+                expect(
+                    analyticsExports.trackAppInsightEvent
+                ).toHaveBeenCalledWith("File Validator", {
+                    fileValidator: {
+                        errorCount: 2,
+                        fileType: undefined,
+                        schema: "whatever",
+                        sender: undefined,
+                        warningCount: 0,
+                    },
+                });
             });
         });
     });

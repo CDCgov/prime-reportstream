@@ -149,6 +149,7 @@ export default function FileHandlerFileUploadStep({
             });
 
             onFileSubmitSuccess(response);
+
             if (onNextStepClick) {
                 onNextStepClick();
             }
