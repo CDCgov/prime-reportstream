@@ -39,4 +39,18 @@ elements:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
     schema: ../common/patient-visit
 
-# TODO Add more segments as they are converted.
+  - name: order
+    resource: Bundle.entry.resource.ofType(ServiceRequest)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/service-request-order
+    constants:
+      hl7SegmentGroup: '/ORDER'
+
+  - name: order-observation-request
+    resource: Bundle.entry.resource.ofType(ServiceRequest)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/service-request-order-observation
+    constants:
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'
