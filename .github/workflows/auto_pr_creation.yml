@@ -75,8 +75,7 @@ jobs:
           pr_target: "feature/autocreate-pr-with-tfplan-output"
           pr_labels: DevOps,reportstream
           pr_assignees: supriyaaddagada
-          pr_body: |
-            This PR contains the changes that will have terraform changes.
+          pr_body: ${{ steps.terraform.outputs.tf_actions_output }}
 
       - name: "Produce Pull Request URL"
         run: |
