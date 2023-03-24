@@ -83,7 +83,7 @@ jobs:
           echo "PR URL: https://github.com/CDCgov/prime-reportstream/pull/${{ steps.pr.outputs.pr_nr }}"
           echo "PR Id:  ${{ steps.pr.outputs.pr_nr }}"
 
-      - run: node .github/actions/pr-comment/comment.js
+      - run: node //prime-reportstream/.github/actions/pr-comment/comment.js
         env:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_number: ${{ steps.pr.outputs.pr_nr }}
