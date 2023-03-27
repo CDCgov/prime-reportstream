@@ -86,13 +86,6 @@ jobs:
         run: echo "${{ steps.terraformplan.outputs.content }}"
         continue-on-error: true
 
-      - name: Truncate String
-        uses: 2428392/gh-truncate-string-action@v1.1.0
-        id: truncatedString
-        with:
-          stringToTruncate: ${{ steps.terraformplan.outputs.content }}
-          maxLength: 10000
-
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
         id: pr
@@ -103,7 +96,7 @@ jobs:
           pr_target: "feature/autocreate-pr-with-tfplan-output"
           pr_labels: DevOps,reportstream
           pr_assignees: supriyaaddagada
-          pr_body: ${{ steps.truncatedString.outputs.string }}
+          pr_body: ${{ steps.terraformplan.outputs.content  }}
 
       - name: "Produce Pull Request URL"
         run: |
