@@ -60,9 +60,7 @@ describe("ManagePublicKey", () => {
             });
 
             test("renders ManagePublicKeyChooseSender", () => {
-                expect(
-                    screen.getByText(/Manage Public Key/)
-                ).toBeInTheDocument();
+                expect(screen.getByText(/Manage Public Key/)).toBeVisible();
                 expect(
                     screen.getByTestId("ManagePublicKeyChooseSender")
                 ).toBeVisible();
@@ -111,9 +109,7 @@ describe("ManagePublicKey", () => {
             });
 
             test("renders ManagePublicKeyUpload", () => {
-                expect(
-                    screen.getByText(/Manage Public Key/)
-                ).toBeInTheDocument();
+                expect(screen.getByText(/Manage Public Key/)).toBeVisible();
                 expect(
                     screen.queryByTestId("ManagePublicKeyChooseSender")
                 ).not.toBeInTheDocument();

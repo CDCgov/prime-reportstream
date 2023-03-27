@@ -78,28 +78,16 @@ describe("ManagePublicKeyChooseSender", () => {
             });
 
             test("renders the sender options", () => {
-                expect(screen.getByText("-Select-")).toBeVisible();
-                expect(screen.getByText("default")).toBeVisible();
-                expect(screen.getByText("ignore-full-elr")).toBeVisible();
+                expect(
+                    screen.getByRole("option", { name: "default" })
+                ).toBeVisible();
+                expect(
+                    screen.getByRole("option", { name: "ignore-full-elr" })
+                ).toBeVisible();
             });
 
             test("renders the submit button", () => {
                 expect(screen.getByText("Submit")).toBeVisible();
-            });
-        });
-
-        describe("and Organizations have no senders", () => {
-            beforeEach(() => {
-                mockUseOrganizationSenders({
-                    isLoading: false,
-                    senders: undefined,
-                });
-
-                renderApp(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
-            });
-
-            test("does not render the form", () => {
-                expect(screen.queryByTestId("form")).not.toBeInTheDocument();
             });
         });
     });

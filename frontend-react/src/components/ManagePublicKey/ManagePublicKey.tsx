@@ -34,15 +34,11 @@ function ManagePublicKeySwitchDisplay() {
         },
     };
 
-    const onSenderSelect = (selectedSender: string) => {
-        setSender(selectedSender);
-    };
-
-    const onBack = () => {
+    const handleBack = () => {
         navigate(-1);
     };
 
-    const onPublicKeySubmit = async (
+    const handlePublicKeySubmit = async (
         event: React.FormEvent<HTMLFormElement>
     ) => {
         event.preventDefault();
@@ -60,12 +56,13 @@ function ManagePublicKeySwitchDisplay() {
             });
             setFileSubmitted(true);
         } catch (e: any) {
-            console.trace(e);
             showError(`Uploading public key failed. ${e.toString()}`);
         }
     };
 
-    const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         // No file selected
         if (!event?.target?.files?.length) {
             setFile(null);
@@ -77,11 +74,11 @@ function ManagePublicKeySwitchDisplay() {
 
         const content = await file.text();
 
-        const { fileTypeError } = validateFileType(file, FORMAT, CONTENT_TYPE);
+        const fileTypeError = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
             showError(fileTypeError);
         }
-        const { fileSizeError } = validateFileSize(file);
+        const fileSizeError = validateFileSize(file);
         if (fileSizeError) {
             showError(fileSizeError);
         }
@@ -95,13 +92,17 @@ function ManagePublicKeySwitchDisplay() {
     return (
         <>
             {sender.length === 0 && (
-                <ManagePublicKeyChooseSender onSenderSelect={onSenderSelect} />
+                <ManagePublicKeyChooseSender
+                    onSenderSelect={(selectedSender: string) =>
+                        setSender(selectedSender)
+                    }
+                />
             )}
             {sender && !fileSubmitted && (
                 <ManagePublicKeyUpload
-                    onPublicKeySubmit={onPublicKeySubmit}
-                    onFileChange={onFileChange}
-                    onBack={onBack}
+                    onPublicKeySubmit={handlePublicKeySubmit}
+                    onFileChange={handleFileChange}
+                    onBack={handleBack}
                     file={file}
                 />
             )}

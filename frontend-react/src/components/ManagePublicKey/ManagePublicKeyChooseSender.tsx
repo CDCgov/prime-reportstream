@@ -12,13 +12,11 @@ export default function ManagePublicKeyChooseSender({
     onSenderSelect,
 }: ManagePublicKeyChooseSenderProps) {
     const { isLoading, senders } = useOrganizationSenders();
-    const [selectedSender, setSelectedSender] = useState(
-        senders?.length === 1 ? senders[0].name : ""
-    );
+    const [selectedSender, setSelectedSender] = useState("");
 
     useEffect(() => {
         if (senders?.length === 1) {
-            onSenderSelect(selectedSender);
+            onSenderSelect(senders[0].name);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [senders]);
@@ -50,9 +48,7 @@ export default function ManagePublicKeyChooseSender({
                         <Button
                             key="submit-sender"
                             type="submit"
-                            outline
-                            className="padding-y-1"
-                            disabled={selectedSender === ""}
+                            disabled={!selectedSender}
                         >
                             Submit
                         </Button>
