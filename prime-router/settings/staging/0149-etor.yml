@@ -49,6 +49,8 @@
       jurisdictionalFilter:
         - "%hl7MessageType = 'O21'"
       #  - "%performerState = 'CO' or %patientState = 'CO'"
+      qualityFilter:
+        - "%hl7MessageType = 'O21'"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
