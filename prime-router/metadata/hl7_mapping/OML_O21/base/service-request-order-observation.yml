@@ -1,0 +1,8 @@
+constants:
+  hl7OBRField: '%{hl7SegmentGroup}/OBR'
+elements:
+  - name: order-observation-universal-service-identifier
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{hl7OBRField}-4'
+    schema: ../../common/datatype/ce-coded-element
