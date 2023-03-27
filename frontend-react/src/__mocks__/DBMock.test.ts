@@ -130,7 +130,7 @@ describe("DBMock", () => {
         });
 
         test.each(restHandlerScenarios)("$label", async ({ args }) => {
-            const [basePath, relativePathMap] = args;
+            const [basePath, relativePathMap, parentResolverMap] = args;
             const getListPath = `${basePath}${
                 relativePathMap?.getList ?? "/organizationSettings"
             }`;
@@ -144,6 +144,9 @@ describe("DBMock", () => {
             const res = await window.fetch(getListPath);
             const data: RSOrganizationSettings[] = await res.json();
             expect(data).toStrictEqual(records);
+            if (parentResolverMap) {
+                expect(parentResolverCallback).toBeCalled();
+            }
         });
     });
 });
