@@ -19,6 +19,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.json.JSONObject
@@ -203,6 +204,7 @@ class ApiKeysFunctionsTest {
                         .toSet()
                 ).isEqualTo(setOf(jwk3.toRSAPublicKey(), jwk.toRSAPublicKey()))
             }
+            unmockkStatic(System::class)
         }
 
         @Test
