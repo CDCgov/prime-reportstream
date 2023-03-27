@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
+import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -326,30 +327,43 @@ class FhirTransformerTests {
     @Test
     fun `test transform with value set`() {
         val bundle = Bundle()
-        bundle.id = "abc123"
+        bundle.id = "bundle1"
         val resource = Patient()
-        resource.id = "def456"
+        resource.id = "abc123"
         bundle.addEntry().resource = resource
+        val resource2 = Patient()
+        resource2.id = "def456"
+        bundle.addEntry().resource = resource2
+        val resource3 = Patient()
+        resource3.id = "jkl369"
+        bundle.addEntry().resource = resource3
+
+        val patientElement = FhirTransformSchemaElement(
+            "patientElement",
+            value = listOf("%resource.id"),
+            resource = "%resource",
+            bundleProperty = "%resource.id",
+            valueSet = sortedMapOf(
+                Pair("abc123", "ghi789"),
+                Pair("def456", "")
+            )
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
 
         val elemA = FhirTransformSchemaElement(
             "elementA",
-            value = listOf("Bundle.id"),
             resource = "Bundle.entry.resource.ofType(Patient)",
-            bundleProperty = "%resource.contact.name.text",
-            valueSet = sortedMapOf(Pair("abc123", "ghi789"))
+            schemaRef = childSchema,
+            resourceIndex = "patientIndex",
         )
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
         FhirTransformer(schema).transform(bundle)
-        val newValue =
-            FhirPathUtils.evaluate(
-                CustomContext(bundle, bundle),
-                bundle,
-                bundle,
-                "Bundle.entry.resource.ofType(Patient).contact.name.text"
-            )
-        assertThat(newValue[0].primitiveValue()).isEqualTo("ghi789")
+
+        assertThat(resource.id).isEqualTo("ghi789")
+        assertThat(resource2.id).isNullOrEmpty()
+        assertThat(resource3.id).isEqualTo("jkl369")
     }
 
     @Test

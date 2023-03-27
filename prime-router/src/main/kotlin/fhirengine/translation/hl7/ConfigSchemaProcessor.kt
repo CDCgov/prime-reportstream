@@ -77,8 +77,10 @@ abstract class ConfigSchemaProcessor : Logging {
         if (retVal != null && element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
             val valStr = lowerSet[retVal?.primitiveValue()?.lowercase() ?: ""]
-            if (valStr != null) {
-                retVal = StringType(valStr)
+            retVal = if (valStr != null) {
+                StringType(valStr)
+            } else {
+                null
             }
         }
         return retVal
