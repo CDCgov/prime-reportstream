@@ -12,7 +12,6 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
@@ -100,27 +99,5 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         } catch (e: Exception) {
             return HttpUtilities.bad(request, "Unable to parse public key: ${e.localizedMessage}")
         }
-    }
-
-    private fun addKeyToReportScope(
-        organization: Organization,
-        scope: String,
-        jwk: Jwk
-    ): Pair<List<JwkSet>, Organization> {
-        val currentKeys = organization.keys ?: emptyList()
-        val updatedJwkSet = (currentKeys.find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
-            {
-                if (jwkSet.keys.size >= maximumNumberOfKeysPerScope) {
-                    val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
-                    JwkSet(scope, updatedKeys)
-                } else {
-                    JwkSet(scope, jwkSet.keys + listOf(jwk))
-                }
-            }
-        }()
-
-        val updatedKeys = currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
-        val updatedOrganization = Organization(organization, updatedKeys)
-        return Pair(updatedKeys, updatedOrganization)
     }
 }
