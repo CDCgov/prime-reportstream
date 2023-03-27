@@ -110,7 +110,7 @@ object DateUtilities {
         OFFSET(datetimePattern),
         LOCAL(localDateTimePattern),
         HIGH_PRECISION_OFFSET(highPrecisionDateTimePattern),
-        DATE_ONLY(datePattern),
+        DATE_ONLY(datePattern)
     }
 
     /**
@@ -152,7 +152,7 @@ object DateUtilities {
                     ZonedDateTime::from,
                     LocalDateTime::from,
                     Instant::from,
-                    LocalDate::from,
+                    LocalDate::from
                 )
         } catch (t: Throwable) {
             // our variable pattern has failed. let's try each one-by-one. if none of them
@@ -181,7 +181,7 @@ object DateUtilities {
                     ZonedDateTime::from,
                     LocalDateTime::from,
                     LocalDate::from,
-                    Instant::from,
+                    Instant::from
                 )
         } catch (_: Throwable) {
             null
@@ -291,7 +291,7 @@ object DateUtilities {
         timeZone: ZoneId,
         dateTimeFormat: DateTimeFormat,
         convertPositiveDateTimeOffsetToNegative: Boolean,
-        useHighPrecisionHeaderDateTimeFormat: Boolean,
+        useHighPrecisionHeaderDateTimeFormat: Boolean
     ): String {
         // get the formatter based on the high precision header date time format
         val formatter: DateTimeFormatter = getFormatter(
@@ -323,7 +323,7 @@ object DateUtilities {
         timeZone: ZoneId?,
         dateTimeFormat: DateTimeFormat?,
         convertPositiveDateTimeOffsetToNegative: Boolean? = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
+        useHighPrecisionHeaderDateTimeFormat: Boolean? = false
     ): String {
         val tz = timeZone ?: utcZone
         // now format the date to what the receiver wants
@@ -332,7 +332,7 @@ object DateUtilities {
             tz,
             dateTimeFormat ?: DateTimeFormat.OFFSET,
             convertPositiveDateTimeOffsetToNegative ?: false,
-            useHighPrecisionHeaderDateTimeFormat ?: false,
+            useHighPrecisionHeaderDateTimeFormat ?: false
         )
     }
 
@@ -552,7 +552,7 @@ object DateUtilities {
         return getDateAsFormattedString(
             this,
             dateTimeFormat ?: DateUtilities.datetimePattern,
-            convertPositiveDateTimeOffsetToNegative,
+            convertPositiveDateTimeOffsetToNegative
         )
     }
 
