@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAccessor
-import java.util.Locale
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -496,7 +496,7 @@ object DateUtilities {
                 }
             }
             is OffsetDateTime, is Instant -> {
-                if (zoneId != null) {
+                if (zoneId != null && isTimeGreaterThanZero(this)) {
                     ZonedDateTime.from(this).withZoneSameInstant(zoneId)
                 } else {
                     ZonedDateTime.from(this)
@@ -554,5 +554,12 @@ object DateUtilities {
             dateTimeFormat ?: DateUtilities.datetimePattern,
             convertPositiveDateTimeOffsetToNegative,
         )
+    }
+
+    /**
+     * Given a [date] return the datetime with time set to 23:59
+     */
+    fun atEndOfDay(date: LocalDate): LocalDateTime? {
+        return LocalDateTime.of(date, LocalTime.MIDNIGHT.minusMinutes(1))
     }
 }
