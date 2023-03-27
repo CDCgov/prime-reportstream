@@ -85,28 +85,16 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             val kid = request.queryParameters["kid"] ?: return HttpUtilities.bad(request, "kid must be provided")
             jwk.kid = kid
 
-            val currentKeys = organization.keys ?: emptyList()
-            val updatedJwkSet = (currentKeys.find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
-                {
-                    if (jwkSet.keys.size >= maximumNumberOfKeysPerScope) {
-                        val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
-                        JwkSet(scope, updatedKeys)
-                    } else {
-                        JwkSet(scope, jwkSet.keys + listOf(jwk))
-                    }
-                }
-            }()
-
-            val updatedKeys = currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
-            val updatedOrganization = Organization(organization, updatedKeys)
+            val updatedKeys = JwkSet.addKeyToScope(organization.keys, scope, jwk)
 
             settingsFacade.putSetting(
                 SettingType.ORGANIZATION.name,
-                JacksonMapperUtilities.defaultMapper.writeValueAsString(updatedOrganization),
+                JacksonMapperUtilities.defaultMapper.writeValueAsString(Organization(organization, updatedKeys)),
                 claims,
                 OrganizationAPI::class.java,
                 organization.name
             )
+
             return HttpUtilities.okJSONResponse(request, ApiKeysResponse(orgName, updatedKeys))
         } catch (e: Exception) {
             return HttpUtilities.bad(request, "Unable to parse public key: ${e.localizedMessage}")

@@ -112,6 +112,9 @@ data class JwkSet(
     }
 
     companion object {
+        fun getMaximumNumberOfKeysPerScope(): Int {
+            return (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
+        }
 
         /**
          * Copy an old set of authorizations to a new set, and add one to it, if needed.
@@ -145,6 +148,39 @@ data class JwkSet(
                 newJwkSetList.add(JwkSet(newScope, listOf(newJwk)))
             }
             return newJwkSetList
+        }
+
+        /**
+         *
+         * Adds a new the passed scope if the number of keys is less than the configured maximumNumberOfKeysPerScope,
+         * which is configured with an environment variable MAX_NUM_KEY_PER_SCOPE and defaults to 10.
+         *
+         * If there are already the maximum number of keys associated with the scope, the oldest (first in the list) key
+         * is dropped and the new key is added
+         *
+         * @param scope - The scope to add the key for
+         * @param jwk - The Jwk to add to the scope
+         * @return The updated organization and keys
+         *
+         */
+        fun addKeyToScope(
+            keys: List<JwkSet>?,
+            scope: String,
+            jwk: Jwk
+        ): List<JwkSet> {
+            val currentKeys = keys ?: emptyList()
+            val updatedJwkSet = (currentKeys.find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
+                {
+                    if (jwkSet.keys.size >= getMaximumNumberOfKeysPerScope()) {
+                        val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
+                        JwkSet(scope, updatedKeys)
+                    } else {
+                        JwkSet(scope, jwkSet.keys + listOf(jwk))
+                    }
+                }
+            }()
+
+            return currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
         }
     }
 }
