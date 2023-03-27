@@ -20,8 +20,6 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
 
-    private val maximumNumberOfKeysPerScope = (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
-
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
     @FunctionName("getApiKeys")
