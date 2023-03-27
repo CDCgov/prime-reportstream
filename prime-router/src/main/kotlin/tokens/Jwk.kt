@@ -112,6 +112,14 @@ data class JwkSet(
     }
 
     companion object {
+
+        /**
+         *
+         * Reads the MAX_NUM_KEY_PER_SCOPE environment variable, otherwise defaulting to 10 that dictates
+         * how many keys can be linked to a scope for an organization
+         *
+         * @return the maximum number of keys can be configured for a scope
+         */
         fun getMaximumNumberOfKeysPerScope(): Int {
             return (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
         }
@@ -152,35 +160,38 @@ data class JwkSet(
 
         /**
          *
-         * Adds a new the passed scope if the number of keys is less than the configured maximumNumberOfKeysPerScope,
-         * which is configured with an environment variable MAX_NUM_KEY_PER_SCOPE and defaults to 10.
+         * Adds a new key to the passed scope if the number of keys is less than the
+         * configured maximumNumberOfKeysPerScope, which is configured with
+         * an environment variable MAX_NUM_KEY_PER_SCOPE and defaults to 10.
          *
          * If there are already the maximum number of keys associated with the scope, the oldest (first in the list) key
          * is dropped and the new key is added
          *
+         * @param jwkSets - The current list of JwkSets
          * @param scope - The scope to add the key for
          * @param jwk - The Jwk to add to the scope
          * @return The updated organization and keys
          *
          */
         fun addKeyToScope(
-            keys: List<JwkSet>?,
+            jwkSets: List<JwkSet>?,
             scope: String,
             jwk: Jwk
         ): List<JwkSet> {
-            val currentKeys = keys ?: emptyList()
-            val updatedJwkSet = (currentKeys.find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
-                {
-                    if (jwkSet.keys.size >= getMaximumNumberOfKeysPerScope()) {
-                        val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
-                        JwkSet(scope, updatedKeys)
-                    } else {
-                        JwkSet(scope, jwkSet.keys + listOf(jwk))
+            val nullSafeJwkSets = jwkSets ?: emptyList()
+            val updatedJwkSet =
+                ((jwkSets ?: emptyList()).find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
+                    {
+                        if (jwkSet.keys.size >= getMaximumNumberOfKeysPerScope()) {
+                            val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
+                            JwkSet(scope, updatedKeys)
+                        } else {
+                            JwkSet(scope, jwkSet.keys + listOf(jwk))
+                        }
                     }
-                }
-            }()
+                }()
 
-            return currentKeys.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
+            return nullSafeJwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
         }
     }
 }
