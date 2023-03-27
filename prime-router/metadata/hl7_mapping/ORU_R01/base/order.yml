@@ -27,6 +27,15 @@ elements:
     resourceIndex: entityIdIndex
     schema: ../../common/datatype/ei-entity-identifier
 
+  # If service identifier is empty grab it from the Service Performer organization
+  - name: order-organization-identifier
+    condition: '%service.identifier.type.empty()'
+    resource: '%service.performer.resolve()'
+    constants:
+      organizationIdFieldPath: '%{hl7Order}-3'
+      identifier: '%diagnostic.identifier[0].value'
+    schema: ../../common/organization-identifier
+
   - name: order-placer-group-number
     resource: >
       %service.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
@@ -93,6 +102,15 @@ elements:
 
   - name: ordering-facility-phone
     resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
+    schema: ../../common/datatype/xtn-telecom
+    constants:
+      hl7TelecomField: '%{hl7Order}-23'
+    resourceIndex: telecomIndex
+
+  # If contact is empty grab phone from telecom
+  - name: ordering-facility-phone-telecom
+    condition: '%service.requester.resolve().organization.resolve().contact.empty()'
+    resource: '%service.requester.resolve().organization.resolve().telecom.where(system = "phone")'
     schema: ../../common/datatype/xtn-telecom
     constants:
       hl7TelecomField: '%{hl7Order}-23'
