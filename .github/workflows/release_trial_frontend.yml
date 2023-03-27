@@ -55,7 +55,7 @@ jobs:
     if: |
       always() &&
       failure() != 'true'
-    environment: ${{ needs.pre_job.outputs.env_name }}
+    environment: staging
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
