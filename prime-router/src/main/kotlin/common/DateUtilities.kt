@@ -86,7 +86,7 @@ object DateUtilities {
     /** a higher precision date time formatter that includes seconds, and can be used */
     val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
         highPrecisionDateTimePattern,
-        Locale.ENGLISH,
+        Locale.ENGLISH
     )
 
     /** A formatter for local date times */
@@ -118,7 +118,7 @@ object DateUtilities {
      */
     fun getFormatter(
         dateTimeFormat: DateTimeFormat? = null,
-        useHighPrecisionOffset: Boolean? = null,
+        useHighPrecisionOffset: Boolean? = null
     ): DateTimeFormatter {
         return when (dateTimeFormat) {
             DateTimeFormat.HIGH_PRECISION_OFFSET -> highPrecisionDateTimeFormatter
@@ -206,7 +206,7 @@ object DateUtilities {
     fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
         outputFormat: String = datetimePattern,
-        convertPositiveOffsetToNegative: Boolean = false,
+        convertPositiveOffsetToNegative: Boolean = false
     ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
         val formattedDate = when (temporalAccessor) {
@@ -296,7 +296,7 @@ object DateUtilities {
         // get the formatter based on the high precision header date time format
         val formatter: DateTimeFormatter = getFormatter(
             dateTimeFormat,
-            useHighPrecisionHeaderDateTimeFormat,
+            useHighPrecisionHeaderDateTimeFormat
         )
         // return the actual date
         return if (convertPositiveDateTimeOffsetToNegative) {
