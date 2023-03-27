@@ -14,7 +14,7 @@ import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
     getVersionWarning,
-    isProhibitedName,
+    isValidServiceName,
     VersionWarningType,
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
@@ -119,12 +119,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
 
     const ShowCompareConfirm = async () => {
         try {
-            const { prohibited, errorMsg } = isProhibitedName(
-                orgSenderSettings.name
-            );
+            const { name } = orgSenderSettings;
 
-            if (prohibited) {
-                showError(errorMsg);
+            if (!isValidServiceName(name)) {
+                showError(`${name} cannot contain special characters.`);
                 return false;
             }
 

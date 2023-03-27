@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.common
+package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 
