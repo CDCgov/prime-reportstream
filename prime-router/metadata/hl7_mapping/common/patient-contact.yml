@@ -48,7 +48,7 @@ elements:
     resourceIndex: orderIndex
 
   - name: contact-phone-number
-    resource: '%resource.telecom.where(use != "work")'
+    resource: '%resource.telecom.where(use.exists().not() or use != "work")'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-5'
