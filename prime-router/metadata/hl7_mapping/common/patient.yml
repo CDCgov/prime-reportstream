@@ -142,6 +142,10 @@ elements:
     value: [ '"2.9"' ]
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
 
+  - name: patient-multiple-birth-order
+    value: [ '%resource.multipleBirth']
+    hl7Spec: [ '%{hl7PIDField}-25' ]
+
   - name: patient-death-date-time
     condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
     value: [ '%resource.deceased' ]
