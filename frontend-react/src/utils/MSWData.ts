@@ -20,8 +20,9 @@ import {
     Path,
     DefaultBodyType,
     MockedRequest,
+    defaultContext,
+    ResponseComposition,
 } from "msw";
-import { j } from "msw/lib/glossary-de6278a9";
 
 import { Faker, faker as _faker } from "../utils/Faker";
 
@@ -117,6 +118,11 @@ export type PartialFactoryHandlerMap<T = unknown> = Partial<
     FactoryHandlerMap<T>
 >;
 
+export type RelativePathMap = PartialFactoryHandlerMap<string>;
+export type ParentResolverMap = PartialFactoryHandlerMap<
+    ResponseResolver<any, any>
+>;
+
 export interface EnhancedRestHandlersOptions {
     relativePaths?: FactoryHandlerMap<string>;
     parentHandlers: FactoryHandlerMap;
@@ -124,7 +130,9 @@ export interface EnhancedRestHandlersOptions {
 
 export type RestHandlerMethod = string | RegExp;
 
-export interface ProxyResolutionContext extends j {
+type DefaultContext = typeof defaultContext;
+
+export interface ProxyRequestContext extends DefaultContext {
     proxy: {
         res?: any;
         error?: Error;
@@ -132,39 +140,55 @@ export interface ProxyResolutionContext extends j {
 }
 
 export class ProxyRestHandler extends RestHandler {
-    targetRestHandler: RestHandler;
+    target: any;
+    proxyResolver: any;
 
     constructor(
         method: RestHandlerMethod,
         path: Path,
-        resolver: ResponseResolver<any, any>,
-        targetRestHandler: RestHandler
+        target: RestHandler,
+        resolver?: ResponseResolver<any, any>
     ) {
-        super(method, path, resolver);
-        this.targetRestHandler = targetRestHandler;
+        const callback = (
+            req: MockedRequest,
+            res: ResponseComposition<any>,
+            ctx: DefaultContext
+        ) => this.resolve(req, res, ctx);
+        super(method, path, callback as ResponseResolver<any, any>);
+        this.target = target;
+        this.proxyResolver = resolver ?? defaultProxyResolver;
     }
 
-    run(
-        ...[request, resolutionContext]: Parameters<RestHandler["run"]>
-    ): ReturnType<RestHandler["run"]> {
-        const proxyCtx: ProxyResolutionContext["proxy"] = {
+    async resolve(
+        req: MockedRequest,
+        res: ResponseComposition<any>,
+        ctx: DefaultContext
+    ) {
+        const resolved: ProxyRequestContext["proxy"] = {
             res: undefined,
             error: undefined,
         };
+        const proxyReq = await this.createProxyRequest(req);
 
         try {
-            proxyCtx.res = this.targetRestHandler.run(
-                request,
-                resolutionContext
-            );
+            resolved.res = (await this.target.run(proxyReq)).response;
         } catch (e: any) {
-            proxyCtx.error = e;
+            resolved.error = e;
         }
 
-        return super.run(request, {
-            ...resolutionContext,
-            proxy: proxyCtx,
-        } as ProxyResolutionContext);
+        const proxyCtx = {
+            ...ctx,
+            proxy: resolved,
+        };
+
+        return this.proxyResolver(req, res, proxyCtx);
+    }
+
+    async createProxyRequest(req: MockedRequest) {
+        return new MockedRequest(new URL(this.target.info.path.toString()), {
+            ...req,
+            body: await req.arrayBuffer(),
+        });
     }
 }
 
@@ -186,6 +210,13 @@ export function factoryRestHandlerMapToTuple<const T>(
         map[FactoryRestHandlerTupleMap[3]],
         map[FactoryRestHandlerTupleMap[4]],
     ];
+}
+
+export async function defaultProxyResolver(_: any, _1: any, ctx: any) {
+    if (ctx.proxy.error) {
+        throw ctx.proxy.error;
+    }
+    return ctx.proxy.res;
 }
 
 /**
@@ -215,8 +246,8 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
              * Create enhanced rest handlers.
              */
             toEnhancedRestHandlers<
-                const P extends PartialFactoryHandlerMap,
-                const R extends PartialFactoryHandlerMap
+                const P extends RelativePathMap,
+                const R extends ParentResolverMap
             >(baseUrl: string, relativePathMap?: P, parentResolversMap?: R) {
                 const parentResolvers = factoryRestHandlerMapToTuple(
                     parentResolversMap ?? {}
@@ -228,14 +259,17 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
                     (h, i) => {
                         const parentResolver = parentResolvers[i];
                         const method = h.info.method;
-                        const relativePath = relativePaths[i] ?? h.info.path;
+                        const relativePath = relativePaths[i];
 
-                        if (parentResolver) {
+                        if (parentResolver || relativePath) {
+                            const fullUrl = relativePath
+                                ? `${baseUrl}${relativePath}`
+                                : h.info.path.toString();
                             return new ProxyRestHandler(
                                 method,
-                                relativePath as Path,
-                                parentResolver as any,
-                                h
+                                fullUrl as Path,
+                                h,
+                                parentResolver
                             );
                         }
 

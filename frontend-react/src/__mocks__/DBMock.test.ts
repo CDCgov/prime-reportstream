@@ -1,7 +1,11 @@
-import { setupServer } from "msw/node";
+import { SetupServer, setupServer } from "msw/node";
 
 import { RSOrganizationSettings } from "../config/endpoints/settings";
-import { createDbMock } from "../utils/MSWData";
+import {
+    ParentResolverMap,
+    RelativePathMap,
+    createDbMock,
+} from "../utils/MSWData";
 
 import { createModels } from "./DBMock";
 
@@ -74,23 +78,72 @@ describe("DBMock", () => {
         expect(record).toStrictEqual(findRecord);
     });
 
-    test("enhanced rest handler default", async () => {
-        db.organizationSettings.createMany(10);
-        const records = db.organizationSettings.getAllJson();
-        const handlers =
-            db.organizationSettings.toEnhancedRestHandlers("https://localhost");
-        const mockServer = setupServer(...handlers);
-        mockServer.listen();
-        const res = await window.fetch(
-            "https://localhost/organizationSettings"
-        );
-        const data: RSOrganizationSettings[] = await res.json();
-        mockServer.close();
-        expect(data).toStrictEqual(records);
-    });
+    describe("enhanced rest handler", () => {
+        let mockServer: SetupServer | undefined;
+        const parentResolverCallback = jest.fn();
+        function parentResolver(req: any, res: any, ctx: any) {
+            parentResolverCallback();
+            return ctx.proxy.res;
+        }
+        const restHandlerScenarios: {
+            label: string;
+            args: [
+                string,
+                RelativePathMap | undefined,
+                ParentResolverMap | undefined
+            ];
+        }[] = [
+            {
+                label: "default",
+                args: ["https://localhost", undefined, undefined],
+            },
+            {
+                label: "relativePathMap",
+                args: [
+                    "https://localhost",
+                    { getList: "/settings/organizations" },
+                    undefined,
+                ],
+            },
+            {
+                label: "parentResolver",
+                args: [
+                    "https://localhost",
+                    undefined,
+                    { getList: parentResolver },
+                ],
+            },
+            {
+                label: "relativePathMap and parentResolver",
+                args: [
+                    "https://localhost",
+                    { getList: "/settings/organizations" },
+                    { getList: parentResolver },
+                ],
+            },
+        ];
 
-    // TODO: use scenario array?
-    test("enhanced rest handler relativePathMap", () => {});
-    test("enhanced rest handler parentHandler", () => {});
-    test("enhanced rest handler relativePathMap and parentHandler", () => {});
+        // In case a test errors, cleanup before next one
+        afterEach(() => {
+            mockServer?.close();
+            mockServer &&= undefined;
+        });
+
+        test.each(restHandlerScenarios)("$label", async ({ args }) => {
+            const [basePath, relativePathMap] = args;
+            const getListPath = `${basePath}${
+                relativePathMap?.getList ?? "/organizationSettings"
+            }`;
+            db.organizationSettings.createMany(10);
+            const records = db.organizationSettings.getAllJson();
+            const handlers = db.organizationSettings.toEnhancedRestHandlers(
+                ...args
+            );
+            mockServer = setupServer(...handlers);
+            mockServer.listen();
+            const res = await window.fetch(getListPath);
+            const data: RSOrganizationSettings[] = await res.json();
+            expect(data).toStrictEqual(records);
+        });
+    });
 });
