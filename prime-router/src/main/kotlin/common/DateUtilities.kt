@@ -525,7 +525,7 @@ object DateUtilities {
             report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
             report?.destination?.dateTimeFormat ?: DateTimeFormat.OFFSET,
             hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
-            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
         )
     }
 
@@ -537,7 +537,7 @@ object DateUtilities {
             report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
             dateTimeFormat,
             hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
-            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
         )
     }
 
@@ -547,19 +547,12 @@ object DateUtilities {
      **/
     fun TemporalAccessor.asFormattedString(
         dateTimeFormat: String? = null,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false,
+        convertPositiveDateTimeOffsetToNegative: Boolean = false
     ): String {
         return getDateAsFormattedString(
             this,
             dateTimeFormat ?: DateUtilities.datetimePattern,
             convertPositiveDateTimeOffsetToNegative
         )
-    }
-
-    /**
-     * Given a [date] return the datetime with time set to 23:59
-     */
-    fun atEndOfDay(date: LocalDate): LocalDateTime? {
-        return LocalDateTime.of(date, LocalTime.MIDNIGHT.minusMinutes(1))
     }
 }
