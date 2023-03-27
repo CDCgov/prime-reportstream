@@ -50,7 +50,7 @@ runs:
       working-directory: frontend-react
       run: |
         ENV=${{ inputs.env-name }}
-        if [[ $ENV != demo* && $ENV != "test" ]]; then ENV="staging"; fi
+        if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
         echo "" >> .env.$ENV
         echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
         yarn lint
