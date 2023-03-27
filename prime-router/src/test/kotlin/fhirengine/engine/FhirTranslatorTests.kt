@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -381,6 +382,60 @@ class FhirTranslatorTests {
             engine.removeUnwantedConditions(any(), any())
         }
     }
+
+    @Test
+    fun `test full elr translation hl7 translation exception`() {
+        mockkObject(BlobAccess)
+
+        val badSchemaOrganization = DeepOrganization(
+            "co-phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(
+                Receiver(
+                    "full-elr-hl7",
+                    "co-phd",
+                    Topic.FULL_ELR,
+                    CustomerStatus.ACTIVE,
+                    "THIS_PATH_IS_BAD"
+                )
+            )
+        )
+
+        // set up
+        val settings = FileSettings().loadOrganizations(badSchemaOrganization)
+        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+        val metadata = Metadata(schema = one)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 1) {
+            actionLogger.error(any<ActionLogDetail>())
+        }
+    }
+
     @Test
     fun `Test removing some filtered observations from a DiagnosticReport`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
