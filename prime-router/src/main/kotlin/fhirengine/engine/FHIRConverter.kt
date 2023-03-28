@@ -155,7 +155,7 @@ class FHIRConverter(
      * transformer in tests.
      */
     internal fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName != "") {
+        return if (schemaName.isNotBlank()) {
             FhirTransformer(schemaName)
         } else null
     }

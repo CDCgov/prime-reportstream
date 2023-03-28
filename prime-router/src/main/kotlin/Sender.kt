@@ -52,6 +52,7 @@ abstract class Sender(
     override val organizationName: String,
     val format: Format,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+    val schemaName: String,
     val keys: List<JwkSet>? = null, // TODO https://github.com/CDCgov/prime-reportstream/issues/8659
     val processingType: ProcessingType = sync,
     val allowDuplicates: Boolean = true,
@@ -192,8 +193,6 @@ abstract class Sender(
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
 class FullELRSender : Sender {
-    var schemaName: String
-
     @JsonCreator
     constructor(
         name: String,
@@ -212,14 +211,13 @@ class FullELRSender : Sender {
         organizationName,
         format,
         customerStatus,
+        schemaName,
         keys,
         processingType,
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-    ) {
-        this.schemaName = schemaName
-    }
+    )
 
     constructor(copy: FullELRSender) : this(
         copy.name,
@@ -264,8 +262,6 @@ class FullELRSender : Sender {
 }
 
 open class TopicSender : Sender {
-    var schemaName: String
-
     @JsonCreator
     constructor(
         name: String,
@@ -285,14 +281,13 @@ open class TopicSender : Sender {
         organizationName,
         format,
         customerStatus,
+        schemaName,
         keys,
         processingType,
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-    ) {
-        this.schemaName = schemaName
-    }
+    )
 
     constructor(copy: TopicSender) : this(
         copy.name,

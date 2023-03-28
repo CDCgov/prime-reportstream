@@ -2,8 +2,8 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -247,9 +247,12 @@ class FhirConverterTests {
     fun `test getTransformerFromSchema`() {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
 
-        assertThat(engine.getTransformerFromSchema("")).isNull()
+        assertThat(
+            engine.getTransformerFromSchema("")
+        ).isNull()
 
-        // Expect a failure since the schema doesn't exist, but this verifies that we tried
-        assertThat { engine.getTransformerFromSchema("some-schema") }.isFailure()
+        assertThat(
+            engine.getTransformerFromSchema("src/test/resources/fhir_sender_transforms/sample_schema")
+        ).isNotNull()
     }
 }
