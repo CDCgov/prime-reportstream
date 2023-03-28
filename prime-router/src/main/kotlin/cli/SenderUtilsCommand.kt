@@ -3,9 +3,13 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.FullELRSender
+import gov.cdc.prime.router.MonkeypoxSender
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.Scope
@@ -25,14 +29,14 @@ class MigratePublicKeys : SettingCommand(
     private val orgName by option(
         "--orgName",
         metavar = "<organization>",
-        help = "Specify the name of the organization to add the key to"
+        help = "Specify the name of the organization that should it's sender keys migrated"
     ).required()
 
     private val useJson by jsonOption
 
     val doIt by option(
         "--doit",
-        help = "Save the modified Organization and senders settings to the database (default is to just print the modified setting)"
+        help = "Save the modified Organization and senders settings to the database"
     ).flag(default = false)
 
     override fun run() {
@@ -48,7 +52,41 @@ class MigratePublicKeys : SettingCommand(
                     updatedOrg = updatedOrg.makeCopyWithNewScopeAndJwk(key.scope, jwk)
                 })
             })
-            return sender.makeCopyWithKeyList()
+            return when (sender) {
+                is CovidSender -> CovidSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    keys = null
+                )
+                is FullELRSender -> FullELRSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    keys = null
+                )
+                is MonkeypoxSender -> MonkeypoxSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    keys = null
+                )
+                is TopicSender -> TopicSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    sender.topic,
+                    keys = null
+                )
+                else -> sender
+            }
         })
 
         val updatedOrganizationJson = jsonMapper.writeValueAsString(updatedOrg)
