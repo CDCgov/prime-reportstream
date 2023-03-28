@@ -26,7 +26,7 @@ Note: These are the steps taken to copy code from Feb 3, 2023. Copying newer cod
     1. Copy `prime-router/src/main/kotlin/fhirengine/translation/hl7/*` from
        [PRIME ReportStream](https://github.com/CDCgov/prime-data-hub) to
        `src/main/kotlin/gov/cdc/prime/fhirconverter/translation/hl7`
-    2. Copy prime-router/metadata/hl7_mapping/ORU_R01/*` from
+    2. Copy `prime-router/metadata/hl7_mapping/ORU_R01/*` from
        [PRIME ReportStream](https://github.com/CDCgov/prime-data-hub) to
        `src/main/resources/hl7_mapping/ORU_R01`. Also consider copying any new mappings that are generic (e.g.
        not for a given receiver)
