@@ -8,4 +8,6 @@ export function createModels(faker: Faker) {
         ...createSettingsModels(faker),
     };
 }
-export const db = createDbMock(createModels);
+export function createRSMock() {
+    return createDbMock(createModels);
+}

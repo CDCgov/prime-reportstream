@@ -20,8 +20,9 @@ import {
     Path,
     DefaultBodyType,
     MockedRequest,
-    defaultContext,
     ResponseComposition,
+    RestContext,
+    RestRequest,
 } from "msw";
 
 import { Faker, faker as _faker } from "../utils/Faker";
@@ -130,9 +131,7 @@ export interface EnhancedRestHandlersOptions {
 
 export type RestHandlerMethod = string | RegExp;
 
-type DefaultContext = typeof defaultContext;
-
-export interface ProxyRequestContext extends DefaultContext {
+export interface ProxyRequestContext extends RestContext {
     proxy: {
         res?: any;
         error?: Error;
@@ -140,7 +139,7 @@ export interface ProxyRequestContext extends DefaultContext {
 }
 
 export class ProxyRestHandler extends RestHandler {
-    target: any;
+    target: RestHandler;
     proxyResolver: any;
 
     constructor(
@@ -150,9 +149,9 @@ export class ProxyRestHandler extends RestHandler {
         resolver?: ResponseResolver<any, any>
     ) {
         const callback = (
-            req: MockedRequest,
+            req: RestRequest,
             res: ResponseComposition<any>,
-            ctx: DefaultContext
+            ctx: RestContext
         ) => this.resolve(req, res, ctx);
         super(method, path, callback as ResponseResolver<any, any>);
         this.target = target;
@@ -160,9 +159,9 @@ export class ProxyRestHandler extends RestHandler {
     }
 
     async resolve(
-        req: MockedRequest,
+        req: RestRequest,
         res: ResponseComposition<any>,
-        ctx: DefaultContext
+        ctx: RestContext
     ) {
         const resolved: ProxyRequestContext["proxy"] = {
             res: undefined,
@@ -171,7 +170,7 @@ export class ProxyRestHandler extends RestHandler {
         const proxyReq = await this.createProxyRequest(req);
 
         try {
-            resolved.res = (await this.target.run(proxyReq)).response;
+            resolved.res = (await this.target.run(proxyReq))?.response;
         } catch (e: any) {
             resolved.error = e;
         }
@@ -184,8 +183,12 @@ export class ProxyRestHandler extends RestHandler {
         return this.proxyResolver(req, res, proxyCtx);
     }
 
-    async createProxyRequest(req: MockedRequest) {
-        return new MockedRequest(new URL(this.target.info.path.toString()), {
+    async createProxyRequest(req: RestRequest) {
+        const url = Object.entries(req.params).reduce(
+            (str, [k, v]) => str.replace(`:${k}`, v.toString()),
+            this.target.info.path.toString()
+        );
+        return new MockedRequest(new URL(url), {
             ...req,
             body: await req.arrayBuffer(),
         });
