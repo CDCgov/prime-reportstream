@@ -115,8 +115,8 @@ export type ParentResolverMap = PartialFactoryHandlerMap<
 >;
 
 export interface EnhancedRestHandlersOptions {
-    relativePaths?: FactoryHandlerMap<string>;
-    parentHandlers: FactoryHandlerMap;
+    relativePaths?: PartialFactoryHandlerMap<string>;
+    parentHandlers: PartialFactoryHandlerMap;
 }
 
 export const FactoryRestHandlerTupleMap = {
@@ -199,7 +199,9 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
 
                 return handlers;
             },
-            // Getters that return JSON serializable data
+            // Getters that return JSON serializable data. Entities from the original
+            // functions could have metadata (symbol properties) that will fail an
+            // expect equal comparison.
             getAllJson() {
                 return JSON.parse(JSON.stringify(this.getAll()));
             },
