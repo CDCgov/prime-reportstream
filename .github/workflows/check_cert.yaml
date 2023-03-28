@@ -27,12 +27,12 @@ jobs:
 
       - name: Get Certificates Expiration
         run: |
-          az keyvault certificate list --vault-name staging-reportstream-cdc-gov --query "[].{name:name, expires:attributes.expires}" --output table
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
       - name: Get Near Expiry Certificates
         run: |
           near_expiry_date=$(date -d "+10 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name staging-reportstream-cdc-gov --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
 
           echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
 
