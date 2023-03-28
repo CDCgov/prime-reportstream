@@ -101,42 +101,95 @@ class SubmissionsFacadeTests {
     }
 
     @Test
-    fun `test checkActionAccessAuthorization`() {
-        fun resetAction(): Action {
-            val action = Action()
-            action.actionId = 123
-            action.sendingOrg = "myOrg"
-            action.actionName = TaskAction.receive
-            action.httpStatus = 201
-            return action
-        }
+    fun `test checkAccessAuthorizationForOrg`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
 
         // Regular user Happy path test.
-        var action = resetAction()
         val userClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHSender_myOrg"),
             "sub" to "bob@bob.com"
         )
         var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
-        val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
-        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
+        val org1 = "myOrg"
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, null, mockRequest)).isTrue()
+        // User has right to see any sender channel within that org.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, "quux", mockRequest)).isTrue()
 
-        // Sysadmin happy path:   Sysadmin user ok to be in a different org.
+        // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
         claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
-        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, null, mockRequest)).isTrue()
+        // PrimeAdmin has right to see any sender channel within that org.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, org1, "quux", mockRequest)).isTrue()
 
         // Error: Regular user and Orgs don't match
         claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
-        action = resetAction()
-        action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
-        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isFalse()
+        val badOrg = "UnhappyOrg" // mismatch sendingOrg
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, null, mockRequest)).isFalse()
+        // This auth also denied, regardless of the sender channel.
+        assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, "quux", mockRequest)).isFalse()
+    }
+    @Test
+    fun `test checkAccessAuthorizationForAction`() {
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+        val mockRequest = MockHttpRequestMessage()
+
+        val action = Action()
+        action.actionId = 123
+        action.sendingOrg = "mySendingOrg"
+        action.sendingOrgClient = "mySendingOrgClient"
+        action.receivingOrg = "myReceivingOrg"
+        action.receivingOrgSvc = "myReceivingOrgSvc"
+
+        // Regular user Happy path test.
+        val userClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHSender_mySendingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+
+        // PrimeAdmin happy path:   PrimeAdmin user ok to be in a different org.
+        val adminClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
+
+        // Error: Regular user and Orgs don't match
+        val mismatchedClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHSender_foobar"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
+        // This is a submissions query.  So, we sure better not be looking up the receivingOrg.
+        val mismatchedClaims2: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmyReceivingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims2, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isFalse()
+
+        // The auth should work, even without the
+        // annoying "Sender_" string in the claims, which is actually not needed any more.
+        val mismatchedClaims3: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmySendingOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(mismatchedClaims3, AuthenticationType.Okta)
+        assertThat(facade.checkAccessAuthorizationForAction(claims, action, mockRequest)).isTrue()
     }
 }

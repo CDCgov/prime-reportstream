@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.8.0"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -103,10 +103,10 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.2.2"
+val ktorVersion = "2.2.4"
 val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
-jacoco.toolVersion = "0.8.7"
+jacoco.toolVersion = "0.8.8"
 
 // Set the compiler JVM target
 java {
@@ -723,11 +723,11 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.15.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.6.1") {
+    implementation("com.azure:azure-identity:1.7.3") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -747,6 +747,8 @@ dependencies {
     implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.2.5")
+    // Pin org.hl7.fhir.utilities to ca.uhn.hapi.fhir:org.hl7.fhir.utilities@5.6.92 until ca.uhn.hapi.fhir:hapi-fhir-structures-r4 can be updated
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:5.6.92")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.5")
@@ -757,7 +759,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20220924")
+    implementation("org.json:json:20230227")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")

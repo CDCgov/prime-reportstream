@@ -1,13 +1,14 @@
-import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const Contact = () => {
     return (
         <>
-            <BasicHelmet pageTitle="Contact | Support" />
+            <Helmet>
+                <title>Contact | Support</title>
+            </Helmet>
             <h1>Contact us</h1>
             <h2>
                 For general inquiries, questions, or issues. Reach out, we're
@@ -18,11 +19,7 @@ export const Contact = () => {
                 <p>
                     If you want to learn more about ReportStream or how to get
                     started, email us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .
@@ -59,11 +56,7 @@ export const Contact = () => {
                 </p>
                 <p>
                     For all other issues, contact us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .
@@ -80,11 +73,7 @@ export const Contact = () => {
                 </p>
                 <p>
                     Email us at{" "}
-                    <USExtLink
-                        href={
-                            "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
-                        }
-                    >
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>
                     .

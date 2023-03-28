@@ -1,13 +1,14 @@
-import { BasicHelmet } from "../../../components/header/BasicHelmet";
+import { Helmet } from "react-helmet-async";
+
 import { ResourcesDirectories } from "../../../content/resources";
 import { USExtLink, USLink } from "../../../components/USLink";
 
 export const SecurityPracticesIa = () => {
     return (
         <>
-            <BasicHelmet
-                pageTitle={`${ResourcesDirectories.SECURITY} | Resources`}
-            />
+            <Helmet>
+                <title>{`${ResourcesDirectories.SECURITY} | Resources`}</title>
+            </Helmet>
             <h1 id="anchor-top">{ResourcesDirectories.SECURITY}</h1>
             <h2 className="usa-intro text-base">
                 Answers to common questions about ReportStream security and data
@@ -145,9 +146,7 @@ export const SecurityPracticesIa = () => {
                 </p>
 
                 <p className="margin-top-8">
-                    <USLink anchor href="#anchor-top">
-                        Back to top
-                    </USLink>
+                    <USLink href="#anchor-top">Back to top</USLink>
                 </p>
             </section>
         </>

@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.InvalidFilterExpressionMessage
+import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
@@ -29,6 +29,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
@@ -108,38 +109,6 @@ class FHIRRouter(
     private var actionLogger: ActionLogger? = null
 
     /**
-     * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
-     * used in configuration filter expressions with the specified Fhir Path expression before the expression
-     * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
-     * where needed. Format is %myVariable within the filters, and each variable used must be defined
-     * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
-     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to the
-     * underlying fhir library.
-     *
-     * The values used are located in the fhirpath_filter_shorthand lookup table.
-     *
-     * @returns A string that has all shorthand elements replaces with their mapped string from the lookup table.
-     */
-    internal fun replaceShorthand(input: String): String {
-        var output = input
-        regexVariable.findAll(input)
-            .map { it.value }
-            .sortedByDescending { it.length }
-            .forEach {
-                // remove %, ', and ` from start and end of string to be replaced
-                val replacement = shorthandLookupTable[
-                    it
-                        .trimStart('%', '\'', '`')
-                        .trimEnd('\'', '`')
-                ]
-                if (!replacement.isNullOrEmpty()) {
-                    output = output.replace(it, replacement)
-                }
-            }
-        return output
-    }
-
-    /**
      * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
      * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
      * a populated lookup table is not required to run the universal pipeline routing
@@ -199,14 +168,6 @@ class FHIRRouter(
                 metadata = this.metadata
             )
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report)
-
-            // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.isNotEmpty()) {
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
-            }
-
             // create item lineage
             report.itemLineages = listOf(
                 ItemLineage(
@@ -222,57 +183,100 @@ class FHIRRouter(
                 )
             )
 
-            // create translate event
-            val translateEvent = ProcessEvent(
-                Event.EventAction.TRANSLATE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            // get the receivers that this bundle should go to
+            val listOfReceivers = applyFilters(bundle, report)
 
-            // upload new copy to blobstore
-            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyBytes,
-                report.name,
-                message.blobSubFolderName,
-                translateEvent.eventAction
-            )
+            // check if there are any receivers
+            if (listOfReceivers.isNotEmpty()) {
+                // this bundle has receivers; send message to translate function
+                // add the receivers to the fhir bundle
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+                // create translate event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.TRANSLATE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
 
-            // insert translate task into Task table
-            this.insertTranslateTask(
-                report,
-                report.bodyFormat.toString(),
-                blobInfo.blobUrl,
-                translateEvent
-            )
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
 
-            // nullify the previous task next_action
-            db.updateTask(
-                message.reportId,
-                TaskAction.none,
-                null,
-                null,
-                finishedField = Tables.TASK.ROUTED_AT,
-                null
-            )
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
 
-            // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
-            //  the destinations have been updated in the FHIR
-            this.queue.sendMessage(
-                elrTranslationQueueName,
-                RawSubmission(
-                    report.id,
+                // insert translate task into Task table
+                this.insertTranslateTask(
+                    report,
+                    report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
-                    message.blobSubFolderName
-                ).serialize()
-            )
+                    nextEvent
+                )
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+
+                // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
+                //  the destinations have been updated in the FHIR
+                this.queue.sendMessage(
+                    elrTranslationQueueName,
+                    RawSubmission(
+                        report.id,
+                        blobInfo.blobUrl,
+                        BlobAccess.digestToString(blobInfo.digest),
+                        message.blobSubFolderName
+                    ).serialize()
+                )
+            } else {
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+            }
         } catch (e: IllegalArgumentException) {
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
@@ -339,11 +343,7 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = try {
-                evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
-            } catch (e: SchemaException) {
-                false
-            }
+            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
@@ -356,7 +356,8 @@ class FHIRRouter(
                 receiver,
                 ReportStreamFilterType.QUALITY_FILTER,
                 qualFilterDefaultResult,
-                receiver.reverseTheQualityFilter
+                receiver.reverseTheQualityFilter,
+
             )
 
             // ROUTING FILTER
@@ -381,6 +382,35 @@ class FHIRRouter(
                 processingModeDefaultResult
             )
 
+            // CONDITION FILTER
+            //  default: allowAll
+            val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+            val allObservations = FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle, shorthandLookupTable),
+                bundle,
+                bundle,
+                allObservationsExpression
+            )
+
+            // Automatically passing if observations are empty is necessary for messages that may not
+            // contain any observations but messages that must have observations are now at risk of getting
+            // routed if they contain no observations. This case must be handled in one of the filters above
+            // while UP validation is still being designed/implemented.
+            passes = passes && (
+                allObservations.isEmpty() || allObservations.any { observation ->
+                    evaluateFilterAndLogResult(
+                        getConditionFilter(receiver, orgFilters),
+                        bundle,
+                        report,
+                        receiver,
+                        ReportStreamFilterType.CONDITION_FILTER,
+                        defaultResponse = true,
+                        false,
+                        observation
+                    )
+                }
+                )
+
             // if all filters pass, add this receiver to the list of valid receivers
             if (passes) {
                 listOfReceivers.add(receiver)
@@ -404,22 +434,20 @@ class FHIRRouter(
         receiver: Receiver,
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
-        return try {
-            val passes = evaluateFilterCondition(
-                filters,
-                bundle,
-                defaultResponse,
-                reverseFilter
-            )
-            if (!passes) {
-                logFilterResults(filters, bundle, report, receiver, filterType)
-            }
-            passes
-        } catch (e: SchemaException) {
-            false
+        val passes = evaluateFilterCondition(
+            filters,
+            bundle,
+            defaultResponse,
+            reverseFilter,
+            focusResource
+        )
+        if (!passes) {
+            logFilterResults(filters, bundle, report, receiver, filterType)
         }
+        return passes
     }
 
     /**
@@ -432,7 +460,8 @@ class FHIRRouter(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle
     ): Boolean {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
@@ -441,15 +470,17 @@ class FHIRRouter(
         } else try {
             filter.all {
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable),
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
                     bundle,
-                    bundle,
-                    replaceShorthand(it)
+                    it
                 )
             }
         } catch (e: SchemaException) {
-            actionLogger?.error(InvalidFilterExpressionMessage(e.message ?: ""))
-            throw e
+            actionLogger?.warn(
+                EvaluateFilterConditionErrorMessage(e.message)
+            )
+            return false
         }
         return if (reverseFilter) !result else result
     }
@@ -524,5 +555,15 @@ class FHIRRouter(
             orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
+    }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
+                ?: emptyList()
+            ).plus(receiver.conditionFilter)
     }
 }

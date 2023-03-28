@@ -334,17 +334,16 @@ elements:
       csvFields: [{ name: ordering_provider_state, format: $display}]
 
     - name: ordering_provider_state
-      cardinality: ONE 
+      cardinality: ONE
       mapper: use(ordering_provider_state_fromValueSet, ordering_provider_state_fromCSV)
 
     - name: ordering_provider_zip_code
-      cardinality: ONE 
+      cardinality: ONE
       csvFields: [{name: ordering_provider_zip_code}]
 
     - name: ordering_provider_phone_number
-      cardinality: ONE 
+      cardinality: ONE
       csvFields: [{name: ordering_provider_phone_number}]
-
 
 ############### Testing lab info
     - name: testing_lab_clia
@@ -540,4 +539,6 @@ elements:
       csvFields: [{ name: residence_type, format: $display}]
       default: ""
 
+###### These fields are calculated for filtering purposes
     - name: test_type
+    - name: abnormal_flag

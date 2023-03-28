@@ -1,4 +1,5 @@
 import path from "path";
+
 import dotenv from "dotenv";
 import { defineConfig } from "cypress";
 
@@ -12,9 +13,36 @@ const cypressConfig = require(path.resolve(
     `./cypress/cypress.${cypressEnv}.json`
 ));
 
+function getEnvOrDefault(name: string, defaultValue?: string) {
+    if (!!cypressConfig[name]) {
+        return cypressConfig[name];
+    }
+
+    if (defaultValue) {
+        return defaultValue;
+    }
+
+    throw new Error(`No value supplied for env variable ${name}`);
+}
+
+const env = {
+    ...cypressConfig,
+    oktaClientId: getEnvOrDefault(
+        "oktaClientId",
+        process.env.REACT_APP_OKTA_CLIENTID
+    ),
+    oktaSecret: getEnvOrDefault(
+        "oktaSecret",
+        process.env.REACT_APP_OKTA_SECRET
+    ),
+    oktaUrl: getEnvOrDefault("oktaUrl", process.env.REACT_APP_OKTA_URL),
+    baseUrl: getEnvOrDefault("baseUrl", process.env.REACT_APP_BASE_URL),
+    basePageTitle: process.env.REACT_APP_TITLE,
+};
+
 export default defineConfig({
     e2e: {
-        baseUrl: cypressConfig.baseUrl,
+        baseUrl: env.baseUrl,
         specPattern: "cypress/e2e/**/*.cy.(js|ts)",
         setupNodeEvents(on) {
             // configure plugins here
@@ -35,16 +63,7 @@ export default defineConfig({
             });
         },
     },
-    env: {
-        ...cypressConfig,
-        okta_domain: process.env.REACT_APP_OKTA_DOMAIN,
-        okta_client_id: process.env.REACT_APP_OKTA_CLIENTID,
-        okta_secret: process.env.REACT_APP_OKTA_SECRET,
-        okta_url: process.env.REACT_APP_OKTA_URL,
-
-        base_page_title: process.env.REACT_APP_TITLE,
-    },
-
+    env,
     viewportHeight: 768,
     viewportWidth: 1440,
 });

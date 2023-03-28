@@ -100,13 +100,13 @@ object FhirPathUtils : Logging {
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
-                throw SchemaException("Condition did not evaluate to a boolean type")
+                throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             val msg = when (e) {
                 is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
-                is SchemaException -> e.message ?: "Condition error in FHIR Path expression $expression"
+                is SchemaException -> throw e
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
                         "Setting value of condition to false."
@@ -205,7 +205,11 @@ object FhirPathUtils : Logging {
 
             else -> {
                 var secs = dateTime.second.toFloat()
-                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
+//                TODO: There's no way to turn this off at the moment.
+//                 Need to add support to configure Date precision.
+//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
+
+//                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
                     secs

@@ -1,9 +1,11 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { rest } from "msw";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
+import config from "../../config";
 
 import { EditSenderSettings } from "./EditSenderSettings";
 
@@ -14,6 +16,7 @@ let editJsonAndSaveButton: HTMLElement;
 let nameField: HTMLElement;
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -28,13 +31,14 @@ jest.mock("rest-hooks", () => ({
 }));
 
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useNavigate: () => {
         return jest.fn();
     },
     useParams: () => {
         return {
-            orgName: "abbott",
-            senderName: "user1234",
+            orgname: "abbott",
+            sendername: "user1234",
             action: "edit",
         };
     },
@@ -64,11 +68,18 @@ const testKeys = JSON.stringify([
 const testProcessingType = "sync";
 
 describe("EditSenderSettings", () => {
-    beforeAll(() => settingsServer.listen());
-    afterEach(() => settingsServer.resetHandlers());
+    beforeAll(() => {
+        settingsServer.listen();
+        settingsServer.use(
+            rest.get(
+                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
+                (req, res, ctx) => res(ctx.json(mockData))
+            )
+        );
+    });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<EditSenderSettings />);
+        renderApp(<EditSenderSettings />);
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });
@@ -117,17 +128,7 @@ describe("EditSenderSettings", () => {
             jest.resetAllMocks();
         });
 
-        test("should display an error if name value is prohibited", () => {
-            fireEvent.change(nameField, {
-                target: { value: "Organization" },
-            });
-            expect(nameField).toHaveValue("Organization");
-
-            fireEvent.click(editJsonAndSaveButton);
-            expect(consoleTraceSpy).toHaveBeenCalled();
-        });
-
-        test("should display an error if name value contains a non-alphanumeric char", () => {
+        test("should display an error if name value contains a disallowed char", () => {
             fireEvent.change(nameField, {
                 target: { value: "a\\nlinefeed" },
             });

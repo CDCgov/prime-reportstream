@@ -1,0 +1,23 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: ORU_R01_circular
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(Provenance).exists() and
+      Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
+    required: true
+    schema: ORU_R01/header
+
+  - name: patient-information
+    resource: Bundle.entry.resource.ofType(Patient)
+    condition: '%resource.count() = 1'
+    required: true
+    schema: ORU_R01/patient
+
+  - name: order-observations
+    resource: Bundle.entry.resource.ofType(DiagnosticReport)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ORU_R01/order-observation
+    resourceIndex: orderIndex

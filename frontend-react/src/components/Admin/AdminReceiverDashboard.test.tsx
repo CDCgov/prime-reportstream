@@ -1,14 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import React, { Suspense } from "react";
-import { MemoryRouter } from "react-router-dom";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
 const mockData: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
@@ -78,9 +77,9 @@ const mockData: AdmConnStatusDataType[] = [
         receiverName: "elr-secondary",
     },
 ];
-// </editor-fold>
 
 jest.mock("rest-hooks", () => ({
+    ...jest.requireActual("rest-hooks"),
     useResource: () => {
         return mockData;
     },
@@ -236,30 +235,28 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("sortStatusData and MainRender tests", async () => {
-        const { baseElement } = render(
-            <MemoryRouter>
+        const { baseElement } = renderApp(
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
                 <Suspense fallback={<></>}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="message" />}
-                    >
-                        {/*eslint-disable-next-line react/jsx-pascal-case*/}
-                        <_exportForTesting.MainRender
-                            datesRange={[
-                                new Date("2022-07-11"),
-                                new Date("2022-07-14"),
-                            ]}
-                            filterRowStatus={
-                                _exportForTesting.SuccessRate.ALL_SUCCESSFUL
-                            }
-                            filterErrorText={" "}
-                            filterRowReceiver={"-"}
-                            onDetailsClick={(
-                                _subdata: AdmConnStatusDataType[]
-                            ) => {}}
-                        />
-                    </NetworkErrorBoundary>
+                    {/*eslint-disable-next-line react/jsx-pascal-case*/}
+                    <_exportForTesting.MainRender
+                        datesRange={[
+                            new Date("2022-07-11"),
+                            new Date("2022-07-14"),
+                        ]}
+                        filterRowStatus={
+                            _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                        }
+                        filterErrorText={" "}
+                        filterRowReceiver={"-"}
+                        onDetailsClick={(
+                            _subdata: AdmConnStatusDataType[]
+                        ) => {}}
+                    />
                 </Suspense>
-            </MemoryRouter>
+            </NetworkErrorBoundary>
         );
 
         const days = screen.getAllByText(/Mon/);
@@ -300,7 +297,7 @@ describe("AdminReceiverDashboard tests", () => {
     test("ModalInfoRender", async () => {
         const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
-        render(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />
         );
@@ -311,7 +308,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender empty", async () => {
-        render(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />
         );
@@ -319,7 +316,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("DateRangePickingAtomic", async () => {
-        render(
+        renderApp(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.DateRangePickingAtomic
                 defaultStartDate="2022-07-11T00:00:00.000Z"

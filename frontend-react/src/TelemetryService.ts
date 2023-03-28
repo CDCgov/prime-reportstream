@@ -5,6 +5,7 @@ import {
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
 import { getSessionMembershipState } from "./utils/SessionStorageTools";
+import { OKTA_AUTH } from "./oktaConfig";
 
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
@@ -44,6 +45,15 @@ const createTelemetryService = () => {
             }
         });
     };
+
+    // Add user email as user_AuthenticatedId to all tracking events
+    OKTA_AUTH.authStateManager.subscribe((authState) => {
+        const { email } = authState?.idToken?.claims || {};
+
+        if (email) {
+            appInsights?.setAuthenticatedUserContext(email);
+        }
+    });
 
     return {
         // Use for React integration

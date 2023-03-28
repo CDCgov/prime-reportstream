@@ -1,0 +1,56 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.OML_O21
+constants:
+  # Prefix for RS custom extension URLs
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
+      Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    required: true
+    schema: ../common/message-header
+
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: ../common/software
+
+  - name: patient-information
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    required: true
+    constants:
+      hl7SegmentGroup: '/PATIENT'
+    schema: ../common/patient
+
+  - name: patient-contact
+    resource: 'Bundle.entry.resource.ofType(Patient).contact'
+    condition: '%resource.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT'
+    schema: ../common/patient-contact
+
+  - name: patient-visit
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
+    schema: ../common/patient-visit
+
+  - name: order
+    resource: Bundle.entry.resource.ofType(ServiceRequest)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/service-request-order
+    constants:
+      hl7SegmentGroup: '/ORDER'
+
+  - name: order-observation-request
+    resource: Bundle.entry.resource.ofType(ServiceRequest)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/service-request-order-observation
+    constants:
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'

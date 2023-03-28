@@ -20,6 +20,10 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
 
 object HL7MessageHelpers : Logging {
+
+    private const val REPORT_STREAM_UNIVERSAL_ID = "2.16.840.1.114222.4.1.237821"
+    private const val REPORT_STREAM_UNIVERSAL_ID_TYPE = "ISO"
+    private const val REPORT_STREAM_APPLICATION_NAME = "CDC PRIME - Atlanta"
     /**
      * Takes [nextAction] and an [hl7Message], convert it into a Report for the [receiver] specified with
      * any passed in [metadata]. Uploads to blob storage. Adds lineage showing the newly generated report
@@ -127,32 +131,34 @@ object HL7MessageHelpers : Logging {
                 null
             } else Terser(messages[0])
         } else null
-
-        // The extraction of these values mimics how the COVID HL7 serializer works
-        var sendingApp = firstMessage?.get("MSH-3-1")
-        if (sendingApp.isNullOrBlank()) sendingApp = "CDC PRIME - Atlanta"
-        val receivingApp = receiver.translation.receivingApplicationName ?: firstMessage?.get("MSH-5-1") ?: ""
-        val receivingFacility = receiver.translation.receivingFacilityName ?: firstMessage?.get("MSH-6-1") ?: ""
         val time = DTM(null)
         time.setValue(Date())
+        // The extraction of these values mimics how the COVID HL7 serializer works
+        var sendingApp =
+            "${firstMessage?.get("MSH-3-1") ?: REPORT_STREAM_APPLICATION_NAME}^" +
+                "${firstMessage?.get("MSH-3-2") ?: REPORT_STREAM_UNIVERSAL_ID}^" +
+                "${firstMessage?.get("MSH-3-3") ?: REPORT_STREAM_UNIVERSAL_ID_TYPE}"
+        val receivingApp = receiver.translation.receivingApplicationName ?: firstMessage?.get("MSH-5-1") ?: ""
+        val receivingFacility = receiver.translation.receivingFacilityName ?: firstMessage?.get("MSH-6-1") ?: ""
+        val messageCreateDate = firstMessage?.get("MSH-7") ?: time.value
 
         val builder = StringBuilder()
         builder.append(
             "FHS|$hl7BatchHeaderEncodingChar|" +
                 "$sendingApp|" +
-                "|" +
+                "$sendingApp|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
-                time.value
+                messageCreateDate
         )
         builder.append(hl7SegmentDelimiter)
         builder.append(
             "BHS|$hl7BatchHeaderEncodingChar|" +
                 "$sendingApp|" +
-                "|" +
+                "$sendingApp|" +
                 "$receivingApp|" +
                 "$receivingFacility|" +
-                time.value
+                messageCreateDate
         )
         builder.append(hl7SegmentDelimiter)
 

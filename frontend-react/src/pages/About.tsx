@@ -1,9 +1,8 @@
-import DOMPurify from "dompurify";
 import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../components/header/BasicHelmet";
-import { USExtLink } from "../components/USLink";
+import { USExtLink, USLink } from "../components/USLink";
 
 import site from "./../content/site.json";
 
@@ -12,7 +11,9 @@ export const About = () => {
     return (
         <>
             <div className="grid-container rs-documentation usa-prose desktop:margin-top-6">
-                <BasicHelmet pageTitle="About" />
+                <Helmet>
+                    <title>About</title>
+                </Helmet>
                 <h1 id="anchor-top">About</h1>
                 <h2>
                     ReportStream is an open source, cloud based platform that
@@ -40,21 +41,21 @@ export const About = () => {
                 <p>
                     ReportStream (also known as PRIME ReportStream) was created
                     for the public good by the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.CDC.url)}>
+                    <USLink href={site.orgs.CDC.url}>
                         Centers for Disease Control and Prevention (CDC)
-                    </USExtLink>
+                    </USLink>
                     , and the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.USDS.url)}>
+                    <USExtLink href={site.orgs.USDS.url}>
                         U.S. Digital Service (USDS)
                     </USExtLink>
                     .
                 </p>
                 <p>
                     Part of the{" "}
-                    <USExtLink href={DOMPurify.sanitize(site.orgs.PRIME.url)}>
+                    <USLink href={site.orgs.PRIME.url}>
                         Pandemic-Ready Interoperability Modernization Effort
                         (PRIME)
-                    </USExtLink>
+                    </USLink>
                     , ReportStream helps to streamline and improve public health
                     reporting during the COVID-19 pandemic, and beyond.
                 </p>

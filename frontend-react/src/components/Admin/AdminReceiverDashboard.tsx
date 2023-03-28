@@ -547,11 +547,13 @@ function renderAllReceiverRows(props: {
                     </div>
                 </Grid>
                 <ScrollSyncPane enabled>
-                    <Grid row className={"horizontal-scroll"}>
-                        <Grid row className={"week-column"}>
-                            {perDayElements}
+                    <>
+                        <Grid row className={"horizontal-scroll"}>
+                            <Grid row className={"week-column"}>
+                                {perDayElements}
+                            </Grid>
                         </Grid>
-                    </Grid>
+                    </>
                 </ScrollSyncPane>
             </Grid>
         );
@@ -657,7 +659,6 @@ function MainRender(props: {
     }
 
     return (
-        //
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
                 {FilterRenderedRows({
@@ -874,7 +875,7 @@ export function AdminReceiverDashboard() {
     }, []);
 
     return (
-        <section className="grid-container">
+        <article>
             <h4>Receiver Status Dashboard</h4>
             <section>
                 CRON job results that check if receivers are working.
@@ -1016,7 +1017,7 @@ export function AdminReceiverDashboard() {
             >
                 <ModalInfoRender subData={currentDataForModal} />
             </Modal>
-        </section>
+        </article>
     );
 }
 

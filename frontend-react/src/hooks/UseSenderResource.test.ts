@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
@@ -24,9 +24,12 @@ describe("useSenderResource", () => {
             } as MembershipSettings,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
         const { result } = renderHook(() => useSenderResource(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         expect(result.current.senderDetail).toEqual(undefined);
         expect(result.current.senderIsLoading).toEqual(true);
@@ -43,13 +46,16 @@ describe("useSenderResource", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useSenderResource(),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useSenderResource(), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.senderDetail).toEqual(dummySender)
         );
-        await waitForNextUpdate();
-        expect(result.current.senderDetail).toEqual(dummySender);
         expect(result.current.senderIsLoading).toEqual(false);
     });
 });

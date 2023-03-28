@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
+import gov.cdc.prime.router.tokens.JwkSet
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -22,6 +23,26 @@ interface SettingsProvider {
     fun findSender(fullName: String): Sender?
 
     fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>?
+
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
+    // this should be removed after all setting keys have been migrated to the organization
+    // it is just a temporary helper function for consolidating the keys between organizations and senders
+    /**
+     *
+     * Accepts a sender name and returns all the keys associated with that sender as well as the
+     * organization the sender belongs to.
+     *
+     * @param senderName - the name of the sender
+     *
+     * @return List of the keys associated with the sender and the sender's organization
+     */
+    fun getKeys(senderName: String): List<JwkSet>? {
+        val sender = this.findSender(senderName) ?: return null
+        val organization = this.findOrganization(sender.organizationName) ?: return null
+        val organizationKeys = organization.keys ?: emptyList<JwkSet>()
+        val senderKeys = sender.keys ?: emptyList<JwkSet>()
+        return organizationKeys + senderKeys
+    }
 }
 
 /**

@@ -142,24 +142,17 @@ class SubmissionsFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [orgName].
-     * @return true if [claims] authorizes access to this [orgName].  Return
-     * false if the [orgName] is empty or if the claim does not give access.
+     * Check whether these [claims] from this [request]
+     * allow access to the sender associated with this [action].
+     * @return true if authorized, false otherwise.
+     * Because this is a Submission request, this checks the [Action.sendingOrg]
      */
-    override fun checkAccessAuthorization(
+    override fun checkAccessAuthorizationForAction(
         claims: AuthenticatedClaims,
-        orgName: String?,
-        senderOrReceiver: String?,
+        action: Action,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        if (orgName.isNullOrEmpty()) {
-            logger.warn(
-                "Unauthorized.  Action had no sending-organization name. " +
-                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
-            )
-            return false
-        }
-        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
+        return claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
     }
 
     companion object {
