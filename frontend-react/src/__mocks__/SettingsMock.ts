@@ -5,7 +5,7 @@ import {
     RSService,
 } from "../config/endpoints/settings";
 import { Faker } from "../utils/Faker";
-import { DBFactoryModel, undefinable } from "../utils/MSWData";
+import { DBFactoryModel, undefinable } from "../utils/MSWData/EnhancedFactory";
 
 export function createSettingsModels(faker: Faker) {
     const settingsBaseModel: DBFactoryModel<RSService> = {

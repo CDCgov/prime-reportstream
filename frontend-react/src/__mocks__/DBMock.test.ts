@@ -1,11 +1,11 @@
 import { SetupServer, setupServer } from "msw/node";
 
 import { RSOrganizationSettings } from "../config/endpoints/settings";
+import { createDbMock } from "../utils/MSWData/CreateDbMock";
 import {
-    ParentResolverMap,
     RelativePathMap,
-    createDbMock,
-} from "../utils/MSWData";
+    ParentResolverMap,
+} from "../utils/MSWData/EnhancedFactory";
 
 import { createModels } from "./DBMock";
 

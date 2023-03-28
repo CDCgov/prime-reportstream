@@ -1,4 +1,4 @@
-import { nullable, factory, drop } from "@mswjs/data";
+import { nullable, factory } from "@mswjs/data";
 import { Database } from "@mswjs/data/lib/db/Database";
 import {
     ModelValueTypeGetter,
@@ -20,19 +20,9 @@ import {
     Path,
     DefaultBodyType,
     MockedRequest,
-    ResponseComposition,
-    RestContext,
-    RestRequest,
 } from "msw";
 
-import { Faker, faker as _faker } from "../utils/Faker";
-
-export const DEFAULT_SEED = 123;
-export const DEFAULT_DATE = "2023-03-16T21:04:23.800Z";
-
-export type RequestParams<Key extends PrimaryKeyType> = {
-    [K in Key]: string;
-};
+import { ProxyRestHandler } from "./ProxyRestHandler";
 
 export type TypedModelDefinitionValue<T> =
     | (T extends PrimaryKeyType ? PrimaryKey<T> : never)
@@ -80,6 +70,14 @@ export function undefinable<T>(value: T) {
     });
 }
 
+export type FactoryHandlerMap<T = unknown> = Record<
+    "getList" | "get" | "post" | "put" | "delete",
+    T
+>;
+export type PartialFactoryHandlerMap<T = unknown> = Partial<
+    FactoryHandlerMap<T>
+>;
+
 export interface EnhancedModelAPI<
     Dictionary extends ModelDictionary,
     ModelName extends keyof Dictionary
@@ -111,14 +109,6 @@ export type EnhancedFactoryAPI<Dictionary extends ModelDictionary> = {
     [DATABASE_INSTANCE]: Database<Dictionary>;
 };
 
-export type FactoryHandlerMap<T = unknown> = Record<
-    "getList" | "get" | "post" | "put" | "delete",
-    T
->;
-export type PartialFactoryHandlerMap<T = unknown> = Partial<
-    FactoryHandlerMap<T>
->;
-
 export type RelativePathMap = PartialFactoryHandlerMap<string>;
 export type ParentResolverMap = PartialFactoryHandlerMap<
     ResponseResolver<any, any>
@@ -127,72 +117,6 @@ export type ParentResolverMap = PartialFactoryHandlerMap<
 export interface EnhancedRestHandlersOptions {
     relativePaths?: FactoryHandlerMap<string>;
     parentHandlers: FactoryHandlerMap;
-}
-
-export type RestHandlerMethod = string | RegExp;
-
-export interface ProxyRequestContext extends RestContext {
-    proxy: {
-        res?: any;
-        error?: Error;
-    };
-}
-
-export class ProxyRestHandler extends RestHandler {
-    target: RestHandler;
-    proxyResolver: any;
-
-    constructor(
-        method: RestHandlerMethod,
-        path: Path,
-        target: RestHandler,
-        resolver?: ResponseResolver<any, any>
-    ) {
-        const callback = (
-            req: RestRequest,
-            res: ResponseComposition<any>,
-            ctx: RestContext
-        ) => this.resolve(req, res, ctx);
-        super(method, path, callback as ResponseResolver<any, any>);
-        this.target = target;
-        this.proxyResolver = resolver ?? defaultProxyResolver;
-    }
-
-    async resolve(
-        req: RestRequest,
-        res: ResponseComposition<any>,
-        ctx: RestContext
-    ) {
-        const resolved: ProxyRequestContext["proxy"] = {
-            res: undefined,
-            error: undefined,
-        };
-        const proxyReq = await this.createProxyRequest(req);
-
-        try {
-            resolved.res = (await this.target.run(proxyReq))?.response;
-        } catch (e: any) {
-            resolved.error = e;
-        }
-
-        const proxyCtx = {
-            ...ctx,
-            proxy: resolved,
-        };
-
-        return this.proxyResolver(req, res, proxyCtx);
-    }
-
-    async createProxyRequest(req: RestRequest) {
-        const url = Object.entries(req.params).reduce(
-            (str, [k, v]) => str.replace(`:${k}`, v.toString()),
-            this.target.info.path.toString()
-        );
-        return new MockedRequest(new URL(url), {
-            ...req,
-            body: await req.arrayBuffer(),
-        });
-    }
 }
 
 export const FactoryRestHandlerTupleMap = {
@@ -213,13 +137,6 @@ export function factoryRestHandlerMapToTuple<const T>(
         map[FactoryRestHandlerTupleMap[3]],
         map[FactoryRestHandlerTupleMap[4]],
     ];
-}
-
-export async function defaultProxyResolver(_: any, _1: any, ctx: any) {
-    if (ctx.proxy.error) {
-        throw ctx.proxy.error;
-    }
-    return ctx.proxy.res;
 }
 
 /**
@@ -310,45 +227,4 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
         };
     }
     return db;
-}
-
-export interface CreateDbMockOptions {
-    faker?: Faker;
-    seed?: number;
-    date?: number | Date | string;
-}
-
-/**
- * Takes a callback and options. Calls callback with faker instance to use
- * to receive ModelDictionary (whose type information has not been lost and
- * generified to ModelDictionary). Returns db, faker instance, and a reset
- * helper.
- */
-export function createDbMock<const Dictionary extends ModelDictionary>(
-    cb: (faker: Faker) => Dictionary,
-    {
-        date = DEFAULT_DATE,
-        seed = DEFAULT_SEED,
-        faker = _faker,
-    }: CreateDbMockOptions = {}
-) {
-    const models = cb(faker);
-    const db = enhancedFactory(models);
-
-    /**
-     * Empty the db and reset faker sequence.
-     */
-    function reset() {
-        drop(db);
-        faker.seed(seed);
-        faker.setDefaultRefDate(date);
-    }
-
-    reset();
-
-    return {
-        db,
-        faker,
-        reset,
-    };
 }

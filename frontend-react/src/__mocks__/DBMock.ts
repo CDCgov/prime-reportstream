@@ -1,5 +1,5 @@
 import { Faker } from "../utils/Faker";
-import { createDbMock } from "../utils/MSWData";
+import { createDbMock } from "../utils/MSWData/CreateDbMock";
 
 import { createSettingsModels } from "./SettingsMock";
 
