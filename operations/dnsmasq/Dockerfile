@@ -1,7 +1,10 @@
-FROM alpine:3.15
+FROM ubuntu:22.04
+
+# Latest patches
+RUN apt-get update && apt-get upgrade -y
 
 # Install dnsmasq
-RUN apk --no-cache add dnsmasq
+RUN apt-get install -y dnsmasq
 
 # Expose the DNS port
 EXPOSE 53/udp
