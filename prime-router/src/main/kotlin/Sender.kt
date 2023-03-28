@@ -294,14 +294,14 @@ open class TopicSender : Sender, HasSchema {
         this.schemaName = schemaName
     }
 
-    constructor(copy: TopicSender, shouldEmptyKeys: Boolean = false) : this(
+    constructor(copy: TopicSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
         copy.topic,
-        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
+        if (copy.keys != null) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -371,13 +371,13 @@ class CovidSender : TopicSender, HasSchema {
         primarySubmissionMethod
     )
 
-    constructor(copy: CovidSender, shouldEmptyKeys: Boolean = false) : this(
+    constructor(copy: CovidSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
+        if (copy.keys != null) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
@@ -436,13 +436,13 @@ class MonkeypoxSender : TopicSender, HasSchema {
         primarySubmissionMethod
     )
 
-    constructor(copy: MonkeypoxSender, shouldEmptyKeys: Boolean = false) : this(
+    constructor(copy: MonkeypoxSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null && !shouldEmptyKeys) ArrayList(copy.keys) else null
+        if (copy.keys != null) ArrayList(copy.keys) else null
     )
 
     // constructor that copies and adds a key
