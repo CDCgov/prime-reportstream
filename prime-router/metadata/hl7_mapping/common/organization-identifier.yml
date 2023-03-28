@@ -1,0 +1,16 @@
+elements:
+  - name: organization-identifier
+    value: [ '%identifier' ]
+    hl7Spec: [ '%{organizationIdFieldPath}-1' ]
+
+  - name: organization-entity-namespace-id
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{organizationIdFieldPath}-2' ]
+
+  - name: organization-entity-universal-id
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{organizationIdFieldPath}-3' ]
+
+  - name: organization-entity-id-type
+    value: [ '%resource.identifier.type.coding.code' ]
+    hl7Spec: [ '%{organizationIdFieldPath}-4' ]

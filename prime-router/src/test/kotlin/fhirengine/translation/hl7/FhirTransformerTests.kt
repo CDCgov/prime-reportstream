@@ -23,9 +23,11 @@ import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IdType
+import org.hl7.fhir.r4.model.Meta
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
+import java.text.SimpleDateFormat
 import kotlin.test.Test
 
 class FhirTransformerTests {
@@ -604,5 +606,38 @@ class FhirTransformerTests {
         transformer.transformBasedOnElement(element, bundle, bundle, CustomContext(bundle, bundle))
         assertThat(servRequest1.id).isEqualTo("0")
         assertThat(servRequest2.id).isEqualTo("1")
+    }
+
+    @Test
+    fun `test transform dateTime property with changeTimezone`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        bundle.timestamp = isoFormat.parse("2021-08-09T08:52:00-04:00")
+        val resource = Patient()
+        resource.id = "def456"
+        resource.meta = Meta()
+        bundle.addEntry().resource = resource
+
+        val elemA = FhirTransformSchemaElement(
+            "elementA",
+            constants = sortedMapOf(Pair("timezone", "'America/Phoenix'")),
+            value = listOf("Bundle.timestamp.changeTimezone(%timezone)"),
+            resource = "Bundle.entry.resource.ofType(Patient).meta",
+            bundleProperty = "Bundle.entry.resource.ofType(Patient).meta.lastUpdated"
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+        val newValue =
+            FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle),
+                bundle,
+                bundle,
+                "Bundle.entry.resource.ofType(Patient).meta.lastUpdated"
+            )
+        assertThat(resource.meta.lastUpdated).isEqualTo(bundle.timestamp)
+        assertThat(newValue[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00.000-07:00")
     }
 }
