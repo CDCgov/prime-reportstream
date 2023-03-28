@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+      schedule:
+      - cron:  "0 0 1 * *"
 
 env:
   REGISTRY: ghcr.io
@@ -14,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
-      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule' }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
@@ -33,7 +35,7 @@ jobs:
   publish_tfcli:
     name: Publish Terraform CLI
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
+    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' && github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -64,8 +66,9 @@ jobs:
 
   publish_dnsmasq:
     name: Publish dnsmasq
+    
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' }}
+    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' || github.event_name == 'schedule'}}
     runs-on: ubuntu-latest
     defaults:
       run:
