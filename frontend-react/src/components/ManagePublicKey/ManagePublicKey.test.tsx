@@ -49,7 +49,21 @@ describe("ManagePublicKey", () => {
     }
 
     describe("on load", () => {
-        describe("when more than one sender", () => {
+        beforeEach(() => {
+            mockUseOrganizationSenders({
+                isLoading: false,
+                senders: DEFAULT_SENDERS,
+            });
+
+            renderApp(<ManagePublicKey />);
+        });
+
+        test("renders ManagePublicKeyUpload", () => {
+            expect(screen.getByText(/Manage Public Key/)).toBeVisible();
+            expect(screen.getByTestId("ManagePublicKeyUpload")).toBeVisible();
+        });
+
+        describe.skip("when more than one sender", () => {
             beforeEach(() => {
                 mockUseOrganizationSenders({
                     isLoading: false,
@@ -98,7 +112,7 @@ describe("ManagePublicKey", () => {
             });
         });
 
-        describe("when only one sender", () => {
+        describe.skip("when only one sender", () => {
             beforeEach(() => {
                 mockUseOrganizationSenders({
                     isLoading: false,

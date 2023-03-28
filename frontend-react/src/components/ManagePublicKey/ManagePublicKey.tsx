@@ -9,7 +9,6 @@ import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 
-import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
@@ -17,7 +16,7 @@ export const FORMAT = "PEM";
 
 function ManagePublicKeySwitchDisplay() {
     const navigate = useNavigate();
-    const [sender, setSender] = useState("");
+    // const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
@@ -91,14 +90,16 @@ function ManagePublicKeySwitchDisplay() {
 
     return (
         <>
-            {sender.length === 0 && (
-                <ManagePublicKeyChooseSender
-                    onSenderSelect={(selectedSender: string) =>
-                        setSender(selectedSender)
-                    }
-                />
-            )}
-            {sender && !fileSubmitted && (
+            {/*Waiting on backend to support this*/}
+            {/*{sender.length === 0 && (*/}
+            {/*    <ManagePublicKeyChooseSender*/}
+            {/*        onSenderSelect={(selectedSender: string) =>*/}
+            {/*            setSender(selectedSender)*/}
+            {/*        }*/}
+            {/*    />*/}
+            {/*)}*/}
+            {/*{sender && !fileSubmitted && (*/}
+            {!fileSubmitted && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
                     onFileChange={handleFileChange}
