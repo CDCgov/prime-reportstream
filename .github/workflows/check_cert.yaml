@@ -27,11 +27,56 @@ jobs:
 
       - name: Get Certificates Expiration
         run: |
-          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
+          az keyvault certificate list --vault-name staging-reportstream-cdc-gov --query "[].{name:name, expires:attributes.expires}" --output table
 
       - name: Get Near Expiry Certificates
         run: |
           near_expiry_date=$(date -d "+10 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          near_expiry_certificates=$(az keyvault certificate list --vault-name staging-reportstream-cdc-gov --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
 
           echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
+
+
+
+# name: Key Vault Certificate Expiry Check
+
+# on:
+#   schedule:
+#     # Run the workflow daily at 8:00 AM UTC
+#     - cron: '0 8 * * *'
+
+# env:
+#   KEYVAULT_NAME: your-key-vault-name
+#   KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS: 30
+#   EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+#   EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+#   NOTIFY_EMAILS: ${{ secrets.NOTIFY_EMAILS }}
+
+# jobs:
+#   check_expiry:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Get Expiring Certificates
+#       uses: azure/cli@v1
+#       with:
+#         azcliversion: 2.28.0
+#         inlineScript: |
+#           expiring_certificates=$(az keyvault certificate list --vault-name ${{ env.KEYVAULT_NAME }} --query "[?attributes.expires<=\`$(date -u -d '+${{ env.KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS }} days' +%Y-%m-%d)\`]" -o tsv --query "[].id")
+#           if [ -z "$expiring_certificates" ]; then
+#             echo "::set-output name=near_expiry_certificates::None"
+#           else
+#             echo "::set-output name=near_expiry_certificates::$expiring_certificates"
+#           fi
+#       id: get_expiry
+#     - name: Send Email Notification
+#       uses: dawidd6/action-send-mail@v3
+#       with:
+#         server_address: smtp.gmail.com
+#         server_port: 587
+#         username: ${{ env.EMAIL_USERNAME }}
+#         password: ${{ env.EMAIL_PASSWORD }}
+#         subject: Near Expiry Certificates Notification
+#         body: |
+#           The following certificates will expire within the next ${env.KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS} days: ${{ steps.get_expiry.outputs.near_expiry_certificates }}
+#         to: ${{ env.NOTIFY_EMAILS }}
+#         from: your-email-address@example.com
