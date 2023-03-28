@@ -148,3 +148,14 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
     schema: 'ca-patient-note'
+
+  # TODO: Remove this once SR is sending us order-control
+  # Default to RE for now
+  - name: order-control
+    condition: '%resource.extension(%`rsext-order-control`).empty()'
+    value: [ '"RE"' ]
+
+  # TODO: Remove this once SR is sending us order-control
+  # Create order segment even if order-control is empty
+  - name: order-segment
+    condition: true
