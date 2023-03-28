@@ -2,7 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet-async";
 import { GridContainer } from "@trussworks/react-uswds";
 
-import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import { useOrganizationSettings } from "../../hooks/network/Settings/UseOrganizationSettings";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 import { MemberType } from "../../hooks/UseOktaMemberships";

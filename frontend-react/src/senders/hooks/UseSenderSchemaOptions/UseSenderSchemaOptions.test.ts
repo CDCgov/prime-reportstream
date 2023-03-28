@@ -1,9 +1,9 @@
 import { renderHook, RenderHookResult } from "@testing-library/react";
 
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
-import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
+import { UseOrganizationSenderSettingsHookResult } from "../../../hooks/network/Settings/UseOrganizationSenderSettings";
 import { CustomerStatus } from "../../../utils/TemporarySettingsAPITypes";
-import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
+import * as UseOrganizationSenderSettingsExports from "../../../hooks/network/Settings/UseOrganizationSenderSettings";
 import { FileType } from "../../../hooks/UseFileHandler";
 
 import useSenderSchemaOptions, {
@@ -18,10 +18,10 @@ describe("useSenderSchemaOptions", () => {
         senderDetail = undefined,
         senderIsLoading = false,
         isInitialLoading = false,
-    }: UseSenderResourceHookResult) {
+    }: UseOrganizationSenderSettingsHookResult) {
         jest.spyOn(
-            useSenderResourceExports,
-            "useSenderResource"
+            UseOrganizationSenderSettingsExports,
+            "useOrganizationSenderSettings"
         ).mockReturnValue({
             senderDetail,
             senderIsLoading,

@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { RSReceiver } from "../config/endpoints/settings";
 import { CustomerStatus } from "../utils/TemporarySettingsAPITypes";
 
-import { useOrganizationReceivers } from "./UseOrganizationReceivers";
+import { useOrganizationReceiversSettings } from "./network/Settings/UseOrganizationReceiversSettings";
 
 interface ReceiverFeeds {
     loadingServices: boolean;
@@ -19,7 +19,7 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         data: receivers,
         isLoading,
         fetchStatus,
-    } = useOrganizationReceivers();
+    } = useOrganizationReceiversSettings();
     const [active, setActive] = useState<RSReceiver | undefined>();
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import { useSenderResource } from "../../../hooks/UseSenderResource";
+import { useOrganizationSenderSettings } from "../../../hooks/network/Settings/UseOrganizationSenderSettings";
 import { FileType } from "../../../hooks/UseFileHandler";
 
 export enum StandardSchema {
@@ -43,7 +43,7 @@ export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResu
         senderDetail,
         senderIsLoading,
         isInitialLoading: isSenderInitialLoading,
-    } = useSenderResource();
+    } = useOrganizationSenderSettings();
 
     const isLoading = senderIsLoading && isSenderInitialLoading;
 

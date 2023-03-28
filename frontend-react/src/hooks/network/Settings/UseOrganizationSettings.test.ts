@@ -1,19 +1,19 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
-import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { fakeOrg, settingsServer } from "../../../__mocks__/SettingsMockServer";
+import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { MemberType } from "../../UseOktaMemberships";
+import { Organizations } from "../../UseAdminSafeOrganizationName";
 
-import { MemberType } from "./UseOktaMemberships";
 import { useOrganizationSettings } from "./UseOrganizationSettings";
-import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationSettings", () => {
     beforeAll(() => {
-        orgServer.listen();
+        settingsServer.listen();
     });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
     describe("with no Organization name", () => {
         beforeEach(() => {
             mockSessionContext.mockReturnValue({

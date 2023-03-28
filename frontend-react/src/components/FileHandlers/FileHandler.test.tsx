@@ -28,8 +28,8 @@ import {
 } from "../../hooks/network/WatersHooks";
 import * as useSessionContextExports from "../../contexts/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
+import * as UseOrganizationSenderSettingsExports from "../../hooks/network/Settings/UseOrganizationSenderSettings";
+import { UseOrganizationSenderSettingsHookResult } from "../../hooks/network/Settings/UseOrganizationSenderSettings";
 import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
 import { CustomerStatus, Format } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
@@ -72,7 +72,7 @@ const mockSendFile: WatersResponse = {
     ],
 };
 
-jest.mock("../../hooks/UseOrganizationSettings", () => ({
+jest.mock("../../hooks/network/Settings/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
         return {
             data: {
@@ -149,12 +149,12 @@ describe("FileHandler", () => {
         });
     }
 
-    function mockUseSenderResource(
-        result: Partial<UseSenderResourceHookResult> = {}
+    function mockUseOrganizationSenderSettings(
+        result: Partial<UseOrganizationSenderSettingsHookResult> = {}
     ) {
         jest.spyOn(
-            useSenderResourceExports,
-            "useSenderResource"
+            UseOrganizationSenderSettingsExports,
+            "useOrganizationSenderSettings"
         ).mockReturnValue({
             ...result,
             senderDetail: {
@@ -244,7 +244,7 @@ describe("FileHandler", () => {
                 sendFileSpy = jest.fn(() => Promise.resolve(mockSendFile));
 
                 mockUseSessionContext();
-                mockUseSenderResource();
+                mockUseOrganizationSenderSettings();
                 mockUseFileHandler({
                     ...INITIAL_STATE,
                     fileType: selectedSchemaOption.format,

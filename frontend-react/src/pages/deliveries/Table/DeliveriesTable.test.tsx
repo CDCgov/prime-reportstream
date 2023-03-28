@@ -7,11 +7,11 @@ import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import {
-    orgServer,
+    settingsServer,
     receiversGenerator,
-} from "../../../__mocks__/OrganizationMockServer";
+} from "../../../__mocks__/SettingsMockServer";
 import { makeDeliveryFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Settings/__mocks__/ReceiversHooks";
 import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
 
 import DeliveriesTable from "./DeliveriesTable";
@@ -59,9 +59,9 @@ beforeEach(() => {
     });
 });
 describe("DeliveriesTable", () => {
-    beforeAll(() => orgServer.listen());
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
+    beforeAll(() => settingsServer.listen());
+    afterEach(() => settingsServer.resetHandlers());
+    afterAll(() => settingsServer.close());
 
     describe("useReceiverFeed without data", () => {
         beforeEach(() => {
