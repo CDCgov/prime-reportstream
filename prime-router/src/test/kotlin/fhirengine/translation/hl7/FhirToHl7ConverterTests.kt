@@ -211,8 +211,7 @@ class FhirToHl7ConverterTests {
         bundle.id = "unmapped"
         element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
         value = converter.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNotNull().isInstanceOf(IdType::class.java)
-        assertThat(value?.primitiveValue()).isEqualTo("unmapped")
+        assertThat(value).isNull()
 
         element = ConverterSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
         assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
