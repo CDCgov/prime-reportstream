@@ -89,7 +89,7 @@ export default function FileHandlerErrorsWarningsStep({
                 <FileQualityFilterDisplay
                     destinations={qualityFilterMessages}
                     heading=""
-                    message={`The file does not meet the jurisdiction's schema. Please resolve the errors below.`}
+                    message="The file does not meet the jurisdiction's schema. Please resolve the errors below."
                 />
             )}
 

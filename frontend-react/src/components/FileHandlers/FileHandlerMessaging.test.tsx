@@ -16,9 +16,6 @@ import {
     getSafeFileName,
 } from "./FileHandlerMessaging";
 
-// Note: following a pattern of finding elements by text (often text passed as props)
-// then asserting className. This is not ideal, and seems kinda backwards, but I couldn't
-// think of a better way to do it. Is there a better pattern for this? - DWS
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
         const restore = conditionallySuppressConsole("failure:");
