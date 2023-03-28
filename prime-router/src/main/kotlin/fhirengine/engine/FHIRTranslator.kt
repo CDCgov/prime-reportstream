@@ -55,21 +55,21 @@ class FHIRTranslator(
         actionHistory: ActionHistory
     ) {
         logger.trace("Translating FHIR file for receivers.")
-        try {
-            // pull fhir document and parse FHIR document
-            val bundle = FhirTranscoder.decode(message.downloadContent())
+        // pull fhir document and parse FHIR document
+        val bundle = FhirTranscoder.decode(message.downloadContent())
 
-            // track input report
-            actionHistory.trackExistingInputReport(message.reportId)
+        // track input report
+        actionHistory.trackExistingInputReport(message.reportId)
 
-            val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
-            val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
 
-            receiverEndpoints.forEach { receiverEndpoint ->
-                val receiverName = receiverEndpoint.identifier[0].value
-                val receiver = settings.findReceiver(receiverName)
-                // We only process receivers that are active and for this pipeline.
-                if (receiver != null && receiver.topic == Topic.FULL_ELR) {
+        receiverEndpoints.forEach { receiverEndpoint ->
+            val receiverName = receiverEndpoint.identifier[0].value
+            val receiver = settings.findReceiver(receiverName)
+            // We only process receivers that are active and for this pipeline.
+            if (receiver != null && receiver.topic == Topic.FULL_ELR) {
+                try {
                     val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
                     val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
                     val bodyBytes = hl7Message.encode().toByteArray()
@@ -101,11 +101,11 @@ class FHIRTranslator(
                         finishedField = Tables.TASK.TRANSLATED_AT,
                         null
                     )
+                } catch (e: Exception) { // handle translation errors
+                    logger.error(e)
+                    actionLogger.error(InvalidReportMessage(e.message ?: ""))
                 }
             }
-        } catch (e: IllegalArgumentException) {
-            logger.error(e)
-            actionLogger.error(InvalidReportMessage(e.message ?: ""))
         }
     }
 
@@ -126,7 +126,7 @@ class FHIRTranslator(
     }
 
     /**
-     * Turn a fhir [bundle] into an hl7 message formatter for the [receiver] specified.
+     * Turn a fhir [bundle] into a hl7 message formatter for the [receiver] specified.
      * @return HL7 Message in the format required by the receiver
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
