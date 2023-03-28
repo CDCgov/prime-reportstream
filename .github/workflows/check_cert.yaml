@@ -1,0 +1,37 @@
+name: Check Key Vault Certificates Expiration
+
+on:
+  push: 
+    branches:
+      - feature/check-keyvauly-cert-expiration
+    
+  # schedule:
+  #   - cron: '0 8 * * *'
+
+jobs:
+  check-certificates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get Certificates Expiration
+        run: |
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
+
+      - name: Get Near Expiry Certificates
+        run: |
+          near_expiry_date=$(date -d "+10 days" -I)
+          near_expiry_certificates=$(az keyvault certificate list --vault-name mykeyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+
+          echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
