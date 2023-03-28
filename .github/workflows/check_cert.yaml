@@ -18,11 +18,10 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: ${{ matrix.env }}
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
+          user-crt: ${{ secrets.AZURE_USER }}
+          user-key: ${{ secrets.AZURE_USER_PASS }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get Certificates Expiration
