@@ -201,7 +201,7 @@ export function enhancedFactory<const Dictionary extends ModelDictionary>(
             },
             // Getters that return JSON serializable data. Entities from the original
             // functions could have metadata (symbol properties) that will fail an
-            // expect equal comparison.
+            // expect equal comparison with json data from its rest handler.
             getAllJson() {
                 return JSON.parse(JSON.stringify(this.getAll()));
             },
