@@ -20,7 +20,7 @@ const config: Config.InitialOptions = {
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
         "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
     ],
-    testEnvironment: "./config/fixJSDOMEnvironment.ts",
+    testEnvironment: "jsdom",
     transform: {
         "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$":
             "<rootDir>/config/jest/babelTransform.js",
