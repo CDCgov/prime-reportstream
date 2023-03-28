@@ -32,7 +32,7 @@ class MigratePublicKeys : SettingCommand(
 
     val doIt by option(
         "--doit",
-        help = "Save the modified Sender setting to the database (default is to just print the modified setting)"
+        help = "Save the modified Organization and senders settings to the database (default is to just print the modified setting)"
     ).flag(default = false)
 
     override fun run() {
