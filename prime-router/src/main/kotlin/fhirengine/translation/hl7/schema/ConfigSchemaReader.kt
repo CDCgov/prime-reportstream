@@ -84,7 +84,7 @@ object ConfigSchemaReader : Logging {
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
     ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
-        if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
+        if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
         val rawSchema = try {
             readOneYamlSchema(file.inputStream(), schemaClass)
         } catch (e: Exception) {
