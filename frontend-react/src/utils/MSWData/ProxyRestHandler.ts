@@ -31,9 +31,9 @@ export async function defaultProxyResolver(_: any, _1: any, ctx: any) {
  */
 export function getUnusedParams(path: string, handler: RestHandler) {
     const origParamKeys = Array.from(
-        handler.info.path.toString().matchAll(/:\w+/)
+        handler.info.path.toString().matchAll(/:\w+/g)
     ).map((m) => m[0]);
-    const pathParamKeys = Array.from(path.matchAll(/:\w+/)).map((m) => m[0]);
+    const pathParamKeys = Array.from(path.matchAll(/:\w+/g)).map((m) => m[0]);
     const unusedParams = without(origParamKeys, ...pathParamKeys);
 
     return unusedParams;
