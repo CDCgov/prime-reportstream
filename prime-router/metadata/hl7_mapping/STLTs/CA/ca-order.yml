@@ -1,0 +1,8 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+elements:
+  # Not required for CA
+  # if this is sent it triggers validation errors for fields we don't have
+  - name: ca-ordering-facility-identifier
+    value: ['']
+    hl7Spec: [ '%{hl7Order}-21-10']

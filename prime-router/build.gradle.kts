@@ -103,7 +103,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.2.2"
+val ktorVersion = "2.2.4"
 val kotlinVersion = "1.8.0"
 val jacksonVersion = "2.14.1"
 jacoco.toolVersion = "0.8.8"
@@ -723,11 +723,11 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.15.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.5.2") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.6.1") {
+    implementation("com.azure:azure-identity:1.7.3") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }

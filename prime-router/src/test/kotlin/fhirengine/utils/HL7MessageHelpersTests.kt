@@ -40,8 +40,8 @@ class HL7MessageHelpersTests {
         var result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                0 -> """^FHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> null
@@ -64,8 +64,8 @@ class HL7MessageHelpersTests {
         result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                0 -> """^FHS\|[^|]{4}\|[^|]+\|[^|]+\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{4}\|[^|]+\|[^|]+\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> {
@@ -110,13 +110,13 @@ class HL7MessageHelpersTests {
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             when (index) {
                 0 -> {
-                    val regex = """^FHS\|[^|]{4}\|hl7sendingApp\|\|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^FHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
 
                 1 -> {
-                    val regex = """^BHS\|[^|]{4}\|hl7sendingApp\|\|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^BHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
