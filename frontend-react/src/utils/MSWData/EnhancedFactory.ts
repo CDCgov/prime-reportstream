@@ -70,10 +70,13 @@ export function undefinable<T>(value: T) {
     });
 }
 
+export type RestHandlerMethods = "getList" | "get" | "post" | "put" | "delete";
+
 export type FactoryHandlerMap<T = unknown> = Record<
-    "getList" | "get" | "post" | "put" | "delete",
+    RestHandlerMethods,
     T
 >;
+
 export type PartialFactoryHandlerMap<T = unknown> = Partial<
     FactoryHandlerMap<T>
 >;
@@ -125,7 +128,7 @@ export const FactoryRestHandlerTupleMap = {
     2: "post",
     3: "put",
     4: "delete",
-} as const;
+} as const satisfies {[k: number]: RestHandlerMethods};
 
 export function factoryRestHandlerMapToTuple<const T>(
     map: PartialFactoryHandlerMap<T>
@@ -137,6 +140,17 @@ export function factoryRestHandlerMapToTuple<const T>(
         map[FactoryRestHandlerTupleMap[3]],
         map[FactoryRestHandlerTupleMap[4]],
     ];
+}
+
+export function factoryRestHandlerTupleToMap(tuple: RestHandler[]): FactoryHandlerMap<RestHandler> {
+    const [getListHandler, getHandler, postHandler, putHandler, deleteHandler] = tuple;
+    return {
+        getList: getListHandler,
+        get: getHandler,
+        post: postHandler,
+        put: putHandler,
+        delete: deleteHandler
+    };
 }
 
 /**
