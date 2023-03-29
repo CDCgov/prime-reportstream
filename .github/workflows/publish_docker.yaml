@@ -17,9 +17,9 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'workflow_dispatch'}}
-      # has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'}}
-      has_dnsmasq_change: true
+      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule'}}
+      #has_dnsmasq_change: true
     steps:
       - name: "Check out changes"
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
@@ -70,7 +70,7 @@ jobs:
   publish_dnsmasq:
     name: Publish dnsmasq
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' || github.event_name == 'schedule'}}
+    if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
