@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 
 import { AuthElement } from "../AuthElement";
@@ -15,7 +14,6 @@ export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 function ManagePublicKeySwitchDisplay() {
-    const navigate = useNavigate();
     // const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
@@ -31,10 +29,6 @@ function ManagePublicKeySwitchDisplay() {
             data = { file: null };
             return data;
         },
-    };
-
-    const handleBack = () => {
-        navigate(-1);
     };
 
     const handlePublicKeySubmit = async (
@@ -103,7 +97,6 @@ function ManagePublicKeySwitchDisplay() {
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
                     onFileChange={handleFileChange}
-                    onBack={handleBack}
                     file={file}
                 />
             )}

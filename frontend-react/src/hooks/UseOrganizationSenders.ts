@@ -33,5 +33,5 @@ export const useOrganizationSenders = () => {
         }
     );
 
-    return { senders: data, isLoading };
+    return { senders: data || [], isLoading };
 };

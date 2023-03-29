@@ -28,7 +28,7 @@ export default function ManagePublicKeyChooseSender({
     return (
         <div data-testid="ManagePublicKeyChooseSender">
             {isLoading && <Spinner message="Loading..." />}
-            {!isLoading && senders && senders?.length > 1 && (
+            {!isLoading && senders?.length > 1 && (
                 <Form name="sender-select" onSubmit={handleSubmit}>
                     <FormGroup>
                         <Dropdown

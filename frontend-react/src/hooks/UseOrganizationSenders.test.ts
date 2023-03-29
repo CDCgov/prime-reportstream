@@ -32,7 +32,7 @@ describe("useOrganizationSenders", () => {
             const { result } = renderHook(() => useOrganizationSenders(), {
                 wrapper: AppWrapper(),
             });
-            expect(result.current.senders).toEqual(undefined);
+            expect(result.current.senders).toEqual([]);
             expect(result.current.isLoading).toEqual(true);
         });
     });

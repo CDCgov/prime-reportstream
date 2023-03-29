@@ -10,7 +10,6 @@ describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
         onPublicKeySubmit: () => {},
         onFileChange: () => {},
-        onBack: () => {},
         file: null,
     };
 
@@ -32,7 +31,6 @@ describe("ManagePublicKeyUpload", () => {
 
         test("renders the input", () => {
             expect(screen.getByTestId("file-input-input")).toBeVisible();
-            expect(screen.getByText("Back")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
         });
     });
