@@ -210,7 +210,7 @@ describe("DBMock", () => {
                     db.organizationSettings.delete({where: {name: {equals: newRecord.name}}});
                     await window.fetch(path, {method: "POST", body: JSON.stringify(newRecord), headers: {"Content-Type": "application/json"}});
                     const record = db.organizationSettings.findFirstJson({where: {name: {equals: newRecord.name}}});
-                    expect(record).not.toBeNull();
+                    expect(record).toStrictEqual(newRecord);
                 }
             }
 
