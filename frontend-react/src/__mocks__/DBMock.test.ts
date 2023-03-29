@@ -136,6 +136,14 @@ describe("DBMock", () => {
                 args: ["https://localhost", undefined, { get: parentResolver }],
             },
             {
+                label: "parentResolver post",
+                args: [
+                    "https://localhost",
+                    undefined,
+                    { post: parentResolver },
+                ],
+            },
+            {
                 label: "relativePathMap and parentResolver getList",
                 args: [
                     "https://localhost",
@@ -149,6 +157,14 @@ describe("DBMock", () => {
                     "https://localhost",
                     { get: "/settings/organizations/:name" },
                     { get: parentResolver },
+                ],
+            },
+            {
+                label: "relativePathMap and parentResolver post",
+                args: [
+                    "https://localhost",
+                    { post: "/settings/organizations" },
+                    { post: parentResolver },
                 ],
             },
         ];
