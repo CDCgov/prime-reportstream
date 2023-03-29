@@ -127,7 +127,6 @@ export function ManagePublicKey() {
                     <ManagePublicKeyUpload
                         onPublicKeySubmit={handlePublicKeySubmit}
                         onFileChange={handleFileChange}
-                        onBack={handleBack}
                         file={file}
                     />
                 )}
