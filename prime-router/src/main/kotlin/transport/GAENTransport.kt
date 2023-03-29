@@ -247,7 +247,7 @@ class GAENTransport : ITransport, Logging {
                 // STLTs will handle the content error and request for resubmission.
                 // Then, the new GAEN message from regenerate and resend accordingly.
                 400, 409, 412 -> PostResult.SUCCESS // Bad parameters, Unsupported test type, and UUID already present
-                                                    // can not be rectified by re (consider this a success)
+                // can not be rectified by re (consider this a success)
                 429 -> PostResult.RETRY // Maintenance mode or quota limit
                 in 500..599 -> PostResult.RETRY // Server error
                 else -> PostResult.FAIL // Unexpected error code
