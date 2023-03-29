@@ -29,7 +29,7 @@ class MigratePublicKeys : SettingCommand(
     private val orgName by option(
         "--orgName",
         metavar = "<organization>",
-        help = "Specify the name of the organization that should it's sender keys migrated"
+        help = "Specify the name of the organization that should have it's sender keys migrated"
     ).required()
 
     private val useJson by jsonOption
