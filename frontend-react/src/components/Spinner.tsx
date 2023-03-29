@@ -43,7 +43,7 @@ function Spinner({
                         className="margin-x-auto tablet:grid-col-5 line-height-sans-6"
                         data-testid="spinner-message"
                     >
-                        <p>{message}</p>
+                        <span>{message}</span>
                     </div>
                 </div>
             )}

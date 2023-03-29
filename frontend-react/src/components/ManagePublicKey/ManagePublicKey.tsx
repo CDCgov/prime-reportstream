@@ -84,15 +84,15 @@ function ManagePublicKeySwitchDisplay() {
 
     return (
         <>
-            {/*Waiting on backend to support this*/}
-            {/*{sender.length === 0 && (*/}
-            {/*    <ManagePublicKeyChooseSender*/}
-            {/*        onSenderSelect={(selectedSender: string) =>*/}
-            {/*            setSender(selectedSender)*/}
-            {/*        }*/}
-            {/*    />*/}
-            {/*)}*/}
-            {/*{sender && !fileSubmitted && (*/}
+            {/*Waiting on backend to support this
+            {sender.length === 0 && (
+                <ManagePublicKeyChooseSender
+                    onSenderSelect={(selectedSender: string) =>
+                        setSender(selectedSender)
+                    }
+                />
+            )}
+            {sender && !fileSubmitted && (*/}
             {!fileSubmitted && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}

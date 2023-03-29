@@ -42,7 +42,7 @@ describe("ManagePublicKeyUpload", () => {
             });
         });
 
-        test("enables the submit", async () => {
+        test("enables the submit", () => {
             expect(screen.queryByText("Submit")).toBeEnabled();
         });
 

@@ -40,24 +40,19 @@ export const validateFileType = (
     fileExt: string,
     mimeType: string
 ) => {
-    try {
-        // look at the filename extension.
-        const fileNameArray = file.name.split(".");
-        const uploadFileExtension = fileNameArray[fileNameArray.length - 1];
+    // look at the filename extension.
+    const fileNameArray = file.name.split(".");
+    const uploadFileExtension = fileNameArray[fileNameArray.length - 1];
 
-        if (uploadFileExtension.toUpperCase() !== fileExt) {
-            return `The file extension must be of type .'${fileExt.toLowerCase()}'`;
-        }
-
-        if (file.type !== mimeType) {
-            return `The file MIME type must be of type .'${mimeType}'`;
-        }
-
-        return;
-    } catch (err: any) {
-        console.warn(err);
-        return `An unexpected error happened: '${err.toString()}'`;
+    if (uploadFileExtension.toUpperCase() !== fileExt) {
+        return `The file extension must be of type .'${fileExt.toLowerCase()}'`;
     }
+
+    if (file.type !== mimeType) {
+        return `The file MIME type must be of type .'${mimeType}'`;
+    }
+
+    return;
 };
 
 export const validateFileSize = (file: File) => {
