@@ -105,6 +105,7 @@ export default function FileHandlerFileUploadStep({
     ) {
         // TODO: consolidate with upcoming FileUtils generic function
         if (!event?.target?.files?.length) {
+            onFileSubmitError();
             return;
         }
         const selectedFile = event.target.files.item(0)!!;
