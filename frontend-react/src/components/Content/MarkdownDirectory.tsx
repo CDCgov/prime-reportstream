@@ -14,6 +14,8 @@ export abstract class ContentDirectory {
     root: string = "";
     slug: string = "";
     desc: string = "";
+    section: string = "";
+
     setTitle(title: string) {
         this.title = title;
         return this;
@@ -28,6 +30,10 @@ export abstract class ContentDirectory {
     }
     setDescription(description: string) {
         this.desc = description;
+        return this;
+    }
+    setSection(section: string) {
+        this.section = section;
         return this;
     }
 }

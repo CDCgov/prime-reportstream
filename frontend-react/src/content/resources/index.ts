@@ -19,6 +19,58 @@ import {
     GettingStartedSubmittingDataMd,
 } from "../../pages/resources/markdown-adapters";
 
+export interface IASection {
+    key: string;
+    label: string;
+}
+
+export function directoryArrayToMap(
+    dirs: ElementDirectory[],
+    sections: Record<string, IASection>
+) {
+    const dirMap = new Map();
+    for (const dir of dirs) {
+        const section = sections[dir.section];
+        if (!dirMap.get(section)) {
+            dirMap.set(section, []);
+        }
+
+        const mapArr = dirMap.get(section);
+        dirMap.set(section, [...mapArr, dir]);
+    }
+
+    return dirMap;
+}
+
+export const RESOURCE_INDEX_SECTIONS = {
+    DEFAULT: "",
+    TESTING_FACILITIES: "TESTING_FACILITIES",
+    PUBLIC_HEALTH_DEPARTMENTS: "PUBLIC_HEALTH_DEPARTMENTS",
+} as const;
+
+export type ResourceIndexSections = keyof typeof RESOURCE_INDEX_SECTIONS;
+
+export const resourceIndexSections: Record<
+    (typeof RESOURCE_INDEX_SECTIONS)[ResourceIndexSections],
+    {
+        key: (typeof RESOURCE_INDEX_SECTIONS)[ResourceIndexSections];
+        label: string;
+    }
+> = {
+    [RESOURCE_INDEX_SECTIONS.DEFAULT]: {
+        key: RESOURCE_INDEX_SECTIONS.DEFAULT,
+        label: "",
+    },
+    [RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS]: {
+        key: RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS,
+        label: "For public health departments",
+    },
+    [RESOURCE_INDEX_SECTIONS.TESTING_FACILITIES]: {
+        key: RESOURCE_INDEX_SECTIONS.TESTING_FACILITIES,
+        label: "For testing facilities",
+    },
+};
+
 export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
     DOWNLOAD_GUIDE = "Manual data download guide",
@@ -80,7 +132,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.ACCOUNT_REGISTRATION
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.GETTING_STARTED_PHD)
         .setSlug(
@@ -98,7 +151,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.GETTING_STARTED_PHD
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA)
         .setSlug(
@@ -116,7 +170,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.TESTING_FACILITIES),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.ELR_CHECKLIST)
         .setSlug(
@@ -132,7 +187,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.ELR_CHECKLIST
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.PROGRAMMERS_GUIDE)
         .setSlug(
@@ -150,7 +206,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.PROGRAMMERS_GUIDE
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.TESTING_FACILITIES),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(
@@ -164,7 +221,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.DOWNLOAD_GUIDE
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.REFERRAL_GUIDE)
         .setSlug(
@@ -180,7 +238,8 @@ export const resourcesDirectories = [
                     ResourcesDirectories.REFERRAL_GUIDE
                 )
             )
-        ),
+        )
+        .setSection(RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.SYSTEM)
         .setSlug(ResourcesDirectoryTools.getSlug(ResourcesDirectories.SYSTEM))

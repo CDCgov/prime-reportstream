@@ -4,19 +4,29 @@ import { USNavLink } from "../../USLink";
 /** Takes an array of ContentDirectories and returns a gird list of IACards
  * with navigation links to the directories, and descriptions.
  * @param dirs {ContentDirectory[]} A list of Markdown and Element directories */
-export const IACardList = ({ dirs }: { dirs: ContentDirectory[] }) => {
+export const IACardList = ({
+    dirs,
+    order = [],
+}: {
+    dirs: ContentDirectory[];
+    order?: number[];
+}) => {
     return (
         <ul className="usa-card-group">
             {dirs.map((res, idx) => (
-                <IACard dir={res} key={idx} />
+                <IACard
+                    dir={res}
+                    key={res.slug}
+                    style={{ order: order[idx] }}
+                />
             ))}
         </ul>
     );
 };
 
-const IACard = ({ dir }: { dir: ContentDirectory }) => {
+const IACard = ({ dir, style }: { dir: ContentDirectory; style?: {} }) => {
     return (
-        <li className="usa-card tablet:grid-col-4">
+        <li className="usa-card tablet:grid-col-4" style={style}>
             <div className="usa-card__container">
                 <div className="usa-card__header padding-top-1">
                     <USNavLink className={"usa-link"} href={dir.slug}>

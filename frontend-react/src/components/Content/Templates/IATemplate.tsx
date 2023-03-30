@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { IACardGridTemplate } from "./IACardGridTemplate";
 import IASideNavTemplate from "./IASideNavTemplate";
 import { IAMeta, IARouter } from "./IAMeta";
+import { IAComponentProps } from "./IAComponentProps";
 
 /** Template names! Add the universal template key here whenever
  * you make a new template. */
@@ -11,7 +12,9 @@ export enum TemplateName {
     SIDE_NAV = "side-nav",
 }
 
-export interface IATemplateProps<P> {
+export interface IATemplateProps<
+    P extends IAComponentProps = IAComponentProps
+> {
     pageName: string;
     subtitle: string;
     templateKey: TemplateName;
@@ -27,7 +30,13 @@ export const IATemplate = ({
     templateKey,
     templateProps,
     includeRouter,
-}: IATemplateProps<any>) => {
+}: IATemplateProps) => {
+    const dirArr =
+        templateProps.directories instanceof Map
+            ? Array.from(
+                  new Set(Array.from(templateProps.directories.values()).flat())
+              )
+            : templateProps.directories;
     const template = useMemo(() => {
         switch (templateKey) {
             case TemplateName.CARD_GRID:
@@ -49,10 +58,7 @@ export const IATemplate = ({
              we provide the IARouter component, and use your template as the
              index of this section */}
             {includeRouter && templateProps.directories ? (
-                <IARouter
-                    indexElement={template}
-                    directories={templateProps.directories}
-                />
+                <IARouter indexElement={template} directories={dirArr} />
             ) : (
                 /* When your template has its own routing, we just render the
                  * template */

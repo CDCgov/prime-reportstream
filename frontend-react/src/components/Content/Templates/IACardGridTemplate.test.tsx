@@ -7,11 +7,8 @@ import {
 } from "../PageGenerationTools";
 import { ContentDirectory, ElementDirectory } from "../MarkdownDirectory";
 
-import {
-    ContentMap,
-    IACardGridProps,
-    IACardGridTemplate,
-} from "./IACardGridTemplate";
+import { IACardGridProps, IACardGridTemplate } from "./IACardGridTemplate";
+import { ContentMap } from "./IAComponentProps";
 
 // Set up page titles
 enum TestDirPages {

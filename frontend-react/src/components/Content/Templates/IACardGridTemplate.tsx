@@ -1,12 +1,12 @@
 import { ContentDirectory } from "../MarkdownDirectory";
 
 import { IACardList } from "./IACard";
+import { ContentMap, IAComponentProps } from "./IAComponentProps";
 
-export type ContentMap = Map<string, ContentDirectory[]>; // Key should be section title
-export interface IACardGridProps {
+export interface IACardGridProps extends IAComponentProps {
     pageName: string;
     subtitle: string;
-    directories: ContentDirectory[] | ContentMap;
+    sectionOrder?: string[];
 }
 
 const ArraySection = ({
@@ -15,27 +15,71 @@ const ArraySection = ({
 }: {
     dirs: ContentDirectory[];
     title?: string;
-}) => (
-    <section>
-        {title ? <h3>{title}</h3> : null}
-        <IACardList dirs={dirs} />
-    </section>
-);
+}) => {
+    const dirsSorted = dirs.sort(function (a, b) {
+        if (a.title < b.title) {
+            return -1;
+        }
+        if (a.title > b.title) {
+            return 1;
+        }
+        return 0;
+    });
+    const order = dirs.map((d) => dirsSorted.indexOf(d) + 1);
 
-const MapSections = ({ cMap }: { cMap: ContentMap }) => {
-    const arraySections: JSX.Element[] = [];
-    cMap.forEach((value, key) =>
-        arraySections.push(
-            <ArraySection dirs={value!!} title={key} key={key} />
-        )
+    return (
+        <section>
+            {title ? <h2>{title}</h2> : null}
+            <IACardList dirs={dirs} order={order} />
+        </section>
     );
-    return <>{arraySections}</>;
+};
+
+const MapSections = ({
+    cMap,
+    order = Array.from(
+        new Set(
+            Array.from(cMap.values())
+                .flat()
+                .map((d) => d.section)
+        )
+    ),
+}: {
+    cMap: ContentMap;
+    order?: string[];
+}) => {
+    const cMapEntries = Array.from(cMap.entries());
+    const sections = order.map((k) => {
+        const entry = cMapEntries.find(([eK, _]) =>
+            typeof eK === "string" ? eK === k : eK.key === k
+        );
+
+        if (entry === undefined) {
+            throw new Error("Could not find dirs for section");
+        }
+
+        const [section, dirs] = entry;
+        let title, key;
+
+        if (typeof section === "string") {
+            title = section;
+            key = section;
+        } else {
+            title = section.label;
+            key = section.key;
+        }
+
+        return <ArraySection dirs={dirs!!} title={title} key={key} />;
+    });
+
+    return <>{sections}</>;
 };
 
 export const IACardGridTemplate = ({
     pageName,
     subtitle,
     directories,
+    sectionOrder,
 }: IACardGridProps) => {
     const contentIsMapped = directories instanceof Map;
     return (
@@ -51,7 +95,7 @@ export const IACardGridTemplate = ({
                     {!contentIsMapped ? (
                         <ArraySection dirs={directories} />
                     ) : (
-                        <MapSections cMap={directories} />
+                        <MapSections cMap={directories} order={sectionOrder} />
                     )}
                 </div>
             </div>
