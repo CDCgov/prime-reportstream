@@ -859,6 +859,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
       transport:
         type: SFTP
         host: sftp

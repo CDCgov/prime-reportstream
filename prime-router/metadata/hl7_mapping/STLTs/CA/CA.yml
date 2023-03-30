@@ -89,10 +89,11 @@ elements:
     resource: 'Bundle'
     value: [ '"CLIA"' ]
 
-  - name: processing-id
-    condition: true
+  - name: ca-processing-id
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103").exists().not()'
     resource: 'Bundle'
-    value: [ '"P"' ]
+    value: [ '"T"' ]
+    hl7Spec: [ MSH-11-1 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
