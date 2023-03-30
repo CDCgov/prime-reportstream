@@ -2,7 +2,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
-import { RSReceiver } from "../config/endpoints/settings";
+import { RSReceiver, RSSender } from "../config/endpoints/settings";
 
 const base = `${config.API_ROOT}/settings/organizations`;
 const getSender = (org: string, sender: string) =>
@@ -31,6 +31,28 @@ export const fakeOrg = {
     stateCode: "TC",
 };
 
+/** TEST UTILITY - generates `RSSenders[]`, each with a unique `name` (starting from "elr-0")
+ *
+ * @param count {number} How many unique senders you want. */
+export const sendersGenerator = (count: number) => {
+    const senders: RSSender[] = [];
+    for (let i = 0; i < count; i++) {
+        senders.push({
+            name: `elr-${i}`,
+            organizationName: "testOrg",
+            format: "CSV",
+            topic: "covid-19",
+            customerStatus: "testing",
+            schemaName: "test/covid-19-test",
+            allowDuplicates: false,
+            processingType: "sync",
+        });
+    }
+    return senders;
+};
+
+export const dummySenders = sendersGenerator(5);
+
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
  *
  * @param count {number} How many unique receivers you want. */
@@ -54,6 +76,9 @@ const handlers = [
     }),
     rest.get(testSender, (req, res, ctx) => {
         return res(ctx.json(dummySender), ctx.status(200));
+    }),
+    rest.get(`${base}/testOrg/senders`, (req, res, ctx) => {
+        return res(ctx.json(dummySenders), ctx.status(200));
     }),
     rest.get(firstSender, (req, res, ctx) => {
         return res(ctx.status(200));
