@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - feature/update-dns-container-monthly
   schedule:
     - cron:  "0 0 1 * *"
 
