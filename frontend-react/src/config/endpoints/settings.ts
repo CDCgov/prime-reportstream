@@ -88,9 +88,9 @@ export const servicesEndpoints: RSApiEndpoints = {
         method: HTTPMethods.GET,
         queryKey: "publicKeys",
     }),
-    updatePublicKey: new RSEndpoint({
+    createPublicKey: new RSEndpoint({
         path: ServicesUrls.PUBLIC_KEYS,
         method: HTTPMethods.POST,
-        queryKey: "updatePublicKey",
+        queryKey: "createPublicKey",
     }),
 };

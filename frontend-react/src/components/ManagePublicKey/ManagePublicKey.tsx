@@ -11,28 +11,20 @@ import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
+import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export function ManagePublicKey() {
+    // Waiting on backend to support this
     // const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
     const [fileSaved, setFileSaved] = useState(false);
 
-    // TODO: mocked for now - make the call you need when sending the file
-    const { sendFile } = {
-        sendFile: (data: {
-            contentType?: string;
-            fileContent?: string;
-            file?: File | null;
-        }) => {
-            data = { file: null };
-            return data;
-        },
-    };
+    const { mutateAsync, isLoading } = useCreateOrganizationPublicKey();
 
     const handlePublicKeySubmit = async (
         event: React.FormEvent<HTMLFormElement>
@@ -45,13 +37,16 @@ export function ManagePublicKey() {
         }
 
         try {
-            sendFile({
+            const response = await mutateAsync({
                 contentType: CONTENT_TYPE,
                 fileContent: fileContent,
-                file: file,
+                fileName: file?.name || "",
+                format: FORMAT,
             });
-            setFileSubmitted(true);
-            setFileSaved(true);
+            if (response) {
+                setFileSubmitted(true);
+                setFileSaved(true);
+            }
         } catch (e: any) {
             showError(`Uploading public key failed. ${e.toString()}`);
         }
