@@ -6,6 +6,9 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -13,6 +16,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
@@ -48,6 +52,63 @@ class FhirTransformerTests {
     private fun verifyErrorAndResetLogger(logger: KotlinLogger) {
         verify(exactly = 1) { logger.error(any<String>()) }
         clearMocks(logger, answers = false)
+    }
+
+    @Test
+    fun `test get value`() {
+        val mockSchema = mockk<FhirTransformSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val customContext = CustomContext(bundle, bundle)
+        val converter = FhirTransformer(mockSchema)
+
+        var element = FhirTransformSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(IdType(bundle.id))
+
+        element = FhirTransformSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.id"))
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(IdType(bundle.id))
+
+        element = FhirTransformSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.timestamp"))
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
+    }
+
+    @Test
+    fun `test get value from value set`() {
+        val mockSchema = mockk<FhirTransformSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "stagnatious"
+        val customContext = CustomContext(bundle, bundle)
+        val converter = FhirTransformer(mockSchema)
+
+        val valueSet = sortedMapOf(
+            Pair("Stagnatious", "S"), // casing should not matter
+            Pair("grompfle", "G")
+        )
+
+        var element = FhirTransformSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        var value = converter.getValue(element, bundle, bundle, customContext)
+        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
+        assertThat(value?.primitiveValue()).isEqualTo("S")
+
+        bundle.id = "grompfle"
+        element = FhirTransformSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        value = converter.getValue(element, bundle, bundle, customContext)
+        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
+        assertThat(value?.primitiveValue()).isEqualTo("G")
+
+        bundle.id = "GRompfle" // verify case insensitivity
+        element = FhirTransformSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        value = converter.getValue(element, bundle, bundle, customContext)
+        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
+        assertThat(value?.primitiveValue()).isEqualTo("G")
+
+        bundle.id = "unmapped"
+        element = FhirTransformSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
+        value = converter.getValue(element, bundle, bundle, customContext)
+        assertThat(value).isNull()
+
+        element = FhirTransformSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
+        assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
     }
 
     @Test
@@ -321,6 +382,48 @@ class FhirTransformerTests {
                 "Bundle.entry.resource.ofType(Patient).contact.name.text"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("abc123")
+    }
+
+    @Test
+    fun `test transform with value set`() {
+        val bundle = Bundle()
+        bundle.id = "bundle1"
+        val resource = Patient()
+        resource.addName(HumanName().setTextElement(StringType("abc123")))
+        bundle.addEntry().resource = resource
+        val resource2 = Patient()
+        resource2.addName(HumanName().setTextElement(StringType("def456")))
+        bundle.addEntry().resource = resource2
+        val resource3 = Patient()
+        resource3.addName(HumanName().setTextElement(StringType("jkl369")))
+        bundle.addEntry().resource = resource3
+
+        val patientElement = FhirTransformSchemaElement(
+            "patientElement",
+            value = listOf("%resource.name.text"),
+            resource = "%resource",
+            bundleProperty = "%resource.name.text",
+            valueSet = sortedMapOf(
+                Pair("abc123", "ghi789"),
+                Pair("def456", "")
+            )
+        )
+        val childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
+
+        val elemA = FhirTransformSchemaElement(
+            "elementA",
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            schemaRef = childSchema,
+            resourceIndex = "patientIndex",
+        )
+
+        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        FhirTransformer(schema).transform(bundle)
+
+        assertThat(resource.name[0].text).isEqualTo("ghi789")
+        assertThat(resource2.name[0].text).isEqualTo("")
+        assertThat(resource3.name[0].text).isEqualTo("jkl369")
     }
 
     @Test

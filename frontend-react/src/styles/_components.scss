@@ -18,32 +18,32 @@ hr {
         user-select: none;
         background-color: color('gray-5');
     }
-    
+
     .usa-table thead th.active-col-header {
         background-color: color('blue-30');
     }
-    
+
     .usa-table td.active-col-td {
         background-color: color('blue-10');
     }
-    
+
     .usa-table thead .column-header-title-container {
         display: flex;
         align-items: center;
     }
-    
+
     .usa-table thead .column-header-title-container p {
         font-size: 14px;
         margin: 0;
     }
-    
+
     .usa-table thead .column-header-title-container svg {
         flex: none;
         margin-left: 2px;
         height: 28px;
         width: 28px;
     }
-    
+
     .usa-table td.message-receiver-break-word {
         cursor: pointer;
         max-width: 0;
@@ -51,7 +51,7 @@ hr {
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
+
     .usa-table td {
         font-size: 14px;
         padding: 1rem;
@@ -78,5 +78,11 @@ hr {
     .usa-accordion--bordered .usa-accordion__content {
         border-color: color('primary');
         border-width: medium;
+    }
+}
+
+.manage-public-key {
+    .usa-icon {
+        font-size: 20px;
     }
 }
