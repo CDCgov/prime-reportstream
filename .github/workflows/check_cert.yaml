@@ -5,9 +5,6 @@ on:
     branches:
       - feature/check-keyvauly-cert-expiration
     
-  # schedule:
-  #   - cron: '0 8 * * *'
-
 jobs:
   check-certificates:
     runs-on: ubuntu-latest
@@ -20,8 +17,8 @@ jobs:
         with:
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.AZURE_USER }}
-          user-key: ${{ secrets.AZURE_USER_PASS }}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Get Certificates Expiration
