@@ -23,7 +23,7 @@ export const UseOrganizationPublicKeys = () => {
         () =>
             authorizedFetch(publicKeys, {
                 segments: {
-                    orgName: activeMembership?.parsedName!!,
+                    organizationName: activeMembership?.parsedName!!,
                 },
             }),
         [activeMembership?.parsedName, authorizedFetch]
