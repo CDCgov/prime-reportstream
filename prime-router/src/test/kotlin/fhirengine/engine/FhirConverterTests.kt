@@ -3,6 +3,8 @@ package gov.cdc.prime.router.fhirengine.engine
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -20,6 +22,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -112,9 +115,15 @@ class FhirConverterTests {
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender",
+                "test-schema"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -126,8 +135,9 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }.returns(Unit)
+        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -136,6 +146,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromHL7(any(), any())
             actionHistory.trackExistingInputReport(any())
+            transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
@@ -150,10 +161,15 @@ class FhirConverterTests {
         // set up
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message =
-            spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender",
+                "test-schema"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -168,6 +184,8 @@ class FhirConverterTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -176,6 +194,7 @@ class FhirConverterTests {
         verify(exactly = 1) {
             engine.getContentFromFHIR(any(), any())
             actionHistory.trackExistingInputReport(any())
+            transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             queueMock.sendMessage(any(), any())
@@ -222,5 +241,18 @@ class FhirConverterTests {
 
         val result = engine.getContentFromFHIR(message, actionLogger)
         assertThat(result).isNotEmpty()
+    }
+
+    @Test
+    fun `test getTransformerFromSchema`() {
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+
+        assertThat(
+            engine.getTransformerFromSchema("")
+        ).isNull()
+
+        assertThat(
+            engine.getTransformerFromSchema("src/test/resources/fhir_sender_transforms/sample_schema")
+        ).isNotNull()
     }
 }
