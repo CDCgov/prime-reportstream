@@ -1,10 +1,14 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -24,6 +28,7 @@ import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.json.JSONObject
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.security.InvalidParameterException
@@ -282,7 +287,7 @@ class ValidateFunctionTests {
     }
 
     @Test
-    fun `test processFunction`() {
+    fun `test processFunction with disallowed duplicate records`() {
         // setup steps
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -294,8 +299,7 @@ class ValidateFunctionTests {
             "Test Sender",
             "test",
             Sender.Format.CSV,
-            schemaName =
-            "one",
+            schemaName = "one",
             allowDuplicates = false
         )
 
@@ -313,7 +317,153 @@ class ValidateFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
-        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+        assert(resp.status.equals(HttpStatus.OK))
+    }
+
+    @Test
+    fun `test processFunction with only validation errors`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one",
+            allowDuplicates = true
+        )
+
+        val req = MockHttpRequestMessage("")
+
+        every { validateFunc.validateRequest(any()) }.throws(
+            ActionError(
+                ActionLog(
+                    InvalidReportMessage("Your file is bad, please fix"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    ActionLogLevel.error
+                )
+            )
+        )
+
+        // act
+        val resp = validateFunc.processRequest(req, sender)
+
+        // assert
+        assert(resp.status.equals(HttpStatus.OK))
+        val body = JSONObject(resp.body.toString())
+        assertEquals(body.getString("overallStatus"), "Error")
+
+        val errors = body.getJSONArray("errors")
+        assertEquals(errors.length(), 1)
+        assertEquals((errors[0] as JSONObject).getString("message"), "Your file is bad, please fix")
+    }
+
+    @Test
+    fun `test processFunction with only validation warnings`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one",
+            allowDuplicates = true
+        )
+
+        val req = MockHttpRequestMessage("")
+
+        every { validateFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
+            "", // empty string results in a 'no reports' warning
+            sender = sender
+        )
+
+        // act
+        val resp = validateFunc.processRequest(req, sender)
+
+        // assert
+        assert(resp.status.equals(HttpStatus.OK))
+        val body = JSONObject(resp.body.toString())
+        assertEquals(body.getString("overallStatus"), "Valid")
+
+        val errors = body.getJSONArray("errors")
+        assertEquals(errors.length(), 0)
+
+        val warnings = body.getJSONArray("warnings")
+        assertEquals(warnings.length(), 1)
+        assertEquals((warnings[0] as JSONObject).getString("message"), "No reports were found in CSV content")
+    }
+
+    @Test
+    fun `test processFunction with validation errors and warnings`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName = "one",
+            allowDuplicates = true
+        )
+
+        val req = MockHttpRequestMessage("")
+
+        every { validateFunc.validateRequest(any()) }.throws(
+            ActionError(
+                ActionLog(
+                    InvalidReportMessage("Your file is bad, please fix"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    ActionLogLevel.error
+                )
+            )
+        )
+
+        // need to explicitly add a warning-level log since we're throwing an ActionError
+        actionHistory.trackLogs(
+            ActionLog(
+                InvalidReportMessage("Your file could be better"),
+                null,
+                null,
+                null,
+                null,
+                ActionLogLevel.warning
+            )
+        )
+
+        // act
+        val resp = validateFunc.processRequest(req, sender)
+
+        // assert
+        assert(resp.status.equals(HttpStatus.OK))
+        val body = JSONObject(resp.body.toString())
+        assertEquals(body.getString("overallStatus"), "Error")
+
+        val errors = body.getJSONArray("errors")
+        assertEquals(errors.length(), 1)
+        assertEquals((errors[0] as JSONObject).getString("message"), "Your file is bad, please fix")
+
+        val warnings = body.getJSONArray("warnings")
+        assertEquals(warnings.length(), 1)
+        assertEquals((warnings[0] as JSONObject).getString("message"), "Your file could be better")
     }
 
     @Test

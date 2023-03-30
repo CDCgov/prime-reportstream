@@ -199,6 +199,11 @@ abstract class ConfigSchemaElement(
             addError("Value property is required when using a value set")
         }
 
+        // value set keys and values cannot be null
+        if (valueSet.keys.any { it == null } || valueSet.values.any { it == null }) {
+            addError("Value sets cannot contain null values")
+        }
+
         if (!schema.isNullOrBlank() && schemaRef == null) {
             addError("Missing schema reference for '$schema'")
         }
