@@ -1,6 +1,7 @@
 // Storage accounts for trial/test frontend deployments
 resource "azurerm_storage_account" "storage_trials" {
   for_each = local.trial_env ? toset(local.trial_accounts) : []
+  #checkov:skip=CKV_AZURE_206: "Ensure that Storage Accounts use replication"
 
   resource_group_name       = var.resource_group
   name                      = "${var.resource_prefix}publictrial${each.value}"
