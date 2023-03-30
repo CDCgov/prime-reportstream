@@ -770,12 +770,11 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = CovidSender(
+        val sender = FullELRSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
-            schemaName =
-            "one",
+            schemaName = "one",
             allowDuplicates = false,
             customerStatus = CustomerStatus.ACTIVE
         )
@@ -819,6 +818,7 @@ class SubmissionReceiverTests {
     fun `test ELR receiver validateAndMoveToProcessing, inactive sender`() {
         testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7, hl7_record)
     }
+
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, HL7_BATCH format with header`() {
         testELRReceiverValidateAndMoveToProcessing(Report.Format.HL7_BATCH, hl7_record_batch_headers)
@@ -1059,12 +1059,11 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = CovidSender(
+        val sender = FullELRSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
-            schemaName =
-            "one",
+            schemaName = "one",
             allowDuplicates = true
         )
         val actionLogs = ActionLogger()
