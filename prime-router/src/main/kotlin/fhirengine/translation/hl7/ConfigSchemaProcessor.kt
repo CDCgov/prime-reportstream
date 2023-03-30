@@ -72,7 +72,7 @@ abstract class ConfigSchemaProcessor : Logging {
             }
         }
 
-        // when valueSet is available, use the matching value else return null (do not perform a FHIR transform)
+        // when valueSet is available, return mapped value or null if match isn't found
         // does a lowerCase comparison
         if (retVal != null && element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }

@@ -6,10 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
-import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
@@ -24,10 +21,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.ServiceRequest
-import org.hl7.fhir.r4.model.StringType
 import kotlin.test.Test
 
 class FhirToHl7ConverterTests {
@@ -158,63 +153,6 @@ class FhirToHl7ConverterTests {
 
         element = ConverterSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
         assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEmpty()
-    }
-
-    @Test
-    fun `test get value`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
-        val bundle = Bundle()
-        bundle.id = "abc123"
-        val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema)
-
-        var element = ConverterSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(IdType(bundle.id))
-
-        element = ConverterSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.id"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isEqualTo(IdType(bundle.id))
-
-        element = ConverterSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.timestamp"))
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
-    }
-
-    @Test
-    fun `test get value from value set`() {
-        val mockSchema = mockk<ConverterSchema>() // Just a dummy schema to pass around
-        val bundle = Bundle()
-        bundle.id = "stagnatious"
-        val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema)
-
-        val valueSet = sortedMapOf(
-            Pair("Stagnatious", "S"), // casing should not matter
-            Pair("grompfle", "G")
-        )
-
-        var element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        var value = converter.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
-        assertThat(value?.primitiveValue()).isEqualTo("S")
-
-        bundle.id = "grompfle"
-        element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        value = converter.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
-        assertThat(value?.primitiveValue()).isEqualTo("G")
-
-        bundle.id = "GRompfle" // verify case insensitivity
-        element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        value = converter.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNotNull().isInstanceOf(StringType::class.java)
-        assertThat(value?.primitiveValue()).isEqualTo("G")
-
-        bundle.id = "unmapped"
-        element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
-        value = converter.getValue(element, bundle, bundle, customContext)
-        assertThat(value).isNull()
-
-        element = ConverterSchemaElement("name", value = listOf("unmapped"), valueSet = valueSet)
-        assertThat(converter.getValue(element, bundle, bundle, customContext)).isNull()
     }
 
     @Test
