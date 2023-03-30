@@ -256,6 +256,7 @@ class ELRReceiver : SubmissionReceiver {
         payloadName: String?,
         metadata: Metadata?
     ) {
+        check(sender is FullELRSender)
         val actionLogs = ActionLogger()
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
         // check that our input is valid HL7. Additional validation will happen at a later step
@@ -341,7 +342,8 @@ class ELRReceiver : SubmissionReceiver {
                     report.id,
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),
-                    sender.fullName
+                    sender.fullName,
+                    sender.schemaName,
                 ).serialize()
             )
         }

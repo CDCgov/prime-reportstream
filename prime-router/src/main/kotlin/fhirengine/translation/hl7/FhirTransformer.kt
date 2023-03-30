@@ -36,10 +36,8 @@ class FhirTransformer(
     constructor(
         schema: String,
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(
-            FilenameUtils.getName(schema),
-            FilenameUtils.getPathNoEndSeparator(schema)
-        ),
+        schema = FilenameUtils.getName(schema),
+        schemaFolder = FilenameUtils.getPathNoEndSeparator(schema)
     )
 
     /**
