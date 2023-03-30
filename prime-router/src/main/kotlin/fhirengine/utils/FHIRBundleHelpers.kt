@@ -17,6 +17,8 @@ import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
@@ -181,12 +183,13 @@ object FHIRBundleHelpers {
         // Go through every resource and check if the resource has a reference to the resource being deleted
         // if there is remove the reference
         allResources.forEach { res ->
-            res.resource.getResourceProperties().forEach { property ->
-                property.values.forEach {
-                    if (it is Reference && it.reference == resource.idBase) {
-                        it.reference = null
-                        it.resource = null
-                    }
+            res.resource::class.memberProperties.forEach { it ->
+                it.isAccessible = true
+                val value = it.getter.call(res.resource)
+                if (value is MutableList<*>) {
+                    value.removeIf { it is Reference && it.reference == resource.idBase }
+                } else if (value is Reference) {
+                    value.reference = null
                 }
             }
         }
