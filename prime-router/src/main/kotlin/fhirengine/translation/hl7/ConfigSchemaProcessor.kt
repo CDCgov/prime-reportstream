@@ -6,6 +6,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.StringType
 
 abstract class ConfigSchemaProcessor : Logging {
 
@@ -40,7 +41,7 @@ abstract class ConfigSchemaProcessor : Logging {
 
         // when valueSet is available, use the matching value else just pass the value as is
         // does a lowerCase comparison
-        if (element.valueSet.isNotEmpty()) {
+        if (retVal.isNotBlank() && element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
             retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
         }
@@ -71,15 +72,15 @@ abstract class ConfigSchemaProcessor : Logging {
             }
         }
 
-        // when valueSet is available, use the matching value else just pass the value as is
+        // when valueSet is available, return mapped value or null if match isn't found
         // does a lowerCase comparison
-        if (element.valueSet.isNotEmpty()) {
+        if (retVal != null && element.valueSet.isNotEmpty()) {
             val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
             val valStr = lowerSet[retVal?.primitiveValue()?.lowercase() ?: ""]
-            if (valStr != null) {
-                val value = FhirPathUtils.evaluate(context, focusResource, bundle, valStr)
-                if (value.isNotEmpty())
-                    retVal = value[0]
+            retVal = if (valStr != null) {
+                StringType(valStr)
+            } else {
+                null
             }
         }
         return retVal

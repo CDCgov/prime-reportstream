@@ -290,6 +290,13 @@ class ConfigSchemaReaderTests {
 
         assertThat {
             fhirTransformSchemaFromFile(
+                "invalid_value_set",
+                "src/test/resources/fhir_sender_transforms",
+            )
+        }.isFailure()
+
+        assertThat {
+            fhirTransformSchemaFromFile(
                 "incomplete_schema",
                 "src/test/resources/fhir_sender_transforms",
             )

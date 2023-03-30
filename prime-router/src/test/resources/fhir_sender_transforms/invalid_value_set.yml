@@ -16,7 +16,7 @@ elements:
     value: [ '"CO"' ]
     valueSet:
       "CO": 'Colorado'
-      "IG": 'ignore'
+      "IG": null
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex
