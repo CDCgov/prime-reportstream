@@ -18,7 +18,6 @@ jobs:
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
       has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule'}}
-      #has_dnsmasq_change: true
     steps:
       - name: "Check out changes"
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
