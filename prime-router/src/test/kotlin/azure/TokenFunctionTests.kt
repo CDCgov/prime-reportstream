@@ -380,10 +380,7 @@ class TokenFunctionTests {
         // Invoke
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
-        // This fails because the current logic short circuits if the JWK scope matches the requested scope; the
-        // organization JwkSet has the correct scope, but the key is not valid, so not key is returned.
-        // See: Server2ServerAuthentication.kt#225
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
     }
 
     @Test

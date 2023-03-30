@@ -221,21 +221,14 @@ class FindSenderKeyInSettings(val scope: String, val metadata: Metadata) :
         if (sender.keys == null && organization.keys == null) return err("No auth keys associated with sender $issuer")
         if (!Scope.isValidScope(scope, organization)) return err("Invalid scope for this sender: $scope")
         val keys = workflowEngine.settings.getKeys(issuer) ?: return err("No keys found for issuer $issuer")
-        keys.forEach { jwkSet ->
-            if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
-
-                // find by kid and kty
-                val key = jwkSet.keys.find { jwk -> (jwk.kid == kid && jwk.kty == kty.value) }
-
-                return when {
-                    key == null -> null
-                    kty == KeyType.EC -> key.toECPublicKey()
-                    kty == KeyType.RSA -> key.toRSAPublicKey()
-                    else -> null
-                }
-            }
+        val applicableJwkSets = keys.filter { jwkSet -> Scope.scopeListContainsScope(jwkSet.scope, scope) }
+        val allJwks = applicableJwkSets.flatMap { it.keys }
+        val key = allJwks.find { jwk -> (jwk.kid == kid && jwk.kty == kty.value) }
+        return when {
+            key == null -> err("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
+            kty == KeyType.EC -> key.toECPublicKey()
+            kty == KeyType.RSA -> key.toRSAPublicKey()
+            else -> err("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
         }
-        // Failed to find any key for this sender, with the requested/desired scope.
-        return err("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
     }
 }
