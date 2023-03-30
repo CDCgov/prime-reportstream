@@ -14,6 +14,16 @@ enum Format {
     FHIR = "FHIR",
 }
 
+export enum FileType {
+    "CSV" = "CSV",
+    "HL7" = "HL7",
+}
+
+export enum ContentType {
+    "CSV" = "text/csv",
+    "HL7" = "application/hl7-v2",
+}
+
 enum CustomerStatus {
     INACTIVE = "inactive",
     TESTING = "testing",
