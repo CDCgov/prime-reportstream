@@ -92,7 +92,7 @@ elements:
   - name: ca-processing-id
     condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103").exists().not()'
     resource: 'Bundle'
-    value: [ '"T"' ]
+    value: [ '"P"' ]
     hl7Spec: [ MSH-11-1 ]
 
   - name: message_profile_id
