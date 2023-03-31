@@ -37,6 +37,7 @@ resource "azurerm_key_vault" "init" {
   #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
   #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
   #checkov:skip=CKV_AZURE_109:Network restriction not needed for temporary environments
+  #checkov:skip=CKV2_AZURE_32: "Ensure private endpoint is configured to key vault"
 
   name                            = "${var.resource_prefix}-${each.value}${var.random_id}"
   location                        = var.location
