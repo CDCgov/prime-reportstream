@@ -17,7 +17,7 @@ paths:
     post:
       tags:
         - validate
-      summary: Validate a message using client information
+      summary: Validate a message using client information. Validation errors and warnings are reported in the response json.
       parameters:
         - in: header
           name: client

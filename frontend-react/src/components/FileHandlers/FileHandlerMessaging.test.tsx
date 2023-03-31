@@ -2,64 +2,19 @@ import { screen, within } from "@testing-library/react";
 import React from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
 import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import {
     RequestLevel,
     FileQualityFilterDisplay,
-    FileSuccessDisplay,
     RequestedChangesDisplay,
     ValidationErrorMessageProps,
     ValidationErrorMessage,
+    getSafeFileName,
 } from "./FileHandlerMessaging";
-
-// Note: following a pattern of finding elements by text (often text passed as props)
-// then asserting className. This is not ideal, and seems kinda backwards, but I couldn't
-// think of a better way to do it. Is there a better pattern for this? - DWS
-describe("FileSuccessDisplay", () => {
-    test("renders expected content", async () => {
-        renderApp(
-            <FileSuccessDisplay
-                heading={"THE HEADING"}
-                message={"Broken Glass, Everywhere"}
-                showExtendedMetadata={true}
-                extendedMetadata={{
-                    destinations: "1, 2",
-                    reportId: "IDIDID",
-                    timestamp: new Date(0).toString(),
-                }}
-            />
-        );
-
-        const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--success");
-
-        const message = await screen.findByText("Broken Glass, Everywhere");
-        expect(message).toHaveClass("usa-alert__text");
-
-        const heading = await screen.findByText("THE HEADING");
-        expect(heading).toHaveClass("usa-alert__heading");
-
-        const destinations = await screen.findByText("1, 2");
-        expect(destinations).toHaveClass("margin-top-05");
-
-        const reportLink = await screen.findByRole("link");
-        expect(reportLink).toHaveTextContent("IDIDID");
-        expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
-
-        const timestampDate = await screen.findByText(
-            formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
-        );
-        expect(timestampDate).toHaveClass("margin-top-05");
-
-        // // this may break if run outside of us east - commenting out until we confirm, or figure out a better way
-        // const timestampTime = await screen.findByText("7:00 America/New_York");
-        // expect(timestampTime).toHaveClass("margin-top-05");
-    });
-});
 
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
@@ -70,6 +25,7 @@ describe("RequestedChangesDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={[]}
+                schemaColumnHeader={FileType.CSV}
             />
         );
 
@@ -92,7 +48,7 @@ describe("RequestedChangesDisplay", () => {
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "first field error",
-            indices: [1],
+            indices: [1, 10, 100],
             field: "first field",
             trackingIds: ["first_id"],
             scope: "unclear",
@@ -134,6 +90,7 @@ describe("RequestedChangesDisplay", () => {
                 heading={"THE HEADING"}
                 message={"Broken Glass, Everywhere"}
                 data={errors}
+                schemaColumnHeader={FileType.CSV}
             />
         );
 
@@ -144,10 +101,9 @@ describe("RequestedChangesDisplay", () => {
         expect(rows).toHaveLength(5); // 3 errors + header
 
         const firstCells = await within(rows[1]).findAllByRole("cell");
-        expect(firstCells).toHaveLength(3);
+        expect(firstCells).toHaveLength(2);
         expect(firstCells[0]).toHaveTextContent("first field error");
-        expect(firstCells[1]).toHaveTextContent("first field");
-        expect(firstCells[2]).toHaveTextContent("first_id");
+        expect(firstCells[1]).toHaveTextContent("1 + 10 + 100");
 
         const secondCells = await within(rows[2]).findAllByRole("cell");
         expect(secondCells[0]).toHaveTextContent("second field error");
@@ -463,5 +419,29 @@ describe("ValidationErrorMessage", () => {
                 expect(errorMessageNode).toHaveTextContent("");
             });
         });
+    });
+});
+
+describe("getSafeFileName", () => {
+    test("returns a safe file name, replacing non-alphanumeric characters with hyphens", () => {
+        expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual(
+            "aaa-warnings"
+        );
+        expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual(
+            "aaa-----csv-warnings"
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.WARNING)
+        ).toEqual("hello-i-am-a-file-warnings");
+
+        expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual(
+            "aaa-errors"
+        );
+        expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual(
+            "aaa----csv-errors"
+        );
+        expect(
+            getSafeFileName("Hello I Am A File", RequestLevel.ERROR)
+        ).toEqual("hello-i-am-a-file-errors");
     });
 });
