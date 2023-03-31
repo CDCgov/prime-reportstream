@@ -39,9 +39,9 @@ const MapSections = ({
     cMap,
     order = Array.from(
         new Set(
-            Array.from(cMap.values())
-                .flat()
-                .map((d) => d.section)
+            Array.from(cMap.keys()).map((d) =>
+                typeof d === "string" ? d : d.key
+            )
         )
     ),
 }: {

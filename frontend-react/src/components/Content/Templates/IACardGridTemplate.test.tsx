@@ -63,7 +63,7 @@ const TestCardGrid = () => <IACardGridTemplate {...arrayPageProps} />;
 const TestSectionedCardGrid = () => <IACardGridTemplate {...mapPageProps} />;
 
 describe("IACardGridTemplate", () => {
-    test("renders single card gird", () => {
+    test("renders single card grid", () => {
         renderApp(<TestCardGrid />);
         // Asserts card for ElementDirectory "ONE" is there
         expect(screen.getByText(TestDirPages.ONE)).toBeInTheDocument();
