@@ -178,9 +178,8 @@ export const ELRChecklistIa = () => {
                         ?{" "}
                     </li>
                     <li>
-                        <span className="text-bold">Test data:</span> Do you
-                        require synthetic and/or real patient data before going
-                        live?{" "}
+                        <span className="text-">Test data:</span> Do you require
+                        synthetic and/or real patient data before going live?{" "}
                     </li>
                     <li>
                         <span className="text-bold">

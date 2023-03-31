@@ -5,8 +5,8 @@ import {
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
 import { AppWrapper } from "../../utils/CustomRenderUtils";
-import { ContentType, FileType } from "../UseFileHandler";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
+import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import { useWatersUploader } from "./WatersHooks";
 
