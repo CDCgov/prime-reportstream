@@ -1,21 +1,21 @@
-import { screen, waitFor } from "@testing-library/react";
+/* eslint-disable testing-library/no-unnecessary-act */
+
+// Even though the linter complains about act(),
+// the test will fail when submitting the form with
+// fireEvent.submit() which requires that its wrapped
+// in act()
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import {
-    ErrorCode,
-    OverallStatus,
-    ResponseError,
-    WatersResponse,
-} from "../../config/endpoints/waters";
+    fakeFile,
+    mockSendFileWithErrors,
+    mockSendFileWithWarnings,
+    mockSendValidFile,
+} from "../../__mocks__/validation";
 import * as useFileHandlerExports from "../../hooks/UseFileHandler";
-import {
-    FileHandlerState,
-    FileType,
-    INITIAL_STATE,
-} from "../../hooks/UseFileHandler";
-import { mockAppInsights } from "../../utils/__mocks__/ApplicationInsights";
-import { EventName } from "../../utils/Analytics";
+import { FileHandlerState, INITIAL_STATE } from "../../hooks/UseFileHandler";
 import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import {
     STANDARD_SCHEMA_OPTIONS,
@@ -26,51 +26,8 @@ import {
     UseWatersUploaderResult,
     UseWatersUploaderSendFileMutation,
 } from "../../hooks/network/WatersHooks";
-import * as useSessionContextExports from "../../contexts/SessionContext";
-import { RSSessionContext } from "../../contexts/SessionContext";
-import * as useSenderResourceExports from "../../hooks/UseSenderResource";
-import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
-import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
-import { CustomerStatus, Format } from "../../utils/TemporarySettingsAPITypes";
-import { RSSender } from "../../config/endpoints/settings";
 
-import FileHandler, {
-    getClientHeader,
-    UPLOAD_PROMPT_DESCRIPTIONS,
-} from "./FileHandler";
-
-const mockSendFile: WatersResponse = {
-    id: "",
-    submissionId: 1,
-    overallStatus: OverallStatus.VALID,
-    sender: "",
-    errorCount: 0,
-    warningCount: 2,
-    httpStatus: 200,
-    errors: [],
-    warnings: [
-        {
-            details: "",
-            scope: "item",
-            indices: [1, 2],
-            trackingIds: ["371784", "612092"],
-            field: "MSH-7 (file_created_date)",
-            message:
-                "Timestamp for file_created_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
-            errorCode: ErrorCode.INVALID_MSG_PARSE_DATE,
-        },
-        {
-            details: "",
-            scope: "item",
-            indices: [1, 2],
-            trackingIds: ["371784", "612092"],
-            field: "ORC-15 (order_test_date)",
-            message:
-                "Timestamp for order_test_date should be precise. Reformat to either the HL7 v2.4 TS or ISO 8601 standard format.",
-            errorCode: ErrorCode.INVALID_MSG_PARSE_DATE,
-        },
-    ],
-};
+import FileHandler from "./FileHandler";
 
 jest.mock("../../hooks/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
@@ -89,29 +46,18 @@ jest.mock("../../hooks/UseOrganizationSettings", () => ({
     },
 }));
 
-jest.mock("../../TelemetryService", () => ({
-    ...jest.requireActual("../../TelemetryService"),
-    getAppInsights: () => mockAppInsights,
-}));
+export async function chooseSchema(schemaName: string) {
+    expect(screen.getByText(/Select data model/)).toBeVisible();
+    await userEvent.selectOptions(screen.getByRole("combobox"), [schemaName]);
+}
 
-/*
-  below is an example of a mocked File & mocked React file input change event we can use for future tests
-  thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
-*/
-
-const contentString = "foo,bar\r\nbar,foo";
-
-// doesn't work out of the box as it somehow doesn't come with a .text method
-const fakeFile = new File([new Blob([contentString])], "file.csv", {
-    type: "text/csv",
-});
-fakeFile.text = () => Promise.resolve(contentString);
+export async function chooseFile(file: File) {
+    expect(screen.getByText("Drag file here or")).toBeVisible();
+    await userEvent.upload(screen.getByTestId("file-input-input"), file);
+    await screen.findByTestId("file-input-preview-image");
+}
 
 describe("FileHandler", () => {
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
-
     function mockUseFileHandler(
         fileHandlerState: Partial<FileHandlerState> = {}
     ) {
@@ -149,516 +95,158 @@ describe("FileHandler", () => {
         });
     }
 
-    function mockUseSenderResource(
-        result: Partial<UseSenderResourceHookResult> = {}
-    ) {
-        jest.spyOn(
-            useSenderResourceExports,
-            "useSenderResource"
-        ).mockReturnValue({
-            ...result,
-            senderDetail: {
-                allowDuplicates: true,
-                customerStatus: CustomerStatus.ACTIVE,
-                format: FileType.CSV,
-                name: "test",
-                organizationName: "test",
-                processingType: "sync",
-                schemaName: "upload-covid-19",
-                topic: "covid-19",
-            },
-            senderIsLoading: false,
-            isInitialLoading: false,
-        });
-    }
-
-    function mockUseSessionContext(result: Partial<RSSessionContext> = {}) {
-        jest.spyOn(
-            useSessionContextExports,
-            "useSessionContext"
-        ).mockReturnValue({
-            oktaToken: {},
-            activeMembership: {
-                parsedName: "apple",
-                memberType: MemberType.SENDER,
-                service: "cantaloupe",
-            },
-            dispatch: () => {},
-            initialized: true,
-            isAdminStrictCheck: false,
-            isUserAdmin: false,
-            isUserSender: false,
-            isUserReceiver: false,
-            ...result,
-        });
-    }
-
-    describe("when the sender schema options are loading", () => {
+    describe("by default", () => {
         beforeEach(() => {
             mockUseFileHandler(INITIAL_STATE);
-            mockUseSenderSchemaOptions({ isLoading: true });
-            mockUseWatersUploader();
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+            });
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: jest.fn(),
+            });
 
             renderApp(<FileHandler />);
         });
 
-        test("renders a spinner", () => {
-            expect(screen.getByLabelText("loading-indicator")).toBeVisible();
+        test("renders the prompt as expected", () => {
+            expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+                "ReportStream File Validator"
+            );
+            expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+                "wow, cool organization"
+            );
+            expect(screen.getByText("Select data model")).toBeVisible();
         });
     });
 
-    describe("when the sender schema options have been loaded", () => {
-        describe("when in the prompt state", () => {
-            beforeEach(() => {
-                mockUseFileHandler(INITIAL_STATE);
-                mockUseSenderSchemaOptions({
-                    isLoading: false,
-                    schemaOptions: STANDARD_SCHEMA_OPTIONS,
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: jest.fn(),
-                });
-
-                renderApp(<FileHandler />);
+    describe("when a valid CSV file is being submitted with no warnings or errors", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve(mockSendValidFile),
             });
 
-            test("renders as expected", () => {
-                const headings = screen.getAllByRole("heading");
-                expect(headings).toHaveLength(2);
-                expect(headings[0]).toHaveTextContent(
-                    "ReportStream File Validator"
-                );
-                expect(headings[1]).toHaveTextContent("wow, cool organization");
-
-                expect(screen.getByText(/Drag file here/)).toBeVisible();
-            });
+            renderApp(<FileHandler />);
         });
 
-        describe("when a file is being submitted", () => {
-            const selectedSchemaOption = STANDARD_SCHEMA_OPTIONS[0];
-            let sendFileSpy: UseWatersUploaderSendFileMutation;
+        test("allows the user to upload and file and shows the success screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
 
-            beforeEach(async () => {
-                sendFileSpy = jest.fn(() => Promise.resolve(mockSendFile));
-
-                mockUseSessionContext();
-                mockUseSenderResource();
-                mockUseFileHandler({
-                    ...INITIAL_STATE,
-                    fileType: selectedSchemaOption.format,
-                    fileName: fakeFile.name,
-                    selectedSchemaOption,
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: sendFileSpy,
-                });
-
-                renderApp(<FileHandler />);
-
-                userEvent.upload(
-                    screen.getByTestId("file-input-input"),
-                    fakeFile
-                );
-                await screen.findByTestId("file-input-preview-image");
-
-                // jsdom seems currently unable to properly handle required file input
-                // fields. disabling form validation as temp hack
-                screen.getByRole<HTMLFormElement>("form").noValidate = true;
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
             });
 
-            test("calls fetch with the correct parameters", async () => {
-                userEvent.click(screen.getByText("Validate"));
-                await waitFor(() =>
-                    expect(sendFileSpy).toHaveBeenCalledWith({
-                        client: "apple.cantaloupe",
-                        contentType: undefined,
-                        fileContent: contentString,
-                        fileName: fakeFile.name,
-                        format: "CSV",
-                        schema: "upload-covid-19",
-                    })
-                );
-            });
-
-            test("tracks the event", async () => {
-                userEvent.click(screen.getByText("Validate"));
-                await waitFor(() =>
-                    expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
-                        name: EventName.FILE_VALIDATOR,
-                        properties: {
-                            fileValidator: {
-                                warningCount: 2,
-                                errorCount: 0,
-                                schema: "upload-covid-19",
-                                fileType: "CSV",
-                                sender: "aegis",
-                            },
-                        },
-                    })
+            // Step 3: success
+            await waitFor(() => {
+                return screen.getByText(
+                    "Your file is correctly formatted for ReportStream."
                 );
             });
         });
+    });
 
-        describe("after a file has been submitted", () => {
-            beforeEach(() => {
-                mockUseFileHandler(INITIAL_STATE);
-                mockUseSenderSchemaOptions({
-                    isLoading: false,
-                    schemaOptions: STANDARD_SCHEMA_OPTIONS,
-                });
-                mockUseWatersUploader({
-                    isWorking: true,
-                    uploaderError: null,
-                    sendFile: jest.fn(),
-                });
-
-                renderApp(<FileHandler />);
+    describe("when a CSV file with warnings is being submitted", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve(mockSendFileWithWarnings),
             });
 
-            test("renders a loading indicator", () => {
-                expect(
-                    screen.queryByTestId("file-input-input")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.getByLabelText("loading-indicator")
-                ).toBeVisible();
-            });
+            renderApp(<FileHandler />);
         });
 
-        describe("when the submission has errors", () => {
-            beforeEach(() => {
-                mockUseFileHandler({
-                    ...INITIAL_STATE,
-                    errors: [{ message: "Error" } as ResponseError],
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve({}),
-                });
-                renderApp(<FileHandler />);
+        test("allows the user to upload and file and shows the warnings screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
             });
 
-            test("renders error messages", () => {
-                expect(screen.getByTestId("error-table")).toBeVisible();
-                expect(
-                    screen.queryByTestId("file-input-input")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.getByText("Please review the errors below.")
-                ).toBeVisible();
-                expect(
-                    screen.getByText("Your file has not passed validation")
-                ).toBeVisible();
-            });
-        });
+            // Step 3a: warnings
+            expect(screen.getByText("Recommended edits found")).toBeVisible();
 
-        describe("when the submission succeeded with a CSV file", () => {
-            const selectedSchemaOption = STANDARD_SCHEMA_OPTIONS.find(
-                (option) => option.format === FileType.CSV
-            );
-
-            beforeEach(() => {
-                mockUseFileHandler({
-                    ...INITIAL_STATE,
-                    fileType: selectedSchemaOption?.format,
-                    fileName: "anything",
-                    selectedSchemaOption,
-                    destinations: "1, 2",
-                    reportId: "IDIDID",
-                    successTimestamp: new Date(0).toString(),
-                    overallStatus: OverallStatus.VALID,
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve(mockSendFile),
-                });
-
-                renderApp(<FileHandler />);
-            });
-
-            test("does not render error messages", () => {
-                expect(
-                    screen.queryByTestId("error-table")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.queryByText("Please review the errors below.")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.queryByText("Your file has not passed validation")
-                ).not.toBeInTheDocument();
-            });
-
-            test("renders a success message", () => {
-                expect(
-                    screen.queryByTestId("file-input-input")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.getByText("The file meets the standard CSV schema.")
-                ).toBeVisible();
-            });
-        });
-
-        describe("when the submission succeeded with an HL7 file", () => {
-            const selectedSchemaOption = STANDARD_SCHEMA_OPTIONS.find(
-                (option) => option.format === FileType.HL7
-            );
-
-            beforeEach(() => {
-                mockUseFileHandler({
-                    ...INITIAL_STATE,
-                    fileType: selectedSchemaOption?.format,
-                    fileName: "anything",
-                    selectedSchemaOption,
-                    destinations: "1, 2",
-                    reportId: "IDIDID",
-                    successTimestamp: new Date(0).toString(),
-                    overallStatus: OverallStatus.VALID,
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve(mockSendFile),
-                });
-
-                renderApp(<FileHandler />);
-            });
-
-            test("does not render error messages", () => {
-                expect(
-                    screen.queryByTestId("error-table")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.queryByText("Please review the errors below.")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.queryByText("Your file has not passed validation")
-                ).not.toBeInTheDocument();
-            });
-
-            test("renders a success message", () => {
-                expect(
-                    screen.queryByTestId("file-input-input")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.getByText(
-                        "The file meets the ReportStream standard HL7 v2.5.1 schema."
-                    )
-                ).toBeVisible();
-            });
-        });
-
-        describe("when the submission has warnings", () => {
-            beforeEach(() => {
-                mockUseFileHandler({
-                    ...INITIAL_STATE,
-                    warnings: [{ message: "error" } as ResponseError],
-                    reportId: "1",
-                });
-                mockUseWatersUploader({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve({}),
-                });
-
-                renderApp(<FileHandler />);
-            });
-
-            test("renders warnings", () => {
-                expect(screen.getByTestId("error-table")).toBeVisible();
-                expect(
-                    screen.queryByTestId("file-input-input")
-                ).not.toBeInTheDocument();
-                expect(
-                    screen.getByText(
-                        "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
-                    )
-                ).toBeVisible();
-            });
-        });
-
-        describe("when selecting between schemas", () => {
-            describe("when no schema is selected", () => {
-                beforeEach(() => {
-                    renderApp(<FileHandler />);
-                });
-
-                test("does not render a prompt", () => {
-                    expect(
-                        screen.queryByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.CSV]
-                        )
-                    ).not.toBeInTheDocument();
-                    expect(
-                        screen.queryByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.HL7]
-                        )
-                    ).not.toBeInTheDocument();
-                });
-            });
-
-            describe("when a CSV schema is selected", () => {
-                const selectedSchemaOption = STANDARD_SCHEMA_OPTIONS.find(
-                    (option) => option.format === FileType.CSV
+            // Step 3b: warnings modal
+            expect(screen.getByText("Continue without changes")).toBeEnabled();
+            await userEvent.click(screen.getByText(/^Continue$/));
+            await waitFor(() => {
+                return screen.getByText(
+                    "Your file is correctly formatted for ReportStream."
                 );
+            });
+        });
+    });
 
-                beforeEach(() => {
-                    mockUseFileHandler({
-                        ...INITIAL_STATE,
-                        selectedSchemaOption,
-                    });
-
-                    renderApp(<FileHandler />);
-                });
-
-                test("only renders a prompt to upload a CSV file", () => {
-                    expect(
-                        screen.getByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.CSV]
-                        )
-                    ).toBeVisible();
-                    expect(
-                        screen.queryByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.HL7]
-                        )
-                    ).not.toBeInTheDocument();
-                });
+    describe("when a CSV file with errors is being submitted", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve(mockSendFileWithErrors),
             });
 
-            describe("when an HL7 schema is selected", () => {
-                const selectedSchemaOption = STANDARD_SCHEMA_OPTIONS.find(
-                    (option) => option.format === FileType.HL7
-                );
+            renderApp(<FileHandler />);
+        });
 
-                beforeEach(() => {
-                    mockUseFileHandler({
-                        ...INITIAL_STATE,
-                        selectedSchemaOption,
-                    });
+        test("allows the user to upload and file and shows the error screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
 
-                    renderApp(<FileHandler />);
-                });
-
-                test("only renders a prompt to upload an HL7 file", () => {
-                    expect(
-                        screen.queryByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.CSV]
-                        )
-                    ).not.toBeInTheDocument();
-                    expect(
-                        screen.getByText(
-                            UPLOAD_PROMPT_DESCRIPTIONS[FileType.HL7]
-                        )
-                    ).toBeVisible();
-                });
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
             });
+
+            // Step 3: errors
+            expect(
+                screen.getByText("Resubmit with the required edits.")
+            ).toBeVisible();
+        });
+
+        test("allows the user to test another file", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            // Step 3: errors
+            expect(
+                screen.getByText("Resubmit with the required edits.")
+            ).toBeVisible();
+            expect(screen.getByText("Continue without changes")).toBeDisabled();
+            await userEvent.click(screen.getByText("Test another file"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Drag file here or")).toBeVisible();
         });
     });
 });
 
-describe("getClientHeader", () => {
-    const DEFAULT_SCHEMA_NAME = "whatever-schema";
-
-    const DEFAULT_ACTIVE_MEMBERSHIP: MembershipSettings = {
-        parsedName: "orgName",
-        service: "serviceName",
-        memberType: MemberType.SENDER,
-    };
-
-    const DEFAULT_SENDER: RSSender = {
-        allowDuplicates: true,
-        customerStatus: CustomerStatus.ACTIVE,
-        format: Format.CSV,
-        name: "default",
-        organizationName: "orgName",
-        processingType: "sync",
-        schemaName: DEFAULT_SCHEMA_NAME,
-        topic: "covid-19",
-    };
-
-    describe("when selectedSchemaName is falsy", () => {
-        test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    undefined,
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
-            ).toEqual("");
-        });
-    });
-
-    describe("when activeMembership is falsy", () => {
-        test("returns an empty string", () => {
-            expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, undefined, DEFAULT_SENDER)
-            ).toEqual("");
-            expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, null, DEFAULT_SENDER)
-            ).toEqual("");
-        });
-    });
-
-    describe("when sender is falsy", () => {
-        expect(
-            getClientHeader(
-                DEFAULT_SCHEMA_NAME,
-                DEFAULT_ACTIVE_MEMBERSHIP,
-                undefined
-            )
-        ).toEqual("");
-    });
-
-    describe("when activeMembership.parsedName is falsy", () => {
-        test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    { ...DEFAULT_ACTIVE_MEMBERSHIP, parsedName: "" },
-                    DEFAULT_SENDER
-                )
-            ).toEqual("");
-        });
-    });
-
-    describe("when activeMembership.service is falsy", () => {
-        test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    { ...DEFAULT_ACTIVE_MEMBERSHIP, service: "" },
-                    DEFAULT_SENDER
-                )
-            ).toEqual("");
-        });
-    });
-
-    describe("when selected schema value matches sender's schema", () => {
-        test("returns the client value from the organization's parsed name and service", () => {
-            expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
-            ).toEqual("orgName.serviceName");
-        });
-    });
-
-    describe("when selected schema value does not match the sender's schema", () => {
-        test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    "bogus-schema",
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
-            ).toEqual("");
-        });
-    });
-});
+/* eslint-enable testing-library/no-unnecessary-act */

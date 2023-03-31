@@ -108,11 +108,10 @@ class ValidateFunction(
                     validatedRequest.routeTo,
                     allowDuplicates,
                 )
-                // return OK status, report validation was successful
                 HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
-                HttpStatus.BAD_REQUEST
+                HttpStatus.OK
             } catch (e: IllegalArgumentException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
@@ -162,7 +161,7 @@ class ValidateFunction(
         }
 
         // set status for validation response
-        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST)
+        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST || submission.errorCount > 0)
             DetailedSubmissionHistory.Status.ERROR
         else
             DetailedSubmissionHistory.Status.VALID

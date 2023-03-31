@@ -5,7 +5,6 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
@@ -100,7 +99,7 @@ abstract class RequestFunction(
 
         // verify schema if the sender is a topic sender
         var schema: Schema? = null
-        if (sender != null && sender is HasSchema) {
+        if (sender != null && sender is TopicSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null) {
                 actionLogs.error(
@@ -145,8 +144,8 @@ abstract class RequestFunction(
                     return@mapNotNull null
                 }
 
-                // only non full ELR senders will have a schema
-                if (sender is HasSchema && schema != null) {
+                // only topic sender schemas are relevant here
+                if (sender is TopicSender && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
