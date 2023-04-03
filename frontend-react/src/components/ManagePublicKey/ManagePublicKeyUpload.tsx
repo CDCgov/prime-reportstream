@@ -12,12 +12,14 @@ import {
 export interface ManagePublicKeyUploadProps {
     onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBack: () => void;
     file: File | null;
 }
 
 export default function ManagePublicKeyUpload({
     onPublicKeySubmit,
     onFileChange,
+    onBack,
     file,
 }: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
@@ -55,6 +57,9 @@ export default function ManagePublicKeyUpload({
                 </FormGroup>
                 <Grid row>
                     <Grid col="auto">
+                        <Button onClick={onBack} type="button" outline>
+                            Back
+                        </Button>
                         <Button disabled={isDisabled} type="submit">
                             Submit
                         </Button>

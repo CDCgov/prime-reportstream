@@ -8,23 +8,28 @@ import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 
+import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
+import Spinner from "../Spinner";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export function ManagePublicKey() {
-    // Waiting on backend to support this
-    // const [sender, setSender] = useState("");
+    const [sender, setSender] = useState("");
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
-    const [fileSaved, setFileSaved] = useState(false);
 
-    const { mutateAsync, isLoading } = useCreateOrganizationPublicKey();
+    const { mutateAsync, isSuccess, isLoading } =
+        useCreateOrganizationPublicKey();
+
+    const handleBack = () => {
+        setSender("");
+    };
 
     const handlePublicKeySubmit = async (
         event: React.FormEvent<HTMLFormElement>
@@ -37,16 +42,12 @@ export function ManagePublicKey() {
         }
 
         try {
-            const response = await mutateAsync({
-                contentType: CONTENT_TYPE,
-                fileContent: fileContent,
-                fileName: file?.name || "",
-                format: FORMAT,
+            setFileSubmitted(true);
+
+            await mutateAsync({
+                kid: fileContent,
+                sender: sender,
             });
-            if (response) {
-                setFileSubmitted(true);
-                setFileSaved(true);
-            }
         } catch (e: any) {
             showError(`Uploading public key failed. ${e.toString()}`);
         }
@@ -88,7 +89,7 @@ export function ManagePublicKey() {
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
             <>
-                {!fileSubmitted && (
+                {!isSuccess && (
                     <>
                         <h1 className="margin-top-0 margin-bottom-5">
                             Manage Public Key
@@ -109,7 +110,6 @@ export function ManagePublicKey() {
                         </SiteAlert>
                     </>
                 )}
-                {/*Waiting on backend to support this
                 {sender.length === 0 && (
                     <ManagePublicKeyChooseSender
                         onSenderSelect={(selectedSender: string) =>
@@ -117,16 +117,17 @@ export function ManagePublicKey() {
                         }
                     />
                 )}
-                {sender && !fileSubmitted && (*/}
-                {!fileSubmitted && (
+                {sender && !fileSubmitted && (
                     <ManagePublicKeyUpload
                         onPublicKeySubmit={handlePublicKeySubmit}
                         onFileChange={handleFileChange}
+                        onBack={handleBack}
                         file={file}
                     />
                 )}
-                {fileSubmitted && fileSaved && <ManagePublicKeyUploadSuccess />}
-                {fileSubmitted && !fileSaved && (
+                {isLoading && <Spinner />}
+                {isSuccess && <ManagePublicKeyUploadSuccess />}
+                {fileSubmitted && !isLoading && !isSuccess && (
                     <ManagePublicKeyUploadError onTryAgain={handleTryAgain} />
                 )}
             </>

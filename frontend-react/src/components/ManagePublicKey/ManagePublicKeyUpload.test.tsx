@@ -10,6 +10,7 @@ describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
         onPublicKeySubmit: () => {},
         onFileChange: () => {},
+        onBack: () => {},
         file: null,
     };
 

@@ -8,16 +8,9 @@ import { useAuthorizedMutationFetch } from "../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../contexts/SessionContext";
 
 export interface OrganizationPublicKeyPostArgs {
-    fileName: string;
-    fileContent: string;
-    contentType?: string;
-    format: string;
+    kid: string;
+    sender: string;
 }
-
-// export interface UseCreateOrganizationPublicKeyProps {
-//     orgName: string;
-//     apiKeys: RSApiKeysResponse;
-// }
 
 export const useCreateOrganizationPublicKey = () => {
     const { activeMembership } = useSessionContext();
@@ -29,25 +22,16 @@ export const useCreateOrganizationPublicKey = () => {
         OrganizationPublicKeyPostArgs
     >();
     const mutationFn = useCallback(
-        async ({
-            fileName,
-            fileContent,
-            contentType,
-            format,
-        }: OrganizationPublicKeyPostArgs) => {
+        async ({ kid, sender }: OrganizationPublicKeyPostArgs) => {
             const res = await authorizedFetch(
                 servicesEndpoints.createPublicKey,
                 {
                     segments: { organizationName: parsedName!! },
-                    headers: {
-                        "Content-Type": contentType,
-                        payloadName: fileName,
-                        scope: `${parsedName}.*.report`,
-                    },
-                    data: fileContent,
                     params: {
-                        format,
+                        scope: `${parsedName}.*.report`,
+                        kid: `${parsedName}.${sender}`,
                     },
+                    data: kid,
                 }
             );
             return res;
