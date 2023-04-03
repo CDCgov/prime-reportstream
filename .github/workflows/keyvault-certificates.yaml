@@ -51,7 +51,7 @@ jobs:
           channel: ${{ secrets.SLACK_CHANNEL }}
           message: |
             The following certificates are expiring soon:
-            ${{ steps.cert-expiration.outputs.expiring_certs }
+            ${{ steps.cert-expiration.outputs.expiring_certs }}
 
       # - name: Send Slack Notification
       #   if: steps.cert-expiration.outputs.expiring_certs > 0
