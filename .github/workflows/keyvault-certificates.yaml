@@ -42,16 +42,21 @@ jobs:
           near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
           echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
+      
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
-      - name: Notify Slack
-        #if: steps.cert-expiration.outputs.expiring_certs != ""
-        uses: einaregilsson/slack-notification-action@v1
-        with:
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
-          channel: ${{ secrets.SLACK_CHANNEL }}
-          message: |
-            The following certificates are expiring soon:
-            ${{ steps.cert-expiration.outputs.expiring_certs }}
+      # - name: Notify Slack
+      #   #if: steps.cert-expiration.outputs.expiring_certs != ""
+      #   uses: einaregilsson/slack-notification-action@v1
+      #   with:
+      #     slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+      #     channel: ${{ secrets.SLACK_CHANNEL }}
+      #     message: |
+      #       The following certificates are expiring soon:
+      #       ${{ steps.cert-expiration.outputs.expiring_certs }}
 
       # - name: Send Slack Notification
       #   if: steps.cert-expiration.outputs.expiring_certs > 0
