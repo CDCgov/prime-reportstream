@@ -7,7 +7,7 @@ on:
     
 jobs:
   check-certificates:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
