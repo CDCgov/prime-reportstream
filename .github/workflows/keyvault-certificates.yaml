@@ -19,6 +19,7 @@ jobs:
 
       - name: Install Azure PowerShell
         run: |
+          Install-Module -Name Az -Force -Scope AllUsers
           pwsh -Command "Install-Module -Name Az -AllowClobber -Force"
           Install-Module -Name Import-Module -Force
           Import-Module -Name Az.KeyVault -Force
