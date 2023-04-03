@@ -51,7 +51,7 @@ jobs:
           username: apikey
           password: ${{ secrets.SENDGRID_API_KEY }}
           subject: Certificate Expiration Notification
-          from: reportstream@cdc.gov
+          from: lucasdze@gmail.com
           to: LucasJonas.KouongaDze@icf.com
           body: |
             The following certificates are expiring soon:
