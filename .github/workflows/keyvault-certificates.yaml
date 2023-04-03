@@ -17,12 +17,15 @@ jobs:
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Install Azure PowerShell
+      - name: Install PowerShell and PowerShellGet
         run: |
-          Install-Module -Name Az -Force -Scope AllUsers
-          pwsh -Command "Install-Module -Name Az -AllowClobber -Force"
-          Install-Module -Name Import-Module -Force
-          Import-Module -Name Az.KeyVault -Force
+          sudo apt-get update
+          sudo apt-get install -y powershell
+          pwsh -Command "Install-PackageProvider -Name NuGet -Force; Import-Module PowerShellGet"
+          
+      - name: Install Azure PowerShell module
+        run: pwsh -Command "Install-Module -Name Az -Scope CurrentUser -Force"
+
       - name: Check Certificate Expiration
         run: |
           cert=$(Get-AzKeyVaultCertificate -VaultName pdhstaging-keyvault -Name staging-reportstream-cdc-gov)
