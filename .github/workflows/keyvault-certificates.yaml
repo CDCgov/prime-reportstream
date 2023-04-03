@@ -31,13 +31,15 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: Check Certificate Expiration
-        id: cert-expiration
+      - name: Get Certificates Expiration
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
-          expiring_certs=$(echo "$certificates" | jq '.[] | select((.expirationDate | fromdateiso8601 | mktime) - now < 2592000)')
-          echo "::set-output name=expiring_certs::$expiring_certs"
-        shell: bash
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
+
+      - name: Get Near Expiry Certificates
+        run: |
+          near_expiry_date=$(date -d "+300 days" -I)
+          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
 
       - name: Send Slack Notification
         #if: steps.cert-expiration.outputs.expiring_certs != "300"
@@ -49,7 +51,7 @@ jobs:
           fields: |
             {
               \"title\": \"Key Vault Certificates Expiring Soon\",
-              \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ steps.cert-expiration.outputs.expiring_certs }}\",
+              \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ near_expiry_certificates }}\",
               \"short\": false
             }
           channel: ${{ secrets.SLACK_CHANNEL }}
@@ -57,6 +59,11 @@ jobs:
           username: "GitHub Actions"
           footer: "Sent by GitHub Actions"
           footer_icon: "https://github.githubassets.com/favicon.ico"
+
+
+
+
+
 
       # - name: Get Certificates Expiration
       #   run: |
