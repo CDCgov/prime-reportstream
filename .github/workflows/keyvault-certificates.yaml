@@ -22,7 +22,7 @@ jobs:
           pwsh -Command "Install-Module -Name Az -AllowClobber -Force"
       - name: Check Certificate Expiration
         run: |
-          $cert = Get-AzKeyVaultCertificate -VaultName pdhstaging-keyvault -Name staging-reportstream-cdc-gov
+          cert=$(Get-AzKeyVaultCertificate -VaultName pdhstaging-keyvault -Name staging-reportstream-cdc-gov)
           if ($cert.NotAfter -lt (Get-Date).AddDays(30)) {
             Write-Error "Certificate is expiring soon: $($cert.NotAfter)"
           } else {
