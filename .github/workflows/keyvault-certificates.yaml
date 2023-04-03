@@ -57,7 +57,7 @@ jobs:
             The following certificates are expiring soon:
 
             ${{ steps.cert-expiration.outputs.expiring_certs }}
-        if: steps.cert-expiration.outputs.expiring_certs != ""
+        #if: steps.cert-expiration.outputs.expiring_certs != "1"
 
 
 
