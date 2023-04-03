@@ -27,6 +27,23 @@ jobs:
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
+      - name: Get runner IP address
+        run: |
+          export RUNNER_IP=$(curl -sS https://api.ipify.org)
+          echo "Runner IP address is $RUNNER_IP"
+      
+      - name: Login into Azure  
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add runner IP to firewall rule    
+        run: az keyvault network-rule add-ip --name pdhstaging-keyvault --ip-address $RUNNER_IP
+
+      - name: Set Key Vault context
+        run: az keyvault set-policy --name pdhstaging-keyvault --secret-permissions get --spn terraform-automation
+
+
       - name: Check Key Vault Certificates Expiration
         run: |
 
@@ -42,7 +59,15 @@ jobs:
               echo "The certificate ${name} will expire in ${days_remaining} days."
             fi
           done
-      
+
+      - name: Remove runner IP from firewall rule
+        run: az keyvault network-rule remove-ip --name pdhstaging-keyvault --ip-address $RUNNER_IP
+
+      - name: Cleanup
+        run: |
+          unset RUNNER_IP
+
+
 
       # - name: Install PowerShell and PowerShellGet
       #   run: |
