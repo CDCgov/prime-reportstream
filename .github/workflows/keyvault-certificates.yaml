@@ -36,32 +36,33 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      # - name: Check Key Vault Certificates Expiration
+      # - name: Get Certificates Expiration
       #   run: |
+      #     az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
-      #     certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
+      # - name: Get Near Expiry Certificates
+      #   run: |
+      #     near_expiry_date=$(date -d "+300 days" -I)
+      #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+      #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
+
+      - name: Check Key Vault Certificates Expiration
+        run: |
+
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
           
-      #     for cert in $(echo "${certificates}" | jq -c '.[]'); do
-      #       name=$(echo "${cert}" | jq -r '.name')
-      #       expiration=$(echo "${cert}" | jq -r '.expirationDate')
-      #       expiration_timestamp=$(date -d "${expiration}" +%s)
-      #       current_timestamp=$(date +%s)
-      #       days_remaining=$(( (${expiration_timestamp} - ${current_timestamp}) / 86400 ))
-      #       if [[ ${days_remaining} -lt 30 ]]; then
-      #         echo "The certificate ${name} will expire in ${days_remaining} days."
-      #       fi
-      #     done
+          for cert in $(echo "${certificates}" | jq -c '.[]'); do
+            name=$(echo "${cert}" | jq -r '.name')
+            expiration=$(echo "${cert}" | jq -r '.expirationDate')
+            expiration_timestamp=$(date -d "${expiration}" +%s)
+            current_timestamp=$(date +%s)
+            days_remaining=$(( (${expiration_timestamp} - ${current_timestamp}) / 86400 ))
+            if [[ ${days_remaining} -lt 30 ]]; then
+              echo "The certificate ${name} will expire in ${days_remaining} days."
+            fi
+          done
 
-      - name: Get Certificates Expiration
-        run: |
-          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
-      - name: Get Near Expiry Certificates
-        run: |
-          near_expiry_date=$(date -d "+300 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-
-          echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
 
       - name: Remove runner IP from firewall rule
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
