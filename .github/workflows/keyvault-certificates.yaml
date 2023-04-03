@@ -29,7 +29,7 @@ jobs:
 
       - name: Check Certificate Expiration
         run: |
-          cert=$(az keyvault certificate get --vault-name pdhprod-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
+          cert=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
           if ($cert.NotAfter -lt (Get-Date).AddDays(30)) {
             Write-Error "Certificate is expiring soon: $($cert.NotAfter)"
           } else {
