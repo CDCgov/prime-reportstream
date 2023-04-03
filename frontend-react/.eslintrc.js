@@ -4,6 +4,7 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
         "prettier",
+        "plugin:storybook/recommended",
     ],
     plugins: ["testing-library", "unused-imports", "jest-dom", "prettier"],
     env: {
