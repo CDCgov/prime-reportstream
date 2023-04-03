@@ -1,6 +1,6 @@
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { isExternalUrl, MarkdownRSLink } from "./MarkdownRSLink";
+import { MarkdownRSLink } from "./MarkdownRSLink";
 
 const externalUrls = [
     "https://www.google.com",
@@ -22,18 +22,7 @@ const internalUrls = [
     "//www.cdc.gov",
     "//cdc.gov",
 ];
-
-describe("isExternalUrl", () => {
-    test.each(externalUrls)("'%s' returns true", (url) => {
-        expect(isExternalUrl(url)).toBeTruthy();
-    });
-
-    test.each(internalUrls)("'%s' returns false", (url) => {
-        expect(isExternalUrl(url)).toBeFalsy();
-    });
-});
-
-describe("MarkdownSRLink", () => {
+describe("MarkdownRSLink", () => {
     test.each(externalUrls)("'%s' returns external link", (url) => {
         const view = renderApp(
             <MarkdownRSLink node={undefined as any} href={url}>
