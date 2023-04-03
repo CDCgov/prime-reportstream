@@ -43,24 +43,43 @@ jobs:
           echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
 
-      - name: Send Slack Notification
-        #if: steps.cert-expiration.outputs.expiring_certs != "300"
-        uses: 8398a7/action-slack@v3
+      - name: Notify Slack
+        if: steps.cert-expiration.outputs.expiring_certs > 0
+        uses: rtCamp/action-slack-notify@v2.1.1
         with:
-          status: "warning"
-          author_name: "GitHub Actions"
-          author_icon: "https://github.githubassets.com/favicon.ico"
+          status: 'Warning'
           fields: |
-            {
-              \"title\": \"Key Vault Certificates Expiring Soon\",
-              \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ steps.cert-expiration.outputs.expiring_certs }}\",
-              \"short\": false
-            }
-          channel: ${{ secrets.SLACK_CHANNEL }}
-          icon_url: "https://github.githubassets.com/favicon.ico"
-          username: "GitHub Actions"
-          footer: "Sent by GitHub Actions"
-          footer_icon: "https://github.githubassets.com/favicon.ico"
+            Certificates are expiring soon:
+            ${{ steps.cert-expiration.outputs.expiring_certs }}
+          username: 'GitHub Actions'
+          icon_emoji: ':github_actions:'
+          channel: '${{ secrets.SLACK_CHANNEL }}'
+          mention: '@channel'
+          if_mention: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #github_base_url: ${{ env.GITHUB_SERVER_URL }}
+
+
+      # - name: Send Slack Notification
+      #   if: steps.cert-expiration.outputs.expiring_certs > 0
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: "warning"
+      #     author_name: "GitHub Actions"
+      #     author_icon: "https://github.githubassets.com/favicon.ico"
+      #     fields: |
+      #       {
+      #         \"title\": \"Key Vault Certificates Expiring Soon\",
+      #         \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ steps.cert-expiration.outputs.expiring_certs }}\",
+      #         \"short\": false
+      #       }
+      #     channel: ${{ secrets.SLACK_CHANNEL }}
+      #     icon_url: "https://github.githubassets.com/favicon.ico"
+      #     username: "GitHub Actions"
+      #     footer: "Sent by GitHub Actions"
+      #     footer_icon: "https://github.githubassets.com/favicon.ico"
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
 
