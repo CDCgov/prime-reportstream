@@ -54,7 +54,7 @@ export const appRoutes = [
         element: <ManagePublicKeyWithAuth />,
     },
     {
-        path: "/resources/api-programmers-guide",
+        path: "/resources/reportstream-api",
         element: <ReportStreamAPIPage />,
     },
     { path: "/resources/*", element: <Resources /> },
