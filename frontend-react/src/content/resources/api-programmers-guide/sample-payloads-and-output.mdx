@@ -1,0 +1,128 @@
+Sample payloads and output
+Sample CSV payload and output
+
+Input
+
+Download a sample file
+
+
+Response
+{
+  "id" : "dbfbb65f-f6f0-4d85-a723-32b63283f068",
+  "submissionId" : 2412,
+  "overallStatus" : "Waiting to Deliver",
+  "timestamp" : "2022-05-16T14:39:02.159Z",
+  "plannedCompletionAt" : "2022-05-16T14:40:00.000Z",
+  "actualCompletionAt" : null,
+  "sender" : "csvuploadertest.default",
+  "reportItemCount" : 5,
+  "errorCount" : 0,
+  "warningCount" : 0,
+  "httpStatus" : 201,
+  "destinations" : [ {
+    "organization" : "Alabama Public Health Department",
+    "organization_id" : "al-phd",
+    "service" : "elr",
+    "itemCount" : 5,
+    "itemCountBeforeQualityFiltering" : 5,
+    "sending_at" : "2022-05-16T14:40:00.000Z",
+    "filteredReportRows" : [ ],
+    "filteredReportItems" : [ ],
+    "sentReports" : [ ],
+    "downloadedReports" : [ ]
+  } ],
+  "errors" : [ ],
+  "warnings" : [ ],
+  "topic" : "covid-19",
+  "externalName" : null,
+  "destinationCount" : 1
+}
+
+Sample HL7 2.5.1 payload and output
+
+Input
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Example HL7 file
+
+
+
+Response
+
+{
+"id" : "f08ccba0-c5ff-4ef5-924c-f72747603f02", "timestamp" : "2021-08-05T11:33:01.060209Z",
+"topic" : "covid-19", "reportItemCount" : 1, "destinations" : [ {
+"organization" : "California Department of Public Health", "organization_id" : "ca-dph",
+"service" : "elr",
+"sending_at" : "2021-08-05T07:34-04:00",
+"itemCount" : 1
+} ],
+"destinationCount" : 1,
+"warningCount" : 0,
+"errorCount" : 0, "errors" : [ ],
+"warnings" : [ ]
+}
+
+
+
+Example data models  
+
+COVID-19 data matching HHS Guidance 
+
+A simple schema meant for testing and demos
+
+A complex real-life schema used by our sister project, SimpleReport, for submitting COVID-19 data
+Other examples of COVID-19 schemas

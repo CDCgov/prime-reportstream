@@ -1,0 +1,944 @@
+Data model
+
+View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV. 
+[Download Excel file (.xlsx)] Last updated: 1/6/23
+Common errors
+Two of the most important and often overlooked pieces of required data are the deviceIdentifier (OBX-17.1) and testPerformed (OBX-3.1). These fields must match exactly to the appropriate row in the LOINC In Vitro Diagnostic (LIVD) test code mapping. This is the most updated LIVD mapping from the CDC. Specifics about each field are detailed in the tables below.
+The preferred timestamp formatting for CSV and HL7 is yyyyMMddhhmmss+/-zzzz. If the UTC offset (+/-zzzz) is not present, results should be normalized to a single time zone that’s agreed upon during the onboarding process.
+
+Legend
+
+Yes: Required field for acceptance
+Yes – Conditional: Required, but only under certain circumstances. Review the field’s Data Requirements and Additional Guidance for more information.
+Requested: Field should be populated if available. In addition, some states may treat this as a required field.
+No: Not a hard requirement. In the interest of providing complete information to public health agencies, please populate the field if data is available. For CSV implementations please provide the CSV column header even if no data is entered.
+
+Note about OTC reporting:
+
+For CSV implementations, include only the columns marked with “(OTC)” in the CSV Column Names below.
+For HL7 implementations, do not use this table. Refer to the RADx MARS Getting started guide.
+
+Patient data elements
+CSV Column Names
+HL7 Field / Component
+Fed
+Required?
+State
+Required?
+Data Requirements
+Additional Guidance
+patient_id
+
+(OTC)
+PID-3.1
+No
+Requested
+
+
+Optional - Requested: Enter unique patient identifier. This is typically the Medical Record Number. Do not send a Social Security Number.
+This value is optional and can be left blank if no information is provided. Some jurisdictions may require this field, ReportStream will notify you if this is the case.
+patient_last_name
+
+(OTC)
+PID-5.1
+No
+Yes
+Enter patient's last name. 
+File will fail if field left blank.
+patient_first_name
+
+(OTC)
+PID-5.2
+No
+Yes
+Enter patient's first name.
+File will fail if field left blank.
+patient_name_middle
+
+(OTC)
+PID-5.3
+No
+No
+Optional: Enter patient's middle name, if known.
+This value is optional and can be left blank if no information is provided.
+patient_street
+
+(OTC)
+
+
+PID-11.1
+No
+Yes
+Enter patient's home address.
+File will fail if field left blank. If no address given or homeless, populate this field with ** Unknown / Not Given ** or ** Homeless **.
+patient_street2
+
+(OTC)
+PID-11.2
+No
+No
+Optional: Enter patient's additional address information, if applicable.
+This value is optional and can be left blank if no information is provided.
+patient_city
+
+(OTC)
+PID-11.3
+No
+Yes
+Enter patient's city.
+File will fail if field left blank. If no city given or homeless, populate this field with the ordering facility information.
+patient_state
+
+(OTC)
+PID-11.4
+No
+Yes
+
+
+Enter patient's state using the two-character abbreviation.
+File will fail if field left blank. If no state given or homeless, populate this field with the  ordering facility information.
+patient_county
+
+(OTC)
+PID-11.9
+Yes
+Yes
+Enter patient's county/parish name.
+Required for reporting to certain jurisdictions.
+patient_zip_code
+
+(OTC)
+PID-11.5
+Yes
+Yes
+
+
+Enter patient's zip code. 
+
+Accepted Format:     
+12345
+12345-6789
+File will fail if value is not entered using acceptable format or field is left blank. If no zip code given or homeless, populate field with the ordering facility information.
+patient_phone_number
+
+(OTC)
+PID-13.7
+No
+Yes - Conditional
+
+
+Enter patient's phone number, if known.
+
+Accepted Format: 
+ 000-000-000
+If no phone number given or homeless, populate field with the ordering facility information.
+patient_dob
+
+(OTC)
+PID-7.1
+No
+Yes
+Enter patient's date of birth.
+
+Accepted Format: 
+yyyyMMdd
+File will fail if value is not entered using accepted format or field is left blank.
+patient_gender
+
+(OTC)
+PID-8.1
+Yes
+Yes
+Enter patient’s gender.
+
+Accepted Values (HL70001):
+M or Male
+F or Female
+O or Other
+U or Unknown
+A or Ambiguous
+N or Not applicable
+File will fail if value not entered using accepted values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the PHIN VADS system.
+patient_race
+
+(OTC)
+PID-10.1
+Yes
+Yes
+
+
+Enter patient’s race.
+
+Accepted Values (HL70005):
+1002-5 or American Indian or Alaska Native
+2028-9 or Asian
+2054-5 or Black or African American
+2076-8 or Native Hawaiian or Other Pacific Islander
+2106-3 or White
+2131-1 or Other
+ASKU or Ask, but unknown
+UNK or Unknown
+File will fail if numeric values or text values are not entered using acceptable values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the PHIN VADS system.
+patient_ethnicity
+
+(OTC)
+PID-22.1
+Yes
+Yes
+Enter patient’s ethnicity.
+
+Accepted Values:
+2135-2 or H or Hispanic or Latino
+2186-5 or N or Not Hispanic or Latino
+UNK or U or Unknown
+File will fail if numeric values or text values are not entered using acceptable values or field is left blank. Accepted values come from values mapped to LOINC codes you can find in the PHIN VADS system.
+patient_preferred_language
+PID-15
+
+
+No
+No
+Optional: Enter patient’s preferred language, if known.
+
+Example Accepted Values:
+eng OR English
+spa OR Spanish
+fre OR French
+jpn OR Japanese
+
+
+Use the Concept Code or Concept Name from the PHIN VADS ISO-639 table, which can be found at https://phinvads.cdc.gov/vads/ViewValueSet.action?id=D0858308-9AB3-EA11-818F-005056ABE2F0#.
+patient_email
+
+(OTC)
+PID-13.4
+No
+No
+Optional: Enter patient’s email address, if known.
+
+Accepted Value:
+Numeric or text
+This value is optional and can be left blank if no information is provided.
+
+
+
+Order and result data elements
+CSV Column Names
+
+
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+accession_number
+
+(OTC)
+ORC-3.1
+OBR-3.1
+SPM-2.2
+
+MSH-10
+
+ORC-2.1
+OBR-2.1
+
+
+Yes
+Yes
+
+
+An accession number is a unique ID that identifies a single result. This field is important for public health departments to refer back to a test event. File will fail if field left blank. For OTC a value is generated by ReportStream based on the patient id.
+equipment_model_name
+
+(OTC)
+OBX-17.2
+Yes
+Yes
+Enter equipment model name value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet.
+
+Examples:
+“ID NOW”
+
+“BD Veritor System for Rapid Detection of SARS-CoV-2*”
+
+“BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*”
+
+“RightSign COVID-19 IgG/IgM Rapid Test Cassette*”
+File will fail if value not entered using accepted values or field is left blank. Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file. Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column B, labeled "Model" to locate the corresponding value to enter.
+n/a
+OBX-17.1
+Yes
+Yes
+Enter device identifier from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet.
+
+Examples:
+“10811877011269”
+
+“BD Veritor System for Rapid Detection of SARS-CoV-2_Becton, Dickinson and Company (BD)”
+
+“BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)”
+
+“RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.”
+
+
+File will fail if value not entered using accepted values or field is left blank. Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file. Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column M, labeled "Testkit Name ID" to locate the corresponding value to enter.
+
+
+
+
+
+equipment_uid
+(OTC)
+OBX-18.1
+Yes
+Yes
+Enter Equipment UID information from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet.
+
+Examples:
+“00811877010616”
+
+“BD Veritor Plus System_Becton Dickinson”
+
+“BD Veritor Plus System_Beckton Dickinson”
+
+“(Test kit device)”
+
+
+File will fail if value not entered using accepted values or field is left blank. Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file. Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column O, labeled "Equipment UID" to locate the corresponding value to enter.
+
+
+test_performed_code
+
+(OTC)
+OBX-3.1
+Yes
+Yes
+Enter TestPerformed Code value from Department of Health and Human Services' (HHS) LOINC Mapping spreadsheet. 
+
+Examples:
+“94534-5”
+
+“94558-4”
+
+“97097-0”
+
+“94507-1”
+        “94508-9”
+
+
+File will fail if value not entered using acceptable values or field is left blank. Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file. Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column F, labeled "Test Performed LOINC Code". Locate the corresponding value to enter.
+
+
+test_result
+
+(OTC)
+OBX-5.1
+Yes
+Yes
+Enter a numeric SNOMED code (preferred) or common text value listed.
+Examples:
+“260373001”
+
+“Positive”
+“Negative”
+“Not Detected”
+“Detected”
+“Invalid Result”
+
+
+File will fail if value is not entered using accepted text values or SNOMED codes, or if the field is left blank. Enter a value from the common values listed. 
+Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file.
+Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column E, labeled "Vendor Result Description". Locate SNOMED code value and enter into field (Example: Positive = 260373001).
+
+
+order_test_date
+
+(OTC)
+ORC-15.1
+Yes
+Yes
+Enter test ordered date.
+
+Accepted Format: 
+yyyyMMddhhmmss+/-zzzz
+File will fail if value is not entered using acceptable format or field is left blank.
+specimen_collection_date
+
+(OTC)
+SPM-17.1
+Yes
+Yes
+Enter specimen collection date.
+
+AcceptedFormat: 
+yyyyMMddhhmmss+/-zzzz
+
+
+If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank for CSV if same as order_test_date.
+testing_lab_specimen_received_date
+
+(OTC)
+SPM-18.1
+No
+No
+Enter testing lab specimen received date.
+
+AcceptedFormat: 
+yyyyMMddhhmmss+/-zzzz
+
+
+
+If unknown, populate field with the order_test_date value. In most cases, these are the same. Can be left blank for CSV if same as order_test_date.
+
+
+test_result_date
+
+(OTC)
+OBX-14.1
+Yes
+Yes
+Enter test result date.
+
+Accepted Format: 
+yyyyMMddhhmmss+/-zzzz
+File will fail if value is not entered using acceptable format or field is left blank.
+date_result_released
+
+(OTC)
+OBR-22
+Yes
+Yes
+Enter test report date.
+
+Accepted Format: 
+yyyyMMddhhmmss+/-zzzz
+File will fail if value is not entered using acceptable format or field is left blank.
+comment
+NTE-3
+No
+No
+Any comments from a physician or lab technician you want to relay to your public health department can be entered here. 
+
+This field is not intended for characteristics of COVID-19 tests or statements about false positive or negative results.
+This value is optional and can be left blank if no information is provided.
+
+Do not include commas (,) in any CSV comments unless the field is encapsulated in quotes (").
+
+
+test_result_status
+(OTC)
+OBX-11
+OBR-25
+Yes
+Yes
+Accepted Values:
+“F” for Final Result.
+“C” for Corrected Result
+
+
+Enter test result status using the accepted format. If left blank, value will default to “F” for CSV.
+
+
+Specimen data elements
+CSV Column Names
+
+
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+specimen_type
+
+(OTC)
+
+
+SPM-4
+
+
+Yes
+Yes
+Enter a numeric SNOMED code (preferred) or common text value listed.
+Examples:
+“697989009”
+
+“Nasal Swab”
+“Nasopharyngeal Swab”
+“Anterior Nares Swab”
+“Throat Swab”
+“Oropharyngeal Swab”
+“Whole Blood”
+“Plasma”
+“Serum”
+
+
+File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank.
+
+Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file.
+
+Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column D, labeled "Vendor Specimen Description". Locate the corresponding text value or SNOMED code and enter into field (example: Anterior Nares Swab = "697989009").
+
+
+n/a
+SPM-8
+
+
+Requested
+
+
+Requested
+Enter a numeric SNOMED code for the specimen source site code.
+
+
+For CSV, this is populated by ReportStream based on the specimen_type value.
+
+
+
+
+Ordering provider data elements
+
+CSV Column Names
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+ordering_provider_id
+
+(OTC)
+ORC-12.1
+Yes
+Yes
+Enter National Provider Identifier (NPI). ReportStream prefers this value, however if NPI is unknown enter local coding.
+
+Examples:
+NPI example: 1013012657
+Local code example: muc1290
+NPI is a 10-character all-numeric identification number to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/.
+Some jurisdictions may not accept a local code, ReportStream will work with you if this is the case.
+This field may be left blank for OTC tests.
+ordering_provider_last_name
+
+(OTC)
+ORC-12.2
+No
+Yes
+Enter the last name of the ordering provider.
+File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+ordering_provider_middle_name
+
+(OTC)
+ORC-12.4
+No
+No
+Optional: Enter ordering provider’s middle name, if known.
+This value is optional and can be left blank if no information is provided.
+ordering_provider_first_name
+
+(OTC)
+
+
+ORC-12.3
+No
+Yes
+Enter the first name of the ordering provider.
+File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+ordering_provider_street
+
+(OTC)
+ORC-24.1
+Requested
+Yes
+Enter the street address of the ordering provider.
+File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+ordering_provider_street2
+
+(OTC)
+ORC-24.2
+No
+No
+Optional: Enter ordering provider's additional address information, if applicable.
+This value is optional and can be left blank if no information is provided.
+ordering_provider_city
+
+(OTC)
+ORC-24.3
+Requested
+Yes
+Enter ordering provider's city.
+File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+ordering_provider_state
+
+(OTC)
+ORC-24.4
+Requested
+Yes
+Enter ordering provider's state using the two-character abbreviation.
+File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+ordering_provider_zip_code
+
+(OTC)
+ORC-24.5
+Requested
+Yes
+Enter ordering provider zip code. 
+
+Accepted Format:
+12345
+12345-6789
+
+
+File will fail if value is not entered using accepted format or field is left blank.
+ordering_provider_phone_number
+
+(OTC)
+ORC-14.7
+Requested
+Yes - Conditional
+Enter ordering provider's phone number.
+
+Accepted Format:
+000-000-000
+File will fail if value is not entered using accepted format or field is left blank.
+
+
+
+Testing facility data elements
+CSV Column Names
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+testing_lab_clia
+
+(OTC)
+OBX-23.10
+Yes
+Yes
+Enter testing facility’s CLIA number.
+File will fail if left blank. CLIA numbers can be found at https://www.cdc.gov/clia/LabSearch.html.
+
+For OTC, use 00Z0000014
+
+For prescription, use 00Z0000015
+
+
+testing_lab_name
+OBX-23.1
+No
+Yes
+Enter testing facility’s name.
+File will fail if field left blank.
+testing_lab_street
+OBX-24.1
+No
+Yes
+Enter the street address of the testing facility.
+File will fail if field left blank.
+testing_lab_street2
+OBX-24.2
+No
+No
+Optional: Enter testing facility’s additional address information, if applicable.
+This value is optional and can be left blank if no information is provided.
+testing_lab_city
+OBX-24.3
+No
+Yes
+Enter testing facility’s city.
+File will fail if field left blank.
+testing_lab_state
+OBX-24.4
+Yes
+Yes
+Enter testing facility’s state using the two-character abbreviation.
+File will fail if field left blank.
+
+
+testing_lab_zip_code
+OBX-24.5
+Yes
+Yes
+Enter testing facility’s zip code. 
+
+Accepted Format:
+12345
+12345-6789
+
+
+File will fail if value is not entered using accepted format or field is left blank.
+testing_lab_phone_number
+N/A
+No
+No
+Enter testing lab's phone number, if known. 
+
+Accepted Format:
+000-000-0000
+File will fail if value is not entered using accepted format.
+
+
+
+Ask-On-Entry (AOEs)
+
+CSV Column Names
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+pregnant
+OBX-3.1
+
+OBX-5.1
+Requested
+
+
+Requested
+Optional - Requested: Enter patient's pregnancy status.
+
+OBX-3.1
+82810-3
+
+OBX-5.1
+77386006 (Yes)
+60001007 (No)
+261665006 (Unknown)
+
+CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+employed_in_healthcare
+OBX-3.1
+
+OBX-5.1
+Requested
+Requested
+Optional - Requested: Enter patient's employment in healthcare status. 
+
+OBX-3.1
+95418-0
+
+OBX-5.1/CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+symptomatic_for_disease
+
+(OTC)
+OBX-3.1
+
+OBX-5.1
+Requested
+Requested
+Optional - Requested: Enter patient's symptomatic for disease status. 
+
+OBX-3.1
+95419-8
+
+OBX-5.1/CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+illness_onset_date
+
+(OTC)
+OBX-3.1
+
+OBX-5.1
+
+
+Requested
+Requested
+Enter patient's illness onset date.
+
+OBX-3.1
+65222-2
+
+
+OBX-5.1 Accepted Format: 
+yyyyMMdd
+
+
+Field is not required, but requested for thorough reporting.
+resident_congregate_setting
+OBX-3.1
+
+OBX-5.1
+
+
+Requested
+Requested
+Optional - Requested: Enter patient's congregate housing status. 
+
+OBX-3.1
+95421-4
+
+OBX-5.1/CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+residence_type
+N/A
+Requested
+Requested
+Optional - Requested: Enter the type of facility providing care for patient.
+
+Accepted Values:
+22232009 (Hospital)
+2081004 (Hospital ship)
+32074000 (Long Term Care Hospital)
+224929004 (Secure Hospital)
+42665001 (Nursing Home)
+30629002 (Retirement Home)
+74056004 (Orphanage)
+722173008 (Prison-based care site)
+20078004 (Substance Abuse Treatment Center)
+257573002 (Boarding House)
+224683003 (Military Accommodation)
+284546000 (Hospice)
+257628001 (Hostel)
+310207003 (Sheltered Housing)
+57656006 (Penal Institution)
+285113009 (Religious institutional residence)
+285141008 (Work environment)
+32911000 (Homeless)
+261665006 (Unknown)
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+hospitalized
+OBX-3.1
+
+OBX-5.1
+
+
+Requested
+Requested
+Optional - Requested: Enter patient's hospitalization status. 
+
+OBX-3.1
+77974-4
+
+OBX-5.1/CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+icu
+OBX-3.1
+
+OBX-5.1
+
+
+Requested
+Requested
+Optional - Requested: Enter patient's intensive care unit (ICU) status.
+
+OBX-3.1
+77974-4
+
+OBX-5.1/CSV
+Y (Yes)
+N (No)
+U (Unknown)
+
+
+Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+
+
+Reporting and ordering facility data elements
+All Reporting and Ordering Facility Data Elements can be left blank for CSV if same as Testing Facility Data Elements
+
+CSV Column Names
+HL7 Field / Component 
+Fed Required?
+State Required?
+Data Requirements
+Additional Guidance
+reporting_facility_name
+MSH-4.1
+Yes
+Yes
+
+
+Can be left blank for CSV if same as testing_lab_name.
+reporting_facility_clia
+MSH-4.2
+Yes
+Yes
+
+
+Can be left blank for CSV if same as testing_lab_clia.
+ordering_facility_name
+ORC-21.1
+No
+Yes – Conditional
+Enter ordering facility name.
+Can be left blank for CSV if same as testing_lab_name. 
+ordering_facility_street
+ORC-22.1
+No
+Yes – Conditional
+Enter the street address of the ordering facility.
+Can be left blank for CSV if same as testing_lab_street.
+ordering_facility_street2
+ORC-22.2
+
+
+No
+No
+Optional: Enter ordering facility's additional address information, if applicable.
+This value is optional and can be left blank if no information is provided.
+ordering_facility_city
+ORC-22.3
+No
+Yes – Conditional
+Enter ordering facility's city.
+Can be left blank for CSV if same as testing_lab_city. 
+ordering_facility_state
+ORC-22.4
+No
+Yes – Conditional
+Enter ordering facility's state  using the two-character  abbreviation.
+Can be left blank for CSV if same as testing_lab_state.
+ordering_facility_zip_code
+ORC-22.5
+No
+Yes – Conditional
+Enter ordering facility zip code. 
+
+Accepted Format: 
+12345
+12345-6789
+Can be left blank for CSV if same as testing_lab_zip_code.
+ordering_facility_phone_number
+ORC-23
+No
+Yes – Conditional
+Enter ordering facility phone number. 
+
+Accepted Format: 
+000-000-0000
+Can be left blank for CSV if same as testing_lab_phone_number.
+
+
