@@ -11,26 +11,49 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
-
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+        
+      - name: Login into Azure  
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Get Certificates Expiration
+
+      - name: Check Key Vault Certificates Expiration
         run: |
-          az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
-      - name: Get Near Expiry Certificates
-        run: |
-          near_expiry_date=$(date -d "+10 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          certificates=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
+          
+          for cert in $(echo "${certificates}" | jq -c '.[]'); do
+            name=$(echo "${cert}" | jq -r '.name')
+            expiration=$(echo "${cert}" | jq -r '.expirationDate')
+            expiration_timestamp=$(date -d "${expiration}" +%s)
+            current_timestamp=$(date +%s)
+            days_remaining=$(( (${expiration_timestamp} - ${current_timestamp}) / 86400 ))
+            if [[ ${days_remaining} -lt 30 ]]; then
+              echo "The certificate ${name} will expire in ${days_remaining} days."
+            fi
+          done
+      
+      # - name: Connect to VPN and login to Azure
+      #   uses: ./.github/actions/vpn-azure
+      #   with:
+      #     tls-key: ${{ secrets.TLS_KEY }}
+      #     ca-cert: ${{ secrets.CA_CRT}}
+      #     user-crt: ${{ secrets.USER_CRT }}
+      #     user-key: ${{ secrets.USER_KEY }}
+      #     sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-          echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
+
+      # - name: Get Certificates Expiration
+      #   run: |
+      #     az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
+
+      # - name: Get Near Expiry Certificates
+      #   run: |
+      #     near_expiry_date=$(date -d "+10 days" -I)
+      #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+
+      #     echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
 
 
 
