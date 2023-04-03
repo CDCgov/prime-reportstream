@@ -40,7 +40,7 @@ jobs:
         shell: bash
 
       - name: Send Slack Notification
-        if: steps.cert-expiration.outputs.expiring_certs != ""
+        if: steps.cert-expiration.outputs.expiring_certs != "300"
         uses: 8398a7/action-slack@v3
         with:
           status: "warning"
