@@ -90,7 +90,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')"
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
@@ -193,7 +193,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
