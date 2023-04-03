@@ -1,9 +1,12 @@
 name: Publish Container to GitHub
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
+  schedule:
+    - cron:  "0 0 1 * *"
 
 env:
   REGISTRY: ghcr.io
@@ -13,8 +16,8 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
-      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
+      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
+      has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq  || github.event_name == 'schedule'}}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
@@ -33,7 +36,7 @@ jobs:
   publish_tfcli:
     name: Publish Terraform CLI
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
+    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true'}}
     runs-on: ubuntu-latest
     defaults:
       run:
