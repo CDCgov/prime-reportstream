@@ -1,7 +1,6 @@
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
 
-#   Bundle.entry.resource.ofType(ServiceRequest).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/order-control")
 elements:
   - name: order-control
     resource: '%service'
