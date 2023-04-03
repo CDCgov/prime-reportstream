@@ -2,9 +2,9 @@ import classNames from "classnames";
 
 export interface GridRowProps {
     children: React.ReactNode;
-    className: string;
+    className?: string;
 }
 
 export function GridRow({ children, className }: GridRowProps) {
-    return <div className={classNames("grid-row", className)} >{children}</div>;
+    return <div className={classNames("grid-row", className)}>{children}</div>;
 }
