@@ -28,7 +28,7 @@ elements:
     resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-      identifier: '%performerOrganization.identifier[0].value'
+      identifier: '%specimen.identifier[0].value'
     schema: ../../common/organization-identifier
 
   #  If there's only one identifier and system is empty get identifier from performer org
