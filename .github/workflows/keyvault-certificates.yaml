@@ -32,7 +32,7 @@ jobs:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Add Runner IP to Key Vault Firewall
-        uses: azure/cli@v1
+        uses: azure/cli@dev
         with:
           inlineScript: |
             az keyvault network-rule add-ip --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
