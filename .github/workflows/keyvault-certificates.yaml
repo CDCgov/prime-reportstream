@@ -44,7 +44,7 @@ jobs:
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
 
       - name: Notify Slack
-        if: steps.cert-expiration.outputs.expiring_certs > 0
+        #if: steps.cert-expiration.outputs.expiring_certs > 0
         uses: rtCamp/action-slack-notify@v2.1.1
         with:
           status: 'Warning'
