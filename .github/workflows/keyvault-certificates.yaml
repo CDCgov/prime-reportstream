@@ -20,6 +20,7 @@ jobs:
       - name: Install Azure PowerShell
         run: |
           pwsh -Command "Install-Module -Name Az -AllowClobber -Force"
+          Import-Module -Name Az.KeyVault -Force
       - name: Check Certificate Expiration
         run: |
           cert=$(Get-AzKeyVaultCertificate -VaultName pdhstaging-keyvault -Name staging-reportstream-cdc-gov)
