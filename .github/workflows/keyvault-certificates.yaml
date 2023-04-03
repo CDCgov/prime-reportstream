@@ -21,8 +21,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y powershell
+          Install-Module -Name PowerShellGet -Force
+          Import-Module -Name PowerShellGet
+          Install-PackageProvider -Name NuGet -Force
+          Install-Module -Name AzureRM -Scope CurrentUser
           pwsh -Command "Install-PackageProvider -Name NuGet -Force; Import-Module PowerShellGet"
-          
+
       - name: Install Azure PowerShell module
         run: pwsh -Command "Install-Module -Name Az -Scope CurrentUser -Force"
 
