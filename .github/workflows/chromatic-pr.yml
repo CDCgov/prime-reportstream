@@ -1,0 +1,85 @@
+# Build a branch-specific Storybook instance on Chromatic
+# To trigger, add the 'chromatic' label to the pull request
+# To re-trigger, remove and add the 'chromatic' label to the pull request
+
+name: Build Branch Chromatic
+
+on:
+  pull_request:
+    types:
+      - labeled
+    paths:
+      - "frontend-react/**"
+    branches-ignore:
+      - deployment
+      - production
+
+jobs:
+  chromatic-deployment:
+    name: Chromatic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set vars
+        id: set_vars
+        if: ${{ github.event.label.name == 'chromatic' }}
+        shell: bash
+        run: echo "chromatic=true" >> $GITHUB_OUTPUT
+
+      - name: Find Comment
+        id: comment_find
+        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        uses: peter-evans/find-comment@034abe94d3191f9c89d870519735beae326f2bdb
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-regex: '\.*Chromatic.*\gi'
+
+      - name: Create comment
+        id: comment_create
+        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        with:
+          comment-id: ${{ steps.comment_find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Deploying branch Storybook to Chromatic...
+          edit-mode: replace
+          reactions: rocket
+          reactions-edit-mode: replace
+
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        with:
+          fetch-depth: 0 # need commit history for Chromatic
+
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version-file: frontend-react/package.json
+
+      - name: Install dependencies
+        run: yarn
+        working-directory: frontend-react
+        shell: bash
+
+      - name: Publish to Chromatic
+        id: chromatic_publish
+        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        uses: chromaui/action@d51b84e79d164fbe8fc5bb7175695d88ddd04b72
+        with:
+          workingDir: frontend-react
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          ignoreLastBuildOnBranch: "**"
+          onlyChanged: true
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+
+      - name: Update comment
+        if: ${{ steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != '' }}
+        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        with:
+          comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}
+          body: |
+            Branch Storybook deployed to Chromatic: ${{ steps.chromatic_publish.outputs.url }}
+          edit-mode: replace
+          reactions: hooray
+          reactions-edit-mode: replace
