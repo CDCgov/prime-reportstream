@@ -47,6 +47,7 @@ jobs:
         #if: steps.cert-expiration.outputs.expiring_certs > 0
         uses: rtCamp/action-slack-notify@v2.1.1
         with:
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           status: 'Warning'
           fields: |
             Certificates are expiring soon:
@@ -54,7 +55,6 @@ jobs:
           username: 'GitHub Actions'
           icon_emoji: ':github_actions:'
           channel: '${{ secrets.SLACK_CHANNEL }}'
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           mention: '@channel'
           if_mention: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
