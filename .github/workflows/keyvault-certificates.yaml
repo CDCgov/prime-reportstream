@@ -44,22 +44,14 @@ jobs:
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
 
       - name: Notify Slack
-        #if: steps.cert-expiration.outputs.expiring_certs > 0
-        uses: rtCamp/action-slack-notify@v2.1.1
+        #if: steps.cert-expiration.outputs.expiring_certs != ""
+        uses: einaregilsson/slack-notification-action@v1
         with:
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
-          status: 'Warning'
-          fields: |
-            Certificates are expiring soon:
-            ${{ steps.cert-expiration.outputs.expiring_certs }}
-          username: 'GitHub Actions'
-          icon_emoji: ':github_actions:'
-          channel: '${{ secrets.SLACK_CHANNEL }}'
-          mention: '@channel'
-          if_mention: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          #github_base_url: ${{ env.GITHUB_SERVER_URL }}
-
+          channel: ${{ secrets.SLACK_CHANNEL }}
+          message: |
+            The following certificates are expiring soon:
+            ${{ steps.cert-expiration.outputs.expiring_certs }
 
       # - name: Send Slack Notification
       #   if: steps.cert-expiration.outputs.expiring_certs > 0
@@ -97,7 +89,7 @@ jobs:
       #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
       #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
 
-      - name: Remove runner IP from firewall rule
+      - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
       - name: Cleanup
