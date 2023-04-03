@@ -46,21 +46,22 @@ jobs:
       #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
       #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
 
-      - name: Check Key Vault Certificates Expiration
+      - name: Check Certificate Expiration
         run: |
-
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
-          
-          for cert in $(echo "${certificates}" | jq -c '.[]'); do
-            name=$(echo "${cert}" | jq -r '.name')
-            expiration=$(echo "${cert}" | jq -r '.expirationDate')
-            expiration_timestamp=$(date -d "${expiration}" +%s)
-            current_timestamp=$(date +%s)
-            days_remaining=$(( (${expiration_timestamp} - ${current_timestamp}) / 86400 ))
-            if [[ ${days_remaining} -lt 30 ]]; then
-              echo "The certificate ${name} will expire in ${days_remaining} days."
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].name:name,expirationDate:attributes.exp")
+          for cert in $(echo "$certificates" | jq -c '.[]'); do
+            name=$(echo "$cert" | jq -r '.name')
+            expiration=$(echo "$cert" | jq -r '.expirationDate')
+            if [ "$expiration" != "null" ]; then
+              expiration_timestamp=$(date -d "$expiration" +%s)
+              current_timestamp=$(date +%s)
+              days_remaining=$(( ($expiration_timestamp - $current_timestamp) / 86400 ))
+              if [[ $days_remaining -lt 300 ]]; then
+                echo "The certificate $name will expire in $days_remaining days."
+              fi
             fi
           done
+        shell: bash
 
 
 
