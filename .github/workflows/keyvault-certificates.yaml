@@ -31,6 +31,33 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
+      - name: Check Certificate Expiration
+        id: cert-expiration
+        run: |
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
+          expiring_certs=$(echo "$certificates" | jq '.[] | select((.expirationDate | fromdateiso8601 | mktime) - now < 2592000)')
+          echo "::set-output name=expiring_certs::$expiring_certs"
+        shell: bash
+
+      - name: Send Slack Notification
+        if: steps.cert-expiration.outputs.expiring_certs != ""
+        uses: 8398a7/action-slack@v3
+        with:
+          status: "warning"
+          author_name: "GitHub Actions"
+          author_icon: "https://github.githubassets.com/favicon.ico"
+          fields: |
+            {
+              \"title\": \"Key Vault Certificates Expiring Soon\",
+              \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ steps.cert-expiration.outputs.expiring_certs }}\",
+              \"short\": false
+            }
+          channel: ${{ secrets.SLACK_CHANNEL }}
+          icon_url: "https://github.githubassets.com/favicon.ico"
+          username: "GitHub Actions"
+          footer: "Sent by GitHub Actions"
+          footer_icon: "https://github.githubassets.com/favicon.ico"
+
       # - name: Get Certificates Expiration
       #   run: |
       #     az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
@@ -41,23 +68,6 @@ jobs:
       #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
       #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
 
-      - name: Check Certificate Expiration
-        run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
-          for cert in $(echo "$certificates" | jq -c '.[]'); do
-            name=$(echo "$cert" | jq -r '.name')
-            expiration=$(echo "$cert" | jq -r '.expirationDate')
-            expiration_timestamp=$(date -d "$expiration" +%s)
-            current_timestamp=$(date +%s)
-            days_remaining=$(( ($expiration_timestamp - $current_timestamp) / 86400 ))
-            if [[ $days_remaining -lt 300 ]]; then
-              echo "The certificate $name will expire in $days_remaining days."
-            fi
-          done
-        shell: bash
-
-
-
       - name: Remove runner IP from firewall rule
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
@@ -67,94 +77,4 @@ jobs:
 
 
 
-      # - name: Install PowerShell and PowerShellGet
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y powershell
-      #     pwsh -Command "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted"
-      #     pwsh -Command "Install-Module -Name PowerShellGet -Force"
-
-      # - name: Install Azure PowerShell module
-      #   run: pwsh -Command "Install-Module -Name Az -Scope CurrentUser -Force"
-
-      # - name: Check Certificate Expiration
-      #   run: |
-      #     cert=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
-      #     if ($cert.NotAfter -lt (Get-Date).AddDays(30)) {
-      #       Write-Error "Certificate is expiring soon: $($cert.NotAfter)"
-      #     } else {
-      #       Write-Host "Certificate is still valid"
-      #     }
-
-      # - name: Check Key Vault Certificates Expiration
-      #   run: |
-
-      #     certificates=$(az keyvault certificate get --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
-          
-      #     for cert in $(echo "${certificates}" | jq -c '.[]'); do
-      #       name=$(echo "${cert}" | jq -r '.name')
-      #       expiration=$(echo "${cert}" | jq -r '.expirationDate')
-      #       expiration_timestamp=$(date -d "${expiration}" +%s)
-      #       current_timestamp=$(date +%s)
-      #       days_remaining=$(( (${expiration_timestamp} - ${current_timestamp}) / 86400 ))
-      #       if [[ ${days_remaining} -lt 30 ]]; then
-      #         echo "The certificate ${name} will expire in ${days_remaining} days."
-      #       fi
-      #     done
       
-      # - name: Connect to VPN and login to Azure
-      #   uses: ./.github/actions/vpn-azure
-      #   with:
-      #     tls-key: ${{ secrets.TLS_KEY }}
-      #     ca-cert: ${{ secrets.CA_CRT}}
-      #     user-crt: ${{ secrets.USER_CRT }}
-      #     user-key: ${{ secrets.USER_KEY }}
-      #     sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-
-
-
-
-
-# name: Key Vault Certificate Expiry Check
-
-# on:
-#   schedule:
-#     # Run the workflow daily at 8:00 AM UTC
-#     - cron: '0 8 * * *'
-
-# env:
-#   KEYVAULT_NAME: your-key-vault-name
-#   KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS: 30
-#   EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-#   EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-#   NOTIFY_EMAILS: ${{ secrets.NOTIFY_EMAILS }}
-
-# jobs:
-#   check_expiry:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Get Expiring Certificates
-#       uses: azure/cli@v1
-#       with:
-#         azcliversion: 2.28.0
-#         inlineScript: |
-#           expiring_certificates=$(az keyvault certificate list --vault-name ${{ env.KEYVAULT_NAME }} --query "[?attributes.expires<=\`$(date -u -d '+${{ env.KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS }} days' +%Y-%m-%d)\`]" -o tsv --query "[].id")
-#           if [ -z "$expiring_certificates" ]; then
-#             echo "::set-output name=near_expiry_certificates::None"
-#           else
-#             echo "::set-output name=near_expiry_certificates::$expiring_certificates"
-#           fi
-#       id: get_expiry
-#     - name: Send Email Notification
-#       uses: dawidd6/action-send-mail@v3
-#       with:
-#         server_address: smtp.gmail.com
-#         server_port: 587
-#         username: ${{ env.EMAIL_USERNAME }}
-#         password: ${{ env.EMAIL_PASSWORD }}
-#         subject: Near Expiry Certificates Notification
-#         body: |
-#           The following certificates will expire within the next ${env.KEYVAULT_CERTS_EXPIRY_THRESHOLD_DAYS} days: ${{ steps.get_expiry.outputs.near_expiry_certificates }}
-#         to: ${{ env.NOTIFY_EMAILS }}
-#         from: your-email-address@example.com
