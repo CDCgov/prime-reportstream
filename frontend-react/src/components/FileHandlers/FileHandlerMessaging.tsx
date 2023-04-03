@@ -1,217 +1,124 @@
-import React, { ReactNode, useMemo } from "react";
-import { Icon, Tooltip } from "@trussworks/react-uswds";
+import React, { ReactNode } from "react";
+import { Button, Icon } from "@trussworks/react-uswds";
 
-import {
-    formattedDateFromTimestamp,
-    timeZoneAbbreviated,
-} from "../../utils/DateTimeUtils";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USLink, USExtLink } from "../USLink";
+import { USExtLink } from "../USLink";
+import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import { saveToCsv } from "../../utils/FileUtils";
 
-type ExtendedSuccessMetadata = {
-    destinations?: string;
-    reportId?: string;
-    timestamp?: string;
-};
-
-type FileSuccessDisplayProps = {
-    heading: string;
-    message: string;
-    showExtendedMetadata: boolean;
-    extendedMetadata?: ExtendedSuccessMetadata;
-};
-
-export const FileSuccessDisplay = ({
-    heading,
-    message,
-    showExtendedMetadata,
-    extendedMetadata = {},
-}: FileSuccessDisplayProps) => {
-    const { destinations, timestamp, reportId } = extendedMetadata;
-    const destinationsDisplay =
-        destinations || "There are no known recipients at this time.";
-    return (
-        <>
-            <StaticAlert
-                type={[StaticAlertType.Success, StaticAlertType.Slim]}
-                heading={heading}
-                message={message}
-            />
-            <div>
-                {/* TODO: can probably remove since it's not being used now */}
-
-                {showExtendedMetadata && (
-                    <>
-                        {reportId && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Confirmation Code
-                                </p>
-                                <p className="margin-top-05">
-                                    <USLink href={`/submissions/${reportId}`}>
-                                        {reportId}
-                                    </USLink>
-                                </p>
-                            </div>
-                        )}
-                        {timestamp && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Date Received
-                                </p>
-                                <p className="margin-top-05">
-                                    {formattedDateFromTimestamp(
-                                        timestamp,
-                                        "DD MMMM YYYY"
-                                    )}
-                                </p>
-                            </div>
-                        )}
-                        {timestamp && (
-                            <div>
-                                <p className="text-normal text-base margin-bottom-0">
-                                    Time Received
-                                </p>
-                                <p className="margin-top-05">{`${formattedDateFromTimestamp(
-                                    timestamp,
-                                    "h:mm"
-                                )} ${timeZoneAbbreviated()}`}</p>
-                            </div>
-                        )}
-                        <div>
-                            <p className="text-normal text-base margin-bottom-0">
-                                Recipients
-                            </p>
-                            <p className="margin-top-05">
-                                {destinationsDisplay}
-                            </p>
-                        </div>
-                    </>
-                )}
-            </div>
-        </>
-    );
-};
+const HL7_PRODUCT_MATRIX_URL =
+    "https://www.hl7.org/implement/standards/product_brief.cfm";
+const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
 
 export enum RequestLevel {
     WARNING = "Warnings",
     ERROR = "Errors",
 }
 
-const TrackingIDTooltip = () => {
-    return (
-        <Tooltip
-            className="fixed-tooltip"
-            position="right"
-            label={"Defaults to MSH-10"}
-        >
-            <Icon.Help />
-        </Tooltip>
-    );
-};
-
 type RequestedChangesDisplayProps = {
     title: RequestLevel;
     data: ResponseError[];
     message: string;
     heading: string;
+    schemaColumnHeader: FileType;
+    file?: File;
 };
+
+/**
+ * Given a filename and the alert type, generate a safe filename for the errors/warnings CSV
+ *
+ * @param originalFileName
+ * @param requestLevel
+ */
+export function getSafeFileName(
+    originalFileName: string,
+    requestLevel: RequestLevel
+) {
+    const joinedStr = [originalFileName, requestLevel].join("-").toLowerCase();
+
+    return joinedStr.replace(/[^a-z0-9]/gi, "-");
+}
 
 export const RequestedChangesDisplay = ({
     title,
     data,
     message,
     heading,
+    schemaColumnHeader,
+    file,
 }: RequestedChangesDisplayProps) => {
-    const alertType = useMemo(
-        () =>
-            title === RequestLevel.WARNING
-                ? StaticAlertType.Warning
-                : StaticAlertType.Error,
-        [title]
-    );
+    const alertType =
+        title === RequestLevel.WARNING
+            ? StaticAlertType.Warning
+            : StaticAlertType.Error;
+
     const showTable =
         data &&
         data.length &&
         data.some((responseItem) => responseItem.message);
 
+    function handleSaveToCsvClick() {
+        return saveToCsv(data, {
+            filename: getSafeFileName(file?.name || "", title),
+        });
+    }
+
     return (
-        <>
-            <StaticAlert type={alertType} heading={heading} message={message}>
-                <h5 className="margin-bottom-1">Resources</h5>
-                <ul className={"margin-0"}>
-                    <li>
-                        <USLink
-                            target="_blank"
-                            href="/resources/programmers-guide"
-                        >
-                            ReportStream Programmers Guide
-                        </USLink>
-                    </li>
-                    <li>
-                        <USLink href="https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html">
-                            LOINC In Vitro Diagnostic (LIVD) Test Code Mapping
-                        </USLink>
-                    </li>
-                </ul>
-            </StaticAlert>
+        <div>
+            <StaticAlert type={alertType} heading={heading} message={message} />
+
             {showTable && (
-                <>
-                    <h3>{title}</h3>
-                    <table
-                        className="usa-table usa-table--borderless rs-width-100"
-                        data-testid="error-table"
-                    >
-                        <thead>
-                            <tr>
-                                <th className="rs-table-column-minwidth">
-                                    Requested Edit
-                                </th>
-                                <th className="rs-table-column-minwidth">
-                                    Field
-                                </th>
-                                <th className="rs-table-column-minwidth">
-                                    Tracking ID(s) <TrackingIDTooltip />
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.map((e, i) => {
-                                return (
-                                    <ErrorRow
-                                        error={e}
-                                        index={i}
-                                        key={`error${i}`}
-                                    />
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </>
+                <div className="padding-y-4">
+                    <div className="margin-bottom-4 display-flex flex-justify flex-align-center">
+                        <h3 className="margin-0">{title}</h3>
+
+                        <Button
+                            className="usa-button usa-button--outline display-flex flex-align-center"
+                            type="button"
+                            onClick={handleSaveToCsvClick}
+                        >
+                            Download edits as CSV <Icon.FileDownload />
+                        </Button>
+                    </div>
+
+                    <div className="padding-x-4 padding-y-2 radius-md bg-base-lightest">
+                        <table
+                            className="usa-table usa-table--borderless"
+                            data-testid="error-table"
+                        >
+                            <thead>
+                                <tr>
+                                    <th className="rs-table-column-minwidth">
+                                        Recommended Edit
+                                    </th>
+                                    <th className="rs-table-column-minwidth">
+                                        {schemaColumnHeader} Row
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.map((e, i) => {
+                                    return (
+                                        <ErrorRow
+                                            error={e}
+                                            index={i}
+                                            key={`error${i}`}
+                                            schemaColumnHeader={
+                                                schemaColumnHeader
+                                            }
+                                        />
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             )}
-        </>
+        </div>
     );
 };
-
-interface FileWarningBannerProps {
-    message: string;
-}
-
-export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
-    return (
-        <StaticAlert
-            type={StaticAlertType.Warning}
-            heading="Warning"
-            message={message}
-        />
-    );
-};
-
-const HL7_PRODUCT_MATRIX_URL =
-    "https://www.hl7.org/implement/standards/product_brief.cfm";
-const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
 
 export type ValidationErrorMessageProps = {
     errorCode: ErrorCode;
@@ -314,10 +221,11 @@ export function ValidationErrorMessage({
 interface ErrorRowProps {
     error: ResponseError;
     index: number;
+    schemaColumnHeader: string;
 }
 
-const ErrorRow = ({ error, index }: ErrorRowProps) => {
-    const { errorCode, field, message, trackingIds } = error;
+const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
+    const { errorCode, field, message, trackingIds, indices } = error;
     return (
         <tr key={"error_" + index}>
             <td>
@@ -327,10 +235,15 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
                     message={message}
                 />
             </td>
-            <td className="rs-table-column-minwidth">{field}</td>
             <td className="rs-table-column-minwidth">
-                {trackingIds?.length && trackingIds.length > 0 && (
-                    <span>{trackingIds.join(", ")}</span>
+                {schemaColumnHeader === FileType.CSV && indices?.length && (
+                    <span>{indices.join(" + ")}</span>
+                )}
+                {schemaColumnHeader === FileType.HL7 && trackingIds?.length && (
+                    <span>{trackingIds.join(" + ")}</span>
+                )}
+                {!indices?.length && !trackingIds?.length && (
+                    <span>Not applicable</span>
                 )}
             </td>
         </tr>
@@ -356,8 +269,8 @@ export const FileQualityFilterDisplay = ({
                 message={message}
             />
             <h3>Jurisdictions</h3>
-            {destinations?.map((d) => (
-                <React.Fragment key={d.organization_id}>
+            {destinations?.map((d, idx) => (
+                <React.Fragment key={`${d.organization_id}_${idx}`}>
                     <table
                         className="usa-table usa-table--borderless width-full"
                         data-testid="error-table"

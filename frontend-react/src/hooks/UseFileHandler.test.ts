@@ -4,16 +4,16 @@ import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
+import { FileType } from "../utils/TemporarySettingsAPITypes";
 
 import useFileHandler, {
     INITIAL_STATE,
     FileHandlerActionType,
     RequestCompletePayload,
-    FileType,
     UseFileHandlerHookResult,
 } from "./UseFileHandler";
 
-const fakeDestination: Destination = {
+export const fakeDestination: Destination = {
     organization_id: "an org id",
     organization: "an org",
     service: "some service",
@@ -25,7 +25,7 @@ const fakeDestination: Destination = {
     itemCountBeforeQualityFiltering: 0,
 };
 
-const fakeError: ResponseError = {
+export const fakeError: ResponseError = {
     field: "error field",
     indices: [1],
     message: "error message",
@@ -35,7 +35,7 @@ const fakeError: ResponseError = {
     details: "this happened",
 };
 
-const fakeWarning: ResponseError = {
+export const fakeWarning: ResponseError = {
     field: "warning field",
     indices: [1],
     message: "warning message",
@@ -51,6 +51,7 @@ const fileSelectedTypedPayload = {
         size: 1,
         name: "aCsv.csv",
     } as File,
+    fileContent: "content",
 };
 
 const fileSelectedUntypedPayload = {
@@ -58,6 +59,7 @@ const fileSelectedUntypedPayload = {
         size: 1,
         name: "aCsv.csv",
     } as File,
+    fileContent: "content",
 };
 
 const fileSelectedBadTypePayload = {
@@ -65,6 +67,7 @@ const fileSelectedBadTypePayload = {
         size: 1,
         name: "aCsv.docx",
     } as File,
+    fileContent: "content",
 };
 
 const fileSelectedTooBigPayload = {
@@ -72,6 +75,7 @@ const fileSelectedTooBigPayload = {
         size: PAYLOAD_MAX_BYTES + 1,
         name: "aCsv.csv",
     } as File,
+    fileContent: "content",
 };
 
 const requestCompleteSuccessPayload: RequestCompletePayload = {
@@ -209,6 +213,12 @@ describe("useFileHandler", () => {
 
         expect(result.current.state).toEqual({
             ...INITIAL_STATE,
+            file: {
+                name: "aCsv.csv",
+                size: 1,
+                type: "csv",
+            },
+            fileContent: "content",
             fileType: "CSV",
             fileName: "aCsv.csv",
             contentType: "text/csv",
@@ -229,6 +239,11 @@ describe("useFileHandler", () => {
 
         expect(result.current.state).toEqual({
             ...INITIAL_STATE,
+            file: {
+                name: "aCsv.csv",
+                size: 1,
+            },
+            fileContent: "content",
             fileType: "CSV",
             fileName: "aCsv.csv",
             contentType: "text/csv",
