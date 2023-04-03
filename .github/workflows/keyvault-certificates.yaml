@@ -16,7 +16,7 @@ jobs:
         run: echo "::set-output name=runner_ip::$(curl https://ifconfig.me)"
         id: runner_ip
 
-      - name: Connect to VPN
+      - name: Connect to VPN & Login into Azure
         uses: ./.github/actions/vpn-azure
         with:
           tls-key: ${{ secrets.TLS_KEY }}
@@ -24,11 +24,6 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-      
-      - name: Login into Azure  
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Add Runner IP to Key Vault Firewall
         uses: azure/cli@v1
@@ -48,17 +43,15 @@ jobs:
 
       - name: Check Certificate Expiration
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].name:name,expirationDate:attributes.exp")
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
           for cert in $(echo "$certificates" | jq -c '.[]'); do
             name=$(echo "$cert" | jq -r '.name')
             expiration=$(echo "$cert" | jq -r '.expirationDate')
-            if [ "$expiration" != "null" ]; then
-              expiration_timestamp=$(date -d "$expiration" +%s)
-              current_timestamp=$(date +%s)
-              days_remaining=$(( ($expiration_timestamp - $current_timestamp) / 86400 ))
-              if [[ $days_remaining -lt 300 ]]; then
-                echo "The certificate $name will expire in $days_remaining days."
-              fi
+            expiration_timestamp=$(date -d "$expiration" +%s)
+            current_timestamp=$(date +%s)
+            days_remaining=$(( ($expiration_timestamp - $current_timestamp) / 86400 ))
+            if [[ $days_remaining -lt 300 ]]; then
+              echo "The certificate $name will expire in $days_remaining days."
             fi
           done
         shell: bash
