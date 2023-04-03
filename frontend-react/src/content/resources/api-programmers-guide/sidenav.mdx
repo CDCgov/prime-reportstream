@@ -1,0 +1,17 @@
+import { SideNav } from "@trussworks/react-uswds"
+import { USNavLink } from "../../../components/USLink"
+
+<SideNav items={[
+    <USNavLink href="/resources/api-programmers-guide">ReportStream API</USNavLink>,
+    <USNavLink href="/resources/api-programmers-guide/getting-started">Getting started</USNavLink>,
+    <USNavLink href="/resources/api-programmers-guide/documentation">Documentation</USNavLink>,
+    <SideNav
+        isSubnav={true}
+        items={[
+            <USNavLink href="/resources/api-programmers-guide/data-model">Data model</USNavLink>,
+            <USNavLink href="/resources/api-programmers-guide/responses">Responses from ReportStream</USNavLink>,
+            <USNavLink href="/resources/api-programmers-guide/samples">Sample payloads and output</USNavLink>,
+        ]}
+    ></SideNav>
+]}>
+</SideNav>
