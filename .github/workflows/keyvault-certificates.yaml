@@ -20,7 +20,7 @@ jobs:
       - name: Check Key Vault Certificates Expiration
         run: |
 
-          certificates=$(az keyvault certificate get --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
           
           for cert in $(echo "${certificates}" | jq -c '.[]'); do
             name=$(echo "${cert}" | jq -r '.name')
