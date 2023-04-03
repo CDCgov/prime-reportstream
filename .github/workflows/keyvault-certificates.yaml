@@ -47,7 +47,7 @@ jobs:
         #if: steps.cert-expiration.outputs.expiring_certs > 0
         uses: rtCamp/action-slack-notify@v2.1.1
         with:
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
           status: 'Warning'
           fields: |
             Certificates are expiring soon:
