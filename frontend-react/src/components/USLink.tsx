@@ -1,5 +1,5 @@
 import React, { AnchorHTMLAttributes } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
@@ -167,16 +167,24 @@ export const USNavLink = ({
     className,
     activeClassName,
 }: USNavLinkProps) => {
+    const { hash: currentHash } = useLocation();
+    const hashIndex = href?.indexOf("#") ?? -1;
+    const hash = hashIndex > -1 ? href?.slice(hashIndex) : "";
+
     return (
         <NavLink
             to={href || ""}
-            className={({ isActive }) =>
-                classnames("usa-nav__link", {
+            className={({ isActive: isPathnameActive }) => {
+                // Without this, all hash links would be considered active for a path
+                const isActive =
+                    isPathnameActive && (hash === "" || currentHash === hash);
+
+                return classnames("usa-nav__link", {
                     "usa-current": isActive,
                     [activeClassName as any]: isActive, // `as any` because string may be undefined
                     [className as any]: !isActive, // `as any` because string may be undefined
-                })
-            }
+                });
+            }}
         >
             {children}
         </NavLink>
