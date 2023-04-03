@@ -64,7 +64,7 @@ jobs:
           echo "The following certificates will expire within the next 10 days: $near_expiry_certificates"
 
       - name: Remove runner IP from firewall rule
-        run: az keyvault network-rule remove-ip --name pdhstaging-keyvault --ip-address $runner_ip
+        run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
       - name: Cleanup
         run: |
