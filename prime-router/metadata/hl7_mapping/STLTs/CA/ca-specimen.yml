@@ -2,9 +2,11 @@ constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
   performerOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
 elements:
+  #####################################
+  # Simple Report specific transforms #
+  #####################################
   #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
   #  CA uses SPM identifier as their Accession number to uniquely identify reports sent to them
-  #  This could probably be moved to a Simple Report sender transform
   - name: ca-specimen-organization-identifier
     debug: true
     resource: '%performerOrganization'
