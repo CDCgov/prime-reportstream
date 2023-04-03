@@ -29,7 +29,7 @@ jobs:
 
       - name: Check Certificate Expiration
         run: |
-          cert=$(Get-AzKeyVaultCertificate -VaultName pdhstaging-keyvault -Name staging-reportstream-cdc-gov)
+          cert=$(az keyvault certificate get --vault-name pdhprod-keyvault --query "[].{name:name,expirationDate:attributes.exp}")
           if ($cert.NotAfter -lt (Get-Date).AddDays(30)) {
             Write-Error "Certificate is expiring soon: $($cert.NotAfter)"
           } else {
