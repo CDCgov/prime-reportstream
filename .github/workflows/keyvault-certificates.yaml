@@ -7,10 +7,15 @@ on:
     
 jobs:
   check-certificates:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+
+      - name: Get runner IP address
+        run: |
+          export RUNNER_IP=$(curl -sS https://api.ipify.org)
+          echo "Runner IP address is $RUNNER_IP"
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -20,29 +25,17 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-        
-      - name: Login into Azure  
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
-      - name: Get runner IP address
-        run: |
-          export RUNNER_IP=$(curl -sS https://api.ipify.org)
-          echo "Runner IP address is $RUNNER_IP"
       
       - name: Login into Azure  
         uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Add runner IP to firewall rule    
-        run: az keyvault network-rule add-ip --name pdhstaging-keyvault --ip-address $RUNNER_IP
-
-      - name: Set Key Vault context
-        run: az keyvault set-policy --name pdhstaging-keyvault --secret-permissions get --spn terraform-automation
-
+      - name: Add Runner IP to Key Vault Firewall
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            az keyvault network-rule add-ip --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
       - name: Check Key Vault Certificates Expiration
         run: |
