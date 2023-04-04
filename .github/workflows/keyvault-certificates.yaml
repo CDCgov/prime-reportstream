@@ -44,76 +44,13 @@ jobs:
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
       
       - name: Send Slack Notification
-        if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
+        #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
         uses: rtCamp/action-slack-notify@master
         with:
           status: "warning"
           message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
           channel: "##pagerduty-alert-dump"
           webhook_url: ${{ env.SLACK_WEBHOOK_URL }}
-
-      # - name: Send Email Notification
-      #   uses: dawidd6/action-send-mail@v3
-      #   with:
-      #     server_address: smtp.sendgrid.net
-      #     server_port: 587
-      #     username: apikey
-      #     password: ${{ secrets.SENDGRID_API_KEY }}
-      #     subject: Certificate Expiration Notification
-      #     from: reportstream@cdc.gov
-      #     to: LucasJonas.KouongaDze@icf.com
-      #     body: |
-      #       The following certificates are expiring soon:
-
-      #       ${{ steps.cert-expiration.outputs.expiring_certs }}
-      #   #if: steps.cert-expiration.outputs.expiring_certs != "1"
-
-
-
-      #   #if: steps.cert-expiration.outputs.expiring_certs != ""
-      #   uses: einaregilsson/slack-notification-action@v1
-      #   with:
-      #     slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
-      #     channel: ${{ secrets.SLACK_CHANNEL }}
-      #     message: |
-      #       The following certificates are expiring soon:
-      #       ${{ steps.cert-expiration.outputs.expiring_certs }}
-
-      # - name: Send Slack Notification
-      #   if: steps.cert-expiration.outputs.expiring_certs > 0
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: "warning"
-      #     author_name: "GitHub Actions"
-      #     author_icon: "https://github.githubassets.com/favicon.ico"
-      #     fields: |
-      #       {
-      #         \"title\": \"Key Vault Certificates Expiring Soon\",
-      #         \"value\": \"The following certificates in Key Vault pdhstaging-keyvault will expire soon:\n${{ steps.cert-expiration.outputs.expiring_certs }}\",
-      #         \"short\": false
-      #       }
-      #     channel: ${{ secrets.SLACK_CHANNEL }}
-      #     icon_url: "https://github.githubassets.com/favicon.ico"
-      #     username: "GitHub Actions"
-      #     footer: "Sent by GitHub Actions"
-      #     footer_icon: "https://github.githubassets.com/favicon.ico"
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-
-
-
-
-
-      # - name: Get Certificates Expiration
-      #   run: |
-      #     az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
-
-      # - name: Get Near Expiry Certificates
-      #   run: |
-      #     near_expiry_date=$(date -d "+300 days" -I)
-      #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-      #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
