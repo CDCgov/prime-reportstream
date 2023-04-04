@@ -45,7 +45,7 @@ jobs:
       
       - name: Send Slack Notification
         #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
-        uses: rtCamp/action-slack-notify@v1
+        uses: rtCamp/action-slack-notify@master
         with:
           entryPoint: send
           args: |
