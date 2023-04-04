@@ -15,9 +15,9 @@ import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
-import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -353,8 +353,7 @@ class TranslationTests {
 
         private fun runSenderTransform(bundle: InputStream, schema: String): InputStream {
             val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
-            val fhirConverter = FHIRConverter(metadata, settings)
-            val transformedBundle = fhirConverter.getTransformerFromSchema(schema)!!.transform(fhirBundle)
+            val transformedBundle = FhirTransformer(schema).transform(fhirBundle)
             val fhirJson = FhirTranscoder.encode(transformedBundle)
             return fhirJson.byteInputStream()
         }

@@ -6,13 +6,13 @@ elements:
   # ReportStream specific #
   #########################
 # todo:  -//there isn't a way for the name to stay just the CDC prime part and have the namespace id no endpoint set
-  - name: sending-application-namespace-id-no-endpoint
+  - name: sending-application-namespace-id
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.name'
     value: [ '"CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821"' ]
 
-  - name: sending-application-universal-id-with-endpoint
+  - name: sending-application-universal-id
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.endpoint'
@@ -25,7 +25,6 @@ elements:
     bundleProperty: '%resource.value.resolve().name'
     value: [ '"Centers for Disease Control and Prevention"' ]
 
-    #todo: add a condition to check if this even exists
   - name: processing-id
     condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.code.empty()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
