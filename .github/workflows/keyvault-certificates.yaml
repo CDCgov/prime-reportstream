@@ -35,29 +35,46 @@ jobs:
         run: |
           az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
-      - name: Get Near Expiry Certificates
+      # - name: Get Near Expiry Certificates
+      #   id: cert-expiration
+      #   run: |
+      #     near_expiry_date=$(date -d "+300 days" -I)
+      #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+      #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
+      #     echo "::set-output name=expiring_certs::$near_expiry_certificates"
+      
+      - name: Get Certificate Expiration
         id: cert-expiration
         run: |
-          near_expiry_date=$(date -d "+300 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
-          echo "::set-output name=expiring_certs::$near_expiry_certificates"
-      
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
+          $cert = [Azure.Security.KeyVault.Certificates.CertificateClient]::new("https://$env:KEY_VAULT_NAME.vault.azure.net/")
+          $certificate = $cert.GetCertificate($env:CERTIFICATE_NAME)
+          Write-Output "::set-output name=expiration::$(($certificate.NotAfter - (Get-Date)).Days)"
+        shell: pwsh
+        
+      - name: Send Slack Notification
+        if: ${{ steps.cert-expiration.outputs.expiration < 300 }}
+        uses: rtCamp/action-slack-notify@master
         with:
-          server_address: smtp.sendgrid.net
-          server_port: 587
-          username: apikey
-          password: ${{ secrets.SENDGRID_API_KEY }}
-          subject: Certificate Expiration Notification
-          from: jonaskouonga@gmail.com
-          to: LucasJonas.KouongaDze@icf.com
-          body: |
-            The following certificates are expiring soon:
+          status: "warning"
+          message: "The certificate $env:CERTIFICATE_NAME will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+          channel: "##pagerduty-alert-dump"
+          webhook_url: ${{ env.SLACK_WEBHOOK_URL }}
 
-            ${{ steps.cert-expiration.outputs.expiring_certs }}
-        #if: steps.cert-expiration.outputs.expiring_certs != "1"
+      # - name: Send Email Notification
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.sendgrid.net
+      #     server_port: 587
+      #     username: apikey
+      #     password: ${{ secrets.SENDGRID_API_KEY }}
+      #     subject: Certificate Expiration Notification
+      #     from: reportstream@cdc.gov
+      #     to: LucasJonas.KouongaDze@icf.com
+      #     body: |
+      #       The following certificates are expiring soon:
+
+      #       ${{ steps.cert-expiration.outputs.expiring_certs }}
+      #   #if: steps.cert-expiration.outputs.expiring_certs != "1"
 
 
 
