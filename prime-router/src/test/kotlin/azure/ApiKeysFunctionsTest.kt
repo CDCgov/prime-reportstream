@@ -11,6 +11,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.Jwk
+import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -18,8 +19,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import io.mockk.unmockkObject
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.json.JSONObject
@@ -173,8 +173,8 @@ class ApiKeysFunctionsTest {
 
         @Test
         fun `Test successfully removes the oldest key and adds the new one when over the limit`() {
-            mockkStatic(System::class)
-            every { System.getenv("MAX_NUM_KEY_PER_SCOPE") } returns "2"
+            mockkObject(JwkSet.Companion)
+            every { JwkSet.Companion.getMaximumNumberOfKeysPerScope() } returns 2
             settings.organizationStore.put(
                 organization.name,
                 organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
@@ -204,7 +204,7 @@ class ApiKeysFunctionsTest {
                         .toSet()
                 ).isEqualTo(setOf(jwk3.toRSAPublicKey(), jwk.toRSAPublicKey()))
             }
-            unmockkStatic(System::class)
+            unmockkObject(JwkSet.Companion)
         }
 
         @Test
