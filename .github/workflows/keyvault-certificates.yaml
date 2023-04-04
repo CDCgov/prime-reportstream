@@ -35,28 +35,20 @@ jobs:
         run: |
           az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table
 
-      # - name: Get Near Expiry Certificates
-      #   id: cert-expiration
-      #   run: |
-      #     near_expiry_date=$(date -d "+300 days" -I)
-      #     near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-      #     echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
-      #     echo "::set-output name=expiring_certs::$near_expiry_certificates"
-      
-      - name: Get Certificate Expiration
+      - name: Get Near Expiry Certificates
         id: cert-expiration
         run: |
-          $cert = [Azure.Security.KeyVault.Certificates.CertificateClient]::new("https://$env:KEY_VAULT_NAME.vault.azure.net/")
-          $certificate = $cert.GetCertificate($env:CERTIFICATE_NAME)
-          Write-Output "::set-output name=expiration::$(($certificate.NotAfter - (Get-Date)).Days)"
-        shell: pwsh
-        
+          near_expiry_date=$(date -d "+300 days" -I)
+          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
+          echo "::set-output name=expiring_certs::$near_expiry_certificates"
+      
       - name: Send Slack Notification
-        if: ${{ steps.cert-expiration.outputs.expiration < 300 }}
+        if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
         uses: rtCamp/action-slack-notify@master
         with:
           status: "warning"
-          message: "The certificate $env:CERTIFICATE_NAME will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+          message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
           channel: "##pagerduty-alert-dump"
           webhook_url: ${{ env.SLACK_WEBHOOK_URL }}
 
