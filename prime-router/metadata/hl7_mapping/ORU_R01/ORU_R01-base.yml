@@ -5,7 +5,7 @@ constants:
 elements:
   - name: message-headers
     condition: >
-      Bundle.entry.resource.ofType(MessageHeader).exists() and
+       j MessageHeader).exists() and
       Bundle.entry.resource.ofType(MessageHeader).event is Coding and
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'

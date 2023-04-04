@@ -1,7 +1,8 @@
 elements:
+  ##truncate
   - name: designator-namespace-id-from-namespace
     condition: '%resource.extension(%`namespaceExtName`).exists()'
-    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    value: [ '%resource.extension(%`namespaceExtName`).value.substring(0,20)' ]
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: designator-namespace-id-from-system

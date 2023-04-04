@@ -15,7 +15,7 @@ elements:
 
   - name: patient-assigning-authority
     condition: '%resource.identifier.count() = 1 and %resource.identifier.type.empty()'
-    value: [ '%patientOrganization.name' ]
+    value: [ '%patientOrganization.name.substring(0,20)' ]
     hl7Spec: [ '%{hl7PIDField}-3-4-1' ]
 
   - name: patient-assigning-authority-type

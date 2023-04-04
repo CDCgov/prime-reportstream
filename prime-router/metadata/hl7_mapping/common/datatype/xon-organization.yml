@@ -1,4 +1,5 @@
 elements:
+  ##Truncate
   - name: xon-organization-name
     value: [ '%resource.name' ]
     hl7Spec: [ '%{hl7OrgField}-1' ]
