@@ -17,9 +17,9 @@
         schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: null
+        receivingApplicationName: ""
         receivingApplicationOID: null
-        receivingFacilityName: null
+        receivingFacilityName: ""
         receivingFacilityOID: null
         messageProfileId: null
         replaceValue: {}
