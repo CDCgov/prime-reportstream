@@ -50,7 +50,7 @@ jobs:
           status: "warning"
           message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
           channel: "#pagerduty-alert-dump"
-          webhook_url: ${{ secret.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
