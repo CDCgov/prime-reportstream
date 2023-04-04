@@ -1,3 +1,6 @@
+constants:
+  alternateIdentifierExtension: '%resource.value.extension(%`rsext-alternate-identifier`)'
+  originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
 elements:
   - name: coded-element
     constants:
@@ -18,3 +21,13 @@ elements:
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]
+
+  - name: original-text
+    condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'
+    value: [ '%originalTextExtension.value' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]
+
+  - name: original-text-from-display
+    condition: '%alternateIdentifierExtension.exists().not() and %originalTextExtension.exists().not()'
+    value: [ '%resource.coding.display' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]

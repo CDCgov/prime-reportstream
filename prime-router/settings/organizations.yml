@@ -837,7 +837,7 @@
         # Message id is not empty (MSH-10)
         - "Bundle.identifier.value.empty().not()"
         # Equipment model (OBX-17-2) and test result (OBX-5) are not empty
-        - "Bundle.entry.resource.ofType(Observation).where(method.empty() and value.coding.code.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
         #  Specimen type (SPM-4) is not empty
         - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
         # Patient's last name (PID-5-1), first name (PID-5-2) and date of birth (PID-7)are not empty
@@ -859,6 +859,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
       transport:
         type: SFTP
         host: sftp
