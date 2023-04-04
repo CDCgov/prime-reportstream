@@ -11,6 +11,17 @@ hr {
     padding: 0.25rem 0.25rem;
 }
 
+// FileHandler.tsx
+.file-handler-table {
+    .usa-table {
+        // @override _table.scss
+        td {
+            background-color: transparent;
+        }
+    }
+}
+// End -- FileHandler.tsx
+
 // MessageReceivers.tsx
 .message-receivers-table {
     .usa-table thead th {
