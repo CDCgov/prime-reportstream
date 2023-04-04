@@ -110,7 +110,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/fhir-transform-sample
+      schemaName: metadata/fhir_transforms/default-sender-transform
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
