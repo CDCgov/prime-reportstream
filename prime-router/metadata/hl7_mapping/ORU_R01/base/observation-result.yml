@@ -120,8 +120,11 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-7' ]
 
   - name: observation-abnormal-flag
-    value: [ '%resource.interpretation.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-8' ]
+    resource: '%resource.interpretation'
+    constants:
+      versionId: '2.7'
+      cweFieldPath: '%{hl7OBXField}-8'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-result-status
     value: [ '%resource.status' ]
@@ -161,9 +164,9 @@ elements:
 
   - name: observation-method
     resource: '%resource.method'
-    schema: ../../common/datatype/ce-coded-element
+    schema: ../../common/datatype/ce-coded-with-exceptions
     constants:
-      ceFieldPath: '%{hl7OBXField}-17'
+      cweFieldPath: '%{hl7OBXField}-17'
 
   - name: analysis-date-time
     value: [ '%resource.issued' ]
