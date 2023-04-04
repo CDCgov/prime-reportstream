@@ -1,4 +1,4 @@
-# Nothing here yet, but this will be the sender transform for Trusted Intermediary
+# Just a placeholder to keep the object mapper happy for now; this will be the sender transform for Trusted Intermediary
 elements:
   - name: placeholder-element
     resource: 'Bundle.entry.resource.ofType(Patient)'
