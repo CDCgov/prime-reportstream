@@ -45,13 +45,13 @@ jobs:
       
       - name: Send Slack Notification
         #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v1
         with:
           entryPoint: send
           args: |
             - channel=#pagerduty-alert-dump
             - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-            - message="The certificate $env:CERTIFICATE_NAME in the $near_expiry_certificates Key Vault will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+            - message="The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
             - status=warning
         # with:
         #   status: "warning"
