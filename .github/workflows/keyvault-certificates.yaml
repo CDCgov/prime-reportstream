@@ -45,12 +45,19 @@ jobs:
       
       - name: Send Slack Notification
         #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v3
         with:
-          status: "warning"
-          message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
-          channel: "#pagerduty-alert-dump"
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          entryPoint: send
+          args: |
+            - channel=#pagerduty-alert-dump
+            - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+            - message="The certificate $env:CERTIFICATE_NAME in the $near_expiry_certificates Key Vault will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+            - status=warning
+        # with:
+        #   status: "warning"
+        #   message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+        #   channel: "#pagerduty-alert-dump"
+        #   webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
