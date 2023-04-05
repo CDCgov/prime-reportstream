@@ -46,7 +46,8 @@ jobs:
       - name: Send Notification to Slack Channel
         if: ${{ steps.cert-expiry.outputs.expiry <= 30 }}
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        #uses: slackapi/slack-github-action@v1.23.0
+        uses: rtCamp/action-slack-notify@v2.3.0
         with:
           payload: '{"text": "${{ steps.cert-expiration.outputs.cert-expiration }}"}'
         env:
