@@ -54,11 +54,12 @@ jobs:
     - name: Loop through Certificates
       id: loop-certificates
       run: |
+        echo "::set-env name=KEY_VAULT_NAME::$key_vault_name"
         export KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR==$(( ( ${{ env.CURRENT_ITERATION }} - 1 ) * ${{ env.BATCH_SIZE }} + ${{ env.CURRENT_CERT }} ))")
         echo "Certificate: $KEY_VAULT_CERT_NAME"
         export CERT_EXPIRY_DATE=$(az keyvault certificate show --vault-name $key_vault_name --name $KEY_VAULT_CERT_NAME --query "properties.expires" -o tsv)
         export DAYS_TO_EXPIRY=$(( ( $(date -d "$CERT_EXPIRY_DATE" +%s) - $(date +%s) ) / 86400 ))
-        if [[ $DAYS_TO_EXPIRY -lt 30 ]]
+        if [[ $DAYS_TO_EXPIRY -lt 300 ]]
         then
           echo "::set-env name=NOTIFY::true"
           echo "::set-env name=EXPIRY_DATE::$CERT_EXPIRY_DATE"
