@@ -23,6 +23,17 @@ open class Organization(
         org.keys
     )
 
+    constructor(copy: Organization, keys: List<JwkSet>) : this(
+        copy.name,
+        copy.description,
+        copy.jurisdiction,
+        copy.stateCode,
+        copy.countyName,
+        copy.filters,
+        copy.featureFlags,
+        keys
+    )
+
     constructor(copy: Organization, newScope: String, newJwk: Jwk) : this(
         copy.name,
         copy.description,

@@ -1,6 +1,10 @@
 # Environment Provisioning
 Any adjustments to the infrastructure provisining process should be noted here so they are documented, and repeatable.
 
+## Table of Contents
+1. [Demo Environments](#demo-environments)
+2. [Trial Frontend Environments](#trial-frontend-environments)
+
 ## Azure Prerequisites
 We assume the following infrastructure has already been deployed by CMS. 
  - Resource Group for underlying infrastructure
@@ -163,3 +167,21 @@ done
  3. If the demo environment has been fully deleted and you cannot re-create resources like key vaults due to "name already used" restrictions, remove `random_id.init` from the state file and re-apply to generate new unique names:
     * `terraform -chdir=$path state rm random_id.init`
     * `terraform -chdir=$path apply -target=random_id.init -var-file=$env/env.tfvars.json`
+
+# Trial Frontend Environments
+
+## 🚀Auto Create
+
+Push (or merge) code into any of the following branches:
+  1. `trialfrontend01`
+  2. `trialfrontend02`
+  3. `trialfrontend03`
+
+This will trigger GitHub action workflow [Release Trial Frontend](../../.github/workflows/release_trial_frontend.yml)
+
+## 🔍View
+
+Navigate to the related frontend:
+  1. [trial01](https://pdhstagingpublictrial01.z13.web.core.windows.net/)
+  2. [trial02](https://pdhstagingpublictrial02.z13.web.core.windows.net/)
+  3. [trial03](https://pdhstagingpublictrial03.z13.web.core.windows.net/)

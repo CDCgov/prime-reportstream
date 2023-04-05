@@ -1,7 +1,14 @@
 constants:
   hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+  diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
 elements:
   - name: ca-observation-result
     resource: '%resource.result.resolve()'
     schema: ca-observation-result
     resourceIndex: resultIndex
+
+  - name: ca-order-segment
+    schema: ca-order
+
+  - name: ca-specimen
+    schema: ca-specimen

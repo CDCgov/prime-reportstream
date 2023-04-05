@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -60,9 +61,13 @@ class FHIRConverter(
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
+            val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
             var bundleIndex = 1
             for (bundle in fhirBundles) {
+                // conduct FHIR Transform
+                transformer?.transform(bundle)
+
                 // make a 'report'
                 val report = Report(
                     Report.Format.FHIR,
@@ -141,6 +146,18 @@ class FHIRConverter(
                 )
             }
         }
+    }
+
+    /**
+     * Loads a transformer schema with [schemaName] and returns it.
+     * Returns null if [schemaName] is the empty string.
+     * Using this function instead of calling the constructor directly simplifies the process of mocking the
+     * transformer in tests.
+     */
+    internal fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
+        return if (schemaName.isNotBlank()) {
+            FhirTransformer(schemaName)
+        } else null
     }
 
     /**
