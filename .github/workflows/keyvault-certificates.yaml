@@ -40,21 +40,38 @@ jobs:
         run: |
           near_expiry_date=$(date -d "+300 days" -I)
           near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates"
+          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates" > payload-slack-content.json
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
-      
-      - name: Send Slack Notification
-        #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
-        uses: rtCamp/action-slack-notify@master
+
+      - name: Send custom JSON data to Slack workflow
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
         with:
-          entryPoint: send
-          args: |
-            - channel=#pagerduty-alert-dump
-            - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-            - message="The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
-            - status=warning
-        # with:
-        #   status: "warning"
+          payload-file-path: "payload-slack-content.json"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # - name: Send Slack Notification
+      #   uses: rtCamp/action-slack-notify@v3
+      #   with:
+      #     entryPoint: send
+      #     args: |
+      #       - channel=#my-slack-channel
+      #       - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+      #       - message="Hello, world!"
+      #       - status=good
+
+      #   #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
+      #   uses: rtCamp/action-slack-notify@master
+      #   with:
+      #     entryPoint: send
+      #     args: |
+      #       - channel=#pagerduty-alert-dump
+      #       - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+      #       - message="The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+      #       - status=warning
+      #   # with:
+      #   #   status: "warning"
         #   message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
         #   channel: "#pagerduty-alert-dump"
         #   webhook_url: ${{ secrets.SLACK_WEBHOOK }}
