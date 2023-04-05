@@ -193,12 +193,12 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-        receivingApplicationName: "CA-ELR"
-        receivingFacilityName: "CA"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       transport:
         type: SFTP
         host: sftp
