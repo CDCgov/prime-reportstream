@@ -192,7 +192,7 @@ class DefaultFilterTests {
             emptyList(),
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(result).isFalse()
@@ -207,24 +207,24 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val useDefaultResult = engine.evaluateFilterCondition(
+        val useDefaultResponseResult = engine.evaluateFilterCondition(
             emptyList(),
             bundle,
-            false,
-            true
-        )
-        // assert
-        assertThat(useDefaultResult).isTrue()
+            defaultResponse = false,
+            reverseFilter = true,
+        ).first
+        // default response isn't reversed
+        assertThat(useDefaultResponseResult).isFalse()
 
         // act
-        val useBundleResult = engine.evaluateFilterCondition(
+        val useDefaultProcessingModeFilterResult = engine.evaluateFilterCondition(
             engine.processingModeFilterDefault,
             bundle,
-            false,
-            false
-        )
+            defaultResponse = false,
+            reverseFilter = true
+        ).first
         // assert
-        assertThat(useBundleResult).isTrue()
+        assertThat(useDefaultProcessingModeFilterResult).isFalse()
     }
 
     @Test
@@ -240,7 +240,7 @@ class DefaultFilterTests {
             emptyList(),
             bundle,
             true
-        )
+        ).first
 
         // assert
         assertThat(result).isTrue()
@@ -262,7 +262,7 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(procModeResult).isTrue()
+        assertThat(procModeResult.first).isTrue()
     }
 
     @Test
@@ -278,7 +278,7 @@ class DefaultFilterTests {
             engine.processingModeFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(procModeResult).isFalse()
@@ -299,7 +299,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -320,7 +320,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -341,7 +341,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -362,7 +362,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isFalse()
@@ -383,7 +383,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -404,7 +404,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -425,7 +425,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -446,7 +446,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -467,7 +467,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -488,7 +488,7 @@ class DefaultFilterTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()

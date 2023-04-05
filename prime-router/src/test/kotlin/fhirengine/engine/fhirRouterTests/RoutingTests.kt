@@ -1,8 +1,11 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
@@ -39,6 +42,7 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Bundle
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -256,7 +260,7 @@ class RoutingTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        )
+        ).first
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -290,9 +294,9 @@ class RoutingTests {
 
         // filters
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
-        var qualFilter = emptyList<String>()
-        var routingFilter = emptyList<String>()
-        var procModeFilter = emptyList<String>()
+        val qualFilter = emptyList<String>()
+        val routingFilter = emptyList<String>()
+        val procModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -344,9 +348,9 @@ class RoutingTests {
 
         // filters
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
-        var routingFilter = emptyList<String>()
-        var procModeFilter = emptyList<String>()
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+        val routingFilter = emptyList<String>()
+        val procModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -398,9 +402,9 @@ class RoutingTests {
 
         // filters
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
-        var procModeFilter = emptyList<String>()
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+        val procModeFilter = emptyList<String>()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -452,9 +456,9 @@ class RoutingTests {
 
         // filters
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -659,7 +663,7 @@ class RoutingTests {
             filter,
             bundle,
             false
-        )
+        ).first
         // act & assert
         assertThat(result).isTrue()
     }
@@ -681,7 +685,7 @@ class RoutingTests {
             filter,
             bundle,
             false
-        )
+        ).first
         // act & assert
         assertThat(result).isTrue()
     }
@@ -703,7 +707,7 @@ class RoutingTests {
             filter,
             bundle,
             false
-        )
+        ).first
         // act & assert
         assertThat(result).isTrue()
     }
@@ -715,12 +719,12 @@ class RoutingTests {
         val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         assertThat(report.filteringResults.count()).isEqualTo(0)
-        engine.logFilterResults(qualFilter, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
+        engine.logFilterResults(qualFilter.toString(), bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
     }
@@ -764,9 +768,9 @@ class RoutingTests {
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns emptyList()
+        every { engine.getQualityFilters(any(), any()) } returns engine.qualityFilterDefault
         every { engine.getRoutingFilter(any(), any()) } returns emptyList()
-        every { engine.getProcessingModeFilter(any(), any()) } returns emptyList()
+        every { engine.getProcessingModeFilter(any(), any()) } returns engine.processingModeFilterDefault
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
         every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
@@ -790,8 +794,10 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        every { engine.evaluateFilterCondition(any(), any(), true, any(), any()) } returns true
-        every { engine.evaluateFilterCondition(any(), any(), false, any(), any()) } returns false
+        every { engine.evaluateFilterCondition(any(), any(), true, any(), any()) } returns Pair(true, null)
+        every {
+            engine.evaluateFilterCondition(any(), any(), false, any(), any())
+        } returns Pair(false, filter.toString())
 
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
         verify(exactly = 0) {
@@ -857,11 +863,58 @@ class RoutingTests {
         // act
         val receivers = engine.applyFilters(bundle, report)
 
-        // assert only the quality filter didn't pass
+        // assert only the processing mode filter didn't pass
 
         assertThat(report.filteringResults).isNotEmpty()
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(receivers).isEmpty()
+    }
+
+    @Test
+    fun `test tagging default filter in logs`() {
+        // content is not important, just get a Bundle
+        val bundle = Bundle()
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // This processing mode filter evaluates to false, is equivalent to the default processindModeFilter
+        val procModeFilter = listOf("%processingId = 'P'")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.evaluateFilterCondition(any(), any(), any(), any(), any()) } returns Pair<Boolean, String?>(
+            false,
+            procModeFilter.toString()
+        )
+
+        // act
+        val result = engine.evaluateFilterAndLogResult(
+            procModeFilter,
+            bundle,
+            report,
+            oneOrganization.receivers[0],
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            false,
+        )
+
+        assertThat(result).isFalse()
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(report.filteringResults[0].message).doesNotContain("default filter")
+
+        report.filteringResults.clear()
+
+        val result2 = engine.evaluateFilterAndLogResult(
+            engine.processingModeFilterDefault,
+            bundle,
+            report,
+            oneOrganization.receivers[0],
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            false,
+        )
+
+        assertThat(result2).isFalse()
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(report.filteringResults[0].message).contains("default filter")
     }
 }
