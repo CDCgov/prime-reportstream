@@ -19,27 +19,26 @@ export interface MarkdownLayoutProps {
 }
 
 /**
+ * FUTURE_TODO: Remove GridContainer once implemented in higher-level component.
+ *
  * Default markdown layout.
+ * @example
  * With sidenav:
- *  ________________________
- * |________________________|
- * |    |    |        |     |
- * |    |    |        |     |
- * |    |SIDE|  MAIN  |     |
- * |    |    |        |     |
- * |    |    |        |     |
- * --------------------------
- * |________________________|
+ * +------+-----------------+
+ * |      |                 |
+ * |      |                 |
+ * | SIDE |      MAIN       |
+ * |      |                 |
+ * |      |                 |
+ * +------+-----------------+
  * Without sidenav:
- *  ________________________
- * |________________________|
- * |    |             |     |
- * |    |             |     |
- * |    |     MAIN    |     |
- * |    |             |     |
- * |    |             |     |
- * --------------------------
- * |________________________|
+ * +------------------------+
+ * |                        |
+ * |                        |
+ * |         MAIN           |
+ * |                        |
+ * |                        |
+ * +------------------------+
  */
 export function MarkdownLayout({
     sidenav,
