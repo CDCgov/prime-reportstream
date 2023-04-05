@@ -205,7 +205,7 @@
     "source-map-loader": "^4.0.1",
     "storybook-addon-react-router-v6": "^0.3.1",
     "style-loader": "^3.3.1",
-    "tailwindcss": "^3.2.7",
+    "tailwindcss": "^3.3.1",
     "terser-webpack-plugin": "^5.3.6",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
