@@ -48,10 +48,7 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          payload: |
-            {
-              "text": echo "The following certificates will expire within the next 30 days: $near_expiry_certificates"
-            }
+          payload: '{"text": "The following certificates will expire within the next 30 days: $near_expiry_certificates"}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
