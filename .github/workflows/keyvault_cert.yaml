@@ -49,6 +49,7 @@ jobs:
           echo "::set-env name=CURRENT_CERT::1"
           echo "::set-env name=CURRENT_ITERATION::1"
           echo "::set-env name=BATCH_SIZE::5"
+        done
 
     - name: Loop through Certificates
       id: loop-certificates
