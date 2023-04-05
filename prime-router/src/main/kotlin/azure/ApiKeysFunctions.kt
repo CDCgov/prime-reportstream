@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -85,15 +84,18 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
             val updatedKeys = JwkSet.addKeyToScope(organization.keys, scope, jwk)
 
-            settingsFacade.putSetting(
-                SettingType.ORGANIZATION.name,
+            val (result, error) = settingsFacade.putSetting(
+                organization.name,
                 JacksonMapperUtilities.defaultMapper.writeValueAsString(Organization(organization, updatedKeys)),
                 claims,
-                OrganizationAPI::class.java,
-                organization.name
+                OrganizationAPI::class.java
             )
 
-            return HttpUtilities.okJSONResponse(request, ApiKeysResponse(orgName, updatedKeys))
+            return if (result == SettingsFacade.AccessResult.SUCCESS) {
+                HttpUtilities.okJSONResponse(request, ApiKeysResponse(orgName, updatedKeys))
+            } else {
+                HttpUtilities.bad(request, error)
+            }
         } catch (e: Exception) {
             return HttpUtilities.bad(request, "Unable to parse public key: ${e.localizedMessage}")
         }
