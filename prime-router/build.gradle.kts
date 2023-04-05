@@ -110,17 +110,17 @@ jacoco.toolVersion = "0.8.9"
 
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_19
+    targetCompatibility = JavaVersion.VERSION_19
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = "19"
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = "19"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
