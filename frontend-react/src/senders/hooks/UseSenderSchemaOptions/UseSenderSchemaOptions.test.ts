@@ -2,9 +2,11 @@ import { renderHook, RenderHookResult } from "@testing-library/react";
 
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
-import { CustomerStatus } from "../../../utils/TemporarySettingsAPITypes";
+import {
+    CustomerStatus,
+    FileType,
+} from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
-import { FileType } from "../../../hooks/UseFileHandler";
 
 import useSenderSchemaOptions, {
     STANDARD_SCHEMA_OPTIONS,

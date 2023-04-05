@@ -1,3 +1,8 @@
+import {
+    ExportToCsv,
+    Options as ExportToCsvOptions,
+} from "export-to-csv-fix-source-map";
+
 // values taken from Report.kt
 export const REPORT_MAX_ITEMS = 10000;
 export const REPORT_MAX_ITEM_COLUMNS = 2000;
@@ -34,6 +39,33 @@ export const parseCsvForError = (
     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
 };
+
+// default options for exporting to CSV
+const EXPORT_TO_CSV_DEFAULTS: ExportToCsvOptions = {
+    decimalSeparator: ".",
+    fieldSeparator: ",",
+    filename: `Exported CSV`,
+    quoteStrings: '"',
+    showLabels: true,
+    showTitle: false,
+    title: `Exported CSV`,
+    useBom: true,
+    useKeysAsHeaders: true,
+    useTextFile: false,
+};
+
+export function saveToCsv(
+    data: any,
+    options: Partial<ExportToCsvOptions> = {}
+) {
+    const finalOptions: ExportToCsvOptions = {
+        ...EXPORT_TO_CSV_DEFAULTS,
+        ...options,
+    };
+
+    const csvExporter = new ExportToCsv(finalOptions);
+    csvExporter.generateCsv(data);
+}
 
 export const validateFileType = (
     file: File,
