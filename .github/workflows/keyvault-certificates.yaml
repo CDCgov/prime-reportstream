@@ -43,19 +43,47 @@ jobs:
           echo "The following certificates will expire within the next 400 days: $near_expiry_certificates" 
           echo "::set-output name=expiring_certs::$near_expiry_certificates" 
           echo "$near_expiry_certificates.txt" > expiring_certificates.txt
+          cat expiring_certificates.txt
+        shell: bash
 
-      - name: Send Notification to Slack Channel
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          # For posting a rich message using Block Kit
-          payload: |
-            {
-              "text": `$(cat expiring_certificates.txt)`
-            }
+      - name: Send Slack message
+        uses: 8398a7/action-slack@v3
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          #SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        with:
+          fields: |
+            - title: The certificate is expiring soon!
+              value: "${{ steps.cert-expiration.outputs.stdout }}"
+          color: good
+
+
+
+      
+      # - name: Send notification to Slack
+      #   if: steps.cert-expiry.outputs.expiry_days <= 30 # only notify if certificate will expire in 30 days or less
+      #   uses: rtCamp/action-slack-notify@v2.1
+      #   with:
+      #     slack_message: |
+      #       :warning: The certificate is expiring soon!
+
+      #       Certificate name: `${{ env.KEY_VAULT_CERT_NAME }}`
+      #       Expiry date: `${{ steps.cert-expiry.outputs.expiry_date }}`
+      #       Key Vault name: `${{ env.KEY_VAULT_NAME }}`
+      #     slack_webhook: ${{ env.SLACK_WEBHOOK_URL }}
+
+
+      # - name: Send Notification to Slack Channel
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v1.23.0
+      #   with:
+      #     # For posting a rich message using Block Kit
+      #     payload: |
+      #       {
+      #         "text": `${{ cat expiring_certificates.txt }} `
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     #SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
 
 
