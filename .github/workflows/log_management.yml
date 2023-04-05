@@ -2,6 +2,9 @@ name: Log Management
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - josiahsiegel/fix/workflow_history
   schedule:
     - cron: "5 3 * * *"
 
@@ -11,7 +14,7 @@ jobs:
     name: Run log management steps
     steps:
       - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
-      - name: Workflow Housekeeper
+      - name: Workflow Housekeeper - workflows NOT in default branch
         uses: JosiahSiegel/workflow-housekeeper@v1.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
@@ -20,3 +23,12 @@ jobs:
           retention-time: '7 days'
           retain-run-count: 0
           dry-run: false
+      - name: Workflow Housekeeper - workflows in default branch
+        uses: JosiahSiegel/workflow-housekeeper@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
+        with:
+          ignore-branch-workflows: false
+          retention-time: '2 months'
+          retain-run-count: 1
+          dry-run: true
