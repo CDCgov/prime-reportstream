@@ -47,9 +47,36 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          payload-file-path: "payload-slack-content.json"
+          # For posting a rich message using Block Kit
+          payload: |
+            {
+              "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days.",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+                  }
+                }
+              ]
+            }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       # - name: Send Slack Notification
       #   uses: rtCamp/action-slack-notify@v3
