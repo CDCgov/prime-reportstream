@@ -1,15 +1,52 @@
-import { GridContainer } from "@trussworks/react-uswds";
+import { Grid, GridContainer } from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 
 import { USSmartLink } from "../USLink";
-import { GridRow } from "../Grid";
 
 export interface MarkdownLayoutProps {
     sidenav?: JSX.Element;
     children?: React.ReactNode;
+    mainProps?: React.HTMLAttributes<HTMLElement> & {
+        to?:
+            | string
+            | React.FunctionComponent<React.HTMLAttributes<HTMLElement>>;
+    };
+    sidenavProps?: React.HTMLAttributes<HTMLElement> & {
+        to?:
+            | string
+            | React.FunctionComponent<React.HTMLAttributes<HTMLElement>>;
+    };
 }
 
-export function MarkdownLayout({ sidenav, children }: MarkdownLayoutProps) {
+/**
+ * Default markdown layout.
+ * With sidenav:
+ *  ________________________
+ * |________________________|
+ * |    |    |        |     |
+ * |    |    |        |     |
+ * |    |SIDE|  MAIN  |     |
+ * |    |    |        |     |
+ * |    |    |        |     |
+ * --------------------------
+ * |________________________|
+ * Without sidenav:
+ *  ________________________
+ * |________________________|
+ * |    |             |     |
+ * |    |             |     |
+ * |    |     MAIN    |     |
+ * |    |             |     |
+ * |    |             |     |
+ * --------------------------
+ * |________________________|
+ */
+export function MarkdownLayout({
+    sidenav,
+    children,
+    mainProps: { to: Main = "main", ...mainProps } = {},
+    sidenavProps: { to: Nav = "nav", ...sidenavProps } = {},
+}: MarkdownLayoutProps) {
     return (
         <MDXProvider
             components={{
@@ -17,17 +54,20 @@ export function MarkdownLayout({ sidenav, children }: MarkdownLayoutProps) {
             }}
         >
             <GridContainer>
-                <GridRow>
+                <Grid row>
                     {sidenav ? (
-                        <nav
+                        <Nav
                             aria-label="side-navigation"
-                            className="grid-col-auto"
+                            className="tablet:grid-col-4"
+                            {...sidenavProps}
                         >
                             {sidenav}
-                        </nav>
+                        </Nav>
                     ) : undefined}
-                    <main className="grid-col">{children}</main>
-                </GridRow>
+                    <Main className="tablet:grid-col-8" {...mainProps}>
+                        {children}
+                    </Main>
+                </Grid>
             </GridContainer>
         </MDXProvider>
     );

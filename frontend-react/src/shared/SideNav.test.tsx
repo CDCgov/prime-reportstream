@@ -1,9 +1,9 @@
 import { screen } from "@testing-library/react";
 
 import { renderApp } from "../utils/CustomRenderUtils";
+import { USNavLink } from "../components/USLink";
 
-import { SideNavItem } from "./SideNav";
-import { USNavLink } from "./USLink";
+import SideNavItem from "./SideNav";
 
 // link -> li -> sidenav (ul) -> div
 function getIsVisible(e: HTMLElement) {
