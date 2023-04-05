@@ -60,7 +60,7 @@ jobs:
     - name: Loop through Certificates
       id: loop-certificates
       run: |
-        KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR=="$(((${env.CURRENT_ITERATION} - 1) * ${env.BATCH_SIZE}) + ${env.CURRENT_CERT})")
+        KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR=="$(((${env.CURRENT_ITERATION} - 1) * ${env.BATCH_SIZE}) + ${env.CURRENT_CERT}))")
         echo "Certificate: $KEY_VA
 
 
