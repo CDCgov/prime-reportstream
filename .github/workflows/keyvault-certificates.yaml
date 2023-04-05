@@ -40,7 +40,7 @@ jobs:
         run: |
           near_expiry_date=$(date -d "+300 days" -I)
           near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates" > payload-slack-content.json
+          echo "The following certificates will expire within the next 300 days: $near_expiry_certificates" 
           echo "::set-output name=expiring_certs::$near_expiry_certificates"
 
       - name: Send custom JSON data to Slack workflow
@@ -50,16 +50,7 @@ jobs:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days.",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
-                  }
-                }
-              ]
+              "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
