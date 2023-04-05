@@ -48,7 +48,7 @@ export default function SideNavItem({
                 {children}
             </NavLink>
             {items ? (
-                <div className={subnavClassname}>
+                <div className={subnavClassname} aria-hidden={!isSubnavVisible}>
                     <SideNav isSubnav={true} items={items} />
                 </div>
             ) : undefined}
