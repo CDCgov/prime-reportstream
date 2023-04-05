@@ -41,7 +41,7 @@ jobs:
           near_expiry_date=$(date -d "+400 days" -I)
           near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
           echo "The following certificates will expire within the next 400 days: $near_expiry_certificates" 
-          echo "::set-output name=expiring_certs::$near_expiry_certificates" > near_expiry_certificates.txt
+          echo "::set-output name=expiring_certs::$near_expiry_certificates" 
           echo "$near_expiry_certificates.txt" > expiring_certificates.txt
 
       - name: Send Notification to Slack Channel
@@ -51,7 +51,7 @@ jobs:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "$(cat expiring_certificates.txt)"
+              "text": `$(cat expiring_certificates.txt)`
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
