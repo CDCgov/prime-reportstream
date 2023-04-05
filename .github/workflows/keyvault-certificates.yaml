@@ -51,25 +51,11 @@ jobs:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "The certificate `cat near_expiry_certificates.txt` will expire in 400 days."
+              "text": "$(cat expiring_certificates.txt)"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           #SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
-      - name: Notify Slack
-        uses: rtCamp/action-slack-notify@v2.1.0
-        with:
-          status: "danger"
-          title: "Expiring Key Vault Certificates"
-          text: "$(cat expiring_certificates.txt)"
-          webhook_url: ${{ env.SLACK_WEBHOOK_URL }}
-
-
-
-
-
-
 
 
 
