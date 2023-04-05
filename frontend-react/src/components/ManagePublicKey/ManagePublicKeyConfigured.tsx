@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Grid } from "@trussworks/react-uswds";
+import { Button, Grid, Icon } from "@trussworks/react-uswds";
 
 type ManagePublicKeyUploadCompleteProps = {
     onUploadNewPublicKey: () => void;
@@ -9,19 +9,14 @@ export default function ManagePublicKeyConfigured({
     onUploadNewPublicKey,
 }: ManagePublicKeyUploadCompleteProps) {
     return (
-        <div>
-            <h1 className="margin-top-0 margin-bottom-5">Manage Public Key</h1>
-            <p className="font-sans-md">
+        <div className="manage-public-key-configured">
+            <div className="margin-bottom-4">
                 Your public key is already configured.
-            </p>
+            </div>
             <Grid row>
                 <Grid col="auto">
-                    <Button
-                        onClick={onUploadNewPublicKey}
-                        type="button"
-                        outline
-                    >
-                        Try Again
+                    <Button onClick={onUploadNewPublicKey} type="button">
+                        Upload new public key <Icon.Edit />
                     </Button>
                 </Grid>
             </Grid>

@@ -10,6 +10,8 @@ import {
 } from "@trussworks/react-uswds";
 
 import { useOrganizationPublicKeys } from "../../hooks/UseOrganizationPublicKeys";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { ApiKey } from "../../config/endpoints/settings";
 
 export interface ManagePublicKeyUploadProps {
     onFetchPublicKey: (hasPublicKey: boolean) => void;
@@ -18,6 +20,7 @@ export interface ManagePublicKeyUploadProps {
     onBack: () => void;
     showBack: boolean;
     file: File | null;
+    sender: string;
 }
 
 export default function ManagePublicKeyUpload({
@@ -27,14 +30,22 @@ export default function ManagePublicKeyUpload({
     onBack,
     showBack,
     file,
+    sender,
 }: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
     const fileInputRef = useRef<FileInputRef>(null);
+    const { activeMembership } = useSessionContext();
     const { data } = useOrganizationPublicKeys();
+    const kid = `${activeMembership?.parsedName}.${sender}`;
 
     useEffect(() => {
         if (data?.keys.length) {
-            onFetchPublicKey(true);
+            // check if kid already exists for the selected org.sender
+            for (const apiKeys of data.keys) {
+                if (apiKeys.keys.some((k: ApiKey) => k.kid === kid)) {
+                    onFetchPublicKey(true);
+                }
+            }
         }
     }, [data, onFetchPublicKey]);
 
@@ -42,7 +53,10 @@ export default function ManagePublicKeyUpload({
         <div data-testid="ManagePublicKeyUpload">
             <Form
                 name="public-key-upload"
-                onSubmit={(e) => onPublicKeySubmit(e)}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    onPublicKeySubmit(e);
+                }}
                 className="rs-full-width-form"
             >
                 <FormGroup className="margin-bottom-3">

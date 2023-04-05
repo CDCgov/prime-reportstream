@@ -14,6 +14,7 @@ describe("ManagePublicKeyUpload", () => {
         onBack: () => {},
         showBack: false,
         file: null,
+        sender: "",
     };
 
     const contentString = "This is the fake file text";

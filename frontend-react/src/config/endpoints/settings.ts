@@ -52,9 +52,21 @@ export interface RSSender extends RSService {
 
 export interface RSReceiver extends RSService {}
 
+export interface ApiKey {
+    kty: string;
+    kid: string;
+    n: string;
+    e: string;
+}
+
+export interface ApiKeySet {
+    scope: string;
+    keys: ApiKey[];
+}
+
 export interface RSApiKeysResponse {
     orgName: string;
-    keys: [];
+    keys: ApiKeySet[];
 }
 
 /*

@@ -14,7 +14,9 @@ export default function ManagePublicKeyUploadSuccess() {
                     heading={heading}
                 />
             </div>
-            <p>You can now submit data to ReportStream.</p>
+            <div className="margin-bottom-4">
+                You can now submit data to ReportStream.
+            </div>
             <p>
                 If you need more information on your next steps, refer to page
                 11 in the{" "}

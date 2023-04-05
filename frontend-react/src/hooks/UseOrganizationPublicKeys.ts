@@ -11,7 +11,7 @@ const { publicKeys } = servicesEndpoints;
 
 export const useOrganizationPublicKeys = () => {
     const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSApiKeysResponse[]>();
+        useAuthorizedFetch<RSApiKeysResponse>();
 
     const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(

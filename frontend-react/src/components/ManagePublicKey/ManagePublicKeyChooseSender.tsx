@@ -21,7 +21,8 @@ export default function ManagePublicKeyChooseSender({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [senders]);
 
-    function handleSubmit() {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         onSenderSelect(selectedSender, true);
     }
 
