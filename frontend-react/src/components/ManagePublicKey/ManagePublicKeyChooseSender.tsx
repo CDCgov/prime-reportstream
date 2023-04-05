@@ -5,7 +5,7 @@ import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
 import Spinner from "../Spinner";
 
 export interface ManagePublicKeyChooseSenderProps {
-    onSenderSelect: (sender: string) => void;
+    onSenderSelect: (sender: string, showBack: boolean) => void;
 }
 
 export default function ManagePublicKeyChooseSender({
@@ -16,13 +16,13 @@ export default function ManagePublicKeyChooseSender({
 
     useEffect(() => {
         if (senders?.length === 1) {
-            onSenderSelect(senders[0].name);
+            onSenderSelect(senders[0].name, false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [senders]);
 
     function handleSubmit() {
-        onSenderSelect(selectedSender);
+        onSenderSelect(selectedSender, true);
     }
 
     return (

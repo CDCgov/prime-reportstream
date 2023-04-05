@@ -4,31 +4,39 @@ import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { USLink } from "../USLink";
+import Spinner from "../Spinner";
 import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
+import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
-import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
-import Spinner from "../Spinner";
+import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
 export function ManagePublicKey() {
+    const [hasPublicKey, setHasPublicKey] = useState(false);
+    const [tryAgain, setTryAgain] = useState(false);
     const [sender, setSender] = useState("");
+    const [showBack, setShowBack] = useState(false);
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
-    const { mutateAsync, isSuccess, isLoading } =
-        useCreateOrganizationPublicKey();
+    const {
+        mutateAsync,
+        isSuccess,
+        isLoading: isUploading,
+    } = useCreateOrganizationPublicKey();
 
-    const handleBack = () => {
-        setSender("");
+    const handleSenderSelect = (selectedSender: string, showBack: boolean) => {
+        setSender(selectedSender);
+        setShowBack(showBack);
     };
 
     const handlePublicKeySubmit = async (
@@ -82,14 +90,15 @@ export function ManagePublicKey() {
         }
     };
 
-    const handleTryAgain = () => {
-        setFileSubmitted(false);
-    };
+    const showHeader = !fileSubmitted && !isSuccess && !hasPublicKey;
+    const showUpload = sender.length > 0 && !fileSubmitted && !hasPublicKey;
+    const showUploadError = fileSubmitted && !isUploading && !isSuccess;
+    const showPublicKeyConfigured = hasPublicKey && !tryAgain;
 
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
             <>
-                {!isSuccess && (
+                {showHeader && (
                     <>
                         <h1 className="margin-top-0 margin-bottom-5">
                             Manage Public Key
@@ -110,25 +119,32 @@ export function ManagePublicKey() {
                         </SiteAlert>
                     </>
                 )}
-                {sender.length === 0 && (
-                    <ManagePublicKeyChooseSender
-                        onSenderSelect={(selectedSender: string) =>
-                            setSender(selectedSender)
-                        }
+                {showPublicKeyConfigured && (
+                    <ManagePublicKeyConfigured
+                        onUploadNewPublicKey={() => setTryAgain(true)}
                     />
                 )}
-                {sender && !fileSubmitted && (
+                {sender.length === 0 && (
+                    <ManagePublicKeyChooseSender
+                        onSenderSelect={handleSenderSelect}
+                    />
+                )}
+                {showUpload && (
                     <ManagePublicKeyUpload
                         onPublicKeySubmit={handlePublicKeySubmit}
                         onFileChange={handleFileChange}
-                        onBack={handleBack}
+                        onBack={() => setSender("")}
+                        onFetchPublicKey={setHasPublicKey}
+                        showBack={showBack}
                         file={file}
                     />
                 )}
-                {isLoading && <Spinner />}
+                {isUploading && <Spinner />}
                 {isSuccess && <ManagePublicKeyUploadSuccess />}
-                {fileSubmitted && !isLoading && !isSuccess && (
-                    <ManagePublicKeyUploadError onTryAgain={handleTryAgain} />
+                {showUploadError && (
+                    <ManagePublicKeyUploadError
+                        onTryAgain={() => setFileSubmitted(false)}
+                    />
                 )}
             </>
         </GridContainer>

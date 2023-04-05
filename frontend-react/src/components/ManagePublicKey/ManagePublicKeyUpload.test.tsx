@@ -8,9 +8,11 @@ import ManagePublicKeyUpload, {
 
 describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
+        onFetchPublicKey: () => {},
         onPublicKeySubmit: () => {},
         onFileChange: () => {},
         onBack: () => {},
+        showBack: false,
         file: null,
     };
 

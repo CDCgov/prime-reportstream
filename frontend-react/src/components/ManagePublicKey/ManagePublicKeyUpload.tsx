@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
     Button,
     FileInput,
@@ -9,21 +9,34 @@ import {
     Label,
 } from "@trussworks/react-uswds";
 
+import { useOrganizationPublicKeys } from "../../hooks/UseOrganizationPublicKeys";
+
 export interface ManagePublicKeyUploadProps {
+    onFetchPublicKey: (hasPublicKey: boolean) => void;
     onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
+    showBack: boolean;
     file: File | null;
 }
 
 export default function ManagePublicKeyUpload({
+    onFetchPublicKey,
     onPublicKeySubmit,
     onFileChange,
     onBack,
+    showBack,
     file,
 }: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
     const fileInputRef = useRef<FileInputRef>(null);
+    const { data } = useOrganizationPublicKeys();
+
+    useEffect(() => {
+        if (data?.keys.length) {
+            onFetchPublicKey(true);
+        }
+    }, [data, onFetchPublicKey]);
 
     return (
         <div data-testid="ManagePublicKeyUpload">
@@ -57,9 +70,11 @@ export default function ManagePublicKeyUpload({
                 </FormGroup>
                 <Grid row>
                     <Grid col="auto">
-                        <Button onClick={onBack} type="button" outline>
-                            Back
-                        </Button>
+                        {showBack && (
+                            <Button onClick={onBack} type="button" outline>
+                                Back
+                            </Button>
+                        )}
                         <Button disabled={isDisabled} type="submit">
                             Submit
                         </Button>

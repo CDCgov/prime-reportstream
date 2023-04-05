@@ -9,16 +9,11 @@ import { useSessionContext } from "../contexts/SessionContext";
 
 const { publicKeys } = servicesEndpoints;
 
-export type useOrganizationPublicKeysResult = {
-    publicKeys: RSApiKeysResponse[];
-    isLoading: boolean;
-};
-
-export const UseOrganizationPublicKeys = () => {
-    const { activeMembership } = useSessionContext();
-
+export const useOrganizationPublicKeys = () => {
     const { authorizedFetch, rsUseQuery } =
         useAuthorizedFetch<RSApiKeysResponse[]>();
+
+    const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(publicKeys, {
@@ -37,5 +32,5 @@ export const UseOrganizationPublicKeys = () => {
         }
     );
 
-    return { publicKeys: data, isLoading };
+    return { data, isLoading };
 };

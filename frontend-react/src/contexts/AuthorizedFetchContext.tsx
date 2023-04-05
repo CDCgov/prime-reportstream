@@ -44,8 +44,7 @@ type RSUseMutation<
     TData = unknown,
     TError = unknown,
     TVariables = unknown,
-    TContext = unknown,
-    TMutationKey extends MutationKey = MutationKey
+    TContext = unknown
 > = {
     (
         mutationKey: MutationKey,
@@ -170,13 +169,7 @@ export function useAuthorizedMutationFetch<
     TMutationKey extends MutationKey = MutationKey
 >(): {
     authorizedFetch: AuthorizedFetcher<TData>;
-    rsUseMutation: RSUseMutation<
-        TData,
-        TError,
-        TVariables,
-        TContext,
-        TMutationKey
-    >;
+    rsUseMutation: RSUseMutation<TData, TError, TVariables, TContext>;
 } {
     const { authorizedFetchGenerator } = useContext(AuthorizedFetchContext);
     return {
