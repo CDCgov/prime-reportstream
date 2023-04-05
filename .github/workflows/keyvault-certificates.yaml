@@ -54,7 +54,7 @@ jobs:
           fields: |
             - title: The certificate is expiring soon!
               value: "${{ steps.cert-expiration.outputs.stdout }}"
-          color: good
+
 
 
 
