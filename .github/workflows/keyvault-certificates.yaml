@@ -50,7 +50,7 @@ jobs:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
+              "text": "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiring_certs }} days."
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
