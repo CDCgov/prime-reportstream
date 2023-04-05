@@ -129,8 +129,10 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         // get the external file name to send to the client, if we need it
         val fileName = header.reportFile.externalName
+        // get the report id from the header
+        val headerReportId = header.reportFile.reportId
         context.logger.info(
-            "Preparing to send ${header.reportFile.reportId} " +
+            "Preparing to send $headerReportId " +
                 "to ${soapTransportType.soapAction} at ${soapTransportType.endpoint}"
         )
         // based on who we are sending this report to, we need to get the credentials, and we also need
@@ -160,7 +162,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         httpClient ?: createDefaultHttpClient()
                     )
                     // update the action history
-                    val msg = "Success: SOAP transport of $fileName to $soapTransportType:\n$responseBody"
+                    val msg = "Success: SOAP transport of $headerReportId to $soapTransportType:\n$responseBody"
                     context.logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(msg)
                     actionHistory.trackSentReport(
