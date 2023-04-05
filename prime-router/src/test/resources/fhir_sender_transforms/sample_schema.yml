@@ -7,16 +7,16 @@ elements:
     condition: '%resource.status.exists()'
     bundleProperty: '%resource.status'
     value: [ '"final"' ]
-  - name: issued
+  - name: identifier
     constants:
       anotherString: hello
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
-    condition: '%resource.issued.exists()'
-    bundleProperty: '%resource.issued'
+    condition: '%resource.identifier.exists()'
+    bundleProperty: '%resource.identifier'
     value: [ '"CO"' ]
     valueSet:
-      key: value
-      key2: value
+      "CO": 'Colorado'
+      "IG": 'ignore'
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex

@@ -7,3 +7,5 @@ const config: Config.InitialOptions = {
     verbose: true,
 };
 export default config;
+
+global.scrollTo = jest.fn();
