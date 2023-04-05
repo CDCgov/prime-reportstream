@@ -5,13 +5,6 @@ import { USNavLink } from "../components/USLink";
 
 import SideNavItem from "./SideNav";
 
-// link -> li -> sidenav (ul) -> div
-function getIsVisible(e: HTMLElement) {
-    return !e.parentElement?.parentElement?.parentElement?.classList.contains(
-        "display-none"
-    );
-}
-
 describe("SideNavItem", () => {
     test("custom component", () => {
         renderApp(
@@ -62,7 +55,7 @@ describe("SideNavItem", () => {
                 }
             );
             const [, childLink] = screen.getAllByRole("link");
-            expect(getIsVisible(childLink)).toBeTruthy();
+            expect(childLink).toBeInTheDocument();
         });
 
         test("inactive route", () => {
@@ -78,7 +71,7 @@ describe("SideNavItem", () => {
                 }
             );
             const [, childLink] = screen.getAllByRole("link");
-            expect(getIsVisible(childLink)).not.toBeTruthy();
+            expect(childLink).toBeUndefined();
         });
 
         test("forced active", () => {
@@ -95,7 +88,7 @@ describe("SideNavItem", () => {
                 }
             );
             const [, childLink] = screen.getAllByRole("link");
-            expect(getIsVisible(childLink)).toBeTruthy();
+            expect(childLink).toBeInTheDocument();
         });
 
         test("forced inactive", () => {
@@ -112,7 +105,7 @@ describe("SideNavItem", () => {
                 }
             );
             const [, childLink] = screen.getAllByRole("link");
-            expect(getIsVisible(childLink)).not.toBeTruthy();
+            expect(childLink).toBeUndefined();
         });
     });
 });
