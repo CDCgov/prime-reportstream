@@ -42,36 +42,26 @@ jobs:
       run: |
         for key_vault_name in $(echo "${{ steps.keyvaults.outputs.stdout }}")
         do
-          echo "::set-env name=KEY_VAULT_NAME::$key_vault_name"
-          echo "::set-env name=KEY_VAULT_CERT_NAMES::$(az keyvault certificate list --vault-name $key_vault_name --query "[].{name:name}" --output tsv)"
-          echo "::set-env name=KEY_VAULT_CERT_NAMES_ARRAY::$(echo $KEY_VAULT_CERT_NAMES | tr '\n' ' ')"
-          echo "::set-env name=NUMBER_OF_CERTS::$(echo $KEY_VAULT_CERT_NAMES_ARRAY | wc -w)"
-          echo "::set-env name=CURRENT_CERT::1"
-          echo "::set-env name=CURRENT_ITERATION::1"
-          echo "::set-env name=BATCH_SIZE::5"
+          echo "KEY_VAULT_NAME=$key_vault_name" >> $GITHUB_ENV
+          KEY_VAULT_CERT_NAMES=$(az keyvault certificate list --vault-name $key_vault_name --query "[].{name:name}" --output tsv)
+          echo "KEY_VAULT_CERT_NAMES=$KEY_VAULT_CERT_NAMES" >> $GITHUB_ENV
+          KEY_VAULT_CERT_NAMES_ARRAY=$(echo $KEY_VAULT_CERT_NAMES | tr '\n' ' ')
+          echo "KEY_VAULT_CERT_NAMES_ARRAY=$KEY_VAULT_CERT_NAMES_ARRAY" >> $GITHUB_ENV
+          NUMBER_OF_CERTS=$(echo $KEY_VAULT_CERT_NAMES_ARRAY | wc -w)
+          echo "NUMBER_OF_CERTS=$NUMBER_OF_CERTS" >> $GITHUB_ENV
+          CURRENT_CERT=1
+          echo "CURRENT_CERT=$CURRENT_CERT" >> $GITHUB_ENV
+          CURRENT_ITERATION=1
+          echo "CURRENT_ITERATION=$CURRENT_ITERATION" >> $GITHUB_ENV
+          BATCH_SIZE=5
+          echo "BATCH_SIZE=$BATCH_SIZE" >> $GITHUB_ENV
         done
 
     - name: Loop through Certificates
       id: loop-certificates
       run: |
-        echo "::set-env name=KEY_VAULT_NAME::$key_vault_name"
-        export KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR==$(( ( ${{ env.CURRENT_ITERATION }} - 1 ) * ${{ env.BATCH_SIZE }} + ${{ env.CURRENT_CERT }} ))")
-        echo "Certificate: $KEY_VAULT_CERT_NAME"
-        export CERT_EXPIRY_DATE=$(az keyvault certificate show --vault-name $key_vault_name --name $KEY_VAULT_CERT_NAME --query "properties.expires" -o tsv)
-        export DAYS_TO_EXPIRY=$(( ( $(date -d "$CERT_EXPIRY_DATE" +%s) - $(date +%s) ) / 86400 ))
-        if [[ $DAYS_TO_EXPIRY -lt 300 ]]
-        then
-          echo "::set-env name=NOTIFY::true"
-          echo "::set-env name=EXPIRY_DATE::$CERT_EXPIRY_DATE"
-        else
-          echo "::set-env name=NOTIFY::false"
-        fi
-        if [[ ${{ env.CURRENT_CERT }} -eq ${{ env.NUMBER_OF_CERTS }} ]]
-        then
-          echo "::set-env name=CURRENT_CERT::1"
-          echo "::set-env name=CURRENT_ITERATION::$((${{ env.CURRENT_ITERATION }} + 1))"
-        else
-          echo "::set-env name=CURRENT_CERT::$((${{ env.CURRENT_CERT }} + 1))"
+        KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR==$(( ( ${{ env.CURRENT_ITERATION }} - 1 ) * ${{ env.BATCH_SIZE }} + ${{ env.CURRENT_CERT }} ))")
+        echo "Certificate: $KEY_VA
 
 
     - name: Remove Runner IP to Key Vault Firewall
