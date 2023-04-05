@@ -5,7 +5,6 @@ elements:
   #########################
   # ReportStream specific #
   #########################
-# todo:  -//there isn't a way for the name to stay just the CDC prime part and have the namespace id no endpoint set
   - name: sending-application-namespace-id
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
@@ -18,7 +17,7 @@ elements:
     bundleProperty: '%resource.source.endpoint'
     value: [ '"urn:oid:2.16.840.1.114222.4.1.237821"' ]
 
-  # SFT-1-1 - make this part of report streem
+  # SFT-1-1
   - name: software-vendor-name
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`)'
