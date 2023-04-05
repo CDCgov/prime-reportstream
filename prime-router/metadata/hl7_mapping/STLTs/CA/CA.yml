@@ -10,6 +10,23 @@ constants:
   simpleReportName: '"Simple Report"'
 extends: ../../ORU_R01/ORU_R01-base
 elements:
+  #########################
+  # ReportStream specific #
+  #########################
+  - name: sending-application-namespace-id-no-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CDC PRIME - Atlanta"' ]
+
+  - name: sending-application-universal-id-no-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id-type-with-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
 
   ######################################################
   # Source: ReportStream CA Requirements from settings #
@@ -94,6 +111,12 @@ elements:
     value: [ '"ISO"' ]
     hl7Spec: [ MSH-21-4 ]
 
+  # SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
   # SFT-1-2
   - name: software-vendor-name-type
     condition: false
@@ -108,6 +131,7 @@ elements:
     resource: 'Bundle'
     value: [ '"PRIME ReportStream"' ]
 
+  # The transforms below could be moved to the sender transform/enrichment step for simple report once FHIR transforms are ready
   - name: ca-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'

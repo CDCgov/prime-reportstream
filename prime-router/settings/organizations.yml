@@ -104,13 +104,13 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/default-sender-transform
+      #      schemaName: metadata/fhir_transforms/fhir-transform-sample
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/default-sender-transform
+      #      schemaName: metadata/fhir_transforms/fhir-transform-sample
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -193,12 +193,12 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-        receivingApplicationName: "CA-ELR"
-        receivingFacilityName: "CA"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       transport:
         type: SFTP
         host: sftp
