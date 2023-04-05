@@ -51,26 +51,10 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
-          status: Danger
+          status: success 
           fields: |
             - title: The certificate is expiring soon!
               value: "${{ steps.cert-expiration.outputs.stdout }}"
-
-
-
-
-      
-      # - name: Send notification to Slack
-      #   if: steps.cert-expiry.outputs.expiry_days <= 30 # only notify if certificate will expire in 30 days or less
-      #   uses: rtCamp/action-slack-notify@v2.1
-      #   with:
-      #     slack_message: |
-      #       :warning: The certificate is expiring soon!
-
-      #       Certificate name: `${{ env.KEY_VAULT_CERT_NAME }}`
-      #       Expiry date: `${{ steps.cert-expiry.outputs.expiry_date }}`
-      #       Key Vault name: `${{ env.KEY_VAULT_NAME }}`
-      #     slack_webhook: ${{ env.SLACK_WEBHOOK_URL }}
 
 
       # - name: Send Notification to Slack Channel
@@ -86,37 +70,6 @@ jobs:
       #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       #     #SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-
-
-
-
-
-
-
-      # - name: Send Slack Notification
-      #   uses: rtCamp/action-slack-notify@v3
-      #   with:
-      #     entryPoint: send
-      #     args: |
-      #       - channel=#my-slack-channel
-      #       - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-      #       - message="Hello, world!"
-      #       - status=good
-
-      #   #if: ${{ steps.cert-expiration.outputs.expiring_certs < 300 }}
-      #   uses: rtCamp/action-slack-notify@master
-      #   with:
-      #     entryPoint: send
-      #     args: |
-      #       - channel=#pagerduty-alert-dump
-      #       - webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-      #       - message="The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
-      #       - status=warning
-      #   # with:
-      #   #   status: "warning"
-        #   message: "The certificate $near_expiry_certificates will expire in ${{ steps.cert-expiration.outputs.expiration }} days."
-        #   channel: "#pagerduty-alert-dump"
-        #   webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
