@@ -193,5 +193,18 @@ data class JwkSet(
 
             return nullSafeJwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
         }
+
+        fun isValidKidForSet(jwkSets: List<JwkSet>?, scope: String, kid: String?): Boolean {
+            val nullSafeJwkSets = jwkSets ?: emptyList()
+            val jwkSet = nullSafeJwkSets.find { it.scope == scope }
+
+            // The SMART on FHIR specifies that the KID must be unique within the JwkSet
+            // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details
+            if (jwkSet == null || jwkSet.keys.find { it.kid == kid } == null) {
+                return true
+            }
+
+            return false
+        }
     }
 }

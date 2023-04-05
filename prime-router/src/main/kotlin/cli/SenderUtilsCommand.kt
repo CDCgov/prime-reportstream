@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
@@ -211,6 +212,11 @@ class AddPublicKey : SettingCommand(
 
         if (!Scope.isValidScope(scope, origOrganization)) {
             echo("Organization name in scope must match $orgName.  Instead got: $scope")
+            return
+        }
+
+        if (JwkSet.isValidKidForSet(origOrganization.keys, scope, kid)) {
+            echo("kid: $kid must be unique within the JwkSet")
             return
         }
 
