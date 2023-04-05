@@ -1,0 +1,22 @@
+name: Log Management
+
+on:
+  push:
+  schedule:
+    - cron: "5 3 * * *"
+
+jobs:
+  run_log_management:
+    runs-on: ubuntu-latest
+    name: Run log management steps
+    steps:
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+      - name: Workflow Housekeeper
+        uses: JosiahSiegel/workflow-housekeeper@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
+        with:
+          ignore-branch-workflows: true
+          retention-time: '7 days'
+          retain-run-count: 0
+          dry-run: false
