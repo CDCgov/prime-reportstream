@@ -59,11 +59,13 @@ const App = () => {
     useScrollToTop();
 
     const navigate = useNavigate();
-    const handleIdle = (): void => {
-        trackAppInsightEvent(EventName.SESSION_DURATION, {
-            sessionLength: sessionTimeAggregate.current / 1000,
-        });
-        logout();
+    const handleIdle = async (): Promise<void> => {
+        if (await OKTA_AUTH.isAuthenticated()) {
+            trackAppInsightEvent(EventName.SESSION_DURATION, {
+                sessionLength: sessionTimeAggregate.current / 1000,
+            });
+            logout();
+        }
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
