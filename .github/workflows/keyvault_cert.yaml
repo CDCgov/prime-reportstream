@@ -1,0 +1,84 @@
+name: List Azure Key Vault Certificates and Send Notification to Slack
+
+on:
+  push: 
+    branches:
+      - feature/check-keyvauly-cert-expiration
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  DAYS_TO_EXPIRY: 30
+
+jobs:
+  list-certificates:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Changes
+      uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+
+    - name: Get Runner IP
+      run: echo "::set-output name=runner_ip::$(curl https://ifconfig.me)"
+      id: runner_ip
+
+    - name: Connect to VPN & Login into Azure
+      uses: ./.github/actions/vpn-azure
+      with:
+        tls-key: ${{ secrets.TLS_KEY }}
+        ca-cert: ${{ secrets.CA_CRT}}
+        user-crt: ${{ secrets.USER_CRT }}
+        user-key: ${{ secrets.USER_KEY }}
+        sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+    - name: Add Runner IP to Key Vault Firewall
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+
+
+    - name: List Key Vaults
+      id: keyvaults
+      run: |
+        az keyvault list --query "[].{name:name}" --output tsv
+
+    - name: Loop through Key Vaults
+      id: loop-keyvaults
+      run: |
+        for key_vault_name in $(echo "${{ steps.keyvaults.outputs.stdout }}")
+        do
+          echo "::set-env name=KEY_VAULT_NAME::$key_vault_name"
+          echo "::set-env name=KEY_VAULT_CERT_NAMES::$(az keyvault certificate list --vault-name $key_vault_name --query "[].{name:name}" --output tsv)"
+          echo "::set-env name=KEY_VAULT_CERT_NAMES_ARRAY::$(echo $KEY_VAULT_CERT_NAMES | tr '\n' ' ')"
+          echo "::set-env name=NUMBER_OF_CERTS::$(echo $KEY_VAULT_CERT_NAMES_ARRAY | wc -w)"
+          echo "::set-env name=CURRENT_CERT::1"
+          echo "::set-env name=CURRENT_ITERATION::1"
+          echo "::set-env name=BATCH_SIZE::5"
+
+    - name: Loop through Certificates
+      id: loop-certificates
+      run: |
+        export KEY_VAULT_CERT_NAME=$(echo "${{ env.KEY_VAULT_CERT_NAMES_ARRAY }}" | awk "NR==$(( ( ${{ env.CURRENT_ITERATION }} - 1 ) * ${{ env.BATCH_SIZE }} + ${{ env.CURRENT_CERT }} ))")
+        echo "Certificate: $KEY_VAULT_CERT_NAME"
+        export CERT_EXPIRY_DATE=$(az keyvault certificate show --vault-name ${{ env.KEY_VAULT_NAME }} --name $KEY_VAULT_CERT_NAME --query "properties.expires" -o tsv)
+        export DAYS_TO_EXPIRY=$(( ( $(date -d "$CERT_EXPIRY_DATE" +%s) - $(date +%s) ) / 86400 ))
+        if [[ $DAYS_TO_EXPIRY -lt 30 ]]
+        then
+          echo "::set-env name=NOTIFY::true"
+          echo "::set-env name=EXPIRY_DATE::$CERT_EXPIRY_DATE"
+        else
+          echo "::set-env name=NOTIFY::false"
+        fi
+        if [[ ${{ env.CURRENT_CERT }} -eq ${{ env.NUMBER_OF_CERTS }} ]]
+        then
+          echo "::set-env name=CURRENT_CERT::1"
+          echo "::set-env name=CURRENT_ITERATION::$((${{ env.CURRENT_ITERATION }} + 1))"
+        else
+          echo "::set-env name=CURRENT_CERT::$((${{ env.CURRENT_CERT }} + 1))"
+
+
+    - name: Remove Runner IP to Key Vault Firewall
+      run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
+
+    - name: Cleanup
+      run: |
+        unset runner_ip
