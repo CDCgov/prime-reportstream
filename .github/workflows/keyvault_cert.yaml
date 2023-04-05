@@ -5,10 +5,6 @@ on:
     branches:
       - feature/check-keyvauly-cert-expiration
 
-env:
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  DAYS_TO_EXPIRY: 30
-
 jobs:
   list-certificates:
     runs-on: ubuntu-latest
