@@ -7,7 +7,7 @@ elements:
 
   - name: ca-organization-performer-identifier
     resource: '%resource.performer.resolve()'
-    value: [ '(%resource.name + "-"+ %resource.identifier[0].value).substring(0,20) ' ]
+    value: [ '(%resource.name + "-"+ %resource.identifier[0].value).substring(0,50) ' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-23-1' ]
 
   - name: ca-organization-namespace-id
@@ -25,10 +25,6 @@ elements:
   - name: ca-software-vendor-assigning-authority-system
     hl7Spec: [ '%{hl7ObservationPath}/OBX-23-7' ]
     value: [ '"XX"' ]
-
-  - name: observation-method-identifier
-    value: [ "" ]
-    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-1' ]
 
   - name: ca-observation-original-text
     condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'

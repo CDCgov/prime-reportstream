@@ -3,9 +3,8 @@ elements:
     value: [ '%identifier' ]
     hl7Spec: [ '%{organizationIdFieldPath}-1' ]
 
-##truncate
   - name: organization-entity-namespace-id
-    value: [ '%resource.name.substring(0,20)' ]
+    value: [ '%resource.name' ]
     hl7Spec: [ '%{organizationIdFieldPath}-2' ]
 
   - name: organization-entity-universal-id

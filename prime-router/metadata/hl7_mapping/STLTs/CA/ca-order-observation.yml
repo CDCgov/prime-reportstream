@@ -10,5 +10,8 @@ elements:
   - name: ca-order-segment
     schema: ca-order
 
+  - name: ca-observation-request
+    schema: ca-observation-request
+
   - name: ca-specimen
     schema: ca-specimen

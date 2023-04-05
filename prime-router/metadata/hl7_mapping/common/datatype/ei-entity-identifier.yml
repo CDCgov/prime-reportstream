@@ -4,11 +4,10 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{entityIdFieldPath}-1' ]
 
-  ##truncate
   - name: entity-namespace-id
     value:
       - '%resource.system.getId()'
-      - '%resource.system.substring(0,20)'
+      - '%resource.system'
     hl7Spec: [ '%{entityIdFieldPath}-2' ]
 
   - name: entity-universal-id

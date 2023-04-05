@@ -2,7 +2,6 @@ constants:
   hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
 # Practitioner to XCN mapping
 elements:
-    #truncate
   - name: xcn-id-number
     value: [ '%resource.identifier.value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-1' ]
@@ -10,7 +9,7 @@ elements:
   - name: xcn-family-name
     value: [ '%resource.name.family' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2' ]
-    #truncate
+
   - name: xcn-given-name
     value: [ '%resource.name.given[0]' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-3' ]
