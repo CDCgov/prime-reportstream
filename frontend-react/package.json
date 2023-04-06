@@ -216,6 +216,11 @@
     "webpack-manifest-plugin": "^5.0.0",
     "workbox-webpack-plugin": "^6.5.4"
   },
+  "resolutions": {
+    "trim": ">=0.0.3",
+    "glob-parent": ">=5.1.2",
+    "trim-newlines": ">=3.0.1"
+  },
   "engines": {
     "node": "~18.15"
   }
