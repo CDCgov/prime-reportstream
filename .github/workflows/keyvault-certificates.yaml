@@ -46,11 +46,11 @@ jobs:
       - name: Send Slack notification
         run: |
           certificates="${{ steps.check-certs.outputs.certificates }}"
-          message="The following certificates are expiring within the next 30 days:\n$(
-            echo "${certificates}" | jq -r '.[] | "\(.name) (\(.expiration))"'
-          )"
+          message="The following certificates are expiring within the next 30 days:"
+          echo "${certificates}" | jq -r '.[] | "\(.name) (\(.expiration))"' | while read -r cert_info; do
+            message+="\n${cert_info}"
+          done
           curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"${message}\"}" <SLACK_WEBHOOK_URL>
-
 
 
       # - name: Get Certificates Expiration
