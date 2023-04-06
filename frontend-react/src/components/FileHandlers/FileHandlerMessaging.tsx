@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
+import { renderToString } from "react-dom/server";
 
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
@@ -60,7 +61,19 @@ export const RequestedChangesDisplay = ({
         data.some((responseItem) => responseItem.message);
 
     function handleSaveToCsvClick() {
-        return saveToCsv(data, {
+        const dataWithErrorMessage = data.map((item) => {
+            return {
+                ...item,
+                errorMessageDetails: renderToString(
+                    <ValidationErrorMessage
+                        errorCode={item.errorCode}
+                        field={item.field}
+                        message={item.message}
+                    />
+                ).replace(/<(.|\n)*?>/g, ""),
+            };
+        });
+        return saveToCsv(dataWithErrorMessage, {
             filename: getSafeFileName(file?.name || "", title),
         });
     }
@@ -91,10 +104,17 @@ export const RequestedChangesDisplay = ({
                             <thead>
                                 <tr>
                                     <th className="rs-table-column-minwidth">
-                                        Recommended Edit
+                                        {title === RequestLevel.WARNING &&
+                                            "Requested"}{" "}
+                                        {title === RequestLevel.ERROR &&
+                                            "Required"}{" "}
+                                        Edit
                                     </th>
                                     <th className="rs-table-column-minwidth">
-                                        {schemaColumnHeader} Row
+                                        {schemaColumnHeader === FileType.CSV &&
+                                            "CSV Row"}
+                                        {schemaColumnHeader === FileType.HL7 &&
+                                            "MSH 10"}
                                     </th>
                                 </tr>
                             </thead>
