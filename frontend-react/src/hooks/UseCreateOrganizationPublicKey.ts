@@ -36,7 +36,7 @@ export const useCreateOrganizationPublicKey = () => {
             );
             return res;
         },
-        [authorizedFetch]
+        [authorizedFetch, parsedName]
     );
     return rsUseMutation(
         [servicesEndpoints.createPublicKey.queryKey],

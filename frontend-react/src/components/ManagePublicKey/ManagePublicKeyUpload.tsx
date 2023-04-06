@@ -47,7 +47,7 @@ export default function ManagePublicKeyUpload({
                 }
             }
         }
-    }, [data, onFetchPublicKey]);
+    }, [data, onFetchPublicKey, kid]);
 
     return (
         <div data-testid="ManagePublicKeyUpload">
