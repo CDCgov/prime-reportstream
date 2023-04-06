@@ -38,24 +38,20 @@ jobs:
       - name: Get Near Expiry Certificates
         id: cert-expiration
         run: |
-          near_expiry_date=$(date -d "+30 days" -I)
-          near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
-          echo "The following certificates will expire within the next 30 days: $near_expiry_certificates" 
-          echo "::set-output name=expiring_certs::$near_expiry_certificates" 
-          expiry_days=$(( ( $(date -d "$expiry_date" +%s) - $(date +%s) ) / 86400 ))
-          echo "Certificate expires in $expiry_days days"
+          expiry_date=$(date -d "+300 days" -I)
+          expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
+          echo "::set-output name=expiring_certs::$expiry_certificates" 
+          expiry_days=$(( ( $(date -d “$expiry_date” +%s) - $(date +%s) ) / 86400 )) >> $GITHUB_ENV
+          echo "::set-output name=expiring_days::$expiry_days"
 
-      - name: Send Slack notification
-        uses: 8398a7/action-slack@v3
+
+      - name: Send Slack Notification
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: '{"text": "The following certificates ${{ steps.cert-expiration.outputs.expiring_certs }} will expire within the ${{ steps.cert-expiration.outputs.expiring_days }} days."}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          text: "Certificate expires in $expiry_days days"
-          color: warning
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
-
-      - name: Cleanup
-        run: |
-          unset runner_ip
