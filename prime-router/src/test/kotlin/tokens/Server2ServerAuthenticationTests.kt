@@ -257,6 +257,11 @@ class Server2ServerAuthenticationTests {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
         val senderToken = SenderUtils.generateSenderToken(sender, "http://baz.quux", privateKey, exampleKeyId)
 
+        val jwk = jacksonObjectMapper().readValue(differentRsaPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(
+            organization.name,
+            Organization(organization, "simple_report.*.report", jwk)
+        )
         // false means we failed to validate the sender's jwt.
         assertFalse(
             Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
@@ -269,14 +274,19 @@ class Server2ServerAuthenticationTests {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
         val senderToken = SenderUtils.generateSenderToken(sender, "http://baz.quux", privateKey, exampleKeyId)
 
-//        val junkPublicKeyStr = """
-//            {
-//              "kty":"RSA",
-//              "kid":"$exampleKeyId",
-//              "n":"xJUNKRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw",
-//              "e":"AQAB"
-//            }
-//        """.trimIndent()
+        val junkPublicKeyStr = """
+            {
+              "kty":"RSA",
+              "kid":"$exampleKeyId",
+              "n":"xJUNKRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw",
+              "e":"AQAB"
+            }
+        """.trimIndent()
+        val jwk = jacksonObjectMapper().readValue(junkPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(
+            organization.name,
+            Organization(organization, "simple_report.*.report", jwk)
+        )
 
         // false means we failed to validate the sender's jwt.
         assertFalse(
