@@ -561,7 +561,7 @@ module.exports = function (webpackEnv) {
                             ),
                         },
                         {
-                            test: /\.mdx?$/,
+                            test: /\.mdx$/,
                             use: [
                                 {
                                     loader: "@mdx-js/loader",
