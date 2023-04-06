@@ -48,7 +48,7 @@ jobs:
       - name: Filter expiring certificates
         id: filter-expiring-certificates
         run: |
-          expiring_certs=$(jq -r '.[] | select((.expires - now | floor) / 86400 < 30) | .name' <<< "${{ steps.list-certificates.outputs.certificates }}")
+          expiring_certs=$(jq -r '.[] | select((.expires - now | floor) / 86400 < 300) | .name' <<< "${{ steps.list-certificates.outputs.certificates }}")
           if [ -n "$expiring_certs" ]; then
             echo "::set-output name=certificates::$expiring_certs"
           fi
@@ -64,3 +64,7 @@ jobs:
           icon_emoji: ':warning:'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Remove Runner IP to Key Vault Firewall
+        run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
+
