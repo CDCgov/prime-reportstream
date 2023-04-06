@@ -26,6 +26,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
         with:
           ignore-branch-workflows: false
-          retention-time: '6 months'
+          retention-time: '2 months'
           retain-run-count: 1
           dry-run: false
