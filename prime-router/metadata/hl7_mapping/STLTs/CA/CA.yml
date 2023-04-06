@@ -146,9 +146,10 @@ elements:
   # California requirement: map AOE questions to NTE segments under Patient
   # Appending AOE questions to patient notes
   - name: order-note
-    resource: '%service.note.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
-    condition: '%service.note.exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
-    schema: 'ca-order-note'
+    condition: false
+#    resource: '%service.note.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+#    condition: '%service.note.exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
+#    schema: 'ca-order-note'
 
 
 #  - name: order-note

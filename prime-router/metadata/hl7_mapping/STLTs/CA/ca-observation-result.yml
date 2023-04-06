@@ -35,4 +35,18 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
     value: [ '%originalTextExtension.value' ]
 
-#
+
+  - name: ca-order-note
+    resource: '%service.note.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    condition: >-
+      (%service.note.exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists())
+      and (Bundle.entry.resource.ofType(DiagnosticReport).result.count() - 1) = %resultIndex
+
+#    resource: '%service.note.text.split(''\n'')'
+#    condition: '%service.note.exists()'
+    schema: ca-order-note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7ObservationPath}'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: '%service.note'
