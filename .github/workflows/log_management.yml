@@ -2,9 +2,6 @@ name: Log Management
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - josiahsiegel/fix/workflow_history
   schedule:
     - cron: "5 3 * * *"
 
