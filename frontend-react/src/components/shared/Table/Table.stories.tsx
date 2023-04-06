@@ -9,8 +9,8 @@ export default {
 } as ComponentMeta<typeof Table>;
 
 export const Default: ComponentStory<typeof Table> = (args) => (
-    <Table {...args} />
+    <Table>
+        <thead></thead>
+        <tbody></tbody>
+    </Table>
 );
-Default.args = {
-    children: "Children are optional! (Try clearing me out)",
-};
