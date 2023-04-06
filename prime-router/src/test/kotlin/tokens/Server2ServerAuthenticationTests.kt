@@ -4,7 +4,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.SignatureAlgorithm
@@ -14,6 +18,7 @@ import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import org.junit.jupiter.api.BeforeEach
 import java.math.BigInteger
@@ -68,16 +73,29 @@ val differentRsaPublicKeyStr = """
 
 class Server2ServerAuthenticationTests {
 
+    var settings = MockSettings()
+
     private val sender = CovidSender(
-        "foo",
-        "bar",
+        "default",
+        "simple_report",
         Sender.Format.CSV,
         CustomerStatus.INACTIVE,
         "mySchema",
         keys = null
     )
 
-    private val server2ServerAuthentication = Server2ServerAuthentication()
+    val organization = Organization(
+        sender.organizationName,
+        "simple_report_org",
+        Organization.Jurisdiction.FEDERAL,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
+
+    private val server2ServerAuthentication = Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
     private val jtiCache = MemoryJtiCache()
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
@@ -107,6 +125,11 @@ class Server2ServerAuthenticationTests {
     @BeforeEach
     fun reset() {
         clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
+        mockkConstructor(WorkflowEngine::class)
+        every { anyConstructed<WorkflowEngine>().settings } returns settings
+        val jwk = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(organization.name, Organization(organization, "simple_report.*.report", jwk))
+        settings.senderStore.put(sender.fullName, sender)
     }
 
     @Test
@@ -147,7 +170,8 @@ class Server2ServerAuthenticationTests {
 
         // Check that the public key correctly validates.
         assertTrue(
-            Server2ServerAuthentication().checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr), jtiCache)
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
         )
     }
 
@@ -208,10 +232,11 @@ class Server2ServerAuthenticationTests {
 
         // Step 2: ReportStream gets the token and checks it.
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // callback to lookup the sender's public key.
-        val accessToken = if (Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache)) {
+        val accessToken = if (Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+            .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        ) {
             // Step 3:  Report stream creates a new accessToken
-            server2ServerAuthentication.createAccessToken("org.sender.admin", rslookup)
+            server2ServerAuthentication.createAccessToken("simple_report.*.report", rslookup)
         } else error("Unauthorized connection")
 
         // Step 4: Now pretend the sender has used the accessToken to make a request to reportstream...
@@ -221,10 +246,10 @@ class Server2ServerAuthenticationTests {
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
 
-        if (! claims.authorized(setOf("org.sender.admin")))
+        if (! claims.authorized(setOf("simple_report.*.report")))
             error("Authorization failed")
         assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
-        assertEquals("org.sender.admin", claims.jwtClaims["scope"])
+        assertEquals("simple_report.*.report", claims.jwtClaims["scope"])
     }
 
     @Test
@@ -232,9 +257,11 @@ class Server2ServerAuthenticationTests {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
         val senderToken = SenderUtils.generateSenderToken(sender, "http://baz.quux", privateKey, exampleKeyId)
 
-        val senderLookup = UseTestKey(differentRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -242,17 +269,20 @@ class Server2ServerAuthenticationTests {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
         val senderToken = SenderUtils.generateSenderToken(sender, "http://baz.quux", privateKey, exampleKeyId)
 
-        val junkPublicKeyStr = """
-            {
-              "kty":"RSA",
-              "kid":"$exampleKeyId",
-              "n":"xJUNKRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw",
-              "e":"AQAB"
-            }
-        """.trimIndent()
-        val senderLookup = UseTestKey(junkPublicKeyStr) // Its the wrong trousers!
+//        val junkPublicKeyStr = """
+//            {
+//              "kty":"RSA",
+//              "kid":"$exampleKeyId",
+//              "n":"xJUNKRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw",
+//              "e":"AQAB"
+//            }
+//        """.trimIndent()
+
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -266,9 +296,11 @@ class Server2ServerAuthenticationTests {
             -65
         ) // expires in the past.  Need to back past the clock skew
 
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -281,11 +313,16 @@ class Server2ServerAuthenticationTests {
             exampleKeyId
         )
 
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // It should work the first time.
-        assertTrue(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertTrue(
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
         // Then fail the second time
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            Server2ServerAuthentication(UnitTestUtils.simpleMetadata)
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test

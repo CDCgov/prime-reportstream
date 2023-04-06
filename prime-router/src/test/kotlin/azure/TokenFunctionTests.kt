@@ -63,6 +63,7 @@ class TokenFunctionTests {
 
     val jwk = Jwk(
         pubKey.getAlgorithm(),
+        kid = "kid1",
         n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
         alg = "RS256",
@@ -108,6 +109,7 @@ class TokenFunctionTests {
             .setExpiration(expirationDate) // exp
             .setId(UUID.randomUUID().toString()) // jti
             .setIssuer(sender.fullName)
+            .setHeaderParam("kid", jwk.kid)
             .signWith(keyPair.getPrivate()).compact()
     }
 
@@ -169,7 +171,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        assertThat(response.getBody()).isEqualTo(null)
+        assertThat(response.getBody()).isEqualTo("invalid_client")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
@@ -242,7 +244,8 @@ class TokenFunctionTests {
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
-                    "No auth keys associated with sender simple_report.default"
+                    "Unable to find auth key for simple_report" +
+                    " with scope=simple_report.default.report, kid=kid1, and alg=RSA"
             )
         }
     }
@@ -256,14 +259,14 @@ class TokenFunctionTests {
             listOf(
                 "wrong.default.report",
                 "AccessToken Request Denied: Error while requesting wrong.default.report: " +
-                    "Invalid scope for this sender: wrong.default.report",
+                    "Invalid scope for this issuer: wrong.default.report",
                 "Expected organization simple_report. Instead got: wrong"
             ),
             // Wrong
             listOf(
                 "simple_report.default.bad",
                 "AccessToken Request Denied: Error while requesting simple_report.default.bad: " +
-                    "Invalid scope for this sender: simple_report.default.bad",
+                    "Invalid scope for this issuer: simple_report.default.bad",
                 "Invalid DetailedScope bad"
             ),
         ).forEach {
@@ -295,8 +298,8 @@ class TokenFunctionTests {
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
-                    "Unable to find auth key for simple_report.default with scope=simple_report.default.report, " +
-                    "kid=null, and alg=RS256"
+                    "Unable to find auth key for simple_report with scope=simple_report.default.report, " +
+                    "kid=kid1, and alg=RSA"
             )
         }
     }
