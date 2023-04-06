@@ -46,7 +46,7 @@ jobs:
       - name: Send Slack notification
         run: |
           certificates="${{ steps.check-certs.outputs.certificates }}"
-          message="The following certificates are expiring within the next 30 days:\n$(echo "${certificates}" | jq -r '.[] | "\(.name) (\(.expiration))"')"
+          message=$(cat ${{ steps.check-certs.outputs.certificates }})
           curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"${message}\"}" <SLACK_WEBHOOK_URL
 
       - name: Remove Runner IP to Key Vault Firewall
