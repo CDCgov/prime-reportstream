@@ -43,14 +43,15 @@ jobs:
             echo "::set-output name=certificates::$certificates"
           fi
 
-      - name: Send Slack notification
-        run: |
-          certificates="${{ steps.check-certs.outputs.certificates }}"
-          message="The following certificates are expiring within the next 30 days:"
-          echo "${certificates}" | jq -r '.[] | "\(.name) (\(.expiration))"' | while read -r cert_info; do
-            message+="\n${cert_info}"
-          done
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"${message}\"}" <SLACK_WEBHOOK_URL>
-
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
+
+      - name: Send Slack notification
+        run: |
+          echo "::set-output name=certificates::$certificates"
+          certificates="$((echo ${{ steps.check-certs.outputs.certificates }}) | jq -r '.[] | "\(.name) (\(.expiration))"')"
+          if [[ -z "$certificates" ]]; then
+            echo "No certificates are expiring within the next 30 days."
+          else
+            curl -X POST -H 'Content-type: application/json' --data '{"text":"The following certificates are expiring within the next 30 days:\n'"$certificates"'"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+          fi
