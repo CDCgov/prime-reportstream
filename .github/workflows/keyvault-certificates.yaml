@@ -50,7 +50,7 @@ jobs:
             echo "No certificates are expiring within the next 30 days."
           else
             message="The following certificates are expiring within the next 30 days:\n$certificates"
-            curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$message"'"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+            curl -X POST -H 'Content-Type: application/json' -d '{"text":"'"$message"'"}' ${{ secrets.SLACK_WEBHOOK_URL }}
           fi
 
 
