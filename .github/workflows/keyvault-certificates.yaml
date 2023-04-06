@@ -42,16 +42,16 @@ jobs:
           near_expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
           echo "The following certificates will expire within the next 30 days: $near_expiry_certificates" 
           echo "::set-output name=expiring_certs::$near_expiry_certificates" 
+          expiry_days=$(( ( $(date -d "$expiry_date" +%s) - $(date +%s) ) / 86400 ))
+          echo "Certificate expires in $expiry_days days"
 
-      - name: Send Notification to Slack Channel
-        if: ${{ steps.cert-expiry.outputs.expiry <= 30 }}
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
-        #uses: rtCamp/action-slack-notify@v2.3.0
-        with:
-          payload: '{"text": "${{ steps.cert-expiration.outputs.cert-expiration }}"}'
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          text: "Certificate expires in $expiry_days days"
+          color: warning
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
@@ -59,8 +59,3 @@ jobs:
       - name: Cleanup
         run: |
           unset runner_ip
-
-
-
-
-      
