@@ -35,15 +35,15 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
     value: [ '%originalTextExtension.value' ]
 
-
+  # California requirement: Move all regular notes and AOE questions between last OBX segment and SPM 
+  #   as NTE segments 
+  # To do that we have to compare the Observation index against the Observation count
+  # to make sure is the last OBX segment and only add notes and AOE questions to that segment
   - name: ca-order-note
     resource: '%service.note.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
     condition: >-
       (%service.note.exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists())
       and (Bundle.entry.resource.ofType(DiagnosticReport).result.count() - 1) = %resultIndex
-
-#    resource: '%service.note.text.split(''\n'')'
-#    condition: '%service.note.exists()'
     schema: ca-order-note
     resourceIndex: noteIndex
     constants:
