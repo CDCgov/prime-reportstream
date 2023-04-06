@@ -38,12 +38,13 @@ jobs:
       - name: Get Near Expiry Certificates
         id: cert-expiration
         run: |
-          expiry_date=$(date -d "+30 days" -I)
+          expiry_date=$(date -d "+300 days" -I)
           expiry_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$near_expiry_date\`].name" -o tsv)
           echo "::set-output name=expiring_certs::$expiry_certificates" 
           expiry_days=$(( ( $(date -d “$expiry_date” +%s) - $(date +%s) ) / 86400 )) >> $GITHUB_ENV
           echo "::set-output name=expiring_days::$expiry_days"
-
+          
+          ${{ steps.cert-expiration.outputs.expiring_days }}
 
       - name: Send Slack Notification
         id: slack
