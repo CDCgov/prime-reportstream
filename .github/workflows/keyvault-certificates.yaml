@@ -39,9 +39,8 @@ jobs:
             echo "No certificates are expiring within the next 30 days."
           else
             echo "The following certificates are expiring within the next 30 days:"
-            echo "$certificates"
-            #echo "::set-output name=certificates::$certificates"
-            echo "::set-env name=CERTIFICATES::$certificates"
+            echo "$certificates" > certificates.txt
+            echo "::set-output name=certificates::certificates.txt"
           fi
 
       - name: Remove Runner IP to Key Vault Firewall
@@ -49,7 +48,7 @@ jobs:
 
       - name: Send Slack notification
         run: |
-          certificates="${CERTIFICATES}""
+          certificates=$(cat ${{ steps.check-certs.outputs.certificates }})
           if [[ -z "$certificates" ]]; then
             echo "No certificates are expiring within the next 30 days."
           else
