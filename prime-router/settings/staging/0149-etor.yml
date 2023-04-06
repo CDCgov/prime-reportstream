@@ -26,17 +26,18 @@
   jurisdiction: FEDERAL
   senders:
     - name: simulated-hospital
-      externalName:   Simulated Hospital ETOR Sender
+      externalName: Simulated Hospital ETOR Sender
       organizationName: flexion
       topic: full-elr
       customerStatus: active
       format: HL7
     - name: etor-service-sender
-      externalName:   ETOR Service Sender Channel to ReportStream - Sending FHIR
+      externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
       organizationName: flexion
       topic: full-elr
       customerStatus: active
       format: FHIR
+      schemaName: "metadata/fhir_transforms/STLTs/Flexion/TrustedIntermediaryLabOrder"
   receivers:
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
@@ -57,7 +58,7 @@
         initialTime: 00:00
       translation: !<HL7>
         # THIS WAS schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
-        schemaName: "metadata/hl7_mapping/OML_O21/OML_O21-base"
+        schemaName: "metadata/hl7_mapping/STLTs/Flexion/TrustedIntermediaryLabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
