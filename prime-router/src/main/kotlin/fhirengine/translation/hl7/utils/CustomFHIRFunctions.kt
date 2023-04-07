@@ -263,6 +263,7 @@ object CustomFHIRFunctions {
         HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
         HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
         HL70136("http://terminology.hl7.org/ValueSet/v2-0136", "HL70136"),
+        HL70078("http://terminology.hl7.org/CodeSystem/v2-0078", "HL70078"),
         NONE("", "");
 
         companion object {
