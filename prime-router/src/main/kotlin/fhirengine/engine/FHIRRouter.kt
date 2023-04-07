@@ -464,21 +464,22 @@ class FHIRRouter(
         val exceptionFilters = mutableListOf<String>()
         var result = true
         filter.forEach { filterElement ->
-            val filterElementResult = try {
-                FhirPathUtils.evaluateCondition(
+            try {
+                val filterElementResult = FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, focusResource, shorthandLookupTable),
                     focusResource,
                     bundle,
                     filterElement
                 )
+                if (!filterElementResult) {
+                    result = false
+                    failingFilters += filterElement
+                }
             } catch (e: SchemaException) {
                 actionLogger?.warn(
                     EvaluateFilterConditionErrorMessage(e.message)
                 )
-            }
-            if (!filterElementResult) {
-                result = false
-                failingFilters += filterElement
+                exceptionFilters += filterElement
             }
         }
 
