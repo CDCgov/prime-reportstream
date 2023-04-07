@@ -34,11 +34,10 @@ jobs:
       - name: Check Key Vault Certificates
         id: check-certs
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
-          echo "The following certificates are expiring within the next 30 days:"
-          payload="{\"text\":\"${certificates}\"}"
+          message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+          payload="{\"text\":\"${message}\"}"
           curl -X POST -H "Content-Type: application/json" -d "${payload}" ${{ secrets.SLACK_WEBHOOK_URL }}
-         # curl -X POST -H 'Content-Type: application/json' -d '{"text":"'"$certificates"'"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        
 
       # - name: Send Slack notification
       #   run: |
