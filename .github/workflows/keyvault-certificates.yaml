@@ -33,7 +33,7 @@ jobs:
 
       - name: Get certificate expiry dates
         run: |
-          az keyvault certificate list --vault-name <keyvault-name> --query "[].{name:name, expiry:attributes.expires}" -o json > cert_expiry.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expiry:attributes.expires}" -o json > cert_expiry.json
 
       - name: Extract certificates expiring in 300 days
         run: |
