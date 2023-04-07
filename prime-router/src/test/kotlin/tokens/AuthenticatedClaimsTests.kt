@@ -9,9 +9,9 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -26,8 +26,8 @@ class AuthenticatedClaimsTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
-        mockkConstructor(WorkflowEngine::class)
-        every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test
