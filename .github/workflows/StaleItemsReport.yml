@@ -1,0 +1,38 @@
+name: Alert Stale Branches,PullRequests, Issues Older Than 6 Months
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  alert_stale_items:
+    name: Alert on Stale items in github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+        with:
+          fetch-depth: 0
+
+      - name: Get stale issues
+        id: staleIssues
+        shell: pwsh
+        run: echo "Issues=$(.\StaleIssues.ps1)" >> $GITHUB_OUTPUT
+      
+      - name: Get stale pull requests
+        id: StalePRs
+        shell: pwsh
+        run: echo "Pull Requests=$(.\StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+          
+      - name: Get Stale branches
+        id: StaleBranches
+        run: echo "Branches=$(.\oldbranches.sh)" >> $GITHUB_OUTPUT
+        shell: bash
+
+
+    # - name: Notify Slack
+    #     if: ${{ always() }}
+    #     run: |
+    #       webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+    #       message="${{ steps.staleIssues.outputs.Issues }}"
+    #       payload="{\"text\":\"${message}\"}"
+    #       curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
