@@ -2,6 +2,9 @@ name: Alert Stale Items from GitHub
 
 on:
   workflow_dispatch:
+  push: 
+    branches:
+      - feature/stale-items-report
   
 jobs:
   alert_stale_items:
