@@ -1,4 +1,4 @@
-name: Alert Stale Branches,PullRequests, Issues Older Than 6 Months
+name: Alert Stale Items from GitHub
 
 on:
   workflow_dispatch:
