@@ -52,7 +52,7 @@ jobs:
       - name: Send Slack notification
         run: |
           echo "::set-output name=file_content::$file_content"
-          message=${{ steps.read-file-content.outputs.file_content }}
+          message=[ cat ${{ steps.read-file-content.outputs.file_content }}]
           curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
         shell: bash
         env:
