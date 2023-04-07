@@ -19,16 +19,16 @@ jobs:
       - name: Get stale issues
         id: staleIssues
         shell: pwsh
-        run: echo "Issues=$(.\StaleIssues.ps1)" >> $GITHUB_OUTPUT
+        run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> $GITHUB_OUTPUT
       
       - name: Get stale pull requests
         id: StalePRs
         shell: pwsh
-        run: echo "Pull Requests=$(.\StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+        run: echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
           
       - name: Get Stale branches
         id: StaleBranches
-        run: echo "Branches=$(.\oldbranches.sh)" >> $GITHUB_OUTPUT
+        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
         shell: bash
 
 
