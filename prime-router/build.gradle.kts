@@ -37,7 +37,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.8.10"
     id("com.avast.gradle.docker-compose") version "0.16.11"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -746,9 +746,7 @@ dependencies {
     // Pin snakeyaml since it is getting included regardless of exclude attempts
     implementation("org.yaml:snakeyaml:1.33")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.2.5")
-    // Pin org.hl7.fhir.utilities to ca.uhn.hapi.fhir:org.hl7.fhir.utilities@5.6.92 until ca.uhn.hapi.fhir:hapi-fhir-structures-r4 can be updated
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:5.6.971")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.5")
