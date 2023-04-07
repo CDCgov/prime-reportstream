@@ -2,9 +2,6 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import { IACardGridProps } from "../../components/Content/Templates/IACardGridTemplate";
 import {
-    directoryArrayToMap,
-    RESOURCE_INDEX_SECTIONS,
-    resourceIndexSections,
     resourcesDirectories,
     ResourcesDirectoryTools,
 } from "../../content/resources";
@@ -21,15 +18,7 @@ const rootProps: IATemplateProps<IACardGridProps> = {
     templateProps: {
         pageName: ResourcesDirectoryTools.title,
         subtitle: ResourcesDirectoryTools.subtitle,
-        directories: directoryArrayToMap(
-            resourcesDirectories,
-            resourceIndexSections
-        ),
-        sectionOrder: [
-            RESOURCE_INDEX_SECTIONS.DEFAULT,
-            RESOURCE_INDEX_SECTIONS.TESTING_FACILITIES,
-            RESOURCE_INDEX_SECTIONS.PUBLIC_HEALTH_DEPARTMENTS,
-        ],
+        directories: resourcesDirectories,
     },
     includeRouter: true,
 };

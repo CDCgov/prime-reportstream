@@ -7,8 +7,11 @@ import {
 } from "../PageGenerationTools";
 import { ContentDirectory, ElementDirectory } from "../MarkdownDirectory";
 
-import { IACardGridProps, IACardGridTemplate } from "./IACardGridTemplate";
-import { ContentMap } from "./IAComponentProps";
+import {
+    ContentMap,
+    IACardGridProps,
+    IACardGridTemplate,
+} from "./IACardGridTemplate";
 
 // Set up page titles
 enum TestDirPages {
@@ -63,7 +66,7 @@ const TestCardGrid = () => <IACardGridTemplate {...arrayPageProps} />;
 const TestSectionedCardGrid = () => <IACardGridTemplate {...mapPageProps} />;
 
 describe("IACardGridTemplate", () => {
-    test("renders single card grid", () => {
+    test("renders single card gird", () => {
         renderApp(<TestCardGrid />);
         // Asserts card for ElementDirectory "ONE" is there
         expect(screen.getByText(TestDirPages.ONE)).toBeInTheDocument();
