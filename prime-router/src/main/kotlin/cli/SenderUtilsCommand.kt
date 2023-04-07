@@ -168,11 +168,10 @@ class AddPublicKey : SettingCommand(
         "--kid",
         metavar = "<string key id>",
         help = """
-            Specify desired key id for this key.
-            When sender makes a token req, the kid in jwt must match this kid.
-            If not set, use the sender fullname as the kid value
+            Specify desired key id for this key.  This value must be unique within the keys already added
+            for the scope.
         """.trimIndent()
-    )
+    ).required()
 
     private val scope by option(
         "--scope",
@@ -204,7 +203,7 @@ class AddPublicKey : SettingCommand(
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
-        jwk.kid = if (kid.isNullOrEmpty()) orgName else kid
+        jwk.kid = kid
 
         val origOrganizationJson =
             get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
