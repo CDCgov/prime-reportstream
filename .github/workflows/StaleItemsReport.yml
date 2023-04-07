@@ -15,6 +15,10 @@ jobs:
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
         with:
           fetch-depth: 0
+      - name: Get Stale branches
+        id: StaleBranches
+        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Get stale issues
         id: staleIssues
@@ -26,10 +30,7 @@ jobs:
         shell: pwsh
         run: echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
           
-      - name: Get Stale branches
-        id: StaleBranches
-        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
-        shell: bash
+      
 
 
     # - name: Notify Slack
