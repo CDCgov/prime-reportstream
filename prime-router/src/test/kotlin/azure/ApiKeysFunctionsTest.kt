@@ -115,6 +115,7 @@ class ApiKeysFunctionsTest {
     @AfterEach
     fun reset() {
         clearAllMocks()
+        unmockkObject(AuthenticatedClaims)
     }
 
     @Nested

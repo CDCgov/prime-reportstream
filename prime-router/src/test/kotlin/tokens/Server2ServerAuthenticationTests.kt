@@ -20,6 +20,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.math.BigInteger
 import java.security.Key
@@ -124,12 +126,17 @@ class Server2ServerAuthenticationTests {
 
     @BeforeEach
     fun reset() {
-        clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
         mockkConstructor(WorkflowEngine::class)
         every { anyConstructed<WorkflowEngine>().settings } returns settings
         val jwk = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java)
         settings.organizationStore.put(organization.name, Organization(organization, "simple_report.*.report", jwk))
         settings.senderStore.put(sender.fullName, sender)
+    }
+
+    @AfterEach
+    fun clearMocks() {
+        clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
+        unmockkConstructor(WorkflowEngine::class)
     }
 
     @Test
