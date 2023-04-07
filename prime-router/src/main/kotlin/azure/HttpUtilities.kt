@@ -153,7 +153,7 @@ class HttpUtilities {
 
         fun internalErrorResponse(
             request: HttpRequestMessage<String?>,
-            message: String
+            message: String = ""
         ): HttpResponseMessage {
             val body = """{"error": "Internal error at ${OffsetDateTime.now()}; $message"}"""
             return request

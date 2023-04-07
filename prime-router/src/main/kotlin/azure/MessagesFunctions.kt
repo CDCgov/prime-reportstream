@@ -145,7 +145,7 @@ class MessagesFunctions(
             } else {
                 logger.error(ex)
             }
-            HttpUtilities.internalErrorResponse(request, ex.message)
+            HttpUtilities.internalErrorResponse(request, ex.localizedMessage)
         }
     }
 
