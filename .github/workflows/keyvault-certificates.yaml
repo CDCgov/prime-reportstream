@@ -34,15 +34,15 @@ jobs:
       - name: List Certificates in Key Vault
         id: list_certificates
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault)
-          echo "$certificates" > certificates.txt
-          echo "certificates=$(cat certificates.txt)" >> $GITHUB_ENV
-            
+          certificates=$(az keyvault certificate list --vault-name <your-keyvault-name> --query "[?expires<=\`$(date +%Y-%m-%d -d '+30 days')\`].[id]" -o tsv)
+          echo "::set-output name=certificates::$certificates"
+          echo "certificates=$certificates" >> $GITHUB_ENV
+        
       - name: Notify Slack
         if: ${{ always() }}
         run: |
           webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          certificates="${certificates}"
+          certificates="${{ steps.list_certificates.outputs.certificates }}"
           if [[ -z $certificates ]]; then
             message="All certificates in Key Vault are valid."
           else
