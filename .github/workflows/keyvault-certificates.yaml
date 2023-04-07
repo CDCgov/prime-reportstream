@@ -31,31 +31,49 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: Check Key Vault Certificates
-        id: check-certs
+      - name: Get certificate expiry dates
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
-          if [[ -z "$certificates" ]]; then
-            echo "No certificates are expiring within the next 300 days."
-          else
-            echo "The following certificates are expiring within the next 30 days:"
-            echo "$certificates" | tee certificates.txt
-            echo "::set-output name=certificates::certificates.txt"
-          fi
+          az keyvault certificate list --vault-name <keyvault-name> --query "[].{name:name, expiry:attributes.expires}" -o json > cert_expiry.json
 
-      - name: Read file content
-        id: read-file-content
+      - name: Extract certificates expiring in 300 days
         run: |
-          file_content=$(cat certificates.txt)
-          echo "::set-output name=file_content::$file_content"
+          jq '.[] | select(.expiry < (now + 300*24*60*60*1000000000) | strptime("%Y-%m-%dT%H:%M:%S.%NZ") | mktime) | .name' cert_expiry.json > expiring_certs.txt
 
       - name: Send Slack notification
         uses: 8398a7/action-slack@v3
+        with:
+          text: "The following Azure Key Vault certificates are expiring in 300 days:"
+          color: warning
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          attachment_content: expiring_certs.txt
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          text: "$certificate expires in $expiry_days days\nFile Content: ${{ steps.read-file-content.outputs.file_content }}"
-          color: warning
+
+      # - name: Check Key Vault Certificates
+      #   id: check-certs
+      #   run: |
+      #     certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+      #     if [[ -z "$certificates" ]]; then
+      #       echo "No certificates are expiring within the next 300 days."
+      #     else
+      #       echo "The following certificates are expiring within the next 30 days:"
+      #       echo "$certificates" | tee certificates.txt
+      #       echo "::set-output name=certificates::certificates.txt"
+      #     fi
+
+      # - name: Read file content
+      #   id: read-file-content
+      #   run: |
+      #     file_content=$(cat certificates.txt)
+      #     echo "::set-output name=file_content::$file_content"
+
+      # - name: Send Slack notification
+      #   uses: 8398a7/action-slack@v3
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #   with:
+      #     text: "$certificate expires in $expiry_days days\nFile Content: ${{ steps.read-file-content.outputs.file_content }}"
+      #     color: warning
 
       # - name: Send Slack notification
       #   run: |
