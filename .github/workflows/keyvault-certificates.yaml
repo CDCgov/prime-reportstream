@@ -34,7 +34,7 @@ jobs:
       - name: List Certificates in Key Vault
         id: list_certificates
         run: |
-          certificates=$(az keyvault certificate list --vault-name <your-keyvault-name> --query "[?expires<=\`$(date +%Y-%m-%d -d '+300 days')\`].[id]" -o tsv)
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires<=\`$(date +%Y-%m-%d -d '+300 days')\`].[id]" -o tsv)
           echo "$certificates" > certificates.txt
           echo "certificates=$(cat certificates.txt)" >> $GITHUB_ENV
             
