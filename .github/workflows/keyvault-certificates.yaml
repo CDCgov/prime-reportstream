@@ -34,22 +34,7 @@ jobs:
       - name: List Certificates in Key Vault
         id: list_certificates
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires<=\`$(date +%Y-%m-%d -d '+300 days')\`].[id]" -o tsv)
-          echo "$certificates" > certificates.txt
-          echo "certificates=$(cat certificates.txt)" >> $GITHUB_ENV
-            
-      - name: Notify Slack
-        if: ${{ always() }}
-        run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires<=\`$(date +%Y-%m-%d -d '+300 days')\`].[id]" -o tsv)
-          echo "certificates=$(cat certificates.txt)" >> $GITHUB_ENV
-          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          certificates="${certificates}"
-          if [[ -z $certificates ]]; then
-            message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires<=\`$(date +%Y-%m-%d -d '+300 days')\`].[id]" -o tsv)
-          else
-            message="The following certificates in Key Vault are expiring within 30 days:\n$certificates"
-          fi
+          message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
           payload="{\"text\":\"${message}\"}"
           curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
 
