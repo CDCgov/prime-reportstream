@@ -461,27 +461,30 @@ class FHIRRouter(
         }
 
         val failingFilters = mutableListOf<String>()
+        val exceptionFilters = mutableListOf<String>()
         var result = true
-        try {
-            filter.forEach {
-                val filterElementResult = FhirPathUtils.evaluateCondition(
+        filter.forEach { filterElement ->
+            val filterElementResult = try {
+                FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, focusResource, shorthandLookupTable),
                     focusResource,
                     bundle,
-                    it
+                    filterElement
                 )
-                if (!filterElementResult) {
-                    result = false
-                    failingFilters += it
-                }
+            } catch (e: SchemaException) {
+                actionLogger?.warn(
+                    EvaluateFilterConditionErrorMessage(e.message)
+                )
             }
-        } catch (e: SchemaException) {
-            actionLogger?.warn(
-                EvaluateFilterConditionErrorMessage(e.message)
-            )
-            return Pair(false, "(exception found) $filter")
+            if (!filterElementResult) {
+                result = false
+                failingFilters += filterElement
+            }
         }
-        return if (reverseFilter) {
+
+        return if (exceptionFilters.isNotEmpty()) {
+            Pair(false, "(exception found) $exceptionFilters")
+        } else if (reverseFilter) {
             if (!result) Pair(true, null)
             else Pair(false, "(reversed) $filter")
         } else {
