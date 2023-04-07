@@ -41,13 +41,16 @@ jobs:
             echo "The following certificates are expiring within the next 30 days:"
             echo "$certificates" | tee certificates.txt
             echo "::set-output name=certificates::certificates.txt"
-            cat certificates.txt
-            ls
           fi
+
+      - name: Read file content
+        run: |
+          file_content=$(cat certificates.txt)
+          echo "::set-output name=file_content::$file_content"
 
       - name: Send Slack notification
         run: |
-          message=$(cat certificates.txt)
+          message=${{ steps.read-file-content.outputs.file_content }}
           curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
         shell: bash
         env:
