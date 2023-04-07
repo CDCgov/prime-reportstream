@@ -44,17 +44,26 @@ jobs:
           fi
 
       - name: Read file content
+        id: read-file-content
         run: |
           file_content=$(cat certificates.txt)
           echo "::set-output name=file_content::$file_content"
 
       - name: Send Slack notification
-        run: |
-          message=${{ steps.read-file-content.outputs.file_content }}
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
-        shell: bash
+        uses: 8398a7/action-slack@v3
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          text: "$certificate expires in $expiry_days days\nFile Content: ${{ steps.read-file-content.outputs.file_content }}"
+          color: warning
+
+      # - name: Send Slack notification
+      #   run: |
+      #     message=${{ steps.read-file-content.outputs.file_content }}
+      #     curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+      #   shell: bash
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
