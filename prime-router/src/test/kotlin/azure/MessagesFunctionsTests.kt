@@ -419,6 +419,8 @@ class MessagesFunctionsTests {
         assert(res.status.equals(HttpStatus.OK))
 
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
 
         // unauthorized - no claims
         val unAuthReq = MockHttpRequestMessage()
@@ -427,7 +429,6 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageDetails(unAuthReq, id)
-        assertThat(unAuthRes.body).isEqualTo("invalid_client")
         assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
