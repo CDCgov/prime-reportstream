@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
@@ -284,7 +286,7 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageSearch(unAuthReq)
-        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
@@ -421,7 +423,7 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageDetails(unAuthReq, id)
-        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
