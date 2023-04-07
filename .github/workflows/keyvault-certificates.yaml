@@ -34,6 +34,7 @@ jobs:
       - name: List Certificates in Key Vault
         id: list_certificates
         run: |
+          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
           message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
           payload="{\"text\":\"${message}\"}"
           curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
