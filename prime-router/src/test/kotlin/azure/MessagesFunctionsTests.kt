@@ -427,8 +427,8 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageDetails(unAuthReq, id)
-        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(unAuthRes.body).isEqualTo("invalid_client")
+        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
