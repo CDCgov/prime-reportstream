@@ -36,8 +36,10 @@ jobs:
         run: |
           current_date=$(date +%Y-%m-%d)
           expiry_date=$(date -d "+300 days" +%Y-%m-%d)
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires>=\`$current_date\` && expires<=\`$expiry_date\`].[id]" -o tsv)
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].***name:name, expiration:attributes.expires***" -o json)
           echo "::set-output name=certificates::$certificates"
+
+
         
       - name: Notify Slack
         if: ${{ always() }}
