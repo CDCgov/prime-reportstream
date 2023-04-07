@@ -40,7 +40,8 @@ jobs:
           else
             echo "The following certificates are expiring within the next 30 days:"
             echo "$certificates" | tee certificates.txt
-            echo "::set-output name=certificates::certificates.txt"
+            echo "::set-output name=certificates::$certificates.txt"
+            echo "{certificates}={certificates.txt}" >> $GITHUB_OUTPUT
           fi
 
       - name: Read file content
@@ -48,12 +49,12 @@ jobs:
         run: |
           file_content=$(cat certificates.txt)
           echo "::set-output name=file_content::$file_content"
+          echo "{file_content}={file_content}" >> $GITHUB_OUTPUT
 
       - name: Send Slack notification
         run: |
-          echo "::set-output name=file_content::$file_content"
-          message=[ cat certificates.txt]
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+          message=${{ steps.read-file-content.outputs.file_content }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"echo "$GITHUB_OUTPUT"\"}" $SLACK_WEBHOOK_URL
         shell: bash
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
