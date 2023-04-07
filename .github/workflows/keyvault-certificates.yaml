@@ -42,6 +42,7 @@ jobs:
             echo "$certificates" | tee certificates.txt
             echo "::set-output name=certificates::certificates.txt"
             cat certificates.txt
+            ls
           fi
 
       - name: Send Slack notification
