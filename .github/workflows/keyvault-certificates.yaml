@@ -38,7 +38,7 @@ jobs:
       - name: Extract certificates expiring in 300 days
         run: |
           jq '.[] | select(.expiry < (now + 300*24*60*60*1000000000) | strptime("%Y-%m-%dT%H:%M:%S.%NZ") | mktime) | .name' cert_expiry.json > expiring_certs.txt
-
+          
       - name: Send Slack notification
         uses: 8398a7/action-slack@v3
         with:
