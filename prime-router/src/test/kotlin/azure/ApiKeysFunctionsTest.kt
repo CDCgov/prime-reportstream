@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNull
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.BaseEngine
@@ -98,11 +99,10 @@ class ApiKeysFunctionsTest {
         every { SettingsFacade.common } returns facade
         every {
             facade.putSetting<OrganizationAPI>(
-                any<String>(),
+                organization.name,
                 any<String>(),
                 any<AuthenticatedClaims>(),
-                any(),
-                any()
+                OrganizationAPI::class.java,
             )
         } answers {
             val organizationAPI =
@@ -397,6 +397,31 @@ class ApiKeysFunctionsTest {
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `Test returns the error if one is encountered persisting the key`() {
+            settings.organizationStore.put(organization.name, organization)
+            val httpRequestMessage = MockHttpRequestMessage(encodedPubKey)
+            httpRequestMessage.queryParameters["scope"] = wildcardReportScope
+            httpRequestMessage.queryParameters["kid"] = organization.name
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            every { facade.putSetting(organization.name, any(), claims, OrganizationAPI::class.java) } returns Pair(
+                SettingsFacade.AccessResult.BAD_REQUEST,
+                "Payload and path name do not match"
+            )
+
+            val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("Payload and path name do not match")
+
+            val updatedOrg = settings.organizationStore.get(organization.name)
+            assertThat(updatedOrg?.keys).isNull()
         }
     }
 
