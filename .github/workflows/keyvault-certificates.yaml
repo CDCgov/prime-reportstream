@@ -31,25 +31,26 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List Certificates in Key Vault
-        id: list_certificates
+      - name: Check Key Vault Certificates
+        id: check-certs
         run: |
-          certificates=$(az keyvault certificate list --vault-name <your-keyvault-name> --query "[?expires<=\`$(date +%Y-%m-%d -d '+30 days')\`].[id]" -o tsv)
-          echo "::set-output name=certificates::$certificates"
-          echo "certificates=$certificates" >> $GITHUB_ENV
-        
-      - name: Notify Slack
-        if: ${{ always() }}
-        run: |
-          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          certificates="${{ steps.list_certificates.outputs.certificates }}"
-          if [[ -z $certificates ]]; then
-            message="All certificates in Key Vault are valid."
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+          if [[ -z "$certificates" ]]; then
+            echo "No certificates are expiring within the next 300 days."
           else
-            message="The following certificates in Key Vault are expiring within 30 days:\n$certificates"
+            echo "The following certificates are expiring within the next 30 days:"
+            echo "$certificates" | tee certificates.txt
+            echo "::set-output name=certificates::certificates.txt"
           fi
-          payload="{\"text\":\"${message}\"}"
-          curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
+        
+      - name: Send Slack notification
+        run: |
+          message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+        shell: bash
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 
       # - name: List Certificates in Key Vault
       #   id: list_certificates
