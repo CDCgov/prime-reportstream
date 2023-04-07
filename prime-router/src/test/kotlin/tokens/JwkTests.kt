@@ -223,7 +223,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     @Test
     fun `Test isValidKidForSet returns false if kid is used in JwkSet`() {
         assertThat(
-            JwkSet.isValidKidForSet(
+            JwkSet.isValidKidForScope(
                 listOf(JwkSet(wildcardReportScope, listOf(jwk2))),
                 wildcardReportScope,
                 jwk2.kid
@@ -234,7 +234,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     @Test
     fun `Test isValidKidForSet returns true if no JwkSet exists for scope`() {
         assertThat(
-            JwkSet.isValidKidForSet(
+            JwkSet.isValidKidForScope(
                 listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
                 wildcardReportScope,
                 jwk2.kid
@@ -245,7 +245,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     @Test
     fun `Test isValidKidForSet returns true if the kid is unique`() {
         assertThat(
-            JwkSet.isValidKidForSet(
+            JwkSet.isValidKidForScope(
                 listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
                 wildcardReportScope,
                 jwk3.kid
@@ -256,7 +256,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     @Test
     fun `Test isValidKidForSet returns true even if kid unique is used in a different JwkSet`() {
         assertThat(
-            JwkSet.isValidKidForSet(
+            JwkSet.isValidKidForScope(
                 listOf(
                     JwkSet("simple_report.*.admin", listOf(jwk3)),
                     JwkSet(wildcardReportScope, listOf(jwk2))

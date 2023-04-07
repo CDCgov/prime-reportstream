@@ -215,8 +215,8 @@ class AddPublicKey : SettingCommand(
             return
         }
 
-        if (JwkSet.isValidKidForSet(origOrganization.keys, scope, kid)) {
-            echo("kid: $kid must be unique within the JwkSet")
+        if (JwkSet.isValidKidForScope(origOrganization.keys, scope, kid)) {
+            echo("kid: $kid must be unique for the requested scope: $scope")
             return
         }
 

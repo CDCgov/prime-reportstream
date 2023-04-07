@@ -81,7 +81,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             val jwk = SenderUtils.readPublicKeyPem(pemFileContents)
             val kid = request.queryParameters["kid"] ?: return HttpUtilities.bad(request, "kid must be provided")
 
-            if (!JwkSet.isValidKidForSet(organization.keys, scope, kid)) {
+            if (!JwkSet.isValidKidForScope(organization.keys, scope, kid)) {
                 return HttpUtilities.bad(request, "kid must be unique for the requested scope")
             }
 

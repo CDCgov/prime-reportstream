@@ -90,6 +90,8 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             actionHistory.trackActionResult("Token request denied.")
             actionHistory.setActionType(TaskAction.token_error)
 
+            // The SMART on FHIR spec specifies this error when auth fails
+            // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
             HttpUtilities.unauthorizedResponse(request, "invalid_client")
         }
         workflowEngine.recordAction(actionHistory)

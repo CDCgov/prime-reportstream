@@ -176,7 +176,7 @@ class TokenFunctionTests {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "Rejecting SenderToken JWT: io.jsonwebtoken.MalformedJwtException"
+                        "AccessToken Request Denied: io.jsonwebtoken.MalformedJwtException"
                     )
                 }
             )
@@ -201,7 +201,7 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
-                "Rejecting SenderToken JWT: java.lang.NullPointerException: issuer must not be null"
+                "AccessToken Request Denied: java.lang.NullPointerException: issuer must not be null"
             )
         }
     }

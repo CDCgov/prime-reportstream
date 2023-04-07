@@ -194,7 +194,17 @@ data class JwkSet(
             return nullSafeJwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
         }
 
-        fun isValidKidForSet(jwkSets: List<JwkSet>?, scope: String, kid: String?): Boolean {
+        /**
+         * Checks that the kid is unique within the JwkSet for the requested scope.  This implements the SMART on FHIR
+         * spec.
+         * http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=The%20identifier%20of%20the%20key%2Dpair%20used%20to%20sign%20this%20JWT.%20This%20identifier%20SHALL%20be%20unique%20within%20the%20client%27s%20JWK%20Set.
+         *
+         * @param jwkSets - The list of JwkSet that a key wants to be added too
+         * @param scope - The scope for the key
+         * @param kid - The kid for the key
+         * @return Whether the key can be added
+         */
+        fun isValidKidForScope(jwkSets: List<JwkSet>?, scope: String, kid: String?): Boolean {
             val nullSafeJwkSets = jwkSets ?: emptyList()
             val jwkSet = nullSafeJwkSets.find { it.scope == scope }
 

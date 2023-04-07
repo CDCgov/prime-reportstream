@@ -26,12 +26,20 @@ class Server2ServerAuthentication(val metadata: Metadata) : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
     private val EXPIRATION_SECONDS = 300
 
+    /**
+     * Exception class that captures errors from internal logic performed when authenticating; i.e.
+     * the issuer does not match an organization or sender
+     */
     class Server2ServerAuthenticationException(message: String, val scope: String) : Exception(message) {
         override fun getLocalizedMessage(): String {
             return "AccessToken Request Denied: Error while requesting $scope: $message"
         }
     }
 
+    /**
+     * Data class that holds the data from a parsed JWT.  The organization and sender fields are derived from
+     * the issuer in the JWT claims
+     */
     data class ParsedJwt(val organization: Organization, val sender: Sender?, val kid: String?, val kty: KeyType)
 
     /**
@@ -55,6 +63,12 @@ class Server2ServerAuthentication(val metadata: Metadata) : Logging {
         val claims = jwt.body
         val headers = jwt.header
         val issuer = claims.issuer // client_id
+
+        // The issuer should always be the organization name as this most closely matches the client_id
+        // description from the FHIR spec
+        // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=Upon%20registration%2C%20the%20client%20SHALL%20be%20assigned%20a%20client_id%2C%20which%20the%20client%20SHALL%20use%20when%20requesting%20an%20access%20token
+        // However, in order to be backwards compatible, the issuer claim can be either the name of the sender
+        // or the name of the organization.
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         val maybeSender = workflowEngine.settings.findSender(issuer)
         if (maybeOrganization == null && maybeSender != null) {
@@ -108,26 +122,39 @@ class Server2ServerAuthentication(val metadata: Metadata) : Logging {
             val jti = jws.body.id
             val exp = jws.body.expiration
             if (jti == null) {
-                logErr(actionHistory, "SenderToken has null JWT ID.  Rejecting.")
+                logErr(actionHistory, "AccessToken Request Denied: SenderToken has null JWT ID.  Rejecting.")
                 return false
             }
             val expiresAt = exp.toInstant().atOffset(Environment.rsTimeZone)
             if (expiresAt.isBefore(OffsetDateTime.now())) {
-                logErr(actionHistory, "SenderToken $jti has expired, at $expiresAt.  Rejecting.")
+                logErr(
+                    actionHistory,
+                    "AccessToken Request Denied: SenderToken $jti has expired at $expiresAt.  Rejecting."
+                )
                 return false
             }
             return jtiCache.isJTIOk(jti, expiresAt) // check for replay attacks
         } catch (ex: JwtException) {
             // Thrown if the Jws can be parsed but is invalid because the Jws is malformed,  the signature does match,
             // it is expired, or it does not represent any claims
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
             return false
-        } catch (e: IllegalArgumentException) {
+        } catch (ex: IllegalArgumentException) {
             // Thrown if the JwsString is null or empty
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
             return false
         }
     }
 
     /**
+     * This function implements on the SMART on FHIR authentication protocol
+     * http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
+     *
+     * @param jwsString - Base64 encoded JWS
+     * @param scope - the scope that is being requested
+     * @param jtiCache - the cache of used tokens to prevent replay attacks
+     * @param actionHistory - action history to capture events during the auth process
+     *
      * @return true if jwsString is a validly signed Sender token, false if it is unauthorized
      * If it is valid, then its ok to move to the next step, then give the sender an Access token.
      */
@@ -156,13 +183,13 @@ class Server2ServerAuthentication(val metadata: Metadata) : Logging {
             logErr(actionHistory, ex.localizedMessage)
             false
         } catch (ex: JwtException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $ex")
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             false
-        } catch (e: IllegalArgumentException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
+        } catch (ex: IllegalArgumentException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             false
-        } catch (e: NullPointerException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
+        } catch (ex: NullPointerException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             false
         }
     }
