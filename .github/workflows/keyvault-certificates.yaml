@@ -34,13 +34,14 @@ jobs:
       - name: Check Key Vault Certificates
         id: check-certs
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+30 days')\`].{name:name, expiration:attributes.expires}" -o json)
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
           if [[ -z "$certificates" ]]; then
-            echo "No certificates are expiring within the next 30 days."
+            echo "No certificates are expiring within the next 300 days."
           else
             echo "The following certificates are expiring within the next 30 days:"
-            echo "$certificates" > certificates.txt
+            echo "$certificates" | tee certificates.txt
             echo "::set-output name=certificates::certificates.txt"
+            cat certificates.txt
           fi
 
       - name: Send Slack notification
