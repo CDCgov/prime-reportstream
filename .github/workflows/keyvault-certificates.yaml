@@ -41,7 +41,7 @@ jobs:
       - name: Notify Slack
         if: ${{ always() }}
         run: |
-          webhook_url="https://hooks.slack.com/services/..."
+          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
           certificates="${{ steps.list_certificates.outputs.certificates }}"
           if [[ -z $certificates ]]; then
             message="All certificates in Key Vault are valid."
