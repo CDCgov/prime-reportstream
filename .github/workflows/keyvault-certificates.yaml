@@ -45,7 +45,7 @@ jobs:
 
       - name: Send Slack notification
         run: |
-          message=$(cat ${{ steps.check-certs.outputs.certificates }})
+          message="Hello World"
           curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
         shell: bash
         env:
