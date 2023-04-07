@@ -43,13 +43,22 @@ jobs:
             echo "::set-output name=certificates::certificates.txt"
           fi
         
-      - name: Send Slack notification
+      - name: Notify Slack
+        if: ${{ always() }}
         run: |
+          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+          certificates="${{ steps.list_certificates.outputs.certificates }}"
           message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
-        shell: bash
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload="{\"text\":\"${message}\"}"
+          curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
+
+      # - name: Send Slack notification
+      #   run: |
+      #     message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+      #     curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+      #   shell: bash
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
       # - name: List Certificates in Key Vault
@@ -59,18 +68,7 @@ jobs:
       #     echo "::set-output name=certificates::$certificates"
       #     echo "expiry_date=${expiry_date}" >> $GITHUB_ENV
       
-      # - name: Notify Slack
-      #   if: ${{ always() }}
-      #   run: |
-      #     webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-      #     certificates="${{ steps.list_certificates.outputs.certificates }}"
-      #     if [[ -z $certificates ]]; then
-      #       message="All certificates in Key Vault are valid."
-      #     else
-      #       message="The following certificates in Key Vault are expiring soon:\n$certificates"
-      #     fi
-      #     payload="{\"text\":\"${message}\"}"
-      #     curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
+      
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
