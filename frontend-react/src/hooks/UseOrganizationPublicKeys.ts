@@ -23,7 +23,7 @@ export const useOrganizationPublicKeys = () => {
             }),
         [activeMembership?.parsedName, authorizedFetch]
     );
-    const { data, isLoading } = rsUseQuery(
+    return rsUseQuery(
         [publicKeys.queryKey, activeMembership],
         memoizedDataFetch,
         {
@@ -31,6 +31,4 @@ export const useOrganizationPublicKeys = () => {
                 !!activeMembership?.parsedName && !!activeMembership.service,
         }
     );
-
-    return { data, isLoading };
 };

@@ -49,15 +49,6 @@ describe("ManagePublicKey", () => {
     }
 
     describe("on load", () => {
-        beforeEach(() => {
-            mockUseOrganizationSenders({
-                isLoading: false,
-                senders: DEFAULT_SENDERS,
-            });
-
-            renderApp(<ManagePublicKey />);
-        });
-
         describe("when more than one sender", () => {
             beforeEach(() => {
                 mockUseOrganizationSenders({
@@ -68,7 +59,7 @@ describe("ManagePublicKey", () => {
                 renderApp(<ManagePublicKey />);
             });
 
-            test.skip("renders ManagePublicKeyChooseSender", () => {
+            test("renders ManagePublicKeyChooseSender", () => {
                 expect(screen.getByText(/Manage public key/)).toBeVisible();
                 expect(
                     screen.getByTestId("ManagePublicKeyChooseSender")
@@ -79,7 +70,7 @@ describe("ManagePublicKey", () => {
             });
 
             describe("when sender is selected", () => {
-                test.skip("renders ManagePublicKeyUpload", async () => {
+                test("renders ManagePublicKeyUpload", async () => {
                     const submit = await screen.findByRole("button");
                     expect(submit).toHaveAttribute("type", "submit");
                     expect(submit).toBeDisabled();
@@ -117,7 +108,7 @@ describe("ManagePublicKey", () => {
                 renderApp(<ManagePublicKey />);
             });
 
-            test.skip("renders ManagePublicKeyUpload", () => {
+            test("renders ManagePublicKeyUpload", () => {
                 expect(screen.getByText(/Manage public key/)).toBeVisible();
                 expect(
                     screen.queryByTestId("ManagePublicKeyChooseSender")

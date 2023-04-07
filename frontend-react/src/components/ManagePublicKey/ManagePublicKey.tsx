@@ -23,7 +23,7 @@ export function ManagePublicKey() {
     const [hasPublicKey, setHasPublicKey] = useState(false);
     const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
     const [sender, setSender] = useState("");
-    const [showBack, setShowBack] = useState(false);
+    const [hasBack, setHasBack] = useState(false);
     const [fileContent, setFileContent] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
@@ -36,7 +36,7 @@ export function ManagePublicKey() {
 
     const handleSenderSelect = (selectedSender: string, showBack: boolean) => {
         setSender(selectedSender);
-        setShowBack(showBack);
+        setHasBack(showBack);
     };
 
     const handlePublicKeySubmit = async (
@@ -92,17 +92,14 @@ export function ManagePublicKey() {
     };
 
     const showPublicKeyConfigured =
-        sender.length > 0 &&
-        hasPublicKey &&
-        !uploadNewPublicKey &&
-        !fileSubmitted;
+        sender.length && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
     const showUploadMsg =
-        (sender.length > 0 && !fileSubmitted && !hasPublicKey) ||
-        (!uploadNewPublicKey && sender.length === 0);
-    const showUpload =
-        (sender.length > 0 && !fileSubmitted && !hasPublicKey) ||
+        (sender.length && !fileSubmitted && !hasPublicKey) ||
+        (!uploadNewPublicKey && !sender.length);
+    const isUpload =
+        (sender.length && !fileSubmitted && !hasPublicKey) ||
         uploadNewPublicKey;
-    const showUploadError = fileSubmitted && !isUploading && !isSuccess;
+    const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
@@ -144,20 +141,20 @@ export function ManagePublicKey() {
                     Your public key is already configured.
                 </p>
             )}
-            {showUpload && (
+            {isUpload && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
                     onFileChange={handleFileChange}
                     onBack={() => setSender("")}
                     onFetchPublicKey={setHasPublicKey}
-                    showBack={showBack}
+                    hasBack={hasBack}
                     file={file}
                     sender={sender}
                 />
             )}
             {isUploading && <Spinner />}
             {isSuccess && <ManagePublicKeyUploadSuccess />}
-            {showUploadError && (
+            {hasUploadError && (
                 <ManagePublicKeyUploadError
                     onTryAgain={() => setFileSubmitted(false)}
                 />

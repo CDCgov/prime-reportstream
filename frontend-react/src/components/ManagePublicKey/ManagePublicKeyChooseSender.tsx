@@ -5,7 +5,7 @@ import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
 import Spinner from "../Spinner";
 
 export interface ManagePublicKeyChooseSenderProps {
-    onSenderSelect: (sender: string, showBack: boolean) => void;
+    onSenderSelect: (sender: string, hasBack: boolean) => void;
 }
 
 export default function ManagePublicKeyChooseSender({

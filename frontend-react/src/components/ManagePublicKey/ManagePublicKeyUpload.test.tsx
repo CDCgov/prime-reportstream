@@ -12,7 +12,7 @@ describe("ManagePublicKeyUpload", () => {
         onPublicKeySubmit: () => {},
         onFileChange: () => {},
         onBack: () => {},
-        showBack: false,
+        hasBack: false,
         file: null,
         sender: "",
     };

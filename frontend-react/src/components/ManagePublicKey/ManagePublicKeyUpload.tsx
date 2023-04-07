@@ -18,7 +18,7 @@ export interface ManagePublicKeyUploadProps {
     onPublicKeySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
-    showBack: boolean;
+    hasBack: boolean;
     file: File | null;
     sender: string;
 }
@@ -28,7 +28,7 @@ export default function ManagePublicKeyUpload({
     onPublicKeySubmit,
     onFileChange,
     onBack,
-    showBack,
+    hasBack,
     file,
     sender,
 }: ManagePublicKeyUploadProps) {
@@ -84,7 +84,7 @@ export default function ManagePublicKeyUpload({
                 </FormGroup>
                 <Grid row>
                     <Grid col="auto">
-                        {showBack && (
+                        {hasBack && (
                             <Button onClick={onBack} type="button" outline>
                                 Back
                             </Button>
