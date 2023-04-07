@@ -31,42 +31,23 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: Get certificate expiry dates
+      - name: Check Key Vault Certificates
+        id: check-certs
         run: |
-          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expiry:attributes.expires}" -o json > cert_expiry.json
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
+          if [[ -z "$certificates" ]]; then
+            echo "No certificates are expiring within the next 300 days."
+          else
+            echo "The following certificates are expiring within the next 30 days:"
+            echo "$certificates" | tee certificates.txt
+            echo "::set-output name=certificates::certificates.txt"
+          fi
 
-      - name: Extract certificates expiring in 300 days
+      - name: Read file content
+        id: read-file-content
         run: |
-          jq '.[] | select(.expiry < (now + 300*24*60*60*1000000000) | strptime("%Y-%m-%dT%H:%M:%S.%NZ") | mktime) | .name' cert_expiry.json > expiring_certs.txt
-
-
-      - name: Send Slack notification
-        uses: 8398a7/action-slack@v3
-        with:
-          text: "The following Azure Key Vault certificates are expiring in 300 days:"
-          color: warning
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          attachment_content: expiring_certs.txt
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      # - name: Check Key Vault Certificates
-      #   id: check-certs
-      #   run: |
-      #     certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires<=\`$(date +%Y-%m-%dT%H:%MZ --date='+300 days')\`].{name:name, expiration:attributes.expires}" -o json)
-      #     if [[ -z "$certificates" ]]; then
-      #       echo "No certificates are expiring within the next 300 days."
-      #     else
-      #       echo "The following certificates are expiring within the next 30 days:"
-      #       echo "$certificates" | tee certificates.txt
-      #       echo "::set-output name=certificates::certificates.txt"
-      #     fi
-
-      # - name: Read file content
-      #   id: read-file-content
-      #   run: |
-      #     file_content=$(cat certificates.txt)
-      #     echo "::set-output name=file_content::$file_content"
+          file_content=$(cat certificates.txt)
+          echo "::set-output name=file_content::$file_content"
 
       # - name: Send Slack notification
       #   uses: 8398a7/action-slack@v3
@@ -76,13 +57,13 @@ jobs:
       #     text: "$certificate expires in $expiry_days days\nFile Content: ${{ steps.read-file-content.outputs.file_content }}"
       #     color: warning
 
-      # - name: Send Slack notification
-      #   run: |
-      #     message=${{ steps.read-file-content.outputs.file_content }}
-      #     curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
-      #   shell: bash
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send Slack notification
+        run: |
+          message=${{ steps.read-file-content.outputs.file_content }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+        shell: bash
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
