@@ -11,7 +11,6 @@ import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
-import { ValidateWithAuth } from "./pages/Validate";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
 import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
 import { AdminMainWithAuth } from "./pages/admin/AdminMain";
@@ -32,6 +31,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import FileHandler from "./components/FileHandlers/FileHandler";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -51,6 +51,7 @@ export const appRoutes = [
     { path: "/resources/*", element: <Resources /> },
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
+    { path: "/file-handler/validate", element: <FileHandler /> },
     { path: "/daily-data", element: <DeliveriesWithAuth /> },
     {
         path: "/report-details/:reportId",
@@ -111,7 +112,6 @@ export const appRoutes = [
         path: "/resources/manage-public-key",
         element: <ManagePublicKeyWithAuth />,
     },
-    { path: "/file-handler/validate", element: <ValidateWithAuth /> },
     /* Handles any undefined route */
     { path: "*", element: <ErrorNoPage /> },
 ];
