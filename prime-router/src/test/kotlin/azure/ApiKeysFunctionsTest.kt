@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNull
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.BaseEngine
@@ -11,6 +12,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.Jwk
+import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -18,8 +20,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import io.mockk.unmockkObject
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.json.JSONObject
@@ -95,11 +96,10 @@ class ApiKeysFunctionsTest {
         every { SettingsFacade.common } returns facade
         every {
             facade.putSetting<OrganizationAPI>(
-                any<String>(),
+                organization.name,
                 any<String>(),
                 any<AuthenticatedClaims>(),
-                any(),
-                any()
+                OrganizationAPI::class.java,
             )
         } answers {
             val organizationAPI =
@@ -173,8 +173,8 @@ class ApiKeysFunctionsTest {
 
         @Test
         fun `Test successfully removes the oldest key and adds the new one when over the limit`() {
-            mockkStatic(System::class)
-            every { System.getenv("MAX_NUM_KEY_PER_SCOPE") } returns "2"
+            mockkObject(JwkSet.Companion)
+            every { JwkSet.Companion.getMaximumNumberOfKeysPerScope() } returns 2
             settings.organizationStore.put(
                 organization.name,
                 organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
@@ -204,7 +204,7 @@ class ApiKeysFunctionsTest {
                         .toSet()
                 ).isEqualTo(setOf(jwk3.toRSAPublicKey(), jwk.toRSAPublicKey()))
             }
-            unmockkStatic(System::class)
+            unmockkObject(JwkSet.Companion)
         }
 
         @Test
@@ -372,6 +372,31 @@ class ApiKeysFunctionsTest {
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `Test returns the error if one is encountered persisting the key`() {
+            settings.organizationStore.put(organization.name, organization)
+            val httpRequestMessage = MockHttpRequestMessage(encodedPubKey)
+            httpRequestMessage.queryParameters["scope"] = wildcardReportScope
+            httpRequestMessage.queryParameters["kid"] = organization.name
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            every { facade.putSetting(organization.name, any(), claims, OrganizationAPI::class.java) } returns Pair(
+                SettingsFacade.AccessResult.BAD_REQUEST,
+                "Payload and path name do not match"
+            )
+
+            val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("Payload and path name do not match")
+
+            val updatedOrg = settings.organizationStore.get(organization.name)
+            assertThat(updatedOrg?.keys).isNull()
         }
     }
 
