@@ -32,6 +32,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -48,7 +49,14 @@ export const appRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/login/callback", element: <LoginCallback /> },
     { path: "/sign-tos", element: <TermsOfServiceForm /> },
-    { path: "/resources/*", element: <Resources /> },
+    {
+        path: "/resources",
+        children: [
+            { path: "getting-started", element: <GettingStartedPage /> },
+            { path: "", element: <Resources /> },
+            { path: "*", element: <Resources /> },
+        ],
+    },
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
     { path: "/daily-data", element: <DeliveriesWithAuth /> },
