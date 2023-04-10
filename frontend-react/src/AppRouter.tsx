@@ -32,7 +32,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/reportstream-api";
+import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
