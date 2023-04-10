@@ -40,10 +40,9 @@ elements:
   # To do that we have to compare the Observation index against the Observation count
   # to make sure is the last OBX segment and only add notes and AOE questions to that segment
   - name: ca-order-note
-    resource: '%service.note.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    resource: '%service.note.text.split(''\n'') | %service.supportingInfo.resolve()'
     condition: >-
-      (%service.note.exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists())
-      and (Bundle.entry.resource.ofType(DiagnosticReport).result.count() - 1) = %resultIndex
+      (%service.note.exists() or (%service.supportingInfo.exists() and (%diagnostic.result.count() - 1) = %resultIndex)
     schema: ca-order-note
     resourceIndex: noteIndex
     constants:
