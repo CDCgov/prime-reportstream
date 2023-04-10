@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
+import { renderToString } from "react-dom/server";
 
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
@@ -60,7 +61,23 @@ export const RequestedChangesDisplay = ({
         data.some((responseItem) => responseItem.message);
 
     function handleSaveToCsvClick() {
-        return saveToCsv(data, {
+        // Since the detailed error code messaging is stored on the client,
+        // and contains HTML markup, we need to stringify the React component
+        // with renderToString. We then strip out the HTML markup with Regex
+        // for readability within the CSV.
+        const dataWithErrorMessage = data.map((item) => {
+            return {
+                ...item,
+                errorMessageDetails: renderToString(
+                    <ValidationErrorMessage
+                        errorCode={item.errorCode}
+                        field={item.field}
+                        message={item.message}
+                    />
+                ).replace(/<(.|\n)*?>/g, ""),
+            };
+        });
+        return saveToCsv(dataWithErrorMessage, {
             filename: getSafeFileName(file?.name || "", title),
         });
     }
@@ -91,10 +108,17 @@ export const RequestedChangesDisplay = ({
                             <thead>
                                 <tr>
                                     <th className="rs-table-column-minwidth">
-                                        Recommended Edit
+                                        {title === RequestLevel.WARNING &&
+                                            "Recommended"}{" "}
+                                        {title === RequestLevel.ERROR &&
+                                            "Required"}{" "}
+                                        edit
                                     </th>
                                     <th className="rs-table-column-minwidth">
-                                        {schemaColumnHeader} Row
+                                        {schemaColumnHeader === FileType.CSV &&
+                                            "CSV row"}
+                                        {schemaColumnHeader === FileType.HL7 &&
+                                            "MSH 10"}
                                     </th>
                                 </tr>
                             </thead>
@@ -235,6 +259,7 @@ const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
                     message={message}
                 />
             </td>
+
             <td className="rs-table-column-minwidth">
                 {schemaColumnHeader === FileType.CSV && indices?.length && (
                     <span>{indices.join(" + ")}</span>
@@ -261,6 +286,18 @@ export const FileQualityFilterDisplay = ({
     heading,
     message,
 }: FileQualityFilterDisplayProps) => {
+    function handleJurisdictionSaveToCsvClick() {
+        function reformatJurisdictionData() {
+            for (const item of destinations || []) {
+                return item.filteredReportRows.map((row) => {
+                    return { jurisdiction: item.organization, errorCode: row };
+                });
+            }
+        }
+        return saveToCsv(reformatJurisdictionData(), {
+            filename: "jurisdictional-required-edits",
+        });
+    }
     return (
         <>
             <StaticAlert
@@ -268,36 +305,50 @@ export const FileQualityFilterDisplay = ({
                 heading={heading}
                 message={message}
             />
-            <h3>Jurisdictions</h3>
+
+            <div className="padding-y-4">
+                <div className="display-flex flex-justify flex-align-center">
+                    <h3 className="margin-0">Jurisdictions</h3>
+
+                    <Button
+                        className="usa-button usa-button--outline display-flex flex-align-center"
+                        type="button"
+                        onClick={handleJurisdictionSaveToCsvClick}
+                    >
+                        Download edits as CSV <Icon.FileDownload />
+                    </Button>
+                </div>
+            </div>
+
             {destinations?.map((d, idx) => (
-                <React.Fragment key={`${d.organization_id}_${idx}`}>
+                <div className="padding-x-4 padding-y-2 radius-md bg-base-lightest margin-bottom-4">
                     <table
-                        className="usa-table usa-table--borderless width-full"
+                        className="usa-table usa-table--borderless"
                         data-testid="error-table"
+                        key={idx}
                     >
                         <thead>
-                            <tr className="text-baseline">
-                                <th>
-                                    {d.organization} <br />
-                                    <span className="font-sans-3xs text-normal">
-                                        {" "}
-                                        ({d.filteredReportItems.length})
-                                        record(s) filtered out
-                                    </span>
+                            <tr>
+                                <th className="rs-table-column-minwidth">
+                                    {d.organization}
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {d.filteredReportItems.map((f, i) => {
+                            {d.filteredReportItems.map((e, i) => {
                                 return (
-                                    <tr key={i}>
-                                        <td> {f.message}</td>
+                                    <tr key={"error_" + i}>
+                                        <td>
+                                            <p data-testid="ValidationErrorMessage">
+                                                {e.message}
+                                            </p>
+                                        </td>
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
-                </React.Fragment>
+                </div>
             ))}
         </>
     );
