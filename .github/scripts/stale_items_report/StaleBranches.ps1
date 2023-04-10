@@ -68,6 +68,6 @@ function Get-Branches {
 }
 
 Write-Host "Merged"
-Get-Branches -Merged | Format-Table
+Get-Branches --merged | Format-Table
 Write-Host "No merged"
 Get-Branches | Format-Table

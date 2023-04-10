@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # --------------------------- FUNCTIONS ---------------------------------
 _line() {
@@ -15,7 +15,7 @@ _heading() {
 	_line
 }
 
-ExcludeBranchesinput="excludebrancheslist.txt"
+ExcludeBranchesinput="./.github/scripts/stale_items_report/excludebrancheslist.txt"
 
 # ----------------------------------------------------------------------
 # 1. Find the currently checked out branch
