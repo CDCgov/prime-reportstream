@@ -1,14 +1,23 @@
-@use 'uswds-core' as *;
+@use "uswds-core" as *;
 
 $theme-hr-border-color: "base-lighter";
 
 hr {
-    border: 1px solid color($theme-hr-border-color)
+    border: 1px solid color($theme-hr-border-color);
 }
 
 .usa-icon-button {
     border-radius: 100%;
     padding: 0.25rem 0.25rem;
+
+    &.usa-button--unstyled {
+        border-radius: initial;
+        padding: initial;
+
+        &:focus {
+            outline-offset: initial;
+        }
+    }
 }
 
 // FileHandler.tsx
@@ -27,15 +36,15 @@ hr {
     .usa-table thead th {
         cursor: pointer;
         user-select: none;
-        background-color: color('gray-5');
+        background-color: color("gray-5");
     }
 
     .usa-table thead th.active-col-header {
-        background-color: color('blue-30');
+        background-color: color("blue-30");
     }
 
     .usa-table td.active-col-td {
-        background-color: color('blue-10');
+        background-color: color("blue-10");
     }
 
     .usa-table thead .column-header-title-container {
@@ -75,19 +84,20 @@ hr {
 .message-tracker {
     .usa-accordion__button {
         color: white;
-        background-color: color('primary');
+        background-color: color("primary");
         @include add-background-svg("usa-icons-bg/remove--white");
 
-        &[aria-expanded=false] {
+        &[aria-expanded="false"] {
             @include add-background-svg("usa-icons-bg/add--white");
         }
     }
-    .usa-accordion__button:hover,  .usa-accordion__button:focus{
+    .usa-accordion__button:hover,
+    .usa-accordion__button:focus {
         color: white;
-        background-color: color('primary');
+        background-color: color("primary");
     }
     .usa-accordion--bordered .usa-accordion__content {
-        border-color: color('primary');
+        border-color: color("primary");
         border-width: medium;
     }
 }
@@ -95,5 +105,33 @@ hr {
 .manage-public-key {
     .usa-icon {
         font-size: 20px;
+    }
+}
+
+.code-snippet {
+    @include grid-row;
+    @include u-bg("base-lightest");
+    @include u-font("mono", "xs");
+    @include u-line-height("code", 4);
+    min-width: 250px;
+    min-height: 45px;
+    max-width: 100%;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding: 0px 0px 0px 12px;
+    border-radius: initial;
+
+    & .code-snippet--code {
+        @include grid-col("auto");
+        padding: 18px 0px 18px 12px;
+        white-space: nowrap;
+        overflow-x: auto;
+    }
+
+    & .code-snippet--button {
+        @include grid-col("auto");
+        padding: 18px 12px;
+        color: #000;
     }
 }
