@@ -15,7 +15,7 @@ _heading() {
 	_line
 }
 
-ExcludeBranchesinput="./.github/scripts/stale_items_report/excludebrancheslist.txt"
+#ExcludeBranchesinput="./.github/scripts/stale_items_report/excludebrancheslist.txt"
 
 # ----------------------------------------------------------------------
 # 1. Find the currently checked out branch
@@ -69,8 +69,8 @@ git branch -r --no-merged | while read branch
 do
 	if [ "$branch" != "origin/HEAD -> origin/master" ] && [ "$branch" != "origin/master" ];
 	then
-         while IFS= read -r line
-        do
+        #  while IFS= read -r line
+        # do
             if [ "$branch" != $line ];
             then
                 echo $branch
@@ -94,7 +94,7 @@ do
                     echo -e $time $name $branch '\033[33m'$numberOfCommitsNotMerged' umerged commits\033[0m'
                      fi
             fi
-        done < "$ExcludeBranchesinput"
+        # done < "$ExcludeBranchesinput"
 	fi
 done | sort
 
