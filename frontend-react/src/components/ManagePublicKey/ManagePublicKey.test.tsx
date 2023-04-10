@@ -6,6 +6,7 @@ import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/UseCreateOrganizationPublicKey";
 import { RSApiKeysResponse, RSSender } from "../../config/endpoints/settings";
+import { UseCreateOrganizationPublicKeyResult } from "../../hooks/UseCreateOrganizationPublicKey";
 
 import { ManagePublicKey } from "./ManagePublicKey";
 
@@ -57,15 +58,21 @@ describe("ManagePublicKey", () => {
             useCreateOrganizationPublicKeyExports,
             "useCreateOrganizationPublicKey"
         ).mockReturnValue({
-            mutateAsync: () =>
-                Promise.resolve({
-                    orgName: "test",
-                    keys: [],
-                    ...result,
-                } as RSApiKeysResponse),
             isLoading: false,
             isSuccess: false,
-        });
+            mutateAsync: (_) => {
+                return Promise.resolve({
+                    orgName: "",
+                    keys: [
+                        {
+                            scope: "",
+                            keys: [],
+                        },
+                    ],
+                    ...result,
+                });
+            },
+        } as UseCreateOrganizationPublicKeyResult);
     }
 
     function mockUseOrganizationSenders(
