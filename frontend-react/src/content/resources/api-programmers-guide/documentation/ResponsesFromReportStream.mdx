@@ -1,6 +1,3 @@
-
-
-
 Responses from ReportStream
 ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
 
@@ -23,17 +20,17 @@ Missing optional columns/fields
 
 Note: There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
 
-
 Response messages
 
 Asynchronous processing
 
-In most cases, we'll ask you to submit via ReportStream asynchronous (async) processing. This configuration setting is automatically enabled for users. Upon submitting data via ReportStream async processing, the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent. 
+In most cases, we'll ask you to submit via ReportStream asynchronous (async) processing. This configuration setting is automatically enabled for users. Upon submitting data via ReportStream async processing, the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent.
 
 In exchange for speed, the async submission response provides less initial information in the JSON. The initial response will provide errors and warnings, but no destination or filter information. The History Details API can be queried later to get full information about expected and actual destinations.
 
 Example ReportStream response to an async submission:
 
+```
 {
    "submissionId":1604,
    "timestamp":"2022-02-10T13:50:19.162694Z",
@@ -49,12 +46,13 @@ Example ReportStream response to an async submission:
    "warningCount":0,
    "errorCount":0
 }
-
+```
 
 Synchronous processing
 
 Example JSON response to a successful synchronous submission.
 
+```
 {
     "submissionId": 1588,
     "timestamp": "2022-02-09T16:59:33.789532Z",
@@ -89,6 +87,7 @@ Example JSON response to a successful synchronous submission.
     "warningCount": 0,
     "errorCount": 0
 }
+```
 
 Since the response is returned in real-time, the “destinations” section supplies information about where the submission is expected to be sent. The exact time that the public health department receives that data depends on the settings for that jurisdiction.
 
@@ -100,6 +99,7 @@ https://prime.cdc.gov/api/history/simple_report/submissions/1588
 
 Response:
 
+```
 {
     "submissionId": 1588,
     "timestamp": "2022-02-09T16:59:33.789532Z",
@@ -148,16 +148,17 @@ Response:
     "warningCount": 0,
     "errorCount": 0
 }
+```
 
 The sentReports sections contain details about where and when the reports were transmitted.
 
-
 JSON error responses
 
-In error cases, no report "id" UUID is returned, because no report was created based on the submission. 
+In error cases, no report "id" UUID is returned, because no report was created based on the submission.
 
 Example failure response and identical HistoryAPI response (Note the "id" is null, and the “httpStatus” is not 201):
 
+```
 {
     "submissionId": 1594,
     "timestamp": "2022-02-09T20:44:55.055545Z",
@@ -180,9 +181,11 @@ Example failure response and identical HistoryAPI response (Note the "id" is nul
     "warningCount": 0,
     "errorCount": 1
 }
+```
 
 Example of a report level error:
 
+```
 {
     "submissionId": 1599,
     "timestamp": "2022-02-09T20:56:16.82117Z",
@@ -205,3 +208,4 @@ Example of a report level error:
     "warningCount": 0,
     "errorCount": 1
 }
+```
