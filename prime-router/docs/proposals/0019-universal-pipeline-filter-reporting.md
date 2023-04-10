@@ -159,8 +159,9 @@ filter to reference, so this case might have an entirely different format, or th
 
 Ticket [#8837](https://github.com/CDCgov/prime-reportstream/issues/8837)
 involves changing the way that condition filters are evaluated so that instead of evaluating condition
-filters with the usual , we would instead use . We’ll want to make sure during that process that the logging behavior
-for condition filters still makes sense and that the behavior for the other filter types is maintained.
+filters with the usual `A ∧ B ∧ C ∧ D ∧ E`, we would instead use `A ∨ B ∨ C ∨ D ∨ E`. We’ll want to make sure during
+that process that the logging behavior for condition filters still makes sense and that the behavior for the other
+filter types is maintained.
 
 ## Relevant Tickets
 
