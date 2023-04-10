@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
@@ -9,6 +9,9 @@ import { showError } from "../AlertNotifications";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
+import { useOrganizationPublicKeys } from "../../hooks/UseOrganizationPublicKeys";
+import { ApiKey } from "../../config/endpoints/settings";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -28,6 +31,8 @@ export function ManagePublicKey() {
     const [file, setFile] = useState<File | null>(null);
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
+    const { activeMembership } = useSessionContext();
+    const { data } = useOrganizationPublicKeys();
     const {
         mutateAsync,
         isSuccess,
@@ -91,6 +96,18 @@ export function ManagePublicKey() {
         }
     };
 
+    useEffect(() => {
+        if (sender && data?.keys.length) {
+            // check if kid already exists for the selected org.sender
+            const kid = `${activeMembership?.parsedName}.${sender}`;
+            for (const apiKeys of data.keys) {
+                if (apiKeys.keys.some((k: ApiKey) => k.kid === kid)) {
+                    setHasPublicKey(true);
+                }
+            }
+        }
+    }, [data, sender]);
+
     const showPublicKeyConfigured =
         sender.length && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
     const showUploadMsg =
@@ -136,20 +153,14 @@ export function ManagePublicKey() {
                     onUploadNewPublicKey={() => setUploadNewPublicKey(true)}
                 />
             )}
-            {uploadNewPublicKey && (
-                <p className="font-sans-md">
-                    Your public key is already configured.
-                </p>
-            )}
             {isUpload && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
                     onFileChange={handleFileChange}
                     onBack={() => setSender("")}
-                    onFetchPublicKey={setHasPublicKey}
                     hasBack={hasBack}
+                    hasPublicKey={hasPublicKey}
                     file={file}
-                    sender={sender}
                 />
             )}
             {isUploading && <Spinner />}

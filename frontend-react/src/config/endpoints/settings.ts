@@ -5,7 +5,7 @@ export enum ServicesUrls {
     SENDERS = "/settings/organizations/:orgName/senders",
     SENDER_DETAIL = "/settings/organizations/:orgName/senders/:sender",
     RECEIVERS = "/settings/organizations/:orgName/receivers",
-    PUBLIC_KEYS = "/settings/organizations/:organizationName/public-keys",
+    PUBLIC_KEYS = "/settings/organizations/:orgName/public-keys",
 }
 
 /** Response is much larger than this but not all of it is used for front-end yet */

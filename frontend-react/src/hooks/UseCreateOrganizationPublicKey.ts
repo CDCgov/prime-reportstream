@@ -26,7 +26,7 @@ export const useCreateOrganizationPublicKey = () => {
             const res = await authorizedFetch(
                 servicesEndpoints.createPublicKey,
                 {
-                    segments: { organizationName: parsedName!! },
+                    segments: { orgName: parsedName!! },
                     params: {
                         scope: `${parsedName}.*.report`,
                         kid: `${parsedName}.${sender}`,
