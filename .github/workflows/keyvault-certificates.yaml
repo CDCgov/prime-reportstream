@@ -30,14 +30,20 @@ jobs:
         with:
           inlineScript: |
             az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+            az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
       - name: List keyvault Certificates & send slack notice
         run: |
           webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          message=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-          payload="{\"text\":\"${message}\"}"
-          curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
+          messageprod=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+          messagestg=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+          payloadprod="{\"text\":\"${messageprod}\"}"
+          payloadstg="{\"text\":\"${messagestg}\"}"
+          curl -X POST -H "Content-Type: application/json" -d "${payloadprod}" ${webhook_url}
+          curl -X POST -H "Content-Type: application/json" -d "${payloadstg}" ${webhook_url}
 
       - name: Remove Runner IP to Key Vault Firewall
-        run: az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
+        run: |
+          az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
+          az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
