@@ -17,8 +17,8 @@ jobs:
           fetch-depth: 0
       - name: Get Stale branches
         id: StaleBranches
-        run: echo "Issues=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
-        shell: bash
+        run: echo "Issues=$(./.github/scripts/stale_items_report/StaleBranches.ps1)" >> $GITHUB_OUTPUT
+         shell: pwsh
 
       - name: Get stale issues
         id: staleIssues
