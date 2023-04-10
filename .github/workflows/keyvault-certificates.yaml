@@ -29,35 +29,15 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
-            az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+            az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List Certificates in Key Vault
-        id: list_certificates
+      - name: List keyvault Certificates & send slack notice
         run: |
           webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          message=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+          message=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
           payload="{\"text\":\"${message}\"}"
           curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
 
-      # - name: List Certificates in Key Vault
-      #   id: list_certificates
-      #   run: |
-      #     certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?expires<=\`$(date +%Y-%m-%d)\`].[id]" -o tsv)
-      #     echo "::set-output name=certificates::$certificates"
-      #     echo "expiry_date=${expiry_date}" >> $GITHUB_ENV
-      
-      # - name: Notify Slack
-      #   if: ${{ always() }}
-      #   run: |
-      #     webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-      #     certificates="${{ steps.list_certificates.outputs.certificates }}"
-      #     if [[ -z $certificates ]]; then
-      #       message="All certificates in Key Vault are valid."
-      #     else
-      #       message="The following certificates in Key Vault are expiring soon:\n$certificates"
-      #     fi
-      #     payload="{\"text\":\"${message}\"}"
-      #     curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
-
       - name: Remove Runner IP to Key Vault Firewall
-        run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
+        run: az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
+
