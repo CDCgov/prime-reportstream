@@ -18,7 +18,7 @@ import uuid
 from cryptography.hazmat.primitives import serialization
 
 #
-# REPLACE THESE WITH YOUR CLIENT-ID, SENDER CHANNEL ID, AND KEYPAIR FILE
+# REPLACE THESE WITH YOUR CLIENT-ID, KID ID, AND KEYPAIR FILE
 #
 my_client_id = "healthy-labs"
 my_kid = "default"

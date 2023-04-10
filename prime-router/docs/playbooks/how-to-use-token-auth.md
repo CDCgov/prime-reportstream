@@ -12,12 +12,11 @@ A few  notes before we get started:
 
 - All the steps here assume a fake sending organization/client-id, called `healthy-labs`, with its sender fullname as `health-labs.default`
 - There is no actual `healthy-labs` in the system.  If you want a real dummy sender, try `waters` or `ignore`.
-- Keys are attached to senders at the moment.  This leads to a slight logical inconsistency.  Even though the scope healthy-labs.*.report give access to every sender in an org, it still must be attached to each individual sender in the settings, using the `./prime sender addkey ...` command, per the example below.  Better would be to add a feature to allow attaching	 keys to either senders or whole orgs.
 
 - This example uses kotlin code in the ReportStream CLI to sign the token.
 There is also an example written in python, in [../../examples/generate-jwt-python](../../examples/generate-jwt-python)
 
-- Scopes are of the format `<orgname>.<sendename>.<resource-or-role>`.   The scope `health-labs.*.report`, used below, gives access to all CRUD on all reports for any sender within the healthy-labs organization.
+- Scopes are of the format `<orgname>.<sendername>.<resource-or-role>`.   The scope `health-labs.*.report`, used below, gives access to all CRUD on all reports for any sender within the healthy-labs organization.
 
 
 
@@ -42,9 +41,9 @@ First, make sure you have Reportstream running.   These calls below are what the
 
 #### The first call (without --doit) just tests that it works.  Then use --doit to execute.
 ```
-./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs 
-./prime sender addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs --doit
-./prime sender get --name healthy-labs.default
+./prime organization addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs --kid healthy-labs.unique-value
+./prime organization addkey --public-key ./my-rsa-public-key.pem  --scope "healthy-labs.*.report" --orgName healthy-labs --kid healthy-labs.unique-value --doit
+./prime organization get --name healthy-labs
 ```
 
 **STEP 2.** The SENDER (a server, not a human) requests a token
@@ -56,7 +55,7 @@ The actual call would be a call to the REST API endpoint, which is hidden in thi
 Note:  No, we are NOT intending that our customers use the prime CLI to do this!   This is just a convenience, for us (only) to test and demo.  And yes, more work is needed to provide documentation and helper tools for our senders.
 
 ```
-./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs
+./prime organization reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs --kid healthy-labs.unique-value
 ```
 
 If it works, you should get something like this back:
@@ -80,7 +79,7 @@ curl -H "authorization:bearer ???" -H "client:healthy-labs"  -H "content-type:te
 To avoid cutting and pasting by hand, this glorious string of unixy gibberish will request a signed 5minute access token (Same as STEP 2 above), and then paste it into an environment variable called `$TOK`:
 
 ```
-export TOK=$(./prime sender reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs |  grep access_token | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+export TOK=$(./prime organization reqtoken --private-key my-rsa-keypair.pem --scope "healthy-labs.*.report" --name healthy-labs --kid healthy-labs.unique-value |  grep access_token | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 ```
 
 Which can then be used very simply like this (Same as STEP 3 above):
