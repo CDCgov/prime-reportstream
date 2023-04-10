@@ -22,7 +22,8 @@
     "types": [
       "jest",
       "cypress",
-      "@testing-library/cypress"
+      "@testing-library/cypress",
+      "mdx"
     ],
     "noImplicitAny": true,
     "inlineSourceMap": true
