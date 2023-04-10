@@ -1,10 +1,11 @@
-Getting started
-This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
+# Getting started
+
+### This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
 
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system. You can also use a program like Postman to test submissions.
 
+#### 1. Format and validate a fake data file
 
-1. Format and validate a fake data file
 To prepare your file for testing, review our data models and set up a sample file with fake data (artificially created, non-PII data). We have fake data you can use, if needed.
 
 [Data model]
@@ -12,18 +13,18 @@ Reference these CSV and HL7 field requirements when setting up your files for va
 
 Currently, ReportStream can accept either a CSV file or HL7 input data. It’s often easier to look at sample data in a file than to work from a schema. We can send you a file with fake data to review that will always successfully validate against the schema used to generate it. Note that because the data in those files are computer-generated, it may not feel realistic in some places.
 
-
-Note for HL7 OTC tests: 
+Note for HL7 OTC tests:
 For this step, refer to the RADx MARS Getting started guide. Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the RADx MARS Getting started guide.
 
-When you’ve formatted your fake (non-PII) data file, test your data model using the validation tool, and correct any errors you receive. 
+When you’ve formatted your fake (non-PII) data file, test your data model using the validation tool, and correct any errors you receive.
 
 [ReportStream File Validator]
 
-2. Set up authentication and test your API connection
-After you have finalized a data model that works for you and ReportStream, the ReportStream team will begin onboarding you to our staging environment. 
+#### 2. Set up authentication and test your API connection
 
-As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account with the type of data you will be submitting. ReportStream will use the client-id to look up the associated data model and format (CSV, CSV OTC, or HL7) and validate the attached payload.  
+After you have finalized a data model that works for you and ReportStream, the ReportStream team will begin onboarding you to our staging environment.
+
+As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account with the type of data you will be submitting. ReportStream will use the client-id to look up the associated data model and format (CSV, CSV OTC, or HL7) and validate the attached payload.
 
 Your first step in this phase is to set up your authentication.
 
@@ -39,29 +40,33 @@ Step 1: Prior to submission, send your public key to ReportStream.
 
 Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using openssl.
 
-	EC
+    EC
 
+```
 	openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
 	openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
+```
 
-	RSA
+    RSA
 
+```
 	openssl genrsa -out my-rsa-keypair.pem 2048
 	openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
-
+```
 
 Send the public key to the ReportStream team (they’ll associate it with your configuration within ReportStream). Once configured, continue with the steps below.
 
 You only need to do this step once, not every time you submit reports. You can submit replacement keys to ReportStream at any time, following the steps above.
 
-Step 2:  At the time of submission, generate a signed JWT using your private key
+Step 2: At the time of submission, generate a signed JWT using your private key
 
-A JWT is a base64 encoded string that has three parts: header, payload, and signature.   
+A JWT is a base64 encoded string that has three parts: header, payload, and signature.
 
 You can find an example python program to generate a valid JWT on GitHub.
 
 Here is an example, using the fake client-id healthy labs, of header and payload data that should appear in a ReportStream JWT, prior to signature:
 
+```
 {
     "header": {
         "kid": "healthy-labs.default",
@@ -76,78 +81,88 @@ Here is an example, using the fake client-id healthy labs, of header and payload
         "jti": "4b713fcd-2514-4207-b310-620b95b749c5"
     }
 }
+```
 
 Note:
-The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.   
+The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.  
 The jti (JWT ID) should be a random unique string, new with every call.
 Generate the signed JWT using your private key.
 
-
-
-Step 3:  Send the signed JWT to ReportStream to get a temporary bearer token
+#### Step 3: Send the signed JWT to ReportStream to get a temporary bearer token
 
 POST to the token URL, as in the example below, noting the following:
 Use Content-Type: application/x-www-form-urlencoded.
 In the scope parameter, replace the dummy string ‘healthy-labs’ with your client-id, as assigned to you by ReportStream staff.
-The grant_type and client_assertion_type parameters are always fixed values.   The grant_type should be client_credentials and client_assertion_type should be urn:ietf:params:oauth:client-assertion-type:jwt-bearer, as in the example curl below.
-In the client_assertion parameter, replace the <token-signing-secret> below with your JWT from above.  
-All the parameters are sent in the body/payload of the post (when using curl, via the -d option), not in the URL.   
+The grant_type and client_assertion_type parameters are always fixed values. The grant_type should be client_credentials and client_assertion_type should be urn:ietf:params:oauth:client-assertion-type:jwt-bearer, as in the example curl below.
+In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.  
+All the parameters are sent in the body/payload of the post (when using curl, via the -d option), not in the URL.  
 Here is an example ‘curl’ POST:
 
+```
 curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=healthy-labs.default.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=<token-signing-secret>" "https://staging.prime.cdc.gov/api/token"
+```
 
 You should get something like this back, which will be valid for five minutes:
 
+```
 {"access_token":"<long-access-token>","token_type":"bearer","expires_in":300,"expires_at_seconds":1625260982,"scope":"healthy-labs.default.report"}
+```
 
-Step 4: Submit data to ReportStream using the bearer token
+#### Step 4: Submit data to ReportStream using the bearer token
 
 Use the access token returned above as the bearer token for the submission:
 
 CSV example
+
+```
 curl -H "authorization:bearer <long-bearer-token>" -H "client:healthy-labs"  -H "content-type:text/csv" --data-binary "@./healthy-labs-nonPII-data.csv" "https://staging.prime.cdc.gov/api/waters"
+```
 
 HL7 example
 
+```
 curl -H "authorization:bearer <long-bearer-token>" -H "client:healthy-labs"  -H "content-type:application/hl7-v2" --data-binary "@./healthy-labs-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
+```
 
 Again, always remember to replace the healthy-labs client-id with the client-id supplied to you by ReportStream staff.
 
 Method 2: Shared secret key authorization
 
-To use this method, you will need to create a Keybase account if you do not already have one. 
+To use this method, you will need to create a Keybase account if you do not already have one.
 
 Here’s an example bash shell curl command submission to ReportStream using a shared secret API key. The example command submits the contents of the file ‘./healthy-labs-nonPII-data.csv‘ to the endpoint using the client name healthy-labs. You’ll use your own client-id.
 
-The ReportStream team will provide you with the x-functions- key value for submissions to that client-id. 
+The ReportStream team will provide you with the x-functions- key value for submissions to that client-id.
 
 CSV example
-curl -X POST -H “client:healthy-labs” -H “content-type:text/csv” –data-binary “@./healthy-labs-nonPII- data.csv” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/reports
 
+```
+curl -X POST -H “client:healthy-labs” -H “content-type:text/csv” –data-binary “@./healthy-labs-nonPII- data.csv” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/reports
+```
 
 HL7 example
 
+```
 curl -X POST -H “client:super-labs” -H “content-type:application/hl7-v2” –data-binary “@./super-labs-nonPII- data.hl7” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/report
-
+```
 
 Test your automation
-Once authentication is complete, you can test your automation code as well as your code that handles responses using the staging API. Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment. 
+Once authentication is complete, you can test your automation code as well as your code that handles responses using the staging API. Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment.
 
-Note: Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable. 
+Note: Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.
 
 Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 For troubleshooting on your own, here is the complete endpoint input and response OpenAPI specification.
 
 3. Test real data in production
-The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
-
+   The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
 
 4. Start sending data in production
-When you are ready, the ReportStream team will move you out of training mode and enable full production mode. Once in production, you can send a single record or up to 10,000 records in a single submission.
+   When you are ready, the ReportStream team will move you out of training mode and enable full production mode. Once in production, you can send a single record or up to 10,000 records in a single submission.
 
-Data will automatically flow to appropriate state, local, and federal jurisdictional systems. 
+Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
 
-Note: Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation: 
+Note: Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
 California
 Illinois
 New Jersey
