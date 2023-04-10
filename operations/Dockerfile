@@ -5,6 +5,7 @@ ARG AZURE_CLI_VERSION
 RUN \
   apk update && \
   apk add bash py-pip git && \
+  pip install --upgrade pip --use-pep517 && \
   apk add --virtual=build gcc libffi-dev musl-dev openssl-dev python3-dev make && \
   pip install azure-cli==${AZURE_CLI_VERSION} && \
   apk del --purge build 
