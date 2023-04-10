@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -331,10 +332,21 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    featureFlags: List<String>?,
+    keys: List<JwkSet>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
-) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+) : Organization(
+    name,
+    description,
+    jurisdiction,
+    stateCode.trimToNull(),
+    countyName.trimToNull(),
+    filters,
+    featureFlags,
+    keys
+),
 
     SettingAPI {
     @get:JsonIgnore
@@ -355,6 +367,7 @@ class ReceiverAPI
     routingFilter: ReportStreamFilter = emptyList(),
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
+    conditionalFilter: ReportStreamFilter = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,
@@ -374,6 +387,7 @@ class ReceiverAPI
     routingFilter,
     processingModeFilter,
     reverseTheQualityFilter,
+    conditionalFilter,
     deidentify,
     deidentifiedValue,
     timing,

@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -53,20 +54,25 @@ class FHIRConverter(
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
             Report.Format.HL7, Report.Format.HL7_BATCH -> getContentFromHL7(message, actionLogger)
-            Report.Format.FHIR -> getContentFromFHIR(message)
+            Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
 
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
+            val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
+            var bundleIndex = 1
             for (bundle in fhirBundles) {
+                // conduct FHIR Transform
+                transformer?.transform(bundle)
+
                 // make a 'report'
                 val report = Report(
                     Report.Format.FHIR,
                     emptyList(),
-                    fhirBundles.size,
+                    1,
                     itemLineage = listOf(
                         ItemLineage()
                     ),
@@ -78,7 +84,7 @@ class FHIRConverter(
                     ItemLineage(
                         null,
                         message.reportId,
-                        1,
+                        bundleIndex++,
                         report.id,
                         1,
                         null,
@@ -143,6 +149,18 @@ class FHIRConverter(
     }
 
     /**
+     * Loads a transformer schema with [schemaName] and returns it.
+     * Returns null if [schemaName] is the empty string.
+     * Using this function instead of calling the constructor directly simplifies the process of mocking the
+     * transformer in tests.
+     */
+    internal fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
+        return if (schemaName.isNotBlank()) {
+            FhirTransformer(schemaName)
+        } else null
+    }
+
+    /**
      * Converts an incoming HL7 [message] into FHIR bundles and keeps track of any validation
      * errors when reading the message into [actionLogger]
      *
@@ -173,14 +191,15 @@ class FHIRConverter(
     }
 
     /**
-     * Decodes a FHIR [message] and returns it as list of bundles
-     *
+     * Decodes a FHIR [message] into FHIR bundles and keeps track of any validation
+     * errors when reading the message into [actionLogger]
      * @return a list containing a FHIR bundle
      */
     internal fun getContentFromFHIR(
-        message: RawSubmission
+        message: RawSubmission,
+        actionLogger: ActionLogger
     ): List<Bundle> {
-        return listOf(FhirTranscoder.decode(message.downloadContent()))
+        return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
     }
 
     /**

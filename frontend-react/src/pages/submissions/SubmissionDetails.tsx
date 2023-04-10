@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import { getStoredOrg } from "../../utils/SessionStorageTools";
 import Spinner from "../../components/Spinner";
@@ -14,6 +15,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
+import { FeatureName } from "../../AppRouter";
 
 /* Custom types */
 type DestinationItemProps = {
@@ -82,7 +84,7 @@ function SubmissionDetailsContent() {
     /* Conditional title strings */
     const preTitle = `${
         actionDetails.sender
-    } ${actionDetails.topic.toUpperCase()} Submissions`;
+    } ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
         : "Date and Time parsing error";
@@ -97,10 +99,7 @@ function SubmissionDetailsContent() {
         return <ErrorPage type="page" />;
     } else {
         return (
-            <div
-                className="grid-container margin-bottom-10"
-                data-testid="container"
-            >
+            <div className="margin-bottom-10" data-testid="container">
                 <div className="grid-col-12">
                     <Title
                         preTitle={preTitle}
@@ -131,9 +130,13 @@ function SubmissionDetails() {
         { label: "Submissions", path: "/submissions" },
         { label: `Details: ${actionId}` },
     ];
+    const location = useLocation();
     return (
-        <>
-            <Crumbs crumbList={crumbs} />
+        <GridContainer containerSize="widescreen">
+            <Crumbs
+                crumbList={crumbs}
+                previousPage={(location.state as any)?.previousPage}
+            />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >
@@ -141,7 +144,7 @@ function SubmissionDetails() {
                     <SubmissionDetailsContent />
                 </Suspense>
             </NetworkErrorBoundary>
-        </>
+        </GridContainer>
     );
 }
 

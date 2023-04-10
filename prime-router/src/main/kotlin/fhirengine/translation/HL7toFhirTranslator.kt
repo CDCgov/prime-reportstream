@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation
-
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
@@ -9,7 +9,6 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Coding
 
 /**
  * Translate an HL7 message to FHIR.
@@ -78,6 +77,7 @@ class HL7toFhirTranslator internal constructor(
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
         enhanceBundleMetadata(bundle, hl7Message)
+        FHIRBundleHelpers.addProvenanceReference(bundle)
         return bundle
     }
 
@@ -103,8 +103,6 @@ class HL7toFhirTranslator internal constructor(
         // The HL7 message ID
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
-
-        if (!mshSegment.security.isEmpty) bundle.meta.security =
-            listOf(Coding("", mshSegment.security.value, mshSegment.security.value))
+        bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
     }
 }

@@ -2,6 +2,7 @@ constants:
   hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
   diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
   service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
+  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
   hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
 elements:
@@ -15,21 +16,23 @@ elements:
     schema: observation-request
 
   - name: specimen
-    resource: '%resource.specimen.resolve()'
-    condition: '%resource.exists()'
+    resource: '%specimen'
+    condition: '%specimen.exists()'
     schema: specimen
 
   - name: timing-segment
     resource: '%service'
     # Only create the segment if we have data for it
     condition: >
-      %resource.extension(%`rsext-start-of-service`).exists() or
-      %resource.extension(%`rsext-end-of-service`).exists() or
+      %resource.occurrence.repeat.bounds.start.exists() or
+      %resource.occurrence.repeat.bounds.end.exists() or
+      %resource.priority.exists() or
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
 
-  - name: observation-result
-    resource: '%resource.result.resolve()'
+    # Appending AOE questions at the end of all observations
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve()'
     schema: observation-result
     resourceIndex: resultIndex
 

@@ -1,0 +1,19 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+constants:
+  baseConstant: "baseValue"
+  overriddenConstant: "defaultValue"
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(Provenance).exists() and
+      Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
+    required: true
+    schema: ORU_R01/header
+
+  - name: order-observations
+    resource: Bundle.entry.resource.ofType(DiagnosticReport)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ORU_R01/order-observation
+    resourceIndex: orderIndex

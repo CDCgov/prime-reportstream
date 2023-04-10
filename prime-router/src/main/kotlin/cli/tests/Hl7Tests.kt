@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import java.io.IOException
@@ -18,7 +19,7 @@ class Hl7Ingest : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         var passed = true
         val sender = hl7Sender
         val receivers = allGoodReceivers
@@ -27,7 +28,7 @@ class Hl7Ingest : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            sender,
+            sender.schemaName,
             itemCount,
             receivingStates,
             allGoodCounties,
@@ -57,13 +58,14 @@ class Hl7Ingest : CoolTest() {
             if (options.asyncProcessMode) {
                 // gets back the id of the internal report
                 val internalReportId = getSingleChildReportId(reportId)
+                    ?: return bad("***$name FAILED***: Internal report id null")
 
-                val processResults = pollForProcessResult(internalReportId)
+                val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults.values)
                     passed = passed && examineProcessResponse(result)
                 if (!passed)
-                    bad("***async end2end FAILED***: Process result invalid")
+                    bad("***$name FAILED***: Process result invalid")
             }
 
             passed = passed and pollForLineageResults(
@@ -115,7 +117,8 @@ class BadHl7 : CoolTest() {
 PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505 21 st^^LAKE COUNTRY^MD^FO||222-555-8484|||||MF0050356/15|
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|202102090000-0500||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D08761999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
-SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500"""
+SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500
+    """
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val sender = hl7Sender
         val csv = """

@@ -85,3 +85,29 @@ resource "azurerm_application_insights_web_test" "ping_test" {
     "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
 }
+
+resource "azurerm_application_insights_web_test" "metabase_test" {
+  name                    = "${var.resource_prefix}-metabase-health-check"
+  location                = var.location
+  resource_group_name     = var.resource_group
+  application_insights_id = azurerm_application_insights.app_insights.id
+  kind                    = "ping"
+  frequency               = 300
+  timeout                 = 60
+  enabled                 = true
+  retry_enabled           = true
+  geo_locations           = ["us-va-ash-azr", "us-ca-sjc-azr", "us-fl-mia-edge"]
+  configuration           = <<XML
+<WebTest Name="" Id="" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="60" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
+      <Items>
+        <Request Method="GET" Version="1.1" Url="https://${var.environment}.prime.cdc.gov/metabase/api/health" ThinkTime="0" Timeout="60" ParseDependentRequests="False" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False"/>
+      </Items>
+    </WebTest>
+    XML
+
+  tags = {
+    environment = var.environment
+    # This prevents terraform from seeing a tag change for each plan/apply
+    "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Insights/components/${var.resource_prefix}-appinsights" = "Resource"
+  }
+}

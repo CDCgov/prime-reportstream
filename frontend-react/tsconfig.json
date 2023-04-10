@@ -22,11 +22,14 @@
     "types": [
       "jest",
       "cypress",
-      "@testing-library/cypress"
+      "@testing-library/cypress",
+      "mdx"
     ],
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "inlineSourceMap": true
   },
   "include": [
-    "src"
+    "./src",
+    "./cypress",
   ]
 }

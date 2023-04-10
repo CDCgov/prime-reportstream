@@ -216,9 +216,12 @@ class FindSenderKeyInSettings(val scope: String, val metadata: Metadata) :
         val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val sender = workflowEngine.settings.findSender(issuer)
             ?: return err("No such sender fullName $issuer")
-        if (sender.keys == null) return err("No auth keys associated with sender $issuer")
-        if (!Scope.isValidScope(scope, sender)) return err("Invalid scope for this sender: $scope")
-        sender.keys.forEach { jwkSet ->
+        val organization = workflowEngine.settings.findOrganization(sender.organizationName)
+            ?: return err("No organization found for sender ${sender.organizationName}")
+        if (sender.keys == null && organization.keys == null) return err("No auth keys associated with sender $issuer")
+        if (!Scope.isValidScope(scope, organization)) return err("Invalid scope for this sender: $scope")
+        val keys = workflowEngine.settings.getKeys(issuer) ?: return err("No keys found for issuer $issuer")
+        keys.forEach { jwkSet ->
             if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
 
                 // find by kid and kty

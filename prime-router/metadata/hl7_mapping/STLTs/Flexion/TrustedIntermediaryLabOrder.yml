@@ -1,0 +1,6 @@
+extends: ../../OML_O21/OML_O21-base
+
+elements:
+  - name: order-observation-specimen-action-code
+    value: [ '"P"' ]
+    hl7Spec: [ '/ORDER/OBSERVATION_REQUEST/OBR-11' ]

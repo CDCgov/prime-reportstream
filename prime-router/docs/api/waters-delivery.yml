@@ -16,6 +16,39 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
+  /waters/org/{organization}/deliveries:
+    get:
+      summary: Get available reports for all org STLTs
+      description: Retrieve a list of reports available for download by a STLT
+      security:
+        - OAuth2: [ user ]
+        - Server2Server: [ ]
+      parameters:
+        - name: organization
+          in: path
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
+      responses:
+        '200':
+          description: a list of AvailableReport objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDeliveriesResponse'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: organization does not exist
   /waters/org/{organization}.{client}/deliveries:
     get:
       operationId: getDeliveries

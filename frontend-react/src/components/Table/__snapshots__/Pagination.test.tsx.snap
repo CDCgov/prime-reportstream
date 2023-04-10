@@ -28,10 +28,6 @@ exports[`Pagination Renders the expected markup when the current page is between
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M0 0h24v24H0z"
-              fill="none"
-            />
-            <path
               d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
             />
           </svg>
@@ -47,14 +43,16 @@ exports[`Pagination Renders the expected markup when the current page is between
       >
         <button
           aria-label="Page 1"
-          class="usa-pagination__button rs-pagination-no-button"
+          class="usa-button usa-button--unstyled usa-pagination__button"
+          data-testid="button"
+          type="button"
         >
           1
         </button>
       </li>
       <li
         class="usa-pagination__item usa-pagination__overflow"
-        role="presentation"
+        role="listitem presentation"
       >
         <span>
           …
@@ -65,7 +63,9 @@ exports[`Pagination Renders the expected markup when the current page is between
       >
         <button
           aria-label="Page 6"
-          class="usa-pagination__button rs-pagination-no-button"
+          class="usa-button usa-button--unstyled usa-pagination__button"
+          data-testid="button"
+          type="button"
         >
           6
         </button>
@@ -76,7 +76,9 @@ exports[`Pagination Renders the expected markup when the current page is between
         <button
           aria-current="page"
           aria-label="Page 7"
-          class="usa-pagination__button rs-pagination-no-button usa-current"
+          class="usa-button usa-button--unstyled usa-pagination__button usa-current"
+          data-testid="button"
+          type="button"
         >
           7
         </button>
@@ -86,7 +88,9 @@ exports[`Pagination Renders the expected markup when the current page is between
       >
         <button
           aria-label="Page 8"
-          class="usa-pagination__button rs-pagination-no-button"
+          class="usa-button usa-button--unstyled usa-pagination__button"
+          data-testid="button"
+          type="button"
         >
           8
         </button>
@@ -96,14 +100,16 @@ exports[`Pagination Renders the expected markup when the current page is between
       >
         <button
           aria-label="Page 9"
-          class="usa-pagination__button rs-pagination-no-button"
+          class="usa-button usa-button--unstyled usa-pagination__button"
+          data-testid="button"
+          type="button"
         >
           9
         </button>
       </li>
       <li
         class="usa-pagination__item usa-pagination__overflow"
-        role="presentation"
+        role="listitem presentation"
       >
         <span>
           …
@@ -132,10 +138,6 @@ exports[`Pagination Renders the expected markup when the current page is between
             width="1em"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              d="M0 0h24v24H0z"
-              fill="none"
-            />
             <path
               d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
             />
@@ -175,10 +177,6 @@ exports[`Pagination Renders the expected markup when the current page is the las
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M0 0h24v24H0z"
-              fill="none"
-            />
-            <path
               d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
             />
           </svg>
@@ -194,7 +192,9 @@ exports[`Pagination Renders the expected markup when the current page is the las
       >
         <button
           aria-label="Page 1"
-          class="usa-pagination__button rs-pagination-no-button"
+          class="usa-button usa-button--unstyled usa-pagination__button"
+          data-testid="button"
+          type="button"
         >
           1
         </button>
@@ -205,7 +205,9 @@ exports[`Pagination Renders the expected markup when the current page is the las
         <button
           aria-current="page"
           aria-label="last page, Page 2"
-          class="usa-pagination__button rs-pagination-no-button usa-current"
+          class="usa-button usa-button--unstyled usa-pagination__button usa-current"
+          data-testid="button"
+          type="button"
         >
           2
         </button>

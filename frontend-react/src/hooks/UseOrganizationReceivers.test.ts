@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
@@ -21,9 +21,12 @@ describe("useOrganizationReceivers", () => {
             activeMembership: undefined,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: false,
         });
         const { result } = renderHook(() => useOrganizationReceivers(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
         expect(result.current.data).toEqual(undefined);
         expect(result.current.isLoading).toEqual(true);
@@ -40,13 +43,16 @@ describe("useOrganizationReceivers", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useOrganizationReceivers(),
-            { wrapper: QueryWrapper() }
+        const { result } = renderHook(() => useOrganizationReceivers(), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() =>
+            expect(result.current.data).toEqual(dummyReceivers)
         );
-        await waitForNextUpdate();
-        expect(result.current.data).toEqual(dummyReceivers);
         expect(result.current.isLoading).toEqual(false);
     });
 });

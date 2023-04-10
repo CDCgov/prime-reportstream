@@ -5,7 +5,6 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.io.File
@@ -18,7 +17,7 @@ object FileUtilities {
     fun createFakeCovidFile(
         metadata: Metadata,
         settings: SettingsProvider,
-        sender: TopicSender,
+        schemaName: String,
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,
@@ -28,7 +27,7 @@ object FileUtilities {
     ): File {
         val report = createFakeCovidReport(
             metadata,
-            sender,
+            schemaName,
             count,
             targetStates,
             targetCounties,
@@ -39,15 +38,15 @@ object FileUtilities {
 
     fun createFakeCovidReport(
         metadata: Metadata,
-        sender: TopicSender,
+        schemaName: String,
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,
         locale: Locale? = null
     ): Report {
         return FakeReport(metadata, locale).build(
-            metadata.findSchema(sender.schemaName)
-                ?: error("Unable to find schema ${sender.schemaName}"),
+            metadata.findSchema(schemaName)
+                ?: error("Unable to find schema $schemaName"),
             count,
             FileSource("fake"),
             targetStates,

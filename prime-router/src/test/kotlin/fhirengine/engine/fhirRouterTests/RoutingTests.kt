@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
@@ -12,8 +13,10 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -23,9 +26,12 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -113,6 +119,14 @@ class RoutingTests {
     val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+    val receiver = Receiver(
+        "myRcvr",
+        "topic",
+        Topic.TEST,
+        CustomerStatus.ACTIVE,
+        "mySchema"
+    )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
@@ -121,157 +135,8 @@ class RoutingTests {
 
     @BeforeEach
     fun reset() {
+        report.filteringResults.clear()
         clearAllMocks()
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string including fhir resource`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%resource.%patient")
-
-        // assert
-        assertThat(result).isEqualTo("%resource.Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string in quotes`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%'patient'")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with simple string in backticks`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%`patient`")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient)")
-    }
-
-    @Test
-    fun `test replaceShorthand with two variable string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient or %messageId")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(MessageHeader).id"
-        )
-    }
-
-    @Test
-    fun `test replaceShorthand with dashed string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test-dash")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.dash")
-    }
-
-    @Test
-    fun `test replaceShorthand with underscored string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test_underscore")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.underscore")
-    }
-
-    @Test
-    fun `test replaceShorthand with apostrophe string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%test'apostrophe")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.test.apostrophe")
-    }
-
-    @Test
-    fun `test replaceShorthand with multi parts string`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient.name.first")
-
-        // assert
-        assertThat(result).isEqualTo("Bundle.entry.resource.ofType(Patient).name.first")
-    }
-
-    @Test
-    fun `test replaceShorthand with multi part while in middle`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("myVariable.%patient.name.first")
-
-        // assert
-        assertThat(result).isEqualTo("myVariable.Bundle.entry.resource.ofType(Patient).name.first")
-    }
-
-    @Test
-    fun `test replaceShorthand with similar strings, order 1`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patient or %patientState")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient) or Bundle.entry.resource.ofType(Patient).address.state"
-        )
-    }
-
-    @Test
-    fun `test replaceShorthand with similar strings, order 2`() {
-        val settings = FileSettings().loadOrganizations(twoOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-
-        // act
-        val result = engine.replaceShorthand("%patientState or %patient")
-
-        // assert
-        assertThat(result).isEqualTo(
-            "Bundle.entry.resource.ofType(Patient).address.state or Bundle.entry.resource.ofType(Patient)"
-        )
     }
 
     @Test
@@ -280,9 +145,10 @@ class RoutingTests {
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(twoOrganization)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
-        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
@@ -290,8 +156,9 @@ class RoutingTests {
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
         // act
-        val receivers = engine.applyFilters(bundle)
+        val receivers = engine.applyFilters(bundle, report)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -303,9 +170,64 @@ class RoutingTests {
         val bundle = FhirTranscoder.decode(fhirData)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert
+        assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
+    fun `test applyFilters receiver setting - (conditionFilter no observations) `() {
+        val fhirData = File("src/test/resources/fhirengine/engine/lab_order_no_observations.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val conditionFilter = emptyList<String>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert
+        assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
+    fun `test reverseQualityFilter flag only reverses the quality filter`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        // Using receiver with reverQualityFilter set to true
+        val settings = FileSettings().loadOrganizations(twoOrganization)
+        // This Jurisdictional filter evaluates to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This quality filter evaluates to true, but is reversed to false
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This routing filter evaluates to true
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This processing mode filter evaluates to true
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
@@ -313,10 +235,13 @@ class RoutingTests {
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
 
         // act
-        val receivers = engine.applyFilters(bundle)
+        val receivers = engine.applyFilters(bundle, report)
 
-        // assert
-        assertThat(receivers).isNotEmpty()
+        // assert only the quality filter didn't pass
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.QUALITY_FILTER)
+        assertThat(receivers).isEmpty()
     }
 
     @Test
@@ -327,7 +252,11 @@ class RoutingTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(engine.qualityFilterDefault, bundle, false)
+        val qualDefaultResult = engine.evaluateFilterCondition(
+            engine.qualityFilterDefault,
+            bundle,
+            false
+        )
 
         // assert
         assertThat(qualDefaultResult).isTrue()
@@ -347,7 +276,14 @@ class RoutingTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -366,7 +302,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -377,7 +313,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -394,7 +330,14 @@ class RoutingTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -413,7 +356,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -424,7 +367,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -441,7 +384,14 @@ class RoutingTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -460,7 +410,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -471,7 +421,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -488,7 +438,14 @@ class RoutingTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -507,7 +464,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
@@ -518,12 +475,129 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
     @Test
-    fun `success - jurisfilter passes, qual filter passes, routing filter passes, proc mode passes`() {
+    fun `fail - all pass other than the condition filter fails`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // filters
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 0) {
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `success - jurisfilter, qualfilter, routing filter, proc mode passes, and condition filter passes`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // filters
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        verify(exactly = 1) {
+            actionHistory.trackExistingInputReport(any())
+            actionHistory.trackCreatedReport(any(), any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any())
+            queueMock.sendMessage(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test bundle with no receivers is not routed to translate function`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
 
         mockkObject(BlobAccess)
@@ -540,11 +614,7 @@ class RoutingTests {
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
 
-        // filters
-        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
-        var procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        every { engine.applyFilters(any(), any()) } returns emptyList()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -554,11 +624,7 @@ class RoutingTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -568,9 +634,11 @@ class RoutingTests {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
+        }
+        verify(exactly = 0) {
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            FHIRBundleHelpers.addReceivers(any(), any())
+            FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
 
@@ -587,9 +655,13 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
     }
 
     @Test
@@ -605,9 +677,13 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
     }
 
     @Test
@@ -623,8 +699,169 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-
+        val result = engine.evaluateFilterCondition(
+            filter,
+            bundle,
+            false
+        )
         // act & assert
-        assertThat(engine.evaluateFilterCondition(filter, bundle, false)).isTrue()
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun `test logFilterResults`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        var qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        assertThat(report.filteringResults.count()).isEqualTo(0)
+        engine.logFilterResults(qualFilter, bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
+    }
+
+    @Test
+    fun `test actionLogger trigger during evaluateFilterCondition`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routing/valid.fhir").readText()
+
+        mockkObject(BlobAccess)
+        mockkObject(FHIRBundleHelpers)
+        mockkObject(FhirPathUtils)
+
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = ActionLogger()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blob.url",
+                "test",
+                "test-sender"
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        // filters
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
+
+        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns emptyList()
+        every { engine.getRoutingFilter(any(), any()) } returns emptyList()
+        every { engine.getProcessingModeFilter(any(), any()) } returns emptyList()
+
+        val nonBooleanMsg = "Condition did not evaluate to a boolean type"
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+
+        // act
+        engine.doWork(message, actionLogger, actionHistory)
+
+        // assert
+        assertThat(actionLogger.hasWarnings()).isTrue()
+        assertThat(actionLogger.warnings[0].detail.message).isEqualTo(nonBooleanMsg)
+    }
+
+    @Test
+    fun `test evaluateFilterAndLogResult`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val filter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val type = ReportStreamFilterType.QUALITY_FILTER
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        every { engine.evaluateFilterCondition(any(), any(), true, any(), any()) } returns true
+        every { engine.evaluateFilterCondition(any(), any(), false, any(), any()) } returns false
+
+        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
+        verify(exactly = 0) {
+            engine.logFilterResults(any(), any(), any(), any(), any())
+        }
+        engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, false)
+        verify(exactly = 1) {
+            engine.logFilterResults(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test applyFilters logs results for routing filters`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        // Using receiver with reverQualityFilter set to true
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // This Jurisdictional filter evaluates to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This quality filter evaluates to true
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This routing filter evaluates to false
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
+        // This processing mode filter evaluates to true
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert only the quality filter didn't pass
+
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.ROUTING_FILTER)
+        assertThat(receivers).isEmpty()
+    }
+
+    @Test
+    fun `test applyFilters logs results for processing mode filters`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        // Using receiver with reverQualityFilter set to true
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // This Jurisdictional filter evaluates to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This quality filter evaluates to true
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This routing filter evaluates to true
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This processing mode filter evaluates to false
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert only the quality filter didn't pass
+
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(receivers).isEmpty()
     }
 }

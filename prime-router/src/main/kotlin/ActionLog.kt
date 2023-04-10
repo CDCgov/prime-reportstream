@@ -9,7 +9,7 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation
+    parameter, report, item, translation, internal
 }
 
 /**
@@ -93,7 +93,7 @@ interface ActionLogDetail {
     /**
      * The error code used to translate the error in the UI.
      */
-    val errorCode: String
+    val errorCode: ErrorCode
 }
 
 /**
@@ -149,6 +149,14 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     fun hasErrors(): Boolean {
         return logs.any { it.type == ActionLogLevel.error }
+    }
+
+    /**
+     * Check if the logger has logged any warnings.
+     * @return true if there are warnings logged, false otherwise
+     */
+    fun hasWarnings(): Boolean {
+        return logs.any { it.type == ActionLogLevel.warning }
     }
 
     /**

@@ -1,0 +1,11 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: ORU_R01
+constants:
+  lowLevelConstant: "lowLevelValue"
+  overriddenConstant: "overriddenValue"
+elements:
+  - name: patient-information
+    resource: Bundle.entry.resource.ofType(Patient)
+    condition: '%resource.count() = 1'
+    required: true
+    schema: ORU_R01/patient

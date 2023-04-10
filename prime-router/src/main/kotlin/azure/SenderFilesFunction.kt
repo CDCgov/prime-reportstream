@@ -236,7 +236,7 @@ class SenderFilesFunction(
     private fun cutContent(reportBlob: String, senderFormat: Sender.Format, itemIndices: List<Int>): String {
         return when (senderFormat) {
             Sender.Format.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
-            Sender.Format.HL7 -> Hl7Utilities.cut(reportBlob, itemIndices)
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> Hl7Utilities.cut(reportBlob, itemIndices)
             else -> throw IllegalStateException("Sender format $senderFormat is not supported")
         }
     }

@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -123,6 +125,7 @@ class Hl7SerializerTests {
         every { phoneField.areaCityCode.isEmpty } returns false
         every { phoneField.localNumber.isEmpty } returns false
         every { phoneField.telephoneNumber.value } returns "(555)555-5555"
+        every { phoneField.telephoneNumber.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { phoneField.countryCode.value } returns "1"
@@ -132,7 +135,14 @@ class Hl7SerializerTests {
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
 
+        // Return telephoneNumher instead of locallNumber
+        every { phoneField.telephoneNumber.valueOrEmpty } returns "1555555-5555"
+        every { phoneField.telephoneNumber.isEmpty } returns false
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
+        assertThat(phoneNumber).isEqualTo("5555555555:1:")
+
         // No type assumed to be a phone number
+        every { phoneField.telephoneNumber.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns null
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
@@ -374,7 +384,8 @@ OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
-NTE|1|L|This is a final comment|RE"""
+NTE|1|L|This is a final comment|RE
+            """
 
         // arrange
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -404,7 +415,8 @@ OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
-SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+            """
 
         arrangeTest(sampleMessage).run {
             // assert
@@ -428,7 +440,8 @@ OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69
 OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
 OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
-SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+            """
         arrangeTest(complexMessage).run {
             // assert
             Hl7Serializer.decodeNTESegments(this).run {
@@ -1013,7 +1026,14 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val orcValuePairReplaceBlank = arrayListOf(mapOf("" to "REPLACED BLANK"))
         val orcValuePairNotReplaceBlank = arrayListOf(mapOf("" to "XYZ"))
 
+        val replaceFHSSendingApp = arrayListOf(mapOf("*" to "New Sendign App^2.16.840.1.114222.4.1.237821^ISO"))
+        val replaceFHSReceivingApp = arrayListOf(mapOf("*" to "New Receiving Application^1234^ISO"))
+        val replaceFHSReceivingFacility = arrayListOf(mapOf("*" to "New Receiving Facility"))
+
         val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "FHS-3" to replaceFHSSendingApp, // Make sure the replaceValueAwithB is not fail
+            "FHS-5" to replaceFHSReceivingApp, // Make sure the replaceValueAwithB is not fail
+            "FHS-6" to replaceFHSReceivingFacility, // Make sure the replaceValueAwithB is not fail
             "ORC-2-1" to replaceBlankWithValueRef, // We didn't set this field. Therefore, it is empty.
             "ORC-2-2" to orcValuePairReplaceBlank, // We didn't set this field. Therefore, it is empty.
             "ORC-3" to orcValuePairReplaceBlank,
@@ -1192,7 +1212,7 @@ OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
 OBX|2|NM|30525-0^Age^LN||14|a^year^UCUM
 OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
-"""
+            """
         arrangeTest(complexMessage).run {
             // assert
             Hl7Serializer.decodeAOEQuestion(
@@ -1247,6 +1267,24 @@ OBX|3|DLN|53245-7^Driver license^LN||99999999^NJ|a^year^UCUM
                 assertThat(this).isEqualTo("")
             }
         }
+    }
+
+    @Test
+    fun `test HL7HapiErrorProcessor parse error codes exist for each type in Element Type enum`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        enumValues<Element.Type>().forEach { elementType ->
+            val errorCode = errProcessor.getErrorCode(elementType)
+            assertThat(errorCode).isNotNull()
+            assertThat(errorCode).isNotEqualTo(ErrorCode.UNKNOWN)
+            assertThat(errorCode.toString() == "INVALID_HL7_PARSE_$elementType")
+        }
+    }
+
+    @Test
+    fun `test HL7HapiErrorProcessor getErrorCode handles valueOf exception properly`() {
+        val errProcessor = HL7HapiErrorProcessor()
+        val errorCode = errProcessor.getErrorCode(null)
+        assertThat(errorCode).isEqualTo(ErrorCode.INVALID_MSG_PARSE_UNKNOWN)
     }
 
     /**

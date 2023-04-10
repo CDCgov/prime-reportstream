@@ -1,0 +1,42 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ADT_A01
+constants:
+  # Prefix for RS custom extension URLs
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
+      Bundle.entry.resource.ofType(MessageHeader).event.code = 'A01'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    required: true
+    schema: ../common/message-header
+
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: ../common/software
+
+  - name: patient-information
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    required: true
+    constants:
+      hl7SegmentGroup: ''
+    schema: ../common/patient
+
+  - name: patient-contact
+    resource: 'Bundle.entry.resource.ofType(Patient).contact'
+    condition: '%resource.exists()'
+    constants:
+      hl7SegmentGroup: ''
+    schema: ../common/patient-contact
+
+  - name: patient-visit
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: ''
+    schema: ../common/patient-visit
+
+# TODO Add more segments as they are converted.

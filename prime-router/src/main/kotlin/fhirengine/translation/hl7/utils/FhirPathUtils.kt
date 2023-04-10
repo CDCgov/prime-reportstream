@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.TimeType
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
@@ -85,7 +86,7 @@ object FhirPathUtils : Logging {
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
-     * @throws SchemaException if the FHIR path does not evaluate to a boolean type
+     * @throws SchemaException if the FHIR path does not evaluate to a boolean type or fails to evaluate
      */
     fun evaluateCondition(
         appContext: CustomContext?,
@@ -99,16 +100,19 @@ object FhirPathUtils : Logging {
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
-                throw SchemaException("Condition did not evaluate to a boolean type")
+                throw SchemaException("FHIR Path expression did not evaluate to a boolean type: $expression")
             }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
-            logger.error(
-                "Unknown error while evaluating FHIR expression $expression for condition. " +
-                    "Setting value of condition to false.",
-                e
-            )
-            false
+            val msg = when (e) {
+                is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is SchemaException -> throw e
+                else ->
+                    "Unknown error while evaluating FHIR Path expression $expression for condition. " +
+                        "Setting value of condition to false."
+            }
+            logger.error(msg, e)
+            throw SchemaException(msg)
         }
         logger.trace("Evaluated condition '$expression' to '$retVal'")
         return retVal
@@ -201,7 +205,11 @@ object FhirPathUtils : Logging {
 
             else -> {
                 var secs = dateTime.second.toFloat()
-                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
+//                TODO: There's no way to turn this off at the moment.
+//                 Need to add support to configure Date precision.
+//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
+
+//                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
                     secs

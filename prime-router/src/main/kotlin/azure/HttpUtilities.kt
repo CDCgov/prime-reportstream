@@ -295,7 +295,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +
@@ -327,7 +327,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +

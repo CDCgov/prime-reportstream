@@ -59,7 +59,7 @@
     .tn, /* Tennessee */
     /* .tt, Trust Territories */
     .tx, /* Texas */
-    /* .ut, Utah */
+    .ut, /* Utah */
     /* .va, Virginia */
     /* .vi, Virgin Islands */
     .vt, /* Vermont */

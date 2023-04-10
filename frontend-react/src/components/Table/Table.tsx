@@ -17,6 +17,7 @@ export interface LinkableColumn {
     link: boolean;
     linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+    linkState?: unknown;
 }
 
 /** @alias for any type of feature column */
@@ -123,10 +124,7 @@ const Table = ({
         return config.rows;
     }, [config.rows, filterManager?.sortSettings]);
 
-    const wrapperClasses = useMemo(
-        () => `grid-container margin-bottom-10 ${classes}`,
-        [classes]
-    );
+    const wrapperClasses = `margin-bottom-10 ${classes}`;
 
     const addRow = useCallback(() => {
         setRowToEdit(memoizedRows?.length || 0);
@@ -153,7 +151,7 @@ const Table = ({
                 datasetAction={memoizedDatasetAction}
                 rowToEdit={rowToEdit}
             />
-            <div className="grid-col-12">
+            <div>
                 <table
                     className="usa-table usa-table--borderless usa-table--striped prime-table"
                     aria-label="Submission history from the last 30 days"

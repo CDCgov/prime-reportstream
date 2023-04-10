@@ -15,35 +15,50 @@ runs:
     - name: Set environment variables - demo1
       if: inputs.env-name == 'demo1'
       shell: bash
-      run: echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhdemo1public" >> $GITHUB_ENV
 
     - name: Set environment variables - demo2
       if: inputs.env-name == 'demo2'
       shell: bash
-      run: echo "IMAGE_REPO=pdhdemo2" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhdemo2public" >> $GITHUB_ENV
 
     - name: Set environment variables - demo3
       if: inputs.env-name == 'demo3'
       shell: bash
-      run: echo "IMAGE_REPO=pdhdemo3" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhdemo3public" >> $GITHUB_ENV
 
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash
-      run: echo "IMAGE_REPO=pdhtest" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhtestpublic" >> $GITHUB_ENV
 
     - name: Set environment variables - staging
       if: inputs.env-name == 'staging'
       shell: bash
-      run: echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
+
+    - name: Set environment variables - trialfrontend01
+      if: inputs.env-name == 'trialfrontend01'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhstagingpublictrial01" >> $GITHUB_ENV
+
+    - name: Set environment variables - trialfrontend02
+      if: inputs.env-name == 'trialfrontend02'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhstagingpublictrial02" >> $GITHUB_ENV
+
+    - name: Set environment variables - trialfrontend03
+      if: inputs.env-name == 'trialfrontend03'
+      shell: bash
+      run: echo "IMAGE_REPO=pdhstagingpublictrial03" >> $GITHUB_ENV
 
     - name: Set environment variables - production
       if: inputs.env-name == 'prod'
       shell: bash
-      run: echo "IMAGE_REPO=pdhprod" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhprodpublic" >> $GITHUB_ENV
 
     - name: Download Frontend Artifact (React)
-      uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+      uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react
@@ -58,5 +73,5 @@ runs:
       shell: bash
       working-directory: .
       run: |
-        az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }}public -s '$web'
-        az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }}public -s frontend-react/build -d '$web'
+        az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }} -s '$web'
+        az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web'

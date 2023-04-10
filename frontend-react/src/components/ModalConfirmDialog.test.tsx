@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import React, { Ref, useRef } from "react";
-import { renderHook } from "@testing-library/react-hooks";
+import { screen, renderHook } from "@testing-library/react";
+import React, { useRef } from "react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
+
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import { ModalConfirmDialog, ModalConfirmRef } from "./ModalConfirmDialog";
 
@@ -16,12 +17,12 @@ describe("ConfirmDialog", () => {
             expect(itemId).toBe(ITEM_ID);
             callbackCount++;
         };
-        const { result } = renderHook<undefined, Ref<ModalConfirmRef>>(() => {
+        const { result } = renderHook(() => {
             return useRef<ModalConfirmRef>(null);
         });
 
         const modalRef = result.current;
-        render(
+        renderApp(
             <div>
                 <ModalConfirmDialog
                     ref={modalRef}
@@ -47,8 +48,8 @@ describe("ConfirmDialog", () => {
 
         // click the cancel button and make sure it goes away and our callback was called.
         // eslint-disable-next-line testing-library/no-unnecessary-act
-        act(() => {
-            userEvent.click(screen.getByTestId(`${id}-closebtn`));
+        await act(async () => {
+            await userEvent.click(screen.getByTestId(`${id}-closebtn`));
         });
         expect(callbackCount).toBe(1);
     });

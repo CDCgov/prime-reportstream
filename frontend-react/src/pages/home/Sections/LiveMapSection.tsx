@@ -1,7 +1,8 @@
 import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
-import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
+import usamapsvg from "../../../content/usa_w_territories.svg";
+import { USLink } from "../../../components/USLink"; // in /content dir to get unique filename per build
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
     let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);
@@ -20,12 +21,13 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 {section.summary}
             </p>
             <div data-testid="map">
-                <a href="/how-it-works/where-were-live">
+                <USLink href="/product/where-were-live">
                     <img
                         src={usamapsvg}
+                        title="USA with Territories (Heitordp, CC0, via Wikimedia Commons)"
                         alt="Map of states using ReportStream"
                     />
-                </a>
+                </USLink>
             </div>
             <p
                 data-testid="description"

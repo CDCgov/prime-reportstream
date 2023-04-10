@@ -243,6 +243,15 @@ class TranslationTests {
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
                         }
+                        // Compare the output of a FHIR to HL7 conversion
+                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
+                            check(!config.expectedSchema.isNullOrBlank())
+                            val actualStream =
+                                translateFromFhir(inputStream, config.expectedSchema)
+                            result.merge(
+                                CompareData().compare(expectedStream, actualStream, null, null)
+                            )
+                        }
 
                         // All other conversions related to the Topic pipeline
                         else -> {
@@ -343,7 +352,9 @@ class TranslationTests {
             // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
             // value for the sender, and your test will fail. This is not a bug.
             val sender = if (senderName != null) {
-                settings.senders.firstOrNull { it.organizationName.lowercase() == senderName.lowercase() }
+                settings.senders.firstOrNull {
+                    it.organizationName.plus(".").plus(it.name).lowercase() == senderName.lowercase()
+                }
             } else {
                 settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
             }
