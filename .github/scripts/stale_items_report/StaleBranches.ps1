@@ -1,4 +1,4 @@
-Set-Location C:\ICF\Sourcecode\prime-reportstream\prime-reportstream
+Set-Location .\
 class Commit {
     [DateTime]$Date
     [string]$BranchName
