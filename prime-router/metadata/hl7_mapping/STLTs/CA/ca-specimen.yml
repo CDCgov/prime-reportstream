@@ -8,7 +8,6 @@ elements:
   #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
   #  CA uses SPM identifier as their Accession number to uniquely identify reports sent to them
   - name: ca-specimen-organization-identifier
-    debug: true
     resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
@@ -18,8 +17,22 @@ elements:
   # Same as above
   - name: ca-specimen-organization-identifier-2
     resource: '%performerOrganization'
-    debug: true
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
       identifier: '%diagnostic[%orderIndex].identifier[0].value'
     schema: ../../common/organization-identifier
+
+  #####################################
+  # California    specific transforms #
+  #####################################
+  # SPM-2-1-2: Max length 20
+  - name: ca-specimen-organization-identifier-name
+    resource: '%performerOrganization'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-1-2' ]
+
+  # SPM-2-2-2: Max length 20
+  - name: ca-specimen-organization-identifier-name-2
+    resource: '%performerOrganization'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-2-2-2' ]
