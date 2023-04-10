@@ -1,6 +1,6 @@
 # See https://developer.github.com/v3/pulls/#list-pull-requests
 
-$endpoint = "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open"
+$endpoint = "https://api.github.com/repos/CDCgov/prime-reportstream/pulls?state=open"
 
 function Get-BasicAuthCreds {
     param([string]$Username,[string]$Password)
@@ -17,9 +17,9 @@ write-host $json
 foreach($obj in $json)
 {
     if($obj.lastupdated -lt $limit){
-    Write-Host "Issue: #" + $obj.number
+    Write-Host "Pull request: #" + $obj.number
     Write-Host "Title: " + $obj.title
-    Write-Host "Url: " + $obj.html_url
+    Write-Host "Url: " + $obj.url
     
     $releaseNotes = $releaseNotes + "Body: "
     $obj.body.Split("`n") | ForEach { 
