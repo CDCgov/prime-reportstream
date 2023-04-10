@@ -21,15 +21,15 @@ foreach($obj in $json)
     Write-Host "Title: " + $obj.title
     Write-Host "Url: " + $obj.url
     
-    $releaseNotes = $releaseNotes + "Body: "
-    $obj.body.Split("`n") | ForEach { 
-        # ignore comments from issue templates
-        if($_.Trim().StartsWith("<!---") -eq $FALSE)
-        {
-            $releaseNotes = $releaseNotes + $_ + "`n" 
-        }
-     }   
-    $releaseNotes = $releaseNotes + "`n"
+    # $releaseNotes = $releaseNotes + "Body: "
+    # $obj.body.Split("`n") | ForEach { 
+    #     # ignore comments from issue templates
+    #     if($_.Trim().StartsWith("<!---") -eq $FALSE)
+    #     {
+    #         $releaseNotes = $releaseNotes + $_ + "`n" 
+    #     }
+    #  }   
+    # $releaseNotes = $releaseNotes + "`n"
     
     Write-Host "User: " + $obj.user.login
     Write-Host ""
