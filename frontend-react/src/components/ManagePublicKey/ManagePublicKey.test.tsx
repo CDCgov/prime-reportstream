@@ -1,9 +1,11 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent, act, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
-import { RSSender } from "../../config/endpoints/settings";
+import * as useCreateOrganizationPublicKeyExports from "../../hooks/UseCreateOrganizationPublicKey";
+import { RSApiKeysResponse, RSSender } from "../../config/endpoints/settings";
 
 import { ManagePublicKey } from "./ManagePublicKey";
 
@@ -30,10 +32,41 @@ const DEFAULT_SENDERS: RSSender[] = [
     },
 ];
 
+// TODO: move for re-usability
+const contentString = "This is the fake file text";
+const fakeFile = new File([new Blob([contentString])], "file.pem", {
+    type: "application/x-x509-ca-cert",
+});
+
+export async function chooseFile(file: File) {
+    expect(screen.getByText("Drag file here or")).toBeVisible();
+    await userEvent.upload(screen.getByTestId("file-input-input"), file);
+    await screen.findByTestId("file-input-preview-image");
+}
+
 describe("ManagePublicKey", () => {
     afterEach(() => {
         jest.restoreAllMocks();
     });
+
+    // looking into solution, will resolve
+    function mockUseCreateOrganizationPublicKey(
+        result: Partial<RSApiKeysResponse> = {}
+    ) {
+        jest.spyOn(
+            useCreateOrganizationPublicKeyExports,
+            "useCreateOrganizationPublicKey"
+        ).mockReturnValue({
+            mutateAsync: () =>
+                Promise.resolve({
+                    orgName: "test",
+                    keys: [],
+                    ...result,
+                } as RSApiKeysResponse),
+            isLoading: false,
+            isSuccess: false,
+        });
+    }
 
     function mockUseOrganizationSenders(
         result: Partial<UseOrganizationSendersResult> = {}
@@ -116,6 +149,32 @@ describe("ManagePublicKey", () => {
                 expect(
                     screen.getByTestId("ManagePublicKeyUpload")
                 ).toBeVisible();
+            });
+        });
+    });
+
+    describe.skip("when a valid pem file is being submitted", () => {
+        beforeEach(() => {
+            mockUseCreateOrganizationPublicKey({
+                isSuccess: true,
+                isLoading: false,
+                mutateAsync: () => Promise.resolve({}), // TODO: return saved values here
+            });
+
+            renderApp(<ManagePublicKey />);
+        });
+
+        test("uploads the file and shows the success screen", async () => {
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            await waitFor(() => {
+                return screen.getByText(
+                    "You can now submit data to ReportStream."
+                );
             });
         });
     });
