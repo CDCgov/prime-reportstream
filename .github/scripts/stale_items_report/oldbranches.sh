@@ -17,9 +17,7 @@ _heading() {
 
 ExcludeBranchesinput="excludebrancheslist.txt"
 
-
-# -----------------------------------------------------------------------
-
+# ----------------------------------------------------------------------
 # 1. Find the currently checked out branch
 currentBranch=`git rev-parse --symbolic-full-name --abbrev-ref HEAD`
 
@@ -36,10 +34,10 @@ do
     
 	if [ "$branch" != "origin/HEAD -> origin/master" ]  && [ "$branch" != "origin/master" ];
 	then
-        while IFS= read -r line
-        do
-            if [ "$branch" != $line ];
-            then
+        # while IFS= read -r line
+        # do
+            # if [ "$branch" != $line ];
+            # then
                 echo $branch
                 branchSHA=`git rev-parse $branch`
                 branchLastUpdate=`git show -s --format="%ci" $branchSHA`
@@ -58,8 +56,8 @@ do
                 time=`git log --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" -1 $branch`
                 echo -e $time $name $branch
                 fi
-            fi
-        done < "$ExcludeBranchesinput"
+            # fi
+        # done < "$ExcludeBranchesinput"
         
 	fi
 done | sort
