@@ -39,7 +39,7 @@ jobs:
             _jq() {
               echo ${certificate} | base64 --decode | jq -r ${1}
             }
-
+          done
             certificate_id=$(_jq '.id')
             certificate_name=$(_jq '.name')
             certificate_expires=$(_jq '.expires')
@@ -67,8 +67,7 @@ jobs:
                 echo "::set-output name=title::$title"
                 echo "::set-output name=text::$text"
                 echo "::set-output name=channel::$channel"
-          done
-
+          
 
 
       # - name: Get all key vaults
