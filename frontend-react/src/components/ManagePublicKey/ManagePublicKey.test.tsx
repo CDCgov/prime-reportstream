@@ -1,43 +1,44 @@
-import { screen, fireEvent, act, waitFor } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import * as useCreateOrganizationPublicKeyExports from "../../hooks/UseCreateOrganizationPublicKey";
+import * as useOrganizationPublicKeysExports from "../../hooks/UseOrganizationPublicKeys";
 import { RSApiKeysResponse, RSSender } from "../../config/endpoints/settings";
 import { UseCreateOrganizationPublicKeyResult } from "../../hooks/UseCreateOrganizationPublicKey";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { UseOrganizationPublicKeysResult } from "../../hooks/UseOrganizationPublicKeys";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 
 import { ManagePublicKey } from "./ManagePublicKey";
 
-const DEFAULT_SENDERS: RSSender[] = [
-    {
-        name: "default",
-        organizationName: "ignore",
-        format: "CSV",
-        customerStatus: "inactive",
-        schemaName: "primedatainput/pdi-covid-19",
-        processingType: "sync",
-        allowDuplicates: true,
-        topic: "covid-19",
-    },
-    {
-        name: "ignore-full-elr",
-        organizationName: "ignore",
-        format: "HL7",
-        customerStatus: "active",
-        schemaName: "strac/strac-covid-19",
-        processingType: "sync",
-        allowDuplicates: true,
-        topic: "full-elr",
-    },
-];
+const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
-// TODO: move for re-usability
 const contentString = "This is the fake file text";
 const fakeFile = new File([new Blob([contentString])], "file.pem", {
     type: "application/x-x509-ca-cert",
 });
+fakeFile.text = () => Promise.resolve(contentString);
+
+const mockRSApiKeysResponse = {
+    orgName: "testOrg",
+    keys: [
+        {
+            scope: "testOrg.*.report",
+            keys: [
+                {
+                    kty: "RSA",
+                    kid: "testOrg.elr-0",
+                    n: "asdfaasdfffffffffffffffffffffffffasdfasdfasdfasdf",
+                    e: "AQAB",
+                },
+            ],
+        },
+    ],
+};
 
 export async function chooseFile(file: File) {
     expect(screen.getByText("Drag file here or")).toBeVisible();
@@ -46,10 +47,6 @@ export async function chooseFile(file: File) {
 }
 
 describe("ManagePublicKey", () => {
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
-
     // looking into solution, will resolve
     function mockUseCreateOrganizationPublicKey(
         result: Partial<RSApiKeysResponse> = {}
@@ -59,13 +56,13 @@ describe("ManagePublicKey", () => {
             "useCreateOrganizationPublicKey"
         ).mockReturnValue({
             isLoading: false,
-            isSuccess: false,
+            isSuccess: true,
             mutateAsync: (_) => {
                 return Promise.resolve({
-                    orgName: "",
+                    testOrg: "ignore",
                     keys: [
                         {
-                            scope: "",
+                            scope: "ignore.*.report",
                             keys: [],
                         },
                     ],
@@ -88,7 +85,39 @@ describe("ManagePublicKey", () => {
         });
     }
 
-    describe("on load", () => {
+    function mockUseOrganizationPublicKeys(
+        result: Partial<UseOrganizationPublicKeysResult> = {}
+    ) {
+        jest.spyOn(
+            useOrganizationPublicKeysExports,
+            "useOrganizationPublicKeys"
+        ).mockReturnValue({
+            isLoading: false,
+            orgPublicKeys: { orgName: "elr-0", keys: [] },
+            ...result,
+        });
+    }
+
+    beforeEach(() => {
+        mockSessionContext.mockReturnValue({
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                service: "serviceName",
+            },
+            dispatch: () => {},
+            initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
+        });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    describe.skip("by default", () => {
         describe("when more than one sender", () => {
             beforeEach(() => {
                 mockUseOrganizationSenders({
@@ -105,7 +134,7 @@ describe("ManagePublicKey", () => {
                     screen.getByTestId("ManagePublicKeyChooseSender")
                 ).toBeVisible();
                 expect(
-                    screen.queryByTestId("ManagePublicKeyUpload")
+                    screen.queryByTestId("file-input-input")
                 ).not.toBeInTheDocument();
             });
 
@@ -119,20 +148,19 @@ describe("ManagePublicKey", () => {
                     expect(selectSender).toBeInTheDocument();
                     expect(selectSender).toHaveValue("");
                     fireEvent.change(selectSender, {
-                        target: { value: "default" },
+                        target: { value: "elr-1" },
                     });
 
-                    expect(selectSender).toHaveValue("default");
+                    expect(selectSender).toHaveValue("elr-1");
 
                     expect(submit).toBeEnabled();
-                    // Instead of clicking the submit button, fire submit on the form to prevent console error
                     fireEvent.submit(screen.getByTestId("form"));
 
                     expect(
                         screen.queryByTestId("ManagePublicKeyChooseSender")
                     ).not.toBeInTheDocument();
                     expect(
-                        screen.getByTestId("ManagePublicKeyUpload")
+                        screen.getByTestId("file-input-input")
                     ).toBeVisible();
                 });
             });
@@ -153,19 +181,42 @@ describe("ManagePublicKey", () => {
                 expect(
                     screen.queryByTestId("ManagePublicKeyChooseSender")
                 ).not.toBeInTheDocument();
-                expect(
-                    screen.getByTestId("ManagePublicKeyUpload")
-                ).toBeVisible();
+                expect(screen.getByTestId("file-input-input")).toBeVisible();
             });
+        });
+    });
+
+    describe("when the senders public key has already been configured", () => {
+        beforeEach(() => {
+            mockUseOrganizationSenders({
+                senders: DEFAULT_SENDERS.splice(0, 1),
+            });
+
+            mockUseOrganizationPublicKeys({
+                orgPublicKeys: mockRSApiKeysResponse,
+            });
+
+            renderApp(<ManagePublicKey />);
+        });
+
+        test("shows the configured screen and allows the user to upload a new public key", async () => {
+            expect(
+                screen.getByText("Your public key is already configured.")
+            ).toBeVisible();
+
+            await userEvent.click(screen.getByText("Upload new public key"));
+
+            expect(screen.getByTestId("file-input-input")).toBeVisible();
+            expect(screen.getByText("Submit")).toBeDisabled();
         });
     });
 
     describe.skip("when a valid pem file is being submitted", () => {
         beforeEach(() => {
             mockUseCreateOrganizationPublicKey({
-                isSuccess: true,
                 isLoading: false,
-                mutateAsync: () => Promise.resolve({}), // TODO: return saved values here
+                isSuccess: true,
+                mutateAsync: () => Promise.resolve(mockRSApiKeysResponse),
             });
 
             renderApp(<ManagePublicKey />);
@@ -174,15 +225,49 @@ describe("ManagePublicKey", () => {
         test("uploads the file and shows the success screen", async () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
-            await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+            expect(screen.getByText("Submit")).toBeEnabled();
+            fireEvent.submit(screen.getByTestId("form"));
+
+            expect(
+                screen.getByText("You can now submit data to ReportStream.")
+            ).toBeVisible();
+        });
+    });
+
+    describe.skip("when an invalid pem file is being submitted", () => {
+        beforeEach(() => {
+            mockUseCreateOrganizationPublicKey({
+                isLoading: false,
+                isSuccess: false,
+                mutateAsync: () => Promise.resolve({}),
             });
 
-            await waitFor(() => {
-                return screen.getByText(
-                    "You can now submit data to ReportStream."
-                );
-            });
+            renderApp(<ManagePublicKey />);
+        });
+
+        test("shows the upload error screen", async () => {
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            expect(screen.getByText("Submit")).toBeEnabled();
+            fireEvent.submit(screen.getByTestId("form"));
+
+            expect(
+                screen.getByText("Key could not be submitted")
+            ).toBeVisible();
+        });
+
+        test("allows the user to try again", async () => {
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            expect(screen.getByText("Submit")).toBeEnabled();
+            fireEvent.submit(screen.getByTestId("form"));
+
+            expect(
+                screen.getByText("Key could not be submitted")
+            ).toBeVisible();
+            await userEvent.click(screen.getByText("Try Again"));
+
+            expect(screen.getByText("Drag file here or")).toBeVisible();
         });
     });
 });

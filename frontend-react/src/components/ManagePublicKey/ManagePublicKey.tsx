@@ -32,7 +32,7 @@ export function ManagePublicKey() {
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
     const { activeMembership } = useSessionContext();
-    const { data } = useOrganizationPublicKeys();
+    const { orgPublicKeys } = useOrganizationPublicKeys();
     const {
         mutateAsync,
         isSuccess,
@@ -97,25 +97,24 @@ export function ManagePublicKey() {
     };
 
     useEffect(() => {
-        if (sender && data?.keys.length) {
+        if (sender && orgPublicKeys?.keys.length) {
             // check if kid already exists for the selected org.sender
             const kid = `${activeMembership?.parsedName}.${sender}`;
-            for (const apiKeys of data.keys) {
+            for (const apiKeys of orgPublicKeys.keys) {
                 if (apiKeys.keys.some((k: ApiKey) => k.kid === kid)) {
                     setHasPublicKey(true);
                 }
             }
         }
-    }, [data, sender]);
+    }, [orgPublicKeys, sender, activeMembership?.parsedName]);
 
     const showPublicKeyConfigured =
-        sender.length && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
+        sender && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
     const showUploadMsg =
-        (sender.length && !fileSubmitted && !hasPublicKey) ||
-        (!uploadNewPublicKey && !sender.length);
+        (sender && !fileSubmitted && !hasPublicKey) ||
+        (!uploadNewPublicKey && !sender);
     const isUpload =
-        (sender.length && !fileSubmitted && !hasPublicKey) ||
-        uploadNewPublicKey;
+        (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
     return (
