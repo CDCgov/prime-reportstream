@@ -38,43 +38,9 @@ jobs:
           cat certificates.json
 
       - name: Send Slack notification
-        uses: slack/github-action@v3
-        with:
-          status: success
-          text: "Azure Key Vault Certificates Expiring in 30 Days:"
-          fields: |
-            ${{ steps.list-certificates.outputs.stdout }}
-
-      # - name: Get all key vaults
-      #   id: list-keyvaults
-      #   run: az keyvault list --query "[].{name:name}" --output json
-
-      # - name: List all certificates in key vaults
-      #   id: list-certificates
-      #   run: |
-      #     certs=""
-      #     for kv in $(jq -r '.[] | .name' <<< "${{ steps.list-keyvaults.outputs.stdout }}"); do
-      #       kv_certs=$(az keyvault certificate list --vault-name $kv --query "[].{name:name,expires:attributes.expires}" --output json)
-      #       certs="$certs$kv_certs"
-      #     done
-      #     echo "::set-output name=certificates::$certs"
-
-      # - name: Filter expiring certificates
-      #   id: filter-expiring-certificates
-      #   run: |
-      #     expiring_certs=$(jq -r '.[] | select((.expires - now | floor) / 86400 < 300) | .name' <<< "${{ steps.list-certificates.outputs.certificates }}")
-      #     if [ -n "$expiring_certs" ]; then
-      #       echo "::set-output name=certificates::$expiring_certs"
-      #     fi
-
-      # - name: Notify on Slack
-      #   #if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
-      #   uses: rtCamp/action-slack-notify@v2
-      #   with:
-      #     entryPoint: send
-      #     args: status=warning title='Expiring Certificates Alert' text='The following certificates in Azure Key Vaults are expiring within 30 days: \n' channel=#pagerduty-alert-dump icon_emoji=:warning:
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          certificates=$(cat certificates.json)
+          curl -X POST -H 'Content-type: application/json' --data "{'text': 'Azure Key Vault Certificates Expiring in 30 Days:', 'attachments': $certificates}" ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
