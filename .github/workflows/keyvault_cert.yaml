@@ -54,7 +54,7 @@ jobs:
           fi
 
       - name: Notify on Slack
-        if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
+        #if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
         uses: rtCamp/action-slack-notify@v2
         with:
           status: 'warning'
