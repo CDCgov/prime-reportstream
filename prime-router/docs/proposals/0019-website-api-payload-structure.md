@@ -8,8 +8,9 @@ As we continue to develop more features for the ReportStream website, we're inev
 
 The purpose of this proposal is to align on communication between ReportStream API and the website, including:
 - HTTP response codes
-- HTTP methods
 - Req/res structures
+    - Resource structures
+    - Collection structures
 
 Having a consistent approach to the above would provide some predictability in implementation as we continue to build out the website, and it would help to simplify logic in common UX patterns like search filters and pagination.  (For example, UsePagination.ts contains [visual slot logic](https://github.com/CDCgov/prime-reportstream/blob/master/frontend-react/src/hooks/UsePagination.ts#L26-L84) that could be drastically simplified if there were, say, a `totalCount` included in the response payload.)
 
@@ -81,10 +82,6 @@ The following is a non-exhaustive list of HTTP response codes that should common
 | 500  | Internal Server Error | Unhandled exception                                                                              | Catch-all for all unhandled exceptions                             |
 
 NOTE: This table does not include common HTTP response codes commonly used as navigation signals, such as `301 Moved Permanently` or `308 Permanent Redirect`, which are not currently applicable to the website due to its single-page application (SPA) approach.  This may change in the future if we migrate to a more traditional website architecture.
-
-### HTTP methods
-
-There are no proposed changes to how we're using HTTP methods at the moment.  However, for all mutating methods (`POST`, `PUT`, `PATCH`, `DELETE`), we should return the entire modified record with all data through a `200 OK` rather than subsets of data or a `204 No Content`.  This is slightly atypical behavior, but it helps simplify request bookkeeping on the website.
 
 ### Req/res structures
 
@@ -166,35 +163,29 @@ There should be more values for special collections, which will be elaborated on
 
 ##### Example 
 
-`GET /api/settings/organizations`
+`GET /api/actions`
 
 ```json
 {
     "meta": {
-        "type": "Organization",
+        "type": "Action",
         "totalCount": 100
     },
 
     "data": [
         {
-            "name": "ignore",
-            "description": "FOR TESTING ONLY",
-            "jurisdiction": "FEDERAL",
-            "filters": [
-                {
-                    "topic": "covid-19",
-                    "jurisdictionalFilter": [
-                        "matches(ordering_facility_state, IG)"
-                    ],
-                    "qualityFilter": null,
-                    "routingFilter": null,
-                    "processingModeFilter": null,
-                    "conditionFilter": null
-                },
-                ...
-            ],
-            "featureFlags": [],
-            "keys": []
+            "action_id": "1",
+            "action_name": "batch",
+            "action_params": "receiver&BATCH&ignore.FULL_ELR&false",
+            "action_result": null,
+            ...
+        },
+        {
+            "action_id": "2",
+            "action_name": "batch",
+            "action_params": "receiver&BATCH&ignore.CSV&false",
+            "action_result": "Success: merged 6 reports into 1 reports",
+            ...
         },
         ...
     ]
@@ -243,12 +234,12 @@ The `meta` for paginated collection responses should include the following value
 
 ##### Example
 
-`GET /api/settings/organizations?page=1&pageSize=50`
+`GET /api/actions?page=1&pageSize=50`
 
 ```json
 {
     "meta": {
-        "type": "Organization",
+        "type": "Action",
         "totalCount": 100,
 
         // pagination-specific values
@@ -259,26 +250,19 @@ The `meta` for paginated collection responses should include the following value
 
     "data": [
         {
-            "name": "ignore",
-            "description": "FOR TESTING ONLY",
-            "jurisdiction": "FEDERAL",
-            "filters": [
-                {
-                    "topic": "covid-19",
-                    "jurisdictionalFilter": [
-                        "matches(ordering_facility_state, IG)"
-                    ],
-                    "qualityFilter": null,
-                    "routingFilter": null,
-                    "processingModeFilter": null,
-                    "conditionFilter": null
-                },
-                ...
-            ],
-            "featureFlags": [],
-            "keys": []
+            "action_id": "1",
+            "action_name": "batch",
+            "action_params": "receiver&BATCH&ignore.FULL_ELR&false",
+            "action_result": null,
+            ...
         },
-        // other resource objects
+        {
+            "action_id": "2",
+            "action_name": "batch",
+            "action_params": "receiver&BATCH&ignore.CSV&false",
+            "action_result": "Success: merged 6 reports into 1 reports",
+            ...
+        },
         ...
     ]
 }
@@ -290,6 +274,7 @@ Sorted collection request paths should take the form of `*/<resources>?sortDir=<
 
 - `sortDir` is the order of sorting (`ASC` or `DESC`)
 - `sortColumn` is the name of the sorted column (e.g., `id`, `name`, `expiresAt`)
+    - In the case of sorting by multiple columns, they will be comma-separated with descending priority (e.g., `sortColumn=id,name,expiresAt` will sort by `id` first, `name` second, and `expiresAt` third) 
 
 (Note the updated capitalization.)
 
