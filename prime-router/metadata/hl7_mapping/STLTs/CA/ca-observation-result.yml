@@ -7,7 +7,7 @@ elements:
 
   - name: ca-organization-performer-identifier
     resource: '%resource.performer.resolve()'
-    value: [ '%resource.name + "-"+ %resource.identifier[0].value ' ]
+    value: [ '(%resource.name + "-"+ %resource.identifier[0].value).substring(0,50) ' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-23-1' ]
 
   - name: ca-organization-namespace-id
