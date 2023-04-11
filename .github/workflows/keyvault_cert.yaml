@@ -31,44 +31,21 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List all certificates in key vaults
-        id: list-certificates
+      - name: List certificates
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-      
-      - name: Loop through certificates 
-        run: |  
-          for certificate in $(echo "$certificates" | jq -r '.[] | @base64'); do
-            _jq() {
-              echo ${certificate} | base64 --decode | jq -r ${1}
-            }
-          
-            certificate_id=$(_jq '.id')
-            certificate_name=$(_jq '.name')
-            certificate_expires=$(_jq '.expires')
-            certificate_expired=$(_jq '.expired')
-          
-          done 
-
-      - name: Check if certificate is expiring within 300 days
-        run: |
-          if [[ $certificate_expired == "false" && $(date -u +%s -d "$certificate_expires") -lt $(( $(date -u +%s) + 25920000 )) ]]; then
-          echo "Certificate $certificate_name is expiring within 300 days on $certificate_expires"
-          fi
+          # List certificates using Azure CLI
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json
+          cat certificates.json
           
       - name: Send Slack notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: slackapi/slack-webhook@v1
         with:
-          entryPoint: send
-          args: |
-            status=warning
-            title="Expiring Certificates Alert"
-            text="The following certificates in Azure Key Vaults are expiring within 300 days: \n\n- Certificate Name: $certificate_name\n  Expiry Date: $certificate_expires\n  Certificate ID: $certificate_id\n"
-            channel=#pagerduty-alert-dump
-            icon_emoji=:warning:
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          data: |
+            {
+              "text": "Azure Key Vault Certificates Expiring in 30 Days:",
+              "attachments": ${{ toJSON(fromJSON(steps.list-certificates.outputs.stdout)) }}
+            }
 
       # - name: Get all key vaults
       #   id: list-keyvaults
