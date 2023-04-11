@@ -31,36 +31,74 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: Get all key vaults
-        id: list-keyvaults
-        run: az keyvault list --query "[].{name:name}" --output json
-
       - name: List all certificates in key vaults
         id: list-certificates
         run: |
-          certs=""
-          for kv in $(jq -r '.[] | .name' <<< "${{ steps.list-keyvaults.outputs.stdout }}"); do
-            kv_certs=$(az keyvault certificate list --vault-name $kv --query "[].{name:name,expires:attributes.expires}" --output json)
-            certs="$certs$kv_certs"
-          done
-          echo "::set-output name=certificates::$certs"
+          certificates=$(az keyvault certificate list --vault-name $KEY_VAULT_NAME --resource-group $RESOURCE_GROUP_NAME --subscription $SUBSCRIPTION_ID --query '[].{id:id,name:name,expires:attributes.expires,expired:attributes.expires <= `'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'`}' -o json)
+          for certificate in $(echo "$certificates" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo ${certificate} | base64 --decode | jq -r ${1}
+            }
 
-      - name: Filter expiring certificates
-        id: filter-expiring-certificates
-        run: |
-          expiring_certs=$(jq -r '.[] | select((.expires - now | floor) / 86400 < 300) | .name' <<< "${{ steps.list-certificates.outputs.certificates }}")
-          if [ -n "$expiring_certs" ]; then
-            echo "::set-output name=certificates::$expiring_certs"
-          fi
+            certificate_id=$(_jq '.id')
+            certificate_name=$(_jq '.name')
+            certificate_expires=$(_jq '.expires')
+            certificate_expired=$(_jq '.expired')
 
-      - name: Notify on Slack
-        #if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          entryPoint: send
-          args: status=warning title='Expiring Certificates Alert' text='The following certificates in Azure Key Vaults are expiring within 30 days: \n' channel=#pagerduty-alert-dump icon_emoji=:warning:
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            if [[ $certificate_expired == "false" && $(date -u +%s -d "$certificate_expires") -lt $(( $(date -u +%s) + 2592000 )) ]]; then
+              echo "Certificate $certificate_name is expiring within 30 days on $certificate_expires"
+              
+              # Send Slack notification
+              env:
+                SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+              run: |
+                export status="warning"
+                export title="Expiring Certificates Alert"
+                export text="The following certificates in Azure Key Vaults are expiring within 30 days: \n\n- Certificate Name: $certificate_name\n  Expiry Date: $certificate_expires\n  Certificate ID: $certificate_id\n"
+                export channel="#pagerduty-alert-dump"
+                export icon_emoji=":warning:"
+                echo "::set-env name=status::$status"
+                echo "::set-env name=title::$title"
+                echo "::set-env name=text::$text"
+                echo "::set-env name=channel::$channel"
+                echo "::set-env name=icon_emoji::$icon_emoji"
+                echo "::set-output name=status::$status"
+                echo "::set-output name=title::$title"
+                echo "::set-output name=text::$text"
+                echo "::set-output name=channel::$channel"
+
+
+
+      # - name: Get all key vaults
+      #   id: list-keyvaults
+      #   run: az keyvault list --query "[].{name:name}" --output json
+
+      # - name: List all certificates in key vaults
+      #   id: list-certificates
+      #   run: |
+      #     certs=""
+      #     for kv in $(jq -r '.[] | .name' <<< "${{ steps.list-keyvaults.outputs.stdout }}"); do
+      #       kv_certs=$(az keyvault certificate list --vault-name $kv --query "[].{name:name,expires:attributes.expires}" --output json)
+      #       certs="$certs$kv_certs"
+      #     done
+      #     echo "::set-output name=certificates::$certs"
+
+      # - name: Filter expiring certificates
+      #   id: filter-expiring-certificates
+      #   run: |
+      #     expiring_certs=$(jq -r '.[] | select((.expires - now | floor) / 86400 < 300) | .name' <<< "${{ steps.list-certificates.outputs.certificates }}")
+      #     if [ -n "$expiring_certs" ]; then
+      #       echo "::set-output name=certificates::$expiring_certs"
+      #     fi
+
+      # - name: Notify on Slack
+      #   #if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   with:
+      #     entryPoint: send
+      #     args: status=warning title='Expiring Certificates Alert' text='The following certificates in Azure Key Vaults are expiring within 30 days: \n' channel=#pagerduty-alert-dump icon_emoji=:warning:
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
