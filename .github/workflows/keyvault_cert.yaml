@@ -57,11 +57,8 @@ jobs:
         #if: ${{ steps.filter-expiring-certificates.outputs.certificates }}
         uses: rtCamp/action-slack-notify@v2
         with:
-          status: 'warning'
-          title: 'Expiring Certificates Alert'
-          text: 'The following certificates in Azure Key Vaults are expiring within 30 days: \n${{ steps.filter-expiring-certificates.outputs.certificates }}'
-          channel: 'temp-alert-dump'
-          icon_emoji: ':warning:'
+          entryPoint: send
+          args: status=warning title='Expiring Certificates Alert' text='The following certificates in Azure Key Vaults are expiring within 30 days: \n' channel=#pagerduty-alert-dump icon_emoji=:warning:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
