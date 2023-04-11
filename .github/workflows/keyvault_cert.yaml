@@ -33,18 +33,22 @@ jobs:
 
       - name: List certificates
         run: |
-          # List certificates using Azure CLI
-          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json
-          cat certificates.json
+          az keyvault certificate list --vault-name <Your Key Vault Name> -o json > certificates.json
 
-      - name: Check certificate expiry
+      - name: Filter certificates expiring within 300 days
         run: |
-          certificates=$(cat certificates.json)
-          if [[ "$certificates" != "[]" ]]; then
-            curl -X POST -H 'Content-type: application/json' --data "{'text': 'Azure Key Vault Certificates Expiring in 30 Days:', 'attachments': $certificates}" ${{ secrets.SLACK_WEBHOOK_URL }}
+          jq --argjson threshold "$(date -u -d "+300 days" +%s)" '.[] | select((.attributes.expires | strptime("%Y-%m-%dT%H:%M:%S%Z") | mktime) <= $threshold)' certificates.json > expiring_certificates.json
+
+
+      - name: Send Slack notification
+        run: |
+          expiring_certificates=$(cat expiring_certificates.json)
+          if [[ "$expiring_certificates" != "[]" ]]; then
+            curl -X POST -H 'Content-type: application/json' --data "{'text': 'Azure Key Vault Certificates Expiring in 30 Days:', 'attachments': $expiring_certificates}" ${{ secrets.SLACK_WEBHOOK_URL }}
           else
-            echo "No certificates expiring within 30 days."
+            echo "No certificates expiring within 300 days."
           fi
+
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
