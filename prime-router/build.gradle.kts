@@ -30,7 +30,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.8.0"
-    id("org.flywaydb.flyway") version "8.5.13"
+    id("org.flywaydb.flyway") version "9.9.0"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.11.1"
@@ -562,6 +562,23 @@ flyway {
     url = dbUrl
     user = dbUser
     password = dbPassword
+    cleanDisabled = false
+    mixed = true
+    // theoretically this should work to set the property to false which will prevent the running of the scripts
+    // inside a transaction, but it does not work. leaving here as a note for now. if you want to address where
+    // it is actually working from, go to the gradle.properties file instead
+    pluginConfiguration = mutableMapOf(
+        "postgresqlTransactionalLock" to "false"
+    )
+}
+
+tasks.flywayMigrate {
+    // theoretically this should also work to set the property to false which will prevent the running of the scripts
+    // inside a transaction, but it does not work. leaving here as a note for now. if you want to address where
+    // it is actually working from, go to the gradle.properties file instead
+    pluginConfiguration = mutableMapOf(
+        "postgresqlTransactionalLock" to "false"
+    )
 }
 
 // Database code generation configuration
