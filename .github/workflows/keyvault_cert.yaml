@@ -34,13 +34,12 @@ jobs:
       - name: List certificates
         run: |
           # List certificates using Azure CLI
-          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '2024-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json
-          cat certificates.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '2024-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=300)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json
 
       - name: Send Slack notification
         run: |
           certificates=$(cat certificates.json)
-          curl -X POST -H 'Content-type: application/json' --data "{'text': 'Azure Key Vault Certificates Expiring in 30 Days:', 'attachments': $certificates}" ${{ secrets.SLACK_WEBHOOK_URL }}
+          curl -X POST -H 'Content-type: application/json' --data "{'text': 'Azure Key Vault Certificates Expiring in 300 Days:', 'attachments': $certificates}" ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
