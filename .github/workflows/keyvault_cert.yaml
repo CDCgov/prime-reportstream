@@ -46,9 +46,9 @@ jobs:
             certificate_expired=$(_jq '.expired')
           
 
-            if [[ $certificate_expired == "false" && $(date -u +%s -d "$certificate_expires") -lt $(( $(date -u +%s) + 2592000 )) ]]; then
-              echo "Certificate $certificate_name is expiring within 30 days on $certificate_expires"
-            if
+            if [[ $certificate_expired == "false" && $(date -u +%s -d "$certificate_expires") -lt $(( $(date -u +%s) + 25920000 )) ]]; then
+              echo "Certificate $certificate_name is expiring within 300 days on $certificate_expires"
+            
               
               # Send Slack notification
               env:
@@ -56,7 +56,7 @@ jobs:
               run: |
                 export status="warning"
                 export title="Expiring Certificates Alert"
-                export text="The following certificates in Azure Key Vaults are expiring within 30 days: \n\n- Certificate Name: $certificate_name\n  Expiry Date: $certificate_expires\n  Certificate ID: $certificate_id\n"
+                export text="The following certificates in Azure Key Vaults are expiring within 300 days: \n\n- Certificate Name: $certificate_name\n  Expiry Date: $certificate_expires\n  Certificate ID: $certificate_id\n"
                 export channel="#pagerduty-alert-dump"
                 export icon_emoji=":warning:"
                 echo "::set-env name=status::$status"
@@ -68,7 +68,7 @@ jobs:
                 echo "::set-output name=title::$title"
                 echo "::set-output name=text::$text"
                 echo "::set-output name=channel::$channel"
-          
+            fi
 
 
       # - name: Get all key vaults
