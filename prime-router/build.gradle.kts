@@ -122,7 +122,6 @@ compileKotlin.kotlinOptions.allWarningsAsErrors = true
 compileKotlin.kotlinOptions.useK2 = false
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
-compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     group = rootProject.description ?: ""
