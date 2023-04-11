@@ -30,13 +30,14 @@ export interface ButtonProps {
     unstyled?: boolean;
 }
 
-export interface IconButtonProps extends ButtonProps {}
+export type IconButtonProps = ButtonProps &
+    React.HTMLAttributes<HTMLButtonElement> & {};
 
 export const IconButton = ({
     children,
     className,
     ...props
-}: ButtonProps & JSX.IntrinsicElements["button"]): React.ReactElement => {
+}: IconButtonProps): React.ReactElement => {
     const classes = classnames("usa-icon-button", className);
     return (
         <Button {...props} className={classes}>

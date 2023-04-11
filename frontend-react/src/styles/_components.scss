@@ -108,30 +108,67 @@ hr {
     }
 }
 
-.code-snippet {
-    @include grid-row;
-    @include u-bg("base-lightest");
+@mixin text-highlight(
+    $text-color: "primary-vivid",
+    $background-color: "transparent"
+) {
+    @include u-text($text-color);
+    @include u-bg($background-color);
+}
+
+.text-highlight {
+    @include text-highlight;
+}
+
+.code_snippet {
+    @include text-highlight;
     @include u-font("mono", "xs");
     @include u-line-height("code", 4);
-    min-width: 250px;
-    min-height: 45px;
-    max-width: 100%;
+    @include u-text("primary-vivid");
+    border-radius: initial;
+    display: inline-flex;
+    padding: 0;
     justify-content: space-between;
     flex-wrap: nowrap;
     align-items: flex-start;
-    padding: 0px 0px 0px 12px;
-    border-radius: initial;
+    margin: 0;
+}
 
-    & .code-snippet--code {
-        @include grid-col("auto");
+.code_snippet--background {
+    @include text-highlight("black", "base-lightest");
+}
+
+.code_snippet--button {
+    @include button-unstyled;
+    @include grid-col("auto");
+    @include u-text("black");
+    margin: 0 0 0 12px;
+}
+
+.code_snippet--code {
+    @include grid-col("auto");
+}
+
+.code_snippet--block {
+    @include text-highlight("black", "base-lightest");
+    @include grid-row;
+    min-width: 250px;
+    min-height: 45px;
+    max-width: 100%;
+    padding: 0px 0px 0px 12px;
+    margin: revert;
+
+    & .code_snippet--code {
         padding: 18px 0px 18px 12px;
         white-space: nowrap;
         overflow-x: auto;
     }
 
-    & .code-snippet--button {
-        @include grid-col("auto");
+    & .code_snippet--button {
         padding: 18px 12px;
-        color: #000;
     }
+}
+
+.code_snippet--no_background {
+    @include text-highlight;
 }
