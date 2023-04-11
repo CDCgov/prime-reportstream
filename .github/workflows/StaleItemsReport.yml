@@ -36,7 +36,7 @@ jobs:
           token: ${{ secrets.SLACK_TOKEN }}
           path: stale_prs.txt
           channel: ${{ secrets.SLACK_CHANNEL }}
-          Title: 'Stale items report'
+          title: 'Stale items report'
 
 
 
