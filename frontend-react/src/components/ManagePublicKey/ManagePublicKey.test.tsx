@@ -59,7 +59,7 @@ describe("ManagePublicKey", () => {
             isSuccess: true,
             mutateAsync: (_) => {
                 return Promise.resolve({
-                    testOrg: "ignore",
+                    orgName: "ignore",
                     keys: [
                         {
                             scope: "ignore.*.report",
