@@ -34,11 +34,12 @@ jobs:
       - name: List certificates
         run: |
           az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
+          cat certificates.json
 
       - name: Filter certificates expiring within 300 days
         run: |
           jq --argjson threshold "$(date -u -d "+300 days" +%s)" '.[] | select((.attributes.expires | strptime("%Y-%m-%dT%H:%M:%S%Z") | mktime) <= $threshold)' certificates.json > expiring_certificates.json
-
+          cat expiring_certificates.json
 
       - name: Send Slack notification
         run: |
