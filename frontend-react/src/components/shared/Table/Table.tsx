@@ -12,6 +12,8 @@ export interface TableProps {
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
     striped?: boolean;
+    columnHeaders: string[];
+    rowData: string[][];
 }
 
 export const Table = ({
@@ -24,6 +26,8 @@ export const Table = ({
     sortable,
     stackedStyle,
     striped,
+    columnHeaders,
+    rowData,
 }: TableProps) => {
     const classes = classnames("usa-table", {
         "usa-table--borderless": borderless,
@@ -42,7 +46,24 @@ export const Table = ({
             })}
         >
             <table className={classes} data-testid="table">
-                {children}
+                <thead>
+                    <tr>
+                        {columnHeaders.map((header) => {
+                            return <td>{header}</td>;
+                        })}
+                    </tr>
+                </thead>
+                <tbody>
+                    {rowData.map((row) => {
+                        return (
+                            <tr>
+                                {row.map((data) => {
+                                    return <td>{data}</td>;
+                                })}
+                            </tr>
+                        );
+                    })}
+                </tbody>
             </table>
         </div>
     );
