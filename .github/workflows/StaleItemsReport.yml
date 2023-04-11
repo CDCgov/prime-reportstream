@@ -17,20 +17,27 @@ jobs:
           fetch-depth: 0
       - name: Get Stale branches
         id: StaleBranches
-        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
+        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> stale_branches.txt
         shell: bash
 
       - name: Get stale issues
         id: staleIssues
         shell: pwsh
-        run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> $GITHUB_OUTPUT
+        run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> stale_issues.txt
       
       - name: Get stale pull requests
         id: StalePRs
         shell: pwsh
-        run: echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+        run: echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.txt
           
-      
+      - name: Upload to slack step
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: stale_prs.txt
+          channel: ${{ secrets.SLACK_CHANNEL }}
+          Title: 'Stale items report'
+
 
 
     # - name: Notify Slack
