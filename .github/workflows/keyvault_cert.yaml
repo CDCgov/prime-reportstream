@@ -36,16 +36,14 @@ jobs:
           # List certificates using Azure CLI
           az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json
           cat certificates.json
-          
+
       - name: Send Slack notification
-        uses: slackapi/slack-webhook@v1
+        uses: slack/github-action@v3
         with:
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          data: |
-            {
-              "text": "Azure Key Vault Certificates Expiring in 30 Days:",
-              "attachments": ${{ toJSON(fromJSON(steps.list-certificates.outputs.stdout)) }}
-            }
+          status: success
+          text: "Azure Key Vault Certificates Expiring in 30 Days:"
+          fields: |
+            ${{ steps.list-certificates.outputs.stdout }}
 
       # - name: Get all key vaults
       #   id: list-keyvaults
