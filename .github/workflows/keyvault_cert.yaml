@@ -34,7 +34,7 @@ jobs:
       - name: List all certificates in key vaults
         id: list-certificates
         run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query '[].{id:id,name:name,expires:attributes.expires,expired:attributes.expires <= `'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'`}' -o json)
+          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query '[].{id:id,name:name,expires:attributes.expires,expired:attributes.expires <= `'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'`}' --output table)
       
       - name: Loop through certificates 
         run: |  
