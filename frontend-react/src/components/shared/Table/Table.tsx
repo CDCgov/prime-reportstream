@@ -1,6 +1,13 @@
 import classnames from "classnames";
+import sanitizeHtml from "sanitize-html";
 
 import styles from "./Table.module.scss";
+
+interface RowData {
+    columnKey: string;
+    content: string | HTMLElement;
+    modalContent?: string | HTMLElement;
+}
 
 export interface TableProps {
     borderless?: boolean;
@@ -12,8 +19,7 @@ export interface TableProps {
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
     striped?: boolean;
-    columnHeaders: string[];
-    rowData: string[][];
+    rowData: RowData[][];
 }
 
 export const Table = ({
@@ -26,7 +32,6 @@ export const Table = ({
     sortable,
     stackedStyle,
     striped,
-    columnHeaders,
     rowData,
 }: TableProps) => {
     const classes = classnames("usa-table", {
@@ -37,6 +42,10 @@ export const Table = ({
         "usa-table--stacked-header": stackedStyle === "headers",
         "usa-table--striped": striped,
     });
+
+    const columnHeaders = [
+        ...new Set(rowData.flat().map((data: RowData) => data.columnKey)),
+    ];
 
     return (
         <div
@@ -58,7 +67,15 @@ export const Table = ({
                         return (
                             <tr>
                                 {row.map((data) => {
-                                    return <td>{data}</td>;
+                                    return (
+                                        <td
+                                            dangerouslySetInnerHTML={{
+                                                __html: sanitizeHtml(
+                                                    data.content
+                                                ),
+                                            }}
+                                        />
+                                    );
                                 })}
                             </tr>
                         );
