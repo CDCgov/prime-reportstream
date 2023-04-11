@@ -33,7 +33,7 @@ jobs:
       - name: Upload to slack step
         uses: adrey/slack-file-upload-action@master
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SLACK_TOKEN }}
           path: stale_prs.txt
           channel: ${{ secrets.SLACK_CHANNEL }}
           Title: 'Stale items report'
