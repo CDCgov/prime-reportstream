@@ -44,6 +44,7 @@ jobs:
             certificate_name=$(_jq '.name')
             certificate_expires=$(_jq '.expires')
             certificate_expired=$(_jq '.expired')
+          done
 
             if [[ $certificate_expired == "false" && $(date -u +%s -d "$certificate_expires") -lt $(( $(date -u +%s) + 2592000 )) ]]; then
               echo "Certificate $certificate_name is expiring within 30 days on $certificate_expires"
