@@ -36,7 +36,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@c17275514dfdc215d6fc05b09b8c386ea78ba1ca
+      uses: EnricoMi/publish-unit-test-result-action@39ee91a16bb587a6c2b4791d4954cf5299736efd
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
