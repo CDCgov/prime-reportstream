@@ -36,11 +36,14 @@ jobs:
           az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
           cat certificates.json
 
-      - name: Filter certificates expiring within 300 days
+      - name: Filter certificates expiring within 30 days
         run: |
+          # Get the current date in UTC format
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
-          threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
-          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires | sub("\\.[0-9]+Z$"; "Z") <= $threshold_date and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") >= $current_date)' certificates.json)
+          # Calculate the date 30 days from now
+          threshold_date=$(date -u -d "+30 days" +"%Y-%m-%dT%H:%M:%S%Z")
+          # Filter certificates based on expiry date using jq, with error handling
+          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") <= $threshold_date and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") >= $current_date)' certificates.json || true)
 
     # - name: Send Slack notification
 
