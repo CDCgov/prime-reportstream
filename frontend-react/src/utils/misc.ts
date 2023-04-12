@@ -192,3 +192,19 @@ export function isReactNode(
 
     return false;
 }
+export function unflattenProps<O>(obj: O, keys: string[]) {
+    const newObj = {} as any;
+    for (const k in obj) {
+        const match = keys.find((ck) => k.startsWith(`${ck}__`));
+        if (match) {
+            if (!(newObj as any)[match]) {
+                (newObj as any)[match] = {};
+            }
+            (newObj as any)[match][k.substring(match.length + 2)] = obj[k];
+        } else {
+            (newObj as any)[k] = obj[k];
+        }
+    }
+
+    return newObj;
+}

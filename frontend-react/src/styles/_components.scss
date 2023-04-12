@@ -125,28 +125,37 @@ hr {
     @include u-font("mono", "xs");
     @include u-line-height("code", 4);
     @include u-text("primary-vivid");
-    border-radius: initial;
-    display: inline-flex;
-    padding: 0;
     justify-content: space-between;
+    display: inline-flex;
     flex-wrap: nowrap;
     align-items: flex-start;
+    border-radius: initial;
+    padding: 0;
     margin: 0;
+    white-space: nowrap;
+    min-width: 100px;
+    max-width: 50%;
 }
 
 .code_snippet--background {
     @include text-highlight("black", "base-lightest");
 }
 
-.code_snippet--button {
-    @include button-unstyled;
-    @include grid-col("auto");
-    @include u-text("black");
-    margin: 0 0 0 12px;
+.code_snippet--code {
+    @include grid-col("fill");
+    overflow-x: auto;
+    padding: 4px 6px;
 }
 
-.code_snippet--code {
+.code_snippet--button {
     @include grid-col("auto");
+    @include button-unstyled;
+    @include u-text("black");
+    padding: 4px 6px;
+
+    &:not([disabled]):focus {
+        outline-offset: -0.25rem;
+    }
 }
 
 .code_snippet--block {
@@ -155,15 +164,13 @@ hr {
     min-width: 250px;
     min-height: 45px;
     max-width: 100%;
-    padding: 0px 0px 0px 12px;
     margin: revert;
+    white-space: revert;
 
     & .code_snippet--code {
-        padding: 18px 0px 18px 12px;
-        white-space: nowrap;
+        padding: 18px 12px;
         overflow-x: auto;
     }
-
     & .code_snippet--button {
         padding: 18px 12px;
     }

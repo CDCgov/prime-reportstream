@@ -6,16 +6,6 @@ import { CodeSnippet } from "./CodeSnippet";
 export default {
     title: "components/CodeSnippet",
     component: CodeSnippet,
-    argTypes: {
-        children: {
-            type: "string",
-            defaultValue:
-                "openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem",
-        },
-        onButtonClick: {
-            defaultValue: undefined,
-        },
-    },
     args: {
         onButtonClick: undefined,
     },
@@ -23,10 +13,38 @@ export default {
 
 export const Default: ComponentStory<typeof CodeSnippet> = (args) => (
     <p>
-        Lorem ipsum <CodeSnippet {...args} />
+        The examples provided use the fake client-id{" "}
+        <CodeSnippet {...args}>healthy-labs</CodeSnippet>
+        that you will change for your submissions. The examples submit the
+        payload contained in the file{" "}
+        <CodeSnippet {...args}>./healthy-labs-nonPII-data.csv</CodeSnippet>
+        (or .hl7).
     </p>
 );
 
+const blockText = `{
+    "header": {
+        "kid": "healthy-labs.default",
+        "typ": "JWT",
+        "alg": "RS256"
+    },
+    "payload": {
+        "iss": "healthy-labs.default",
+        "sub": "healthy-labs.default",
+        "aud": "staging.prime.cdc.gov",
+        "exp": 1660737164,
+        "jti": "4b713fcd-2514-4207-b310-620b95b749c5"
+    }
+}`;
+
 export const Block: ComponentStory<typeof CodeSnippet> = (args) => (
-    <CodeSnippet {...args} isBlock={true} />
+    <p>
+        Block variant: <CodeSnippet {...args} />
+    </p>
 );
+
+Block.args = {
+    children: blockText,
+    highlightText: "healthy-labs",
+    isBlock: true,
+};

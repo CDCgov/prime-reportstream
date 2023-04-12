@@ -1,47 +1,44 @@
-import { Button } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
+import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
+import { IconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
 import classnames from "classnames";
+import React from "react";
 
-// Can't seem to import these directly from react-uswds? Copied here instead.
-export interface ButtonProps {
-    type: "button" | "submit" | "reset";
-    children: React.ReactNode;
-    secondary?: boolean;
-    base?: boolean;
-    /**
-     * @deprecated since 1.15.0, use accentStyle
-     */
-    accent?: boolean;
-    accentStyle?: "cool" | "warm";
-    outline?: boolean;
-    inverse?: boolean;
-    size?: "big";
-    /**
-     * @deprecated since 1.6.0, use size
-     */
-    big?: boolean;
-    /**
-     * @deprecated since 1.6.0, use size
-     */
-    small?: boolean;
-    /**
-     * @deprecated since 1.9.0
-     */
-    icon?: boolean;
-    unstyled?: boolean;
-}
+export type IconButtonProps = Omit<ButtonProps, "type" | "children"> &
+    React.HTMLAttributes<HTMLButtonElement> & {
+        type?: ButtonProps["type"];
+        iconProps: IconProps & {
+            icon: Exclude<keyof typeof Icon, "prototype">;
+        };
+    };
 
-export type IconButtonProps = ButtonProps &
-    React.HTMLAttributes<HTMLButtonElement> & {};
+// FUTURE_TODO: Investigate patching trussworks Button to accept forwardRef.
+/**
+ * An icon can be given either as a name of a valid icon in iconProps.icon or as a custom
+ * override via children.
+ */
+export const IconButton = React.forwardRef(
+    (
+        {
+            children,
+            iconProps: _iconProps,
+            className,
+            type = "button",
+            ...props
+        }: IconButtonProps,
+        ref: React.ForwardedRef<any>
+    ): React.ReactElement => {
+        const classes = classnames("usa-icon-button", className);
+        const { icon, ...iconProps } = _iconProps ?? {};
+        const IconComponent = Icon[icon];
 
-export const IconButton = ({
-    children,
-    className,
-    ...props
-}: IconButtonProps): React.ReactElement => {
-    const classes = classnames("usa-icon-button", className);
-    return (
-        <Button {...props} className={classes}>
-            {children}
-        </Button>
-    );
-};
+        return (
+            <div ref={ref}>
+                <Button type={type} {...props} className={classes}>
+                    <IconComponent {...iconProps} />
+                    {children}
+                </Button>
+            </div>
+        );
+    }
+);
