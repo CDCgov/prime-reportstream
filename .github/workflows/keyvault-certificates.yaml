@@ -37,6 +37,7 @@ jobs:
         run: |
           az keyvault certificate list --vault-name pdhprod-keyvault --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" -o json > certificates.json
           az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" -o json >> certificates.json
+          cat certificates.json
       
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -49,7 +50,7 @@ jobs:
         run: |
           certificates=$(cat filtered_certificates.json)
           payload='{
-            "text": "Certificates expiring in 400 days or less:\n\n'${certificates}'"
+            "text": "Certificates expiring in 400 days or less:\n\n'"${certificates}"'"
           }
           curl -X POST -H 'Content-type: application/json' --data "${payload}" ${{ secrets.SLACK_WEBHOOK_URL }}
 
