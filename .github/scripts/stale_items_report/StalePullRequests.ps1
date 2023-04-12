@@ -14,9 +14,23 @@ $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $Basic
 $json = $val | ConvertFrom-JSON
 $limit = [datetime]::Now.AddDays(-90)
 
-Write-Host ($val | ConvertTo-Json )
-# foreach($obj in $json)
-# {
+#Write-Host $val
+$root = @{ records = New-Object 'System.Collections.Generic.List[object]' }
+$data = [pscustomobject]@{
+    staleprs = @()
+}
+foreach($obj in $json)
+{
+    $data.staleprs += @{
+        pullrequest       = $obj.number
+        Title             = $obj.title
+        Url               = $obj.url
+        user              = $obj.user.login
+    }
+}
+$json1 = $data | ConvertTo-Json
+
+Write-Host $json1
 #     if($obj.lastupdated -lt $limit){
 #     Write-Host "Pull request: #" + $obj.number
 #     Write-Host "Title: " + $obj.title
