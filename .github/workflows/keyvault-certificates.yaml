@@ -31,37 +31,46 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List Key Vault Certificates
+      - name: List KeyVault Certificates in Prod & Staging
         id: cert_list
         run: |
-          # Get the current date in UTC format
-          current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
-          # Calculate the date 300 days from now
-          threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
-          # List certificates and filter based on expiry date using az CLI and JMESPath
-          expiring_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$threshold_date'].id")
-          # Print the filtered list of certificates
-          echo "$expiring_certificates"
-          # Set the environment variable for GitHub Actions output
-          echo "CERTIFICATES=$expiring_certificates" >> $GITHUB_ENV
-          
-      - name: Slack Notification
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Expiring Certificates
-          message: |
-            Expiring ${{ steps.cert_list.outputs.CERTIFICATES }}
-          icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
-          
+          az keyvault certificate list --vault-name pdhprod-keyvault --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" -o json > certificates.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" -o json >> certificates.json
+      
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Filter certificates
+        run: |
+          jq '[.[] | {Name: .Name, Expires: .Expires}]' certificates.json > filtered_certificates.json
+      
+      - name: Send Slack notification
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text": "Certificates expiring in 400 days or less:\n\n'"$(cat filtered_certificates.json)"'"}' ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
+
+
+
+
+
+
+      # - name: Slack Notification
+      #   uses: ./.github/actions/notifications
+      #   with:
+      #     method: slack
+      #     title: Expiring Certificates
+      #     message: |
+      #       certificates=$(az keyvault certificate list --vault-name $keyvault_name --query "[?attributes.expires <= '$(date -u -d '+300 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" -o json)
+      #       echo "$certificates"
+      #     icon-emoji: ':bell:'
+      #     channel: pagerduty-alert-dump
+      #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     color: warning
+          
 
 
       # webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
