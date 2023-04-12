@@ -36,10 +36,10 @@ jobs:
           az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
           cat certificates.json
 
-      - name: Filter certificates expiring within 30 days
+      - name: Filter certificates expiring within 300 days
         run: |
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
-          threshold_date=$(date -u -d "+30 days" +"%Y-%m-%dT%H:%M:%S%Z")
+          threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
           expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires <= $threshold_date and .attributes.expires >= $current_date)' certificates.json)
 
 
