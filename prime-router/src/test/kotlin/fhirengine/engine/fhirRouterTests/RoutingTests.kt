@@ -7,6 +7,8 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -260,10 +262,11 @@ class RoutingTests {
             engine.qualityFilterDefault,
             bundle,
             false
-        ).first
+        )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -663,9 +666,11 @@ class RoutingTests {
             filter,
             bundle,
             false
-        ).first
-        // act & assert
-        assertThat(result).isTrue()
+        )
+
+        // assert
+        assertThat(result.first).isTrue()
+        assertThat(result.second).isNull()
     }
 
     @Test
@@ -685,9 +690,11 @@ class RoutingTests {
             filter,
             bundle,
             false
-        ).first
-        // act & assert
-        assertThat(result).isTrue()
+        )
+
+        // assert
+        assertThat(result.first).isTrue()
+        assertThat(result.second).isNull()
     }
 
     @Test
@@ -707,9 +714,11 @@ class RoutingTests {
             filter,
             bundle,
             false
-        ).first
-        // act & assert
-        assertThat(result).isTrue()
+        )
+
+        // assert
+        assertThat(result.first).isTrue()
+        assertThat(result.second).isNull()
     }
 
     @Test
@@ -916,5 +925,96 @@ class RoutingTests {
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(report.filteringResults[0].message).contains("default filter")
+    }
+
+    @Test
+    fun `test tagging exceptions filter in logs`() {
+        // content is not important, just get a Bundle
+        val bundle = Bundle()
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // This processing mode filter evaluates to false, is equivalent to the default processindModeFilter
+        val nonBooleanFilter = listOf("'Non-Boolean Filter'")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+
+        val nonBooleanMsg = "Condition did not evaluate to a boolean type"
+        mockkObject(FhirPathUtils)
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+
+        // act
+        val result = engine.evaluateFilterAndLogResult(
+            nonBooleanFilter,
+            bundle,
+            report,
+            oneOrganization.receivers[0],
+            ReportStreamFilterType.PROCESSING_MODE_FILTER,
+            false,
+        )
+
+        assertThat(result).isFalse()
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(1)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(report.filteringResults[0].message).contains("exception found")
+
+        val result2 = engine.evaluateFilterCondition(
+            nonBooleanFilter,
+            bundle,
+            defaultResponse = false,
+            reverseFilter = false,
+            bundle,
+        )
+
+        assertThat(result2.first).isFalse()
+        assertThat(result2.second).isNotNull()
+        assertThat(result2.second!!).contains("exception found")
+    }
+
+    @Test
+    fun `test is default filter`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val nonDefaultEquivalentQualityFilter: List<String> = ArrayList(engine.qualityFilterDefault)
+        val nonDefaultEquivalentProcModeFilter: List<String> = ArrayList(engine.processingModeFilterDefault)
+        val nonDefaultQualityFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val nonDefaultProcModeFilter = listOf("%processingId = 'P'")
+        val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+
+        assertThat(engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, engine.qualityFilterDefault)).isTrue()
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.QUALITY_FILTER,
+                nonDefaultEquivalentQualityFilter
+            )
+        ).isFalse()
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.QUALITY_FILTER,
+                nonDefaultQualityFilter
+            )
+        ).isFalse()
+
+        assertThat(engine.isDefaultFilter(ReportStreamFilterType.ROUTING_FILTER, routingFilter)).isFalse()
+
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                engine.processingModeFilterDefault
+            )
+        ).isTrue()
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                nonDefaultEquivalentProcModeFilter
+            )
+        ).isFalse()
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                nonDefaultProcModeFilter
+            )
+        ).isFalse()
+
+        assertThat(engine.isDefaultFilter(ReportStreamFilterType.CONDITION_FILTER, conditionFilter)).isFalse()
     }
 }

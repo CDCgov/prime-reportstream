@@ -1,6 +1,6 @@
 # Summary
 
-When a report satisfies a receiver’s jurisdictional filter requirements, the report still need to satisfy other filters
+When a report satisfies a receiver’s jurisdictional filter requirements, the report still needs to satisfy other filters
 before it actually gets sent to that receiver. If any of those filters return negative results, logs summarizing the
 filtered report are saved to the submission history with a description of which filters resulted in the filtered items.
 Because there are a few different situations in which a report would be filtered out at this step, this document intends
@@ -15,6 +15,7 @@ filter, each of those predicates in the list must evaluate to true.
 
 ### Jurisdictional Filter
 
+This filter is typically used to restrict routing by jurisdiction, for instance by the patient's home state or county.
 Since the vast majority of reports are expected to be filtered out by jurisdictional filters, these are not recorded in
 the filtered report logs at all. The default behavior for jurisdictional filters is to allow none, so if a receiver does
 not have jurisdictional filters set, then the default response is false, and the reports are filtered out without being
@@ -22,11 +23,12 @@ logged.
 
 ### Quality Filter
 
+Quality filters tend to be used to require the data to meet some set of criteria for usefulness before it is received.
 When a quality filter filters out items, it is recorded in the filtered report logs. There is a default quality filter,
 so if a receiver does not have quality filters set, the following filters will be used by default:
 
 ```kotlin
-   /**
+/**
  * Default Rules:
  *   Must have message ID, patient last name, patient first name, DOB, specimen type
  *   At least one of patient street, patient zip code, patient phone number, patient email
@@ -52,19 +54,22 @@ val qualityFilterDefault: ReportStreamFilter = listOf(
 
 Additionally, quality filters can be reversed using the setting `reverseTheQualityFilter` on a receiver. When that
 property is set to `true`, anything that would normally pass the quality filter will be filtered out, and anything that
-would normally be filtered by the quality filter will be allowed through.
+would normally be filtered by the quality filter will be allowed through. In practice, this is usually used when an
+organization has two receivers for the jurisdiction; they can have one receiver use a quality filter to receive their
+"good" data, and they can set up a secondary receiver with the same quality filter reversed to receive everything else.
 
 ### Routing Filter
 
+Routing filters are used for any kind of routing filtering that doesn't necessarily fit well into the other categories.
 When a routing filter filters out items, it is recorded in the filtered report logs. The default behavior for the
 routing filter is to allow all, so if a receiver does not have routing filters set, then all reports at this stage will
 move on to the next filter without being logged.
 
 ### Processing Mode Filter
 
-When a processing mode filter filters out items, it is recorded in the filtered report logs. There is a default
-processing mode filter, so if a receiver does not have processing mode filters set, the following filters will be used
-by default:
+Processing mode filters typically restrict received data to be either test or production data. When a processing mode
+filter filters out items, it is recorded in the filtered report logs. There is a default processing mode filter, so if a
+receiver does not have processing mode filters set, the following filters will be used by default:
 
 ```kotlin
    /**
@@ -78,11 +83,12 @@ val processingModeFilterDefault: ReportStreamFilter = listOf(
 
 ### Condition Filter
 
-When a condition filter filters out items, it is recorded in the filtered report logs. The default behavior for the
-condition filter is to allow all, so if a receiver does not have condition filters set, then all reports at this stage
-will be allowed through without being logged. Additionally, if there are no observations in a report, no condition
-filters will be applied to that report, and it will be allowed through, so if the receiver does not want to receive
-reports without observations, those should be filtered by one of the other filters above.
+Condition filters are used to allow receivers to only receive results for particular medical conditions. When a
+condition filter filters out items, it is recorded in the filtered report logs. The default behavior for the condition
+filter is to allow all, so if a receiver does not have condition filters set, then all reports at this stage will be
+allowed through without being logged. Additionally, if there are no observations in a report, no condition filters will
+be applied to that report, and it will be allowed through, so if the receiver does not want to receive reports without
+observations, those should be filtered by one of the other filters above.
 
 ### Review
 
@@ -143,17 +149,21 @@ equivalently . The only way for this to yield a negative result is if each and e
 evaluate to true; therefore each of those predicates is relevant in logging why the filter yielded a negative result. So
 while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we
 include all predicates, and the resulting message might look like this:
-"For someOrg.someReceiver, filter (reversed) [A, B, C, D, E][] filtered out item someItemId"
+
+`For someOrg.someReceiver, filter (reversed) [A, B, C, D, E][] filtered out item someItemId`
+
 As it is today, the only filters that can be reversed are quality filters. If the default quality filter is reversed,
 the resulting message might look like this:
-"For someOrg.someReceiver, filter (default filter) (reversed) [A, B, C, D, E][] filtered out item someItemId"
+
+`For someOrg.someReceiver, filter (default filter) (reversed) [A, B, C, D, E][] filtered out item someItemId`
 
 ### Filtered Out w/ Default Response
 
 Currently only jurisdictional filters have default results that would filter out reports, and jurisdictional filter
 results are not logged. If that were to change, we would have to log that we filtered out an item, but without any
 filter to reference, so this case might have an entirely different format, or the message might look like:
-"For someOrg.someReceiver, filter default response[] filtered out item someItemId"
+
+`For someOrg.someReceiver, filter default response[] filtered out item someItemId`
 
 ## Future Considerations
 

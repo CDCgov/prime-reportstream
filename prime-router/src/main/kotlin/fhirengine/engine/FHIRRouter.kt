@@ -427,18 +427,24 @@ class FHIRRouter(
         )
         if (!passes) {
             val filterToLog = "${
-            if ((filterType == ReportStreamFilterType.QUALITY_FILTER && filters === qualityFilterDefault) ||
-                (
-                    filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER &&
-                        filters === processingModeFilterDefault
-                    )
-            )
-                "(default filter) "
+            if (isDefaultFilter(filterType, filters)) "(default filter) "
             else ""
             }${failingFilterName ?: "unknown"}"
             logFilterResults(filterToLog, bundle, report, receiver, filterType)
         }
         return passes
+    }
+
+    /**
+     * With a given [filterType], returns whether or not [filter] is the default filter for that type. If [filter] is
+     * an equivalent filter to the default, but does not point to the actual default, this function will still return
+     * false.
+     */
+    internal fun isDefaultFilter(filterType: ReportStreamFilterType, filter: ReportStreamFilter): Boolean {
+        // The usage of === (referential equality operator) below is intentional and necessary; we only want to
+        // return true if the filter references the default filter, not if it happens to be equivalent to the default
+        return (filterType == ReportStreamFilterType.QUALITY_FILTER && filter === qualityFilterDefault) ||
+            (filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER && filter === processingModeFilterDefault)
     }
 
     /**
