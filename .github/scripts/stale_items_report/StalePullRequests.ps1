@@ -13,7 +13,8 @@ $BasicCreds = Get-BasicAuthCreds -Username "SupriyaAddagada" -Password ${ secret
 $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $BasicCreds"}
 $json = $val | ConvertFrom-JSON
 $limit = [datetime]::Now.AddDays(-90)
-write-host $val
+
+Write-Host ($val | ConvertTo-Json )
 # foreach($obj in $json)
 # {
 #     if($obj.lastupdated -lt $limit){
