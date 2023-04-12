@@ -41,6 +41,7 @@ jobs:
           inlineScript: |
             $stalePRs = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
             echo ::set-output name=StalePRs::$( $stalePRs)
+            Write-Output "StalePRs=$($stalePRs)" >> $Env:GITHUB_OUTPUT
           azPSVersion : '3.1.0'
       
       - name: Stale PRs
@@ -49,14 +50,14 @@ jobs:
           echo ${{ steps.GetStalePRS.outputs.StalePRs}} >> stale_prs.json
           cat stale_prs.json
 
-      - uses: MeilCli/slack-upload-file@v3
-        id: message
-        with:
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: 'C04UBN6R9EF'
-          file_path: 'stale_prs.json'
-          initial_comment: 'Stale Items report'
-      - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
+      # - uses: MeilCli/slack-upload-file@v3
+      #   id: message
+      #   with:
+      #     slack_token: ${{ secrets.SLACK_TOKEN }}
+      #     channel_id: 'C04UBN6R9EF'
+      #     file_path: 'stale_prs.json'
+      #     initial_comment: 'Stale Items report'
+      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
       # - name: Stale Items report
       #   id: slack
