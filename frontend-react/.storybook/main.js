@@ -8,6 +8,16 @@ module.exports = {
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
         "@storybook/addon-a11y",
+        {
+            name: "@storybook/preset-scss",
+            options: {
+                sassLoaderOptions: {
+                    sassOptions: {
+                        includePaths: ["./node_modules/@uswds/uswds/packages"],
+                    },
+                },
+            },
+        },
     ],
     framework: "@storybook/react",
     core: {

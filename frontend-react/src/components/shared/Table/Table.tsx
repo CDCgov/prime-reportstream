@@ -5,6 +5,8 @@ import { Icon } from "@trussworks/react-uswds";
 
 import { convertStringToSortableRepresentation } from "../../../utils/misc";
 
+import styles from "./Table.module.scss";
+
 const FilterOptionsEnum = {
     NONE: "none",
     ASC: "asc",
@@ -175,8 +177,9 @@ export const Table = ({
 
     return (
         <div
+            className={styles.reportstreamTable}
             {...(scrollable && {
-                className: "usa-table-container--scrollable",
+                className: `usa-table-container--scrollable ${styles.reportstreamTable}`,
                 tabIndex: 0,
             })}
         >
@@ -191,7 +194,7 @@ export const Table = ({
                         <thead>
                             <tr>
                                 {columnHeaders.map((header) => {
-                                    return <td>{header}</td>;
+                                    return <th>{header}</th>;
                                 })}
                             </tr>
                         </thead>
