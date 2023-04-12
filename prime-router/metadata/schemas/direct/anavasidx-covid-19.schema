@@ -11,4 +11,4 @@ elements:
     default: AnavasiDx
 
   - name: processing_mode_code
-    default: T
+    default: P
