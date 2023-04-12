@@ -32,11 +32,18 @@ jobs:
           echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
           cat stale_prs.json
 
+      - name: Stale items report
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.SLACK_TOKEN }}
+          path: stale_prs.json
+          channel: ${{ secrets.SLACK_CHANNEL }}
+
       # - uses: MeilCli/slack-upload-file@v3
       #   id: message
       #   with:
       #     slack_token: ${{ secrets.SLACK_TOKEN }}
-      #     channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+      #     channel_id: ${{ secrets.SLACK_CHANNEL }}
       #     file_path: 'stale_prs.txt'
       #     initial_comment: 'post by slack-upload-file'
       # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
@@ -49,18 +56,18 @@ jobs:
       #   env:
       #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Upload JSON file
-        uses: actions/upload-artifact@v2
-        with:
-          name: data
-          path: stale_prs.json
+      # - name: Upload JSON file
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: data
+      #     path: stale_prs.json
 
-      - name: Send Slack notification
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          status: ${{ job.status }}
-          text: 'A new JSON file has been generated and attached.'
-          title: 'JSON File Notification'
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # - name: Send Slack notification
+      #   uses: rtCamp/action-slack-notify@v2
+      #   with:
+      #     status: ${{ job.status }}
+      #     text: 'A new JSON file has been generated and attached.'
+      #     title: 'JSON File Notification'
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
      
