@@ -40,10 +40,15 @@ jobs:
       #     initial_comment: 'post by slack-upload-file'
       # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
-      - name: Stale Items report
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload-file-path: "stale_prs.json"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # - name: Stale Items report
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v1.23.0
+      #   with:
+      #     payload-file-path: "stale_prs.json"
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send Slack notification
+        run: |
+          staleitems_report=$(cat stale_prs.json)
+          curl -X POST -H 'Content-type: application/json' --data "{'text': 'Stale Items Report:', 'attachments': $staleitems_report}" ${{ secrets.SLACK_WEBHOOK_URL }}
+         
