@@ -16,6 +16,7 @@ import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
 import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
 import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
+import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -194,7 +195,9 @@ export default function FileHandler() {
                         }
                     })()}
                 </div>
-
+                {StepComponent !== FileHandlerSuccessStep && (
+                    <FileHandlerProgrammersGuideTip />
+                )}
                 <p>
                     Question or feedback? Please email{" "}
                     <USExtLink href={`mailto: ${site.orgs.RS.email}`}>

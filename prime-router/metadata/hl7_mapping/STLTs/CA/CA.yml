@@ -149,3 +149,15 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
     condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
     schema: 'ca-patient-note'
+
+
+  # PID-3-4 Max length: 20
+  - name: patient-assigning-authority
+    value: [ '%patientOrganization.name.substring(0,20)' ]
+
+  - name: ca-patient
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ca-patient
