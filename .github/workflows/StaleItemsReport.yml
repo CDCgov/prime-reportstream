@@ -29,7 +29,7 @@ jobs:
         id: StalePRs
         shell: pwsh
         run: |
-          echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.txt
+          echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
       
       # - uses: MeilCli/slack-upload-file@v3
       #   id: message
@@ -44,6 +44,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          payload-file-path: "./stale_prs.txt"
+          payload-file-path: "./stale_prs.json"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
