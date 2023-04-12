@@ -51,7 +51,7 @@ jobs:
         with:
           method: slack
           title: Expiring Certificates
-          message: Expiring Certificates ${{ steps.Cert_list.outputs.CERTIFICATES }}
+          message: Expiring Certificates
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
