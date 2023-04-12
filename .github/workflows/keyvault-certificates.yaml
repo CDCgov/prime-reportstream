@@ -33,7 +33,7 @@ jobs:
 
       - name: List certificates
         run: |
-          az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault --output Table > certificates.json
           cat certificates.json
 
       - name: Filter certificates expiring within 30 days
