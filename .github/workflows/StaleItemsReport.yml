@@ -36,7 +36,7 @@ jobs:
       - name: Get stale pull requests
         id: GetStalePRS
         run: |
-           $PullRequests=echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" 
+           echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >>$GITHUB_ENV
            echo ::set-output name=StalePRs:: $PullRequests
            echo $StalePRs=$PullRequests
         env:
@@ -47,7 +47,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo   ${{ steps.GetStalePRS.outputs.StalePRs }} >> stale_prs.json
+          echo   ${{ env.PullRequests }} >> stale_prs.json
           cat stale_prs.json
 
       # - uses: MeilCli/slack-upload-file@v3
