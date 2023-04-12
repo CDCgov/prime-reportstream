@@ -39,10 +39,10 @@ jobs:
           # Calculate the date 300 days from now
           threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
           # List certificates and filter based on expiry date using az CLI and JMESPath
-          expiring_certificates=$(az keyvault certificate list --vault-name <your-vault-name> --query "[?attributes.expires <= '$threshold_date'].id")
+          expiring_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$threshold_date'].id")
           # Print the filtered list of certificates
           echo "$expiring_certificates"
-          
+
       - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
@@ -58,7 +58,6 @@ jobs:
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
-          az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
 
