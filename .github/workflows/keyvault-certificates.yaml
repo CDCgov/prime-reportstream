@@ -51,10 +51,9 @@ jobs:
         with:
           method: slack
           title: Expiring Certificates
-          message: |
-            certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json)
+          message: Expiring Certificates ${{ steps.Cert_list.outputs.CERTIFICATES }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
           
