@@ -25,14 +25,30 @@ jobs:
         shell: pwsh
         run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> stale_issues.txt
       
-      - name: Get stale pull requests
-        id: StalePRs
-        shell: pwsh
+      # - name: Get stale pull requests
+      #   id: StalePRs
+      #   shell: pwsh
+      #   run: |
+      #     echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
+      #     cat stale_prs.json
+
+      - name:  Get stale pull requests
+        uses: azure/powershell@v1
+        id: GetStalePRS
+        env:
+          POWERSHELL_TELEMETRY_OPTOUT: 1
+        with:
+          inlineScript: |
+            $stalePRs = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+            echo ::set-output name=StalePRs::$( $stalePRs)
+          azPSVersion : '3.1.0'
+      
+      - name: Stale PRs
+        id: pullrequests
         run: |
-          echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
+          echo "Pull Requests= ${{ steps.GetStalePRS.outputs.StalePRs}}" >> stale_prs.json
           cat stale_prs.json
 
-      
       - uses: MeilCli/slack-upload-file@v3
         id: message
         with:
