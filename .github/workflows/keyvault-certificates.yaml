@@ -30,13 +30,16 @@ jobs:
         with:
           inlineScript: |
             az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
-            az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List keyvault Certificates
-        id: Cert_list
+      - name: List certificates
         run: |
-          echo "CERTIFICATES=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" -o json)" >> $GITHUB_OUTPUT
-        shell: bash
+          az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
+
+      - name: Filter certificates expiring within 30 days
+        run: |
+          current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
+          threshold_date=$(date -u -d "+30 days" +"%Y-%m-%dT%H:%M:%S%Z")
+          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires <= $threshold_date and .attributes.expires >= $current_date)' certificates.json)
 
 
       - name: Slack Notification
@@ -56,6 +59,7 @@ jobs:
         run: |
           az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
+
 
 
       # webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
