@@ -48,12 +48,17 @@ jobs:
           jq '[.[] | {Name: .Name, Expires: .Expires}]' certificates.json > filtered_certificates.json
           cat filtered_certificates.json
       
-      - name: Send Slack notification
-        run: |
-          certificates=$(cat filtered_certificates.json)
-          message="{\"text\":\"Certificates expiring in 400 days or less:\n\n${certificates}\"}"
-          curl -X POST -H 'Content-type: application/json' \
-          -d "{\"text\":\"cat filtered_certificates.json"}" ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
+        with:
+          method: slack
+          title: Stale Branch Counts
+          message: |
+            Expiring_certificates ${{ cat certificates.json }}
+          icon-emoji: ':bell:'
+          channel: temp_branch_dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
