@@ -30,6 +30,7 @@ jobs:
         with:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+            az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
       - name: List KeyVault Certificates in Prod & Staging
         id: cert_list
