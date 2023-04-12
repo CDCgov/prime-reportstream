@@ -29,17 +29,19 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
-            az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+            az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
       - name: List certificates
         run: |
           az keyvault certificate list --vault-name pdhstaging-keyvault -o json > certificates.json
+          cat certificates.json
 
       - name: Filter certificates expiring within 30 days
         run: |
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
           threshold_date=$(date -u -d "+30 days" +"%Y-%m-%dT%H:%M:%S%Z")
           expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires <= $threshold_date and .attributes.expires >= $current_date)' certificates.json)
+
 
 
       - name: Slack Notification
