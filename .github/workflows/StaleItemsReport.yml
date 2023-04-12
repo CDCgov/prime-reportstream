@@ -36,7 +36,7 @@ jobs:
       - name: Get stale pull requests
         id: GetStalePRS
         run: |
-           $stalePullRequests = "$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
+           $stalePullRequests = echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
            echo ::set-output name=StalePRs:: $stalePullRequests
            echo $stalePRs>> $stalePullRequests
         env:
