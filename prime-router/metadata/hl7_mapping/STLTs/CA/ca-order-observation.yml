@@ -9,7 +9,11 @@ elements:
     resourceIndex: resultIndex
 
   - name: ca-order-segment
+    condition: '%service.extension(%`rsext-order-control`).exists()'
     schema: ca-order
+
+  - name: ca-observation-request
+    schema: ca-observation-request
 
   - name: ca-specimen
     schema: ca-specimen

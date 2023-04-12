@@ -152,3 +152,15 @@ elements:
   - name: observation-note
     condition: false
 
+
+
+  # PID-3-4 Max length: 20
+  - name: patient-assigning-authority
+    value: [ '%patientOrganization.name.substring(0,20)' ]
+
+  - name: ca-patient
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ca-patient
