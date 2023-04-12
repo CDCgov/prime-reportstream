@@ -25,29 +25,28 @@ jobs:
         shell: pwsh
         run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> stale_issues.txt
       
-      # - name: Get stale pull requests
-      #   id: StalePRs
-      #   shell: pwsh
-      #   run: |
-      #     echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
-      #     cat stale_prs.json
-
-      
       - name: Get stale pull requests
-        id: GetStalePRS
-        run: |
-           echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >>$GITHUB_ENV
-           echo ::set-output name=StalePRs:: $PullRequests
-           echo $StalePRs=$PullRequests
-        env:
-          PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
+        id: StalePRs
         shell: pwsh
-        continue-on-error: true
+        run: |
+          echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+          
+      
+      # - name: Get stale pull requests
+      #   id: GetStalePRS
+      #   run: |
+      #      echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+      #      echo ::set-output name=StalePRs:: $PullRequests
+      #      echo $StalePRs=$PullRequests
+      #   env:
+      #     PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
+      #   shell: pwsh
+      #   continue-on-error: true
 
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo   ${{ env.PullRequests }} >> stale_prs.json
+          echo   ${{ steps.StalePRs.outputs.PullRequests }} >> stale_prs.json
           cat stale_prs.json
 
       # - uses: MeilCli/slack-upload-file@v3
