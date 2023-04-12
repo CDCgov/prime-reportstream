@@ -32,7 +32,7 @@ jobs:
           echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
           
       - name: Get stale prs
-        id: PullRequests
+        id: StalePRItems
         shell: pwsh
         run: echo "::set-output name=test::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
         
@@ -50,7 +50,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo  ${{ steps.PullRequests.outputs.test }} 
+          echo  ${{ steps.StalePRItems.outputs.test }} 
       
 
       # - uses: MeilCli/slack-upload-file@v3
