@@ -12,6 +12,11 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
 
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az extension add --name keyvault
+
       - name: Get Runner IP
         run: echo "::set-output name=runner_ip::$(curl https://ifconfig.me)"
         id: runner_ip
@@ -31,27 +36,26 @@ jobs:
           inlineScript: |
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List certificates
-        run: |
-          certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json)
-          cat certificates.json
-
-      - name: Filter certificates expiring within 30 days
+      - name: List Key Vault Certificates
+        id: cert_list
         run: |
           # Get the current date in UTC format
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
-          # Calculate the date 30 days from now
+          # Calculate the date 300 days from now
           threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
-          # Filter certificates based on expiry date using jq, with error handling
-          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes and (.attributes.expires | sub("\\.[0-9]+Z$"; "Z")) <= $threshold_date and (.attributes.expires | sub("\\.[0-9]+Z$"; "Z")) >= $current_date)' certificates.json || true)
-
+          # List certificates and filter based on expiry date using az CLI and JMESPath
+          expiring_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault--query "[?attributes.expires <= '$threshold_date']")
+          # Store the list in a GitHub Actions output
+          echo "::set-output name=expiring_certificates::$expiring_certificates"
+          echo "CERTIFICATES=$(az keyvault certificate list --vault-name pdhstaging-keyvault--query "[?attributes.expires <= '$threshold_date']")" >> $GITHUB_OUTPUT
 
       - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
           method: slack
           title: Expiring Certificates
-          message: ${{ cat certificates.json }}
+          message: |
+            Expiring ${{ steps.cert_list.outputs.CERTIFICATES }}
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
