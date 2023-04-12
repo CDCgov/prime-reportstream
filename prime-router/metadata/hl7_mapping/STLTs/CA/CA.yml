@@ -143,3 +143,12 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
+
+  # California requirement: move order notes and observation notes to last observation
+  # suppressing default mapping for notes
+  - name: order-note
+    condition: false
+
+  - name: observation-note
+    condition: false
+
