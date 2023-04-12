@@ -32,27 +32,35 @@ jobs:
             az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: Send slack notification
+      - name: List keyvault Certificates
+        id: Cert_list
+        run: |
+          echo "CERTIFICATES=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)" >> $GITHUB_OUTPUT
+
+
+      - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
-          title: Expiring keyVault Certificates
-          message: Azure Key Vault Certificates Expiring in 30 Days
-          channel: pagerduty-alert-dump
+          method: slack
+          title: Expiring Certificates
+          message: |
+            Expiring Certificates ${{ steps.Cert_list.outputs.CERTIFICATES }}
+          icon-emoji: ':bell:'
+          channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
           
-
-      # - name: List keyvault Certificates & send slack notice
-      #   run: |
-      #     webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-      #     messageprod=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-      #     messagestg=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-      #     payloadprod="{\"text\":\"${messageprod}\"}"
-      #     payloadstg="{\"text\":\"${messagestg}\"}"
-      #     curl -X POST -H "Content-Type: application/json" -d "${payloadprod}" ${webhook_url}
-      #     curl -X POST -H "Content-Type: application/json" -d "${payloadstg}" ${webhook_url}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
           az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
 
+
+      # webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+      # messageprod=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+      # messagestg=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+      # payloadprod="{\"text\":\"${messageprod}\"}"
+      # payloadstg="{\"text\":\"${messagestg}\"}"
+      # curl -X POST -H "Content-Type: application/json" -d "${payloadprod}" ${webhook_url}
+      # curl -X POST -H "Content-Type: application/json" -d "${payloadstg}" ${webhook_url}
