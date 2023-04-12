@@ -38,9 +38,9 @@ jobs:
         run: |
            echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >>$stalePullRequests
            echo ::set-output name=StalePRs:: $stalePullRequests
-           echo $stalePRs>> $stalePullRequests
         env:
           PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
+        shell: pwsh
         continue-on-error: true
 
       - name: Stale PRs
