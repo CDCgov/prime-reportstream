@@ -54,7 +54,9 @@ jobs:
           method: slack
           title: Stale Branch Counts
           message: |
-            cat filtered_certificates.json
+            az keyvault certificate list --vault-name pdhstaging-keyvault \
+            --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
+            -o json
           icon-emoji: ':bell:'
           channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
