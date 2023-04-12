@@ -40,21 +40,22 @@ jobs:
         run: |
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
           threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
-          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires <= $threshold_date and .attributes.expires >= $current_date)' certificates.json)
+          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes.expires | sub("\\.[0-9]+Z$"; "Z") <= $threshold_date and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") >= $current_date)' certificates.json)
+
+    # - name: Send Slack notification
 
 
-
-      - name: Slack Notification
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Expiring Certificates
-          message: |
-            Expiring Certificates ${{ steps.Cert_list.outputs.CERTIFICATES }}
-          icon-emoji: ':bell:'
-          channel: temp_branch_dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
+    #   - name: Slack Notification
+    #     uses: ./.github/actions/notifications
+    #     with:
+    #       method: slack
+    #       title: Expiring Certificates
+    #       message: |
+    #         Expiring Certificates ${{ steps.Cert_list.outputs.CERTIFICATES }}
+    #       icon-emoji: ':bell:'
+    #       channel: temp_branch_dump
+    #       webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #       color: warning
           
 
       - name: Remove Runner IP to Key Vault Firewall
