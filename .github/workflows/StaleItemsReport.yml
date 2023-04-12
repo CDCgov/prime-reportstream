@@ -30,7 +30,8 @@ jobs:
         shell: pwsh
         run: |
           echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
-      
+          cat stale_prs.json
+          
       # - uses: MeilCli/slack-upload-file@v3
       #   id: message
       #   with:
