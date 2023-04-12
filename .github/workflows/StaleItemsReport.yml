@@ -56,7 +56,7 @@ jobs:
           path: stale_prs.json
 
       - name: Send Slack notification
-        uses: rtCamp/github-action-slack-notify@v3
+        uses: rtCamp/action-slack-notify@v2
         with:
           status: ${{ job.status }}
           text: 'A new JSON file has been generated and attached.'
