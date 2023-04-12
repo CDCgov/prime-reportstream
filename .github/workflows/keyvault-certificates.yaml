@@ -49,7 +49,13 @@ jobs:
       
       - name: Send Slack notification
         run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text": "Certificates expiring in 300 days or less are"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+          certificates=$(cat filtered_certificates.json)
+          payload='{
+            "text": "Certificates expiring in 400 days or less:\n\n'"${certificates}"'"
+          }
+          echo "${payload}" > slack_payload.json
+          cat slack_payload.json
+          curl -X POST -H 'Content-type: application/json' --data @slack_payload.json ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
