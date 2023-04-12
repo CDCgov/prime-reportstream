@@ -31,29 +31,19 @@ jobs:
         run: |
           echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.txt
       
-      - uses: MeilCli/slack-upload-file@v3
-        id: message
+      # - uses: MeilCli/slack-upload-file@v3
+      #   id: message
+      #   with:
+      #     slack_token: ${{ secrets.SLACK_TOKEN }}
+      #     channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+      #     file_path: 'stale_prs.txt'
+      #     initial_comment: 'post by slack-upload-file'
+      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
+
+      - name: Stale Items report
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
         with:
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
-          file_path: 'stale_prs.txt'
-          initial_comment: 'post by slack-upload-file'
-      - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
-
-      # - name: Upload to slack step
-      #   uses: adrey/slack-file-upload-action@master
-      #   with:
-      #     token: ${{ secrets.SLACK_TOKEN }}
-      #     path: stale_prs.txt
-      #     channel: ${{ secrets.SLACK_CHANNEL }}
-      #     title: 'Stale items report'
-
-      # - name: Upload to slack step
-      #    uses: slackapi/slack-github-action@v1.23.0
-      #   with:
-      #     url: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #     data: |
-      #       {
-      #         "text": "Stale Items Report:",
-      #         "attachments": ${{ toJSON(fromJSON(steps.StalePRs.outputs.stdout)) }}
-      #       }
+          payload-file-path: "./stale_prs.txt"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
