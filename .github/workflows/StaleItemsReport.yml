@@ -42,6 +42,7 @@ jobs:
             $stalePRs = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
             echo ::set-output name=StalePRs::$( $stalePRs)
             Write-Output "StalePRs=$($stalePRs)" >> $Env:GITHUB_OUTPUT
+            Write-Output "::set-env name=StalePRs::$stalePRs"
           azPSVersion : '3.1.0'
       
       - name: Stale PRs
