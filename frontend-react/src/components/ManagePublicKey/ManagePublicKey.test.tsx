@@ -103,95 +103,61 @@ describe("ManagePublicKey", () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        jest.resetAllMocks();
     });
 
-    describe("by default", () => {
-        describe("when the sender options are loading", () => {
-            beforeEach(() => {
-                mockUseOrganizationSenders({ isLoading: true });
+    describe("when the sender options are loading", () => {
+        beforeEach(() => {
+            mockUseOrganizationSenders({ isLoading: true });
 
-                renderApp(<ManagePublicKey />);
-            });
-
-            test("renders a spinner", () => {
-                expect(
-                    screen.getByLabelText("loading-indicator")
-                ).toBeVisible();
-            });
+            renderApp(<ManagePublicKey />);
         });
 
-        describe("when the sender options have been loaded", () => {
-            describe("and Organizations have more than one sender", () => {
-                beforeEach(() => {
-                    mockUseOrganizationSenders({
-                        isLoading: false,
-                        senders: DEFAULT_SENDERS,
-                    });
+        test("renders a spinner", () => {
+            expect(screen.getByLabelText("loading-indicator")).toBeVisible();
+        });
+    });
 
-                    renderApp(<ManagePublicKey />);
-                });
-
-                test("renders the sender options", () => {
-                    expect(screen.getByText(/Manage public key/)).toBeVisible();
-                    expect(
-                        screen.getByTestId("ManagePublicKeyChooseSender")
-                    ).toBeVisible();
-                    expect(
-                        screen.queryByTestId("file-input-input")
-                    ).not.toBeInTheDocument();
-                });
+    describe("when the Organization has more than one Sender", () => {
+        beforeEach(() => {
+            mockUseOrganizationSenders({
+                isLoading: false,
+                senders: DEFAULT_SENDERS,
             });
 
-            describe("and the sender is selected", () => {
-                beforeEach(() => {
-                    mockUseOrganizationSenders({
-                        isLoading: false,
-                        senders: DEFAULT_SENDERS,
-                    });
-
-                    renderApp(<ManagePublicKey />);
-                });
-
-                test("renders ManagePublicKeyUpload", async () => {
-                    const submit = await screen.findByRole("button");
-                    expect(submit).toHaveAttribute("type", "submit");
-                    expect(submit).toBeDisabled();
-
-                    const selectSender = screen.getByRole("combobox");
-                    expect(selectSender).toBeInTheDocument();
-                    expect(selectSender).toHaveValue("");
-                    fireEvent.change(selectSender, {
-                        target: { value: "elr-1" },
-                    });
-
-                    expect(selectSender).toHaveValue("elr-1");
-
-                    expect(submit).toBeEnabled();
-                    fireEvent.submit(screen.getByTestId("form"));
-
-                    expect(
-                        screen.queryByTestId("ManagePublicKeyChooseSender")
-                    ).not.toBeInTheDocument();
-                    expect(
-                        screen.getByTestId("file-input-input")
-                    ).toBeVisible();
-                });
-            });
+            renderApp(<ManagePublicKey />);
         });
 
-        describe("when the Organization has one sender", () => {
-            beforeEach(() => {
-                mockUseOrganizationSenders({
-                    isLoading: false,
-                    senders: DEFAULT_SENDERS.splice(0, 1),
+        test("renders the sender options", () => {
+            expect(screen.getByText(/Manage public key/)).toBeVisible();
+            expect(
+                screen.getByTestId("ManagePublicKeyChooseSender")
+            ).toBeVisible();
+            expect(
+                screen.queryByTestId("file-input-input")
+            ).not.toBeInTheDocument();
+        });
+
+        describe("when the Sender is selected", () => {
+            beforeEach(async () => {
+                const submit = await screen.findByRole("button");
+                expect(submit).toHaveAttribute("type", "submit");
+                expect(submit).toBeDisabled();
+
+                const selectSender = screen.getByRole("combobox");
+                expect(selectSender).toBeInTheDocument();
+                expect(selectSender).toHaveValue("");
+                fireEvent.change(selectSender, {
+                    target: { value: "elr-1" },
                 });
 
-                renderApp(<ManagePublicKey />);
+                expect(selectSender).toHaveValue("elr-1");
+
+                expect(submit).toBeEnabled();
+                fireEvent.submit(screen.getByTestId("form"));
             });
 
-            test("renders ManagePublicKeyUpload", () => {
-                expect(screen.getByText(/Manage public key/)).toBeVisible();
+            test("renders ManagePublicKeyUpload", async () => {
                 expect(
                     screen.queryByTestId("ManagePublicKeyChooseSender")
                 ).not.toBeInTheDocument();
@@ -200,11 +166,30 @@ describe("ManagePublicKey", () => {
         });
     });
 
+    describe("when the Organization has one sender", () => {
+        beforeEach(() => {
+            mockUseOrganizationSenders({
+                isLoading: false,
+                senders: DEFAULT_SENDERS.slice(0, 1),
+            });
+
+            renderApp(<ManagePublicKey />);
+        });
+
+        test("renders ManagePublicKeyUpload", () => {
+            expect(screen.getByText(/Manage public key/)).toBeVisible();
+            expect(
+                screen.queryByTestId("ManagePublicKeyChooseSender")
+            ).not.toBeInTheDocument();
+            expect(screen.getByTestId("file-input-input")).toBeVisible();
+        });
+    });
+
     describe("when the senders public key has already been configured", () => {
         beforeEach(() => {
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.splice(0, 1),
+                senders: DEFAULT_SENDERS.slice(0, 1),
             });
 
             mockUseOrganizationPublicKeys({
@@ -231,7 +216,7 @@ describe("ManagePublicKey", () => {
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.splice(0, 1),
+                senders: DEFAULT_SENDERS.slice(1),
             });
 
             mockUseCreateOrganizationPublicKey({
@@ -262,7 +247,7 @@ describe("ManagePublicKey", () => {
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.splice(0, 1),
+                senders: DEFAULT_SENDERS.slice(0, 1),
             });
 
             mockUseCreateOrganizationPublicKey({
