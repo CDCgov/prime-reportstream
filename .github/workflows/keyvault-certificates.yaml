@@ -42,8 +42,9 @@ jobs:
           expiring_certificates=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$threshold_date'].id")
           # Print the filtered list of certificates
           echo "$expiring_certificates"
-          echo "CERTIFICATES=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires <= '$threshold_date'].id")" >> $GITHUB_OUTPUT
-
+          # Set the environment variable for GitHub Actions output
+          echo "CERTIFICATES=$expiring_certificates" >> $GITHUB_ENV
+          
       - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
