@@ -12,11 +12,6 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
 
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-          az extension add --name keyvault
-
       - name: Get Runner IP
         run: echo "::set-output name=runner_ip::$(curl https://ifconfig.me)"
         id: runner_ip
