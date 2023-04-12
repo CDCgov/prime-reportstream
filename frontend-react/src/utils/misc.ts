@@ -175,3 +175,27 @@ export const parseFileLocation = (
         fileName,
     };
 };
+
+export const removeHTMLFromString = (input: string) => {
+    return input.replace(/<(.|\n)*?>/g, "");
+};
+
+export const convertStringToSortableRepresentation = (
+    input: string | undefined
+): string | number => {
+    let convertedContent = "";
+    if (!input) return convertedContent;
+
+    // Check if input is a date, then we could leave it as is,
+    // Or convert to 100% safe JS Date String
+    if (!!Date.parse(input)) {
+        convertedContent = new Date(input).toString();
+        // Check if contains HTML tags then strip them out
+    } else if (input.match(/<(.|\n)*?>/g)) {
+        convertedContent = removeHTMLFromString(input);
+        // Otherwise, if input is simply not undefined, leave it
+    } else if (input) {
+        convertedContent = input;
+    }
+    return convertedContent;
+};

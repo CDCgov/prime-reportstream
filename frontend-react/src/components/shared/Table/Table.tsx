@@ -1,9 +1,9 @@
 import classnames from "classnames";
 import sanitizeHtml from "sanitize-html";
-
-import styles from "./Table.module.scss";
 import { useMemo, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
+
+import { convertStringToSortableRepresentation } from "../../../utils/misc";
 
 const FilterOptionsEnum = {
     NONE: "none",
@@ -21,8 +21,8 @@ interface SortableTableHeaderProps {
 
 interface RowData {
     columnKey: string;
-    content: string | HTMLElement;
-    modalContent?: string | HTMLElement;
+    content: string;
+    modalContent?: string;
 }
 
 export interface TableProps {
@@ -91,26 +91,22 @@ const SortableTable = ({
     rowData: RowData[][];
     columnHeaders: string[];
 }) => {
-    // const [sortedData, useSortedData] = useState(rowData);
     const [activeColumn, setActiveColumn] = useState("");
     const [sortOrder, setSortOrder] = useState(FilterOptionsEnum.NONE);
     const sortedData = useMemo(() => {
         return sortOrder !== FilterOptionsEnum.NONE && activeColumn
             ? rowData.sort((a, b): number => {
+                  let contentColA = convertStringToSortableRepresentation(
+                      a.find((item) => item.columnKey === activeColumn)?.content
+                  );
+                  let contentColB = convertStringToSortableRepresentation(
+                      b.find((item) => item.columnKey === activeColumn)?.content
+                  );
+
                   if (sortOrder === FilterOptionsEnum.ASC) {
-                      return a.find((item) => item.columnKey === activeColumn)
-                          .content <
-                          b.find((item) => item.columnKey === activeColumn)
-                              .content
-                          ? 1
-                          : -1;
+                      return contentColA < contentColB ? 1 : -1;
                   } else {
-                      return a.find((item) => item.columnKey === activeColumn)
-                          .content >
-                          b.find((item) => item.columnKey === activeColumn)
-                              .content
-                          ? 1
-                          : -1;
+                      return contentColA > contentColB ? 1 : -1;
                   }
               })
             : rowData;

@@ -54,6 +54,20 @@ const defaultData = [
                 "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?",
         },
     ],
+    [
+        {
+            columnKey: "Shape",
+            content: "Hexagon",
+        },
+        {
+            columnKey: "Sides",
+            content: "6",
+        },
+        {
+            columnKey: "Note",
+            content: "Nisi ut aliquid ex ea commodi consequatur!!",
+        },
+    ],
 ];
 
 export const Borderless: ComponentStory<typeof Table> = () => {
