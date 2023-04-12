@@ -62,5 +62,5 @@ jobs:
           text: 'A new JSON file has been generated and attached.'
           title: 'JSON File Notification'
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
      
