@@ -37,7 +37,7 @@ jobs:
         id: message
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel_id: C04UBN6R9EF
+          channel_id: 'C04UBN6R9EF'
           file_path: 'stale_prs.json'
           initial_comment: 'Stale Items report'
       - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
