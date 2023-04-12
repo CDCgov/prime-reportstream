@@ -34,7 +34,7 @@ jobs:
       - name: Get stale prs
         id: StalePullRequests
         shell: pwsh
-        run: echo "::set-output name=prs::=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
+        run: echo "::set-output name=test::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
         
       # - name: Get stale pull requests
       #   id: GetStalePRS
@@ -50,7 +50,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo  ${{ steps.StalePullRequests.outputs.prs }} >> stale_prs.json
+          echo  ${{ steps.StalePullRequests.outputs.test }} >> stale_prs.json
           cat stale_prs.json
 
       
