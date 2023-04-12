@@ -16,7 +16,7 @@ const meta: NonStrictMeta<typeof IconButton> = {
     component: IconButton,
     argTypes: {
         iconProps__icon: {
-            type: "enum",
+            type: "string",
             options: Object.keys(Icon).filter((k) => k !== "prototype"),
             table: {
                 category: "iconProps",

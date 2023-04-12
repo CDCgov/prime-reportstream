@@ -1,14 +1,8 @@
-import {
-    autoPlacement,
-    useFloating,
-    useHover,
-    useInteractions,
-} from "@floating-ui/react";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React from "react";
 
 import { IconButton, IconButtonProps } from "../components/IconButton";
-import { Tooltip } from "../components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../components/Tooltip";
 import { isReactNode } from "../utils/misc";
 
 export interface CodeSnippetProps extends React.HTMLAttributes<HTMLElement> {
@@ -120,17 +114,6 @@ export function CodeSnippet({
                 : []
             : [];
 
-    const [isOpen, setIsOpen] = useState(false);
-    const { x, y, strategy, refs, context } = useFloating({
-        open: isOpen,
-        onOpenChange: setIsOpen,
-        middleware: [autoPlacement()],
-        placement: "top",
-    });
-    const hover = useHover(context);
-    const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
-    console.log(context.placement);
-
     return (
         <Container
             {...props}
@@ -164,40 +147,24 @@ export function CodeSnippet({
                 (isReactNode(buttonOrProps) ? (
                     buttonOrProps
                 ) : (
-                    <div>
-                        <IconButton
-                            type="button"
-                            onClick={onButtonClick ?? defaultHandler}
-                            {...buttonOrProps}
-                            {...getReferenceProps({
-                                ref: refs.setReference,
-                            })}
-                            iconProps={{
-                                icon: "ContentCopy",
-                                ...buttonOrProps?.iconProps,
-                            }}
-                            className={classNames(
-                                "code_snippet--button",
-                                buttonOrProps.className
-                            )}
-                        />
-                        {isOpen && (
-                            <Tooltip
-                                isSet={isOpen}
-                                isVisible={isOpen}
-                                position={context.placement}
-                                ref={refs.setFloating}
-                                style={{
-                                    position: strategy,
-                                    top: y ?? 0,
-                                    left: x ?? 0,
+                    <Tooltip placement="top">
+                        <TooltipTrigger asChild={true}>
+                            <IconButton
+                                type="button"
+                                onClick={onButtonClick ?? defaultHandler}
+                                {...buttonOrProps}
+                                iconProps={{
+                                    icon: "ContentCopy",
+                                    ...buttonOrProps?.iconProps,
                                 }}
-                                {...getFloatingProps()}
-                            >
-                                Copy to clipboard
-                            </Tooltip>
-                        )}
-                    </div>
+                                className={classNames(
+                                    "code_snippet--button",
+                                    buttonOrProps.className
+                                )}
+                            />
+                        </TooltipTrigger>
+                        <TooltipContent>Copy to clipboard</TooltipContent>
+                    </Tooltip>
                 ))}
         </Container>
     );

@@ -1,3 +1,17 @@
+import {
+    Placement,
+    useFloating,
+    autoUpdate,
+    flip,
+    shift,
+    useHover,
+    useFocus,
+    useDismiss,
+    useRole,
+    useInteractions,
+    useMergeRefs,
+    FloatingPortal,
+} from "@floating-ui/react";
 import classNames from "classnames";
 import React from "react";
 
@@ -9,25 +23,173 @@ export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const TOOLTIP_POSITIONS = ["top", "bottom", "right", "left"];
 
-export const Tooltip = React.forwardRef(function (
-    { isSet, isVisible, position = "top", ...props }: TooltipProps,
-    ref: React.ForwardedRef<any>
-) {
-    const bestPosition = TOOLTIP_POSITIONS.includes(position)
-        ? position
-        : TOOLTIP_POSITIONS.find((p) => p.includes(`${position}-`)) ?? "top";
+interface TooltipOptions {
+    initialOpen?: boolean;
+    placement?: Placement;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+}
+
+export function useTooltip({
+    initialOpen = false,
+    placement = "top",
+    open: controlledOpen,
+    onOpenChange: setControlledOpen,
+}: TooltipOptions = {}) {
+    const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
+
+    const open = controlledOpen ?? uncontrolledOpen;
+    const setOpen = setControlledOpen ?? setUncontrolledOpen;
+
+    const data = useFloating({
+        placement,
+        open,
+        onOpenChange: setOpen,
+        whileElementsMounted: autoUpdate,
+        middleware: [
+            flip({
+                fallbackAxisSideDirection: "start",
+            }),
+            shift({ padding: 5 }),
+        ],
+    });
+
+    const context = data.context;
+
+    const hover = useHover(context, {
+        move: false,
+        enabled: controlledOpen == null,
+    });
+    const focus = useFocus(context, {
+        enabled: controlledOpen == null,
+    });
+    const dismiss = useDismiss(context);
+    const role = useRole(context, { role: "tooltip" });
+
+    const interactions = useInteractions([hover, focus, dismiss, role]);
+
+    return React.useMemo(
+        () => ({
+            open,
+            setOpen,
+            ...interactions,
+            ...data,
+        }),
+        [open, setOpen, interactions, data]
+    );
+}
+
+type ContextType = ReturnType<typeof useTooltip> | null;
+
+const TooltipContext = React.createContext<ContextType>(null);
+
+export const useTooltipContext = () => {
+    const context = React.useContext(TooltipContext);
+
+    if (context == null) {
+        throw new Error("Tooltip components must be wrapped in <Tooltip />");
+    }
+
+    return context;
+};
+
+/**
+ * Prepares the tooltip context for the provided children components. Allows for either controlled or
+ * uncontrolled tooltips via the onOpenChange prop. You must provide TooltipTrigger and TooltipContent
+ * wrapped components and only as children within a tooltip context (which this creates).
+ * @example
+ * <Tooltip>
+ *   <TooltipTrigger>Hover me!</TooltipTrigger>
+ *   <TooltipContent>Hello!</TooltipContent>
+ * </Tooltip>
+ */
+export function Tooltip({
+    children,
+    ...options
+}: { children: React.ReactNode } & TooltipOptions) {
+    // This can accept any props as options, e.g. `placement`,
+    // or other positioning options.
+    const tooltip = useTooltip(options);
+    return (
+        <TooltipContext.Provider value={tooltip}>
+            {children}
+        </TooltipContext.Provider>
+    );
+}
+
+/**
+ * The target element that triggers the tooltip. Defaults to passing children to a
+ * button, but can be used directly via asChild prop (the children component must
+ * be created via React.fowardRef!).
+ */
+export const TooltipTrigger = React.forwardRef<
+    HTMLElement,
+    React.HTMLProps<HTMLElement> & { asChild?: boolean }
+>(function TooltipTrigger({ children, asChild = false, ...props }, propRef) {
+    const context = useTooltipContext();
+    const childrenRef = (children as any).ref;
+    const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
+
+    // `asChild` allows the user to pass any element as the anchor
+    if (asChild && React.isValidElement(children)) {
+        // Not ideal to have to resort to manipulating the children data,
+        // but this prevents a lot of boilerplate otherwise.
+        return React.cloneElement(
+            children,
+            context.getReferenceProps({
+                ref,
+                ...props,
+                ...children.props,
+                "data-state": context.open ? "open" : "closed",
+            })
+        );
+    }
 
     return (
-        <div
+        <button
             ref={ref}
-            {...props}
-            className={classNames(
-                "usa-tooltip__body",
-                bestPosition && `usa-tooltip__body--${position}`,
-                isSet && "is-set",
-                isVisible && "is-visible",
-                props.className
-            )}
-        />
+            // The user can style the trigger based on the state
+            data-state={context.open ? "open" : "closed"}
+            {...context.getReferenceProps(props)}
+            className={"usa-button usa-tooltip"}
+        >
+            {children}
+        </button>
+    );
+});
+
+export const TooltipContent = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLProps<HTMLDivElement>
+>(function TooltipContent(props, propRef) {
+    const context = useTooltipContext();
+    const ref = useMergeRefs([context.refs.setFloating, propRef]);
+    // Simplify corner positions to main placements.
+    const bestPosition = TOOLTIP_POSITIONS.includes(context.placement)
+        ? context.placement
+        : TOOLTIP_POSITIONS.find((p) => p.includes(`${context.placement}-`)) ??
+          "top";
+
+    if (!context.open) return null;
+
+    return (
+        <FloatingPortal>
+            <div
+                ref={ref}
+                style={{
+                    position: context.strategy,
+                    top: context.y ?? 0,
+                    left: context.x ?? 0,
+                    ...props.style,
+                }}
+                {...context.getFloatingProps(props)}
+                className={classNames(
+                    "usa-tooltip__body",
+                    "is-set",
+                    "is-visible",
+                    bestPosition && `usa-tooltip__body--${bestPosition}`
+                )}
+            />
+        </FloatingPortal>
     );
 });
