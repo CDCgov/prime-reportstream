@@ -33,7 +33,7 @@ jobs:
 
       - name: List certificates
         run: |
-          az keyvault certificate list --vault-name pdhstaging-keyvault --output Table > certificates.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault --query "[?attributes.expires > '1970-01-01T00:00:00Z' && attributes.expires <= '@{datetime.datetime.utcnow() + datetime.timedelta(days=30)}'].{id:id,name:name,expires:attributes.expires}" -o json > certificates.json          
           cat certificates.json
 
       - name: Filter certificates expiring within 30 days
@@ -41,9 +41,9 @@ jobs:
           # Get the current date in UTC format
           current_date=$(date -u +"%Y-%m-%dT%H:%M:%S%Z")
           # Calculate the date 30 days from now
-          threshold_date=$(date -u -d "+30 days" +"%Y-%m-%dT%H:%M:%S%Z")
+          threshold_date=$(date -u -d "+300 days" +"%Y-%m-%dT%H:%M:%S%Z")
           # Filter certificates based on expiry date using jq, with error handling
-          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") <= $threshold_date and .attributes.expires | sub("\\.[0-9]+Z$"; "Z") >= $current_date)' certificates.json || true)
+          expiring_certificates=$(jq --arg current_date "$current_date" --arg threshold_date "$threshold_date" '.[] | select(.attributes and (.attributes.expires | sub("\\.[0-9]+Z$"; "Z")) <= $threshold_date and (.attributes.expires | sub("\\.[0-9]+Z$"; "Z")) >= $current_date)' certificates.json || true)
 
     # - name: Send Slack notification
 
