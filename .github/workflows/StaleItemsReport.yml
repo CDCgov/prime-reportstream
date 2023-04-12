@@ -55,12 +55,12 @@ jobs:
           name: data
           path: stale_prs.json
 
-    - name: Send Slack notification
-      uses: rtCamp/github-action-slack-notify@v3
-      with:
-        status: ${{ job.status }}
-        text: 'A new JSON file has been generated and attached.'
-        title: 'JSON File Notification'
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Send Slack notification
+        uses: rtCamp/github-action-slack-notify@v3
+        with:
+          status: ${{ job.status }}
+          text: 'A new JSON file has been generated and attached.'
+          title: 'JSON File Notification'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
      
