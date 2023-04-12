@@ -32,15 +32,24 @@ jobs:
             az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
             az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
 
-      - name: List keyvault Certificates & send slack notice
-        run: |
-          webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-          messageprod=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-          messagestg=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
-          payloadprod="{\"text\":\"${messageprod}\"}"
-          payloadstg="{\"text\":\"${messagestg}\"}"
-          curl -X POST -H "Content-Type: application/json" -d "${payloadprod}" ${webhook_url}
-          curl -X POST -H "Content-Type: application/json" -d "${payloadstg}" ${webhook_url}
+      - name: Send slack notification
+        uses: ./.github/actions/notifications
+        with:
+          title: Expiring keyVault Certificates
+          message: Azure Key Vault Certificates Expiring in 30 Days
+          channel: pagerduty-alert-dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+
+      # - name: List keyvault Certificates & send slack notice
+      #   run: |
+      #     webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
+      #     messageprod=$(az keyvault certificate list --vault-name pdhprod-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+      #     messagestg=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)
+      #     payloadprod="{\"text\":\"${messageprod}\"}"
+      #     payloadstg="{\"text\":\"${messagestg}\"}"
+      #     curl -X POST -H "Content-Type: application/json" -d "${payloadprod}" ${webhook_url}
+      #     curl -X POST -H "Content-Type: application/json" -d "${payloadstg}" ${webhook_url}
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
