@@ -36,9 +36,9 @@ jobs:
       - name: Get stale pull requests
         id: GetStalePRS
         run: |
-           $stalePRs = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
-           echo ::set-output name=StalePRs::$(cat $stalePRs)
-           echo "$stalePRs" >> $stalePRs
+           $stalePullRequests = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+           echo ::set-output name=StalePRs:: $stalePullRequests
+           echo $stalePRs>> $stalePullRequests
         env:
           PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
         continue-on-error: true
