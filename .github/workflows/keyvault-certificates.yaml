@@ -54,7 +54,7 @@ jobs:
           method: slack
           title: Stale Branch Counts
           message: |
-            Expiring_certificates ${{ cat certificates.json }}
+            cat filtered_certificates.json
           icon-emoji: ':bell:'
           channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
