@@ -28,22 +28,24 @@ jobs:
       - name: Get stale pull requests
         id: StalePRs
         shell: pwsh
-        run: echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.txt
+        run: |
+          echo "Pull Requests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> stale_prs.json
+          cat stale_prs.json
           
+      # - name: Upload to slack step
+      #   uses: adrey/slack-file-upload-action@master
+      #   with:
+      #     token: ${{ secrets.SLACK_TOKEN }}
+      #     path: stale_prs.txt
+      #     channel: ${{ secrets.SLACK_CHANNEL }}
+      #     title: 'Stale items report'
+
       - name: Upload to slack step
-        uses: adrey/slack-file-upload-action@master
+        uses: slackapi/slack-webhook@v1
         with:
-          token: ${{ secrets.SLACK_TOKEN }}
-          path: stale_prs.txt
-          channel: ${{ secrets.SLACK_CHANNEL }}
-          title: 'Stale items report'
-
-
-
-    # - name: Notify Slack
-    #     if: ${{ always() }}
-    #     run: |
-    #       webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}
-    #       message="${{ steps.staleIssues.outputs.Issues }}"
-    #       payload="{\"text\":\"${message}\"}"
-    #       curl -X POST -H "Content-Type: application/json" -d "${payload}" ${webhook_url}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          data: |
+            {
+              "text": "Stale Items Report:",
+              "attachments": ${{ toJSON(fromJSON(steps.StalePRs.outputs.stdout)) }}
+            }
