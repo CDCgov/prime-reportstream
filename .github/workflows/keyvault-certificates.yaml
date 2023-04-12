@@ -36,6 +36,7 @@ jobs:
         id: Cert_list
         run: |
           echo "CERTIFICATES=$(az keyvault certificate list --vault-name pdhstaging-keyvault --query "[].{name:name, expires:attributes.expires}" --output table)" >> $GITHUB_OUTPUT
+        shell: bash
 
 
       - name: Slack Notification
