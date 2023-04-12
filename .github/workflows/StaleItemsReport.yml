@@ -46,7 +46,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo "Pull Requests= ${{ steps.GetStalePRS.outputs.StalePRs}}" >> stale_prs.json
+          echo ${{ steps.GetStalePRS.outputs.StalePRs}} >> stale_prs.json
           cat stale_prs.json
 
       - uses: MeilCli/slack-upload-file@v3
