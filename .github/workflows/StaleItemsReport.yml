@@ -41,11 +41,26 @@ jobs:
       #     initial_comment: 'post by slack-upload-file'
       # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
-      - name: Stale Items report
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+      # - name: Stale Items report
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v1.23.0
+      #   with:
+      #     payload-file-path: "stale_prs.json"
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Upload JSON file
+        uses: actions/upload-artifact@v2
         with:
-          payload-file-path: "stale_prs.json"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          name: data
+          path: stale_prs.json
+
+    - name: Send Slack notification
+      uses: rtCamp/github-action-slack-notify@v3
+      with:
+        status: ${{ job.status }}
+        text: 'A new JSON file has been generated and attached.'
+        title: 'JSON File Notification'
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
      
