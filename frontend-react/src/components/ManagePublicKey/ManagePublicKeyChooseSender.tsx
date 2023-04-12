@@ -1,25 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Form, Dropdown, Button, FormGroup } from "@trussworks/react-uswds";
 
-import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
-import Spinner from "../Spinner";
+import { RSSender } from "../../config/endpoints/settings";
 
 export interface ManagePublicKeyChooseSenderProps {
+    senders: RSSender[];
     onSenderSelect: (sender: string, hasBack: boolean) => void;
 }
 
 export default function ManagePublicKeyChooseSender({
+    senders,
     onSenderSelect,
 }: ManagePublicKeyChooseSenderProps) {
-    const { isLoading, senders } = useOrganizationSenders();
     const [selectedSender, setSelectedSender] = useState("");
-
-    useEffect(() => {
-        if (senders?.length === 1) {
-            onSenderSelect(senders[0].name, false);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [senders]);
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -28,8 +21,7 @@ export default function ManagePublicKeyChooseSender({
 
     return (
         <div data-testid="ManagePublicKeyChooseSender">
-            {isLoading && <Spinner message="Loading..." />}
-            {!isLoading && senders?.length > 1 && (
+            {senders?.length > 1 && (
                 <Form name="sender-select" onSubmit={handleSubmit}>
                     <FormGroup>
                         <Dropdown

@@ -12,6 +12,7 @@ import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizatio
 import { useOrganizationPublicKeys } from "../../hooks/UseOrganizationPublicKeys";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -32,6 +33,7 @@ export function ManagePublicKey() {
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
     const { activeMembership } = useSessionContext();
+    const { senders, isLoading: isSendersLoading } = useOrganizationSenders();
     const { orgPublicKeys } = useOrganizationPublicKeys();
     const {
         mutateAsync,
@@ -106,7 +108,12 @@ export function ManagePublicKey() {
                 }
             }
         }
-    }, [orgPublicKeys, sender, activeMembership?.parsedName]);
+
+        if (senders?.length === 1) {
+            setSender(senders[0].name);
+            setHasBack(false);
+        }
+    }, [orgPublicKeys, sender, activeMembership?.parsedName, senders]);
 
     const showPublicKeyConfigured =
         sender && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
@@ -144,6 +151,7 @@ export function ManagePublicKey() {
             )}
             {sender.length === 0 && (
                 <ManagePublicKeyChooseSender
+                    senders={senders}
                     onSenderSelect={handleSenderSelect}
                 />
             )}
@@ -162,7 +170,7 @@ export function ManagePublicKey() {
                     file={file}
                 />
             )}
-            {isUploading && <Spinner />}
+            {isUploading || (isSendersLoading && <Spinner />)}
             {isSuccess && <ManagePublicKeyUploadSuccess />}
             {hasUploadError && (
                 <ManagePublicKeyUploadError
