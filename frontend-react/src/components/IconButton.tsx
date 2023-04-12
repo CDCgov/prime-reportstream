@@ -14,8 +14,8 @@ export type IconButtonProps = Omit<ButtonProps, "type" | "children"> &
 
 // FUTURE_TODO: Investigate patching trussworks Button to accept forwardRef.
 /**
- * An icon can be given either as a name of a valid icon in iconProps.icon or as a custom
- * override via children.
+ * An icon is specified via the iconProps.icon prop. Other icon element props are
+ * available to customize in iconProps.
  */
 export const IconButton = React.forwardRef(
     (
