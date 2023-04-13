@@ -30,7 +30,7 @@ class SenderUtils {
                 .setAudience(baseUrl) // aud
                 .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
                 .signWith(privateKey)
-            if(jti != null ){
+            if (jti != null) {
                 jwsObj.setId(jti) // jti
             }
             val jws = jwsObj.compact()
@@ -49,7 +49,7 @@ class SenderUtils {
             expirationSecondsFromNow: Int = 300,
             jti: String? = UUID.randomUUID().toString()
         ): String {
-            return generateToken(sender.fullName, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow )
+            return generateToken(sender.fullName, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
         }
 
         /**

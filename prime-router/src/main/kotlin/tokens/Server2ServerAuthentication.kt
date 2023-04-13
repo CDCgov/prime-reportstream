@@ -57,7 +57,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * @throws Server2ServerAuthenticationException - thrown if no organization or sender is founder for the issuer
      *
      */
-    internal fun parseJwt(jwsString: String, scope: String, ): ParsedJwt {
+    internal fun parseJwt(jwsString: String, scope: String,): ParsedJwt {
         // parseClaimsJwt will throw an exception if the string includes a signature, even when just parsing
         // the claims and headers (which are just Base64 encoded).
         // See https://github.com/jwtk/jjwt/issues/86
@@ -81,7 +81,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // However, in order to be backwards compatible, the issuer claim can be either the name of the sender
         // or the name of the organization.
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
-        if(maybeOrganization != null) {
+        if (maybeOrganization != null) {
             return ParsedJwt(maybeOrganization, null, maybeKid, kty)
         }
         val maybeSender = workflowEngine.settings.findSender(issuer)

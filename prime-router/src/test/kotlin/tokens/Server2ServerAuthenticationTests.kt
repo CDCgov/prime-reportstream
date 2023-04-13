@@ -113,7 +113,6 @@ class Server2ServerAuthenticationTests {
     private lateinit var server2ServerAuthentication: Server2ServerAuthentication
     private val jtiCache = MemoryJtiCache()
 
-
     // return a ReportStream secret, used by ReportStream to sign a short-lived token
     class GetTestSecret : ReportStreamSecretFinder {
         private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
