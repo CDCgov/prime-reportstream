@@ -10,10 +10,12 @@ import com.github.kittinunf.fuel.util.decodeBase64
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
@@ -138,6 +140,8 @@ class Server2ServerAuthenticationTests {
         settings.organizationStore.put(organizationNoKeys.name, organizationNoKeys)
         settings.senderStore.put(sender.fullName, sender)
         server2ServerAuthentication = Server2ServerAuthentication(WorkflowEngine.Builder().build())
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @AfterEach
