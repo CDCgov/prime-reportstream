@@ -1,9 +1,97 @@
 import classNames from "classnames";
-import React from "react";
+import React, { AriaRole, useId } from "react";
 
 import { IconButton, IconButtonProps } from "../components/IconButton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../components/Tooltip";
+import {
+    TooltipContentProps,
+    TooltipProps,
+    TooltipTriggerProps,
+} from "../components/Tooltip";
 import { isReactNode } from "../utils/misc";
+
+/**
+ * Surround {highlightText} matches with span with special class (default: text-highlight).
+ */
+export function createHighlightedText(
+    text: string,
+    highlightText: string | RegExp | (string | RegExp)[],
+    className = "text-highlight"
+) {
+    const highlightTextList = (
+        Array.isArray(highlightText) ? highlightText : [highlightText]
+    ).map((h) => {
+        if (typeof h === "string") {
+            return new RegExp(h, "g");
+        }
+        return h;
+    });
+    /**
+     * Merge overlapping matches and ignore redundant ones to get our final
+     * list of substring index pairs.
+     */
+    const segments = highlightTextList
+        .flatMap((h) => Array.from(text.matchAll(h)))
+        .sort((a, b) => {
+            const aI = a.index ?? 0;
+            const bI = b.index ?? 0;
+            if (aI > bI) {
+                return 1;
+            } else if (aI < bI) {
+                return -1;
+            }
+            return 0;
+        })
+        .map((m) => [m.index ?? 0, (m.index ?? 0) + m[0].length])
+        .reduce((p, [startI, endI], i) => {
+            const prev = p.at(-1);
+
+            if (!prev) {
+                p.push([startI, endI]);
+                return p;
+            }
+
+            const [, prevEndI] = prev;
+
+            if (startI <= prevEndI) {
+                if (endI > prevEndI) {
+                    prev[1] = endI;
+                }
+            } else {
+                p.push([startI, endI]);
+            }
+
+            return p;
+        }, [] as [number, number][]);
+
+    const split = [];
+    if (segments.length) {
+        let i = 0;
+        for (const [startI, endI] of segments) {
+            if (i !== startI) {
+                split.push(
+                    <React.Fragment key={i}>
+                        {text.substring(i, startI)}
+                    </React.Fragment>
+                );
+                i = startI;
+            }
+            split.push(
+                <span key={i} className={className}>
+                    {text.substring(i, endI)}
+                </span>
+            );
+            i = endI;
+        }
+        if (i !== text.length) {
+            split.push(
+                <React.Fragment key={i}>{text.substring(i)}</React.Fragment>
+            );
+        }
+    } else {
+        return text;
+    }
+    return split;
+}
 
 export interface CodeSnippetProps extends React.HTMLAttributes<HTMLElement> {
     children: React.ReactNode;
@@ -14,43 +102,22 @@ export interface CodeSnippetProps extends React.HTMLAttributes<HTMLElement> {
     onButtonClick?: React.MouseEventHandler<HTMLElement>;
     codeProps?: Partial<React.HTMLAttributes<HTMLElement>>;
     buttonOrProps?: Partial<IconButtonProps> | React.ReactNode;
-    highlightText?: string | string[];
-}
-
-/**
- * Surround {highlightText} matches with span with special class (default: text-highlight).
- */
-export function createHighlightedText(
-    text: string,
-    highlightText: string[],
-    className = "text-highlight"
-) {
-    const regex = new RegExp(`(${highlightText.join("|")})`, "g");
-    const matches = Array.from(text.matchAll(regex));
-    const split = [];
-    if (matches.length) {
-        let i = 0;
-        for (const match of matches) {
-            if (match.index !== undefined) {
-                if (i !== match.index) {
-                    split.push(text.substring(i, match.index));
-                    i = match.index;
-                }
-                split.push(
-                    <span className={className}>
-                        {text.substring(i, match.index + match[0].length)}
-                    </span>
-                );
-                i = match.index + match[0].length;
-            }
-        }
-        if (i !== text.length) {
-            split.push(text.substring(i));
-        }
-    } else {
-        split.push(text);
-    }
-    return <>{split}</>;
+    highlightText?: string | RegExp | (string | RegExp)[];
+    figure?: {
+        role?: AriaRole;
+        label: string;
+        figureProps?: React.HTMLAttributes<HTMLElement>;
+        figureCaptionProps: React.HTMLAttributes<HTMLElement> & {
+            children: Exclude<React.ReactNode, null | undefined>;
+        };
+    };
+    tooltip?:
+        | boolean
+        | {
+              tooltipContentProps?: TooltipContentProps;
+              tooltipProps?: TooltipProps;
+              tooltipTriggerProps?: TooltipTriggerProps;
+          };
 }
 
 /**
@@ -58,12 +125,19 @@ export function createHighlightedText(
  * highlighted. Block mode has a background, button, and only specified text is highlighted. Inline is
  * the default and overridable via isBlock prop. A background toggle is available via isBackground as an
  * override depending on mode. When background is enabled, only specified text is highlighted. When
- * background is disabled, all text is highlighted.
+ * background is disabled, all text is highlighted. Using any figure props automatically makes the
+ * CodeSnippet a block, and cannot be overriden.
+ *
+ * IMPORTANT: Please adhere to W3C rules and do not use this element in block mode within an inline
+ * context (ex: `<p>`).
+ *
+ * Text fragments can be highlighted with either strings or regular expressions.
  *
  * Container element and props are customizable. Code element props are customizable. Button can be replaced
- * entirely with one provided, or customized with props.
+ * entirely with one provided, or customized with props. Figure and figurecaption element props are
+ * customizable. Tooltip
  *
- * @example
+ * ```
  * Flex Layout Inline:
  * +---------------+------+
  * |   CHILDREN    |BUTTON|
@@ -78,6 +152,9 @@ export function createHighlightedText(
  * +---------------+------+
  * |[ ] SCROLL     |      |
  * +----------------------+
+ * |CAPTION               |
+ * +----------------------+
+ * ```
  */
 export function CodeSnippet({
     children,
@@ -90,39 +167,38 @@ export function CodeSnippet({
     codeProps = {},
     buttonOrProps = {},
     highlightText,
+    figure,
+    tooltip,
     ...props
 }: CodeSnippetProps) {
     const defaultHandler = (_e: React.MouseEvent<HTMLElement>) => {
         navigator.clipboard.writeText(children?.toString() ?? "");
     };
-    const Container = to ?? "pre";
-    const isButtonShowing =
-        isButtonVisible !== undefined
-            ? isButtonVisible
-            : isBlock
-            ? true
-            : false;
-    const isBlockShowing = isBlock !== undefined ? isBlock : false;
-    const isBackgroundShowing =
-        isBackground !== undefined ? isBackground : isBlockShowing;
-    const highlightTextList =
-        isBlockShowing || isBackgroundShowing
-            ? Array.isArray(highlightText)
-                ? highlightText
-                : highlightText !== undefined
-                ? [highlightText]
-                : []
-            : [];
+    const Container = to ?? "span";
+    const isBlockShowing =
+        !!figure || (isBlock !== undefined ? isBlock : false);
+    const isButtonShowing = isButtonVisible ?? isBlockShowing;
+    const isBackgroundShowing = isBackground ?? isBlockShowing;
+    const isHighlightText =
+        !!highlightText && (isBlockShowing || isBackgroundShowing);
+    const isTooltipShowing = tooltip !== false;
+    const ariaId = useId();
+    const tooltipOptions =
+        typeof tooltip === "object"
+            ? tooltip
+            : { tooltipContentProps: { children: "Copy to clipboard" } };
 
-    return (
+    const body = (
         <Container
+            role={figure?.role ?? "img"}
+            aria-label={figure?.label}
             {...props}
             className={classNames(
                 "code_snippet",
                 isBlockShowing && "code_snippet--block",
                 isBlockShowing &&
                     !isBackgroundShowing &&
-                    "code_snippet--no_background",
+                    "code_snippet--block-no_background",
                 !isBlockShowing &&
                     isBackgroundShowing &&
                     "code_snippet--background",
@@ -136,36 +212,44 @@ export function CodeSnippet({
                     codeProps.className
                 )}
             >
-                {highlightTextList.length === 0
+                {!isHighlightText
                     ? children
                     : createHighlightedText(
                           children?.toString() ?? "",
-                          highlightTextList
+                          highlightText
                       )}
             </code>
+
             {isButtonShowing &&
                 (isReactNode(buttonOrProps) ? (
                     buttonOrProps
                 ) : (
-                    <Tooltip placement="top">
-                        <TooltipTrigger asChild={true}>
-                            <IconButton
-                                type="button"
-                                onClick={onButtonClick ?? defaultHandler}
-                                {...buttonOrProps}
-                                iconProps={{
-                                    icon: "ContentCopy",
-                                    ...buttonOrProps?.iconProps,
-                                }}
-                                className={classNames(
-                                    "code_snippet--button",
-                                    buttonOrProps.className
-                                )}
-                            />
-                        </TooltipTrigger>
-                        <TooltipContent>Copy to clipboard</TooltipContent>
-                    </Tooltip>
+                    <IconButton
+                        type="button"
+                        onClick={onButtonClick ?? defaultHandler}
+                        tooltip={isTooltipShowing ? tooltipOptions : undefined}
+                        {...buttonOrProps}
+                        iconProps={{
+                            icon: "ContentCopy",
+                            ...buttonOrProps?.iconProps,
+                        }}
+                        className={classNames(
+                            "code_snippet--button",
+                            buttonOrProps.className
+                        )}
+                    />
                 ))}
         </Container>
     );
+
+    if (figure) {
+        return (
+            <figure {...figure.figureProps}>
+                {body}
+                <figcaption id={ariaId} {...figure.figureCaptionProps} />
+            </figure>
+        );
+    }
+
+    return body;
 }

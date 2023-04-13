@@ -15,12 +15,6 @@ import {
 import classNames from "classnames";
 import React from "react";
 
-export interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
-    isSet?: boolean;
-    isVisible?: boolean;
-    position?: "top" | "bottom" | "right" | "left" | string;
-}
-
 export const TOOLTIP_POSITIONS = ["top", "bottom", "right", "left"];
 
 interface TooltipOptions {
@@ -93,20 +87,20 @@ export const useTooltipContext = () => {
     return context;
 };
 
+export type TooltipProps = { children: React.ReactNode } & TooltipOptions;
+
 /**
  * Prepares the tooltip context for the provided children components. Allows for either controlled or
  * uncontrolled tooltips via the onOpenChange prop. You must provide TooltipTrigger and TooltipContent
  * wrapped components and only as children within a tooltip context (which this creates).
- * @example
+ * ```
  * <Tooltip>
  *   <TooltipTrigger>Hover me!</TooltipTrigger>
  *   <TooltipContent>Hello!</TooltipContent>
  * </Tooltip>
+ * ```
  */
-export function Tooltip({
-    children,
-    ...options
-}: { children: React.ReactNode } & TooltipOptions) {
+export function Tooltip({ children, ...options }: TooltipProps) {
     // This can accept any props as options, e.g. `placement`,
     // or other positioning options.
     const tooltip = useTooltip(options);
@@ -117,6 +111,13 @@ export function Tooltip({
     );
 }
 
+export type TooltipTriggerPropsBase = React.HTMLProps<HTMLElement> & {
+    asChild?: boolean;
+};
+
+export type TooltipTriggerProps = Omit<TooltipTriggerPropsBase, "ref"> &
+    React.RefAttributes<HTMLElement>;
+
 /**
  * The target element that triggers the tooltip. Defaults to passing children to a
  * button, but can be used directly via asChild prop (the children component must
@@ -124,7 +125,7 @@ export function Tooltip({
  */
 export const TooltipTrigger = React.forwardRef<
     HTMLElement,
-    React.HTMLProps<HTMLElement> & { asChild?: boolean }
+    TooltipTriggerPropsBase
 >(function TooltipTrigger({ children, asChild = false, ...props }, propRef) {
     const context = useTooltipContext();
     const childrenRef = (children as any).ref;
@@ -158,9 +159,14 @@ export const TooltipTrigger = React.forwardRef<
     );
 });
 
+export type TooltipContentPropsBase = React.HTMLProps<HTMLDivElement>;
+
+export type TooltipContentProps = Omit<TooltipContentPropsBase, "ref"> &
+    React.RefAttributes<HTMLDivElement>;
+
 export const TooltipContent = React.forwardRef<
     HTMLDivElement,
-    React.HTMLProps<HTMLDivElement>
+    TooltipContentPropsBase
 >(function TooltipContent(props, propRef) {
     const context = useTooltipContext();
     const ref = useMergeRefs([context.refs.setFloating, propRef]);

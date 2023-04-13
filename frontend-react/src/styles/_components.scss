@@ -125,6 +125,7 @@ hr {
     @include u-font("mono", "xs");
     @include u-line-height("code", 4);
     @include u-text("primary-vivid");
+    @include grid-row;
     justify-content: space-between;
     display: inline-flex;
     flex-wrap: nowrap;
@@ -160,12 +161,12 @@ hr {
 
 .code_snippet--block {
     @include text-highlight("black", "base-lightest");
-    @include grid-row;
+    display: flex;
     min-width: 250px;
     min-height: 45px;
     max-width: 100%;
     margin: revert;
-    white-space: revert;
+    white-space: pre;
 
     & .code_snippet--code {
         padding: 18px 12px;
@@ -176,6 +177,6 @@ hr {
     }
 }
 
-.code_snippet--no_background {
+.code_snippet--block-no_background {
     @include text-highlight;
 }

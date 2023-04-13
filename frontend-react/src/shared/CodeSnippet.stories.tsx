@@ -1,5 +1,9 @@
 import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import {
+    ComponentMeta,
+    ComponentStory,
+    ComponentStoryObj,
+} from "@storybook/react";
 
 import { CodeSnippet } from "./CodeSnippet";
 
@@ -38,13 +42,53 @@ const blockText = `{
 }`;
 
 export const Block: ComponentStory<typeof CodeSnippet> = (args) => (
-    <p>
+    <section>
         Block variant: <CodeSnippet {...args} />
-    </p>
+    </section>
 );
 
 Block.args = {
     children: blockText,
     highlightText: "healthy-labs",
     isBlock: true,
+};
+
+const diagramText = `bootstrap/
+├── css/
+│   ├── bootstrap.css
+│   ├── bootstrap.min.css
+│   ├── bootstrap-theme.css
+│   └── bootstrap-theme.min.css
+├── js/
+│   ├── bootstrap.js
+│   └── bootstrap.min.js
+└── fonts/
+    ├── glyphicons-halflings-regular.eot
+    ├── glyphicons-halflings-regular.svg
+    ├── glyphicons-halflings-regular.ttf
+    └── glyphicons-halflings-regular.woff
+
+bootstrap/
+├── less/
+├── js/
+├── fonts/
+├── dist/
+│   ├── css/
+│   ├── js/
+│   └── fonts/
+└── docs/
+    └── examples/
+`;
+
+export const Diagram: ComponentStoryObj<typeof CodeSnippet> = {};
+
+Diagram.args = {
+    children: diagramText,
+    figure: {
+        role: "img",
+        label: "Directory diagram",
+        figureCaptionProps: {
+            children: "Diagram depicting directory structure",
+        },
+    },
 };
