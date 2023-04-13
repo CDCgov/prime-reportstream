@@ -154,7 +154,7 @@ class FHIRConverter(
      * Using this function instead of calling the constructor directly simplifies the process of mocking the
      * transformer in tests.
      */
-    internal fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
+    fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
         return if (schemaName.isNotBlank()) {
             FhirTransformer(schemaName)
         } else null
