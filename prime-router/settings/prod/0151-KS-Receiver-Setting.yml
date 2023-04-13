@@ -33,4 +33,9 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: CENTRAL
-      transport: null
+      transport: !<SFTP>
+        host: "sftp.ksepitrax.org"
+        port: "22"
+        filePath: "/SFTP_ELR/ReportStream_Input_Folder_Prod"
+        credentialName: null
+        type: "SFTP"
