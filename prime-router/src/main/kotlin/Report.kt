@@ -1425,6 +1425,10 @@ class Report : Logging {
                     itemHash
                 )
             } else {
+                // @todo here
+                // see if you can quickly load the parent report (if any) here
+                // the goal is to get the top level item lineage if possible
+                // if no parent in the lineage is found, set the input_report_id to be same as parent_report_id
                 val trackingElementValue =
                     parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
                 return ItemLineage(
@@ -1624,5 +1628,9 @@ class Report : Logging {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
             return Format.valueOfFromExt(extension)
         }
+
+//        fun getParentReport(): Report {
+//            val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
+//        }
     }
 }
