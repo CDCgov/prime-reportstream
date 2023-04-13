@@ -9,31 +9,31 @@ on:
 jobs:
   alert_stale_items:
     name: Alert on Stale items in github
-    runs-on: ubuntu-latest
+    windows_run:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
         with:
           fetch-depth: 0
-      - name: Get Stale branches
-        id: StaleBranches
-        run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> stale_branches.txt
-        shell: bash
+      # - name: Get Stale branches
+      #   id: StaleBranches
+      #   run: echo "Branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> stale_branches.txt
+      #   shell: bash
 
-      - name: Get stale issues
-        id: staleIssues
-        shell: pwsh
-        run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> stale_issues.txt
+      # - name: Get stale issues
+      #   id: staleIssues
+      #   shell: powershell   
+      #   run: echo "Issues=$(./.github/scripts/stale_items_report/StaleIssues.ps1)" >> stale_issues.txt
       
       - name: Get stale pull requests
         id: StalePRs
-        shell: pwsh
-        run: |
+        shell: powershell   
+        run: |  
           echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
           
       - name: Get stale prs
         id: StalePRItems
-        shell: pwsh
+        shell: powershell   
         run: echo "::set-output name=test::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
         
       # - name: Get stale pull requests
@@ -47,18 +47,18 @@ jobs:
       #   shell: pwsh
       #   continue-on-error: true
 
-      - name: Basic PowerShell commands 
+      - name: Stale PRs
+        id: prs
         env: 
           PullRequests: $(./.github/scripts/stale_items_report/StalePullRequests.ps1) 
         run: |
-           get-date
            write-output $env:PullRequests
-        shell: powershell  
+        shell: powershell     
 
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo  ${{ steps.StalePRs.outputs.PullRequest }} 
+          echo  ${{ steps.prs.outputs.PullRequests }} 
       
 
       # - uses: MeilCli/slack-upload-file@v3
