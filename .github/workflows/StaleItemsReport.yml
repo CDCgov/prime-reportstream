@@ -47,6 +47,14 @@ jobs:
       #   shell: pwsh
       #   continue-on-error: true
 
+      - name: Basic PowerShell commands 
+        env: 
+          PullRequests: $(./.github/scripts/stale_items_report/StalePullRequests.ps1) 
+        run: |
+           get-date
+           write-output $env:PullRequests
+        shell: powershell  
+
       - name: Stale PRs
         id: pullrequests
         run: |
