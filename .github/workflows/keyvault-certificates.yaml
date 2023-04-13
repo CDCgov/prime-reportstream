@@ -45,21 +45,30 @@ jobs:
 
       - name: Filter certificates
         run: |
-          jq '[.[] | {Name: .Name, Expires: .Expires}]' certificates.json > filtered_certificates.json
-          cat filtered_certificates.json
-      
-      - name: Slack Notification
-        uses: ./.github/actions/notifications
-        with:
-          method: slack
-          title: Expiring Certificates
-          message: Here is the list of certificate expiring in 30 days or less
-          icon-emoji: ':bell:'
-          channel: temp_branch_dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          color: warning
+          expiring_certificates=$(jq '[.[] | {Name: .Name, Expires: .Expires}]' certificates.json) > filtered_certificates.json
 
-      - name: Remove Runner IP to Key Vault Firewall
+      - name: Send Notification to Slack
+        if: always() # This step should always run, even if previous steps fail
+        run: |
+          # Read the file containing expiring certificates
+          expiring_certificates=$(cat filtered_certificates.json)
+          # Format the message to send to Slack
+          message="The following certificates are expiring in 30 days or less in Azure Key Vault:\n$expiring_certificates"
+          # Use a Slack webhook to send the message to Slack
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" ${{ secrets.SLACK_WEBHOOK }}
+      
+      # - name: Slack Notification
+      #   uses: ./.github/actions/notifications
+      #   with:
+      #     method: slack
+      #     title: Expiring Certificates
+      #     message: Here is the list of certificate expiring in 30 days or less
+      #     icon-emoji: ':bell:'
+      #     channel: temp_branch_dump
+      #     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     color: warning
+
+      - name: Remove Runner IP from Key Vault Firewall
         run: |
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
           az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
