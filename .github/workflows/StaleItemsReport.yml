@@ -9,7 +9,7 @@ on:
 jobs:
   alert_stale_items:
     name: Alert on Stale items in github
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
@@ -27,13 +27,13 @@ jobs:
       
       - name: Get stale pull requests
         id: StalePRs
-        shell: powershell   
+        shell: pwsh   
         run: |  
           echo "::set-output name=stdout::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
           
       - name: Get stale prs
         id: StalePRItems
-        shell: powershell   
+        shell: pwsh   
         run: echo "PullRequest = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
         
       # - name: Get stale pull requests
