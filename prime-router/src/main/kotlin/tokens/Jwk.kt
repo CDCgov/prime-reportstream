@@ -193,5 +193,30 @@ data class JwkSet(
 
             return nullSafeJwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
         }
+
+        /**
+         * Removes a key from an JwkSet.  If either the scope or key are found, returns the passed
+         * JwkSets unmodified
+         *
+         * @param jwkSets - the sets to try to remove the key from
+         * @param scope -  the scope that the key needs to be removed from
+         * @param jwk - the jwk to remove
+         * @return updated JwkSets
+         *
+         */
+        fun removeKeyFromScope(jwkSets: List<JwkSet>, scope: String, jwk: Jwk): List<JwkSet> {
+
+            val updatedJwkSet = jwkSets.find { it.scope == scope }.let { jwkSet ->
+                {
+                    if (jwkSet == null) {
+                        null
+                    } else {
+                        JwkSet(scope, jwkSet.keys.filter { it.kid != jwk.kid })
+                    }
+                } 
+            }() ?: return jwkSets
+
+            return jwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
+        }
     }
 }
