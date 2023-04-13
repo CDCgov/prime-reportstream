@@ -39,6 +39,7 @@ jobs:
           az keyvault certificate list --vault-name pdhstaging-keyvault \
           --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
           -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' >> certificates.json
+          cat certificates.json
 
       - name: Format output
         id: format_out
