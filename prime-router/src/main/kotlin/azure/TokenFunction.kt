@@ -73,10 +73,10 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
-        val server2ServerAuthentication = Server2ServerAuthentication(metadata)
+        val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
         val jti = DatabaseJtiCache(workflowEngine.db)
         val response = if (
-            server2ServerAuthentication.checkSenderToken(clientAssertion, scope, jti, actionHistory)
+            server2ServerAuthentication.checkSenderToken(clientAssertion, scope, jti, actionHistory )
         ) {
             val token = server2ServerAuthentication.createAccessToken(
                 scope, FindReportStreamSecretInVault(), actionHistory

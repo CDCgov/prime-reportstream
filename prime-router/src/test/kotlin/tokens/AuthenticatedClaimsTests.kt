@@ -18,6 +18,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -369,6 +370,7 @@ class AuthenticatedClaimsTests {
         assertThat(claims2?.scopes?.size).isEqualTo(1)
         assertThat(claims2?.scopes?.contains("foo.bar.report")).isEqualTo(true)
         assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
+        unmockkConstructor(Server2ServerAuthentication::class)
     }
 
     @Test

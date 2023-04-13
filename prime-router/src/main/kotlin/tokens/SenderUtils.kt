@@ -13,6 +13,30 @@ import java.util.UUID
 class SenderUtils {
 
     companion object {
+
+        fun generateToken(
+            issuer: String,
+            baseUrl: String,
+            privateKey: PrivateKey,
+            keyId: String,
+            jti: String?,
+            expirationSecondsFromNow: Int = 300,
+        ): String {
+            val jwsObj = Jwts.builder()
+                .setHeaderParam("kid", keyId) // kid
+                .setHeaderParam("typ", "JWT") // typ
+                .setIssuer(issuer) // iss
+                .setSubject(issuer) // sub
+                .setAudience(baseUrl) // aud
+                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
+                .signWith(privateKey)
+            if(jti != null ){
+                jwsObj.setId(jti) // jti
+            }
+            val jws = jwsObj.compact()
+            return jws
+        }
+
         /**
          * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
          * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
@@ -23,18 +47,9 @@ class SenderUtils {
             privateKey: PrivateKey,
             keyId: String,
             expirationSecondsFromNow: Int = 300,
+            jti: String? = UUID.randomUUID().toString()
         ): String {
-            val jwsObj = Jwts.builder()
-                .setHeaderParam("kid", keyId) // kid
-                .setHeaderParam("typ", "JWT") // typ
-                .setIssuer(sender.fullName) // iss
-                .setSubject(sender.fullName) // sub
-                .setAudience(baseUrl) // aud
-                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
-                .setId(UUID.randomUUID().toString()) // jti
-                .signWith(privateKey)
-            val jws = jwsObj.compact()
-            return jws
+            return generateToken(sender.fullName, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow )
         }
 
         /**
