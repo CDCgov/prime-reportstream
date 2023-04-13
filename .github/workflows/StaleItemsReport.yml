@@ -9,7 +9,7 @@ on:
 jobs:
   alert_stale_items:
     name: Alert on Stale items in github
-    windows_run:
+    runs-on: windows-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
