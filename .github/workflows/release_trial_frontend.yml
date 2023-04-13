@@ -2,40 +2,68 @@
 name: Release Trial Frontend
 
 on:
-  push:
-    branches:
-      - trialfrontend01
-      - trialfrontend02
-      - trialfrontend03
-
-defaults:
-  run:
-    working-directory: prime-router
+  pull_request:
+    types:
+      - labeled
 
 jobs:
   pre_job:
     name: "Set Build Environment"
     runs-on: ubuntu-latest
     outputs:
-      env_name: ${{ steps.build_vars.outputs.env_name }}
-      version: ${{ github.ref_name }}
+      # env_name and version are the same for trial frontends
+      env_name: ${{ steps.set_vars.outputs.env_name }}
+      version: ${{ steps.set_vars.outputs.version }}
+      trialfrontend_url: ${{ steps.set_vars.outputs.trialfrontend_url }}
     steps:
-      - name: Check out changes
-        uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
-
-      - name: Build vars
-        id: build_vars
-        uses: ./.github/actions/build-vars
+      - name: Set vars
+        id: set_vars
+        if: |
+          (github.event.label.name == 'trialfrontend01') || 
+          (github.event.label.name == 'trialfrontend02') || 
+          (github.event.label.name == 'trialfrontend03')
+        shell: bash
+        run: |
+          echo "env_name=${{ github.event.label.name }}" >> $GITHUB_OUTPUT
+          echo "version=${{ github.event.label.name }}" >> $GITHUB_OUTPUT
+          if [[ '${{ github.event.label.name }}' == 'trialfrontend01' ]]; then
+            echo "trialfrontend_url=https://pdhstagingpublictrial01.z13.web.core.windows.net" >> $GITHUB_OUTPUT
+          elif [[ '${{ github.event.label.name }}' == 'trialfrontend02' ]]; then
+            echo "trialfrontend_url=https://pdhstagingpublictrial02.z13.web.core.windows.net" >> $GITHUB_OUTPUT
+          elif [[ '${{ github.event.label.name }}' == 'trialfrontend03' ]]; then
+            echo "trialfrontend_url=https://pdhstagingpublictrial03.z13.web.core.windows.net" >> $GITHUB_OUTPUT
+          fi
 
   build_frontend_react_release:
     name: "Release: Build Frontend (React)"
     needs:
       - pre_job
+    if: ${{ needs.pre_job.outputs.trialfrontend_url != '' }}
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
     steps:
+      - name: Find Comment
+        id: comment_find
+        uses: peter-evans/find-comment@034abe94d3191f9c89d870519735beae326f2bdb
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-regex: '\.*trialfrontend.*\gi'
+
+      - name: Create comment
+        id: comment_create
+        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        with:
+          comment-id: ${{ steps.comment_find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Deploying branch to ${{ needs.pre_job.outputs.env_name }}...
+          edit-mode: replace
+          reactions: rocket
+          reactions-edit-mode: replace
+
       - name: Check out changes
         uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
 
@@ -54,7 +82,8 @@ jobs:
       - build_frontend_react_release
     if: |
       always() &&
-      failure() != 'true'
+      failure() != 'true' &&
+      ${{ needs.pre_job.outputs.trialfrontend_url != '' }}
     environment: staging
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
@@ -77,3 +106,24 @@ jobs:
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           version: ${{ needs.pre_job.outputs.version }}
+
+      - name: Find Comment
+        id: comment_find
+        uses: peter-evans/find-comment@034abe94d3191f9c89d870519735beae326f2bdb
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-regex: '\.*trialfrontend.*\gi'
+
+      - name: Create comment
+        id: comment_create
+        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        with:
+          comment-id: ${{ steps.comment_find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Deployed to ${{ needs.pre_job.outputs.env_name }}: ${{ needs.pre_job.outputs.trialfrontend_url }}
+          edit-mode: replace
+          reactions: rocket
+          reactions-edit-mode: replace
+
