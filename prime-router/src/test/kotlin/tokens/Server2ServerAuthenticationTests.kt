@@ -133,6 +133,8 @@ class Server2ServerAuthenticationTests {
 
     @BeforeEach
     fun reset() {
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
         mockkConstructor(WorkflowEngine::class)
         every { anyConstructed<WorkflowEngine>().settings } returns settings
         val jwk = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java)
@@ -140,8 +142,6 @@ class Server2ServerAuthenticationTests {
         settings.organizationStore.put(organizationNoKeys.name, organizationNoKeys)
         settings.senderStore.put(sender.fullName, sender)
         server2ServerAuthentication = Server2ServerAuthentication(WorkflowEngine.Builder().build())
-        mockkObject(Metadata.Companion)
-        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @AfterEach
