@@ -3,6 +3,7 @@ constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
   alternateIdentifierExtension: '%resource.value.extension(%`rsext-alternate-identifier`)'
   originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
+  observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
 
   - name: ca-organization-performer-identifier
@@ -35,4 +36,16 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
     value: [ '%originalTextExtension.value' ]
 
-#
+  # California requirement: Move all regular notes and AOE questions between last OBX segment and SPM
+  #   as NTE segments
+  # To do that we have to compare the Observation index against the Observation count
+  # to make sure is the last OBX segment and only add notes and AOE questions to that segment
+  - name: ca-order-observation-note
+    resource: '%diagnostic.result.resolve().note.text.split(''\n'') | %service.note.text.split(''\n'') | %service.supportingInfo.resolve()'
+    condition: >-
+      (%observation.note.exists() or %service.note.exists() or %service.supportingInfo.exists())
+      and (%diagnostic.result.count() - 1) = %resultIndex
+    schema: ca-order-note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7ObservationPath}'
