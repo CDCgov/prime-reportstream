@@ -21,7 +21,6 @@ import { WatersResponse } from "../../config/endpoints/waters";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
-import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { FileHandlerStepProps } from "./FileHandler";
 
@@ -199,7 +198,7 @@ export default function FileHandlerFileUploadStep({
                     return (
                         <div className="padding-y-4 text-center">
                             {/* HACK: need to remove grid-container from Spinner */}
-                            <div className="grid-row">
+                            <div className="grid-row flex-justify-center">
                                 <Spinner />
                             </div>
                             <div className="grid-row">
@@ -264,8 +263,6 @@ export default function FileHandlerFileUploadStep({
                                 Submit
                             </Button>
                         </div>
-
-                        <FileHandlerProgrammersGuideTip />
                     </Form>
                 );
             })()}

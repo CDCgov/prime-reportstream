@@ -1,5 +1,5 @@
 import React, { AnchorHTMLAttributes } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
@@ -167,18 +167,64 @@ export const USNavLink = ({
     className,
     activeClassName,
 }: USNavLinkProps) => {
+    const { hash: currentHash } = useLocation();
+    const hashIndex = href?.indexOf("#") ?? -1;
+    const hash = hashIndex > -1 ? href?.slice(hashIndex) : "";
+
     return (
         <NavLink
             to={href || ""}
-            className={({ isActive }) =>
-                classnames("usa-nav__link", {
+            className={({ isActive: isPathnameActive }) => {
+                // Without this, all hash links would be considered active for a path
+                const isActive =
+                    isPathnameActive && (hash === "" || currentHash === hash);
+
+                return classnames("usa-nav__link", {
                     "usa-current": isActive,
                     [activeClassName as any]: isActive, // `as any` because string may be undefined
                     [className as any]: !isActive, // `as any` because string may be undefined
-                })
-            }
+                });
+            }}
         >
             {children}
         </NavLink>
     );
 };
+
+/**
+ * Try to parse the href as a URL. If it throws, then it's not
+ * an absolute href (aka is internal). If it parses, verify it is
+ * from the cdc.gov domain (aka is internal).
+ */
+export function isExternalUrl(href?: string) {
+    if (href === undefined) return false;
+    try {
+        // Browsers allow // shorthand in anchor urls but URL does not
+        const url = new URL(
+            href.replace(/^\/\//, `${window.location.protocol}//`)
+        );
+        return (
+            url.protocol.startsWith("http") &&
+            url.host !== "cdc.gov" &&
+            !url.host.endsWith(".cdc.gov")
+        );
+    } catch (e: any) {
+        return false;
+    }
+}
+
+export interface USSmartLinkProps
+    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
+
+export function USSmartLink({ children, ...props }: USSmartLinkProps) {
+    let isExternal = props.href !== undefined;
+
+    if (props.href !== undefined) {
+        isExternal = isExternalUrl(props.href);
+    }
+
+    if (isExternal) {
+        return <USExtLink {...props}>{children}</USExtLink>;
+    }
+    return <USLink {...props}>{children}</USLink>;
+}

@@ -9,7 +9,7 @@ export default function FileHandlerProgrammersGuideTip() {
             <span className="padding-left-1">
                 Pages 18-29 in the{" "}
                 <USLink href="/resources/programmers-guide">
-                    API Programmer’s Guide.
+                    API Programmer’s Guide
                 </USLink>{" "}
                 have the information you need to validate your file
                 successfully. Pay special attention to which fields are required
