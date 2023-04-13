@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.doesNotContain
 import assertk.assertions.isFalse
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -195,7 +199,9 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(result).isFalse()
+        assertThat(result.first).isFalse()
+        assertThat(result.second).isNotNull()
+        assertThat(result.second!!).contains("defaultResponse")
     }
 
     @Test
@@ -207,24 +213,28 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val useDefaultResult = engine.evaluateFilterCondition(
+        val useDefaultResponseResult = engine.evaluateFilterCondition(
             emptyList(),
             bundle,
-            false,
-            true
+            defaultResponse = false,
+            reverseFilter = true,
         )
-        // assert
-        assertThat(useDefaultResult).isTrue()
+        // default response isn't reversed
+        assertThat(useDefaultResponseResult.first).isFalse()
+        assertThat(useDefaultResponseResult.second).isNotNull()
+        assertThat(useDefaultResponseResult.second!!).contains("defaultResponse")
 
         // act
-        val useBundleResult = engine.evaluateFilterCondition(
+        val useDefaultProcessingModeFilterResult = engine.evaluateFilterCondition(
             engine.processingModeFilterDefault,
             bundle,
-            false,
-            false
+            defaultResponse = false,
+            reverseFilter = true
         )
         // assert
-        assertThat(useBundleResult).isTrue()
+        assertThat(useDefaultProcessingModeFilterResult.first).isFalse()
+        assertThat(useDefaultProcessingModeFilterResult.second).isNotNull()
+        assertThat(useDefaultProcessingModeFilterResult.second!!).contains("reversed")
     }
 
     @Test
@@ -243,7 +253,9 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(result).isTrue()
+        assertThat(result.first).isTrue()
+        assertThat(result.second).isNotNull()
+        assertThat(result.second!!).contains("defaultResponse")
     }
 
     @Test
@@ -262,7 +274,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(procModeResult).isTrue()
+        assertThat(procModeResult.first).isTrue()
+        assertThat(procModeResult.second).isNull()
     }
 
     @Test
@@ -281,7 +294,9 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(procModeResult).isFalse()
+        assertThat(procModeResult.first).isFalse()
+        assertThat(procModeResult.second).isNotNull()
+        assertThat(procModeResult.second!!).contains(engine.processingModeFilterDefault[0])
     }
 
     @Test
@@ -302,7 +317,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -323,7 +339,10 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isFalse()
+        assertThat(qualDefaultResult.first).isFalse()
+        assertThat(qualDefaultResult.second).isNotNull()
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefault[1])
     }
 
     @Test
@@ -344,7 +363,10 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isFalse()
+        assertThat(qualDefaultResult.first).isFalse()
+        assertThat(qualDefaultResult.second).isNotNull()
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefault[5])
     }
 
     @Test
@@ -365,7 +387,10 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isFalse()
+        assertThat(qualDefaultResult.first).isFalse()
+        assertThat(qualDefaultResult.second).isNotNull()
+        assertThat(qualDefaultResult.second!!).doesNotContain(engine.qualityFilterDefault[0])
+        assertThat(qualDefaultResult.second!!).contains(engine.qualityFilterDefault[6])
     }
 
     @Test
@@ -386,7 +411,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -407,7 +433,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -428,7 +455,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -449,7 +477,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -470,7 +499,8 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 
     @Test
@@ -491,6 +521,7 @@ class DefaultFilterTests {
         )
 
         // assert
-        assertThat(qualDefaultResult).isTrue()
+        assertThat(qualDefaultResult.first).isTrue()
+        assertThat(qualDefaultResult.second).isNull()
     }
 }
