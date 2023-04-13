@@ -29,7 +29,7 @@ jobs:
         id: StalePRs
         shell: powershell   
         run: |  
-          echo "::set-output name=stdout::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          echo "::set-output name=stdout::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
           
       - name: Get stale prs
         id: StalePRItems
