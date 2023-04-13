@@ -131,7 +131,6 @@ elements:
     resource: 'Bundle'
     value: [ '"PRIME ReportStream"' ]
 
-  # The transforms below could be moved to the sender transform/enrichment step for simple report once FHIR transforms are ready
   - name: ca-order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
     condition: '%resource.count() > 0'
