@@ -17,12 +17,19 @@ jobs:
           fetch-depth: 0
       - name: Get Stale branches
         id: stalebranches
-        run: echo "branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
+        run: |
+          branches=$(./.github/scripts/stale_items_report/oldbranches.sh)
+           echo "StaleBranches<<EOF" >> $GITHUB_ENV
+  
+          # here we can place the command that will generate multi-line text
+          echo $branches >> $GITHUB_ENV 
+            
+          echo "EOF" >> $GITHUB_ENV
         shell: bash
 
       - name: print Stale branches
         id: printstalebranches
-        run: echo "${{ steps.stalebranches.outputs.branches }}"
+        run: echo "${{ env.StaleBranches }}"
         shell: bash
       
 
