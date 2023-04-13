@@ -46,10 +46,10 @@ jobs:
           script: | 
             Write-Host $env:PullRequest >> staleprs.txt
 
-        - name: print stale prs
-          id: StalePRItems
-          shell: pwsh   
-          run: cat staleprs.txt
+      - name: print stale prs
+        id: StalePRItems
+        shell: pwsh   
+        run: cat staleprs.txt
       
 
       # - name: Get stale pull requests
