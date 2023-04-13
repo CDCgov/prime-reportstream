@@ -143,12 +143,15 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
-  # California requirement: map AOE questions to NTE segments under Patient
-  # Appending AOE questions to patient notes
-  - name: patient-note
-    resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'') | Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
-    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists() or Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.exists()'
-    schema: 'ca-patient-note'
+
+  # California requirement: move order notes and observation notes to last observation
+  # suppressing default mapping for notes
+  - name: order-note
+    condition: false
+
+  - name: observation-note
+    condition: false
+
 
 
   # PID-3-4 Max length: 20
