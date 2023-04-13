@@ -29,7 +29,8 @@ jobs:
         id: StalePRs
         shell: powershell   
         run: |  
-          echo "PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_OUTPUT
+          $PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
+          Write-Output "::set-output name=PR::$PullRequests"
           
       - name: Get stale prs
         id: StalePRItems
@@ -58,7 +59,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo  ${{ steps.StalePRItems.outputs.test }} 
+          echo  ${{ steps.StalePRItems.outputs.PR }} 
       
 
       # - uses: MeilCli/slack-upload-file@v3
