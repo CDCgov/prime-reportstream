@@ -34,10 +34,10 @@ jobs:
         id: cert_list
         run: |
           az keyvault certificate list --vault-name pdhprod-keyvault \
-          --query "[?attributes.expires <= '$(date -u -d '+300 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
+          --query "[?attributes.expires <= '$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
           -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' > certificates.json
           az keyvault certificate list --vault-name pdhstaging-keyvault \
-          --query "[?attributes.expires <= '$(date -u -d '+300 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
+          --query "[?attributes.expires <= '$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
           -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' >> certificates.json
           cat certificates.json
 
