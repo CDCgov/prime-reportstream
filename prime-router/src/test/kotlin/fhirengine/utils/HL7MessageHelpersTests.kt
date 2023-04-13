@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.utils
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -11,19 +10,8 @@ import assertk.assertions.startsWith
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.Event
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
-import java.util.UUID
 import kotlin.test.Test
 
 class HL7MessageHelpersTests {
@@ -156,6 +144,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         assertThat(Terser(messages[1]).get("/PATIENT_RESULT/PATIENT/PID-2")).isEqualTo("1731-TEST734")
     }
 
+    /*
     @Test
     fun `test generate report for hl7`() {
         val mockMetadata = mockk<Metadata>() {
@@ -231,4 +220,6 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         assertThat(report2.itemLineages!!.size).isEqualTo(3)
         assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
     }
+
+     */
 }

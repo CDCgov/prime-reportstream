@@ -43,7 +43,8 @@ object HL7MessageHelpers : Logging {
 
         // create report object
         val sources = emptyList<Source>()
-        val reportFormat = if (sourceReportIds.size > 1) Report.Format.HL7_BATCH else Report.Format.HL7
+        // val reportFormat = if (sourceReportIds.size > 1) Report.Format.HL7_BATCH else Report.Format.HL7
+        val reportFormat = Report.Format.FHIR
         val report = Report(
             reportFormat,
             sources,
