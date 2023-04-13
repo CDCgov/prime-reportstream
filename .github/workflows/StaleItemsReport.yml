@@ -29,7 +29,9 @@ jobs:
 
       - name: print Stale branches
         id: printstalebranches
-        run: echo "${{ env.StaleBranches }}"
+        run: |
+          echo "${{ env.StaleBranches }}" >> oldbranches.txt
+          cat oldbranches.txt
         shell: bash
       
 
