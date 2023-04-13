@@ -29,7 +29,7 @@ jobs:
         id: StalePRs
         shell: powershell   
         run: |  
-          $PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
+          $PullRequests=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)
           Write-Output "::set-output name=PR::$PullRequests"
           
       - name: Get stale prs
