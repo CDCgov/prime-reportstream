@@ -1,6 +1,9 @@
 name: GHA to Check Key Vault Certificates Expiration
 
 on:
+  # schedule:
+  #   # The workflow, e.g., every day at 9am
+  #   - cron: "0 3 * * *"
   push: 
     branches:
       - feature/check-keyvauly-cert-expiration
@@ -53,7 +56,8 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: echo -e "\033[34mThese Certificates are expired or will expire in 30 days or less\033[m" 
+          title: |
+            echo -e "\033[34mThese Certificates are expired or will expire in 30 days or less\033[m" 
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
