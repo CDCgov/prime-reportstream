@@ -35,7 +35,17 @@ jobs:
         id: StalePRItems
         shell: pwsh   
         run: echo "PullRequest = $(./.github/scripts/stale_items_report/StalePullRequests.ps1)" >> $GITHUB_ENV
-        
+      
+      - name: PowerShell script
+        # You may pin to the exact commit or the version.
+        # uses: Amadevus/pwsh-script@25a636480c7bc678a60bbf4e3e5ac03aca6cf2cd
+        uses: Amadevus/pwsh-script@v2.0.0
+        continue-on-error: true
+        with: 
+          # PowerShell script to execute in Actions-hydrated context
+          script: | 
+            Write-Host $env:PullRequest
+
       # - name: Get stale pull requests
       #   id: GetStalePRS
       #   run: |
