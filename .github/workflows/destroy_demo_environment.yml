@@ -24,7 +24,7 @@ jobs:
         working-directory: operations/app/terraform/vars/demo
     steps:
       - name: Check out changes
-        uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
