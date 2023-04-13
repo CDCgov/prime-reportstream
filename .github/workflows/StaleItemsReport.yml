@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
       - name: Get Stale branches
         id: stalebranches
-        run: echo "branches=$(./.github/scripts/stale_items_report/oldbranch.sh)" >> $GITHUB_OUTPUT
+        run: echo "branches=$(./.github/scripts/stale_items_report/oldbranches.sh)" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: print Stale branches
