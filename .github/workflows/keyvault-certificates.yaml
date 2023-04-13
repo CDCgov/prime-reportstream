@@ -52,11 +52,8 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Branch Counts
-          message: |
-            az keyvault certificate list --vault-name pdhstaging-keyvault \
-            --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
-            -o json
+          title: Expiring Certificates
+          message: Here is the list of certificate expiring in 30 days or less
           icon-emoji: ':bell:'
           channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
