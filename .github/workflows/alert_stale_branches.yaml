@@ -11,33 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
         with:
           fetch-depth: 0
-      - name: List Merged and Not Merged Branches
-        run: ./.github/scripts/alert_stale_branches/stale_branch_check.sh --merged --notmerged
+      - name: Get our Counts
+        id: counts
+        run: |
+          echo "MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)" >> $GITHUB_OUTPUT
+          echo "NOT_MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)" >> $GITHUB_OUTPUT
+          echo "ACTION_URL=$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> $GITHUB_OUTPUT
         shell: bash
-      - name: Get our Merged Count
-        id: merged
-        run: echo "MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: Get our Not Merged Count
-        id: notmerged
-        run: echo "NOT_MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: Get URL
-        id: url
-        run: echo "ACTION_URL=$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> $GITHUB_OUTPUT
-        shell: bash
-      - name: Send output to slack
-        id: slack
-        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
         with:
-          payload: |
-            {
-            "mergedtotal": "${{ steps.merged.outputs.MERGE_COUNT }}",
-            "notmergedtotal": "${{ steps.notmerged.outputs.NOT_MERGE_COUNT }}",
-            "action_url": "${{ steps.url.outputs.ACTION_URL }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES }}
+          method: slack
+          title: Stale Branch Counts
+          message: |
+            Merged ${{ steps.counts.outputs.MERGE_COUNT }}
+            Not Merged ${{ steps.counts.outputs.NOT_MERGE_COUNT }}
+          icon-emoji: ':bell:'
+          channel: temp_branch_dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning

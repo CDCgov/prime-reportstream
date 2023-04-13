@@ -16,7 +16,6 @@ import {
     RequestedChangesDisplay,
     RequestLevel,
 } from "./FileHandlerMessaging";
-import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
 import { FileHandlerStepProps } from "./FileHandler";
 
 const SERVER_ERROR_MESSAGING = {
@@ -110,8 +109,6 @@ export default function FileHandlerErrorsWarningsStep({
                     Continue without changes
                 </Button>
             </div>
-
-            <FileHandlerProgrammersGuideTip />
 
             <Modal id="file-validator-modal" ref={modalRef}>
                 <ModalHeading>
