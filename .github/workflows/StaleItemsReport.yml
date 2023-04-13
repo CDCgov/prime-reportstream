@@ -21,7 +21,7 @@ jobs:
         shell: bash
 
       - name: print Stale branches
-        id: stalebranches
+        id: printstalebranches
         run: echo "${{ steps.stalebranches.outputs.branches }}"
         shell: bash
       
