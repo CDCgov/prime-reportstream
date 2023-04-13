@@ -30,7 +30,7 @@ jobs:
         shell: pwsh   
         run: |  
           echo "::set-output name=stdout::$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
-          $pr = "$(./.github/scripts/stale_items_report/StalePullRequests.ps1)""
+          $pr = "$(./.github/scripts/stale_items_report/StalePullRequests.ps1)"
           echo "PRstaleItems=$pr" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           
       - name: Get stale prs
