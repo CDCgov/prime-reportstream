@@ -38,6 +38,7 @@ object FHIRBundleHelpers {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
+            // TODO: Create Provenance here
             throw IllegalStateException("The FHIR bundle does not contain a Provenance resource")
         }
 
