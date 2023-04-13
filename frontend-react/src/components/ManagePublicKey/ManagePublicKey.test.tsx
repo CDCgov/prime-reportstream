@@ -4,14 +4,14 @@ import { act, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
-import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
-import * as useCreateOrganizationPublicKeyExports from "../../hooks/UseCreateOrganizationPublicKey";
-import * as useOrganizationPublicKeysExports from "../../hooks/UseOrganizationPublicKeys";
-import { UseCreateOrganizationPublicKeyResult } from "../../hooks/UseCreateOrganizationPublicKey";
+import * as useCreateOrganizationPublicKeyExports from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
+import { UseCreateOrganizationPublicKeyResult } from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import { RSSender } from "../../config/endpoints/settings";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import { UseOrganizationPublicKeysResult } from "../../hooks/UseOrganizationPublicKeys";
+import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
+import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
+import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
+import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 
@@ -54,7 +54,7 @@ describe("ManagePublicKey", () => {
     ) {
         jest.spyOn(
             useCreateOrganizationPublicKeyExports,
-            "useCreateOrganizationPublicKey"
+            "default"
         ).mockReturnValue({
             mutateAsync: jest.fn(),
             ...result,
@@ -64,27 +64,23 @@ describe("ManagePublicKey", () => {
     function mockUseOrganizationSenders(
         result: Partial<UseOrganizationSendersResult> = {}
     ) {
-        jest.spyOn(
-            useOrganizationSendersExports,
-            "useOrganizationSenders"
-        ).mockReturnValue({
+        jest.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
             isLoading: false,
-            senders: DEFAULT_SENDERS,
+            data: DEFAULT_SENDERS,
             ...result,
-        });
+        } as UseOrganizationSendersResult);
     }
 
     function mockUseOrganizationPublicKeys(
         result: Partial<UseOrganizationPublicKeysResult> = {}
     ) {
-        jest.spyOn(
-            useOrganizationPublicKeysExports,
-            "useOrganizationPublicKeys"
-        ).mockReturnValue({
-            isLoading: false,
-            orgPublicKeys: { orgName: "elr-0", keys: [] },
-            ...result,
-        });
+        jest.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue(
+            {
+                isLoading: false,
+                data: { orgName: "elr-0", keys: [] },
+                ...result,
+            } as UseOrganizationPublicKeysResult
+        );
     }
 
     beforeEach(() => {
@@ -122,7 +118,7 @@ describe("ManagePublicKey", () => {
         beforeEach(() => {
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS,
+                data: DEFAULT_SENDERS,
             });
 
             renderApp(<ManagePublicKey />);
@@ -170,7 +166,7 @@ describe("ManagePublicKey", () => {
         beforeEach(() => {
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.slice(0, 1),
+                data: DEFAULT_SENDERS.slice(0, 1),
             });
 
             renderApp(<ManagePublicKey />);
@@ -189,11 +185,11 @@ describe("ManagePublicKey", () => {
         beforeEach(() => {
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.slice(0, 1),
+                data: DEFAULT_SENDERS.slice(0, 1),
             });
 
             mockUseOrganizationPublicKeys({
-                orgPublicKeys: mockRSApiKeysResponse,
+                data: mockRSApiKeysResponse,
             });
 
             renderApp(<ManagePublicKey />);
@@ -216,7 +212,7 @@ describe("ManagePublicKey", () => {
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.slice(1),
+                data: DEFAULT_SENDERS.slice(1),
             });
 
             mockUseCreateOrganizationPublicKey({
@@ -247,7 +243,7 @@ describe("ManagePublicKey", () => {
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,
-                senders: DEFAULT_SENDERS.slice(0, 1),
+                data: DEFAULT_SENDERS.slice(0, 1),
             });
 
             mockUseCreateOrganizationPublicKey({

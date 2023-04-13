@@ -6,13 +6,13 @@ import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { USLink } from "../USLink";
 import { showError } from "../AlertNotifications";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { validateFileType, validateFileSize } from "../../utils/FileUtils";
-import { useCreateOrganizationPublicKey } from "../../hooks/UseCreateOrganizationPublicKey";
-import { useOrganizationPublicKeys } from "../../hooks/UseOrganizationPublicKeys";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useOrganizationSenders } from "../../hooks/UseOrganizationSenders";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { validateFileType, validateFileSize } from "../../utils/FileUtils";
+import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
+import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
+import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -33,8 +33,9 @@ export function ManagePublicKey() {
     const [fileSubmitted, setFileSubmitted] = useState(false);
 
     const { activeMembership } = useSessionContext();
-    const { senders, isLoading: isSendersLoading } = useOrganizationSenders();
-    const { orgPublicKeys } = useOrganizationPublicKeys();
+    const { data: senders, isLoading: isSendersLoading } =
+        useOrganizationSenders();
+    const { data: orgPublicKeys } = useOrganizationPublicKeys();
     const {
         mutateAsync,
         isSuccess,
@@ -151,7 +152,7 @@ export function ManagePublicKey() {
             )}
             {sender.length === 0 && (
                 <ManagePublicKeyChooseSender
-                    senders={senders}
+                    senders={senders || []}
                     onSenderSelect={handleSenderSelect}
                 />
             )}
