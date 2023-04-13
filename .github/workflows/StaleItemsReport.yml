@@ -47,7 +47,6 @@ jobs:
             Write-Host $env:PullRequest >> staleprs.txt
 
       - name: print stale prs
-        id: StalePRItems
         shell: pwsh   
         run: cat staleprs.txt
       
