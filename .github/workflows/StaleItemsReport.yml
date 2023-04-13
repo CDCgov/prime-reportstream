@@ -60,7 +60,7 @@ jobs:
       - name: Stale PRs
         id: pullrequests
         run: |
-          echo  ${{ steps.StalePRs.outputs.stdout }} 
+          echo  ${{ steps.StalePRs.outputs.PRstaleItems }} 
       
 
       # - uses: MeilCli/slack-upload-file@v3
