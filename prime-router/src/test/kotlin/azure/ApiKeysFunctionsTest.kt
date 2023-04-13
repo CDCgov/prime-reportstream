@@ -172,6 +172,32 @@ class ApiKeysFunctionsTest {
         }
 
         @Test
+        fun `Test fails delete a key as an org admin for a different org`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
+            )
+            val httpRequestMessage = MockHttpRequestMessage()
+            val jwt = mapOf("organization" to listOf("DHSender_watersAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().delete(
+                httpRequestMessage,
+                organization.name,
+                wildcardReportScope,
+                jwk2.kid as String
+            )
+
+            assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+            val updatedOrg = settings.organizationStore.get(organization.name)
+            assertThat(updatedOrg?.keys?.size).isEqualTo(1)
+            assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(wildcardReportScope))
+            assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isEqualTo(jwk2.toRSAPublicKey())
+        }
+
+        @Test
         fun `Test delete a key returns a 404 if the scope is not found`() {
             settings.organizationStore.put(
                 organization.name,
@@ -195,6 +221,27 @@ class ApiKeysFunctionsTest {
             assertThat(updatedOrg?.keys?.size).isEqualTo(1)
             assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(defaultReportScope))
             assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isEqualTo(jwk2.toRSAPublicKey())
+        }
+        @Test
+        fun `Test delete a key returns a 404 if the org does not exist`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk2)
+            )
+            val httpRequestMessage = MockHttpRequestMessage()
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().delete(
+                httpRequestMessage,
+                "waters",
+                "waters.*.report",
+                jwk2.kid as String
+            )
+
+            assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
         }
 
         @Test
@@ -247,6 +294,35 @@ class ApiKeysFunctionsTest {
             assertThat(updatedOrg?.keys?.size).isEqualTo(1)
             assertThat(updatedOrg?.keys?.map { key -> key.scope }).isEqualTo(listOf(wildcardReportScope))
             assertThat(updatedOrg?.keys?.get(0)?.keys?.get(0)?.toRSAPublicKey()).isEqualTo(jwk2.toRSAPublicKey())
+        }
+
+        @Test
+        fun `Test returns the error if one is encountered persisting the org`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
+            )
+            val httpRequestMessage = MockHttpRequestMessage()
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            every { facade.putSetting(organization.name, any(), claims, OrganizationAPI::class.java) } returns Pair(
+                SettingsFacade.AccessResult.BAD_REQUEST,
+                "Payload and path name do not match"
+            )
+
+            val response = ApiKeysFunctions().delete(
+                httpRequestMessage,
+                organization.name,
+                wildcardReportScope,
+                jwk.kid as String
+            )
+
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("Payload and path name do not match")
         }
     }
 

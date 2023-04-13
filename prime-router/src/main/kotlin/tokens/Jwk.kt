@@ -213,7 +213,7 @@ data class JwkSet(
                     } else {
                         JwkSet(scope, jwkSet.keys.filter { it.kid != jwk.kid })
                     }
-                } 
+                }
             }() ?: return jwkSets
 
             return jwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
