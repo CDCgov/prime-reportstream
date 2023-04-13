@@ -12,9 +12,9 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
 
-      - name: Get Runner IP
-        run: echo "::set-output name=runner_ip::$(curl https://ifconfig.me)"
+      - name: Get runner ip
         id: runner_ip
+        uses: ./.github/actions/runner-ip
 
       - name: Connect to VPN & Login into Azure
         uses: ./.github/actions/vpn-azure
@@ -26,37 +26,35 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Add Runner IP to Key Vault Firewall
-        uses: azure/cli@v1
-        with:
-          inlineScript: |
-            az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
-            az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.runner_ip }}
+        run: |
+          az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+          az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
 
       - name: List KeyVault Certificates in Prod & Staging
         id: cert_list
         run: |
           az keyvault certificate list --vault-name pdhprod-keyvault \
           --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
-          -o json > certificates.json
+          -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' > certificates.json
           az keyvault certificate list --vault-name pdhstaging-keyvault \
           --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
-          -o json >> certificates.json
-          cat certificates.json
+          -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' >> certificates.json
 
-      - name: Filter certificates
+      - name: Format output
+        id: format_out
         run: |
-          jq '[.[] | {Name: .Name, Expires: .Expires}]' certificates.json > filtered_certificates.json
-          cat filtered_certificates.json
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "LIST<<$EOF" >> $GITHUB_OUTPUT
+          cat certificates.json >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
       
       - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Stale Branch Counts
+          title: Key Vault Certificates Expiration
           message: |
-            az keyvault certificate list --vault-name pdhstaging-keyvault \
-            --query "[?attributes.expires <= '$(date -u -d '+400 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
-            -o json
+            ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
           channel: temp_branch_dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -64,8 +62,8 @@ jobs:
 
       - name: Remove Runner IP to Key Vault Firewall
         run: |
-          az keyvault network-rule remove --name pdhstaging-keyvault --ip-address $runner_ip
-          az keyvault network-rule remove --name pdhprod-keyvault --ip-address $runner_ip
+          az keyvault network-rule remove --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+          az keyvault network-rule remove --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
 
 
 
