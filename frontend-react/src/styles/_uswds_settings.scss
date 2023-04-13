@@ -2,7 +2,7 @@
 // see: https://designsystem.digital.gov/documentation/settings/
 
 @use "uswds-core" with (
-  /*
+    /*
     These are necessary for the image and font urls referenced in the source
     files to resolve correctly.
 
@@ -10,55 +10,47 @@
       these paths are from where the output css lives, in this case
               /frontend-react/src/content/generated/global.out.css
   */
-  $theme-image-path: '@uswds/uswds/img',
-  $theme-font-path: '@uswds/uswds/fonts',
+        $theme-image-path: "@uswds/uswds/img",
+    $theme-font-path: "@uswds/uswds/fonts",
 
-  $theme-show-compile-warnings: true,
-  $theme-show-notifications: false,
+    $theme-show-compile-warnings: true,
+    $theme-show-notifications: false,
 
-  // Override defaultUSWDS maximum width settings
-  $theme-header-max-width: 'desktop',
-  // $theme-header-min-width: 'desktop-lg',
+    // Override defaultUSWDS maximum width settings
+    $theme-header-max-width: "desktop",
+    // $theme-header-min-width: 'desktop-lg',
+    $theme-grid-container-max-width: "desktop",
+    $theme-site-margins-breakpoint: "desktop",
+    $theme-site-alert-max-width: "desktop",
+    // $theme-identifier-max-width: 'desktop-lg',
+    $theme-footer-max-width: "desktop",
 
-  $theme-grid-container-max-width: 'desktop',
-  $theme-site-margins-breakpoint: 'desktop',
-  $theme-site-alert-max-width: 'desktop',
-  // $theme-identifier-max-width: 'desktop-lg',
+    $theme-site-margins-width: 4,
+    $theme-site-margins-mobile-width: 2,
 
-  $theme-footer-max-width: 'desktop',
+    //Typography
+    $theme-font-type-cond: false,
+    $theme-font-type-icon: false,
+    $theme-font-type-lang: false,
+    $theme-font-type-mono: "roboto-mono",
+    $theme-font-type-sans: "public-sans",
+    $theme-font-type-serif: false,
 
-  $theme-site-margins-width: 4,
-  $theme-site-margins-mobile-width: 2,
+    $theme-font-role-ui: "sans",
+    $theme-font-role-heading: "sans",
+    $theme-font-role-body: "sans",
+    $theme-font-role-code: "mono",
+    $theme-font-role-alt: "mono",
 
-  //Typography
-  $theme-font-type-cond:   false,
-  $theme-font-type-icon:   false,
-  $theme-font-type-lang:   false,
-  $theme-font-type-mono:   "roboto-mono",
-  $theme-font-type-sans:   "public-sans",
-  $theme-font-type-serif:   false,
+    $theme-process-list-heading-font-family: "sans",
+    $theme-process-list-heading-font-size: "md",
 
-  $theme-font-role-ui:      "sans",
-  $theme-font-role-heading: "sans",
-  $theme-font-role-body:    "sans",
-  $theme-font-role-code:    "mono",
-  $theme-font-role-alt:     "mono",
+    // Flex
+    $flex-settings: (responsive: true),
 
-  $theme-process-list-heading-font-family: "sans",
-  $theme-process-list-heading-font-size: "md",
+    $flex-direction-settings: (responsive: true),
 
-  // Flex
-  $flex-settings: (
-    responsive: true
-  ),
-
-  $flex-direction-settings: (
-    responsive: true
-  ),
-
-  $flex-wrap-settings: (
-    responsive: true
-  ),
-  // This flag enables all possible USWDS color tokens
-  $global-color-palettes: "palette-color",
+    $flex-wrap-settings: (responsive: true),
+    // This flag enables all possible USWDS color tokens
+    $global-color-palettes: "palette-color"
 );
