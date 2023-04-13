@@ -1,4 +1,4 @@
-"use strict;"
+"use strict";
 
 /** @type {import('@storybook/core-common').StorybookConfig} */
 module.exports = {
