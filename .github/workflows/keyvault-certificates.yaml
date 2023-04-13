@@ -55,7 +55,7 @@ jobs:
           # Format the message to send to Slack
           message="The following certificates are expiring in 30 days or less in Azure Key Vault:\n$expiring_certificates"
           # Use a Slack webhook to send the message to Slack
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" ${{ secrets.SLACK_WEBHOOK }}
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" ${{ secrets.SLACK_WEBHOOK_URL }}
       
       # - name: Slack Notification
       #   uses: ./.github/actions/notifications
