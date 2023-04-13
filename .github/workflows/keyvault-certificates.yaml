@@ -1,4 +1,4 @@
-name: Check Key Vault Certificates Expiration
+name: GHA to Check Key Vault Certificates Expiration
 
 on:
   push: 
@@ -53,7 +53,7 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: These Certificates will expire in 30 days or less
+          title: echo -e "\033[34mThese Certificates are expired or will expire in 30 days or less\033[m" 
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
