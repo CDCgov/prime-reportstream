@@ -56,8 +56,7 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: |
-            echo -e "\033[34mThese Certificates are expired or will expire in 30 days or less\033[m" 
+          title: These Certificates are expired or will expire in 30 days or less
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
@@ -65,7 +64,7 @@ jobs:
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
 
-      - name: Remove Runner IP to Key Vault Firewall
+      - name: Remove Runner IP from the KeyVault Firewalls
         run: |
           az keyvault network-rule remove --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
           az keyvault network-rule remove --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
