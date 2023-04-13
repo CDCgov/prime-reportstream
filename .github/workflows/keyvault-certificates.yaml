@@ -56,7 +56,7 @@ jobs:
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
+          channel: temp-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
 
