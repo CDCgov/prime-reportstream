@@ -47,13 +47,13 @@ jobs:
       #   shell: pwsh
       #   continue-on-error: true
 
-      - name: Stale PRs
-        id: prs
-        env: 
-          PullRequests: $(./.github/scripts/stale_items_report/StalePullRequests.ps1) 
-        run: |
-           write-output $env:PullRequests
-        shell: powershell     
+      # - name: Stale PRs
+      #   id: prs
+      #   env: 
+      #     PullRequests: $(./.github/scripts/stale_items_report/StalePullRequests.ps1) 
+      #   run: |
+      #      write-output $env:PullRequests
+      #   shell: powershell     
 
       - name: Stale PRs
         id: pullrequests
