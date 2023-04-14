@@ -1,35 +1,34 @@
 import type { ComponentMeta, ComponentStoryObj } from "@storybook/react";
-import { Icon } from "@trussworks/react-uswds";
-import { JSXElementConstructor } from "react";
 
-import { unflattenProps } from "../utils/misc";
+import { UnnestedIconButton as IconButton } from "./IconButton";
 
-import { IconButton } from "./IconButton";
-
-type NonStrictMeta<C extends JSXElementConstructor<any>> = ComponentMeta<C> & {
-    argTypes: { [k: string]: unknown };
-    args: { [k: string]: unknown };
-};
-
-const meta: NonStrictMeta<typeof IconButton> = {
+const meta: ComponentMeta<typeof IconButton> = {
     title: "components/IconButton",
     component: IconButton,
     argTypes: {
         iconProps__icon: {
-            type: "string",
-            options: Object.keys(Icon).filter((k) => k !== "prototype"),
             table: {
                 category: "iconProps",
+            },
+        },
+        tooltip__tooltipContentProps__children: {
+            table: {
+                category: "tooltipProps__tooltipContentProps",
             },
         },
     },
     args: {
         iconProps__icon: "Construction",
     },
-    render: (args) => <IconButton {...unflattenProps(args, ["iconProps"])} />,
 };
 
 export default meta;
 type Story = ComponentStoryObj<typeof IconButton>;
 
 export const Default: Story = {};
+
+export const Tooltip: Story = {
+    args: {
+        tooltip__tooltipContentProps__children: "Hello",
+    },
+};

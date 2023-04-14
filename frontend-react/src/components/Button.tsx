@@ -2,6 +2,8 @@ import { Button as OrigButton } from "@trussworks/react-uswds";
 import { ButtonProps as OrigButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import React from "react";
 
+import { withUnnestedProps } from "../utils/StorybookUtils";
+
 import {
     TooltipTrigger,
     TooltipContent,
@@ -28,7 +30,7 @@ export type ButtonProps = Omit<OrigButtonProps, "type"> & {
 export const Button = React.forwardRef(
     ({ tooltip, type = "button", ...props }: ButtonProps, ref: any) => {
         const button = (
-            <span ref={ref}>
+            <span className="display-inline-block" ref={ref}>
                 <OrigButton type={type} {...props} />
             </span>
         );
@@ -49,4 +51,15 @@ export const Button = React.forwardRef(
 
         return button;
     }
+);
+
+// For storybook
+export const UnnestedButton = React.forwardRef(
+    withUnnestedProps<
+        typeof Button,
+        {
+            tooltip__tooltipContentProps__children: string;
+            tooltip__tooltipProps__open: boolean;
+        }
+    >(Button, ["tooltip__tooltipContentProps", "tooltip__tooltipProps"])
 );

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { AriaRole, useId } from "react";
+import React, { AriaRole, useId, useState } from "react";
 
 import { IconButton, IconButtonProps } from "../components/IconButton";
 import {
@@ -120,6 +120,14 @@ export interface CodeSnippetProps extends React.HTMLAttributes<HTMLElement> {
           };
 }
 
+function getTooltipText(isOpen: boolean) {
+    if (isOpen) {
+        return "Copied";
+    }
+
+    return "Copy to clipboard";
+}
+
 /**
  * Has two display modes: inline and block. Inline mode has no background, no button, and all text is
  * highlighted. Block mode has a background, button, and only specified text is highlighted. Inline is
@@ -171,9 +179,6 @@ export function CodeSnippet({
     tooltip,
     ...props
 }: CodeSnippetProps) {
-    const defaultHandler = (_e: React.MouseEvent<HTMLElement>) => {
-        navigator.clipboard.writeText(children?.toString() ?? "");
-    };
     const Container = to ?? "span";
     const isBlockShowing =
         !!figure || (isBlock !== undefined ? isBlock : false);
@@ -181,12 +186,36 @@ export function CodeSnippet({
     const isBackgroundShowing = isBackground ?? isBlockShowing;
     const isHighlightText =
         !!highlightText && (isBlockShowing || isBackgroundShowing);
-    const isTooltipShowing = tooltip !== false;
+    const isTooltipEnabled = tooltip !== false;
     const ariaId = useId();
-    const tooltipOptions =
+    const [isCopied, setIsCopied] = useState(false);
+    const [isTooltipShowing, setIsTooltipShowing] = useState(false);
+    const tooltipOptions: IconButtonProps["tooltip"] =
         typeof tooltip === "object"
             ? tooltip
-            : { tooltipContentProps: { children: "Copy to clipboard" } };
+            : ({
+                  tooltipProps: {
+                      offsetBy: -13,
+                      onOpenChange: setIsTooltipShowing,
+                  },
+                  tooltipContentProps: {
+                      children: getTooltipText(isCopied),
+                  },
+              } as IconButtonProps["tooltip"]);
+    const defaultHandler = React.useCallback(
+        (_: React.MouseEvent<HTMLElement>) => {
+            navigator.clipboard.writeText(children?.toString() ?? "");
+            setIsCopied(true);
+        },
+        [children]
+    );
+
+    // Reset tooltip text after copy & hover deactivated
+    React.useEffect(() => {
+        if (!isTooltipShowing && isCopied) {
+            setIsCopied(false);
+        }
+    }, [isCopied, isTooltipShowing]);
 
     const body = (
         <Container
@@ -227,7 +256,7 @@ export function CodeSnippet({
                     <IconButton
                         type="button"
                         onClick={onButtonClick ?? defaultHandler}
-                        tooltip={isTooltipShowing ? tooltipOptions : undefined}
+                        tooltip={isTooltipEnabled ? tooltipOptions : undefined}
                         {...buttonOrProps}
                         iconProps={{
                             icon: "ContentCopy",

@@ -2,6 +2,7 @@ import "jest-canvas-mock";
 import "@testing-library/jest-dom";
 import { TextEncoder } from "util";
 
+import ResizeObserver from "resize-observer-polyfill";
 import type { Config } from "@jest/types";
 
 global.TextEncoder = TextEncoder;
@@ -13,3 +14,4 @@ const config: Config.InitialOptions = {
 export default config;
 
 global.scrollTo = jest.fn();
+global.ResizeObserver = ResizeObserver;

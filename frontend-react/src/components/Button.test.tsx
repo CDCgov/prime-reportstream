@@ -26,10 +26,15 @@ describe("Button", () => {
                 Test
             </Button>
         );
-        await user.hover(screen.getByRole("button"));
-        const tooltip = screen.getByRole("tooltip");
+        const button = screen.getByRole("button");
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
 
+        await user.hover(button);
+        const tooltip = screen.getByRole("tooltip");
         expect(tooltip).toBeVisible();
         expect(tooltip).toHaveTextContent("Hello");
+
+        await user.unhover(button);
+        expect(tooltip).not.toBeInTheDocument();
     });
 });

@@ -11,29 +11,42 @@ import {
     useInteractions,
     useMergeRefs,
     FloatingPortal,
+    offset,
+    OffsetOptions,
 } from "@floating-ui/react";
 import classNames from "classnames";
 import React from "react";
 
 export const TOOLTIP_POSITIONS = ["top", "bottom", "right", "left"];
 
-interface TooltipOptions {
+export interface TooltipOptions {
     initialOpen?: boolean;
     placement?: Placement;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    offsetBy?: OffsetOptions;
 }
 
 export function useTooltip({
     initialOpen = false,
     placement = "top",
     open: controlledOpen,
-    onOpenChange: setControlledOpen,
+    onOpenChange,
+    offsetBy,
 }: TooltipOptions = {}) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
-
+    const isControlled = controlledOpen != null;
     const open = controlledOpen ?? uncontrolledOpen;
-    const setOpen = setControlledOpen ?? setUncontrolledOpen;
+    const setOpen = React.useCallback(
+        (isOpen: boolean) => {
+            console.log("ding");
+            onOpenChange?.(isOpen);
+            if (controlledOpen == null) {
+                setUncontrolledOpen(isOpen);
+            }
+        },
+        [onOpenChange, controlledOpen]
+    );
 
     const data = useFloating({
         placement,
@@ -45,6 +58,7 @@ export function useTooltip({
                 fallbackAxisSideDirection: "start",
             }),
             shift({ padding: 5 }),
+            offset(offsetBy),
         ],
     });
 
@@ -52,10 +66,10 @@ export function useTooltip({
 
     const hover = useHover(context, {
         move: false,
-        enabled: controlledOpen == null,
+        enabled: !isControlled,
     });
     const focus = useFocus(context, {
-        enabled: controlledOpen == null,
+        enabled: !isControlled,
     });
     const dismiss = useDismiss(context);
     const role = useRole(context, { role: "tooltip" });
