@@ -343,9 +343,33 @@ class HttpUtilities {
          * Returns a Pair (HTTP response code, text of the response)
          */
         fun postHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            return httpRequest("POST", urlStr, bytes, headers)
+        }
+
+        /**
+         * A generic function for a DELETE to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun deleteHttp(
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("DELETE", urlStr, bytes, headers)
+        }
+
+        /**
+         * Private generic function for creating an http request
+         */
+        private fun httpRequest(
+            method: String,
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
             val urlObj = URL(urlStr)
             with(urlObj.openConnection() as HttpURLConnection) {
-                requestMethod = "POST"
+                requestMethod = method
                 doOutput = true
                 doInput = true
                 headers?.forEach {
