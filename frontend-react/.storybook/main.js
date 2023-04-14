@@ -1,3 +1,5 @@
+"use strict";
+
 /** @type {import('@storybook/core-common').StorybookConfig} */
 module.exports = {
     stories: [
@@ -22,5 +24,13 @@ module.exports = {
             title: "Trussworks Storybook",
             url: "https://trussworks.github.io/react-uswds/",
         },
+    },
+    features: {
+        previewMdx2: true,
+        babelModeV7: true,
+        storyStoreV7: true,
+        modernInlineRender: true,
+        argTypeTargetsV7: true,
+        breakingChangesV7: true,
     },
 };
