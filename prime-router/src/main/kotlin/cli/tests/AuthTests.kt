@@ -578,11 +578,11 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
-        val watersAccessTok = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+        val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
         val headers = mutableListOf<Pair<String, String>>()
         val clientStr = org.name
         headers.add("client" to clientStr)
-        headers.add("authorization" to "Bearer $watersAccessTok")
+        headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
             "${environment.url}/api/settings/organizations/${org.name}/" +
                 "public-keys?scope=${org.name}.*.report&kid=${org.name}.report"
