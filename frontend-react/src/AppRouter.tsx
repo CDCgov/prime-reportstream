@@ -7,7 +7,6 @@ import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
-import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
@@ -49,13 +48,7 @@ export const appRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/login/callback", element: <LoginCallback /> },
     { path: "/sign-tos", element: <TermsOfServiceForm /> },
-    {
-        path: "/resources",
-        children: [
-            { path: "", element: <ResourcesPage /> },
-            { path: "*", element: <Resources /> },
-        ],
-    },
+    { path: "/resources/*", element: <Resources /> },
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
     { path: "/file-handler/validate", element: <FileHandler /> },
