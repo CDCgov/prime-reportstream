@@ -14,6 +14,17 @@ class SenderUtils {
 
     companion object {
 
+        /**
+         * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
+         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         * @param issuer -  the issuer for the JWT
+         * @param baseUrl - the audience
+         * @param privateKey - the private key to sign the JWT with
+         * @param keyId - the unique identifier for the registered public key
+         * @param expirationSecondsFromNow - when the JWT should expire
+         * @param jti - unique identifier for this JWT
+         * @return a signed JWT
+         */
         fun generateToken(
             issuer: String,
             baseUrl: String,
@@ -40,6 +51,14 @@ class SenderUtils {
         /**
          * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
          * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         *
+         * @param sender -  the issuer for the JWT
+         * @param baseUrl - the audience
+         * @param privateKey - the private key to sign the JWT with
+         * @param keyId - the unique identifier for the registered public key
+         * @param expirationSecondsFromNow - when the JWT should expire
+         * @param jti - unique identifier for this JWT
+         * @return a signed JWT
          */
         fun generateSenderToken(
             sender: Sender,
