@@ -31,6 +31,8 @@ foreach($obj in $json)
 $json1 = $data | ConvertTo-Json
 
 Write-Host $json1
+New-Item ${runner.temp }\sample.json
+Set-Content  ${runner.temp }\sample.json $json1
 
 $json1 | Out-File -FilePath "${runner.temp }\sample.json"
 #     if($obj.lastupdated -lt $limit){
