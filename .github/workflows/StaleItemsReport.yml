@@ -21,11 +21,12 @@ jobs:
         shell: pwsh
         run: |
           echo $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          echo $(./.github/scripts/stale_items_report/commitToThisRepo.ps1)
           
       - name: Parse JSON and read the input variable definitions 
         id: parsejson
         run: |
-          $path= "${{github.workspace}}\sample.json" 
+          $path= ".\sample.json" 
           $path -replace ' ', '` '
           $json = Get-Content  $path | ConvertFrom-Json
           $arglist = @{}
