@@ -31,6 +31,8 @@ foreach($obj in $json)
 $json1 = $data | ConvertTo-Json
 
 Write-Host $json1
+
+$json1 | Out-File -FilePath "sample.json"
 #     if($obj.lastupdated -lt $limit){
 #     Write-Host "Pull request: #" + $obj.number
 #     Write-Host "Title: " + $obj.title
