@@ -25,8 +25,9 @@ jobs:
           
       - name: Parse JSON and read the input variable definitions 
         id: parsejson
+        shell: pwsh
         run: |
-          echo $(./.github/scripts/stale_items_report/StalePullRequests.ps1) >> $path
+          $path =  $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
           $path -replace ' ', '` '
           $json = $path | ConvertFrom-Json
           $arglist = @{}
