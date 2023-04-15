@@ -1,5 +1,5 @@
 
-$file = "$GITHUB_WORKSPACE\sample.json"
+$file = "${runner.temp }\sample.json"
 $text = "Automated edit"
 $wi = "#13 #14"
 
