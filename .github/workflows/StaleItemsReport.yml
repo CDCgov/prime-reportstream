@@ -32,6 +32,7 @@ jobs:
           $json = $path | ConvertFrom-Json
           $arglist = @{}
           $json.PSObject.properties | ForEach-Object -Process {$name=$_.Name; $arglist[$name] = $_.Value }
+          echo $json
           echo '::set-output name=argumentlist::$arglist'
 
       # - name: Get Stale branches
