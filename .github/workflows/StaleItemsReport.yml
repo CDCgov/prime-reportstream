@@ -15,8 +15,6 @@ jobs:
         uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
         with:
           fetch-depth: 0
-      
-      -
 
       - name: Get Stale branches
         id: stalebranches
