@@ -1,8 +1,7 @@
-(
-    $file = ".\sample.json",
-    $text = "Automated edit", 
-    $wi = "#13 #14"
-)
+
+$file = ".\sample.json"
+$text = "Automated edit"
+$wi = "#13 #14"
 
 "Set config"
 git config --global user.email "supriya.addagada@icf.com" # any values will do, if missing commit will fail

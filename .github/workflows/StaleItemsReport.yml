@@ -16,24 +16,24 @@ jobs:
         with:
           fetch-depth: 0
       
-      # - name: Get Stale prs
-      #   id: PullRequests
-      #   shell: pwsh
-      #   run: |
-      #     echo $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
-      #     echo $(./.github/scripts/stale_items_report/commitToThisRepo.ps1)
+      - name: Get Stale prs
+        id: PullRequests
+        shell: pwsh
+        run: |
+          echo $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          echo $(./.github/scripts/stale_items_report/commitToThisRepo.ps1)
           
       - name: Parse JSON and read the input variable definitions 
         id: parsejson
         shell: pwsh
         run: |
-          $path =  $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          $path =  $(./sample.json)
           $path -replace ' ', '` '
           $json = $path | ConvertFrom-Json
           $arglist = @{}
           $json.PSObject.properties | ForEach-Object -Process {$name=$_.Name; $arglist[$name] = $_.Value }
           echo $json
-          echo '::set-output name=argumentlist::$arglist'
+          echo 'argumentlist=$arglist'>>$GITHUB_OUTPUT
 
       # - name: Get Stale branches
       #   id: stalebranches
