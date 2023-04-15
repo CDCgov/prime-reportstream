@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       
-        - name: Get Stale prs
+      - name: Get Stale prs
         id: PullRequests
         run: |
           echo $(./.github/scripts/stale_items_report/StalePullRequests.ps1)
