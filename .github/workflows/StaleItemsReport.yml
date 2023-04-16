@@ -21,7 +21,7 @@ jobs:
         shell: pwsh
         run: |
           ./.github/scripts/stale_items_report/StalePullRequests.ps1
-          echo $env:Stale_pullrequests
+          echo ${{env.Stale_pullrequests}}
 
       # - name: Get Stale branches
       #   id: stalebranches
