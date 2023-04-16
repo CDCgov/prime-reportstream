@@ -18,7 +18,7 @@ jobs:
 
       - name: Get Stale prs
         id: PullRequests
-        shell:pwsh
+        shell: pwsh
         run: |
           prs=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)
           echo $env:Stale_pullrequests
