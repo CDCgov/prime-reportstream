@@ -29,7 +29,7 @@ jobs:
         run: |
          echo  ${env:Stale_pullrequests} >> file.txt
         
-       - name: Get Stale prs
+      - name: Get Stale prs
         id: PullRequestsprint
         shell: pwsh
         run: |
