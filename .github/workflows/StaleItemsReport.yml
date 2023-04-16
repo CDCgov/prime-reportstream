@@ -20,7 +20,7 @@ jobs:
         id: PullRequests
         shell: pwsh
         run: |
-          prs=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          ./.github/scripts/stale_items_report/StalePullRequests.ps1
           echo $env:Stale_pullrequests
 
       # - name: Get Stale branches
