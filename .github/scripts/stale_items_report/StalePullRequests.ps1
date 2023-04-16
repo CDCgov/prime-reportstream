@@ -35,7 +35,8 @@ $json1 = $data | ConvertTo-Json
 # Set-Content  ${runner.temp }\sample.json $json1
 
 #$json1 | Out-File -FilePath "${runner.temp }\sample.json"
-$jsonstring= (ConvertFrom-Json $json1 | % tags | % tagName) -Join ", "
+$jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
+# Write-Host $jsonstring
 echo "Stale_pullrequests=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
 #     if($obj.   -lt $limit){
