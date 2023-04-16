@@ -24,7 +24,7 @@ jobs:
          
 
       - name: Get Stale prs
-        id: PullRequests
+        id: PullRequestsShow
         shell: pwsh
         run:  echo  ${env:Stale_pullrequests}
 
