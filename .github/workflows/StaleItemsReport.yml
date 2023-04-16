@@ -16,17 +16,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Stale branches
-        id: stalebranches
+      - name: Get Stale prs
+        id: PullRequests
+        shell:pwsh
         run: |
-          branches=$(./.github/scripts/stale_items_report/staleprs.sh)
-           echo "StaleBranches<<EOF" >> $GITHUB_ENV
+          prs=$(./.github/scripts/stale_items_report/StalePullRequests.ps1)
+          echo $env:Stale_pullrequests
+
+      # - name: Get Stale branches
+      #   id: stalebranches
+      #   run: |
+      #     branches=$(./.github/scripts/stale_items_report/staleprs.sh)
+      #      echo "StaleBranches<<EOF" >> $GITHUB_ENV
   
-          # here we can place the command that will generate multi-line text
-          echo $branches >> $GITHUB_ENV 
+      #     # here we can place the command that will generate multi-line text
+      #     echo $branches >> $GITHUB_ENV 
             
-          echo "EOF" >> $GITHUB_ENV
-        shell: bash
+      #     echo "EOF" >> $GITHUB_ENV
+      #   shell: bash
 
       # - name: print Stale branches
       #   id: printstalebranches

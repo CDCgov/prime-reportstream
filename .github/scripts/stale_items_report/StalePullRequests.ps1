@@ -34,8 +34,10 @@ Write-Host $json1
 New-Item ${runner.temp }\sample.json
 Set-Content  ${runner.temp }\sample.json $json1
 
-$json1 | Out-File -FilePath "${runner.temp }\sample.json"
-#     if($obj.lastupdated -lt $limit){
+#$json1 | Out-File -FilePath "${runner.temp }\sample.json"
+
+echo "Stale_pullrequests=$json1" >> $env:GITHUB_ENV
+#     if($obj.   -lt $limit){
 #     Write-Host "Pull request: #" + $obj.number
 #     Write-Host "Title: " + $obj.title
 #     Write-Host "Url: " + $obj.url
