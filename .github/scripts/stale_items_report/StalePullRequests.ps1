@@ -36,7 +36,7 @@ $json1 = $data | ConvertTo-Json
 
 #$json1 | Out-File -FilePath "${runner.temp }\sample.json"
 
-echo "Stale_pullrequests=$data"  >> $GITHUB_ENV
+echo "Stale_pullrequests=test"  >> $GITHUB_ENV
 
 echo $env:Stale_pullrequests
 #     if($obj.   -lt $limit){
