@@ -26,7 +26,9 @@ jobs:
       - name: Get Stale prs
         id: PullRequestsShow
         shell: pwsh
-        run:  echo  ${env:Stale_pullrequests}
+        run: |
+         echo  ${env:Stale_pullrequests} >> file.txt
+         cat file.txt
 
       # - name: Get Stale branches
       #   id: stalebranches
