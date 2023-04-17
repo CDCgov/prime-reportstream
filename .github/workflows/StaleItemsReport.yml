@@ -78,21 +78,23 @@ jobs:
       #   shell: bash
       - uses: MeilCli/slack-upload-file@v3
         id: message
+        continue-on-error: true
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
           channel_id: 'C04UBN6R9EF'
           file_path: 'PullRequests.txt'
           initial_comment: 'Stale branches report'
-      - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
+      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
       - uses: MeilCli/slack-upload-file@v3
         id: message1
+        continue-on-error: true
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
           channel_id: 'C04UBN6R9EF'
           file_path: 'Branches.txt'
           initial_comment: 'Stale pull requests report'
-      - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
+      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
       # - name: Stale Items report
       #   id: slack
