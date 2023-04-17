@@ -27,7 +27,7 @@ class Commit {
         # git branch -D $this.BranchLocalName
     }
 }
-$output1 = @()
+$global:output1=@()
 function Get-Branches {
     [CmdletBinding()]
     param (
@@ -65,8 +65,8 @@ function Get-Branches {
             $output += $commit
         }
     }
-    Write-Output $output
-    $output1=$output
+    #Write-Output $output
+    $global:output1=$output
 }
 
 # Write-Host "Merged"
@@ -74,4 +74,6 @@ function Get-Branches {
 Write-Host "No merged"
 Get-Branches | Format-Table
 
-echo "Stale_Branches=$output1"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+Write-Output $global:output1
+
+echo "Stale_Branches=$global:output1"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
