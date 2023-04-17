@@ -53,7 +53,7 @@ jobs:
           ./.github/scripts/stale_items_report/StaleIssues.ps1
 
       - name: Get Stale branches
-        id: BranchesShow
+        id: IssuesShow
         shell: pwsh
         run: |
          echo  ${env:Stale_Issues} >> StaleIssues.txt
@@ -99,7 +99,7 @@ jobs:
       # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
       - uses: MeilCli/slack-upload-file@v3
-        id: message1
+        id: Branchesmessage
         continue-on-error: true
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
           initial_comment: 'Stale branches report'
 
       - uses: MeilCli/slack-upload-file@v3
-        id: message1
+        id: Issuesmessage
         continue-on-error: true
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
