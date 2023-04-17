@@ -65,7 +65,7 @@ function Get-Branches {
             $output += $commit
         }
        
-        $global:output1 +=$branch
+        $global:output1 +="|" + $branch
 
     }
     #Write-Output $output

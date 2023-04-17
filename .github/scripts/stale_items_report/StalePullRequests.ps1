@@ -30,31 +30,6 @@ foreach($obj in $json)
 }
 $json1 = $data | ConvertTo-Json
 
-#Write-Host $json1
-# New-Item ${runner.temp }\sample.json
-# Set-Content  ${runner.temp }\sample.json $json1
-
-#$json1 | Out-File -FilePath "${runner.temp }\sample.json"
 $jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
 # Write-Host $jsonstring
 echo "Stale_pullrequests=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-
-#     if($obj.   -lt $limit){
-#     Write-Host "Pull request: #" + $obj.number
-#     Write-Host "Title: " + $obj.title
-#     Write-Host "Url: " + $obj.url
-    
-#     # $releaseNotes = $releaseNotes + "Body: "
-#     # $obj.body.Split("`n") | ForEach { 
-#     #     # ignore comments from issue templates
-#     #     if($_.Trim().StartsWith("<!---") -eq $FALSE)
-#     #     {
-#     #         $releaseNotes = $releaseNotes + $_ + "`n" 
-#     #     }
-#     #  }   
-#     # $releaseNotes = $releaseNotes + "`n"
-    
-#     Write-Host "User: " + $obj.user.login
-#     Write-Host ""
-#     }
-# }

@@ -14,24 +14,27 @@ $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $Basic
 $json = $val | ConvertFrom-JSON
 $limit = [datetime]::Now.AddDays(-90)
 write-host $json
+$data = [pscustomobject]@{
+    staleissues = @()
+}
+
 foreach($obj in $json)
 {
+
     if($obj.lastupdated -lt $limit){
-    Write-Host "Issue: #" + $obj.number
-    Write-Host "Title: " + $obj.title
-    Write-Host "Url: " + $obj.html_url
-    
-    $releaseNotes = $releaseNotes + "Body: "
-    # $obj.body.Split("`n") | ForEach { 
-    #     # ignore comments from issue templates
-    #     if($_.Trim().StartsWith("<!---") -eq $FALSE)
-    #     {
-    #         $releaseNotes = $releaseNotes + $_ + "`n" 
-    #     }
-    #  }   
-    # $releaseNotes = $releaseNotes + "`n"
-    
-    Write-Host "User: " + $obj.user.login
-    Write-Host ""
+
+    $data.staleissues += @{
+        Issue       = $obj.number
+        Title             = $obj.title
+        Url               = $obj.html_url
+        user              = $obj.user.login
+    }
+
     }
 }
+$json1 = $data | ConvertTo-Json
+
+$jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
+# Write-Host $jsonstring
+echo "Stale_Issues=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
