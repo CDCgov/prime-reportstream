@@ -1,30 +1,44 @@
 import classnames from "classnames";
 import sanitizeHtml from "sanitize-html";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { convertStringToSortableRepresentation } from "../../../utils/misc";
+import { removeHTMLFromString } from "../../../utils/misc";
 
 import styles from "./Table.module.scss";
 
-const FilterOptionsEnum = {
-    NONE: "none",
-    ASC: "asc",
-    DESC: "desc",
-} as const;
+const convertToSortable = (input?: RowData) => {
+    let convertedContent = "";
+    if (!input) return convertedContent;
+
+    if (input.isHTML) {
+        convertedContent = removeHTMLFromString(input.content);
+        // Otherwise, if input is simply not undefined, leave it
+    } else if (input.content) {
+        convertedContent = input.content;
+    }
+    return convertedContent;
+};
+
+enum FilterOptions {
+    NONE = "none",
+    ASC = "asc",
+    DESC = "desc",
+}
 
 interface SortableTableHeaderProps {
-    columnTitle: string;
+    columnHeaderData: RowData;
     activeColumn: string;
     sortOrder: string;
-    setSortOrder: (order: string) => void;
+    setSortOrder: (sortOrder: FilterOptions) => void;
     setActiveColumn: (column: string) => void;
 }
 
 interface RowData {
+    columnHeader: string;
     columnKey: string;
     content: string;
-    modalContent?: string;
+    isHTML?: boolean;
 }
 
 export interface TableProps {
@@ -40,87 +54,95 @@ export interface TableProps {
 }
 
 const SortableTableHeader = ({
-    columnTitle,
+    columnHeaderData,
     activeColumn,
     sortOrder,
     setSortOrder,
     setActiveColumn,
 }: SortableTableHeaderProps) => {
     let SortIcon = Icon.SortArrow;
-    const isActive = columnTitle === activeColumn;
-    if (isActive && sortOrder === FilterOptionsEnum.ASC) {
+    const isActive = columnHeaderData.columnKey === activeColumn;
+    if (isActive && sortOrder === FilterOptions.ASC) {
         SortIcon = Icon.ArrowUpward;
-    } else if (isActive && sortOrder === FilterOptionsEnum.DESC) {
+    } else if (isActive && sortOrder === FilterOptions.DESC) {
         SortIcon = Icon.ArrowDownward;
     }
-    const isCurrentlyActiveColumn = columnTitle === activeColumn;
 
     const handleHeaderClick = () => {
-        if (!isCurrentlyActiveColumn) {
+        if (!isActive) {
             // Reset active column and sort order on new column click
-            setActiveColumn(columnTitle);
-            setSortOrder(FilterOptionsEnum.ASC);
-        } else if (sortOrder === FilterOptionsEnum.NONE) {
+            setActiveColumn(columnHeaderData.columnKey);
+            setSortOrder(FilterOptions.ASC);
+        } else if (sortOrder === FilterOptions.NONE) {
             // Explicitly set the proceeding sort order
-            setSortOrder(FilterOptionsEnum.ASC);
-        } else if (sortOrder === FilterOptionsEnum.ASC) {
-            setSortOrder(FilterOptionsEnum.DESC);
-        } else if (sortOrder === FilterOptionsEnum.DESC) {
-            setSortOrder(FilterOptionsEnum.NONE);
+            setSortOrder(FilterOptions.ASC);
+        } else if (sortOrder === FilterOptions.ASC) {
+            setSortOrder(FilterOptions.DESC);
+        } else if (sortOrder === FilterOptions.DESC) {
+            setSortOrder(FilterOptions.NONE);
         }
     };
     return (
         <th
             role="button"
             tabIndex={0}
-            className={classnames({
-                "active-col-header": isActive,
+            className={classnames("column-header column-header--clickable", {
+                "column-header--active": isActive,
             })}
             onClick={handleHeaderClick}
         >
-            <div className="column-header-title-container">
-                <p>{columnTitle}</p>
-                {<SortIcon />}
+            <div className="column-header--sortable">
+                <p className="column-header-text">
+                    {columnHeaderData.columnHeader}
+                </p>
+                {<SortIcon size={3} />}
             </div>
         </th>
     );
 };
+
+function sortTableData(
+    activeColumn: string,
+    rowData: RowData[][],
+    sortOrder: FilterOptions
+) {
+    return sortOrder !== FilterOptions.NONE && activeColumn
+        ? rowData.sort((a, b): number => {
+              const contentColA = convertToSortable(
+                  a.find((item) => item.columnKey === activeColumn)
+              );
+              const contentColB = convertToSortable(
+                  b.find((item) => item.columnKey === activeColumn)
+              );
+              console.log("contentColA = ", contentColA);
+              console.log("contentColB = ", contentColB);
+              if (sortOrder === FilterOptions.ASC) {
+                  return contentColA < contentColB ? 1 : -1;
+              } else {
+                  return contentColA > contentColB ? 1 : -1;
+              }
+          })
+        : rowData;
+}
 
 const SortableTable = ({
     rowData,
     columnHeaders,
 }: {
     rowData: RowData[][];
-    columnHeaders: string[];
+    columnHeaders: RowData[];
 }) => {
     const [activeColumn, setActiveColumn] = useState("");
-    const [sortOrder, setSortOrder] = useState(FilterOptionsEnum.NONE);
-    const sortedData = useMemo(() => {
-        return sortOrder !== FilterOptionsEnum.NONE && activeColumn
-            ? rowData.sort((a, b): number => {
-                  let contentColA = convertStringToSortableRepresentation(
-                      a.find((item) => item.columnKey === activeColumn)?.content
-                  );
-                  let contentColB = convertStringToSortableRepresentation(
-                      b.find((item) => item.columnKey === activeColumn)?.content
-                  );
-
-                  if (sortOrder === FilterOptionsEnum.ASC) {
-                      return contentColA < contentColB ? 1 : -1;
-                  } else {
-                      return contentColA > contentColB ? 1 : -1;
-                  }
-              })
-            : rowData;
-    }, [activeColumn, rowData, sortOrder]);
+    const [sortOrder, setSortOrder] = useState(FilterOptions.NONE);
+    const sortedData = sortTableData(activeColumn, rowData, sortOrder);
     return (
         <>
             <thead>
                 <tr>
-                    {columnHeaders.map((header) => {
+                    {columnHeaders.map((columnHeaderData) => {
                         return (
                             <SortableTableHeader
-                                columnTitle={header}
+                                columnHeaderData={columnHeaderData}
                                 activeColumn={activeColumn}
                                 sortOrder={sortOrder}
                                 setActiveColumn={setActiveColumn}
@@ -135,12 +157,39 @@ const SortableTable = ({
                     return (
                         <tr>
                             {row.map((data) => {
+                                const isActive =
+                                    data.columnKey === activeColumn;
                                 return (
-                                    <td
-                                        dangerouslySetInnerHTML={{
-                                            __html: sanitizeHtml(data.content),
-                                        }}
-                                    />
+                                    <>
+                                        {data.isHTML ? (
+                                            <td
+                                                className={classnames(
+                                                    "column-data",
+                                                    {
+                                                        "column-data--active":
+                                                            isActive,
+                                                    }
+                                                )}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: sanitizeHtml(
+                                                        data.content
+                                                    ),
+                                                }}
+                                            />
+                                        ) : (
+                                            <td
+                                                className={classnames(
+                                                    "column-data",
+                                                    {
+                                                        "column-data--active":
+                                                            isActive,
+                                                    }
+                                                )}
+                                            >
+                                                {data.content}
+                                            </td>
+                                        )}
+                                    </>
                                 );
                             })}
                         </tr>
@@ -171,9 +220,13 @@ export const Table = ({
         "usa-table--striped": striped,
     });
 
-    const columnHeaders = [
-        ...new Set(rowData.flat().map((data: RowData) => data.columnKey)),
-    ];
+    const columnHeaders = rowData.flat().filter((rowItemFilter, pos, arr) => {
+        return (
+            arr
+                .map((rowItemMap) => rowItemMap.columnKey)
+                .indexOf(rowItemFilter.columnKey) === pos
+        );
+    });
 
     return (
         <div
@@ -194,7 +247,13 @@ export const Table = ({
                         <thead>
                             <tr>
                                 {columnHeaders.map((header) => {
-                                    return <th>{header}</th>;
+                                    return (
+                                        <th className="column-header">
+                                            <p className="column-header-text">
+                                                {header.columnHeader}
+                                            </p>
+                                        </th>
+                                    );
                                 })}
                             </tr>
                         </thead>
@@ -204,13 +263,22 @@ export const Table = ({
                                     <tr>
                                         {row.map((data) => {
                                             return (
-                                                <td
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: sanitizeHtml(
-                                                            data.content
-                                                        ),
-                                                    }}
-                                                />
+                                                <>
+                                                    {data.isHTML ? (
+                                                        <td
+                                                            className="column-data"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: sanitizeHtml(
+                                                                    data.content
+                                                                ),
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <td className="column-data">
+                                                            {data.content}
+                                                        </td>
+                                                    )}
+                                                </>
                                             );
                                         })}
                                     </tr>

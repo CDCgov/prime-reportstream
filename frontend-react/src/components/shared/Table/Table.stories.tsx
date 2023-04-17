@@ -12,14 +12,17 @@ const defaultData = [
     [
         {
             columnKey: "Shape",
+            columnHeader: "Shape",
             content: "Triangle",
         },
         {
             columnKey: "Sides",
+            columnHeader: "Sides",
             content: "3",
         },
         {
-            columnKey: "Note",
+            columnKey: "NoteSection",
+            columnHeader: "Note Section",
             content:
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         },
@@ -27,14 +30,17 @@ const defaultData = [
     [
         {
             columnKey: "Shape",
+            columnHeader: "Shape",
             content: "Square",
         },
         {
             columnKey: "Sides",
+            columnHeader: "Sides",
             content: "4",
         },
         {
-            columnKey: "Note",
+            columnKey: "NoteSection",
+            columnHeader: "Note Section",
             content:
                 "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
         },
@@ -42,14 +48,17 @@ const defaultData = [
     [
         {
             columnKey: "Shape",
+            columnHeader: "Shape",
             content: "Pentagon",
         },
         {
             columnKey: "Sides",
+            columnHeader: "Sides",
             content: "5",
         },
         {
-            columnKey: "Note",
+            columnKey: "NoteSection",
+            columnHeader: "Note Section",
             content:
                 "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?",
         },
@@ -57,14 +66,17 @@ const defaultData = [
     [
         {
             columnKey: "Shape",
+            columnHeader: "Shape",
             content: "Hexagon",
         },
         {
             columnKey: "Sides",
+            columnHeader: "Sides",
             content: "6",
         },
         {
-            columnKey: "Note",
+            columnKey: "NoteSection",
+            columnHeader: "Note Section",
             content: "Nisi ut aliquid ex ea commodi consequatur!!",
         },
     ],

@@ -5,49 +5,42 @@
     // Since these are USDS overrides, we use the :global property so we can
     // locally scope everything within the CSS Module underneath .reportstreamTable
     // without having to create new SCSS classes, and simply made overrides.
-    .usa-table thead th {
-        cursor: pointer;
+    .column-header {
         user-select: none;
         background-color: color('gray-5');
+
+        &--clickable {
+          cursor: pointer;
+        }
+
+        &--sortable {
+          display: flex;
+          align-items: center;
+
+          .column-header-text {
+            margin-right: 2px;
+          }
+        }
+
+        &--active {
+          background-color: color('blue-30');
+        }
     }
 
-    .usa-table thead th.active-col-header {
-        background-color: color('blue-30');
-    }
-
-    .usa-table td.active-col-td {
-        background-color: color('blue-10');
-    }
-
-    .usa-table thead .column-header-title-container {
-        display: flex;
-        align-items: center;
-    }
-
-    .usa-table thead .column-header-title-container p {
-        font-size: 14px;
-        margin: 0;
-    }
-
-    .usa-table thead .column-header-title-container svg {
-        flex: none;
-        margin-left: 2px;
-        height: 28px;
-        width: 28px;
-    }
-
-    .usa-table td.message-receiver-break-word {
-        cursor: pointer;
-        max-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .usa-table td {
+    .column-data {
         font-size: 14px;
         padding: 1rem;
         vertical-align: top;
+
+      &--active{
+          background-color: color('blue-10');
+      }
     }
+
+    .column-header-text {
+      font-size: 14px;
+      margin: 0;
+    }
+    
   }
 }
