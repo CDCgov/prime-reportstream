@@ -14,7 +14,7 @@
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTS/CA/CA"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""

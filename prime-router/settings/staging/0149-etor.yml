@@ -57,7 +57,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        # THIS WAS schemaName: "metadata/hl7_mapping/receivers/STLTS/CO/CO"
+        # THIS WAS schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         schemaName: "metadata/hl7_mapping/receivers/Flexion/TrustedIntermediaryLabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -80,7 +80,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTS/CO/CO"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
