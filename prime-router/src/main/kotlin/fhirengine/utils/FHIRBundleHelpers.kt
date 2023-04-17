@@ -188,7 +188,7 @@ object FHIRBundleHelpers {
                 val value = it.getter.call(res.resource)
                 if (value is MutableList<*>) {
                     value.removeIf { it is Reference && it.reference == resource.idBase }
-                } else if (value is Reference) {
+                } else if (value is Reference && value.reference == resource.idBase) {
                     value.reference = null
                 }
             }

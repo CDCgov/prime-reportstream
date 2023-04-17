@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
@@ -167,11 +168,10 @@ class AddPublicKey : SettingCommand(
         "--kid",
         metavar = "<string key id>",
         help = """
-            Specify desired key id for this key.
-            When sender makes a token req, the kid in jwt must match this kid.
-            If not set, use the sender fullname as the kid value
+            Specify desired key id for this key.  This value must be unique within the keys already added
+            for the scope.
         """.trimIndent()
-    )
+    ).required()
 
     private val scope by option(
         "--scope",
@@ -203,7 +203,7 @@ class AddPublicKey : SettingCommand(
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
-        jwk.kid = if (kid.isNullOrEmpty()) orgName else kid
+        jwk.kid = kid
 
         val origOrganizationJson =
             get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
@@ -211,6 +211,11 @@ class AddPublicKey : SettingCommand(
 
         if (!Scope.isValidScope(scope, origOrganization)) {
             echo("Organization name in scope must match $orgName.  Instead got: $scope")
+            return
+        }
+
+        if (!JwkSet.isValidKidForScope(origOrganization.keys, scope, kid)) {
+            echo("kid: $kid must be unique for the requested scope: $scope")
             return
         }
 
