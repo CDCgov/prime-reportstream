@@ -3,18 +3,15 @@ package gov.cdc.prime.router.tokens
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
-import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SigningKeyResolverAdapter
 import org.apache.logging.log4j.kotlin.Logging
 import java.security.Key
-import java.time.OffsetDateTime
 import java.util.Date
 import java.util.UUID
 
@@ -23,9 +20,25 @@ import java.util.UUID
  * by a trusted party at the sender.  Per this guide:
  *    https://hl7.org/fhir/uv/bulkdata/authorization/index.html
  */
-class Server2ServerAuthentication : Logging {
+class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
     private val EXPIRATION_SECONDS = 300
+
+    /**
+     * Exception class that captures errors from internal logic performed when authenticating; i.e.
+     * the issuer does not match an organization or sender
+     */
+    class Server2ServerAuthenticationException(message: String, val scope: String) : Exception(message) {
+        override fun getLocalizedMessage(): String {
+            return "AccessToken Request Denied: Error while requesting $scope: $message"
+        }
+    }
+
+    /**
+     * Data class that holds the data from a parsed JWT.  The organization and sender fields are derived from
+     * the issuer in the JWT claims
+     */
+    data class ParsedJwt(val organization: Organization, val sender: Sender?, val kid: String?, val kty: KeyType)
 
     /**
      *  convenience method to log in two places
@@ -36,43 +49,167 @@ class Server2ServerAuthentication : Logging {
     }
 
     /**
-     * @return true if jwsString is a validly signed Sender token, false if it is unauthorized
-     * If it is valid, then its ok to move to the next step, then give the sender an Access token.
+     * Parses the claims and header from a signed JWT and attempts to find the organization or sender
+     * from the issuer
+     *
+     * @param jwsString - signed JWT to be parsed
+     * @param scope - the scope that is being requested
+     * @throws Server2ServerAuthenticationException - thrown if no organization or sender is founder for the issuer
+     *
      */
-    fun checkSenderToken(
+    internal fun parseJwt(jwsString: String, scope: String,): ParsedJwt {
+        // parseClaimsJwt will throw an exception if the string includes a signature, even when just parsing
+        // the claims and headers (which are just Base64 encoded).
+        // See https://github.com/jwtk/jjwt/issues/86
+        val i = jwsString.lastIndexOf('.')
+        val withoutSignature = jwsString.substring(0, i + 1)
+        val jwt = Jwts.parserBuilder()
+            .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
+            .build()
+            .parseClaimsJwt(withoutSignature)
+
+        val claims = jwt.body
+        val headers = jwt.header
+        val issuer = claims.issuer // client_id
+        val maybeKid = headers["kid"] as String?
+        val alg = headers["alg"] as String
+        val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
+
+        // The issuer should always be the organization name as this most closely matches the client_id
+        // description from the FHIR spec
+        // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=Upon%20registration%2C%20the%20client%20SHALL%20be%20assigned%20a%20client_id%2C%20which%20the%20client%20SHALL%20use%20when%20requesting%20an%20access%20token
+        // However, in order to be backwards compatible, the issuer claim can be either the name of the sender
+        // or the name of the organization.
+        var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
+        if (maybeOrganization != null) {
+            return ParsedJwt(maybeOrganization, null, maybeKid, kty)
+        }
+        val maybeSender = workflowEngine.settings.findSender(issuer)
+        if (maybeSender != null) {
+            maybeOrganization = workflowEngine.settings.findOrganization(maybeSender.organizationName)
+        }
+
+        if (maybeOrganization == null) {
+            throw Server2ServerAuthenticationException("$issuer was not valid.", scope)
+        }
+
+        return ParsedJwt(maybeOrganization, maybeSender, maybeKid, kty)
+    }
+
+    /**
+     * Uses a ParsedJwt to find all the keys for the organization that matches
+     * the kid and kty
+     *
+     * @param parsedJwt - The parsed signed JWT
+     * @param scope - the scope being requested
+     */
+    internal fun getPossibleSigningKeys(parsedJwt: ParsedJwt, scope: String): List<Key> {
+        val keys =
+            (
+                if (parsedJwt.sender != null)
+                    workflowEngine.settings.getKeys(parsedJwt.sender.fullName)
+                else parsedJwt.organization.keys
+                )
+                ?: emptyList()
+
+        val applicableJwkSets = keys.filter { jwkSet -> jwkSet.scope == scope }
+        return applicableJwkSets.flatMap { it.keys }
+            .filter { jwk -> (jwk.kid == parsedJwt.kid && jwk.kty == parsedJwt.kty.value) }.mapNotNull { jwk ->
+                when (parsedJwt.kty) {
+                    KeyType.EC -> jwk.toECPublicKey()
+                    KeyType.RSA -> jwk.toRSAPublicKey()
+                    else -> null
+                }
+            }
+    }
+
+    /**
+     * Uses a resolved public key to verify the signature of a JWT
+     *
+     * @param jwsString - the signed JWT
+     * @param key -  the public key to use to verify the signature
+     * @param jtiCache -  the cache used to check for replace attacks
+     * @param actionHistory -  action history to record access issues
+     * @return whether or not the signature was verified
+     *
+     */
+    internal fun verifyJwtWithKey(
         jwsString: String,
-        senderPublicKeyFinder: SigningKeyResolverAdapter,
+        key: Key,
         jtiCache: JtiCache,
-        actionHistory: ActionHistory? = null,
+        actionHistory: ActionHistory? = null
     ): Boolean {
         try {
-            // Note: this does an expired token check as well.  throws JwtException on problems.
             val jws = Jwts.parserBuilder()
                 .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
-                .setSigningKeyResolver(senderPublicKeyFinder) // all the work is in senderPublicKeyFinder
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(jwsString)
             val jti = jws.body.id
             val exp = jws.body.expiration
             if (jti == null) {
-                logErr(actionHistory, "SenderToken has null JWT ID.  Rejecting.")
+                logErr(actionHistory, "AccessToken Request Denied: SenderToken has null JWT ID.  Rejecting.")
                 return false
             }
             val expiresAt = exp.toInstant().atOffset(Environment.rsTimeZone)
-            if (expiresAt.isBefore(OffsetDateTime.now())) {
-                logErr(actionHistory, "SenderToken $jti has expired, at $expiresAt.  Rejecting.")
-                return false
-            }
             return jtiCache.isJTIOk(jti, expiresAt) // check for replay attacks
         } catch (ex: JwtException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $ex")
+            // Thrown if the Jws can be parsed but is invalid because the Jws is malformed,  the signature does match,
+            // it is expired, or it does not represent any claims
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
             return false
-        } catch (e: IllegalArgumentException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
+        } catch (ex: IllegalArgumentException) {
+            // Thrown if the JwsString is null or empty
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
             return false
-        } catch (e: NullPointerException) {
-            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
-            return false
+        }
+    }
+
+    /**
+     * This function implements on the SMART on FHIR authentication protocol
+     * http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
+     *
+     * @param jwsString - Base64 encoded JWS
+     * @param scope - the scope that is being requested
+     * @param jtiCache - the cache of used tokens to prevent replay attacks
+     * @param actionHistory - action history to capture events during the auth process
+     *
+     * @return true if jwsString is a validly signed Sender token, false if it is unauthorized
+     * If it is valid, then its ok to move to the next step, then give the sender an Access token.
+     */
+    fun checkSenderToken(
+        jwsString: String,
+        scope: String,
+        jtiCache: JtiCache,
+        actionHistory: ActionHistory? = null,
+    ): Boolean {
+        return try {
+            val parsedJwt = parseJwt(jwsString, scope)
+            if (!Scope.isValidScope(scope, parsedJwt.organization)) {
+                throw Server2ServerAuthenticationException("Invalid scope for this issuer: $scope", scope)
+            }
+            val possibleKeys = getPossibleSigningKeys(parsedJwt, scope)
+            if (possibleKeys.isEmpty()) {
+                logErr(
+                    actionHistory,
+                    "AccessToken Request Denied: Error while requesting $scope:" +
+                        " Unable to find auth key for ${parsedJwt.organization.name} with" +
+                        " scope=$scope, kid=${parsedJwt.kid}, and alg=${parsedJwt.kty}"
+                )
+            }
+            possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }
+        } catch (ex: Server2ServerAuthenticationException) {
+            logErr(actionHistory, ex.localizedMessage)
+            false
+        } catch (ex: JwtException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
+        } catch (ex: IllegalArgumentException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
+        } catch (ex: NullPointerException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
         }
     }
 
@@ -187,55 +324,3 @@ data class AccessToken(
     @JsonProperty("scope")
     val scope: String, // scope	required - Scope of access authorized. can be different from the scopes requested
 )
-
-/**
- * This is used during validation of a SenderToken.
- *
- * Implementation of a callback function used to find the public key for
- * a given Sender, kid, and alg.   Lookup in the Settings table.
- * @param metadata metadata instance
- *  todo:  the FHIR spec calls for allowing a set of keys. However, this callback only allows for one.
- */
-class FindSenderKeyInSettings(val scope: String, val metadata: Metadata) :
-    SigningKeyResolverAdapter(), Logging {
-    var errorMsg: String? = null
-
-    fun err(shortMsg: String): Key? {
-        errorMsg = "AccessToken Request Denied: Error while requesting $scope: $shortMsg"
-        logger.error(errorMsg!!)
-        return null
-    }
-
-    override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key? {
-        errorMsg = null
-        if (jwsHeader == null) return err("JWT has missing header")
-        val issuer = claims.issuer
-        val kid = jwsHeader.keyId
-        val alg = jwsHeader.algorithm
-        val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
-        val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
-        val sender = workflowEngine.settings.findSender(issuer)
-            ?: return err("No such sender fullName $issuer")
-        val organization = workflowEngine.settings.findOrganization(sender.organizationName)
-            ?: return err("No organization found for sender ${sender.organizationName}")
-        if (sender.keys == null && organization.keys == null) return err("No auth keys associated with sender $issuer")
-        if (!Scope.isValidScope(scope, organization)) return err("Invalid scope for this sender: $scope")
-        val keys = workflowEngine.settings.getKeys(issuer) ?: return err("No keys found for issuer $issuer")
-        keys.forEach { jwkSet ->
-            if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
-
-                // find by kid and kty
-                val key = jwkSet.keys.find { jwk -> (jwk.kid == kid && jwk.kty == kty.value) }
-
-                return when {
-                    key == null -> null
-                    kty == KeyType.EC -> key.toECPublicKey()
-                    kty == KeyType.RSA -> key.toRSAPublicKey()
-                    else -> null
-                }
-            }
-        }
-        // Failed to find any key for this sender, with the requested/desired scope.
-        return err("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
-    }
-}
