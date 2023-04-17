@@ -130,6 +130,9 @@ const handlers = [
         return res(ctx.json(dummyPublicKey), ctx.status(200));
     }),
     rest.post(`${base}/testOrg/public-keys`, (req, res, ctx) => {
+        if (!req.headers.get("authorization")?.includes("TOKEN")) {
+            return res(ctx.status(401));
+        }
         return res(ctx.json(dummyPublicKey), ctx.status(200));
     }),
 ];
