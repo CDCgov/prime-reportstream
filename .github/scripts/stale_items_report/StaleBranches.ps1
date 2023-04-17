@@ -42,7 +42,7 @@ function Get-Branches {
     [System.Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
     $branchFormat = "%(authordate:iso8601-strict) $sep %(objectname) $sep %(authorname) $sep %(authordate:relative) $sep %(authoremail:trim) $sep %(refname:short) $sep %(contents:subject)"
     $branches = git branch --format="$branchFormat" -r $opt
-    
+    $CommitData=""
     foreach( $branch in $branches ) {
         $out = $branch.Split(" $sep ")
         $commit = [Commit]::new()
@@ -64,9 +64,12 @@ function Get-Branches {
         if ($commit.BranchName -ne "origin/HEAD") {
             $output += $commit
         }
+       
+        $global:output1 +=$branch
+
     }
     #Write-Output $output
-    $global:output1=$output
+   
 }
 
 # Write-Host "Merged"
@@ -74,6 +77,7 @@ function Get-Branches {
 Write-Host "No merged"
 Get-Branches | Format-Table
 
+  
 Write-Output $global:output1
 
 echo "Stale_Branches=$global:output1"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
