@@ -71,3 +71,5 @@ Write-Host "Merged"
 Get-Branches --merged | Format-Table
 Write-Host "No merged"
 Get-Branches | Format-Table
+
+echo "Stale_Branches=$output"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
