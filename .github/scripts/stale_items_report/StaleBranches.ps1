@@ -27,13 +27,14 @@ class Commit {
         # git branch -D $this.BranchLocalName
     }
 }
-
+$output1 = @()
 function Get-Branches {
     [CmdletBinding()]
     param (
         [Parameter()][switch]$Merged
     )
-    
+    $output = @()
+
     if ($merged) { $opt = "--merged" }
     else { $opt = "--no-merged" }
 
@@ -41,7 +42,7 @@ function Get-Branches {
     [System.Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
     $branchFormat = "%(authordate:iso8601-strict) $sep %(objectname) $sep %(authorname) $sep %(authordate:relative) $sep %(authoremail:trim) $sep %(refname:short) $sep %(contents:subject)"
     $branches = git branch --format="$branchFormat" -r $opt
-    $output = @()
+    
     foreach( $branch in $branches ) {
         $out = $branch.Split(" $sep ")
         $commit = [Commit]::new()
@@ -65,11 +66,12 @@ function Get-Branches {
         }
     }
     Write-Output $output
+    $output1=$output
 }
 
-Write-Host "Merged"
-Get-Branches --merged | Format-Table
+# Write-Host "Merged"
+# Get-Branches --merged | Format-Table
 Write-Host "No merged"
 Get-Branches | Format-Table
 
-echo "Stale_Branches=$output"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+echo "Stale_Branches=$output1"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
