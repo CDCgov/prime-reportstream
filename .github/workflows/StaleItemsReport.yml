@@ -20,8 +20,7 @@ jobs:
         id: PullRequests
         shell: pwsh
         run: |
-          ./.github/scripts/stale_items_report/StalePullRequests.ps1
-         
+          ./.github/scripts/stale_items_report/StalePullRequests.ps1        
 
       - name: Get Stale prs
         id: PullRequestsShow
@@ -35,7 +34,7 @@ jobs:
       #   run: |
       #    cat file.txt
 
-       - name: Get Stale branches
+      - name: Get Stale branches
         id: Branches
         shell: pwsh
         run: |
