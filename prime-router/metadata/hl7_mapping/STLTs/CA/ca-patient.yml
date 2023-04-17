@@ -1,0 +1,23 @@
+constants:
+  hl7PIDField: '%{hl7SegmentGroup}/PID'
+elements:
+  # PID-5-1: Max length 194
+  - name: ca-patient-family-name
+    resource: '%resource.name'
+    condition: '%resource.exists()'
+    value: [ '%resource.family.substring(0,194)' ]
+    hl7Spec: [ '%{hl7PIDField}-5-1' ]
+
+  # PID-5-2: Max length 30
+  - name: ca-patient-given-name
+    resource: '%resource.name'
+    condition: '%resource.exists()'
+    value: [ '%resource.given[0].substring(0,30)' ]
+    hl7Spec: [ '%{hl7PIDField}-5-2' ]
+
+  # PID-5-3: Max length 30
+  - name: ca-patient-second-name
+    resource: '%resource.name'
+    condition: '%resource.exists() and %resource.given.count() >= 2'
+    value: [ '%resource.given.tail().toString().replace('','', '' '').substring(0,30)' ]
+    hl7Spec: [ '%{hl7PIDField}-5-3' ]

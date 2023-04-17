@@ -7,22 +7,22 @@ const BundleAnalyzerPlugin =
     require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
-const InlineChunkHtmlPlugin = require("react-dev-utils/InlineChunkHtmlPlugin");
+const InlineChunkHtmlPlugin = require("../react-dev-utils/InlineChunkHtmlPlugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
-const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
+const InterpolateHtmlPlugin = require("../react-dev-utils/InterpolateHtmlPlugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
-const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
-const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
+const ModuleScopePlugin = require("../react-dev-utils/ModuleScopePlugin");
+const getCSSModuleLocalIdent = require("../react-dev-utils/getCSSModuleLocalIdent");
 const ESLintPlugin = require("eslint-webpack-plugin");
-const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const ModuleNotFoundPlugin = require("../react-dev-utils/ModuleNotFoundPlugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const ForkTsCheckerWebpackPlugin =
     process.env.TSC_COMPILE_ON_ERROR === "true"
-        ? require("react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
-        : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+        ? require("../react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
+        : require("fork-ts-checker-webpack-plugin");
 
 const paths = require("./paths");
 const modules = require("./modules");
@@ -36,7 +36,7 @@ const reactRefreshRuntimeEntry = require.resolve("react-refresh/runtime");
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
     "@pmmmwh/react-refresh-webpack-plugin"
 );
-const babelRuntimeEntry = require.resolve("babel-preset-react-app");
+const babelRuntimeEntry = require.resolve("./babel");
 const babelRuntimeEntryHelpers = require.resolve(
     "@babel/runtime/helpers/esm/assertThisInitialized",
     { paths: [babelRuntimeEntry] }
@@ -50,18 +50,9 @@ const babelRuntimeRegenerator = require.resolve("@babel/runtime/regenerator", {
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== "false";
 
 const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === "true";
-const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === "true";
 
 const imageInlineSizeLimit = parseInt(
     process.env.IMAGE_INLINE_SIZE_LIMIT || "10000"
-);
-
-// Check if TypeScript is setup
-const useTypeScript = fs.existsSync(paths.appTsConfig);
-
-// Check if Tailwind config exists
-const useTailwind = fs.existsSync(
-    path.join(paths.appPath, "tailwind.config.js")
 );
 
 // Get the path to the uncompiled service worker (if it exists).
@@ -72,19 +63,6 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-
-const hasJsxRuntime = (() => {
-    if (process.env.DISABLE_NEW_JSX_TRANSFORM === "true") {
-        return false;
-    }
-
-    try {
-        require.resolve("react/jsx-runtime");
-        return true;
-    } catch (e) {
-        return false;
-    }
-})();
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -133,36 +111,22 @@ module.exports = function (webpackEnv) {
                         // https://github.com/facebook/create-react-app/issues/2677
                         ident: "postcss",
                         config: false,
-                        plugins: !useTailwind
-                            ? [
-                                  "postcss-flexbugs-fixes",
-                                  [
-                                      "postcss-preset-env",
-                                      {
-                                          autoprefixer: {
-                                              flexbox: "no-2009",
-                                          },
-                                          stage: 3,
-                                      },
-                                  ],
-                                  // Adds PostCSS Normalize as the reset css with default options,
-                                  // so that it honors browserslist config in package.json
-                                  // which in turn let's users customize the target behavior as per their needs.
-                                  "postcss-normalize",
-                              ]
-                            : [
-                                  "tailwindcss",
-                                  "postcss-flexbugs-fixes",
-                                  [
-                                      "postcss-preset-env",
-                                      {
-                                          autoprefixer: {
-                                              flexbox: "no-2009",
-                                          },
-                                          stage: 3,
-                                      },
-                                  ],
-                              ],
+                        plugins: [
+                            "postcss-flexbugs-fixes",
+                            [
+                                "postcss-preset-env",
+                                {
+                                    autoprefixer: {
+                                        flexbox: "no-2009",
+                                    },
+                                    stage: 3,
+                                },
+                            ],
+                            // Adds PostCSS Normalize as the reset css with default options,
+                            // so that it honors browserslist config in package.json
+                            // which in turn let's users customize the target behavior as per their needs.
+                            "postcss-normalize",
+                        ],
                     },
                     sourceMap: isEnvProduction
                         ? shouldUseSourceMap
@@ -192,7 +156,8 @@ module.exports = function (webpackEnv) {
         return loaders;
     };
 
-    return {
+    /** @type {import('webpack').WebpackOptionsNormalized} */
+    const options = {
         target: ["browserslist"],
         // Webpack noise constrained to errors and warnings
         stats: "errors-warnings",
@@ -248,9 +213,7 @@ module.exports = function (webpackEnv) {
             buildDependencies: {
                 defaultWebpack: ["webpack/lib/"],
                 config: [__filename],
-                tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) =>
-                    fs.existsSync(f)
-                ),
+                tsconfig: [paths.appTsConfig],
             },
         },
         infrastructureLogging: {
@@ -262,40 +225,11 @@ module.exports = function (webpackEnv) {
                 // This is only used in production mode
                 new TerserPlugin({
                     terserOptions: {
-                        parse: {
-                            // We want terser to parse ecma 8 code. However, we don't want it
-                            // to apply any minification steps that turns valid ecma 5 code
-                            // into invalid ecma 5 code. This is why the 'compress' and 'output'
-                            // sections only apply transformations that are ecma 5 safe
-                            // https://github.com/facebook/create-react-app/pull/4234
-                            ecma: 8,
-                        },
-                        compress: {
-                            ecma: 5,
-                            warnings: false,
-                            // Disabled because of an issue with Uglify breaking seemingly valid code:
-                            // https://github.com/facebook/create-react-app/issues/2376
-                            // Pending further investigation:
-                            // https://github.com/mishoo/UglifyJS2/issues/2011
-                            comparisons: false,
-                            // Disabled because of an issue with Terser breaking valid code:
-                            // https://github.com/facebook/create-react-app/issues/5250
-                            // Pending further investigation:
-                            // https://github.com/terser-js/terser/issues/120
-                            inline: 2,
-                        },
-                        mangle: {
-                            safari10: true,
-                        },
                         // Added for profiling in devtools
                         keep_classnames: isEnvProductionProfile,
                         keep_fnames: isEnvProductionProfile,
                         output: {
-                            ecma: 5,
                             comments: false,
-                            // Turned on because emoji and regex is not minified properly using default
-                            // https://github.com/facebook/create-react-app/issues/2488
-                            ascii_only: true,
                         },
                     },
                 }),
@@ -317,9 +251,7 @@ module.exports = function (webpackEnv) {
             // https://github.com/facebook/create-react-app/issues/290
             // `web` extension prefixes have been added for better support
             // for React Native Web.
-            extensions: paths.moduleFileExtensions
-                .map((ext) => `.${ext}`)
-                .filter((ext) => useTypeScript || !ext.includes("ts")),
+            extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
             alias: {
                 // Support React Native Web
                 // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -420,17 +352,13 @@ module.exports = function (webpackEnv) {
                             loader: require.resolve("babel-loader"),
                             options: {
                                 customize: require.resolve(
-                                    "babel-preset-react-app/webpack-overrides"
+                                    "./babel/webpack-overrides"
                                 ),
                                 presets: [
                                     [
-                                        require.resolve(
-                                            "babel-preset-react-app"
-                                        ),
+                                        require.resolve("./babel"),
                                         {
-                                            runtime: hasJsxRuntime
-                                                ? "automatic"
-                                                : "classic",
+                                            runtime: "automatic",
                                         },
                                     ],
                                 ],
@@ -447,6 +375,7 @@ module.exports = function (webpackEnv) {
                                 // See #6846 for context on why cacheCompression is disabled
                                 cacheCompression: false,
                                 compact: isEnvProduction,
+                                babelrc: false,
                             },
                         },
                         // Process any JS outside of the app with Babel.
@@ -461,9 +390,7 @@ module.exports = function (webpackEnv) {
                                 compact: false,
                                 presets: [
                                     [
-                                        require.resolve(
-                                            "babel-preset-react-app/dependencies"
-                                        ),
+                                        require.resolve("./babel/dependencies"),
                                         { helpers: true },
                                     ],
                                 ],
@@ -713,85 +640,72 @@ module.exports = function (webpackEnv) {
                     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
                 }),
             // TypeScript type checking
-            useTypeScript &&
-                new ForkTsCheckerWebpackPlugin({
-                    async: isEnvDevelopment,
-                    typescript: {
-                        typescriptPath: resolve.sync("typescript", {
-                            basedir: paths.appNodeModules,
-                        }),
-                        configOverwrite: {
-                            compilerOptions: {
-                                sourceMap: isEnvProduction
-                                    ? shouldUseSourceMap
-                                    : isEnvDevelopment,
-                                skipLibCheck: true,
-                                inlineSourceMap: false,
-                                declarationMap: false,
-                                noEmit: true,
-                                incremental: true,
-                                tsBuildInfoFile: paths.appTsBuildInfoFile,
-                            },
-                        },
-                        context: paths.appPath,
-                        diagnosticOptions: {
-                            syntactic: true,
-                        },
-                        mode: "write-references",
-                        // profile: true,
-                    },
-                    issue: {
-                        // This one is specifically to match during CI tests,
-                        // as micromatch doesn't match
-                        // '../cra-template-typescript/template/src/App.tsx'
-                        // otherwise.
-                        include: [
-                            { file: "../**/src/**/*.{ts,tsx}" },
-                            { file: "**/src/**/*.{ts,tsx}" },
-                        ],
-                        exclude: [
-                            { file: "**/src/**/__tests__/**" },
-                            { file: "**/src/**/?(*.){spec|test}.*" },
-                            { file: "**/src/setupProxy.*" },
-                            { file: "**/src/setupTests.*" },
-                        ],
-                    },
-                    logger: {
-                        infrastructure: "silent",
-                    },
-                }),
-            !disableESLintPlugin &&
-                new ESLintPlugin({
-                    // Plugin options
-                    extensions: ["js", "mjs", "jsx", "ts", "tsx"],
-                    formatter: require.resolve(
-                        "react-dev-utils/eslintFormatter"
-                    ),
-                    eslintPath: require.resolve("eslint"),
-                    failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
-                    context: paths.appSrc,
-                    cache: true,
-                    cacheLocation: path.resolve(
-                        paths.appNodeModules,
-                        ".cache/.eslintcache"
-                    ),
-                    // ESLint class options
-                    cwd: paths.appPath,
-                    resolvePluginsRelativeTo: __dirname,
-                    baseConfig: {
-                        extends: [
-                            require.resolve("eslint-config-react-app/base"),
-                        ],
-                        rules: {
-                            ...(!hasJsxRuntime && {
-                                "react/react-in-jsx-scope": "error",
-                            }),
+            new ForkTsCheckerWebpackPlugin({
+                async: isEnvDevelopment,
+                typescript: {
+                    typescriptPath: resolve.sync("typescript", {
+                        basedir: paths.appNodeModules,
+                    }),
+                    configOverwrite: {
+                        compilerOptions: {
+                            sourceMap: isEnvProduction
+                                ? shouldUseSourceMap
+                                : isEnvDevelopment,
+                            skipLibCheck: true,
+                            inlineSourceMap: false,
+                            declarationMap: false,
+                            noEmit: true,
+                            incremental: true,
+                            tsBuildInfoFile: paths.appTsBuildInfoFile,
                         },
                     },
-                }),
+                    context: paths.appPath,
+                    diagnosticOptions: {
+                        syntactic: true,
+                    },
+                    mode: "write-references",
+                    // profile: true,
+                },
+                issue: {
+                    // This one is specifically to match during CI tests,
+                    // as micromatch doesn't match
+                    // '../cra-template-typescript/template/src/App.tsx'
+                    // otherwise.
+                    include: [
+                        { file: "../**/src/**/*.{ts,tsx}" },
+                        { file: "**/src/**/*.{ts,tsx}" },
+                    ],
+                    exclude: [
+                        { file: "**/src/**/__tests__/**" },
+                        { file: "**/src/**/?(*.){spec|test}.*" },
+                        { file: "**/src/setupProxy.*" },
+                        { file: "**/src/setupTests.*" },
+                    ],
+                },
+            }),
+            new ESLintPlugin({
+                // Plugin options
+                extensions: ["js", "mjs", "jsx", "ts", "tsx"],
+                formatter: require.resolve(
+                    "../react-dev-utils/eslintFormatter"
+                ),
+                eslintPath: require.resolve("eslint"),
+                failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
+                context: paths.appSrc,
+                cache: true,
+                cacheLocation: path.resolve(
+                    paths.appNodeModules,
+                    ".cache/.eslintcache"
+                ),
+                // ESLint class options
+                cwd: paths.appPath,
+                resolvePluginsRelativeTo: __dirname,
+            }),
         ].filter(Boolean),
         // Turn off performance processing because we utilize
         // our own hints via the FileSizeReporter
         performance: false,
     };
+
+    return options;
 };
