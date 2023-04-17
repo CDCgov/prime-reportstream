@@ -44,7 +44,6 @@ interface RowData {
 export interface TableProps {
     borderless?: boolean;
     compact?: boolean;
-    emptyState?: boolean;
     fullWidth?: boolean;
     scrollable?: boolean;
     sortable?: boolean;
@@ -203,7 +202,6 @@ const SortableTable = ({
 export const Table = ({
     borderless,
     compact,
-    emptyState,
     fullWidth,
     scrollable,
     sortable,
