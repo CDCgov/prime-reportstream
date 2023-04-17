@@ -17,6 +17,7 @@ import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -104,6 +105,11 @@ class TranslationTests {
          * The default sender for the report
          */
         SENDER("Sender"),
+
+        /**
+         * The sender transform for the report
+         */
+        SENDER_TRANSFORM("Sender Transform"),
     }
 
     /**
@@ -120,7 +126,8 @@ class TranslationTests {
         /** are there any fields we should ignore when doing the comparison */
         val ignoreFields: List<String>? = null,
         /** should we hardcode the sender for comparison? */
-        val sender: String? = null
+        val sender: String? = null,
+        val senderTransform: String?
     )
 
     /**
@@ -155,6 +162,7 @@ class TranslationTests {
                     val inputSchema = it[ConfigColumns.INPUT_SCHEMA.colName]
                     val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
+                    val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -171,7 +179,8 @@ class TranslationTests {
                         expectedSchema,
                         shouldPass,
                         ignoreFields,
-                        sender
+                        sender,
+                        senderTransform
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -245,9 +254,14 @@ class TranslationTests {
                         }
                         // Compare the output of a FHIR to HL7 conversion
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
+                            val afterSenderTransform = if (config.senderTransform != null) {
+                                runSenderTransform(inputStream, config.senderTransform)
+                            } else {
+                                inputStream
+                            }
                             check(!config.expectedSchema.isNullOrBlank())
                             val actualStream =
-                                translateFromFhir(inputStream, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -335,6 +349,13 @@ class TranslationTests {
             val hl7 =
                 FhirToHl7Converter(FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert(fhirBundle)
             return hl7.encode().byteInputStream()
+        }
+
+        private fun runSenderTransform(bundle: InputStream, schema: String): InputStream {
+            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            val transformedBundle = FhirTransformer(schema).transform(fhirBundle)
+            val fhirJson = FhirTranscoder.encode(transformedBundle)
+            return fhirJson.byteInputStream()
         }
 
         /**

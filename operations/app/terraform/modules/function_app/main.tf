@@ -95,6 +95,13 @@ locals {
     "https://${var.environment}.reportstream.cdc.gov",
     "https://${var.environment}.prime.cdc.gov",
   ]
+  cors_trial_frontends = [
+    "https://pdhstagingpublictrial01.z13.web.core.windows.net",
+    "https://pdhstagingpublictrial02.z13.web.core.windows.net",
+    "https://pdhstagingpublictrial03.z13.web.core.windows.net"
+  ]
+  concat_allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
+  allowed_origins        = concat(local.concat_allowed_origins, var.environment == "staging" ? local.cors_trial_frontends : [])
 }
 
 resource "azurerm_function_app" "function_app" {
@@ -140,7 +147,7 @@ resource "azurerm_function_app" "function_app" {
     ftps_state                = "Disabled"
 
     cors {
-      allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
+      allowed_origins = local.allowed_origins
     }
   }
 

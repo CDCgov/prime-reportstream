@@ -3,13 +3,145 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.FullELRSender
+import gov.cdc.prime.router.MonkeypoxSender
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
+
+// TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8659
+// This is a utility created to help migrate keys to organizations and can be removed after the migration is done
+class MigratePublicKeys : SettingCommand(
+    name = "migratekeys",
+    help = """
+        This is a temporary command to assist in the migration of API keys from senders to the organization.
+        
+        It moves all keys from all senders associated with the organization to the organization
+    """.trimIndent()
+) {
+    private val orgName by option(
+        "--orgName",
+        metavar = "<organization>",
+        help = "Specify the name of the organization that should have it's sender keys migrated"
+    ).required()
+
+    private val useJson by jsonOption
+
+    val doIt by option(
+        "--doit",
+        help = "Save the modified Organization and senders settings to the database"
+    ).flag(default = false)
+
+    override fun run() {
+        val origOrganizationJson =
+            get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
+        val origOrganization = jsonMapper.readValue(origOrganizationJson, Organization::class.java)
+        val sendersJson = getMany(environment, oktaAccessToken, SettingType.SENDER, origOrganization.name)
+        val orgSenders = jsonMapper.readValue(sendersJson, Array<Sender>::class.java)
+        var updatedOrg = origOrganization
+        val updatedSenders = orgSenders.map(fun(sender): Sender {
+            sender.keys?.forEach(fun(key) {
+                key.keys.forEach(fun(jwk) {
+                    updatedOrg = updatedOrg.makeCopyWithNewScopeAndJwk(key.scope, jwk)
+                })
+            })
+            return when (sender) {
+                is CovidSender -> CovidSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    keys = null
+                )
+                is FullELRSender -> FullELRSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    keys = null
+                )
+                is MonkeypoxSender -> MonkeypoxSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    keys = null
+                )
+                is TopicSender -> TopicSender(
+                    sender.name,
+                    sender.organizationName,
+                    sender.format,
+                    sender.customerStatus,
+                    sender.schemaName,
+                    sender.topic,
+                    keys = null
+                )
+                else -> sender
+            }
+        })
+
+        val updatedOrganizationJson = jsonMapper.writeValueAsString(updatedOrg)
+
+        echo("** Original Organization **")
+        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
+            toYaml(
+                origOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("** End Original Organization **")
+        echo("*** Modified Organization, including new keys *** ")
+        if (useJson) writeOutput(updatedOrganizationJson) else writeOutput(
+            toYaml(
+                updatedOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("*** End Modified Organization, including new keys *** ")
+        echo("*** Modified senders ***")
+        updatedSenders.forEach(fun(sender) {
+            if (useJson) writeOutput(updatedOrganizationJson) else writeOutput(
+                toYaml(
+                    jsonMapper.writeValueAsString(sender),
+                    SettingType.SENDER
+                )
+            )
+        })
+        echo("*** End Modified senders ***")
+
+        if (doIt) {
+            echo()
+            echo(
+                put(
+                    environment,
+                    oktaAccessToken, SettingType.ORGANIZATION, origOrganization.name, updatedOrganizationJson
+                )
+            )
+            echo()
+
+            updatedSenders.forEach(fun(sender) {
+                echo()
+                echo(
+                    put(
+                        environment,
+                        oktaAccessToken, SettingType.SENDER, sender.fullName, jsonMapper.writeValueAsString(sender)
+                    )
+                )
+                echo()
+            })
+        }
+    }
+}
 
 class AddPublicKey : SettingCommand(
     name = "addkey",
@@ -36,11 +168,10 @@ class AddPublicKey : SettingCommand(
         "--kid",
         metavar = "<string key id>",
         help = """
-            Specify desired key id for this key.
-            When sender makes a token req, the kid in jwt must match this kid.
-            If not set, use the sender fullname as the kid value
+            Specify desired key id for this key.  This value must be unique within the keys already added
+            for the scope.
         """.trimIndent()
-    )
+    ).required()
 
     private val scope by option(
         "--scope",
@@ -48,7 +179,12 @@ class AddPublicKey : SettingCommand(
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
 
-    private val settingName by nameOption
+    private val orgName by option(
+        "--orgName",
+        metavar = "<organization>",
+        help = "Specify the name of the organization to add the key to"
+    ).required()
+
     private val useJson by jsonOption
 
     val doIt by option(
@@ -67,27 +203,44 @@ class AddPublicKey : SettingCommand(
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
-        jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
+        jwk.kid = kid
 
-        val origSenderJson = get(environment, oktaAccessToken, SettingType.SENDER, settingName)
-        val origSender = jsonMapper.readValue(origSenderJson, Sender::class.java)
+        val origOrganizationJson =
+            get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
+        val origOrganization = jsonMapper.readValue(origOrganizationJson, Organization::class.java)
 
-        if (!Scope.isValidScope(scope, origSender)) {
-            echo("Sender full name in scope must match $settingName.  Instead got: $scope")
+        if (!Scope.isValidScope(scope, origOrganization)) {
+            echo("Organization name in scope must match $orgName.  Instead got: $scope")
+            return
+        }
+
+        if (!JwkSet.isValidKidForScope(origOrganization.keys, scope, kid)) {
+            echo("kid: $kid must be unique for the requested scope: $scope")
             return
         }
 
         // TODO: This is to support original functionality, may be able to just reassign scope and jwk on
-        //  origSender instead of creating a new one
-        val newSender = origSender.makeCopyWithNewScopeAndJwk(scope, jwk)
-        val newSenderJson = jsonMapper.writeValueAsString(newSender)
+        //  origOrganization instead of creating a new one
+        val newOrganization = origOrganization.makeCopyWithNewScopeAndJwk(scope, jwk)
+        val newOrganizationJson = jsonMapper.writeValueAsString(newOrganization)
 
-        echo("*** Original Sender *** ")
-        if (useJson) writeOutput(origSenderJson) else writeOutput(toYaml(origSenderJson, SettingType.SENDER))
-        echo("*** End Original Sender *** ")
-        echo("*** Modified Sender, including new key *** ")
-        if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, SettingType.SENDER))
-        echo("*** End Modified Sender, including new key *** ")
+        echo("** Original Organization **")
+        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
+            toYaml(
+                origOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("** End Original Organization **")
+        echo("*** Modified Organization, including new key *** ")
+        if (useJson) writeOutput(newOrganizationJson) else writeOutput(
+            toYaml(
+                newOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("*** End Modified Organization, including new key *** ")
+
         if (!doIt) {
             echo(
                 """
@@ -98,7 +251,7 @@ class AddPublicKey : SettingCommand(
             )
             return
         }
-        val response = put(environment, oktaAccessToken, SettingType.SENDER, settingName, newSenderJson)
+        val response = put(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName, newOrganizationJson)
         echo()
         echo(response)
         echo()

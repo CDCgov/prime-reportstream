@@ -105,6 +105,8 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
                 this.elements.add(childElement)
             }
         }
+        this.constants.putAll(childSchema.constants)
+        this.name = childSchema.name
     }
 
     /**
@@ -195,6 +197,11 @@ abstract class ConfigSchemaElement(
         // value sets need a value to be...set
         if (valueSet.isNotEmpty() && value.isEmpty()) {
             addError("Value property is required when using a value set")
+        }
+
+        // value set keys and values cannot be null
+        if (valueSet.keys.any { it == null } || valueSet.values.any { it == null }) {
+            addError("Value sets cannot contain null values")
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
