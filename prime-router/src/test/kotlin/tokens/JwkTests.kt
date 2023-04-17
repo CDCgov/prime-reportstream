@@ -2,6 +2,8 @@ package gov.cdc.prime.router.tokens
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
@@ -216,5 +218,52 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
             JwkSet.addKeyToScope(listOf(JwkSet(wildcardReportScope, listOf(jwk2, jwk3))), wildcardReportScope, jwk)
         assertThat(updatedKeys.size).isEqualTo(1)
         assertThat(updatedKeys[0]).isEqualTo(JwkSet(wildcardReportScope, listOf(jwk3, jwk)))
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns false if kid is used in JwkSet`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet(wildcardReportScope, listOf(jwk2))),
+                wildcardReportScope,
+                jwk2.kid
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true if no JwkSet exists for scope`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
+                wildcardReportScope,
+                jwk2.kid
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true if the kid is unique`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
+                wildcardReportScope,
+                jwk3.kid
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true even if kid unique is used in a different JwkSet`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(
+                    JwkSet("simple_report.*.admin", listOf(jwk3)),
+                    JwkSet(wildcardReportScope, listOf(jwk2))
+                ),
+                wildcardReportScope,
+                jwk3.kid
+            )
+        ).isTrue()
     }
 }
