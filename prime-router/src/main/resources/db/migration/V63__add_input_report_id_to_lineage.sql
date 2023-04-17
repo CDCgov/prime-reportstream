@@ -13,4 +13,6 @@
  * to remove the need to go up the tree to find relevant metadata for deliveries
  * see https://github.com/CDCgov/prime-reportstream/issues/8985
  */
-ALTER TABLE item_lineage ADD input_report_id UUID;
+ALTER TABLE item_lineage
+    ADD input_report_id UUID NULL,
+    ADD input_report_index INT NULL;
