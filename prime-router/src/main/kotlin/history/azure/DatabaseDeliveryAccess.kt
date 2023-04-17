@@ -3,12 +3,15 @@ package gov.cdc.prime.router.history.azure
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
+import org.jooq.Field
 import org.jooq.impl.DSL
 import java.util.UUID
 
@@ -104,7 +107,7 @@ class DatabaseDeliveryAccess(
      * @param sortColumn sort the table by specific column
      * @return a list of facilities
      */
-    fun fetchFacilityList(
+    fun fetchFacilityListOld(
         reportId: ReportId,
         sortDir: SortDir,
         sortColumn: FacilitySortColumn
@@ -136,6 +139,65 @@ class DatabaseDeliveryAccess(
                     REPORT_FACILITIES.COUNT_RECORDS
                 )
                 .from(REPORT_FACILITIES(reportId))
+                .orderBy(sortedColumn)
+
+            query.fetchInto(DeliveryFacility::class.java)
+        }
+    }
+
+    fun fetchFacilityList(
+        reportId: ReportId,
+        sortDir: SortDir,
+        sortColumn: FacilitySortColumn
+    ): List<DeliveryFacility> {
+        val positive: Field<String> = DSL.field(
+            "sum(CASE WHEN test_result = 'DETECTED' THEN 1 ELSE 0 END)",
+            String::class.java
+        ).`as`("positive")
+        val total: Field<String> = DSL.field(
+            "count(covid_results_metadata_id)",
+            String::class.java
+        ).`as`("count_records")
+
+        val column = when (sortColumn) {
+            /* Decides sort column by enum */
+            FacilitySortColumn.NAME -> COVID_RESULT_METADATA.TESTING_LAB_NAME
+            FacilitySortColumn.CITY -> COVID_RESULT_METADATA.TESTING_LAB_CITY
+            FacilitySortColumn.STATE -> COVID_RESULT_METADATA.TESTING_LAB_STATE
+            FacilitySortColumn.CLIA -> COVID_RESULT_METADATA.TESTING_LAB_CLIA
+            FacilitySortColumn.POSITIVE -> positive
+            FacilitySortColumn.TOTAL -> total
+        }
+
+        val sortedColumn = when (sortDir) {
+            /* Applies sort order by enum */
+            SortDir.ASC -> column.asc()
+            SortDir.DESC -> column.desc()
+        }
+
+        return db.transactReturning { txn ->
+            val query = DSL.using(txn)
+                .select(
+                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                    COVID_RESULT_METADATA.TESTING_LAB_CITY,
+                    COVID_RESULT_METADATA.TESTING_LAB_STATE,
+                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
+                    positive,
+                    total
+                )
+                .from(
+                    COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
+                        COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.INPUT_REPORT_ID),
+                        COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.INPUT_REPORT_INDEX)
+                    )
+                ).where(
+                    ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId)
+                ).groupBy(
+                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                    COVID_RESULT_METADATA.TESTING_LAB_CITY,
+                    COVID_RESULT_METADATA.TESTING_LAB_STATE,
+                    COVID_RESULT_METADATA.TESTING_LAB_CLIA
+                )
                 .orderBy(sortedColumn)
 
             query.fetchInto(DeliveryFacility::class.java)
