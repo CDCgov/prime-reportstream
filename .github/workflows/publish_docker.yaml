@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - josiahsiegel/fix/tfcli_container
   schedule:
     - cron:  "0 0 1 * *"
 

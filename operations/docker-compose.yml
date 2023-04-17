@@ -7,8 +7,8 @@ services:
     build:
       context: .
       args:
-        AZURE_CLI_VERSION: 2.27.2
-        TERRAFORM_VERSION: 1.0.5
+        AZURE_CLI_VERSION: 2.47.0
+        TERRAFORM_VERSION: 1.2.0
     volumes:
       # Bind the app directory instead of building into the docker image for re-usability
       - type: bind
