@@ -3,7 +3,6 @@ import { ButtonProps as OrigButtonProps } from "@trussworks/react-uswds/lib/comp
 import React from "react";
 
 import { withUnnestedProps } from "../utils/StorybookUtils";
-
 import {
     TooltipTrigger,
     TooltipContent,
@@ -11,7 +10,7 @@ import {
     TooltipContentProps,
     TooltipProps,
     TooltipTriggerProps,
-} from "./Tooltip";
+} from "../shared/Tooltip";
 
 export type ButtonProps = Omit<OrigButtonProps, "type"> & {
     type?: OrigButtonProps["type"];
