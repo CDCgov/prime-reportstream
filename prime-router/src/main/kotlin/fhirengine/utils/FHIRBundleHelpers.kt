@@ -254,4 +254,13 @@ object FHIRBundleHelpers {
         }
         return observationsToKeep
     }
+
+    fun batchMessages(messages: List<String>): String {
+        var result = ""
+        messages.forEach {
+            result += if (result.isEmpty()) it
+            else "\n$it"
+        }
+        return result
+    }
 }

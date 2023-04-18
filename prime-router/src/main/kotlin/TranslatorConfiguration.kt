@@ -47,6 +47,7 @@ interface TranslatorProperties {
 )
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
+    JsonSubTypes.Type(FHIRConfiguration::class, name = "FHIR"),
     JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
     JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM")
 )
@@ -160,38 +161,55 @@ data class Hl7Configuration
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
     @get:JsonIgnore
-    override val defaults: Map<String, String> get() {
-        val receivingApplication = when {
-            receivingApplicationName != null && receivingApplicationOID != null ->
-                "$receivingApplicationName^$receivingApplicationOID^ISO"
-            receivingApplicationName != null && receivingApplicationOID == null ->
-                receivingApplicationName
-            else -> ""
+    override val defaults: Map<String, String>
+        get() {
+            val receivingApplication = when {
+                receivingApplicationName != null && receivingApplicationOID != null ->
+                    "$receivingApplicationName^$receivingApplicationOID^ISO"
+                receivingApplicationName != null && receivingApplicationOID == null ->
+                    receivingApplicationName
+                else -> ""
+            }
+            val receivingFacility = when {
+                receivingFacilityName != null && receivingFacilityOID != null ->
+                    "$receivingFacilityName^$receivingFacilityOID^ISO"
+                receivingFacilityName != null && receivingFacilityOID == null ->
+                    receivingFacilityName
+                else -> ""
+            }
+            val reportingFacility = when {
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
+                    "$reportingFacilityName^$reportingFacilityId^CLIA"
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
+                    "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
+                reportingFacilityName != null && reportingFacilityId == null ->
+                    reportingFacilityName
+                else -> ""
+            }
+            return mapOf(
+                "processing_mode_code" to (processingModeCode ?: "P"),
+                "receiving_application" to receivingApplication,
+                "receiving_facility" to receivingFacility,
+                "message_profile_id" to (messageProfileId ?: ""),
+                "reporting_facility" to reportingFacility
+            )
         }
-        val receivingFacility = when {
-            receivingFacilityName != null && receivingFacilityOID != null ->
-                "$receivingFacilityName^$receivingFacilityOID^ISO"
-            receivingFacilityName != null && receivingFacilityOID == null ->
-                receivingFacilityName
-            else -> ""
-        }
-        val reportingFacility = when {
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
-                "$reportingFacilityName^$reportingFacilityId^CLIA"
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
-                "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
-            reportingFacilityName != null && reportingFacilityId == null ->
-                reportingFacilityName
-            else -> ""
-        }
-        return mapOf(
-            "processing_mode_code" to (processingModeCode ?: "P"),
-            "receiving_application" to receivingApplication,
-            "receiving_facility" to receivingFacility,
-            "message_profile_id" to (messageProfileId ?: ""),
-            "reporting_facility" to reportingFacility
-        )
-    }
+}
+
+/**
+ * Standard HL7 report configuration
+ */
+data class FHIRConfiguration
+@JsonCreator constructor(
+    override val schemaName: String,
+    override val nameFormat: String = "standard",
+    override val receivingOrganization: String?,
+) : TranslatorConfiguration("FHIR") {
+    @get:JsonIgnore
+    override val format: Report.Format get() = Report.Format.FHIR
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String> = emptyMap()
 }
 
 /**

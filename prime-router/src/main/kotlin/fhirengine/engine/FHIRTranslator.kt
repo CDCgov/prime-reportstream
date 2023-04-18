@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -18,11 +19,11 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
@@ -71,11 +72,25 @@ class FHIRTranslator(
             if (receiver != null && receiver.topic == Topic.FULL_ELR) {
                 try {
                     val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
-                    val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
-                    val bodyBytes = hl7Message.encode().toByteArray()
+
+                    val bodyBytes = when (receiver.format) {
+                        Report.Format.FHIR -> {
+                            val transformer = FhirTransformer(receiver.schemaName)
+                            transformer.transform(updatedBundle)
+                            FhirContext.forR4().newJsonParser().encodeResourceToString(updatedBundle)
+                                .toByteArray()
+                        }
+                        Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                            val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
+                            hl7Message.encode().toByteArray()
+                        }
+                        else -> {
+                            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
+                        }
+                    }
 
                     // get a Report from the hl7 message
-                    val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                    val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
                         Event.EventAction.BATCH,
                         bodyBytes,
                         listOf(message.reportId),
