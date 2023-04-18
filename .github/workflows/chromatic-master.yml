@@ -1,0 +1,42 @@
+# Build a new baseline for our Storybook on Chromatic
+
+name: Build and Accept Master (Baseline) Chromatic
+
+on:
+  workflow_dispatch:
+    push:
+      paths:
+        - "frontend-react/**"
+    branches:
+      - master
+
+jobs:
+  chromatic-deployment:
+    name: Chromatic
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        with:
+          fetch-depth: 0 # need commit history for Chromatic
+
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version-file: frontend-react/package.json
+
+      - name: Install dependencies
+        run: yarn
+        working-directory: frontend-react
+        shell: bash
+
+      - name: Publish to Chromatic and accept baseline
+        id: chromatic_publish
+        uses: chromaui/action@d51b84e79d164fbe8fc5bb7175695d88ddd04b72
+        with:
+          workingDir: frontend-react
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          ignoreLastBuildOnBranch: "**"
+          onlyChanged: true
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
+          autoAcceptChanges: true
