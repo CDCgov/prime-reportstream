@@ -8,7 +8,11 @@ import {
     ContentDirectory,
     ElementDirectory,
 } from "../../components/Content/MarkdownDirectory";
-import { Contact, ServiceRequest, Faq } from "../../pages/support/index-legacy";
+import {
+    Contact,
+    FaqPage,
+    ServiceRequest,
+} from "../../pages/support/index-legacy";
 
 enum SupportTitles {
     CONTACT = "Contact",
@@ -38,7 +42,7 @@ export const supportDirectories: ContentDirectory[] = [
         )
         .addElement(
             contentContainer(
-                Faq,
+                FaqPage,
                 SupportDirectoryTools.makeCrumb(SupportTitles.FAQ)
             )
         ),
