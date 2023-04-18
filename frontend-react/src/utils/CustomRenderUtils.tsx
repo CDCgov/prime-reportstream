@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
-import { MemoryRouter, useRoutes } from "react-router-dom";
+import { MemoryRouter, RouteObject, useRoutes } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
@@ -34,7 +34,7 @@ interface TestRouterProps {
  */
 const TestRoutes = ({ children }: TestRouterProps) => {
     const routes = useRoutes(
-        appRoutes.map((r) => ({ ...r, element: children }))
+        appRoutes.map((r) => ({ ...r, element: children })) as RouteObject[]
     );
 
     return routes;

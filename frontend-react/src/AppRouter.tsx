@@ -1,13 +1,12 @@
 import { useRoutes } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
+import { ReadonlyDeep } from "type-fest";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { Resources } from "./pages/resources/Resources";
-import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
@@ -31,9 +30,9 @@ import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSet
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
-import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 import FileHandler from "./components/FileHandlers/FileHandler";
+import ResourcesRoute from "./pages/resources/routes";
+import { RSRouteObject } from "./utils/UsefulTypes";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -50,18 +49,7 @@ export const appRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/login/callback", element: <LoginCallback /> },
     { path: "/sign-tos", element: <TermsOfServiceForm /> },
-    {
-        path: "/resources",
-        children: [
-            { path: "manage-public-key", element: <ManagePublicKeyWithAuth /> },
-            {
-                path: "reportstream-api",
-                element: <ReportStreamAPIPage />,
-            },
-            { path: "", element: <ResourcesPage /> },
-            { path: "*", element: <Resources /> },
-        ],
-    },
+    ResourcesRoute,
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
     { path: "/file-handler/validate", element: <FileHandler /> },
@@ -123,6 +111,9 @@ export const appRoutes = [
     },
     /* Handles any undefined route */
     { path: "*", element: <ErrorNoPage /> },
-];
+] as const satisfies ReadonlyDeep<RSRouteObject[]>;
 
-export const AppRouter = () => useRoutes(appRoutes);
+export const AppRouter = () => useRoutes(appRoutes as any);
+
+export { ResourcesRoute };
+export * from "./pages/resources/routes";

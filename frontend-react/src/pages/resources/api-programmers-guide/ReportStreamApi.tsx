@@ -1,6 +1,7 @@
 import { MarkdownLayout } from "../../../components/Content/MarkdownLayout";
 import ReportStreamAPIMarkdown from "../../../content/resources/api-programmers-guide/ReportStreamApi.mdx";
-import Sidenav from "../../../content/resources/api-programmers-guide/Sidenav.mdx";
+
+import { Sidenav } from "./Sidenav";
 
 export function ReportStreamAPIPage() {
     return (
