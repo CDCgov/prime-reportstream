@@ -56,6 +56,7 @@ class ApiKeysFunctionsTest {
     var encodedPubKey: String? = null
     val jwk = Jwk(
         pubKey.getAlgorithm(),
+        kid = "key1",
         n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
         alg = "RS256",
@@ -63,6 +64,7 @@ class ApiKeysFunctionsTest {
     )
     val jwk2 = Jwk(
         pubKey.getAlgorithm(),
+        kid = "key2",
         n = Base64.getUrlEncoder().encodeToString(pubKey2.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey2.getPublicExponent().toByteArray()),
         alg = "RS256",
@@ -70,6 +72,7 @@ class ApiKeysFunctionsTest {
     )
     val jwk3 = Jwk(
         pubKey.getAlgorithm(),
+        kid = "key3",
         n = Base64.getUrlEncoder().encodeToString(pubKey3.getModulus().toByteArray()),
         e = Base64.getUrlEncoder().encodeToString(pubKey3.getPublicExponent().toByteArray()),
         alg = "RS256",
@@ -112,6 +115,7 @@ class ApiKeysFunctionsTest {
     @AfterEach
     fun reset() {
         clearAllMocks()
+        unmockkObject(AuthenticatedClaims)
     }
 
     @Nested
@@ -336,6 +340,28 @@ class ApiKeysFunctionsTest {
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(response.body).isEqualTo("kid must be provided")
+        }
+
+        @Test
+        fun `Test kid must be unique in the JwkSet that will be updated`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
+            )
+
+            val httpRequestMessage = MockHttpRequestMessage(encodedPubKey)
+            httpRequestMessage.queryParameters["scope"] = wildcardReportScope
+            httpRequestMessage.queryParameters["kid"] = jwk.kid ?: ""
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("kid must be unique for the requested scope")
         }
 
         @Test

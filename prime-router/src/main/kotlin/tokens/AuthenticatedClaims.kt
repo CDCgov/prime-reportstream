@@ -217,7 +217,7 @@ class AuthenticatedClaims : Logging {
             var authenticatedClaims = OktaAuthentication.authenticate(accessToken, request.httpMethod, request.uri.path)
             if (authenticatedClaims == null) {
                 logger.info("Okta: Unauthorized.  Now trying server2server auth for request to ${request.uri}.")
-                authenticatedClaims = Server2ServerAuthentication().authenticate(accessToken)
+                authenticatedClaims = Server2ServerAuthentication(WorkflowEngine()).authenticate(accessToken)
                 if (authenticatedClaims == null) {
                     logger.info("Server2Server: Also Unauthorized, for request to ${request.uri}. Giving up.")
                     return null

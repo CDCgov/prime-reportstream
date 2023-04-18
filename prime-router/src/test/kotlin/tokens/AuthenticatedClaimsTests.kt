@@ -9,13 +9,16 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +27,8 @@ class AuthenticatedClaimsTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test
@@ -365,6 +370,7 @@ class AuthenticatedClaimsTests {
         assertThat(claims2?.scopes?.size).isEqualTo(1)
         assertThat(claims2?.scopes?.contains("foo.bar.report")).isEqualTo(true)
         assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
+        unmockkConstructor(Server2ServerAuthentication::class)
     }
 
     @Test

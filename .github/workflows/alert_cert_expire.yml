@@ -57,7 +57,7 @@ jobs:
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
-          channel: temp-alert-dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
 
