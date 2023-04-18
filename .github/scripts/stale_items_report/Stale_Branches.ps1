@@ -18,7 +18,7 @@ $root = @{ records = New-Object 'System.Collections.Generic.List[object]' }
 $data = [pscustomobject]@{
     StaleBranches = @()
 }
-$ExcludeBranchesList = @(Get-Content .\scripts\stale_items_report\excludebrancheslist.txt)
+$ExcludeBranchesList = @(Get-Content .\.github\scripts\stale_items_report\excludebrancheslist.txt)
 # Write-Output $json
 foreach($obj in $json)
 {
