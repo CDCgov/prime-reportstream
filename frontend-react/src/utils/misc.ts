@@ -1,3 +1,9 @@
+import React from "react";
+import { ConditionalPick, ReadonlyDeep } from "type-fest";
+import { RouteObject } from "react-router-dom";
+
+import { RSRouteObject } from "./UsefulTypes";
+
 /**
  * splitOn('foo', 1);
  * // ["f", "oo"]
@@ -175,3 +181,55 @@ export const parseFileLocation = (
         fileName,
     };
 };
+
+export function lazy<Fn extends () => Promise<unknown>>(
+    fn: Fn,
+    namedExport: Fn extends () => Promise<infer M>
+        ? keyof ConditionalPick<M, React.ComponentType<any>>
+        : never
+): React.LazyExoticComponent<Awaited<ReturnType<Fn>>[typeof namedExport]>;
+export function lazy<Fn extends () => Promise<{ default: any }>>(
+    fn: Fn,
+    namedExport: undefined
+): React.LazyExoticComponent<Awaited<ReturnType<Fn>>["default"]>;
+export function lazy(fn: any, namedExport: any) {
+    if (!namedExport) {
+        return React.lazy(fn);
+    }
+
+    return React.lazy(async () => {
+        const module = await fn();
+        return { default: module[namedExport] };
+    });
+}
+
+export function matchRoute(
+    routes: RouteObject[] | ReadonlyDeep<RSRouteObject[]>,
+    location: RouteObject
+) {
+    function walkRoutes(
+        routes: RouteObject[] | ReadonlyDeep<RSRouteObject[]>,
+        match: RouteObject,
+        steps: RouteObject[] = []
+    ): RouteObject[] | ReadonlyDeep<RSRouteObject[]> | undefined {
+        for (const route of routes) {
+            if (route === location) {
+                return steps;
+            } else if (route.children) {
+                return route.children
+                    .map((r) =>
+                        walkRoutes([r], match, [...steps, route] as any)
+                    )
+                    ?.find((r) => r !== undefined);
+            }
+        }
+    }
+
+    const steps = walkRoutes(routes, location as RouteObject);
+    return steps
+        ? {
+              steps,
+              path: steps?.map((s) => s.path).join("/"),
+          }
+        : steps;
+}

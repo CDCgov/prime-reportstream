@@ -1,7 +1,12 @@
 import { SideNav } from "@trussworks/react-uswds";
-import { useLocation } from "react-router-dom";
+import React from "react";
+import { useLocation, RouteObject } from "react-router-dom";
+import { ReadonlyDeep } from "type-fest";
 
+import { appRoutes } from "../AppRouter";
 import { USNavLink } from "../components/USLink";
+import { matchRoute } from "../utils/misc";
+import { RSRouteObject } from "../utils/UsefulTypes";
 
 export interface SideNavItemProps
     extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -54,4 +59,51 @@ export default function SideNavItem({
             ) : undefined}
         </>
     );
+}
+
+export interface SideNavRouteItemBase {
+    route: RSRouteObject;
+    children?: SideNavRouteItemBase[];
+    isActive?: boolean;
+}
+
+export type SideNavRouteItem =
+    | SideNavRouteItemBase
+    | ReadonlyDeep<SideNavRouteItemBase>
+    | (ReadonlyDeep<SideNavRouteItemBase> & { children: SideNavRouteItem[] });
+
+export function createSideNavItem(
+    { route, isActive, children }: SideNavRouteItem,
+    currentPath?: string
+) {
+    const lineage =
+        currentPath ??
+        matchRoute(appRoutes as unknown as RouteObject[], route as RouteObject)
+            ?.path;
+
+    if (!lineage) {
+        return undefined;
+    }
+
+    const pathname = `${lineage}${
+        !(route.path?.startsWith("#") ?? false) ? "/" : ""
+    }${route.path ?? ""}`.replaceAll(/\/\/+/g, "/");
+
+    const { path } = route;
+    const url = new URL(pathname, window.location.origin);
+    const href = `${url.pathname}${url.hash}${url.search}`;
+    if (children?.length) {
+        return (
+            <SideNavItem
+                key={path}
+                href={href}
+                isActive={isActive}
+                items={children?.map((i: any) => createSideNavItem(i))}
+            >
+                {route.title}
+            </SideNavItem>
+        );
+    }
+
+    return <USNavLink href={href}>{route.title}</USNavLink>;
 }

@@ -80,7 +80,7 @@
         "lint:eslint:write": "cross-env NODE_ENV=production eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
-        "storybook": "npm-run-all -p watch-scss storybook:start",
+        "storybook": "npm-run-all -p watch-scss \"storybook:start {@}\" --",
         "storybook:start": "start-storybook -p 6006",
         "storybook:build": "build-storybook"
     },
@@ -240,6 +240,7 @@
         "text-table": "^0.2.0",
         "ts-node": "^10.9.1",
         "tslib": "^2.5.0",
+        "type-fest": "^3.8.0",
         "typescript": "^4.9.5",
         "webpack": "^5.78.0",
         "webpack-bundle-analyzer": "^4.7.0",
