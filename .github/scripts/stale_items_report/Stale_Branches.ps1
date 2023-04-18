@@ -18,6 +18,7 @@ $root = @{ records = New-Object 'System.Collections.Generic.List[object]' }
 $data = [pscustomobject]@{
     StaleBranches = @()
 }
+$ExcludeBranchesList = @(Get-Content .\scripts\stale_items_report\excludebrancheslist.txt)
 # Write-Output $json
 foreach($obj in $json)
 {
@@ -28,14 +29,15 @@ foreach($obj in $json)
      $Branch = Invoke-WebRequest -Uri $endpoint1 -Headers @{"Authorization"="Basic $BasicCreds1"}
     $jsonBranch = $Branch | ConvertFrom-JSON
     #  Write-Output $jsonBranch
-    if($obj.commit.author.date -lt $limit){
-
-    $data.StaleBranches += @{
-        BranchName       = $jsonBranch.name
-        Hash             = $obj.commit.sha
-        Author               = $obj.commit.author.name
-        DateRelative              = $obj.commit.author.date
-    }
+    if($obj.commit.commit.author.date -lt $limit){
+        if($jsonBranch.name -notin $ExcludeBranchesList){
+                $data.StaleBranches += @{
+                BranchName       = $jsonBranch.name
+                Hash             = $obj.commit.sha
+                Author           = $obj.commit.commit.author.name
+                DateRelative     = $obj.commit.commit.author.date
+                }
+        }
 
     }
 }
