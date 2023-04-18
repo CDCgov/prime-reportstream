@@ -19,11 +19,11 @@ Most of this happens without a user necessarily being aware of the token as it's
 
 ### via SMART on FHIR oauth implementation
 
-This implementation follows the guide linked below and it essentially an implementation of an Oauth flow and the image 
+This implementation follows the guide linked below and it is essentially an implementation of an Oauth flow and the image 
 below shows the flow.  At a high level:
 
 - the client uploads the public key for the key pair they generate
-- they sign a JWT (aka a JWS) with the that private key
+- they sign a JWT (aka a JWS) with their private key
 - ReportStream attempts to verify the JWS with the stored public key
 - If the signature is valid, ReportStream creates a temporary access token
 - the client then uses that token to make API requests
