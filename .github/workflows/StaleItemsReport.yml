@@ -6,6 +6,9 @@ on:
     branches:
       - feature/stale-items-report
   
+  schedule:
+    - cron: "13 1 1 * *"
+
 jobs:
   alert_stale_items:
     name: Alert on Stale items in github
@@ -28,17 +31,11 @@ jobs:
         run: |
          echo  ${env:Stale_pullrequests} >> PullRequests.txt
         
-      # - name: Get Stale branches
-      #   id: PullRequestsprint
-      #   shell: pwsh
-      #   run: |
-      #    cat file.txt
-
       - name: Get Stale branches
         id: Branches
         shell: pwsh
         run: |
-          ./.github/scripts/stale_items_report/StaleBranches.ps1
+          ./.github/scripts/stale_items_report/Stale_Branches.ps1
 
       - name: Get Stale branches
         id: BranchesShow
@@ -58,36 +55,6 @@ jobs:
         run: |
          echo  ${env:Stale_Issues} >> StaleIssues.txt
 
-      # - name: Get Stale branches
-      #   id: stalebranches
-      #   run: |
-      #     branches=$(./.github/scripts/stale_items_report/staleprs.sh)
-      #      echo "StaleBranches<<EOF" >> $GITHUB_ENV
-  
-      #     # here we can place the command that will generate multi-line text
-      #     echo $branches >> $GITHUB_ENV 
-            
-      #     echo "EOF" >> $GITHUB_ENV
-      #   shell: bash
-
-      # - name: print Stale branches
-      #   id: printstalebranches
-      #   run: |
-      #     echo "${{ env.StaleBranches }}" >> oldbranches.txt
-      #     cat oldbranches.txt
-      #   shell: bash
-      
-      # - name: Get Stale prs
-      #   id: PullRequests
-      #   run: |
-      #     prs=$(./.github/scripts/stale_items_report/staleprs.sh)
-      #      echo "StalePRss<<EOF" >> $GITHUB_ENV
-  
-      #     # here we can place the command that will generate multi-line text
-      #     echo $prs >> $GITHUB_ENV 
-            
-      #     echo "EOF" >> $GITHUB_ENV
-      #   shell: bash
       - uses: MeilCli/slack-upload-file@v3
         id: message
         continue-on-error: true
@@ -96,7 +63,6 @@ jobs:
           channel_id: 'C04UBN6R9EF'
           file_path: 'PullRequests.txt'
           initial_comment: 'Stale pull requests report'
-      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
 
       - uses: MeilCli/slack-upload-file@v3
         id: Branchesmessage
@@ -116,28 +82,4 @@ jobs:
           file_path: 'StaleIssues.txt'
           initial_comment: 'Stale Issues report'
 
-      # - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
-
-      # - name: Stale Items report
-      #   id: slack
-      #   uses: slackapi/slack-github-action@v1.23.0
-      #   with:
-      #     payload-file-path: "stale_prs.json"
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      # - name: Upload JSON file
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: data
-      #     path: stale_prs.json
-
-      # - name: Send Slack notification
-      #   uses: rtCamp/action-slack-notify@v2
-      #   with:
-      #     status: ${{ job.status }}
-      #     text: 'A new JSON file has been generated and attached.'
-      #     title: 'JSON File Notification'
-      #   env:
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
      
