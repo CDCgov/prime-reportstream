@@ -1,6 +1,6 @@
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
-  performerOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
+  performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
 elements:
   #####################################
   # Simple Report specific transforms #
@@ -11,7 +11,7 @@ elements:
     resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-      identifier: '%diagnostic[%orderIndex].identifier[0].value'
+      identifier: '%diagnostic.identifier[0].value'
     schema: ../../common/organization-identifier
 
   # Same as above
@@ -19,7 +19,7 @@ elements:
     resource: '%performerOrganization'
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-      identifier: '%diagnostic[%orderIndex].identifier[0].value'
+      identifier: '%diagnostic.identifier[0].value'
     schema: ../../common/organization-identifier
 
   #####################################
