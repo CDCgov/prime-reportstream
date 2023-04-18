@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * splitOn('foo', 1);
  * // ["f", "oo"]
@@ -175,3 +177,18 @@ export const parseFileLocation = (
         fileName,
     };
 };
+
+export function isReactNode(
+    object: {} | undefined | null
+): object is React.ReactNode {
+    const reactNodeTypes = ["string", "number", "boolean", "undefined"];
+    if (
+        React.isValidElement(object) ||
+        object === null ||
+        reactNodeTypes.includes(typeof object)
+    ) {
+        return true;
+    }
+
+    return false;
+}

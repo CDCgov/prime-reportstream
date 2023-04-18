@@ -1,4 +1,4 @@
-import { BreadcrumbBar, Breadcrumb, Icon } from "@trussworks/react-uswds";
+import { BreadcrumbBar, Breadcrumb } from "@trussworks/react-uswds";
 import { ReactChild } from "react";
 
 import { IconButton } from "./IconButton";
@@ -24,9 +24,8 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
                             size="big"
                             type="button"
                             onClick={() => window.history.back()}
-                        >
-                            <Icon.ArrowBack />
-                        </IconButton>
+                            iconProps={{ icon: "ArrowBack" }}
+                        />
                         Return to {previousPage}
                     </div>
                 ) : null}
