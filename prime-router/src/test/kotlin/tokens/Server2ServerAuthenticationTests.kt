@@ -1,23 +1,34 @@
 package gov.cdc.prime.router.tokens
 
+import assertk.assertThat
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
+import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Sender
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.JwsHeader
+import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
 import java.math.BigInteger
-import java.security.Key
 import java.time.OffsetDateTime
 import java.util.Date
 import java.util.UUID
@@ -68,25 +79,41 @@ val differentRsaPublicKeyStr = """
 
 class Server2ServerAuthenticationTests {
 
+    var settings = MockSettings()
+
     private val sender = CovidSender(
-        "foo",
-        "bar",
+        "default",
+        "simple_report",
         Sender.Format.CSV,
         CustomerStatus.INACTIVE,
         "mySchema",
         keys = null
     )
 
-    private val server2ServerAuthentication = Server2ServerAuthentication()
-    private val jtiCache = MemoryJtiCache()
+    val organization = Organization(
+        sender.organizationName,
+        "simple_report_org",
+        Organization.Jurisdiction.FEDERAL,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
 
-    // return the hardcoded public key used with this test.  This is the Sender's public key.
-    class UseTestKey(private val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
-        override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
-            val jwk = jacksonObjectMapper().readValue(rsaPublicKeyStr, Jwk::class.java)
-            return jwk.toRSAPublicKey()
-        }
-    }
+    val organizationNoKeys = Organization(
+        "nokey",
+        "simple_report_org",
+        Organization.Jurisdiction.FEDERAL,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
+
+    private lateinit var server2ServerAuthentication: Server2ServerAuthentication
+    private val jtiCache = MemoryJtiCache()
 
     // return a ReportStream secret, used by ReportStream to sign a short-lived token
     class GetTestSecret : ReportStreamSecretFinder {
@@ -106,7 +133,21 @@ class Server2ServerAuthenticationTests {
 
     @BeforeEach
     fun reset() {
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
+        mockkConstructor(WorkflowEngine::class)
+        every { anyConstructed<WorkflowEngine>().settings } returns settings
+        val jwk = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(organization.name, Organization(organization, "simple_report.*.report", jwk))
+        settings.organizationStore.put(organizationNoKeys.name, organizationNoKeys)
+        settings.senderStore.put(sender.fullName, sender)
+        server2ServerAuthentication = Server2ServerAuthentication(WorkflowEngine.Builder().build())
+    }
+
+    @AfterEach
+    fun clearMocks() {
         clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
+        unmockkConstructor(WorkflowEngine::class)
     }
 
     @Test
@@ -147,7 +188,8 @@ class Server2ServerAuthenticationTests {
 
         // Check that the public key correctly validates.
         assertTrue(
-            Server2ServerAuthentication().checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr), jtiCache)
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
         )
     }
 
@@ -208,10 +250,11 @@ class Server2ServerAuthenticationTests {
 
         // Step 2: ReportStream gets the token and checks it.
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // callback to lookup the sender's public key.
-        val accessToken = if (Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache)) {
+        val accessToken = if (server2ServerAuthentication
+            .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        ) {
             // Step 3:  Report stream creates a new accessToken
-            server2ServerAuthentication.createAccessToken("org.sender.admin", rslookup)
+            server2ServerAuthentication.createAccessToken("simple_report.*.report", rslookup)
         } else error("Unauthorized connection")
 
         // Step 4: Now pretend the sender has used the accessToken to make a request to reportstream...
@@ -221,10 +264,10 @@ class Server2ServerAuthenticationTests {
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
 
-        if (! claims.authorized(setOf("org.sender.admin")))
+        if (! claims.authorized(setOf("simple_report.*.report")))
             error("Authorization failed")
         assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
-        assertEquals("org.sender.admin", claims.jwtClaims["scope"])
+        assertEquals("simple_report.*.report", claims.jwtClaims["scope"])
     }
 
     @Test
@@ -232,9 +275,16 @@ class Server2ServerAuthenticationTests {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
         val senderToken = SenderUtils.generateSenderToken(sender, "http://baz.quux", privateKey, exampleKeyId)
 
-        val senderLookup = UseTestKey(differentRsaPublicKeyStr) // Its the wrong trousers!
+        val jwk = jacksonObjectMapper().readValue(differentRsaPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(
+            organization.name,
+            Organization(organization, "simple_report.*.report", jwk)
+        )
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -250,9 +300,17 @@ class Server2ServerAuthenticationTests {
               "e":"AQAB"
             }
         """.trimIndent()
-        val senderLookup = UseTestKey(junkPublicKeyStr) // Its the wrong trousers!
+        val jwk = jacksonObjectMapper().readValue(junkPublicKeyStr, Jwk::class.java)
+        settings.organizationStore.put(
+            organization.name,
+            Organization(organization, "simple_report.*.report", jwk)
+        )
+
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -266,9 +324,11 @@ class Server2ServerAuthenticationTests {
             -65
         ) // expires in the past.  Need to back past the clock skew
 
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -281,11 +341,52 @@ class Server2ServerAuthenticationTests {
             exampleKeyId
         )
 
-        val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // It should work the first time.
-        assertTrue(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertTrue(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
         // Then fail the second time
-        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
+        )
+    }
+
+    @Test
+    fun `test checkSenderToken for organization with no keys`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val senderToken = SenderUtils.generateToken(
+            organizationNoKeys.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString(),
+        ) // expires in the past.  Need to back past the clock skew
+
+        // false means we failed to validate the sender's jwt.
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "${organizationNoKeys.name}.*.report", jtiCache)
+        )
+    }
+
+    @Test
+    fun `test checkSenderToken for invalid scope`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val senderToken = SenderUtils.generateToken(
+            organizationNoKeys.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString(),
+        ) // expires in the past.  Need to back past the clock skew
+
+        // false means we failed to validate the sender's jwt.
+        assertFalse(
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "waters.*.report", jtiCache)
+        )
     }
 
     @Test
@@ -345,5 +446,169 @@ class Server2ServerAuthenticationTests {
         val claims = server2ServerAuthentication.authenticate(accessToken.accessToken, rslookup2)
         // if claims is non-null then the sender's accessToken is valid.
         assertNull(claims)
+    }
+
+    @Test
+    fun `test parseJwt successfully parses for a sender`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val token = SenderUtils.generateSenderToken(
+            sender,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId
+        )
+        val parsed =
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        assertThat { parsed.organization.name == sender.organizationName }
+        assertThat { parsed.kid == exampleKeyId }
+        assertThat { parsed.kty == KeyType.RSA }
+    }
+
+    @Test
+    fun `test parseJwt successfully parses for a organization`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val token = SenderUtils.generateToken(
+            organization.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+        val parsed =
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        assertThat { parsed.organization.name == organization.name }
+        assertThat { parsed.kid == exampleKeyId }
+        assertThat { parsed.kty == KeyType.RSA }
+    }
+
+    @Test
+    fun `test parseJwt throws an exception if the issuer cannot be resolved`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val token = SenderUtils.generateToken(
+            "missing_issuer",
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        }
+    }
+
+    @Test
+    fun `test getPossibleSigningKeys for sender`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val publicKey = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java).toRSAPublicKey()
+        val token = SenderUtils.generateSenderToken(
+            sender,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId
+        )
+        val parsed =
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        val keys = server2ServerAuthentication.getPossibleSigningKeys(parsed, "simple_report.*.report")
+        assertThat(keys.size).isEqualTo(1)
+        assertThat(keys[0]).isEqualTo(publicKey)
+    }
+
+    @Test
+    fun `test getPossibleSigningKeys for organization`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val publicKey = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java).toRSAPublicKey()
+        val token = SenderUtils.generateToken(
+            organization.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+        val parsed =
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        val keys = server2ServerAuthentication.getPossibleSigningKeys(parsed, "simple_report.*.report")
+        assertThat(keys.size).isEqualTo(1)
+        assertThat(keys[0]).isEqualTo(publicKey)
+    }
+
+    @Test
+    fun `test getPossibleSigningKeys returns an empty list`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val token = SenderUtils.generateToken(
+            organizationNoKeys.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+
+        val parsed =
+            server2ServerAuthentication.parseJwt(
+                token,
+                "simple_report.*.report",
+            )
+        val keys = server2ServerAuthentication.getPossibleSigningKeys(parsed, "simple_report.*.report")
+
+        assertThat(keys).isEmpty()
+    }
+
+    @Test
+    fun `test verifyJwt successfully`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val publicKey = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java).toRSAPublicKey()
+        val token = SenderUtils.generateToken(
+            organization.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+
+        assertThat(server2ServerAuthentication.verifyJwtWithKey(token, publicKey, jtiCache)).isTrue()
+    }
+
+    @Test
+    fun `test verifyJwt with wrong key`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val publicKey = jacksonObjectMapper().readValue(differentRsaPublicKeyStr, Jwk::class.java).toRSAPublicKey()
+        val token = SenderUtils.generateToken(
+            organization.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            UUID.randomUUID().toString()
+        )
+
+        assertThat(server2ServerAuthentication.verifyJwtWithKey(token, publicKey, jtiCache)).isFalse()
+    }
+    @Test
+    fun `test verifyJwt with missing JTI`() {
+        val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
+        val publicKey = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java).toRSAPublicKey()
+        val token = SenderUtils.generateToken(
+            organization.name,
+            "http://baz.quux",
+            privateKey,
+            exampleKeyId,
+            null
+        )
+
+        assertThat(server2ServerAuthentication.verifyJwtWithKey(token, publicKey, jtiCache)).isFalse()
     }
 }

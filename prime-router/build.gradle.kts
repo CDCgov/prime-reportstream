@@ -37,7 +37,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.8.10"
     id("com.avast.gradle.docker-compose") version "0.16.11"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -750,7 +750,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.5")
-    implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {

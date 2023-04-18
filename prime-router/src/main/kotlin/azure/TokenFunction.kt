@@ -13,7 +13,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
-import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import org.apache.http.client.utils.URLEncodedUtils
@@ -74,11 +73,10 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
-        val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
-        val server2ServerAuthentication = Server2ServerAuthentication()
+        val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
         val jti = DatabaseJtiCache(workflowEngine.db)
         val response = if (
-            server2ServerAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, jti, actionHistory)
+            server2ServerAuthentication.checkSenderToken(clientAssertion, scope, jti, actionHistory)
         ) {
             val token = server2ServerAuthentication.createAccessToken(
                 scope, FindReportStreamSecretInVault(), actionHistory
@@ -91,12 +89,10 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         } else {
             actionHistory.trackActionResult("Token request denied.")
             actionHistory.setActionType(TaskAction.token_error)
-            if (senderKeyFinder.errorMsg != null) {
-                logger.error("${senderKeyFinder.errorMsg}")
-                actionHistory.trackActionResult("${senderKeyFinder.errorMsg}")
-            }
 
-            HttpUtilities.unauthorizedResponse(request)
+            // The SMART on FHIR spec specifies this error when auth fails
+            // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
+            HttpUtilities.unauthorizedResponse(request, "invalid_client")
         }
         workflowEngine.recordAction(actionHistory)
         return response
