@@ -28,7 +28,7 @@ foreach($obj in $json)
      $Branch = Invoke-WebRequest -Uri $endpoint1 -Headers @{"Authorization"="Basic $BasicCreds1"}
     $jsonBranch = $Branch | ConvertFrom-JSON
     #  Write-Output $jsonBranch
-    if($obj.lastupdated -lt $limit){
+    if($obj.commit.author.date -lt $limit){
 
     $data.StaleBranches += @{
         BranchName       = $jsonBranch.name
@@ -44,3 +44,6 @@ $json1 = $data | ConvertTo-Json
 
 $jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
  Write-Host $jsonstring
+
+ 
+echo "Stale_Branches=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
