@@ -115,6 +115,7 @@ class ApiKeysFunctionsTest {
     @AfterEach
     fun reset() {
         clearAllMocks()
+        unmockkObject(AuthenticatedClaims)
     }
 
     @Nested
@@ -548,6 +549,28 @@ class ApiKeysFunctionsTest {
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(response.body).isEqualTo("kid must be provided")
+        }
+
+        @Test
+        fun `Test kid must be unique in the JwkSet that will be updated`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
+            )
+
+            val httpRequestMessage = MockHttpRequestMessage(encodedPubKey)
+            httpRequestMessage.queryParameters["scope"] = wildcardReportScope
+            httpRequestMessage.queryParameters["kid"] = jwk.kid ?: ""
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+            assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo("kid must be unique for the requested scope")
         }
 
         @Test

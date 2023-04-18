@@ -19,7 +19,7 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@83b7061638ee4956cf7545a6f7efe594e5ad0247
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
