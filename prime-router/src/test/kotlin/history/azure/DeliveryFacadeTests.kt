@@ -263,6 +263,60 @@ class DeliveryFacadeTests {
     }
 
     @Test
+    fun `test findDeliveryFacilitiesBulk`() {
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+
+        val reportId = "c3c8e304-8eff-4882-9000-3645054a30b7"
+
+        val facilities = listOf<DeliveryFacility>(
+            DeliveryFacility(
+                "Any lab USA",
+                "Kurtistown",
+                "HI",
+                "43D1961163",
+                0,
+                1,
+            ),
+            DeliveryFacility(
+                "Any lab USA",
+                "Paauilo",
+                "HI",
+                "52D0993791",
+                0,
+                14,
+            ),
+            DeliveryFacility(
+                "Any lab USA",
+                "Kekaha",
+                "HI",
+                "90D6609198",
+                0,
+                1,
+            ),
+        )
+
+        every {
+            mockDeliveryAccess.fetchBulkFacilityList(
+                any(),
+                any(),
+                any(),
+            )
+        } returns facilities
+
+        // Happy path
+        val result = facade.findDeliveryFacilitiesBulk(
+            listOf(ReportId.fromString(reportId)),
+            HistoryDatabaseAccess.SortDir.DESC,
+            DatabaseDeliveryAccess.FacilitySortColumn.NAME,
+        )
+
+        assertThat(facilities.first().testingLabName).isEqualTo(result.first().testingLabName)
+        assertThat(facilities.first().location).isEqualTo(result.first().location)
+    }
+
+    @Test
     fun `test checkAccessAuthorizationForOrg`() {
         val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
