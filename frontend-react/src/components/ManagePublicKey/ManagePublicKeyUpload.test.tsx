@@ -10,6 +10,9 @@ describe("ManagePublicKeyUpload", () => {
     const DEFAULT_PROPS: ManagePublicKeyUploadProps = {
         onPublicKeySubmit: () => {},
         onFileChange: () => {},
+        onBack: () => {},
+        hasBack: false,
+        publicKey: false,
         file: null,
     };
 
@@ -24,7 +27,7 @@ describe("ManagePublicKeyUpload", () => {
         );
     }
 
-    describe("when unsubmitted (default state)", () => {
+    describe("default state", () => {
         beforeEach(() => {
             renderApp(<ManagePublicKeyUpload {...DEFAULT_PROPS} />);
         });
@@ -32,6 +35,32 @@ describe("ManagePublicKeyUpload", () => {
         test("renders the input", () => {
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
+        });
+    });
+
+    describe("when public key already configured", () => {
+        beforeEach(() => {
+            doRender({
+                publicKey: true,
+            });
+        });
+
+        test("displays message", () => {
+            expect(
+                screen.getByText(/Your public key is already configured./)
+            ).toBeVisible();
+        });
+    });
+
+    describe("when hasBack", () => {
+        beforeEach(() => {
+            doRender({
+                hasBack: true,
+            });
+        });
+
+        test("displays Back button", () => {
+            expect(screen.queryByText("Back")).toBeVisible();
         });
     });
 
