@@ -238,6 +238,8 @@ class Report : Logging {
      */
     var itemCountBeforeQualFilter: Int? = null
 
+    var parentItemLineages: List<ItemLineage>? = null
+
     /**
      * The set of parent -> child lineage items associated with this report.
      * The items in *this* report are the *child* items.
@@ -1413,8 +1415,8 @@ class Report : Logging {
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
                 val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
-                val grandParentInputReportId = parentReport.itemLineages!![parentRowNum].inputReportId
-                val grandParentInputIndex = parentReport.itemLineages!![parentRowNum].inputReportIndex
+                val grandParentOriginReportId = parentReport.itemLineages!![parentRowNum].originReportId
+                val grandParentOriginIndex = parentReport.itemLineages!![parentRowNum].originReportIndex
                 return ItemLineage(
                     null,
                     grandParentReportId,
@@ -1425,24 +1427,13 @@ class Report : Logging {
                     null,
                     null,
                     itemHash,
-                    grandParentInputReportId,
-                    grandParentInputIndex
+                    grandParentOriginReportId,
+                    grandParentOriginIndex
                 )
-            } else {
-                // @todo here
-                // see if you can quickly load the parent report (if any) here
-                // the goal is to get the top level item lineage if possible
-                // if no parent in the lineage is found, set the input_report_id to be same as parent_report_id
-//                val progenitor = getLineageParent(parentReport)
-
-                // @todo verify that in this situation we are sure that this is the submitted report
-                // looking in the code flow it always seemed to work
-                // but just in case check more ya'know?
-                // if anyone other than me sees these comments, call me out plz
-//                val inputReportId = progenitor?.id ?: parentReport.id
-                val inputReportId = parentReport.id
-                val inputReportIndex = parentIndex
-
+            } else if (parentReport.parentItemLineages != null) {
+                // a parent's parentItemLineage will be the grandparent
+                val grandParentOriginReportId = parentReport.parentItemLineages!![parentRowNum].originReportId
+                val grandParentOriginIndex = parentReport.parentItemLineages!![parentRowNum].originReportIndex
                 val trackingElementValue =
                     parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
                 return ItemLineage(
@@ -1455,8 +1446,24 @@ class Report : Logging {
                     null,
                     null,
                     itemHash,
-                    inputReportId,
-                    inputReportIndex
+                    grandParentOriginReportId,
+                    grandParentOriginIndex
+                )
+            } else {
+                val trackingElementValue =
+                    parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
+                return ItemLineage(
+                    null,
+                    parentReport.id,
+                    parentIndex,
+                    childReport.id,
+                    childIndex,
+                    trackingElementValue,
+                    null,
+                    null,
+                    itemHash,
+                    parentReport.id,
+                    parentIndex,
                 )
             }
         }
@@ -1488,8 +1495,8 @@ class Report : Logging {
                         it.transportResult,
                         null,
                         it.itemHash,
-                        it.inputReportId,
-                        it.inputReportIndex
+                        it.originReportId,
+                        it.originReportIndex
                     )
             }
             val retval = mutableListOf<ItemLineage>()

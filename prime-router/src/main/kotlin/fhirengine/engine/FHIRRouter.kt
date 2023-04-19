@@ -180,8 +180,8 @@ class FHIRRouter(
                     null,
                     null,
                     report.getItemHashForRow(1),
-                    null,
-                    null
+                    message.reportId,
+                    1
                 )
             )
 

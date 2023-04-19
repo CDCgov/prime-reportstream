@@ -64,8 +64,8 @@ object HL7MessageHelpers : Logging {
                 null,
                 null,
                 "0", // Hash is only used for deduplication when receiving
-                null,
-                null
+                sourceReportId,
+                1
             )
         }
 

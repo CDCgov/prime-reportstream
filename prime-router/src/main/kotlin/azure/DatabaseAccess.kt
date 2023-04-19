@@ -515,6 +515,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return itemLineages
     }
 
+    // This runs on the assumption that a report's ItemLineage only has one parent
+    // if this changes, this is another place where the logic will need to be updated
+    fun fetchParentItemLineages(
+        reportId: ReportId,
+        txn: DataAccessTransaction? = null
+    ): List<ItemLineage> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(ITEM_LINEAGE).where(
+            ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId)
+        ).fetchInto(ItemLineage::class.java)
+    }
+
     /**
      * Fetch descendants of a report by a "parent" report id
      * @param parentReportId an exact report id
@@ -1333,6 +1345,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.childIndex = il.childIndex
                         record.trackingId = il.trackingId
                         record.itemHash = il.itemHash
+                        record.originReportId = il.originReportId
+                        record.originReportIndex = il.originReportIndex
                     }
                 }
             )

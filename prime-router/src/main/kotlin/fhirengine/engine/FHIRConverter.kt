@@ -80,19 +80,21 @@ class FHIRConverter(
                 )
 
                 // create item lineage
+                bundleIndex++
+
                 report.itemLineages = listOf(
                     ItemLineage(
                         null,
                         message.reportId,
-                        bundleIndex++,
+                        bundleIndex,
                         report.id,
                         1,
                         null,
                         null,
                         null,
                         report.getItemHashForRow(1),
-                        null,
-                        null
+                        message.reportId,
+                        bundleIndex,
                     )
                 )
 

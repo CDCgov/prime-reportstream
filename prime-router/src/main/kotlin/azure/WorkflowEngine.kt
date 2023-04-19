@@ -704,6 +704,10 @@ class WorkflowEngine(
         }
     }
 
+    fun fetchParentItemLineages(report: Report): List<ItemLineage> {
+        return db.fetchParentItemLineages(report.id)
+    }
+
     /**
      * Create a report object from a header including loading the blob data associated with it
      */
