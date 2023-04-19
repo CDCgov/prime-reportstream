@@ -31,7 +31,7 @@ paths:
             type: string
           required: true
           name: kid
-          description: The unique identifier for the key to be delete
+          description: The unique identifier of the key to be deleted
       responses:
         '200':
           description: OK
