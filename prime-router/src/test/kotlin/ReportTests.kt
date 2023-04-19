@@ -595,6 +595,8 @@ class ReportTests {
         assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
         assertThat(lineage[0].childIndex).isEqualTo(1)
         assertThat(lineage[0].trackingId).isEqualTo("rep1_row2_a")
+        assertThat(lineage[0].originReportId).isEqualTo(report1.id)
+        assertThat(lineage[0].originReportIndex).isEqualTo(2)
     }
 
     @Test
