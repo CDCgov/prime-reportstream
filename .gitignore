@@ -114,3 +114,6 @@ gitleaks.log
 # Cypress
 **/cypress/screenshots/
 **/cypress/videos/
+
+# Storybook
+storybook-static
