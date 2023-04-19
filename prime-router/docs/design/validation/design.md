@@ -14,6 +14,11 @@ When a message fails validation. Validation errors should show up in:
 - The Action Log in the database in such a way that the engagement team can easily query for it
 - Notify the sender, if appropriate
 
+Tickets needed for both epics:
+- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161 <br/>
+- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036 <br/>
+- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221 <br/>
+
 ## FHIR Validation
 ### Proposed Design
 The diagram below proposes four validation "checkpoints":
@@ -101,15 +106,14 @@ ValidationResult result = validator.validateWithResult(input);
 
 ## Resulting Tickets
 
-- Research validation configurations: [#8976](https://github.com/CDCgov/prime-reportstream/issues/8976)
-- Create a validation profiles in settings: [#8977](https://github.com/CDCgov/prime-reportstream/issues/8977)
-- Configure FHIR parser, sender, internal, and receiver validation profiles: [#9034](https://github.com/CDCgov/prime-reportstream/issues/9034)
 - Implement reusable validation component [#8974](https://github.com/CDCgov/prime-reportstream/issues/8974)
-- Implement validator factory/builder: [#9036](https://github.com/CDCgov/prime-reportstream/issues/9036)
-- Enable Parser validation and check result: [#8980](https://github.com/CDCgov/prime-reportstream/issues/8980)
+- Research validation configurations: [#8976](https://github.com/CDCgov/prime-reportstream/issues/8976)
 - Add FHIR Sender Converter Validation: [#8978](https://github.com/CDCgov/prime-reportstream/issues/8978)
 - Add FHIR Internal Validation:  [#8979](https://github.com/CDCgov/prime-reportstream/issues/8979)
+- Enable Parser validation and check result: [#8980](https://github.com/CDCgov/prime-reportstream/issues/8980)
+- Configure FHIR parser, sender, internal, and receiver validation profiles: [#9034](https://github.com/CDCgov/prime-reportstream/issues/9034)
 - Add FHIR Receiver Validation: [#9035](https://github.com/CDCgov/prime-reportstream/issues/9035)
+- 
 
 ## HL7 Validation
 ### Proposed Design
@@ -163,7 +167,6 @@ was in the works.
 
 ### Resulting Tickets
 Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 <br/>
-Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161 <br/>
 Create a reusable validator: https://github.com/CDCgov/prime-reportstream/issues/9164 <br/>
 Create the validation context: https://github.com/CDCgov/prime-reportstream/issues/9159 <br/>
 Create the sender validation: https://github.com/CDCgov/prime-reportstream/issues/9162 <br/>
