@@ -236,6 +236,8 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+          with:
+            fetch-depth: 0
 
       - name: "Run SonarCloud Scan"
         uses: ./.github/actions/sonarcloud-backend
