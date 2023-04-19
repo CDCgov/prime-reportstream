@@ -105,6 +105,26 @@ class DeliveryFacade(
     }
 
     /**
+     * Get facilities for multiple deliveries.
+     *
+     * @param reportId ID of report whose details we want to see
+     * @param sortDir sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column
+     * @return a list of facilities
+     */
+    fun findDeliveryFacilitiesBulk(
+        reportIds: List<ReportId>,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
+    ): List<DeliveryFacility> {
+        return dbDeliveryAccess.fetchBulkFacilityList(
+            reportIds,
+            sortDir,
+            sortColumn,
+        )
+    }
+
+    /**
      * Check whether these [claims] from this [request]
      * allow access to the receiver associated with this [action].
      * @return true if authorized, false otherwise.

@@ -107,7 +107,7 @@ class DatabaseDeliveryAccess(
      * @param sortColumn sort the table by specific column
      * @return a list of facilities
      */
-    fun fetchFacilityListOld(
+    fun fetchFacilityList(
         reportId: ReportId,
         sortDir: SortDir,
         sortColumn: FacilitySortColumn
@@ -145,8 +145,8 @@ class DatabaseDeliveryAccess(
         }
     }
 
-    fun fetchFacilityList(
-        reportId: ReportId,
+    fun fetchBulkFacilityList(
+        reportIds: List<ReportId>,
         sortDir: SortDir,
         sortColumn: FacilitySortColumn
     ): List<DeliveryFacility> {
@@ -191,7 +191,7 @@ class DatabaseDeliveryAccess(
                         COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.ORIGIN_REPORT_INDEX)
                     )
                 ).where(
-                    ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId)
+                    ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
                 ).groupBy(
                     COVID_RESULT_METADATA.TESTING_LAB_NAME,
                     COVID_RESULT_METADATA.TESTING_LAB_CITY,

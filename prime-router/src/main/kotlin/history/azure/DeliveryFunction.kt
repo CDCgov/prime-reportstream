@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -175,6 +176,56 @@ class DeliveryFunction(
 
                 val facilities = deliveryFacade.findDeliveryFacilities(
                     reportId!!,
+                    HistoryApiParameters(request.queryParameters).sortDir,
+                    FacilityListApiParameters(request.queryParameters).sortColumn
+                )
+
+                HttpUtilities.okResponse(
+                    request,
+                    mapper.writeValueAsString(
+                        facilities.map {
+                            Facility(
+                                it.testingLabName,
+                                it.location,
+                                it.testingLabClia,
+                                it.positive,
+                                it.countRecords
+                            )
+                        }
+                    )
+                )
+            }
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        } catch (ex: IllegalStateException) {
+            logger.error(ex)
+            // Errors above are actionId or UUID not found errors.
+            return HttpUtilities.notFoundResponse(request, ex.message)
+        }
+    }
+
+    /**
+     * Get a sortable list of facilities for multiple deliveries
+     *
+     * @param request HTML request body.
+     * @return JSON of the facility list or errors.
+     */
+    @FunctionName("getDeliveryFacilitiesBulk")
+    fun getDeliveryFacilitiesBulk(
+        @HttpTrigger(
+            name = "getDeliveryFacilitiesBulk",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/facilities"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        try {
+            return run {
+                val body = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
+                val reportIds = body.split(",").mapNotNull { ReportId.fromString(it) }
+
+                val facilities = deliveryFacade.findDeliveryFacilitiesBulk(
+                    reportIds,
                     HistoryApiParameters(request.queryParameters).sortDir,
                     FacilityListApiParameters(request.queryParameters).sortColumn
                 )
