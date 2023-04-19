@@ -2,9 +2,9 @@ name: Alert Stale Items from GitHub
 
 on:
   workflow_dispatch:
-  # push: 
-  #   branches:
-  #     - feature/staleitems-report
+  push: 
+    branches:
+      - feature/staleitems-report
   schedule:
     - cron: "13 1 1 * *"
 
