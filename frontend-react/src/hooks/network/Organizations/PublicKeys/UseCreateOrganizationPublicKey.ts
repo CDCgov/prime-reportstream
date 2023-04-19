@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 
 import {
@@ -28,23 +27,20 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
         unknown,
         OrganizationPublicKeyPostArgs
     >();
-    const mutationFn = useCallback(
-        async ({ kid, sender }: OrganizationPublicKeyPostArgs) => {
-            const res = await authorizedFetch(
-                servicesEndpoints.createPublicKey,
-                {
-                    segments: { orgName: parsedName!! },
-                    params: {
-                        scope: `${parsedName}.*.report`,
-                        kid: `${parsedName}.${sender}`,
-                    },
-                    data: kid,
-                }
-            );
-            return res;
-        },
-        [authorizedFetch, parsedName]
-    );
+    const mutationFn = async ({
+        kid,
+        sender,
+    }: OrganizationPublicKeyPostArgs) => {
+        const res = await authorizedFetch(servicesEndpoints.createPublicKey, {
+            segments: { orgName: parsedName!! },
+            params: {
+                scope: `${parsedName}.*.report`,
+                kid: `${parsedName}.${sender}`,
+            },
+            data: kid,
+        });
+        return res;
+    };
     return rsUseMutation(
         [servicesEndpoints.createPublicKey.queryKey],
         mutationFn
