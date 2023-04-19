@@ -604,6 +604,18 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
+        val getUrl = "${environment.url}/api/settings/organizations/${org.name}/public-keys"
+        val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
+        val parsedGetResponse =
+            jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
+                .map { it.get("kid").textValue() }
+        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org.name}.reportunique")) {
+            good("Found the added key")
+        } else {
+            bad("Failed to add key to ${org1.name}, response was $getKeyResponse")
+            passed = false
+        }
+
         val deleteUrl = environment.url.toString() +
             "/api/settings/organizations/${org1.name}/public-keys/" +
             URLEncoder.encode("${org1.name}.*.report", "utf-8") +

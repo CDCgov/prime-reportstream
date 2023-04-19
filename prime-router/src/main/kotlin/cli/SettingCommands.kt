@@ -666,6 +666,7 @@ class OrganizationSettings : CliktCommand(
             DiffOrganizationSetting(),
             TokenUrl(),
             AddPublicKey(),
+            RemoveKey()
         )
     }
 
