@@ -603,4 +603,100 @@ class DeliveryFunctionTests : Logging {
         response = function.getDeliveryFacilities(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
+
+    @Test
+    fun `test list facilities bulk`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage(goodUuid)
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Good return
+
+        val returnBody = listOf(
+            DeliveryFacility(
+                "Any lab USA",
+                "Kurtistown",
+                "HI",
+                "43D1961163",
+                0,
+                1
+            )
+        )
+
+        every {
+            mockDeliveryFacade.findDeliveryFacilitiesBulk(
+                any(),
+                any(),
+                any()
+            )
+        } returns returnBody
+
+        // Happy path with a good UUID
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.batch
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+
+        mockRequest.parameters["sortCol"] = "facility"
+        mockRequest.parameters["sortDir"] = "DESC"
+        var response = function.getDeliveryFacilitiesBulk(mockRequest)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+
+        // Happy path with a good UUID
+        val reportFile = ReportFile()
+        reportFile.actionId = action.actionId
+        reportFile.reportId = UUID.fromString(goodUuid)
+
+        every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
+        response = function.getDeliveryFacilitiesBulk(mockRequest)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+
+        mockRequest.parameters["sortDir"] = "ASC"
+        response = function.getDeliveryFacilitiesBulk(mockRequest)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.first().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.first().testingLabClia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.first().countRecords)
+
+        // bad UUID, Not found (returns empty list)
+        val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        val notFoundMockRequest = MockHttpRequestMessage(badUUID)
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryFacilitiesBulk(notFoundMockRequest)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+
+        // empty UUID, Not found
+        val emptyUUID = ""
+        val emptyMockRequest = MockHttpRequestMessage(emptyUUID)
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryFacilitiesBulk(emptyMockRequest)
+        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+    }
 }
