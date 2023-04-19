@@ -11,4 +11,36 @@ elements:
     default: AnavasiDx
 
   - name: processing_mode_code
-    default: T
+    default: P
+
+  - name: ordering_facility_name
+    csvFields: [{ name: orderingFacilityName}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_name)
+
+  - name: ordering_facility_street
+    csvFields: [{ name: orderingFacilityStreet}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_street)
+
+  - name: ordering_facility_street2
+    csvFields: [{ name: orderingFacilityStreet2}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_street2)
+
+  - name: ordering_facility_city
+    csvFields: [{ name: orderingFacilityCity}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_city)
+
+  - name: ordering_facility_state
+    csvFields: [{ name: orderingFacilityState}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_state)
+
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: orderingFacilityZip}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_zip_code)
+
+  - name: ordering_facility_county
+    csvFields: [{ name: orderingFacilityCounty}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_county)
+
+  - name: ordering_facility_phone_number
+    csvFields: [{ name: orderingFacilityPhone}]
+    mapper: ifNotPresent($mode:lookup, testing_lab_phone_number)
