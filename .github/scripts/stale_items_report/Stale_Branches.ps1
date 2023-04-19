@@ -34,13 +34,15 @@ foreach($obj in $json)
                 $data.StaleBranches += @{
                 BranchName       = $jsonBranch.name
                 Hash             = $obj.commit.sha
-                Author           = $obj.commit.commit.author.name
-                DateRelative     = $obj.commit.commit.author.date
+                Author           = $jsonBranch.commit.commit.author.name
+                DateRelative     = $jsonBranch.commit.commit.author.date
+                
                 }
         }
 
     }
 }
+
 
 $json1 = $data | ConvertTo-Json
 
