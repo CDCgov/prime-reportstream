@@ -3,13 +3,8 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
-import gov.cdc.prime.router.MonkeypoxSender
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.AuthUtils
