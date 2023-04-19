@@ -18,7 +18,7 @@ import uuid
 from cryptography.hazmat.primitives import serialization
 
 #
-# REPLACE THESE WITH YOUR CLIENT-ID, SENDER CHANNEL ID, AND KEYPAIR FILE
+# REPLACE THESE WITH YOUR CLIENT-ID, KID ID, AND KEYPAIR FILE
 #
 my_client_id = "healthy-labs"
 my_kid = "default"
@@ -107,7 +107,7 @@ STEP 4: Submit data to ReportStream using the bearer token
 
 EXAMPLE: Here is an example submitting an HL7 2.5.1 payload:
 
-curl -X POST -H "authorization:bearer ACCESS-TOKEN-STRING-HERE" -H "client:{my_client_id}"  -H "content-type:application/hl7-v2" --data-binary "@./my-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
+curl -X POST -H "authorization:bearer ACCESS-TOKEN-STRING-HERE" -H "client:{my_client_id}"  -H "content-type:application/hl7-v2" --data-binary "@./my-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/{my_client_id}"
 
 
 

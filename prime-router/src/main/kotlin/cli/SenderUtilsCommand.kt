@@ -146,7 +146,7 @@ class MigratePublicKeys : SettingCommand(
 class AddPublicKey : SettingCommand(
     name = "addkey",
     help = """
-    Add a public key to an existing sender's setting
+    Add a public key to an existing organization's setting
 
     Prior to calling this, generate Elliptic Curve private + public key pair for use with ES384 signatures:
       openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
