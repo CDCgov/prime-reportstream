@@ -10,10 +10,10 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
-import gov.cdc.prime.router.tokens.SenderUtils
 import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -78,7 +78,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             }
 
             val pemFileContents = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
-            val jwk = SenderUtils.readPublicKeyPem(pemFileContents)
+            val jwk = AuthUtils.readPublicKeyPem(pemFileContents)
             val kid = request.queryParameters["kid"] ?: return HttpUtilities.bad(request, "kid must be provided")
 
             if (!JwkSet.isValidKidForScope(organization.keys, scope, kid)) {

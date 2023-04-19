@@ -724,7 +724,6 @@ class SenderSettings : CliktCommand(
             DeleteSenderSetting(),
             DiffSenderSetting(),
             TokenUrl(),
-            AddPublicKey(),
         )
     }
 

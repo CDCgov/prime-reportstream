@@ -52,7 +52,7 @@ class AuthUtils {
          * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
          * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
          *
-         * @param sender -  the issuer for the JWT
+         * @param organization -  the issuer for the JWT
          * @param baseUrl - the audience
          * @param privateKey - the private key to sign the JWT with
          * @param keyId - the unique identifier for the registered public key
@@ -61,14 +61,14 @@ class AuthUtils {
          * @return a signed JWT
          */
         fun generateOrganizationToken(
-            sender: Organization,
+            organization: Organization,
             baseUrl: String,
             privateKey: PrivateKey,
             keyId: String,
             expirationSecondsFromNow: Int = 300,
             jti: String? = UUID.randomUUID().toString()
         ): String {
-            return generateToken(sender.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
+            return generateToken(organization.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
         }
 
         /**

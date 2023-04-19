@@ -12,9 +12,9 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
-import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 
 // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8659
@@ -189,7 +189,7 @@ class AddPublicKey : SettingCommand(
 
     val doIt by option(
         "--doit",
-        help = "Save the modified Sender setting to the database (default is to just print the modified setting)"
+        help = "Save the modified Organization setting to the database (default is to just print the modified setting)"
     ).flag(default = false)
 
     override fun run() {
@@ -202,7 +202,7 @@ class AddPublicKey : SettingCommand(
             echo("$scope is not a well formed scope value")
             return
         }
-        val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
+        val jwk = AuthUtils.readPublicKeyPemFile(publicKeyFile)
         jwk.kid = kid
 
         val origOrganizationJson =
@@ -263,7 +263,7 @@ class TokenUrl : SettingCommand(
     help = """
         Use my private key to request a token from ReportStream
         Example call:
-            ./prime sender reqtoken --private-key my-es-keypair.pem --scope strac.default.report --name strac.default
+            ./prime organization reqtoken --private-key my-es-keypair.pem --scope strac.default.report --name strac.default
     """.trimIndent(),
 ) {
     val privateKeyFilename by option(
@@ -279,6 +279,15 @@ class TokenUrl : SettingCommand(
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
 
+    private val kid by option(
+        "--kid",
+        metavar = "<string key id>",
+        help = """
+            Specify desired key id for this key.  This value must be unique within the keys already added
+            for the scope.
+        """.trimIndent()
+    ).required()
+
     private val settingName by nameOption
 
     override fun run() {
@@ -288,20 +297,20 @@ class TokenUrl : SettingCommand(
             echo("Unable to fine pem file " + privateKeyFile.absolutePath)
             return
         }
-        val privateKey = SenderUtils.readPrivateKeyPemFile(privateKeyFile)
+        val privateKey = AuthUtils.readPrivateKeyPemFile(privateKeyFile)
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
-        val sender = settings.findSender(settingName)
-        if (sender == null) {
-            echo("Unable to find sender full name (organization.sender) $settingName")
+        val organization = settings.findOrganization(settingName)
+        if (organization == null) {
+            echo("Unable to find organization for: $settingName")
             return
         }
-        // note:  using the sender fullName as the kid here.
-        val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey, sender.fullName)
+
+        val token = AuthUtils.generateOrganizationToken(organization, environment.baseUrl, privateKey, kid)
         val url = environment.formUrl("api/token").toString()
         echo("Using this URL to get an access token from ReportStream:")
         echo(url)
 
-        val body = SenderUtils.generateSenderUrlParameterString(senderToken, scope)
+        val body = AuthUtils.generateOrganizationUrlParameterString(token, scope)
         echo("\nUsing this payload body to get an access token from ReportStream:")
         echo(body)
 
