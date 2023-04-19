@@ -71,6 +71,20 @@ resource "azurerm_monitor_action_group" "action_group_businesshours" {
   }
 }
 
+resource "azurerm_monitor_action_group" "action_group_slack" {
+  name                = "${var.resource_prefix}-actiongroup-slack"
+  resource_group_name = var.resource_group
+  short_name          = "Slack-AG"
+
+  email_receiver {
+    name          = "slack-notification"
+    email_address = var.slack_email_address
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
 resource "azurerm_monitor_action_group" "action_group_dummy" {
   name                = "${var.resource_prefix}-actiongroup-dummy"
   resource_group_name = var.resource_group
@@ -90,8 +104,8 @@ resource "azurerm_monitor_action_group" "action_group_dummy" {
 # Prevent TF changes where Microsoft.Insights is forced lowercase
 locals {
   action_group_id = try(replace(azurerm_monitor_action_group.action_group[0].id, "Microsoft.Insights", "microsoft.insights"), "")
-  action_group_businesshours_id = (local.alerting_enabled == 1 ?
-    try(replace(azurerm_monitor_action_group.action_group_businesshours[0].id, "Microsoft.Insights", "microsoft.insights"), "") :
-  azurerm_monitor_action_group.action_group_dummy.id)
+  action_group_slack_id = (local.alerting_enabled == 1 ?
+    try(replace(azurerm_monitor_action_group.action_group_slack.id, "Microsoft.Insights", "microsoft.insights"), "") :
+  azurerm_monitor_action_group.action_group_slack.id)
   app_insights_id = replace(azurerm_application_insights.app_insights.id, "Microsoft.Insights", "microsoft.insights")
 }
