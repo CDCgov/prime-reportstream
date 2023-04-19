@@ -525,6 +525,8 @@ class ReportTests {
         assertThat(firstLineage.childReportId).isEqualTo(merged.id)
         assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
+        assertThat(firstLineage.originReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.originReportIndex).isEqualTo(1)
 
         val lastLineage = merged.itemLineages!![3]
         assertThat(lastLineage.parentReportId).isEqualTo(report2.id)
@@ -532,6 +534,8 @@ class ReportTests {
         assertThat(lastLineage.childReportId).isEqualTo(merged.id)
         assertThat(lastLineage.childIndex).isEqualTo(4)
         assertThat(lastLineage.trackingId).isEqualTo("rep2_row2_a")
+        assertThat(lastLineage.originReportId).isEqualTo(report2.id)
+        assertThat(lastLineage.originReportIndex).isEqualTo(2)
     }
 
     @Test
@@ -557,6 +561,8 @@ class ReportTests {
         assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
         assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
+        assertThat(firstLineage.originReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.originReportIndex).isEqualTo(1)
 
         val secondLineage = reports[1].itemLineages!![0]
         assertThat(secondLineage.parentReportId).isEqualTo(report1.id)
@@ -564,6 +570,8 @@ class ReportTests {
         assertThat(secondLineage.childReportId).isEqualTo(reports[1].id)
         assertThat(secondLineage.childIndex).isEqualTo(1)
         assertThat(secondLineage.trackingId).isEqualTo("rep1_row2_a")
+        assertThat(secondLineage.originReportId).isEqualTo(report1.id)
+        assertThat(secondLineage.originReportIndex).isEqualTo(2)
     }
 
     @Test
@@ -629,6 +637,8 @@ class ReportTests {
         assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
         assertThat(firstLineage.childIndex).isEqualTo(1)
         assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
+        assertThat(firstLineage.originReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.originReportIndex).isEqualTo(1)
 
         val fourthLineage = reports[3].itemLineages!![0]
         assertThat(fourthLineage.parentReportId).isEqualTo(report2.id)
@@ -636,6 +646,8 @@ class ReportTests {
         assertThat(fourthLineage.childReportId).isEqualTo(reports[3].id)
         assertThat(fourthLineage.childIndex).isEqualTo(1)
         assertThat(fourthLineage.trackingId).isEqualTo("rep2_row2_a")
+        assertThat(fourthLineage.originReportId).isEqualTo(report2.id)
+        assertThat(fourthLineage.originReportIndex).isEqualTo(2)
     }
 
     @Test
@@ -675,12 +687,16 @@ class ReportTests {
         assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
         assertThat(lineage[0].childIndex).isEqualTo(1)
         assertThat(lineage[0].trackingId).isEqualTo("aaa")
+        assertThat(lineage[0].originReportId).isEqualTo(report1.id)
+        assertThat(lineage[0].originReportIndex).isEqualTo(2)
 
         assertThat(lineage[1].parentReportId).isEqualTo(report1.id)
         assertThat(lineage[1].parentIndex).isEqualTo(3)
         assertThat(lineage[1].childReportId).isEqualTo(filteredReport.id)
         assertThat(lineage[1].childIndex).isEqualTo(2)
         assertThat(lineage[1].trackingId).isEqualTo("aaa")
+        assertThat(lineage[1].originReportId).isEqualTo(report1.id)
+        assertThat(lineage[1].originReportIndex).isEqualTo(3)
     }
 
     @Test
