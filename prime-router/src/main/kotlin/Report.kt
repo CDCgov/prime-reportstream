@@ -238,6 +238,10 @@ class Report : Logging {
      */
     var itemCountBeforeQualFilter: Int? = null
 
+    /**
+     * List of item lineages that match this Report's parent.
+     * Used for fetching information on async functions.
+     */
     var parentItemLineages: List<ItemLineage>? = null
 
     /**

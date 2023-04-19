@@ -704,6 +704,9 @@ class WorkflowEngine(
         }
     }
 
+    /**
+     * Fetch the ItemLineages that match the parent of a given [report]
+     */
     fun fetchParentItemLineages(report: Report): List<ItemLineage> {
         return db.fetchParentItemLineages(report.id)
     }

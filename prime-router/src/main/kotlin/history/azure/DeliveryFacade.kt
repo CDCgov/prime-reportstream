@@ -105,12 +105,8 @@ class DeliveryFacade(
     }
 
     /**
-     * Get facilities for multiple deliveries.
-     *
-     * @param reportId ID of report whose details we want to see
-     * @param sortDir sort the table in ASC or DESC order.
-     * @param sortColumn sort the table by specific column
-     * @return a list of facilities
+     * Get facilities for multiple deliveries in one call for a set of [reportIds]
+     * that may be sorted using [sortDir] and [sortColumn]
      */
     fun findDeliveryFacilitiesBulk(
         reportIds: List<ReportId>,

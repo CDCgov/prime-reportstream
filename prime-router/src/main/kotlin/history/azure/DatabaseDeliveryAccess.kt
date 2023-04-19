@@ -145,6 +145,10 @@ class DatabaseDeliveryAccess(
         }
     }
 
+    /**
+     * Get a list of matching Delivery Facilities for a set of [reportIds]
+     * that can be sorted via [sortDir] and [sortColumn].
+     */
     fun fetchBulkFacilityList(
         reportIds: List<ReportId>,
         sortDir: SortDir,
