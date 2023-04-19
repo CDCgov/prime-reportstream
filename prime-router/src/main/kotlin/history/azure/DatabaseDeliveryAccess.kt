@@ -187,8 +187,8 @@ class DatabaseDeliveryAccess(
                 )
                 .from(
                     COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
-                        COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.INPUT_REPORT_ID),
-                        COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.INPUT_REPORT_INDEX)
+                        COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
+                        COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.ORIGIN_REPORT_INDEX)
                     )
                 ).where(
                     ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId)
