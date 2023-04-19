@@ -47,6 +47,11 @@ export function ManagePublicKey() {
         setHasBack(showBack);
     };
 
+    const handleOnBack = () => {
+        setSender("");
+        setUploadNewPublicKey(false);
+    };
+
     const handlePublicKeySubmit = async (
         event: React.FormEvent<HTMLFormElement>
     ) => {
@@ -121,7 +126,7 @@ export function ManagePublicKey() {
     const showUploadMsg =
         (sender && !fileSubmitted && !hasPublicKey) ||
         (!uploadNewPublicKey && !sender);
-    const isUpload =
+    const isUploadEnabled =
         (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
@@ -150,7 +155,7 @@ export function ManagePublicKey() {
                     </SiteAlert>
                 </>
             )}
-            {sender.length === 0 && (
+            {!sender && (
                 <ManagePublicKeyChooseSender
                     senders={senders || []}
                     onSenderSelect={handleSenderSelect}
@@ -161,17 +166,17 @@ export function ManagePublicKey() {
                     onUploadNewPublicKey={() => setUploadNewPublicKey(true)}
                 />
             )}
-            {isUpload && (
+            {isUploadEnabled && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
                     onFileChange={handleFileChange}
-                    onBack={() => setSender("")}
+                    onBack={handleOnBack}
                     hasBack={hasBack}
-                    hasPublicKey={hasPublicKey}
+                    publicKey={hasPublicKey ?? file}
                     file={file}
                 />
             )}
-            {isUploading || (isSendersLoading && <Spinner />)}
+            {(isUploading || isSendersLoading) && <Spinner />}
             {isSuccess && <ManagePublicKeyUploadSuccess />}
             {hasUploadError && (
                 <ManagePublicKeyUploadError

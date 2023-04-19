@@ -14,7 +14,7 @@ export interface ManagePublicKeyUploadProps {
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBack: () => void;
     hasBack: boolean;
-    hasPublicKey: boolean;
+    publicKey: boolean | File;
     file: File | null;
 }
 
@@ -23,7 +23,7 @@ export default function ManagePublicKeyUpload({
     onFileChange,
     onBack,
     hasBack,
-    hasPublicKey,
+    publicKey,
     file,
 }: ManagePublicKeyUploadProps) {
     const isDisabled = !file;
@@ -31,7 +31,7 @@ export default function ManagePublicKeyUpload({
 
     return (
         <>
-            {hasPublicKey && (
+            {publicKey && (
                 <p className="font-sans-md">
                     Your public key is already configured.
                 </p>

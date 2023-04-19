@@ -12,7 +12,7 @@ const { publicKeys } = servicesEndpoints;
 
 export type UseOrganizationPublicKeysResult = UseQueryResult<RSApiKeysResponse>;
 
-export default function useOrganizationPublicKeys(): UseOrganizationPublicKeysResult {
+export default function useOrganizationPublicKeys() {
     const { authorizedFetch, rsUseQuery } =
         useAuthorizedFetch<RSApiKeysResponse>();
 

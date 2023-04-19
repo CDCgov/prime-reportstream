@@ -12,7 +12,7 @@ describe("ManagePublicKeyUpload", () => {
         onFileChange: () => {},
         onBack: () => {},
         hasBack: false,
-        hasPublicKey: false,
+        publicKey: false,
         file: null,
     };
 
@@ -41,7 +41,7 @@ describe("ManagePublicKeyUpload", () => {
     describe("when public key already configured", () => {
         beforeEach(() => {
             doRender({
-                hasPublicKey: true,
+                publicKey: true,
             });
         });
 

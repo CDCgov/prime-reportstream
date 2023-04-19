@@ -1,5 +1,3 @@
-/* eslint-disable testing-library/no-unnecessary-act */
-
 import { act, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -102,7 +100,7 @@ describe("ManagePublicKey", () => {
         jest.resetAllMocks();
     });
 
-    describe("when the sender options are loading", () => {
+    describe("when the page is loading", () => {
         beforeEach(() => {
             mockUseOrganizationSenders({ isLoading: true });
 
@@ -143,11 +141,8 @@ describe("ManagePublicKey", () => {
                 const selectSender = screen.getByRole("combobox");
                 expect(selectSender).toBeInTheDocument();
                 expect(selectSender).toHaveValue("");
-                fireEvent.change(selectSender, {
-                    target: { value: "elr-1" },
-                });
 
-                expect(selectSender).toHaveValue("elr-1");
+                await userEvent.selectOptions(selectSender, ["elr-1"]);
 
                 expect(submit).toBeEnabled();
                 fireEvent.submit(screen.getByTestId("form"));
@@ -228,9 +223,11 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             expect(screen.getByText("Submit")).toBeVisible();
+            /* eslint-disable testing-library/no-unnecessary-act */
             await act(async () => {
                 await fireEvent.submit(screen.getByTestId("form"));
             });
+            /* eslint-enable testing-library/no-unnecessary-act */
 
             expect(
                 screen.getByText("You can now submit data to ReportStream.")
@@ -257,9 +254,11 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             expect(screen.getByText("Submit")).toBeVisible();
+            /* eslint-disable testing-library/no-unnecessary-act */
             await act(async () => {
                 await fireEvent.submit(screen.getByTestId("form"));
             });
+            /* eslint-enable testing-library/no-unnecessary-act */
         });
 
         test("shows the upload error screen", () => {

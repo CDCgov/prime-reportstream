@@ -9,7 +9,7 @@ const { senders } = servicesEndpoints;
 
 export type UseOrganizationSendersResult = UseQueryResult<RSSender[]>;
 
-export default function useOrganizationSenders(): UseOrganizationSendersResult {
+export default function useOrganizationSenders() {
     const { activeMembership } = useSessionContext();
 
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender[]>();
