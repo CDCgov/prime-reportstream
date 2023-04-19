@@ -127,10 +127,6 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         @BindingName("scope") scope: String,
         @BindingName("kid") kid: String
     ): HttpResponseMessage {
-        if (scope != "$orgName.*.report") {
-            return HttpUtilities.bad(request, "Request scope must be $orgName.*.report")
-        }
-
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
@@ -141,6 +137,9 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                 request,
                 "No such organization $orgName"
             )
+        if (!Scope.isValidScope(scope, organization)) {
+            return HttpUtilities.bad(request, "Request scope must be $orgName.*.report")
+        }
         val jwkSetForScope = organization.keys?.find { jwkSet -> jwkSet.scope == scope }
             ?: return HttpUtilities.notFoundResponse(request, "Scope: $scope not found for organization")
         val key = jwkSetForScope.keys.find { key -> key.kid == kid } ?: return HttpUtilities.notFoundResponse(

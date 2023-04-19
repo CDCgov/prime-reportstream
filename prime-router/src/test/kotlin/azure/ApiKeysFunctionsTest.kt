@@ -272,7 +272,7 @@ class ApiKeysFunctionsTest {
         }
 
         @Test
-        fun `Test delete a key return a bad request if the scope is not wildcard report`() {
+        fun `Test delete a key return a bad request if the scope is not a valid scope`() {
             settings.organizationStore.put(
                 organization.name,
                 organization.makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk2)
@@ -286,7 +286,7 @@ class ApiKeysFunctionsTest {
             val response = ApiKeysFunctions().delete(
                 httpRequestMessage,
                 organization.name,
-                defaultReportScope,
+                "ignore.*.report",
                 jwk.kid as String
             )
 

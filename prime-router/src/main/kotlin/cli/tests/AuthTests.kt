@@ -585,7 +585,7 @@ class Server2ServerAuthTests : CoolTest() {
         headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
             "${environment.url}/api/settings/organizations/${org.name}/" +
-                "public-keys?scope=${org.name}.*.report&kid=${org.name}.report"
+                "public-keys?scope=${org.name}.*.report&kid=${org.name}.reportunique"
         val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
             postUrl,
             end2EndExampleRSAPublicKeyStr.toByteArray(),
@@ -599,14 +599,25 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
+        val getUrl = "${environment.url}/api/settings/organizations/${org.name}/public-keys"
+        val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
+        val parsedGetResponse =
+            jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
+                .map { it.get("kid").textValue() }
+        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org.name}.reportunique")) {
+            good("Found the added key")
+        } else {
+            bad("Failed to add key to ${org.name}, response was $getKeyResponse")
+            passed = false
+        }
+
         val deleteUrl = environment.url.toString() +
             "/api/settings/organizations/${org.name}/public-keys/" +
             URLEncoder.encode("${org.name}.*.report", "utf-8") +
             "/" +
-            URLEncoder.encode("${org.name}.report", "utf-8")
+            URLEncoder.encode("${org.name}.reportunique", "utf-8")
         val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
             deleteUrl,
-            byteArrayOf(),
             headers
         )
 

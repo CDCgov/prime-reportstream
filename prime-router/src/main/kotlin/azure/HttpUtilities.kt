@@ -352,10 +352,20 @@ class HttpUtilities {
          */
         fun deleteHttp(
             urlStr: String,
-            bytes: ByteArray,
             headers: List<Pair<String, String>>? = null
         ): Pair<Int, String> {
-            return httpRequest("DELETE", urlStr, bytes, headers)
+            return httpRequest("DELETE", urlStr, null, headers)
+        }
+
+        /**
+         * A generic function for a GET to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun getHttp(
+            urlStr: String,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("GET", urlStr, null, headers)
         }
 
         /**
@@ -364,7 +374,7 @@ class HttpUtilities {
         private fun httpRequest(
             method: String,
             urlStr: String,
-            bytes: ByteArray,
+            bytes: ByteArray?,
             headers: List<Pair<String, String>>? = null
         ): Pair<Int, String> {
             val urlObj = URL(urlStr)
@@ -375,8 +385,10 @@ class HttpUtilities {
                 headers?.forEach {
                     addRequestProperty(it.first, it.second)
                 }
-                outputStream.use {
-                    it.write(bytes)
+                if (bytes != null) {
+                    outputStream.use {
+                        it.write(bytes)
+                    }
                 }
                 val response = try {
                     inputStream.bufferedReader().readText()
