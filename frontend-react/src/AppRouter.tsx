@@ -33,6 +33,9 @@ import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetai
 import FileHandler from "./components/FileHandlers/FileHandler";
 import ResourcesRoute from "./pages/resources/routes";
 import { RSRouteObject } from "./utils/UsefulTypes";
+import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { ResourcesPage } from "./pages/resources/ResourcesPage";
+import { Resources } from "./pages/resources/Resources";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -49,7 +52,17 @@ export const appRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/login/callback", element: <LoginCallback /> },
     { path: "/sign-tos", element: <TermsOfServiceForm /> },
-    ResourcesRoute,
+    {
+        path: "/resources",
+        children: [
+            {
+                path: "manage-public-key",
+                element: <ManagePublicKeyWithAuth />,
+            },
+            { path: "", element: <ResourcesPage /> },
+            { path: "*", element: <Resources /> },
+        ],
+    },
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
     { path: "/file-handler/validate", element: <FileHandler /> },
