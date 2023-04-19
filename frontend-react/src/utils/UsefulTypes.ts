@@ -1,5 +1,3 @@
-import { RouteObject } from "react-router-dom";
-
 /* Makes everything string-accessible: params["id"]
  * Use generics to limit the value types of this object.
  *
@@ -23,9 +21,4 @@ export class SimpleError {
     constructor(message: string) {
         this.message = message;
     }
-}
-
-export interface RSRouteObject extends RouteObject {
-    title?: string;
-    children?: RSRouteObject[];
 }

@@ -1,12 +1,13 @@
 import { useRoutes } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
-import { ReadonlyDeep } from "type-fest";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
+import { Resources } from "./pages/resources/Resources";
+import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
@@ -30,12 +31,9 @@ import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSet
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
-import FileHandler from "./components/FileHandlers/FileHandler";
-import ResourcesRoute from "./pages/resources/routes";
-import { RSRouteObject } from "./utils/UsefulTypes";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { ResourcesPage } from "./pages/resources/ResourcesPage";
-import { Resources } from "./pages/resources/Resources";
+import FileHandler from "./components/FileHandlers/FileHandler";
+import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -55,10 +53,7 @@ export const appRoutes = [
     {
         path: "/resources",
         children: [
-            {
-                path: "manage-public-key",
-                element: <ManagePublicKeyWithAuth />,
-            },
+            { path: "reportstream-api", element: <ReportStreamAPIPage /> },
             { path: "", element: <ResourcesPage /> },
             { path: "*", element: <Resources /> },
         ],
@@ -122,11 +117,12 @@ export const appRoutes = [
         path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
         element: <AdminRevHistoryWithAuth />,
     },
+    {
+        path: "/resources/manage-public-key",
+        element: <ManagePublicKeyWithAuth />,
+    },
     /* Handles any undefined route */
     { path: "*", element: <ErrorNoPage /> },
-] as const satisfies ReadonlyDeep<RSRouteObject[]>;
+];
 
-export const AppRouter = () => useRoutes(appRoutes as any);
-
-export { ResourcesRoute };
-export * from "./pages/resources/routes";
+export const AppRouter = () => useRoutes(appRoutes);
