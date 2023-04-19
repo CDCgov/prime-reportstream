@@ -1653,12 +1653,5 @@ class Report : Logging {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
             return Format.valueOfFromExt(extension)
         }
-
-//        private fun getLineageParent(report: Report): Report? {
-// //            val a = WorkflowEngine
-//
-//            return null
-// //            val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
-//        }
     }
 }
