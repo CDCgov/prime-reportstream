@@ -1,16 +1,15 @@
 @use 'uswds-core' as *;
 
-.reportstreamTable {
+.Table {
   :global {
     // Since these are USDS overrides, we use the :global property so we can
     // locally scope everything within the CSS Module underneath .reportstreamTable
     // without having to create new SCSS classes, and simply made overrides.
     .column-header {
         user-select: none;
-        background-color: color('gray-5');
 
         &--clickable {
-          cursor: pointer;
+          padding: 0;
         }
 
         &--sortable {
@@ -21,9 +20,18 @@
             margin-right: 2px;
           }
         }
+    }
+
+    .column-header-button {
+        background-color: color('gray-5');
+        width: 100%;
+        height: 100%;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border: none;
 
         &--active {
-          background-color: color('blue-30');
+            background-color: color('blue-30');
         }
     }
 

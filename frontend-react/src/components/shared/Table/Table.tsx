@@ -30,8 +30,8 @@ interface SortableTableHeaderProps {
     columnHeaderData: RowData;
     activeColumn: string;
     sortOrder: string;
-    setSortOrder: (sortOrder: FilterOptions) => void;
-    setActiveColumn: (column: string) => void;
+    onSortOrderChange: (sortOrder: FilterOptions) => void;
+    onActiveColumnChange: (column: string) => void;
 }
 
 interface RowData {
@@ -56,8 +56,8 @@ const SortableTableHeader = ({
     columnHeaderData,
     activeColumn,
     sortOrder,
-    setSortOrder,
-    setActiveColumn,
+    onSortOrderChange,
+    onActiveColumnChange,
 }: SortableTableHeaderProps) => {
     let SortIcon = Icon.SortArrow;
     const isActive = columnHeaderData.columnKey === activeColumn;
@@ -70,32 +70,32 @@ const SortableTableHeader = ({
     const handleHeaderClick = () => {
         if (!isActive) {
             // Reset active column and sort order on new column click
-            setActiveColumn(columnHeaderData.columnKey);
-            setSortOrder(FilterOptions.ASC);
+            onActiveColumnChange(columnHeaderData.columnKey);
+            onSortOrderChange(FilterOptions.ASC);
         } else if (sortOrder === FilterOptions.NONE) {
             // Explicitly set the proceeding sort order
-            setSortOrder(FilterOptions.ASC);
+            onSortOrderChange(FilterOptions.ASC);
         } else if (sortOrder === FilterOptions.ASC) {
-            setSortOrder(FilterOptions.DESC);
+            onSortOrderChange(FilterOptions.DESC);
         } else if (sortOrder === FilterOptions.DESC) {
-            setSortOrder(FilterOptions.NONE);
+            onSortOrderChange(FilterOptions.NONE);
         }
     };
     return (
-        <th
-            role="button"
-            tabIndex={0}
-            className={classnames("column-header column-header--clickable", {
-                "column-header--active": isActive,
-            })}
-            onClick={handleHeaderClick}
-        >
-            <div className="column-header--sortable">
-                <p className="column-header-text">
-                    {columnHeaderData.columnHeader}
-                </p>
-                {<SortIcon size={3} />}
-            </div>
+        <th className="column-header column-header--clickable">
+            <button
+                className={classnames("column-header-button", {
+                    "column-header-button--active": isActive,
+                })}
+                onClick={handleHeaderClick}
+            >
+                <div className="column-header--sortable">
+                    <p className="column-header-text">
+                        {columnHeaderData.columnHeader}
+                    </p>
+                    {<SortIcon size={3} />}
+                </div>
+            </button>
         </th>
     );
 };
@@ -144,8 +144,8 @@ const SortableTable = ({
                                 columnHeaderData={columnHeaderData}
                                 activeColumn={activeColumn}
                                 sortOrder={sortOrder}
-                                setActiveColumn={setActiveColumn}
-                                setSortOrder={setSortOrder}
+                                onActiveColumnChange={setActiveColumn}
+                                onSortOrderChange={setSortOrder}
                             />
                         );
                     })}
@@ -228,9 +228,9 @@ export const Table = ({
 
     return (
         <div
-            className={styles.reportstreamTable}
+            className={styles.Table}
             {...(scrollable && {
-                className: `usa-table-container--scrollable ${styles.reportstreamTable}`,
+                className: `usa-table-container--scrollable ${styles.Table}`,
                 tabIndex: 0,
             })}
         >
