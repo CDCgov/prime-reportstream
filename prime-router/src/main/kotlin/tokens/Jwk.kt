@@ -195,6 +195,31 @@ data class JwkSet(
         }
 
         /**
+         * Removes a key from an JwkSet.  If either the scope or key are found, returns the passed
+         * JwkSets unmodified
+         *
+         * @param jwkSets - the sets to try to remove the key from
+         * @param scope -  the scope that the key needs to be removed from
+         * @param jwk - the jwk to remove
+         * @return updated JwkSets
+         *
+         */
+        fun removeKeyFromScope(jwkSets: List<JwkSet>, scope: String, jwk: Jwk): List<JwkSet> {
+
+            val updatedJwkSet = jwkSets.find { it.scope == scope }.let { jwkSet ->
+                {
+                    if (jwkSet == null) {
+                        null
+                    } else {
+                        JwkSet(scope, jwkSet.keys.filter { it.kid != jwk.kid })
+                    }
+                }
+            }() ?: return jwkSets
+
+            return jwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
+        }
+
+        /**
          * Checks that the kid is unique within the JwkSet for the requested scope.  This implements the SMART on FHIR
          * spec.
          * http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=The%20identifier%20of%20the%20key%2Dpair%20used%20to%20sign%20this%20JWT.%20This%20identifier%20SHALL%20be%20unique%20within%20the%20client%27s%20JWK%20Set.

@@ -69,6 +69,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
               }
     """.trimIndent()
 
+    val wildcardAdminScope = "simple_report.*.admin"
     val wildcardReportScope = "simple_report.*.report"
     val jwk = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId", x5c = listOf("a", "b"))
     val jwk2 = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId2", x5c = listOf("a", "b"))
@@ -198,16 +199,14 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     @Test
     fun `test addKeyToScope adds a key to a new scope`() {
         val updatedKeys = JwkSet.addKeyToScope(emptyList(), wildcardReportScope, jwk)
-        assertThat(updatedKeys.size).isEqualTo(1)
-        assertThat(updatedKeys[0]).isEqualTo(JwkSet(wildcardReportScope, listOf(jwk)))
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk))))
     }
 
     @Test
     fun `test addKeyToScope adds a key when not over the limit`() {
         val updatedKeys =
             JwkSet.addKeyToScope(listOf(JwkSet(wildcardReportScope, listOf(jwk2))), wildcardReportScope, jwk)
-        assertThat(updatedKeys.size).isEqualTo(1)
-        assertThat(updatedKeys[0]).isEqualTo(JwkSet(wildcardReportScope, listOf(jwk2, jwk)))
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk2, jwk))))
     }
 
     @Test
@@ -216,8 +215,28 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         every { JwkSet.Companion.getMaximumNumberOfKeysPerScope() } returns 2
         val updatedKeys =
             JwkSet.addKeyToScope(listOf(JwkSet(wildcardReportScope, listOf(jwk2, jwk3))), wildcardReportScope, jwk)
-        assertThat(updatedKeys.size).isEqualTo(1)
-        assertThat(updatedKeys[0]).isEqualTo(JwkSet(wildcardReportScope, listOf(jwk3, jwk)))
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk3, jwk))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardReportScope, listOf(jwk, jwk3))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk3))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope when scope is not found`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope when kid is not found`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))), wildcardReportScope, jwk2)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))))
     }
 
     @Test
