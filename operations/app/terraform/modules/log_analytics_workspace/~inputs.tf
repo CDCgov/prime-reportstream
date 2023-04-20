@@ -89,11 +89,6 @@ variable "storage_partner_id" {
   description = "Storage Partner resource id"
 }
 
-# variable "action_group_businesshours_id" {
-#   type        = string
-#   description = "Businesshours action group resource id"
-# }
-
 variable "action_group_slack_id" {
   type        = string
   description = "Slack action group resource id"

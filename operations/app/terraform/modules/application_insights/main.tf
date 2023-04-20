@@ -54,22 +54,6 @@ resource "azurerm_monitor_action_group" "action_group_mbhealthcheck" {
     environment = var.environment
   }
 }
-resource "azurerm_monitor_action_group" "action_group_businesshours" {
-  count               = local.alerting_enabled
-  name                = "${var.resource_prefix}-actiongroup-businesshours"
-  resource_group_name = var.resource_group
-  short_name          = "PD Day Hours"
-
-  webhook_receiver {
-    name                    = "PagerDuty Business Hours"
-    service_uri             = var.pagerduty_businesshours_url
-    use_common_alert_schema = true
-  }
-
-  tags = {
-    environment = var.environment
-  }
-}
 
 resource "azurerm_monitor_action_group" "action_group_slack" {
   name                = "${var.resource_prefix}-actiongroup-slack"
