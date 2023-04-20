@@ -64,15 +64,6 @@ data "azurerm_key_vault_secret" "pagerduty_url" {
   ]
 }
 
-data "azurerm_key_vault_secret" "pagerduty_businesshours_url" {
-  name         = "pagerduty-businesshours-url"
-  key_vault_id = data.azurerm_key_vault.tf-secrets.id
-
-  depends_on = [
-    module.init
-  ]
-}
-
 data "azurerm_key_vault_key" "pdh-2048-key" {
   name         = "pdh${local.init.environment}-2048-key"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
