@@ -24,6 +24,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 import java.io.IOException
+import java.net.URLEncoder
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -551,6 +552,82 @@ class Server2ServerAuthTests : CoolTest() {
         settingsEnv = environment
         passed = passed and doEcAndRsaEcKeyTests(environment)
         passed = passed and doServer2ServerEndpointAuthTests(environment)
+        passed = passed and doApiKeyTests(environment)
+        return passed
+    }
+
+    private fun doApiKeyTests(environment: Environment): Boolean {
+        ugly("Starting $name test of adding server 2 server api keys")
+        var passed = true
+        val adminScope = "${org.name}.*.admin"
+        val mySenderName = "temporary_sender_auth_test"
+        val sender = createNewSenderForExistingOrg(mySenderName, org.name)
+        val kid = "adminkey"
+        saveServer2ServerKey(sender, end2EndExampleECPublicKeyStr, "adminkey", adminScope)
+        val (httpStatusGetToken, responseGetToken) = getServer2ServerAccessTok(
+            sender,
+            environment,
+            end2EndExampleECPrivateKeyStr,
+            kid,
+            adminScope
+        )
+        if (httpStatusGetToken == 200) {
+            good("Successfully got access token for ${org.name}")
+        } else {
+            bad("Failed to get access token for ${org.name}, response was $responseGetToken")
+            passed = false
+        }
+
+        val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+        val headers = mutableListOf<Pair<String, String>>()
+        val clientStr = org.name
+        headers.add("client" to clientStr)
+        headers.add("authorization" to "Bearer $accessToken")
+        val postUrl =
+            "${environment.url}/api/settings/organizations/${org.name}/" +
+                "public-keys?scope=${org.name}.*.report&kid=${org.name}.reportunique"
+        val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
+            postUrl,
+            end2EndExampleRSAPublicKeyStr.toByteArray(),
+            headers
+        )
+
+        if (httpStatusPostKey == 200) {
+            good("Successfully added key to ${org.name}")
+        } else {
+            bad("Failed to add key to ${org.name}, response was $postKeyResponse")
+            passed = false
+        }
+
+        val getUrl = "${environment.url}/api/settings/organizations/${org.name}/public-keys"
+        val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
+        val parsedGetResponse =
+            jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
+                .map { it.get("kid").textValue() }
+        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org.name}.reportunique")) {
+            good("Found the added key")
+        } else {
+            bad("Failed to add key to ${org.name}, response was $getKeyResponse")
+            passed = false
+        }
+
+        val deleteUrl = environment.url.toString() +
+            "/api/settings/organizations/${org.name}/public-keys/" +
+            URLEncoder.encode("${org.name}.*.report", "utf-8") +
+            "/" +
+            URLEncoder.encode("${org.name}.reportunique", "utf-8")
+        val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
+            deleteUrl,
+            headers
+        )
+
+        if (httpStatusDeleteKey == 200) {
+            good("Successfully removed key from ${org.name}")
+        } else {
+            bad("Failed to remove key from ${org.name}, response was $deleteKeyResponse")
+            passed = false
+        }
+
         return passed
     }
 
