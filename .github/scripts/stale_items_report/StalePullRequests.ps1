@@ -12,16 +12,18 @@ function Get-BasicAuthCreds {
 $BasicCreds = Get-BasicAuthCreds -Username "SupriyaAddagada" -Password ${ secrets.GITHUB_TOKEN }
 $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $BasicCreds"}
 $json = $val | ConvertFrom-JSON
-$limit = [datetime]::Now.AddDays(-90)
+$limit = [datetime]::Now.AddDays(-10)
 
-#Write-Host $val
+$limitdate= $limit.ToString('yyyy-MM-dd')
 $root = @{ records = New-Object 'System.Collections.Generic.List[object]' }
 $data = [pscustomobject]@{
     staleprs = @()
 }
 foreach($obj in $json)
 {
-    if($obj.lastupdated -lt $limit){
+    $updatedate= ([DateTime]($obj.created_at)).ToString('yyyy-MM-dd')
+    
+    if($updatedate -lt $limitdate){
 
     $data.staleprs += @{
         pullrequest       = $obj.number
@@ -29,10 +31,10 @@ foreach($obj in $json)
         Url               = $obj.url
         user              = $obj.user.login
     }
-}
+    }
 }
 $json1 = $data | ConvertTo-Json
 
 $jsonstring=$json1 | ConvertFrom-Json | ConvertTo-Json -Compress -Depth 100
-# Write-Host $jsonstring
-echo "Stale_pullrequests=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+ Write-Host $jsonstring
+#echo "Stale_pullrequests=$jsonstring"  | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
