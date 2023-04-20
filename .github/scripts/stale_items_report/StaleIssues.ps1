@@ -18,7 +18,7 @@ for ($i=0; $i -le $pages; $i++)
    
     $json+=$jsontest
 }
-$limit = [datetime]::Now.AddDays(-5)
+$limit = [datetime]::Now.AddDays(-90)
 $limitdate= $limit.ToString('yyyy-MM-dd')
 $data = [pscustomobject]@{
     staleissues = @()
