@@ -12,7 +12,7 @@ $json=@()
 for ($i=0; $i -le $pages; $i++)
 {
     $endpoint = "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&&page=$i"
-    $BasicCreds = Get-BasicAuthCreds -Username "SupriyaAddagada" -Password ${ secrets.GITHUB_TOKEN }
+    $BasicCreds = Get-BasicAuthCreds -Username ${ secrets.GITHUB_User } -Password ${ secrets.GITHUB_TOKEN }
     $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $BasicCreds"}
     $jsontest= $val | ConvertFrom-JSON
    
