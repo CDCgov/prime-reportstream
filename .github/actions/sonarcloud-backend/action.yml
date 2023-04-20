@@ -31,3 +31,4 @@ runs:
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
           -Dsonar.skipUnchanged=false
+          -Dsonar.java.libraries=prime-router/build/libs/*.jar
