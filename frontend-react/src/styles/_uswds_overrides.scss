@@ -252,7 +252,6 @@ main {
     }
 }
 
-// Ex: ProcessListHeading as div, with header element inside
 .usa-process-list__heading {
     & h1,
     & h2,
@@ -262,4 +261,8 @@ main {
     & h6 {
         margin: 0;
     }
+}
+
+.usa-card__header {
+    font-weight: bold;
 }
