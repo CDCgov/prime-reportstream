@@ -1,9 +1,9 @@
-## User Story:
+## User Story
 
 ## Description/Use Case
 
 ## Risks/Impacts/Considerations
 
-## Dev Notes:
+## Dev Notes
 
 ## Acceptance Criteria
