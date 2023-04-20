@@ -1,7 +1,7 @@
 # See https://developer.github.com/v3/pulls/#list-pull-requests
 
 
-$pages=45
+$pages=20
 function Get-BasicAuthCreds {
     param([string]$Username,[string]$Password)
     $AuthString = "{0}:{1}" -f $Username,$Password
@@ -11,7 +11,7 @@ function Get-BasicAuthCreds {
 $json=@()
 for ($i=0; $i -le $pages; $i++)
 {
-    $endpoint = "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&&page=$i"
+    $endpoint = "https://api.github.com/repos/CDCgov/prime-reportstream/issues?state=open&&per_page=100&&page=$i"
     $BasicCreds = Get-BasicAuthCreds -Username ${ secrets.GITHUB_User } -Password ${ secrets.GITHUB_TOKEN }
     $val = Invoke-WebRequest -Uri $endpoint -Headers @{"Authorization"="Basic $BasicCreds"}
     $jsontest= $val | ConvertFrom-JSON

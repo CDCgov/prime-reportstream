@@ -47,6 +47,8 @@ jobs:
         shell: pwsh
         run: |
           ./.github/scripts/stale_items_report/StaleIssues.ps1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get Stale issues
         id: IssuesShow
