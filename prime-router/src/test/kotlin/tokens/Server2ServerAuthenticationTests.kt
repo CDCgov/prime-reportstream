@@ -87,7 +87,6 @@ class Server2ServerAuthenticationTests {
         Sender.Format.CSV,
         CustomerStatus.INACTIVE,
         "mySchema",
-        keys = null
     )
 
     val organization = Organization(

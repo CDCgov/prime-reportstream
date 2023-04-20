@@ -590,7 +590,7 @@ class Server2ServerAuthTests : CoolTest() {
         headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
             "${environment.url}/api/settings/organizations/${org1.name}/" +
-                "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.report"
+                "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
         val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
             postUrl,
             end2EndExampleRSAPublicKeyStr.toByteArray(),
@@ -604,12 +604,12 @@ class Server2ServerAuthTests : CoolTest() {
             passed = false
         }
 
-        val getUrl = "${environment.url}/api/settings/organizations/${org.name}/public-keys"
+        val getUrl = "${environment.url}/api/settings/organizations/${org1.name}/public-keys"
         val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
         val parsedGetResponse =
             jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
                 .map { it.get("kid").textValue() }
-        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org.name}.reportunique")) {
+        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org1.name}.reportunique")) {
             good("Found the added key")
         } else {
             bad("Failed to add key to ${org1.name}, response was $getKeyResponse")
@@ -620,7 +620,7 @@ class Server2ServerAuthTests : CoolTest() {
             "/api/settings/organizations/${org1.name}/public-keys/" +
             URLEncoder.encode("${org1.name}.*.report", "utf-8") +
             "/" +
-            URLEncoder.encode("${org1.name}.report", "utf-8")
+            URLEncoder.encode("${org1.name}.reportunique", "utf-8")
         val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
             deleteUrl,
             byteArrayOf(),

@@ -369,18 +369,6 @@ class HttpUtilities {
         }
 
         /**
-         * Private generic function for creating an http request
-         */
-        private fun httpRequest(
-            method: String,
-            urlStr: String,
-            bytes: ByteArray?,
-            headers: List<Pair<String, String>>? = null
-        ): Pair<Int, String> {
-            return httpRequest("POST", urlStr, bytes, headers)
-        }
-
-        /**
          * A generic function for a DELETE to a URL <address>.
          * Returns a Pair (HTTP response code, text of the response)
          */
@@ -398,7 +386,7 @@ class HttpUtilities {
         private fun httpRequest(
             method: String,
             urlStr: String,
-            bytes: ByteArray,
+            bytes: ByteArray?,
             headers: List<Pair<String, String>>? = null
         ): Pair<Int, String> {
             val urlObj = URL(urlStr)
