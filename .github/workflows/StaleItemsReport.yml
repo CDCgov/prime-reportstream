@@ -1,0 +1,84 @@
+name: Alert Stale Items from GitHub
+
+on:
+  workflow_dispatch:
+  # push: 
+  #   branches:
+  #     - feature/staleitems-report
+  schedule:
+    - cron: "13 1 1 * *"
+
+jobs:
+  alert_stale_items:
+    name: Alert on Stale items in github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+        with:
+          fetch-depth: 0
+
+      - name: Get Stale prs
+        id: PullRequests
+        shell: pwsh
+        run: |
+          ./.github/scripts/stale_items_report/StalePullRequests.ps1        
+
+      - name: Get Stale prs
+        id: PullRequestsShow
+        shell: pwsh
+        run: |
+         echo  ${env:Stale_pullrequests} >> PullRequests.txt
+        
+      - name: Get Stale branches
+        id: Branches
+        shell: pwsh
+        run: |
+          ./.github/scripts/stale_items_report/Stale_Branches.ps1
+
+      - name: Get Stale branches
+        id: BranchesShow
+        shell: pwsh
+        run: |
+         echo  ${env:Stale_Branches} >> Branches.txt
+
+      - name: Get Stale Issues
+        id: Issues
+        shell: pwsh
+        run: |
+          ./.github/scripts/stale_items_report/StaleIssues.ps1
+
+      - name: Get Stale issues
+        id: IssuesShow
+        shell: pwsh
+        run: |
+         echo  ${env:Stale_Issues} >> StaleIssues.txt
+
+      - uses: MeilCli/slack-upload-file@v3
+        id: message
+        continue-on-error: true
+        with:
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          channel_id: 'C04UBN6R9EF'
+          file_path: 'PullRequests.txt'
+          initial_comment: 'Stale pull requests report'
+
+      - uses: MeilCli/slack-upload-file@v3
+        id: Branchesmessage
+        continue-on-error: true
+        with:
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          channel_id: 'C04UBN6R9EF'
+          file_path: 'Branches.txt'
+          initial_comment: 'Stale branches report'
+
+      - uses: MeilCli/slack-upload-file@v3
+        id: Issuesmessage
+        continue-on-error: true
+        with:
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          channel_id: 'C04UBN6R9EF'
+          file_path: 'StaleIssues.txt'
+          initial_comment: 'Stale Issues report'
+
+     
