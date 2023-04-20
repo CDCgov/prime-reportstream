@@ -30,3 +30,4 @@ runs:
           -Dsonar.sources=prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.skipUnchanged=false
