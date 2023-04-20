@@ -10,18 +10,14 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isSuccess
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.unittest.UnitTestUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
-import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
@@ -84,13 +80,6 @@ class CustomFHIRFunctionsTests {
                     CustomFHIRFunctions
                         .executeFunction(focus, it.name, null)
                 }.isFailure().doesNotHaveClass(IllegalStateException::class.java)
-            }
-            // todo: this is temporary until this code is moved
-            else if (it != CustomFHIRFunctions.CustomFHIRFunctionNames.LivdTableLookup) {
-                assertThat {
-                    CustomFHIRFunctions
-                        .executeFunction(focus, it.name, null)
-                }.isSuccess()
             }
         }
     }
@@ -322,24 +311,6 @@ class CustomFHIRFunctionsTests {
         )
         assertThat(parts).isNotEmpty()
         assertThat(parts.size).isEqualTo(3)
-    }
-
-    @Test
-    fun `test livdTableLookup is Observation`() {
-        assertThat(
-            CustomFHIRFunctions.livdTableLookup(
-                mutableListOf(Observation()), mutableListOf(), UnitTestUtils.simpleMetadata
-            ) == mutableListOf(StringType(null))
-        )
-    }
-
-    @Test
-    fun `test livdTableLookup is not Observation`() {
-        assertThat {
-            CustomFHIRFunctions.livdTableLookup(
-                mutableListOf(Device()), mutableListOf(), UnitTestUtils.simpleMetadata
-            )
-        }.isFailure()
     }
 
     @Test

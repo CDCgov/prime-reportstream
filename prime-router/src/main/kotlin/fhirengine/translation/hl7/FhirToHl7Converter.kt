@@ -8,6 +8,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.Converte
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
@@ -27,7 +28,8 @@ class FhirToHl7Converter(
     private val strict: Boolean = false,
     private var terser: Terser? = null,
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
-    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
+    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor(),
+    private val context: FhirToHl7Context? = null
 ) : ConfigSchemaProcessor() {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
@@ -40,11 +42,13 @@ class FhirToHl7Converter(
         schema: String,
         schemaFolder: String,
         strict: Boolean = false,
-        terser: Terser? = null
+        terser: Terser? = null,
+        context: FhirToHl7Context? = null
     ) : this(
         schemaRef = converterSchemaFromFile(schema, schemaFolder),
         strict = strict,
-        terser = terser
+        terser = terser,
+        context = context
     )
 
     /**
@@ -57,14 +61,16 @@ class FhirToHl7Converter(
     constructor(
         schema: String,
         strict: Boolean = false,
-        terser: Terser? = null
+        terser: Terser? = null,
+        context: FhirToHl7Context? = null
     ) : this(
         schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
         strict = strict,
-        terser = terser
+        terser = terser,
+        context = context
     )
 
     /**
@@ -93,7 +99,7 @@ class FhirToHl7Converter(
         schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle),
+        context: CustomContext = CustomContext(bundle, bundle, additionalFhirFunctions = this.context?.fhirFunctions),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -213,3 +219,10 @@ class FhirToHl7Converter(
         }
     }
 }
+
+/**
+ * Context used for holding additional information for [FhirToHl7Converter]
+ */
+data class FhirToHl7Context(
+    val fhirFunctions: FhirPathFunctions,
+)

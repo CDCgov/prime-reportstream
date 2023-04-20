@@ -10,13 +10,16 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isSameAs
+import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
+import fhirengine.engine.CustomFhirPathFunctions
 import io.mockk.every
 import io.mockk.mockkObject
 import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
+import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Organization
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
@@ -136,6 +139,34 @@ class ConstantResolverTests {
         assertThat(result[1].isPrimitive).isTrue()
         assertThat(result[1] is IntegerType).isTrue()
         assertThat((result[1] as IntegerType).value).isEqualTo(integerValue)
+    }
+
+    @Test
+    fun `test execute additional FHIR functions`() {
+
+        val context = CustomContext(Bundle(), Bundle())
+        assertThat {
+            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+                context,
+                mutableListOf(Observation()),
+                "livdTableLookup",
+                null
+            )
+        }.isSuccess()
+    }
+
+    @Test
+    fun `test execute additional FHIR functions unknown function`() {
+
+        val context = CustomContext(Bundle(), Bundle())
+        assertThat {
+            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+                context,
+                mutableListOf(Observation()),
+                "unknown",
+                null
+            )
+        }.isFailure()
     }
 
     @Test
