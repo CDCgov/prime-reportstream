@@ -81,8 +81,7 @@
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
         "storybook": "npm-run-all -p watch-scss storybook:start",
-        "storybook:start": "start-storybook -p 6006",
-        "storybook:build": "build-storybook"
+        "build-storybook": "npm-run-all -p compile-scss-prod && build-storybook"
     },
     "browserslist": {
         "production": [
@@ -160,6 +159,7 @@
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",
+        "chromatic": "^6.17.3",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
         "cross-spawn": "^7.0.3",
