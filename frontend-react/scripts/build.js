@@ -138,7 +138,7 @@ async function run() {
 }
 
 // Create the production build and print the deployment instructions.
-async function build(config, previousFileSizes) {
+function build(config, previousFileSizes) {
     console.log("Creating an optimized production build...");
 
     const compiler = webpack(config);
