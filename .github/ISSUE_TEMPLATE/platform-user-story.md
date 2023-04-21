@@ -1,14 +1,9 @@
-<!-- 
+### User Story
+<!--
 What is a User Story?
 A user story is a requirement for any functionality or feature, written down in one or two lines, about one and only one functionality or feature.
 
-What is Acceptance Criteria?
-A set of conditions or business rules, as defined by the Product Owner, which the functionality or feature should satisfy, in order to be accepted by the Product Owner.
--->
-
-### User Story
-<!--
-Use the following template when creating new User Stories/Tickets. Remove/replace any  _italicized_ text.
+Use the following template when creating new User Stories/Tickets. Remove/replace any  _italicized_ text:
 
 "As a _[User Persona - who are we building this for?]_
 I want to _[Intent - what is this user trying to achieve?]_, 
@@ -36,6 +31,11 @@ _Use this section to describe any useful technical information to duplicate an i
 
 ### Acceptance Criteria
 <!--
+What is Acceptance Criteria?
+A set of conditions or business rules, as defined by the Product Owner, which the functionality or feature should satisfy, in order to be accepted by the Product Owner.
+
+Use the following template when creating new Acceptance Criteria:
+
 "Given _[describe the precondition]_, when I _[describe the action performed]_, then I expect _[describe the expected outcome]_."
 
 _OR... it may be written as a bulleted list._
