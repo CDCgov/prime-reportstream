@@ -161,11 +161,7 @@ export function ManagePublicKey() {
                     onSenderSelect={handleSenderSelect}
                 />
             )}
-            {showPublicKeyConfigured && (
-                <ManagePublicKeyConfigured
-                    onUploadNewPublicKey={() => setUploadNewPublicKey(true)}
-                />
-            )}
+            {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
             {isUploadEnabled && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
