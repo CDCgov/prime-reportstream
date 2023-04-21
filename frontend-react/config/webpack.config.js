@@ -500,7 +500,8 @@ module.exports = async function (webpackEnv) {
                                                 .default,
                                         ],
                                         rehypePlugins: [
-                                            await import("rehype-slug").default,
+                                            (await import("rehype-slug"))
+                                                .default,
                                         ],
                                     },
                                 },
