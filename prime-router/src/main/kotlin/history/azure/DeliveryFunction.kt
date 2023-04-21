@@ -230,7 +230,7 @@ class DeliveryFunction(
                     FacilityListApiParameters(request.queryParameters).sortColumn
                 )
 
-                HttpUtilities.okJSONResponse(
+                HttpUtilities.okResponse(
                     request,
                     mapper.writeValueAsString(
                         facilities.map {
