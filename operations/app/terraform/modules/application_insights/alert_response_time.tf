@@ -56,6 +56,22 @@ resource "azurerm_monitor_smart_detector_alert_rule" "failure_anomalies" {
   }
 }
 
+resource "azurerm_monitor_smart_detector_alert_rule" "metabase_failure_anomalies" {
+  count = local.alerting_enabled
+
+  name                = "${var.environment}-metabase-failure-anomalies"
+  description         = "${var.environment} Metabase Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls."
+  resource_group_name = var.resource_group
+  severity            = "Sev1"
+  scope_resource_ids  = [azurerm_application_insights.metabase_app_insights.id]
+  frequency           = "PT1M"
+  detector_type       = "FailureAnomaliesDetector"
+
+  action_group {
+    ids = [azurerm_monitor_action_group.action_group_mbhealthcheck.id]
+  }
+}
+
 resource "azurerm_monitor_scheduled_query_rules_alert" "http_2xx_failed_requests" {
   count = local.alerting_enabled
 

@@ -23,6 +23,25 @@ resource "azurerm_application_insights" "app_insights" {
   }
 }
 
+resource "azurerm_application_insights" "metabase_app_insights" {
+  name                = "${var.resource_prefix}-metabase-appinsights"
+  location            = var.location
+  resource_group_name = var.resource_group
+  application_type    = "web"
+  workspace_id        = var.workspace_id
+
+  # Sonarcloud flag
+  # needs to be true so the front-end can send events to App Insights
+  # https://github.com/CDCgov/prime-reportstream/issues/3097
+  internet_ingestion_enabled = true
+  # needs to be true to allow engineer debugging through Azure UI
+  internet_query_enabled = true
+
+  tags = {
+    environment = var.environment
+  }
+}
+
 resource "azurerm_monitor_action_group" "action_group" {
   count               = local.alerting_enabled
   name                = "${var.resource_prefix}-actiongroup"

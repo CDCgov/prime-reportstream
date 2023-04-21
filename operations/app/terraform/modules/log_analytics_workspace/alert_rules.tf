@@ -26,3 +26,5 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
     threshold = 1
   }
 }
+
+
