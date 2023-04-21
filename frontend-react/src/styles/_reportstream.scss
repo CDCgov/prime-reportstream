@@ -789,10 +789,8 @@ pre {
 }
 
 /** 
- * Numbered Headers
- * Allows automatic counter numbers (see process-list) for headers
+ * Allows automatic counter numbers in process-list style
  */
-
 @mixin numbered($counter) {
     &::before {
         @include u-flex("row", "align-center", "justify-center");
@@ -815,32 +813,15 @@ pre {
         font-weight: font-weight("bold");
         height: units($theme-process-list-counter-size);
         line-height: lh($theme-process-list-counter-font-family, 1);
-        margin-top: $half-of-font-size;
         width: units($theme-process-list-counter-size);
-        margin: 0 18px 0 0;
+        margin: $half-of-font-size 18px 0 0;
     }
 }
 
 html {
-    counter-reset: h2 h3 h4 h5 h6;
+    counter-reset: h2;
 }
 
 h2.rs-numbered {
     @include numbered(h2);
-}
-
-h3.rs-numbered {
-    @include numbered(h3);
-}
-
-h4.rs-numbered {
-    @include numbered(h4);
-}
-
-h5.rs-numbered {
-    @include numbered(h5);
-}
-
-h6.rs-numbered {
-    @include numbered(h6);
 }

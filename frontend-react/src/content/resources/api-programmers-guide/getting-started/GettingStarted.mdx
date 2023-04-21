@@ -1,6 +1,8 @@
 import { CardGroup, Card, CardBody, CardHeader, Alert, Accordion } from "@trussworks/react-uswds";
+import {default as MD} from 'react-markdown';
 import Method1 from "./Method1.mdx";
 import Method2 from "./Method2.mdx";
+export const test = "TEST";
 
 # Getting started
 
@@ -10,7 +12,7 @@ import Method2 from "./Method2.mdx";
 
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system. You can also use a program like Postman to test submissions.
 
-<hr/>
+***
 
 <h2 className="rs-numbered">Format and validate a fake data file</h2>
 
@@ -18,9 +20,7 @@ To prepare your file for testing, review our data models and set up a sample fil
 
 <CardGroup>
     <Card>
-        <CardHeader typeOf="div">
-            [Data model]()
-        </CardHeader>
+        <CardHeader>[Data model]()</CardHeader>
         <CardBody>
             Reference these CSV and HL7 field requirements when setting up your files for validation.
         </CardBody>
@@ -41,9 +41,7 @@ When you’ve formatted your fake (non-PII) data file, test your data model usin
 
 <CardGroup>
     <Card>
-        <CardHeader typeOf="div">
-            [ReportStream File Validator]()
-        </CardHeader>
+        <CardHeader typeOf="div">[ReportStream File Validator]()</CardHeader>
         <CardBody>
             Check your file formatting as you prepare to send your data through ReportStream.
         </CardBody>
@@ -58,7 +56,7 @@ As part of the onboarding process, the ReportStream team will assign your unique
 
 Your first step in this phase is to set up your authentication.
 
-**Set up authentication**
+### Set up authentication
 
 There are two methods of authenticating to ReportStream’s REST API:
 
@@ -72,28 +70,26 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
 
 <Accordion items={[
     {
-        headingLevel: "h4",
+        headingLevel: "h3",
         title: "Method 1: Token-based authentication with public/private key pair (Recommended)", 
         content: <Method1 />,
         id: 1
     },
     {
-        headingLevel: "h4",
+        headingLevel: "h3",
         title: "Method 2: Shared secret key authorization", 
         content: <Method2 />,
         id: 2
     },
 ]} />
 
-**Test your automation**
+### Test your automation
 
 Once authentication is complete, you can test your automation code as well as your code that handles responses using the staging API. 
 Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. 
 You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment.
 
-<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
-    **Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.
-</Alert>
+<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
 
 Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 
@@ -108,9 +104,10 @@ For troubleshooting on your own, here is the complete endpoint input and respons
 Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
 
 <Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
-    **Note:** Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
-    * California
-    * Illinois
-    * New Jersey
-    * Washington
+**Note:** Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
+
+* California
+* Illinois
+* New Jersey
+* Washington
 </Alert>
