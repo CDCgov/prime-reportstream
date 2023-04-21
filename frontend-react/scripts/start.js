@@ -74,13 +74,13 @@ checkBrowsers(paths.appPath, isInteractive)
         // run on a different port. `choosePort()` Promise resolves to the next free port.
         return choosePort(HOST, DEFAULT_PORT);
     })
-    .then((port) => {
+    .then(async (port) => {
         if (port == null) {
             // We have not found a port.
             return;
         }
 
-        const config = configFactory("development");
+        const config = await configFactory("development");
         const protocol = process.env.HTTPS === "true" ? "https" : "http";
         const appName = require(paths.appPackageJson).name;
 
