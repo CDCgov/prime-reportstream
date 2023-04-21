@@ -772,3 +772,19 @@ pre {
 .rs-margin-top-auto-important {
     margin-top: auto !important;
 }
+
+.faq-wrapper {
+    .heading {
+        padding-top: units(3);
+        padding-bottom: units(4);
+
+        h3 {
+            padding-top: 20px;
+            color: color('gray-cool-50');
+        }
+    }
+
+    h4 {
+        margin-top: 40px;
+    }
+}
