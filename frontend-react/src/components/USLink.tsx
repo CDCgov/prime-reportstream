@@ -39,7 +39,7 @@ export function getHrefRoute(href?: string): string | undefined {
             url.protocol.startsWith("http") &&
             url.origin === window.location.origin
         )
-            return `${url.pathname}${url.search}${url.hash}`;
+            return `${url.pathname}${url.search}`;
     } catch (e: any) {
         if (href.startsWith("#")) return undefined;
         return href;
