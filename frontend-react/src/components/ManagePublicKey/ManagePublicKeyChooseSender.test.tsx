@@ -1,9 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { RSSender } from "../../config/endpoints/settings";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 
 import ManagePublicKeyChooseSender, {
     ManagePublicKeyChooseSenderProps,
@@ -34,6 +32,7 @@ const DEFAULT_SENDERS: RSSender[] = [
 
 describe("ManagePublicKeyChooseSender", () => {
     const DEFAULT_PROPS: ManagePublicKeyChooseSenderProps = {
+        senders: DEFAULT_SENDERS,
         onSenderSelect: () => {},
     };
 
@@ -41,39 +40,9 @@ describe("ManagePublicKeyChooseSender", () => {
         jest.restoreAllMocks();
     });
 
-    function mockUseOrganizationSenders(
-        result: Partial<UseOrganizationSendersResult> = {}
-    ) {
-        jest.spyOn(
-            useOrganizationSendersExports,
-            "useOrganizationSenders"
-        ).mockReturnValue({
-            isLoading: false,
-            senders: DEFAULT_SENDERS,
-            ...result,
-        });
-    }
-
-    describe("when the sender options are loading", () => {
-        beforeEach(() => {
-            mockUseOrganizationSenders({ isLoading: true });
-
-            renderApp(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
-        });
-
-        test("renders a spinner", () => {
-            expect(screen.getByLabelText("loading-indicator")).toBeVisible();
-        });
-    });
-
     describe("when the sender options have been loaded", () => {
         describe("and Organizations have more than one sender", () => {
             beforeEach(() => {
-                mockUseOrganizationSenders({
-                    isLoading: false,
-                    senders: DEFAULT_SENDERS,
-                });
-
                 renderApp(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
             });
 
