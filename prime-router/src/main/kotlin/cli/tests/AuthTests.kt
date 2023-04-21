@@ -775,7 +775,7 @@ class Server2ServerAuthTests : CoolTest() {
                 }
 
                 // try to send a report with valid access token
-                val (responseCode4, body) =
+                val (responseCode4, _) =
                     HttpUtilities.postReportFileToWatersApi(
                         environment,
                         myFakeReportFile,
@@ -787,7 +787,6 @@ class Server2ServerAuthTests : CoolTest() {
                     good("RSA key: Got a 201 back from post with valid token.")
                 } else {
                     bad("RSA key: Should get a 201 response to valid token, but but instead got $responseCode4")
-                    bad(body)
                     passed = false
                 }
             }

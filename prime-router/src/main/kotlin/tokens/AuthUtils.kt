@@ -15,8 +15,8 @@ class AuthUtils {
     companion object {
 
         /**
-         * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
-         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         * Generate a signed JWT, representing a request for authentication from a Organization, using a private key.
+         * This is done by the Organization, not by ReportStream. This method is here for testing, and as an example.
          * @param issuer -  the issuer for the JWT
          * @param baseUrl - the audience
          * @param privateKey - the private key to sign the JWT with
@@ -49,8 +49,8 @@ class AuthUtils {
         }
 
         /**
-         * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
-         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         * Generate a signed JWT, representing a request for authentication from a Organization, using a private key.
+         * This is done by the Organization, not by ReportStream. This method is here for testing, and as an example.
          *
          * @param organization -  the issuer for the JWT
          * @param baseUrl - the audience
@@ -72,26 +72,26 @@ class AuthUtils {
         }
 
         /**
-         * [senderToken] is a signed JWT from this sender, to go to the api/token endpoint.
+         * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a map of the standard parameters needed to create an acceptable token request.
          */
-        private fun generateSenderUrlParameterMap(senderToken: String, scope: String): Map<String, String> {
+        private fun generateOrganizationUrlParameterMap(organizationToken: String, scope: String): Map<String, String> {
             return mapOf<String, String>(
                 "scope" to scope,
                 "grant_type" to "client_credentials",
                 "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                "client_assertion" to senderToken,
+                "client_assertion" to organizationToken,
             )
         }
 
         /**
-         * [senderToken] is a signed JWT from this sender, to go to the api/token endpoint.
+         * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a string of the standard parameters needed to create an acceptable token request.
          */
-        fun generateOrganizationUrlParameterString(senderToken: String, scope: String): String {
-            return generateSenderUrlParameterMap(senderToken, scope)
+        fun generateOrganizationUrlParameterString(organizationToken: String, scope: String): String {
+            return generateOrganizationUrlParameterMap(organizationToken, scope)
                 .map { "${it.key}=${it.value}" }.joinToString("&")
         }
 

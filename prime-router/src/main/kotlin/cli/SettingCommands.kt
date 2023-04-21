@@ -723,7 +723,6 @@ class SenderSettings : CliktCommand(
             PutSenderSetting(),
             DeleteSenderSetting(),
             DiffSenderSetting(),
-            TokenUrl(),
         )
     }
 
