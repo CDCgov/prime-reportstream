@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.RSAKey
+import io.swagger.v3.oas.annotations.media.Schema
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPrivateKey
@@ -33,26 +34,46 @@ import java.security.interfaces.RSAPublicKey
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class Jwk(
-    val kty: String, // Key type (Alg family).  eg, RSA, EC, oct
-    val use: String? = null, // Intended use.  eg, sig, enc.
+    @field:Schema(description = "The family of cryptographic algorithms used with the key.  eg, RSA, EC, oct")
+    val kty: String,
+    @field:Schema(hidden = true)
+    val use: String? = null, // Inten
+    @field:Schema(hidden = true) // ed use.  eg, sig, enc.
     val keyOps: String? = null, // key_ops: Intended use operations.  eg, sign, verify, encrypt
+    @field:Schema(hidden = true)
     val alg: String? = null,
+    @field:Schema(description = "The exponent for the RSA public key")
     var kid: String? = null, // key Id
+    @field:Schema(hidden = true)
     val x5u: String? = null, // URI ref to certificate
+    @field:Schema(hidden = true)
     val x5c: List<String>? = null, // PKIX certificates. JSON array of String
+    @field:Schema(hidden = true)
     val x5t: String? = null, // certificate thumbprint
     // Algorithm specific fields
+    @field:Schema(description = "The modulus for the RSA public key")
     val n: String? = null, // RSA
+    @field:Schema(description = "The exponent for the RSA public key")
     val e: String? = null, // RSA
+    @field:Schema(hidden = true)
     val d: String? = null, // EC and RSA private
+    @field:Schema(hidden = true)
     val crv: String? = null, // EC
+    @field:Schema(hidden = true)
     val p: String? = null, // RSA private
+    @field:Schema(hidden = true)
     val q: String? = null, // RSA private
+    @field:Schema(hidden = true)
     val dp: String? = null, // RSA private
+    @field:Schema(hidden = true)
     val dq: String? = null, // RSA private
+    @field:Schema(hidden = true)
     val qi: String? = null, // RSA private
+    @field:Schema(hidden = true)
     val x: String? = null, // EC
+    @field:Schema(hidden = true)
     val y: String? = null, // EC
+    @field:Schema(hidden = true)
     val k: String? = null, // symmetric key, eg oct
 ) {
 
