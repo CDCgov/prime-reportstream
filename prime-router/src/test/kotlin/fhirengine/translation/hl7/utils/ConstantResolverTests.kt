@@ -13,6 +13,8 @@ import assertk.assertions.isSameAs
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkObject
 import org.hl7.fhir.exceptions.PathEngineException
@@ -143,6 +145,8 @@ class ConstantResolverTests {
 
     @Test
     fun `test execute additional FHIR functions`() {
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
         val context = CustomContext(Bundle(), Bundle())
         assertThat {
