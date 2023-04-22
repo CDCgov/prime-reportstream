@@ -7,6 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.metadata.LivdLookup
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -81,10 +82,11 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test livd lookup function`() {
-
-        mockkObject(LivdLookup)
         val loincCode = "906-1"
+        mockkObject(LivdLookup)
+        mockkObject(Metadata)
 
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
         every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
 
         // Look up fails if focus element is not an Observation
