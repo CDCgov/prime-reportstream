@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@39ee91a16bb587a6c2b4791d4954cf5299736efd
+        uses: EnricoMi/publish-unit-test-result-action@4e7013f9576bd22ffdae979dc6e68cb9ec2aeece
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -97,7 +97,7 @@ jobs:
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@39ee91a16bb587a6c2b4791d4954cf5299736efd
+        uses: EnricoMi/publish-unit-test-result-action@4e7013f9576bd22ffdae979dc6e68cb9ec2aeece
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&

@@ -2,15 +2,15 @@ name: GHA to Check Key Vault Certificates Expiration
 
 on:
   schedule:
-    # The workflow runs every day at 3am
-    - cron: "0 3 * * *"
+    # The workflow runs every day at 8:07am
+    - cron: "7 13 * * *"  #UTC-5
 
 jobs:
   check-certificates:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
       - name: Get runner ip
         id: runner_ip

@@ -5,6 +5,4 @@ elements:
 
   - name: note
     condition: '%resource is String'
-    schema: '../../ORU_R01/base/note'
-    constants:
-      noteDetails: '%resource.note'
+    schema: '../../../ORU_R01/base/note'
