@@ -63,7 +63,12 @@ export function MarkdownLayout({
                             {sidenav}
                         </Nav>
                     ) : undefined}
-                    <Main className="tablet:grid-col-8" {...mainProps}>
+                    <Main
+                        className={
+                            sidenav ? "tablet:grid-col-8" : "tablet:grid-col-12"
+                        }
+                        {...mainProps}
+                    >
                         {children}
                     </Main>
                 </Grid>

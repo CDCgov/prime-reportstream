@@ -667,6 +667,7 @@ class OrganizationSettings : CliktCommand(
             MigratePublicKeys(),
             TokenUrl(),
             AddPublicKey(),
+            RemoveKey()
         )
     }
 

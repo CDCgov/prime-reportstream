@@ -7,11 +7,11 @@ import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
+import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
-import { ValidateWithAuth } from "./pages/Validate";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
 import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
 import { AdminMainWithAuth } from "./pages/admin/AdminMain";
@@ -36,6 +36,7 @@ import { DocumentationPage } from "./pages/resources/api-programmers-guide/docum
 import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModelPage";
 import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStreamPage";
 import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutputPage";
+import FileHandler from "./components/FileHandlers/FileHandler";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -70,12 +71,13 @@ export const appRoutes = [
                     },
                 ],
             },
-            { path: "", element: <Resources /> },
+            { path: "", element: <ResourcesPage /> },
             { path: "*", element: <Resources /> },
         ],
     },
     { path: "/product/*", element: <Product /> },
     { path: "/support/*", element: <Support /> },
+    { path: "/file-handler/validate", element: <FileHandler /> },
     { path: "/daily-data", element: <DeliveriesWithAuth /> },
     {
         path: "/report-details/:reportId",
@@ -136,7 +138,6 @@ export const appRoutes = [
         path: "/resources/manage-public-key",
         element: <ManagePublicKeyWithAuth />,
     },
-    { path: "/file-handler/validate", element: <ValidateWithAuth /> },
     /* Handles any undefined route */
     { path: "*", element: <ErrorNoPage /> },
 ];
