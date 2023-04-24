@@ -232,7 +232,7 @@ jobs:
             -Dsonar.projectKey=CDCgov_prime-data-hub
             -Dsonar.organization=cdcgov
             -Dsonar.skipUnchanged=false
-            -Dsonar.java.libraries=prime-router/build/libs/*.jar
+            -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
