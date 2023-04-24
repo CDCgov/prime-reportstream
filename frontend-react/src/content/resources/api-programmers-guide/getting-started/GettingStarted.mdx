@@ -30,9 +30,9 @@ We can send you a file with fake data to review that will always successfully va
 Note that because the data in those files are computer-generated, it may not feel realistic in some places.
 
 <Alert type="info" headingLevel="div" heading="Note for HL7 OTC tests:" slim={true} className="border-0 font-sans-xs">
-    For this step, refer to the RADx MARS Getting started guide.
+    For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
     Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. 
-    To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the RADx MARS Getting started guide.
+    To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
 </Alert>
 
 When you’ve formatted your fake (non-PII) data file, test your data model using the validation tool, and correct any errors you receive.
@@ -91,7 +91,7 @@ You can use curl commands, Postman, or another method of your choosing to post t
 
 Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 
-For troubleshooting on your own, here is the complete endpoint input and response OpenAPI specification.
+For troubleshooting on your own, here is the complete endpoint input and response [OpenAPI specification](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api).
 
 <h2 className="rs-numbered">Test real data in production</h2>
    The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
