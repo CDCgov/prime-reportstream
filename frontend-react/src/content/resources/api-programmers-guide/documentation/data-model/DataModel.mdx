@@ -10,14 +10,14 @@ import ReportingAndOrderingFacilityDataElementsTable from "./ReportingAndOrderin
 # Data model
 
 <p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
-<a href="" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload /></a> Last updated: 1/6/23
+<a href="https://docs.google.com/spreadsheets/d/1sSpDeKQdackzRS5IT58WmUWn1eq6pA1Rm57u0C5QpgM/edit?usp=sharing" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload /></a> Last updated: 1/6/23
 
 ***
 
 ## Common errors
 * **Two of the most important and often overlooked pieces of required data are the deviceIdentifier (OBX-17.1) and testPerformed (OBX-3.1).**
 These fields must match exactly to the appropriate row in the LOINC In Vitro Diagnostic (LIVD) test code mapping.
-[This is the most updated LIVD mapping]() from the CDC. Specifics about each field are detailed in the tables below.
+[This is the most updated LIVD mapping](https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html) from the CDC. Specifics about each field are detailed in the tables below.
 * **The preferred timestamp formatting for CSV and HL7 is yyyyMMddhhmmss+/-zzzz.**
 If the UTC offset (+/-zzzz) is not present, results should be normalized to a single time zone that’s agreed upon during the onboarding process.
 
@@ -36,7 +36,10 @@ If the UTC offset (+/-zzzz) is not present, results should be normalized to a si
 
     <ul>
         <li>For CSV implementations, include only the columns marked with “(OTC)” in the CSV Column Names below.</li>
-        <li>For HL7 implementations, do not use this table. Refer to the RADx MARS Getting started guide.</li>
+        <li>
+            For HL7 implementations, do not use this table.
+            Refer to the <a href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started">RADx MARS Getting started guide</a>.
+        </li>
     </ul>
 </Alert>
 }
