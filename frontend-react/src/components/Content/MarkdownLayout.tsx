@@ -52,12 +52,12 @@ export function MarkdownLayout({
                 a: USSmartLink,
             }}
         >
-            <GridContainer>
-                <Grid row>
+            <GridContainer className="usa-prose">
+                <Grid row className="flex-justify">
                     {sidenav ? (
                         <Nav
                             aria-label="side-navigation"
-                            className="tablet:grid-col-4"
+                            className="tablet:grid-col-3"
                             {...sidenavProps}
                         >
                             {sidenav}

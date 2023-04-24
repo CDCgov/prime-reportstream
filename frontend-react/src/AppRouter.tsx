@@ -32,10 +32,10 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/DocumentationPage";
-import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModelPage";
-import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStreamPage";
-import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutputPage";
+import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
 
 export enum FeatureName {

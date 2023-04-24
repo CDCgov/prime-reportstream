@@ -1,34 +1,53 @@
-Documentation
+import { CardGroup, Card, CardHeader, CardBody } from "@trussworks/react-uswds";
 
-Technical docs and resources to support your use of ReportStream’s API
+# Documentation
 
-In this section: 
+<p className="usa-intro text-base">Technical docs and resources to support your use of ReportStream’s API</p>
 
-Data model
+**In this section:**
 
-Reference these CSV and HL7 field requirements when setting up your files for validation.
+<CardGroup>
+    <Card>
+        <CardHeader typeOf="div">
+            ## [Data model]()
+        </CardHeader>
+        <CardBody>
+            Reference these CSV and HL7 field requirements when setting up your files for validation.
 
-On this page:
-Patient data elements
-Order and result data elements
-Specimen data elements
-Ordering provider data elements
-Testing facility data elements
-Ask-On-Entry (AOEs)
-Report and ordering facility elements
+            **On this page:**
+            * [Patient data elements]()
+            * [Order and result data elements]()
+            * [Specimen data elements]()
+            * [Ordering provider data elements]()
+            * [Testing facility data elements]()
+            * [Ask-On-Entry (AOEs)]()
+            * [Report and ordering facility elements]()
+        </CardBody>
+    </Card>
+    <Card>
+        <CardHeader typeOf="div">
+            ## [Responses from ReportStream]()
+        </CardHeader>
+        <CardBody>
+            ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
 
-Responses from ReportStream
-ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
+            **On this page:**
+            * [Errors and warnings]()
+            * [Response messages]()
+            * [JSON error responses]()
+        </CardBody>
+    </Card>
+    <Card>
+        <CardHeader typeOf="div">
+            ## [Sample payloads and outputs]()
+        </CardHeader>
+        <CardBody>
+            Samples are provided for both CSV and HL7 inputs and responses.
 
-On this page:
-Errors and warnings
-Response messages
-JSON error responses
-
-Sample payloads and outputs
-Samples are provided for both CSV and HL7 inputs and responses.
-
-On this page:
-Sample CSV payload and output
-Sample HL7 2.5.1 payload and output
-Example data models
+            **On this page:**
+            * [Sample CSV payload and output]()
+            * [Sample HL7 2.5.1 payload and output]()
+            * [Example data models]()
+        </CardBody>
+    </Card>
+</CardGroup>

@@ -1,0 +1,254 @@
+<table className="usa-table" style={{tableLayout:"fixed"}}>
+    <thead>
+        <th>CSV Column Names</th>
+        <th>HL7 Field / Component</th>
+        <th>Fed Required?</th>
+        <th>State Required?</th>
+        <th>Data Requirements</th>
+        <th>Additional Guidance</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+            pregnant
+            </td>
+            <td>
+            OBX-3.1
+            OBX-5.1
+            </td>
+            Requested
+
+
+            Requested
+            Optional - Requested: Enter patient's pregnancy status.
+
+            OBX-3.1
+            82810-3
+
+            OBX-5.1
+            77386006 (Yes)
+            60001007 (No)
+            261665006 (Unknown)
+
+            CSV
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            employed_in_healthcare
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+            Requested
+            Requested
+            Optional - Requested: Enter patient's employment in healthcare status. 
+
+            <td>
+            OBX-3.1
+            </td>
+            95418-0
+
+            <td>
+            OBX-5.1/CSV
+            </td>
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            symptomatic_for_disease
+
+            (OTC)
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+            Requested
+            Requested
+            Optional - Requested: Enter patient's symptomatic for disease status. 
+
+            <td>
+            OBX-3.1
+            </td>
+            95419-8
+
+            <td>
+            OBX-5.1/CSV
+            </td>
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            illness_onset_date
+
+            (OTC)
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+
+
+            Requested
+            Requested
+            Enter patient's illness onset date.
+
+            <td>
+            OBX-3.1
+            </td>
+            65222-2
+
+
+            <td>
+            OBX-5.1 Accepted Format: 
+            </td>
+            yyyyMMdd
+
+
+            Field is not required, but requested for thorough reporting.
+        </tr>
+        <tr>
+            resident_congregate_setting
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+
+
+            Requested
+            Requested
+            Optional - Requested: Enter patient's congregate housing status. 
+
+            <td>
+            OBX-3.1
+            </td>
+            95421-4
+
+            <td>
+            OBX-5.1/CSV
+            </td>
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            residence_type
+            N/A
+            Requested
+            Requested
+            Optional - Requested: Enter the type of facility providing care for patient.
+
+            Accepted Values:
+            22232009 (Hospital)
+            2081004 (Hospital ship)
+            32074000 (Long Term Care Hospital)
+            224929004 (Secure Hospital)
+            42665001 (Nursing Home)
+            30629002 (Retirement Home)
+            74056004 (Orphanage)
+            722173008 (Prison-based care site)
+            20078004 (Substance Abuse Treatment Center)
+            257573002 (Boarding House)
+            224683003 (Military Accommodation)
+            284546000 (Hospice)
+            257628001 (Hostel)
+            310207003 (Sheltered Housing)
+            57656006 (Penal Institution)
+            285113009 (Religious institutional residence)
+            285141008 (Work environment)
+            32911000 (Homeless)
+            261665006 (Unknown)
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            hospitalized
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+
+
+            Requested
+            Requested
+            Optional - Requested: Enter patient's hospitalization status. 
+
+            <td>
+            OBX-3.1
+            </td>
+            77974-4
+
+            <td>
+            OBX-5.1/CSV
+            </td>
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+        <tr>
+            icu
+            <td>
+            OBX-3.1
+            </td>
+
+            <td>
+            OBX-5.1
+            </td>
+
+
+            Requested
+            Requested
+            Optional - Requested: Enter patient's intensive care unit (ICU) status.
+
+            <td>
+            OBX-3.1
+            </td>
+            77974-4
+
+            <td>
+            OBX-5.1/CSV
+            </td>
+            Y (Yes)
+            N (No)
+            U (Unknown)
+
+
+            Field is not required, but requested for thorough reporting. Enter one of the acceptable values exactly as displayed.
+        </tr>
+</tbody>
+</table>

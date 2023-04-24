@@ -1,0 +1,61 @@
+import { Button, Icon, Alert, Table } from "@trussworks/react-uswds";
+import PatientDataElementsTable from "./PatientDataElementsTable.mdx";
+import OrderAndResultDataElementsTable from "./OrderAndResultDataElementsTable.mdx";
+import SpecimenDataElementsTable from "./SpecimenDataElementsTable.mdx";
+import OrderingProviderDataElementsTable from "./OrderingProviderDataElementsTable.mdx";
+import TestingFacilityDataElementsTable from "./TestingFacilityDataElementsTable.mdx";
+import AskOnEntryTable from "./AskOnEntryTable.mdx";
+import ReportingAndOrderingFacilityDataElementsTable from "./ReportingAndOrderingFacilityDataElementsTable.mdx";
+
+# Data model
+
+<p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
+<a href="" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload /></a> Last updated: 1/6/23
+
+## Common errors
+* **Two of the most important and often overlooked pieces of required data are the deviceIdentifier (OBX-17.1) and testPerformed (OBX-3.1).**
+These fields must match exactly to the appropriate row in the LOINC In Vitro Diagnostic (LIVD) test code mapping.
+[This is the most updated LIVD mapping]() from the CDC. Specifics about each field are detailed in the tables below.
+* **The preferred timestamp formatting for CSV and HL7 is yyyyMMddhhmmss+/-zzzz.**
+If the UTC offset (+/-zzzz) is not present, results should be normalized to a single time zone that’s agreed upon during the onboarding process.
+
+## Legend
+
+* **Yes:** Required field for acceptance
+* **Yes** – Conditional: Required, but only under certain circumstances. Review the field’s Data Requirements and Additional Guidance for more information.
+* **Requested:** Field should be populated if available. In addition, some states may treat this as a required field.
+* **No:** Not a hard requirement. In the interest of providing complete information to public health agencies, please populate the field if data is available. For CSV implementations please provide the CSV column header even if no data is entered.
+
+{
+<Alert type="info">
+    <span className="text-bold">Note about OTC reporting:</span>
+
+    <ul>
+        <li>For CSV implementations, include only the columns marked with “(OTC)” in the CSV Column Names below.</li>
+        <li>For HL7 implementations, do not use this table. Refer to the RADx MARS Getting started guide.</li>
+    </ul>
+</Alert>
+}
+
+## Patient data elements
+<PatientDataElementsTable />
+
+## Order and result data elements
+<OrderAndResultDataElementsTable />
+
+## Specimen data elements
+<SpecimenDataElementsTable />
+
+## Ordering provider data elements
+<OrderingProviderDataElementsTable />
+
+## Testing facility data elements
+<TestingFacilityDataElementsTable />
+
+## Ask-On-Entry (AOEs)
+<AskOnEntryTable />
+
+## Reporting and ordering facility data elements
+All Reporting and Ordering Facility Data Elements can be left blank for CSV if same as Testing Facility Data Elements
+
+<ReportingAndOrderingFacilityDataElementsTable />
