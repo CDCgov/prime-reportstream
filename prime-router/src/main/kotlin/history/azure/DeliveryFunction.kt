@@ -19,6 +19,7 @@ import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
+import org.json.JSONArray
 
 /**
  * Deliveries API
@@ -248,12 +249,16 @@ class DeliveryFunction(
         try {
             // need the reportIds to do authentication
             val body = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
-            val reportIds = body.split(",").mapNotNull { ReportId.fromString(it) }
 
-            // Do authentication on all reports to be fetched
+            val reportIds = JSONArray(body).map {
+                ReportId.fromString(it.toString())
+            }
+
+            if (reportIds.isEmpty()) return HttpUtilities.bad(request, "No reportIds provided")
+
             // @todo how expensive is it to check auth for every report in the body?
-            for (id in reportIds) {
-                val authResult = this.authSingleBlocks(request, id.toString())
+            reportIds.forEach {
+                val authResult = this.authSingleBlocks(request, it.toString())
                 if (authResult != null) return authResult
             }
 
@@ -329,5 +334,9 @@ class DeliveryFunction(
         val clia: String?,
         val positive: Long?,
         val total: Long?
+    )
+
+    data class ReportIdList(
+        val reportIds: List<ReportId>
     )
 }

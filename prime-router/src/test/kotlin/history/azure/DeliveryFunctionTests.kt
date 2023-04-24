@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -34,6 +35,7 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.JSON
 import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
@@ -608,7 +610,8 @@ class DeliveryFunctionTests : Logging {
     fun `test list facilities bulk`() {
         val receiverName = "$organizationName.elr-secondary"
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
-        val mockRequest = MockHttpRequestMessage(goodUuid)
+
+        val mockRequest = MockHttpRequestMessage(JSON.json(listOf(goodUuid).toString()).toString(), HttpMethod.POST)
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
 
         val mockDeliveryFacade = mockk<DeliveryFacade>()
@@ -684,7 +687,11 @@ class DeliveryFunctionTests : Logging {
 
         // bad UUID, Not found
         val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-        val notFoundMockRequest = MockHttpRequestMessage(badUUID)
+        val notFoundMockRequest = MockHttpRequestMessage(
+            JSON.json(listOf(badUUID).toString()).toString(),
+            HttpMethod.POST
+        )
+
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryFacilitiesBulk(notFoundMockRequest, receiverName)
@@ -692,7 +699,10 @@ class DeliveryFunctionTests : Logging {
 
         // empty UUID, Not found
         val emptyUUID = ""
-        val emptyMockRequest = MockHttpRequestMessage(emptyUUID)
+        val emptyMockRequest = MockHttpRequestMessage(
+            JSON.json(listOf(emptyUUID).toString()).toString(),
+            HttpMethod.POST
+        )
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryFacilitiesBulk(emptyMockRequest, receiverName)
