@@ -3,8 +3,9 @@ name: Alert Terraform Changes
 on:
   workflow_dispatch:
   push: 
-    feature/7746-AlertTerraformChanges
-
+    branches:
+      - feature/7746-AlertTerraformChanges
+  
 jobs:
   alert_tf_changes:
     name: Check Terraform plan for ${{ matrix.env }}
