@@ -1,8 +1,6 @@
 import { CardGroup, Card, CardBody, CardHeader, Alert, Accordion } from "@trussworks/react-uswds";
-import {default as MD} from 'react-markdown';
 import Method1 from "./Method1.mdx";
 import Method2 from "./Method2.mdx";
-export const test = "TEST";
 
 # Getting started
 
@@ -103,11 +101,14 @@ For troubleshooting on your own, here is the complete endpoint input and respons
 
 Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
 
+{
 <Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
-**Note:** Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
-
-* California
-* Illinois
-* New Jersey
-* Washington
+    <span className="text-bold">Note:</span> Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
+    <ul>
+        <li>California</li>
+        <li>Illinois</li>
+        <li>New Jersey</li>
+        <li>Washington</li>
+    </ul>
 </Alert>
+}

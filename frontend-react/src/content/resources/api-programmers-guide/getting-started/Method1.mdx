@@ -1,15 +1,17 @@
-Step 1: Prior to submission, send your public key to ReportStream.
+import { Alert } from "@trussworks/react-uswds";
 
-Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using openssl.
+**Step 1: Prior to submission, send your public key to ReportStream.**
 
-    EC
+Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
+
+EC
 
 ```
 openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
 openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
 ```
 
-    RSA
+RSA
 
 ```
 openssl genrsa -out my-rsa-keypair.pem 2048
@@ -20,7 +22,7 @@ Send the public key to the ReportStream team (they’ll associate it with your c
 
 You only need to do this step once, not every time you submit reports. You can submit replacement keys to ReportStream at any time, following the steps above.
 
-Step 2: At the time of submission, generate a signed JWT using your private key
+**Step 2: At the time of submission, generate a signed JWT using your private key**
 
 A JWT is a base64 encoded string that has three parts: header, payload, and signature.
 
@@ -44,20 +46,25 @@ Here is an example, using the fake client-id healthy labs, of header and payload
     }
 }
 ```
+{
+<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
+    <span className="text-bold">Note:</span>
+    <ul>
+        <li>The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.</li>
+        <li>The jti (JWT ID) should be a random unique string, new with every call.</li>
+        <li>Generate the signed JWT using your private key.</li>
+    </ul>
+</Alert>
+}
 
-Note:
-The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.  
-The jti (JWT ID) should be a random unique string, new with every call.
-Generate the signed JWT using your private key.
-
-Step 3: Send the signed JWT to ReportStream to get a temporary bearer token
+**Step 3: Send the signed JWT to ReportStream to get a temporary bearer token**
 
 POST to the token URL, as in the example below, noting the following:
-Use Content-Type: application/x-www-form-urlencoded.
-In the scope parameter, replace the dummy string ‘healthy-labs’ with your client-id, as assigned to you by ReportStream staff.
-The grant_type and client_assertion_type parameters are always fixed values. The grant_type should be client_credentials and client_assertion_type should be urn:ietf:params:oauth:client-assertion-type:jwt-bearer, as in the example curl below.
-In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.  
-All the parameters are sent in the body/payload of the post (when using curl, via the -d option), not in the URL.  
+1. Use Content-Type: application/x-www-form-urlencoded.
+2. In the `scope` parameter, replace the dummy string `‘healthy-labs’` with your client-id, as assigned to you by ReportStream staff.
+3. The `grant_type` and `client_assertion_type` parameters are always fixed values. The `grant_type` should be `client_credentials` and `client_assertion_type` should be `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, as in the example curl below.
+4. In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.  
+5. All the parameters are sent in the body/payload of the post (when using curl, via the -d option), not in the URL.  
 Here is an example ‘curl’ POST:
 
 ```
@@ -77,7 +84,7 @@ You should get something like this back, which will be valid for five minutes:
 }
 ```
 
-Step 4: Submit data to ReportStream using the bearer token
+**Step 4: Submit data to ReportStream using the bearer token**
 
 Use the access token returned above as the bearer token for the submission:
 
