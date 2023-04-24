@@ -10,223 +10,233 @@
     <tbody>
         <tr>
             <td>
-            ordering_provider_id
+                ordering_provider_id
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-12.1
+                ORC-12.1
             </td>
             <td>
-            Yes
+                Yes
             </td>
             <td>
-            Yes
+                Yes
             </td>
             <td>
-            Enter National Provider Identifier (NPI). ReportStream prefers this value, however if NPI is unknown enter local coding.
+                Enter National Provider Identifier (NPI). ReportStream prefers this value, however if NPI is unknown enter local coding.
 
-            Examples:
-            NPI example: 1013012657
-            Local code example: muc1290
-            NPI is a 10-character all-numeric identification number to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/.
-            Some jurisdictions may not accept a local code, ReportStream will work with you if this is the case.
-            This field may be left blank for OTC tests.
+                Examples:
+                NPI example: 1013012657
+                Local code example: muc1290
+            </td>
+            <td>
+                NPI is a 10-character all-numeric identification number to uniquely identify a health care provider. NPIs can be found at https://npiregistry.cms.hhs.gov/.
+                Some jurisdictions may not accept a local code, ReportStream will work with you if this is the case.
+                This field may be left blank for OTC tests.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_last_name
+                ordering_provider_last_name
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-12.2
+                ORC-12.2
             </td>
             <td>
-            No
+                No
             </td>
             <td>
-            Yes
+                Yes
             </td>
             <td>
-            Enter the last name of the ordering provider.
+                Enter the last name of the ordering provider.
             </td>
             <td>
-            File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+                File will fail if field left blank for non-OTC tests. May be left blank for OTC.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_middle_name
+                ordering_provider_middle_name
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-12.4
+                ORC-12.4
             </td>
             <td>
-            No
+                No
             </td>
             <td>
-            No
-            </td>
-            Optional: Enter ordering provider’s middle name, if known.
-            This value is optional and can be left blank if no information is provided.
-        </tr>
-        <tr>
-            <td>
-            ordering_provider_first_name
-
-            (OTC)
+                No
             </td>
             <td>
-            ORC-12.3
+                Optional: Enter ordering provider’s middle name, if known.
             </td>
             <td>
-            No
-            </td>
-            <td>
-            Yes
-            </td>
-            <td>
-            Enter the first name of the ordering provider.
-            </td>
-            <td>
-            File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+                This value is optional and can be left blank if no information is provided.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_street
+                ordering_provider_first_name
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-24.1
-            </td>
-            Requested
-            <td>
-            Yes
+                ORC-12.3
             </td>
             <td>
-            Enter the street address of the ordering provider.
+                No
             </td>
             <td>
-            File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+                Yes
+            </td>
+            <td>
+                Enter the first name of the ordering provider.
+            </td>
+            <td>
+                File will fail if field left blank for non-OTC tests. May be left blank for OTC.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_street2
+                ordering_provider_street
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-24.2
+                ORC-24.1
+            </td>
+                Requested
+            <td>
+                Yes
             </td>
             <td>
-            No
+                Enter the street address of the ordering provider.
             </td>
             <td>
-            No
-            </td>
-            Optional: Enter ordering provider's additional address information, if applicable.
-            This value is optional and can be left blank if no information is provided.
-        </tr>
-        <tr>
-            <td>
-            ordering_provider_city
-
-            (OTC)
-            </td>
-            <td>
-            ORC-24.3
-            </td>
-            <td>
-            Requested
-            </td>
-            <td>
-            Yes
-            </td>
-            <td>
-            Enter ordering provider's city.
-            </td>
-            <td>
-            File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+                File will fail if field left blank for non-OTC tests. May be left blank for OTC.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_state
+                ordering_provider_street2
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-24.4
+                ORC-24.2
             </td>
             <td>
-            Requested
+                No
             </td>
             <td>
-            Yes
+                No
             </td>
             <td>
-            Enter ordering provider's state using the two-character abbreviation.
+                Optional: Enter ordering provider's additional address information, if applicable.
             </td>
             <td>
-            File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+                This value is optional and can be left blank if no information is provided.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_zip_code
+                ordering_provider_city
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-24.5
+                ORC-24.3
             </td>
             <td>
-            Requested
+                Requested
             </td>
             <td>
-            Yes
+                Yes
             </td>
             <td>
-            Enter ordering provider zip code. 
-
-            Accepted Format:
-            12345
-            12345-6789
+                Enter ordering provider's city.
             </td>
             <td>
-            File will fail if value is not entered using accepted format or field is left blank.
+                File will fail if field left blank for non-OTC tests. May be left blank for OTC.
             </td>
         </tr>
         <tr>
             <td>
-            ordering_provider_phone_number
+                ordering_provider_state
 
-            (OTC)
+                (OTC)
             </td>
             <td>
-            ORC-14.7
+                ORC-24.4
             </td>
             <td>
-            Requested
+                Requested
             </td>
             <td>
-            Yes - Conditional
+                Yes
             </td>
             <td>
-            Enter ordering provider's phone number.
+                Enter ordering provider's state using the two-character abbreviation.
+            </td>
+            <td>
+                File will fail if field left blank for non-OTC tests. May be left blank for OTC.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_provider_zip_code
 
-            Accepted Format:
-            000-000-000
+                (OTC)
             </td>
             <td>
-            File will fail if value is not entered using accepted format or field is left blank.
+                ORC-24.5
+            </td>
+            <td>
+                Requested
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter ordering provider zip code. 
+
+                **Accepted Format:**
+                * 12345
+                * 12345-6789
+            </td>
+            <td>
+                File will fail if value is not entered using accepted format or field is left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_provider_phone_number
+
+                (OTC)
+            </td>
+            <td>
+                ORC-14.7
+            </td>
+            <td>
+                Requested
+            </td>
+            <td>
+                Yes - Conditional
+            </td>
+            <td>
+                Enter ordering provider's phone number.
+
+                **Accepted Format:**
+                000-000-000
+            </td>
+            <td>
+                File will fail if value is not entered using accepted format or field is left blank.
             </td>
         </tr>
     </tbody>
