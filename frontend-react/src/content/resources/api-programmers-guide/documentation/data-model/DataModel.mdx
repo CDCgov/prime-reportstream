@@ -12,12 +12,16 @@ import ReportingAndOrderingFacilityDataElementsTable from "./ReportingAndOrderin
 <p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
 <a href="" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload /></a> Last updated: 1/6/23
 
+***
+
 ## Common errors
 * **Two of the most important and often overlooked pieces of required data are the deviceIdentifier (OBX-17.1) and testPerformed (OBX-3.1).**
 These fields must match exactly to the appropriate row in the LOINC In Vitro Diagnostic (LIVD) test code mapping.
 [This is the most updated LIVD mapping]() from the CDC. Specifics about each field are detailed in the tables below.
 * **The preferred timestamp formatting for CSV and HL7 is yyyyMMddhhmmss+/-zzzz.**
 If the UTC offset (+/-zzzz) is not present, results should be normalized to a single time zone that’s agreed upon during the onboarding process.
+
+***
 
 ## Legend
 
@@ -36,6 +40,8 @@ If the UTC offset (+/-zzzz) is not present, results should be normalized to a si
     </ul>
 </Alert>
 }
+
+***
 
 ## Patient data elements
 <PatientDataElementsTable />
