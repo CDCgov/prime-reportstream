@@ -66,7 +66,7 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
-module.exports = function (webpackEnv) {
+module.exports = async function (webpackEnv) {
     const isEnvDevelopment = webpackEnv === "development";
     const isEnvProduction = webpackEnv === "production";
     const isBundleAnalyzer = process.env.BUNDLE_ANALYZER ?? false;
@@ -495,6 +495,14 @@ module.exports = function (webpackEnv) {
                                     /** @type {import('@mdx-js/loader').Options} */
                                     options: {
                                         providerImportSource: "@mdx-js/react",
+                                        remarkPlugins: [
+                                            (await import("remark-gfm"))
+                                                .default,
+                                        ],
+                                        rehypePlugins: [
+                                            (await import("rehype-slug"))
+                                                .default,
+                                        ],
                                     },
                                 },
                             ],
