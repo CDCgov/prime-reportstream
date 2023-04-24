@@ -3,7 +3,7 @@ name: GHA to Check Key Vault Certificates Expiration
 on:
   schedule:
     # The workflow runs every day at 3am
-    - cron: "0 3 * * *"
+    - cron: "0 8 * * *"  #UTC-5
 
 jobs:
   check-certificates:
