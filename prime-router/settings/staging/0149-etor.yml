@@ -1,7 +1,6 @@
 # To submit this to staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/staging/0149-etor.yml
-
 #
 # Then add keys to it, as needed, like this:
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
@@ -57,7 +56,6 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        # THIS WAS schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         schemaName: "metadata/hl7_mapping/receivers/Flexion/TrustedIntermediaryLabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
