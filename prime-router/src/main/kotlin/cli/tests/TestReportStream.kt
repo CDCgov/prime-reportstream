@@ -816,7 +816,7 @@ abstract class CoolTest {
             ?: error("Unable to find org $org1Name in metadata")
         const val org2Name = "waters"
         val org2 = settings.findOrganization(org2Name)
-            ?: error("Unable to find org $org1Name in metadata")
+            ?: error("Unable to find org $org2Name in metadata")
         const val receivingStates = "IG"
 
         const val fullELRSenderName = "ignore-full-elr"
