@@ -1,28 +1,39 @@
-Responses from ReportStream
-ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.
+import { Alert } from "@trussworks/react-uswds";
 
-Errors and warnings
+# Responses from ReportStream
+
+<p className="usa-intro text-base">ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.</p>
+
+***
+
+## Errors and warnings
 
 The ReportStream response may include warnings and/or errors based on validation of the submission against the expected format.
 
-An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted. While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments. However, one or more errors fail the entire submission.
+An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted. 
+While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments. 
+However, one or more errors fail the entire submission.
 
-Common validation errors
-Missing or mislabeled required columns/fields
-Missing or malformed data in required columns/fields
-CSV with “jagged” rows — differing number of columns within the payload
-Empty payload (an empty response is often a sign of a failed authorization, with a 401 response status). Make sure your token or key and the URL are correct.
-Incorrect client-id or other headers
-Incorrect data types (e.g. a character string when a numeric value is expected)
+**Common validation errors**
+* Missing or mislabeled required columns/fields
+* Missing or malformed data in required columns/fields
+* CSV with “jagged” rows — differing number of columns within the payload
+* Empty payload (an empty response is often a sign of a failed authorization, with a 401 response status). Make sure your token or key and the URL are correct.
+* Incorrect client-id or other headers
+* Incorrect data types (e.g. a character string when a numeric value is expected)
 
-Common validation warnings
-Missing optional columns/fields
+**Common validation warnings**
+* Missing optional columns/fields
 
-Note: There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
+{
+<Alert type="info">
+    <span className="text-bold">Note:</span> There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
+</Alert>
+}
 
-Response messages
+## Response messages
 
-Asynchronous processing
+**Asynchronous processing**
 
 In most cases, we'll ask you to submit via ReportStream asynchronous (async) processing. This configuration setting is automatically enabled for users. Upon submitting data via ReportStream async processing, the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent.
 
@@ -48,7 +59,7 @@ Example ReportStream response to an async submission:
 }
 ```
 
-Synchronous processing
+**Synchronous processing**
 
 Example JSON response to a successful synchronous submission.
 
@@ -95,7 +106,9 @@ ReportStream features a History Details API that can be later queried to obtain 
 
 The request is made with the submissionId in the earlier example.:
 
+```
 https://prime.cdc.gov/api/history/simple_report/submissions/1588
+```
 
 Response:
 
@@ -152,7 +165,7 @@ Response:
 
 The sentReports sections contain details about where and when the reports were transmitted.
 
-JSON error responses
+## JSON error responses
 
 In error cases, no report "id" UUID is returned, because no report was created based on the submission.
 
