@@ -106,18 +106,11 @@ class DeliveryFacade(
 
     /**
      * Get facilities for multiple deliveries in one call for a set of [reportIds]
-     * that may be sorted using [sortDir] and [sortColumn]
      */
-    fun findDeliveryFacilitiesBulk(
-        reportIds: List<ReportId>,
-        sortDir: HistoryDatabaseAccess.SortDir,
-        sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
+    fun findBulkDeliveryFacilities(
+        reportIds: List<ReportId>
     ): List<DeliveryFacility> {
-        return dbDeliveryAccess.fetchBulkFacilityList(
-            reportIds,
-            sortDir,
-            sortColumn,
-        )
+        return dbDeliveryAccess.fetchBulkDeliveryFacilities(reportIds)
     }
 
     /**

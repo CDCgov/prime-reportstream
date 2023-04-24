@@ -478,7 +478,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchInto(DetailedActionLog::class.java)
     }
 
-    /** Returns null if report has no item-level lineage info tracked. */
+    /**
+     * Load the ItemLineage ancestry for a child with a given [reportId].
+     * Includes sanity checking via a verification [itemCount] and reusable [txn]
+     * Returns null if report has no item-level lineage info tracked.
+     */
     fun fetchItemLineagesForReport(
         reportId: ReportId,
         itemCount: Int,
@@ -513,17 +517,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             }
         }
         return itemLineages
-    }
-
-    /**
-     * Load the ItemLineages that match the parent id for a given [reportId].
-     */
-    fun fetchParentItemLineages(
-        reportId: ReportId
-    ): List<ItemLineage> {
-        return DSL.selectFrom(ITEM_LINEAGE).where(
-            ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId)
-        ).fetchInto(ItemLineage::class.java)
     }
 
     /**

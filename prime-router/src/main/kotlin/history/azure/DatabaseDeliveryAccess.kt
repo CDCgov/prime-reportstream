@@ -146,13 +146,10 @@ class DatabaseDeliveryAccess(
     }
 
     /**
-     * Get a list of matching Delivery Facilities for a set of [reportIds]
-     * that can be sorted via [sortDir] and [sortColumn].
+     * Get a list of matching delivery facilities for a set of [reportIds]
      */
-    fun fetchBulkFacilityList(
-        reportIds: List<ReportId>,
-        sortDir: SortDir,
-        sortColumn: FacilitySortColumn
+    fun fetchBulkDeliveryFacilities(
+        reportIds: List<ReportId>
     ): List<DeliveryFacility> {
         val positive: Field<String> = DSL.field(
             "sum(CASE WHEN test_result = 'DETECTED' THEN 1 ELSE 0 END)",
@@ -163,22 +160,6 @@ class DatabaseDeliveryAccess(
             String::class.java
         ).`as`("count_records")
 
-        val column = when (sortColumn) {
-            /* Decides sort column by enum */
-            FacilitySortColumn.NAME -> COVID_RESULT_METADATA.TESTING_LAB_NAME
-            FacilitySortColumn.CITY -> COVID_RESULT_METADATA.TESTING_LAB_CITY
-            FacilitySortColumn.STATE -> COVID_RESULT_METADATA.TESTING_LAB_STATE
-            FacilitySortColumn.CLIA -> COVID_RESULT_METADATA.TESTING_LAB_CLIA
-            FacilitySortColumn.POSITIVE -> positive
-            FacilitySortColumn.TOTAL -> total
-        }
-
-        val sortedColumn = when (sortDir) {
-            /* Applies sort order by enum */
-            SortDir.ASC -> column.asc()
-            SortDir.DESC -> column.desc()
-        }
-
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 .select(
@@ -188,8 +169,7 @@ class DatabaseDeliveryAccess(
                     COVID_RESULT_METADATA.TESTING_LAB_CLIA,
                     positive,
                     total
-                )
-                .from(
+                ).from(
                     COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
                         COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
                         COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.ORIGIN_REPORT_INDEX)
@@ -202,7 +182,6 @@ class DatabaseDeliveryAccess(
                     COVID_RESULT_METADATA.TESTING_LAB_STATE,
                     COVID_RESULT_METADATA.TESTING_LAB_CLIA
                 )
-                .orderBy(sortedColumn)
 
             query.fetchInto(DeliveryFacility::class.java)
         }

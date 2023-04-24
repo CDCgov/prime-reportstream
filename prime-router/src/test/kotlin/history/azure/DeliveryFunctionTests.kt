@@ -606,6 +606,7 @@ class DeliveryFunctionTests : Logging {
 
     @Test
     fun `test list facilities bulk`() {
+        val receiverName = "$organizationName.elr-secondary"
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage(goodUuid)
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
@@ -631,12 +632,12 @@ class DeliveryFunctionTests : Logging {
         )
 
         every {
-            mockDeliveryFacade.findDeliveryFacilitiesBulk(
-                any(),
-                any(),
-                any()
-            )
+            mockDeliveryFacade.findBulkDeliveryFacilities(any())
         } returns returnBody
+
+        every {
+            mockDeliveryFacade.checkAccessAuthorizationForOrg(any(), any(), any(), any())
+        } returns true
 
         // Happy path with a good UUID
         val action = Action()
@@ -647,9 +648,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
-        mockRequest.parameters["sortCol"] = "facility"
-        mockRequest.parameters["sortDir"] = "DESC"
-        var response = function.getDeliveryFacilitiesBulk(mockRequest)
+        var response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
@@ -664,7 +663,7 @@ class DeliveryFunctionTests : Logging {
         reportFile.reportId = UUID.fromString(goodUuid)
 
         every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
-        response = function.getDeliveryFacilitiesBulk(mockRequest)
+        response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
@@ -674,7 +673,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
 
         mockRequest.parameters["sortDir"] = "ASC"
-        response = function.getDeliveryFacilitiesBulk(mockRequest)
+        response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
@@ -683,20 +682,20 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
         assertThat(responseBody.first().total).isEqualTo(returnBody.first().countRecords)
 
-        // bad UUID, Not found (returns empty list)
+        // bad UUID, Not found
         val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         val notFoundMockRequest = MockHttpRequestMessage(badUUID)
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
-        response = function.getDeliveryFacilitiesBulk(notFoundMockRequest)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        response = function.getDeliveryFacilitiesBulk(notFoundMockRequest, receiverName)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // empty UUID, Not found
         val emptyUUID = ""
         val emptyMockRequest = MockHttpRequestMessage(emptyUUID)
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
-        response = function.getDeliveryFacilitiesBulk(emptyMockRequest)
+        response = function.getDeliveryFacilitiesBulk(emptyMockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
     }
 }

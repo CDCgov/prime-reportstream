@@ -239,12 +239,6 @@ class Report : Logging {
     var itemCountBeforeQualFilter: Int? = null
 
     /**
-     * List of item lineages that match this Report's parent.
-     * Used for fetching information on async functions.
-     */
-    var parentItemLineages: List<ItemLineage>? = null
-
-    /**
      * The set of parent -> child lineage items associated with this report.
      * The items in *this* report are the *child* items.
      * There should be `itemCount` items in this List, or it should be null.
@@ -1419,8 +1413,8 @@ class Report : Logging {
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
                 val grandParentIndex = parentReport.itemLineages!![parentRowNum].parentIndex
                 val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
-                val grandParentOriginReportId = parentReport.itemLineages!![parentRowNum].originReportId
-                val grandParentOriginIndex = parentReport.itemLineages!![parentRowNum].originReportIndex
+                val originReportId = parentReport.itemLineages!![parentRowNum].originReportId
+                val originIndex = parentReport.itemLineages!![parentRowNum].originReportIndex
                 return ItemLineage(
                     null,
                     grandParentReportId,
@@ -1431,31 +1425,17 @@ class Report : Logging {
                     null,
                     null,
                     itemHash,
-                    grandParentOriginReportId,
-                    grandParentOriginIndex
-                )
-            } else if (parentReport.parentItemLineages != null) {
-                // a parent's parentItemLineage will be the grandparent
-                val grandParentOriginReportId = parentReport.parentItemLineages!![parentRowNum].originReportId
-                val grandParentOriginIndex = parentReport.parentItemLineages!![parentRowNum].originReportIndex
-                val trackingElementValue =
-                    parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
-                return ItemLineage(
-                    null,
-                    parentReport.id,
-                    parentIndex,
-                    childReport.id,
-                    childIndex,
-                    trackingElementValue,
-                    null,
-                    null,
-                    itemHash,
-                    grandParentOriginReportId,
-                    grandParentOriginIndex
+                    originReportId,
+                    originIndex
                 )
             } else {
                 val trackingElementValue =
                     parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
+
+                val lineages = WorkflowEngine().fetchItemLineagesForReport(parentReport)
+                val originReportId = if (lineages != null) lineages[parentRowNum].originReportId else parentReport.id
+                val originReportIndex = if (lineages != null) lineages[parentRowNum].originReportIndex else parentIndex
+
                 return ItemLineage(
                     null,
                     parentReport.id,
@@ -1466,8 +1446,8 @@ class Report : Logging {
                     null,
                     null,
                     itemHash,
-                    parentReport.id,
-                    parentIndex,
+                    originReportId,
+                    originReportIndex,
                 )
             }
         }

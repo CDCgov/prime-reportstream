@@ -298,18 +298,12 @@ class DeliveryFacadeTests {
         )
 
         every {
-            mockDeliveryAccess.fetchBulkFacilityList(
-                any(),
-                any(),
-                any(),
-            )
+            mockDeliveryAccess.fetchBulkDeliveryFacilities(any())
         } returns facilities
 
         // Happy path
-        val result = facade.findDeliveryFacilitiesBulk(
-            listOf(ReportId.fromString(reportId)),
-            HistoryDatabaseAccess.SortDir.DESC,
-            DatabaseDeliveryAccess.FacilitySortColumn.NAME,
+        val result = facade.findBulkDeliveryFacilities(
+            listOf(ReportId.fromString(reportId))
         )
 
         assertThat(facilities.first().testingLabName).isEqualTo(result.first().testingLabName)

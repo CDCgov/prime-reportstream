@@ -132,8 +132,6 @@ class BatchFunction(
                             val report = workflowEngine.createReport(it)
                             // todo replace the use of task.reportId with info from ReportFile.
                             actionHistory.trackExistingInputReport(it.task.reportId)
-
-                            report.parentItemLineages = workflowEngine.fetchParentItemLineages(report)
                             report
                         }
                         val mergedReports = when {

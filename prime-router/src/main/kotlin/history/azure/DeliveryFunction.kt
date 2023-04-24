@@ -16,6 +16,9 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 
 /**
  * Deliveries API
@@ -216,19 +219,46 @@ class DeliveryFunction(
             name = "getDeliveryFacilitiesBulk",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/facilities"
+            route = "waters/report/{receiver}/facilities"
         ) request: HttpRequestMessage<String?>,
+        @BindingName("receiver") receiver: String
     ): HttpResponseMessage {
-        try {
-            return run {
-                val body = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
-                val reportIds = body.split(",").mapNotNull { ReportId.fromString(it) }
+        // Do authentication
+        val claims = AuthenticatedClaims.authenticate(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-                val facilities = deliveryFacade.findDeliveryFacilitiesBulk(
-                    reportIds,
-                    HistoryApiParameters(request.queryParameters).sortDir,
-                    FacilityListApiParameters(request.queryParameters).sortColumn
-                )
+        val userOrgName = this.validateOrgSvcName(receiver)
+            ?: return HttpUtilities.notFoundResponse(
+                request,
+                "$receiver: invalid organization or service identifier"
+            )
+
+        // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
+        if (!deliveryFacade.checkAccessAuthorizationForOrg(claims, userOrgName, null, request)) {
+            logger.warn(
+                "Invalid Authorization for user ${claims.userName}:" +
+                    " ${request.httpMethod}:${request.uri.path}." +
+                    " ERR: Claims scopes are ${claims.scopes} but client id is $userOrgName"
+            )
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
+        logger.info(
+            "Authorized request by org ${claims.scopes} to getList on organization $userOrgName."
+        )
+        try {
+            // need the reportIds to do authentication
+            val body = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
+            val reportIds = body.split(",").mapNotNull { ReportId.fromString(it) }
+
+            // Do authentication on all reports to be fetched
+            // @todo how expensive is it to check auth for every report in the body?
+            for (id in reportIds) {
+                val authResult = this.authSingleBlocks(request, id.toString())
+                if (authResult != null) return authResult
+            }
+
+            return run {
+                val facilities = deliveryFacade.findBulkDeliveryFacilities(reportIds)
 
                 HttpUtilities.okResponse(
                     request,
