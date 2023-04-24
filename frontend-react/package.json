@@ -81,6 +81,7 @@
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
         "storybook": "npm-run-all -p watch-scss storybook:start",
+        "storybook:start": "start-storybook -p 6006",
         "build-storybook": "npm-run-all -p compile-scss-prod && build-storybook"
     },
     "browserslist": {
