@@ -104,13 +104,13 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-#      schemaName: metadata/fhir_transforms/default-sender-transform
+      #      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-#      schemaName: metadata/fhir_transforms/default-sender-transform
+      #      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -193,7 +193,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -826,9 +826,9 @@
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')" ]
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
-      # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
-      # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
-      # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
+        # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
+        # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
+        # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
         # Every order has at least an order-test-date (ORC-15), specimen_collection_date_time (SPM-17-1, OBR-7, OBR-8, OBX-14) or test-result-date (OBX-19)
         - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
@@ -855,7 +855,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"

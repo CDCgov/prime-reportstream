@@ -1,7 +1,6 @@
 # To submit this to staging, run:
 # ./prime login --env staging
 # ./prime multiple-settings set --env staging --input ./settings/staging/0149-etor.yml
-
 #
 # Then add keys to it, as needed, like this:
 #  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
@@ -37,7 +36,7 @@
       topic: full-elr
       customerStatus: active
       format: FHIR
-      schemaName: "metadata/fhir_transforms/STLTs/Flexion/TrustedIntermediaryLabOrder"
+      schemaName: "metadata/fhir_transforms/senders/Flexion/TrustedIntermediaryLabOrder"
   receivers:
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
@@ -57,8 +56,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        # THIS WAS schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
-        schemaName: "metadata/hl7_mapping/STLTs/Flexion/TrustedIntermediaryLabOrder"
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TrustedIntermediaryLabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -80,7 +78,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
