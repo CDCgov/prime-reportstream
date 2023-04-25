@@ -282,7 +282,7 @@ describe("ManagePublicKey", () => {
             expect(
                 screen.getByText("Key could not be submitted")
             ).toBeVisible();
-            await userEvent.click(screen.getByText("Try Again"));
+            await userEvent.click(screen.getByText("Try again"));
 
             expect(screen.getByText("Drag file here or")).toBeVisible();
         });
