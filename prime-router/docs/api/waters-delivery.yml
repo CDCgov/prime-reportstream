@@ -150,6 +150,41 @@ paths:
           description: unauthorized
         '404':
           description: report does not exist
+  /waters/report/{receiver}/facilities:
+    post:
+      operationId: getBulkDeliveryFacilities
+      summary: Get facilities for a list of given reports
+      description: Retrieve the list of facilities for one or more reports
+      security:
+        - OAuth2: [ user ]
+        - Server2Server: []
+      parameters:
+        - name: receiver
+          in: path
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of ReportIds for the reports being checked
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: an array of facilities in the reports
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilitiesList'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: reports do not exist
 components:
   securitySchemes:
     OAuth2:
