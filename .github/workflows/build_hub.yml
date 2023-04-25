@@ -180,7 +180,7 @@ jobs:
           false
 
   docker_build_test:
-    name: Docker Build & CodeQl analysis
+    name: Docker Build, CodeQl analysis and SonarCloud
     runs-on: ubuntu-latest
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
@@ -195,6 +195,8 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        with:
+          fetch-depth: 0
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
@@ -218,6 +220,19 @@ jobs:
 
       - name: Perform Java CodeQL Analysis
         uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+      - name: "Run SonarCloud Scan"
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/main/kotlin/cli/tests/**
+            -Dsonar.sources=prime-router/src
+            -Dsonar.projectKey=CDCgov_prime-data-hub
+            -Dsonar.organization=cdcgov
+            -Dsonar.skipUnchanged=false
+            -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
