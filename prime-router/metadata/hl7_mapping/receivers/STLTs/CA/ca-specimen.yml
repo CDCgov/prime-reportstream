@@ -12,7 +12,7 @@ elements:
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
       identifier: '%diagnostic.identifier[0].value'
-    schema: ../../common/organization-identifier
+    schema: ../../../common/organization-identifier
 
   # Same as above
   - name: ca-specimen-organization-identifier-2
@@ -20,7 +20,7 @@ elements:
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
       identifier: '%diagnostic.identifier[0].value'
-    schema: ../../common/organization-identifier
+    schema: ../../../common/organization-identifier
 
   #####################################
   # California    specific transforms #
