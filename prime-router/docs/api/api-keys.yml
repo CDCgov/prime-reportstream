@@ -8,6 +8,41 @@ info:
     email: reportstream@cdc.gov
   version: 0.2.0-oas3
 paths:
+  /settings/organizations/{organizationName}/public-keys/{scope}/{kid}:
+    delete:
+      description: Deletes a key
+      security:
+        - OAuth2: [ org_admin, system_admin ]
+      parameters:
+        - in: path
+          schema:
+            type: string
+          required: true
+          name: organizationName
+          description: The name of the organization
+        - in: path
+          schema:
+            type: string
+          required: true
+          name: scope
+          description: The scope the key to be deleted is associated with
+        - in: path
+          schema:
+            type: string
+          required: true
+          name: kid
+          description: The unique identifier of the key to be deleted
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeysResponse'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
   /settings/organizations/{organizationName}/public-keys:
     get:
       description: Retrieves all of the API public keys for the organization
@@ -29,6 +64,8 @@ paths:
                 $ref: '#/components/schemas/ApiKeysResponse'
         '401':
           description: Unauthorized
+        '400':
+          description: Bad Request
         '404':
           description: Not Found
     post:
