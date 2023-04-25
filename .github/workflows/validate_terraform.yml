@@ -1,17 +1,13 @@
 name: Terraform Validation
 
 on: 
-  push: 
-    branches:
-      - feature/fix-CKV2_AZURE_33-checkov-error
-
-  #  pull_request:
-  #    branches:
-  #      - production
-  #      - master
-  #      - test
-  #    paths:
-  #      - '**.tf'
+   pull_request:
+     branches:
+       - production
+       - master
+       - test
+     paths:
+       - '**.tf'
 
 jobs:
   pre_job:
