@@ -11,6 +11,10 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -21,6 +25,13 @@ class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns metadata
+    }
 
     @Test
     fun `test merge`() {

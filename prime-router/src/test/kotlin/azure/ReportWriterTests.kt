@@ -17,8 +17,11 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
@@ -32,6 +35,13 @@ class ReportWriterTests {
         receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
     private val comparison = ByteArrayOutputStream()
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
+    }
 
     /**
      * Compare and assert the output of most test cases in this file

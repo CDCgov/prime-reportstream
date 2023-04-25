@@ -16,6 +16,7 @@ import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -317,6 +318,9 @@ class SubmissionReceiverTests {
         every { timing1.numberPerDay } returns 1
         every { timing1.maxReportCount } returns 1
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     /** companion object tests **/

@@ -3,15 +3,17 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import assertk.assertions.support.expected
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
@@ -42,6 +44,13 @@ class CsvFileTests {
         settings = FileSettings()
         loadTestOrganizations(settings)
         csvSerializer = CsvSerializer(metadata)
+    }
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test

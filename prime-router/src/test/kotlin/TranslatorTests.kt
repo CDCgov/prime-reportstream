@@ -6,6 +6,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -113,6 +117,13 @@ class TranslatorTests {
     """.trimIndent()
 
     private val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a")))
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
+    }
 
     @Test
     fun `test filterOutNegativeAntigenTestUsingQualityFilter`() {
@@ -375,6 +386,7 @@ class TranslatorTests {
         val rcvr = settings.findReceiver("phd1.elr")
         assertThat(rcvr).isNotNull()
         assertThat(org).isNotNull()
+
         // Juris filter keeps data where on a == 1.  Run with logging on, to force creation of [filteringResults].
         translator.filterByOneFilterType(
             table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
