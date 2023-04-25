@@ -12,7 +12,7 @@ resource "azurerm_function_app_slot" "candidate" {
   resource_group_name        = var.resource_group
   app_service_plan_id        = var.app_service_plan
   storage_account_name       = "${var.resource_prefix}candidate"
-  storage_account_access_key = var.primary_access_key
+  storage_account_access_key = var.candidate_access_key
   https_only                 = true
   os_type                    = "linux"
   version                    = var.function_runtime_version
