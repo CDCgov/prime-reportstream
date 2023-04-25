@@ -651,7 +651,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
-        var response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
+        var response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
@@ -666,7 +666,7 @@ class DeliveryFunctionTests : Logging {
         reportFile.reportId = UUID.fromString(goodUuid)
 
         every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
-        response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
+        response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
@@ -676,7 +676,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
 
         mockRequest.parameters["sortDir"] = "ASC"
-        response = function.getDeliveryFacilitiesBulk(mockRequest, receiverName)
+        response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
@@ -694,7 +694,7 @@ class DeliveryFunctionTests : Logging {
 
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
-        response = function.getDeliveryFacilitiesBulk(notFoundMockRequest, receiverName)
+        response = function.getBulkDeliveryFacilities(notFoundMockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // empty UUID, Not found
@@ -705,7 +705,7 @@ class DeliveryFunctionTests : Logging {
         )
         action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
-        response = function.getDeliveryFacilitiesBulk(emptyMockRequest, receiverName)
+        response = function.getBulkDeliveryFacilities(emptyMockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
     }
 }
