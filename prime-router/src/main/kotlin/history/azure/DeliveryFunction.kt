@@ -214,10 +214,10 @@ class DeliveryFunction(
      * @param request HTML request body.
      * @return JSON of the facility list or errors.
      */
-    @FunctionName("getDeliveryFacilitiesBulk")
-    fun getDeliveryFacilitiesBulk(
+    @FunctionName("getBulkDeliveryFacilities")
+    fun getBulkDeliveryFacilities(
         @HttpTrigger(
-            name = "getDeliveryFacilitiesBulk",
+            name = "getBulkDeliveryFacilities",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{receiver}/facilities"
