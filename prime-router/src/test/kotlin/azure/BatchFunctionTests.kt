@@ -134,13 +134,13 @@ class BatchFunctionTests {
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
         every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
-        every { HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any()) } returns
+        every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any()) } returns
             Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
             BlobAccess.Companion.downloadBlob(any())
-            HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any())
+            Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
 
@@ -162,13 +162,13 @@ class BatchFunctionTests {
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
         every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
-        every { HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any()) } returns
+        every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any()) } returns
             Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
             BlobAccess.Companion.downloadBlob(any())
-            HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any())
+            Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
 
@@ -190,7 +190,7 @@ class BatchFunctionTests {
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
         every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
-        every { HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any()) } returns
+        every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any()) } returns
             Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
         every { HL7MessageHelpers.batchMessages(any(), receiver) } returns "batchstring"
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
@@ -199,7 +199,7 @@ class BatchFunctionTests {
             BlobAccess.Companion.downloadBlob(any())
         }
         verify(exactly = 1) {
-            HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any())
+            Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any())
             HL7MessageHelpers.batchMessages(any(), receiver)
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
@@ -221,12 +221,12 @@ class BatchFunctionTests {
         clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers)
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
-        every { HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any()) } returns
+        every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any()) } returns
             Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
         every { HL7MessageHelpers.batchMessages(any(), receiver) } returns "batchstring"
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 1) {
-            HL7MessageHelpers.takeHL7GetReport(any(), any(), any(), any(), any(), any())
+            Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any())
             HL7MessageHelpers.batchMessages(any(), receiver)
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }

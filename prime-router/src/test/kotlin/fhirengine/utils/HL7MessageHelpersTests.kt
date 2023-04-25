@@ -176,13 +176,13 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
 
         // First test error conditions
         assertThat {
-            HL7MessageHelpers.takeHL7GetReport(
+            Report.generateReportAndUploadBlob(
                 Event.EventAction.PROCESS, hl7MockData, emptyList(), receiver, mockMetadata, mockActionHistory
             )
         }.isFailure()
 
         assertThat {
-            HL7MessageHelpers.takeHL7GetReport(
+            Report.generateReportAndUploadBlob(
                 Event.EventAction.PROCESS, "".toByteArray(), listOf(ReportId.randomUUID()), receiver,
                 mockMetadata, mockActionHistory
             )
@@ -198,7 +198,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
             BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray())
 
         var reportIds = listOf(ReportId.randomUUID())
-        val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
         )
         unmockkObject(BlobAccess)
@@ -221,7 +221,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
             )
         } returns
             BlobAccess.BlobInfo(Report.Format.HL7_BATCH, "someurl", "digest".toByteArray())
-        val (report2, event2, _) = HL7MessageHelpers.takeHL7GetReport(
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
             Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
         )
         unmockkObject(BlobAccess.Companion)
