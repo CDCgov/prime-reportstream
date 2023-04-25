@@ -12,10 +12,6 @@ locals {
       secret = "https://foo.local",
       vault  = azurerm_key_vault.init["keyvault"]
     },
-    pagerduty-businesshours-url = {
-      secret = "https://foo.local",
-      vault  = azurerm_key_vault.init["keyvault"]
-    },
     hhsprotect-ip-ingress = {
       secret = "54.211.46.158,54.145.176.199",
       vault  = azurerm_key_vault.init["keyvault"]

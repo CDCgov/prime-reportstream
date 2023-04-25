@@ -75,14 +75,14 @@ class FhirTranslatorTests {
                 "co-phd",
                 Topic.TEST,
                 CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/STLTs/CO/CO"
+                "metadata/hl7_mapping/receivers/STLTs/CO/CO"
             ),
             Receiver(
                 "elr",
                 "co-phd",
                 Topic.TEST,
                 CustomerStatus.INACTIVE,
-                "metadata/hl7_mapping/STLTs/CO/CO",
+                "metadata/hl7_mapping/receivers/STLTs/CO/CO",
                 Report.Format.CSV,
                 null,
                 null,
