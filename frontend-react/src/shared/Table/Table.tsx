@@ -3,7 +3,7 @@ import sanitizeHtml from "sanitize-html";
 import { useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { removeHTMLFromString } from "../../../utils/misc";
+import { removeHTMLFromString } from "../../utils/misc";
 
 import styles from "./Table.module.scss";
 
@@ -113,8 +113,6 @@ function sortTableData(
               const contentColB = convertToSortable(
                   b.find((item) => item.columnKey === activeColumn)
               );
-              console.log("contentColA = ", contentColA);
-              console.log("contentColB = ", contentColB);
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
