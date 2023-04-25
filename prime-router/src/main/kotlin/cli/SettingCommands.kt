@@ -33,6 +33,7 @@ import de.m3y.kformat.table
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
@@ -301,23 +302,30 @@ abstract class SettingCommand(
      * Difference the YAML [inputFile]. Returns a list of all settings with differences.
      */
     protected fun diffAll(inputFile: File): List<SettingsDiff> {
-        val deepOrganizations = readYaml(inputFile)
+        return diffAll(readYaml(inputFile))
+    }
+
+    protected fun diffAll(
+        deepOrganizations: List<DeepOrganization>,
+        env: Environment = environment,
+        accessToken: String = oktaAccessToken
+    ): List<SettingsDiff> {
         val settingsDiff = mutableListOf<SettingsDiff>()
         // diff organizations
         deepOrganizations.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-            settingsDiff += diff(environment, oktaAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+            settingsDiff += diff(env, accessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
         }
         // diff senders
         deepOrganizations.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-            settingsDiff += diff(environment, oktaAccessToken, SettingType.SENDER, sender.fullName, payload)
+            settingsDiff += diff(env, accessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // diff receivers
         deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-            settingsDiff += diff(environment, oktaAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+            settingsDiff += diff(env, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return settingsDiff.sortedWith(compareBy({ it.settingType.name }, { it.settingName }))
     }
@@ -351,23 +359,30 @@ abstract class SettingCommand(
      * Put all the in the [inputFile]. Return the list of results.
      */
     protected fun putAll(inputFile: File): List<String> {
-        val deepOrganizations = readYaml(inputFile)
+        return putAll(readYaml(inputFile))
+    }
+
+    protected fun putAll(
+        deepOrganizations: List<DeepOrganization>,
+        env: Environment = environment,
+        accessToken: String = oktaAccessToken
+    ): List<String> {
         val results = mutableListOf<String>()
         // Put organizations
         deepOrganizations.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
-            results += put(environment, oktaAccessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
+            results += put(env, accessToken, SettingType.ORGANIZATION, deepOrg.name, payload)
         }
         // Put senders
         deepOrganizations.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
-            results += put(environment, oktaAccessToken, SettingType.SENDER, sender.fullName, payload)
+            results += put(env, accessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
         deepOrganizations.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
-            results += put(environment, oktaAccessToken, SettingType.RECEIVER, receiver.fullName, payload)
+            results += put(env, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results
     }
@@ -822,7 +837,9 @@ class MultipleSettings : CliktCommand(
     name = "multiple-settings",
     help = "Fetch and update multiple settings"
 ) {
-    init { subcommands(PutMultipleSettings(), GetMultipleSettings(), DiffMultipleSettings()) }
+    init {
+        subcommands(PutMultipleSettings(), GetMultipleSettings(), DiffMultipleSettings())
+    }
 
     override fun run() {
         // Does not run at this level
@@ -929,13 +946,36 @@ class GetMultipleSettings : SettingCommand(
         metavar = "<filter>"
     )
 
+    val load by option(
+        "-l", "--load-local",
+        help = "Load settings to local database. You will have the chance to approve or decline a diff."
+    ).flag(default = false)
+
+    val addToOrgs by option(
+        "-a", "--add-to-orgs",
+        help = "Append results to organizations.yml file."
+    ).flag(default = false)
+
+    private val localTransport = SFTPTransportType(
+        host = "sftp",
+        port = "22",
+        filePath = "./upload",
+        credentialName = "DEFAULT-SFTP"
+    )
+
     override fun run() {
         checkApi(environment)
         val output = getAll(environment, oktaAccessToken)
-        writeOutput(output)
+        // Write out the settings exactly as retrieved
+        echo("Outputting original settings...")
+        writeOutput(yamlMapper.writeValueAsString(output))
+        // Handle load option.
+        if (load) {
+            loadSettings(output)
+        }
     }
 
-    private fun getAll(environment: Environment, accessToken: String): String {
+    private fun getAll(environment: Environment, accessToken: String): List<DeepOrganization> {
         // get organizations
         val organizationJson = getMany(environment, accessToken, SettingType.ORGANIZATION, settingName = "")
         var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationAPI>::class.java)
@@ -944,13 +984,50 @@ class GetMultipleSettings : SettingCommand(
         }
 
         // get senders and receivers per org
-        val deepOrganizations = organizations.map { org ->
+        return organizations.map { org ->
             val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
             val orgSenders = jsonMapper.readValue(sendersJson, Array<Sender>::class.java).map { it.makeCopy() }
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
         }
-        return yamlMapper.writeValueAsString(deepOrganizations)
+    }
+
+    private fun loadSettings(settings: List<DeepOrganization>) {
+        // Change transports to SFTP
+        val modifiedOrgs = settings.map { org ->
+            val modifiedReceivers = org.receivers.map {
+                Receiver(
+                    it.name,
+                    it.organizationName,
+                    it.topic,
+                    it.customerStatus,
+                    it.translation,
+                    it.jurisdictionalFilter,
+                    it.qualityFilter,
+                    it.routingFilter,
+                    it.processingModeFilter,
+                    it.reverseTheQualityFilter,
+                    it.conditionFilter,
+                    it.deidentify,
+                    it.deidentifiedValue,
+                    it.timing,
+                    it.description,
+                    localTransport,
+                    it.externalName,
+                    it.timeZone,
+                    it.dateTimeFormat
+                )
+            }
+            DeepOrganization(org, org.senders, modifiedReceivers)
+        }
+        val differences = diffAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
+        if (differences.isNotEmpty()) {
+            echoDiff(differences)
+            confirm()
+        }
+        val output = putAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
+        echo("Loaded settings to local DB:")
+        echo("${output.joinToString("\n")}\n")
     }
 }
