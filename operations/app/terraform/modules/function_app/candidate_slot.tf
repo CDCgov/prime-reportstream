@@ -109,7 +109,6 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
     "Get",
   ]
 }
-
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
   slot_name      = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
