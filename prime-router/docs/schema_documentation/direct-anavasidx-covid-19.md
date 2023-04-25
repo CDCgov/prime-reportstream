@@ -1583,7 +1583,7 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **Format**: use value found in the Code column
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 

@@ -1,6 +1,6 @@
 constants:
   hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
-  performerOrganization: '%diagnostic[%orderIndex].basedOn.resolve().performer.resolve()'
+  performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
 elements:
   - name: specimen-set-id
     value: [ '"1"' ]

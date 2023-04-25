@@ -231,7 +231,7 @@ class GetFilterTests {
         val filters = engine.getQualityFilters(receiverNoFilters, emptyList())
 
         // assert
-        assert(filters.isEmpty())
+        assert(filters === engine.qualityFilterDefault)
     }
 
     @Test
@@ -339,7 +339,7 @@ class GetFilterTests {
         val filters = engine.getProcessingModeFilter(receiverNoFilters, emptyList())
 
         // assert
-        assert(filters.isEmpty())
+        assert(filters === engine.processingModeFilterDefault)
     }
 
     @Test
