@@ -16,3 +16,9 @@
 ALTER TABLE item_lineage
     ADD origin_report_id UUID NULL,
     ADD origin_report_index INT NULL;
+
+ALTER TABLE IF EXISTS public.item_lineage
+    ADD CONSTRAINT item_lineage_origin_report_id_fkey FOREIGN KEY (origin_report_id)
+    REFERENCES public.report_file (report_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE;
