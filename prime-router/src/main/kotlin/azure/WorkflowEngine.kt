@@ -705,13 +705,6 @@ class WorkflowEngine(
     }
 
     /**
-     * Fetch the ItemLineages that match the parent of a given [report]
-     */
-    fun fetchItemLineagesForReport(report: Report): List<ItemLineage>? {
-        return db.fetchItemLineagesForReport(report.id, report.itemCount)
-    }
-
-    /**
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {

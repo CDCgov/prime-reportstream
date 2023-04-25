@@ -1294,7 +1294,7 @@ class Report : Logging {
     /**
      * Static functions for use in modifying and manipulating reports.
      */
-    companion object {
+    companion object : Logging {
         private const val patient_dob_column_name = "patient_dob"
         private const val patient_age_column_name = "patient_age"
         private const val patient_zip_column_name = "patient_zip_code"
@@ -1432,7 +1432,11 @@ class Report : Logging {
                 val trackingElementValue =
                     parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
 
-                val lineages = WorkflowEngine().fetchItemLineagesForReport(parentReport)
+                logger.info("Loading lineages from within Report.kt")
+                val lineages = WorkflowEngine().db.fetchItemLineagesForReport(parentReport.id, parentReport.itemCount)
+
+                // lineages may be null if there is no lineage data yet (e.g. the initial report submission)
+                // in these situations we assume the parent is the origin
                 val originReportId = if (lineages != null) lineages[parentRowNum].originReportId else parentReport.id
                 val originReportIndex = if (lineages != null) lineages[parentRowNum].originReportIndex else parentIndex
 
