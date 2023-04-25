@@ -190,13 +190,15 @@
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       qualityFilter:
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+      processingModeFilter:
+            - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/STLTs/CO/CO"
-        useTestProcessingMode: false
+#        useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
         receivingApplicationName: "CO-ELR"
