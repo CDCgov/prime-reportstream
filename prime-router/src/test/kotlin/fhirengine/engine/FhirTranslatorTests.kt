@@ -61,7 +61,8 @@ class FhirTranslatorTests {
                 "co-phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
-                "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+                "metadata/hl7_mapping/ORU_R01/ORU_R01-base",
+                format = Report.Format.HL7_BATCH,
             )
         )
     )

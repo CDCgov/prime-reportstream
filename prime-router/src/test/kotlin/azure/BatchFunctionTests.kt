@@ -106,6 +106,7 @@ class BatchFunctionTests {
         val mockEvent = mockk<Event>()
         mockkObject(BlobAccess)
         mockkObject(HL7MessageHelpers)
+        mockkObject(Report)
 
         val batchFunction = BatchFunction(mockWorkflowEngine)
 
@@ -157,7 +158,7 @@ class BatchFunctionTests {
                 Receiver.BatchOperation.MERGE, whenEmpty = Receiver.WhenEmpty(Receiver.EmptyOperation.NONE)
             )
         )
-        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers)
+        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers, Report)
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
@@ -185,7 +186,7 @@ class BatchFunctionTests {
                 Receiver.BatchOperation.MERGE, whenEmpty = Receiver.WhenEmpty(Receiver.EmptyOperation.NONE)
             )
         )
-        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers)
+        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers, Report)
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
@@ -218,7 +219,7 @@ class BatchFunctionTests {
                 Receiver.BatchOperation.MERGE, whenEmpty = Receiver.WhenEmpty(Receiver.EmptyOperation.SEND)
             )
         )
-        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers)
+        clearMocks(mockWorkflowEngine, mockActionHistory, BlobAccess, HL7MessageHelpers, Report)
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any()) } returns
