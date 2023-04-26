@@ -1,10 +1,14 @@
 name: 'Dependency Review'
 # on: [pull_request]
-on:
-  workflow_dispatch:
-    push: 
-      branches:
-        - feature/8972-dependency_review
+on: 
+  push:
+    branches: 
+     - master
+     - production
+  pull_request:
+    branches: 
+     - master
+     - feature/8972-dependency_review
 permissions:
   contents: read
 
