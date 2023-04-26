@@ -5,11 +5,13 @@ on:
     branches: 
      - master
      - production
+     - feature/8972-dependency_review
   pull_request:
     branches: 
      - master
-     - feature/8972-dependency_review
+
 permissions:
+  actions: read
   contents: read
 
 jobs:
