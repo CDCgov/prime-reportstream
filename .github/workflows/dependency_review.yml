@@ -24,4 +24,4 @@ jobs:
         uses: actions/dependency-review-action@v3
         with:
           base-ref: master
-          head-ref: 8972-dependency_review
+          head-ref: feature/8972-dependency_review
