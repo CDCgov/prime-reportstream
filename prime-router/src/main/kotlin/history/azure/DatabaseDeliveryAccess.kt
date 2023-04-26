@@ -147,6 +147,7 @@ class DatabaseDeliveryAccess(
 
     /**
      * Get a list of matching delivery facilities for a set of [reportIds]
+     * @link https://github.com/CDCgov/prime-reportstream/issues/9272
      */
     fun fetchBulkDeliveryFacilities(
         reportIds: List<ReportId>
