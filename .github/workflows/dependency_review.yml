@@ -23,4 +23,5 @@ jobs:
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v3
         with:
-          base-ref/head-ref: master
+          base-ref: master
+          head-ref: 8972-dependency_review
