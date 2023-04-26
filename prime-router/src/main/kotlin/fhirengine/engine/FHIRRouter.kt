@@ -254,18 +254,8 @@ class FHIRRouter(
                     emptyList()
                 )
 
-                // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyBytes,
-                    report.name,
-                    message.blobSubFolderName,
-                    nextEvent.eventAction
-                )
-
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
+                actionHistory.trackCreatedReport(nextEvent, report, null)
 
                 // nullify the previous task next_action
                 db.updateTask(
