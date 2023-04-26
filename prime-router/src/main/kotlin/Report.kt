@@ -1432,7 +1432,7 @@ class Report : Logging {
                 val trackingElementValue =
                     parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
 
-                logger.info("Loading lineages from within Report.kt")
+                logger.info("Loading lineages for report ${parentReport.id}")
                 val lineages = WorkflowEngine().db.fetchItemLineagesForReport(parentReport.id, parentReport.itemCount)
 
                 // lineages may be null if there is no lineage data yet (e.g. the initial report submission)
