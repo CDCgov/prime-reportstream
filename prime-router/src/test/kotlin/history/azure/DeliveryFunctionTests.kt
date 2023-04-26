@@ -647,6 +647,7 @@ class DeliveryFunctionTests : Logging {
         action.actionId = 550
         action.sendingOrg = organizationName
         action.actionName = TaskAction.batch
+        action.receivingOrgSvc = "elr-secondary"
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
@@ -687,15 +688,16 @@ class DeliveryFunctionTests : Logging {
 
         // bad UUID, Not found
         val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
         val notFoundMockRequest = MockHttpRequestMessage(
             JSON.json(listOf(badUUID).toString()).toString(),
             HttpMethod.POST
         )
 
         action.actionName = TaskAction.receive
-        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
         response = function.getBulkDeliveryFacilities(notFoundMockRequest, receiverName)
-        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
 
         // empty UUID, Not found
         val emptyUUID = ""
