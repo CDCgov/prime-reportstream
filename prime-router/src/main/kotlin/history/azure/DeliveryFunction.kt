@@ -256,10 +256,13 @@ class DeliveryFunction(
 
             if (reportIds.isEmpty()) return HttpUtilities.bad(request, "No reportIds provided")
 
-            // @todo how expensive is it to check auth for every report in the body?
-            reportIds.forEach {
-                val authResult = this.authSingleBlocks(request, it.toString())
-                if (authResult != null) return authResult
+            val allReportsAreForOrg: Boolean = reportIds.all {
+                val report = deliveryFacade.fetchActionForReportId(it)
+                report?.receivingOrgSvc == receivingOrgSvc
+            }
+
+            if (!allReportsAreForOrg) {
+                return HttpUtilities.bad(request, "An invalid reportId was detected")
             }
 
             return run {
@@ -334,9 +337,5 @@ class DeliveryFunction(
         val clia: String?,
         val positive: Long?,
         val total: Long?
-    )
-
-    data class ReportIdList(
-        val reportIds: List<ReportId>
     )
 }
