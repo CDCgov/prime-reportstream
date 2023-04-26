@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, CardGroup } from "@trussworks/react-uswds";
+import { Card, CardHeader, CardBody, CardGroup, Icon } from "@trussworks/react-uswds";
 
 <div class="rs-hero__index">
     # Resources 
@@ -25,6 +25,7 @@ import { Card, CardHeader, CardBody, CardGroup } from "@trussworks/react-uswds";
             Information about the ReportStream platform, including data storage, configuration, formatting, transport.
             </CardBody>
         </Card>
+        
     </CardGroup>
 
     ## For testing facilities
@@ -45,6 +46,24 @@ import { Card, CardHeader, CardBody, CardGroup } from "@trussworks/react-uswds";
             </CardHeader>
             <CardBody>
                 Set up a connection to SUBMIT jurisdiction relevant disease data.
+            </CardBody>
+        </Card>
+
+        <Card gridLayout={{tablet: {col: 4}}}>
+            <CardHeader>
+                ### <a className="usa-link" href="/resources/manage-public-key">Manage your public key<Icon.Lock className="text-ttop" /></a>
+            </CardHeader>
+            <CardBody>
+            If you are using a private/public key pairing for your authentication, add your public key.
+            </CardBody>
+        </Card>
+
+        <Card gridLayout={{tablet: {col: 4}}}>
+            <CardHeader>
+                ### [ReportStream File Validator](/file-handler/validate)
+            </CardHeader>
+            <CardBody>
+            Check your file formatting as you prepare to send your data through ReportStream.
             </CardBody>
         </Card>
 
