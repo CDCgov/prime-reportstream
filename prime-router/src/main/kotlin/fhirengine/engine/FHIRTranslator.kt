@@ -75,8 +75,10 @@ class FHIRTranslator(
 
                     val bodyBytes = when (receiver.format) {
                         Report.Format.FHIR -> {
-                            val transformer = FhirTransformer(receiver.schemaName)
-                            transformer.transform(updatedBundle)
+                            if (receiver.schemaName.isNotEmpty()) {
+                                val transformer = FhirTransformer(receiver.schemaName)
+                                transformer.transform(updatedBundle)
+                            }
                             FhirContext.forR4().newJsonParser().encodeResourceToString(updatedBundle)
                                 .toByteArray()
                         }

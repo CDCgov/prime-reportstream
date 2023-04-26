@@ -234,7 +234,7 @@ class BatchFunction(
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format} found during batch")
             }
 
-            // get a Report from the hl7 message
+            // get a Report from the message
             val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
                 Event.EventAction.SEND,
                 batchMessage.toByteArray(),

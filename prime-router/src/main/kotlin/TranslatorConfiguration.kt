@@ -201,7 +201,7 @@ data class Hl7Configuration
  */
 data class FHIRConfiguration
 @JsonCreator constructor(
-    override val schemaName: String,
+    override val schemaName: String = "",
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("FHIR") {

@@ -1,17 +1,27 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import java.io.ByteArrayInputStream
+import java.util.UUID
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -884,6 +894,167 @@ class ReportTests {
         } catch (e: IllegalArgumentException) {
             assertThat(e).isNotNull()
         }
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob errors`() {
+        val mockActionHistory = mockk<ActionHistory>()
+
+        // No message body
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                "".toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                Metadata(),
+                mockActionHistory,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+
+        // No report ID
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(),
+                rcvr,
+                Metadata(),
+                mockActionHistory,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+
+        // Invalid receiver type
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                Metadata(),
+                mockActionHistory,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for hl7`() {
+        val mockMetadata = mockk<Metadata>() {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory>() {
+            every { trackCreatedReport(any(), any(), any()) } returns Unit
+        }
+        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null
+            )
+        )
+
+        // Now test single report
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.HL7, hl7MockData, any(), any(), Event.EventAction.PROCESS
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray())
+
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
+        )
+        unmockkObject(BlobAccess)
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).isEqualTo("someurl")
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.HL7_BATCH, hl7MockData, any(), any(), Event.EventAction.SEND
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.HL7_BATCH, "someurl", "digest".toByteArray())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
+        )
+        unmockkObject(BlobAccess)
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for fhir`() {
+        val mockMetadata = mockk<Metadata>() {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory>() {
+            every { trackCreatedReport(any(), any(), any()) } returns Unit
+        }
+        val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = FHIRConfiguration(receivingOrganization = null)
+        )
+
+        // Now test single report
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.FHIR, fhirMockData, any(), any(), Event.EventAction.PROCESS
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.FHIR, "someurl", "digest".toByteArray())
+
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory
+        )
+        unmockkObject(BlobAccess)
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).isEqualTo("someurl")
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.FHIR, fhirMockData, any(), any(), Event.EventAction.SEND
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.FHIR, "someurl", "digest".toByteArray())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory
+        )
+        unmockkObject(BlobAccess)
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
     }
 }
 
