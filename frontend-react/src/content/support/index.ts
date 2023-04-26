@@ -8,11 +8,8 @@ import {
     ContentDirectory,
     ElementDirectory,
 } from "../../components/Content/MarkdownDirectory";
-import {
-    Contact,
-    FaqPage,
-    ServiceRequest,
-} from "../../pages/support/index-legacy";
+import { Contact, ServiceRequest } from "../../pages/support/index-legacy";
+import { FaqPage } from "../../pages/support/faq/FaqPage";
 
 enum SupportTitles {
     CONTACT = "Contact",
