@@ -82,6 +82,7 @@ class FHIRConverter(
                 // create item lineage
                 bundleIndex++
 
+                // @todo originReport values need to be determined for UP
                 report.itemLineages = listOf(
                     ItemLineage(
                         null,
@@ -93,8 +94,8 @@ class FHIRConverter(
                         null,
                         null,
                         report.getItemHashForRow(1),
-                        message.reportId,
-                        bundleIndex,
+                        null,
+                        null,
                     )
                 )
 

@@ -169,6 +169,7 @@ class FHIRRouter(
             )
 
             // create item lineage
+            // @todo originReport values need to be determined for UP
             report.itemLineages = listOf(
                 ItemLineage(
                     null,
@@ -180,8 +181,8 @@ class FHIRRouter(
                     null,
                     null,
                     report.getItemHashForRow(1),
-                    message.reportId,
-                    1
+                    null,
+                    null
                 )
             )
 

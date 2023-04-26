@@ -53,6 +53,7 @@ object HL7MessageHelpers : Logging {
         )
 
         // create item lineage
+        // @todo originReport values need to be determined for UP
         report.itemLineages = sourceReportIds.mapIndexed { sourceIndex, sourceReportId ->
             ItemLineage(
                 null,
@@ -64,8 +65,8 @@ object HL7MessageHelpers : Logging {
                 null,
                 null,
                 "0", // Hash is only used for deduplication when receiving
-                sourceReportId,
-                1
+                null,
+                null
             )
         }
 
