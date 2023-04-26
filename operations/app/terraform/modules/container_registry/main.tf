@@ -1,5 +1,4 @@
 resource "azurerm_container_registry" "container_registry" {
-  #checkov:skip=CKV_AZURE_166:Quarantine feature untested
   name                = "${var.resource_prefix}containerregistry"
   resource_group_name = var.resource_group
   location            = var.location
