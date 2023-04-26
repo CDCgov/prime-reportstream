@@ -114,3 +114,4 @@ resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_
   app_service_id = azurerm_function_app.function_app.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[0]
 }
+
