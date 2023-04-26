@@ -1,0 +1,35 @@
+
+name: Release ChatOps App
+
+on:
+  push:
+    branches:
+      - josiahsiegel/import/chatops
+
+jobs:
+  build_chatops_app:
+    name: "Build ChatOps App"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/slack-boltjs-app
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        with:
+          submodules: true
+      - name: Build app
+        env:
+          SLACK_APP_TOKEN: ${{ secrets.CHATOPS_SLACK_APP_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.CHATOPS_SLACK_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CHATOPS_GITHUB_TOKEN }}
+          GITHUB_REPO: CDCgov/prime-reportstream
+          GITHUB_TARGET_BRANCHES: demo1,demo2,demo3,trialfrontend01,trialfrontend02,trialfrontend03
+        run: |
+          echo SLACK_APP_TOKEN=$SLACK_APP_TOKEN > .env
+          echo SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN >> .env
+          echo GITHUB_TOKEN=$GITHUB_TOKEN >> .env
+          echo GITHUB_REPO=$GITHUB_REPO >> .env
+          echo GITHUB_TARGET_BRANCHES=$GITHUB_TARGET_BRANCHES >> .env
+          docker build -t slack_boltjs_app -f Dockerfile.example .
+          docker run --env-file .env slack_boltjs_app
