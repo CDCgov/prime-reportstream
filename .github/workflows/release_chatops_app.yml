@@ -7,9 +7,26 @@ on:
       - josiahsiegel/import/chatops
 
 jobs:
+  pre_job:
+    name: "Set Build Environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: staging #${{ steps.build_vars.outputs.env_name }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
   build_chatops_app:
     name: "Build ChatOps App"
+    needs:
+      - pre_job
     runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: chatops
     defaults:
       run:
         working-directory: operations/slack-boltjs-app
@@ -18,6 +35,23 @@ jobs:
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
         with:
           submodules: true
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "ACR_NAME=pdh${{ needs.pre_job.outputs.env_name }}containerregistry.azurecr.io" >> $GITHUB_ENV
+          echo "IMAGE_REPO=chatops" >> $GITHUB_ENV
+
       - name: Build app
         env:
           SLACK_APP_TOKEN: ${{ secrets.CHATOPS_SLACK_APP_TOKEN }}
@@ -31,5 +65,10 @@ jobs:
           echo GITHUB_TOKEN=$GITHUB_TOKEN >> .env
           echo GITHUB_REPO=$GITHUB_REPO >> .env
           echo GITHUB_TARGET_BRANCHES=$GITHUB_TARGET_BRANCHES >> .env
-          docker build -t slack_boltjs_app -f Dockerfile.example .
-          docker run --env-file .env slack_boltjs_app
+          docker build -t slack_boltjs_app -f Dockerfile.example . \
+            --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest
+      - name: ACR login
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+          docker push ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest
+        shell: bash
