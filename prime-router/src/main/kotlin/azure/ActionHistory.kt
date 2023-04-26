@@ -516,7 +516,7 @@ class ActionHistory(
             reportFile.blobDigest = blobInfo.digest
             reportFile.itemCount = report.itemCount
         } else {
-            reportFile.bodyFormat = "FHIR" // currently only the UP sends null blobs
+            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
