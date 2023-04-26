@@ -38,6 +38,7 @@ import { FaqPage } from "./pages/support/faq/FaqPage";
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
     SUBMISSIONS = "Submissions",
+    SUPPORT = "Support",
     ADMIN = "Admin",
     UPLOAD = "Upload",
 }
