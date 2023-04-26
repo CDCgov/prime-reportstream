@@ -1,9 +1,10 @@
 ---
 name: Design issue template
 about: Standard template for design issues across ReportStream
-title: ""
-labels: "design"
-assignees: ""
+title: ''
+labels: design
+assignees: ''
+
 ---
 
 ## User story
