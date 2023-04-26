@@ -32,6 +32,46 @@ class ReportTests {
 
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
 
+    /**
+     * Create table's header
+     */
+    val oneWithAge = Schema(
+        name = "one",
+        topic = Topic.TEST,
+        elements = listOf(
+            Element("message_id"),
+            Element("patient_age"),
+            Element("specimen_collection_date_time"),
+            Element("patient_dob")
+        )
+    )
+
+    /**
+     * Add Rows values to the table
+     */
+    val oneReport = Report(
+        schema = oneWithAge,
+        values = listOf(
+            listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
+            // Bad age, good collect date, BAD DOB -> patient_age=null
+            listOf("1", ")@*", "202110300809-0501", "30300101"),
+            // Bad age, bad collect date, good dob -> patient_age=2
+            listOf("2", "_", "202110300809", "20190101"),
+            // Good age, bad collect date, bad dob -> patient_age=20
+            listOf("3", "20", "adfadf", "!@!*@(7"),
+            // Bad age, good collect date, good dob -> patient_age=2
+            listOf("4", "0", "202110300809-0500", "20190101"),
+            // Bad age, good collect data, good dob -> patient_age=10
+            listOf("5", "-5", "202110300809-0502", "20111029"),
+            // Good age, ... don't care -> patient_age = 40
+            listOf("6", "40", "asajh", "20190101"),
+            // Good age is blank, -> patient_age=null
+            listOf("7", "", "asajh", "20190101")
+        ),
+        TestSource,
+        metadata = metadata
+    )
+
     @Test
     fun `test merge`() {
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b")))
@@ -378,46 +418,6 @@ class ReportTests {
 
     @Test
     fun `test patient age validation`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one",
-            topic = Topic.TEST,
-            elements = listOf(
-                Element("message_id"),
-                Element("patient_age"),
-                Element("specimen_collection_date_time"),
-                Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
-                // Bad age, good collect date, BAD DOB -> patient_age=null
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                // Bad age, bad collect date, good dob -> patient_age=2
-                listOf("2", "_", "202110300809", "20190101"),
-                // Good age, bad collect date, bad dob -> patient_age=20
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                // Bad age, good collect date, good dob -> patient_age=2
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                // Bad age, good collect data, good dob -> patient_age=10
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                // Good age, ... don't care -> patient_age = 40
-                listOf("6", "40", "asajh", "20190101"),
-                // Good age is blank, -> patient_age=null
-                listOf("7", "", "asajh", "20190101")
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         assertThat(covidResultMetadata[0].patientAge).isEqualTo("100")
@@ -465,39 +465,6 @@ class ReportTests {
 
     @Test
     fun `test covid metadata output`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one",
-            topic = Topic.TEST,
-            elements = listOf(
-                Element("message_id"),
-                Element("patient_age"),
-                Element("specimen_collection_date_time"),
-                Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"),
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                listOf("2", "_", "202110300809", "20190101"),
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                listOf("6", "40", "asajh", "20190101"),
-                listOf("7", "", "asajh", "20190101")
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         // there should never be a report index of 0 in covid result metadata, row indexing should start at 1
