@@ -13,7 +13,7 @@
  * to remove the need to go up the tree to find relevant metadata for deliveries
  * see https://github.com/CDCgov/prime-reportstream/issues/8985
  */
-ALTER TABLE item_lineage
+ALTER TABLE IF EXISTS item_lineage
     ADD origin_report_id UUID NULL,
     ADD origin_report_index INT NULL;
 
