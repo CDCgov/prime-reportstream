@@ -34,6 +34,10 @@ import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetai
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
+import { Dashboard } from "./pages/dashboard/Dashboard";
+import { FacilitiesProviders } from "./pages/dashboard/facilities-providers/FacilitiesProviders";
+import { ReportDetails } from "./pages/dashboard/report-details/ReportDetails";
+import { FacilityProviderSubmitterDetails } from "./pages/dashboard/facilities-providers/FacilityProviderSubmitterDetails";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -41,6 +45,10 @@ export enum FeatureName {
     SUPPORT = "Support",
     ADMIN = "Admin",
     UPLOAD = "Upload",
+    FACILITY_PROVIDER_SUBMITTER_DETAILS = "Facility, provider & submitter details",
+    FACILITIES_PROVIDERS = "All facilities & providers",
+    DASHBOARD = "Dashboard",
+    REPORT_DETAILS = "Report Details",
 }
 
 export const appRoutes = [
@@ -78,6 +86,20 @@ export const appRoutes = [
     {
         path: "/submissions/:actionId",
         element: <SubmissionDetailsWithAuth />,
+    },
+    /* Dashboard pages */
+    { path: "/data-dashboard", element: <Dashboard /> },
+    {
+        path: "/data-dashboard/facilities-providers",
+        element: <FacilitiesProviders />,
+    },
+    {
+        path: "/data-dashboard/facilities-providers/:facilityProviderSubmitter",
+        element: <FacilityProviderSubmitterDetails />,
+    },
+    {
+        path: "/data-dashboard/report-details/:reportId",
+        element: <ReportDetails />,
     },
     /* Admin pages */
     { path: "/admin/settings", element: <AdminMainWithAuth /> },
