@@ -866,6 +866,7 @@ class ReportTests {
     @Test
     fun `test generateReportAndUploadBlob errors`() {
         val mockActionHistory = mockk<ActionHistory>()
+        val mockMetadata = mockk<Metadata>()
 
         // No message body
         assertThat {
@@ -874,7 +875,7 @@ class ReportTests {
                 "".toByteArray(),
                 listOf(UUID.randomUUID()),
                 rcvr,
-                Metadata(),
+                mockMetadata,
                 mockActionHistory,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
@@ -886,7 +887,7 @@ class ReportTests {
                 UUID.randomUUID().toString().toByteArray(),
                 listOf(),
                 rcvr,
-                Metadata(),
+                mockMetadata,
                 mockActionHistory,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
@@ -898,7 +899,7 @@ class ReportTests {
                 UUID.randomUUID().toString().toByteArray(),
                 listOf(UUID.randomUUID()),
                 rcvr,
-                Metadata(),
+                mockMetadata,
                 mockActionHistory,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
