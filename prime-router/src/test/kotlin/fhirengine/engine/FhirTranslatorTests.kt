@@ -362,7 +362,7 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
-        val engine = makeFhirEngine()
+        val engine = spyk(makeFhirEngine())
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -420,7 +420,7 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
-        val engine = makeFhirEngine(settings = settings)
+        val engine = spyk(makeFhirEngine(settings = settings))
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
