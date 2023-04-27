@@ -228,6 +228,22 @@ module "metabase" {
   subnets                = module.network.subnets
 }
 
+module "chatops" {
+  source                            = "../../modules/chatops"
+  environment                       = local.init.environment
+  resource_group                    = local.init.resource_group_name
+  resource_prefix                   = local.init.resource_prefix
+  location                          = local.init.location
+  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  container_registry_admin_password = module.container_registry.container_registry_admin_password
+  container_registry_login_server   = module.container_registry.container_registry_login_server
+  chatops_slack_bot_token           = data.azurerm_key_vault_secret.chatops_slack_bot_token.value
+  chatops_slack_app_token           = data.azurerm_key_vault_secret.chatops_slack_app_token.value
+  chatops_github_token              = data.azurerm_key_vault_secret.chatops_github_token.value
+  chatops_github_repo               = local.chatops.github_repo
+  chatops_github_target_branches    = local.chatops.github_target_branches
+}
+
 
 ##########
 ## 05-Monitor
