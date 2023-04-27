@@ -216,7 +216,7 @@ jobs:
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar -x test
+        run: ./gradlew package -x fatjar
 
       - name: Perform Java CodeQL Analysis
         uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
