@@ -93,9 +93,18 @@ class FhirTranslatorTests {
         )
     )
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
+    private fun makeFhirEngine(
+        metadata: Metadata = Metadata(
+            schema = Schema(
+                name = "None",
+                topic = Topic.FULL_ELR,
+                elements = emptyList()
+            )
+        ),
+        settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
+    ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
+            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     private fun getResource(bundle: Bundle, resource: String) =
@@ -112,11 +121,9 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
+        val engine = makeFhirEngine()
 
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
@@ -132,8 +139,6 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-
-        val engine = makeFhirEngine(metadata, settings, TaskAction.translate)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -157,12 +162,10 @@ class FhirTranslatorTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(colorado)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val engine = makeFhirEngine(metadata, settings, TaskAction.translate)
+        val engine = makeFhirEngine(settings = settings)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
@@ -212,13 +215,11 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine(settings = settings)
 
         // act
         val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
@@ -250,13 +251,11 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine(settings = settings)
 
         // act
         val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
@@ -288,13 +287,11 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine(settings = settings)
 
         // act
         val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
@@ -326,15 +323,13 @@ class FhirTranslatorTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
 
         // dodo - make Testing sender fhir
 
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine(settings = settings)
 
         // act
         val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
@@ -349,9 +344,6 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         // set up
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -370,7 +362,7 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine()
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -409,8 +401,6 @@ class FhirTranslatorTests {
 
         // set up
         val settings = FileSettings().loadOrganizations(badSchemaOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
@@ -430,7 +420,7 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine(settings = settings)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -443,16 +433,13 @@ class FhirTranslatorTests {
 
     @Test
     fun `Test removing some filtered observations from a DiagnosticReport`() {
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_some_filtered_observations.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine()
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
 
@@ -469,16 +456,13 @@ class FhirTranslatorTests {
 
     @Test
     fun `Test removing all filtered observations from a DiagnosticReport`() {
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_all_filtered_observations.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine()
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         assertThat(provenance).isNotNull()
         val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
@@ -499,16 +483,13 @@ class FhirTranslatorTests {
 
     @Test
     fun `Test observations are not removed if receiver Endpoint is not populated`() {
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-        val metadata = Metadata(schema = one)
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
-        val engine = (makeFhirEngine(metadata, settings, TaskAction.translate) as FHIRTranslator)
+        val engine = makeFhirEngine()
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         assertThat(provenance).isNotNull()
         val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
@@ -544,7 +525,7 @@ class FhirTranslatorTests {
         val csvReceiver = Receiver(
             "full-elr-fhir", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
         )
-        val engine = FHIRTranslator()
+        val engine = makeFhirEngine()
 
         var byteBody = engine.getByteArrayFromBundle(hl7v2Receiver, fhirBundle)
         assertThat(byteBody).isNotEmpty()
