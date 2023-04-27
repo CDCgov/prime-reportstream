@@ -73,25 +73,9 @@ class FHIRTranslator(
                 try {
                     val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
 
-                    val bodyBytes = when (receiver.format) {
-                        Report.Format.FHIR -> {
-                            if (receiver.schemaName.isNotEmpty()) {
-                                val transformer = FhirTransformer(receiver.schemaName)
-                                transformer.transform(updatedBundle)
-                            }
-                            FhirContext.forR4().newJsonParser().encodeResourceToString(updatedBundle)
-                                .toByteArray()
-                        }
-                        Report.Format.HL7, Report.Format.HL7_BATCH -> {
-                            val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
-                            hl7Message.encode().toByteArray()
-                        }
-                        else -> {
-                            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
-                        }
-                    }
+                    val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
 
-                    // get a Report from the hl7 message
+                    // get a Report from the message
                     val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
                         Event.EventAction.BATCH,
                         bodyBytes,
@@ -126,6 +110,26 @@ class FHIRTranslator(
         }
     }
 
+    internal fun getByteArrayFromBundle(
+        receiver: Receiver,
+        updatedBundle: Bundle
+    ) = when (receiver.format) {
+        Report.Format.FHIR -> {
+            if (receiver.schemaName.isNotEmpty()) {
+                val transformer = FhirTransformer(receiver.schemaName)
+                transformer.transform(updatedBundle)
+            }
+            FhirTranscoder.encode(updatedBundle, FhirContext.forR4().newJsonParser()).toByteArray()
+        }
+        Report.Format.HL7, Report.Format.HL7_BATCH -> {
+            val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
+            hl7Message.encode().toByteArray()
+        }
+        else -> {
+            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
+        }
+    }
+
     /**
      * Inserts a 'batch' task into the task table for the [report] in question. This is just a pass-through function
      * but is present here for proper separation of layers and testing. This may need to be modified in the future.
@@ -147,9 +151,7 @@ class FHIRTranslator(
      * @return HL7 Message in the format required by the receiver
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
-        val converter = FhirToHl7Converter(
-            receiver.schemaName
-        )
+        val converter = FhirToHl7Converter(receiver.schemaName)
         val hl7Message = converter.convert(bundle)
 
         // if receiver is 'testing' or useTestProcessingMode is true, set to 'T', otherwise leave it as is

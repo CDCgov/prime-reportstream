@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import ca.uhn.hl7v2.util.Terser
@@ -96,6 +97,9 @@ class FhirTranslatorTests {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
     }
+
+    private fun getResource(bundle: Bundle, resource: String) =
+        FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
 
     @BeforeEach
     fun reset() {
@@ -524,6 +528,30 @@ class FhirTranslatorTests {
         assertThat(diagnosticReport.count()).isEqualTo(diagnosticReportCount)
     }
 
-    private fun getResource(bundle: Bundle, resource: String) =
-        FhirPathUtils.evaluate(null, bundle, bundle, "Bundle.entry.resource.ofType($resource)")
+    @Test
+    fun `test getByteArrayFromBundle`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirBundle = FhirTranscoder.decode(fhirData)
+
+        val hl7v2Receiver = Receiver(
+            "full-elr-hl7", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE,
+            "metadata/hl7_mapping/ORU_R01/ORU_R01-base", format = Report.Format.HL7_BATCH,
+        )
+        val fhirReceiver = Receiver(
+            "full-elr-fhir", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE,
+            "metadata/fhir_transforms/receivers/fhir-transform-sample", format = Report.Format.FHIR,
+        )
+        val csvReceiver = Receiver(
+            "full-elr-fhir", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
+        )
+        val engine = FHIRTranslator()
+
+        var byteBody = engine.getByteArrayFromBundle(hl7v2Receiver, fhirBundle)
+        assertThat(byteBody).isNotEmpty()
+
+        byteBody = engine.getByteArrayFromBundle(fhirReceiver, fhirBundle)
+        assertThat(byteBody).isNotEmpty()
+
+        assertThat { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }.isFailure()
+    }
 }
