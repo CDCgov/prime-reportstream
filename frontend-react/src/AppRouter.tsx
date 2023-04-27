@@ -33,10 +33,12 @@ import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import FileHandler from "./components/FileHandlers/FileHandler";
+import { FaqPage } from "./pages/support/faq/FaqPage";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
     SUBMISSIONS = "Submissions",
+    SUPPORT = "Support",
     ADMIN = "Admin",
     UPLOAD = "Upload",
 }
@@ -57,7 +59,14 @@ export const appRoutes = [
         ],
     },
     { path: "/product/*", element: <Product /> },
-    { path: "/support/*", element: <Support /> },
+    {
+        path: "/support",
+        children: [
+            { path: "faq", element: <FaqPage /> },
+            { path: "", element: <Support /> },
+            { path: "*", element: <Support /> },
+        ],
+    },
     { path: "/file-handler/validate", element: <FileHandler /> },
     { path: "/daily-data", element: <DeliveriesWithAuth /> },
     {
