@@ -28,7 +28,7 @@ jobs:
       - name: Find Comment
         id: comment_find
         if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
-        uses: peter-evans/find-comment@034abe94d3191f9c89d870519735beae326f2bdb
+        uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
