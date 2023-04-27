@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -382,7 +383,6 @@ class FhirTranslatorTests {
         }
     }
 
-    /*
     @Test
     fun `test full elr translation hl7 translation exception`() {
         mockkObject(BlobAccess)
@@ -435,9 +435,7 @@ class FhirTranslatorTests {
             actionLogger.error(any<ActionLogDetail>())
         }
     }
-     */
 
-    /*
     @Test
     fun `Test removing some filtered observations from a DiagnosticReport`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -463,7 +461,6 @@ class FhirTranslatorTests {
 
         assertThat(observations.count()).isEqualTo(2)
     }
-     */
 
     @Test
     fun `Test removing all filtered observations from a DiagnosticReport`() {

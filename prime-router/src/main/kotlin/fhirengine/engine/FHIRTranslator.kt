@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
@@ -74,11 +73,8 @@ class FHIRTranslator(
             if (receiver != null && receiver.topic == Topic.FULL_ELR) {
                 try {
                     val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
-                    // val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
-                    // val bodyBytes = hl7Message.encode().toByteArray()
-
-                    val bodyBytes = FhirContext.forR4().newJsonParser().encodeResourceToString(updatedBundle)
-                        .toByteArray()
+                    val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
+                    val bodyBytes = hl7Message.encode().toByteArray()
 
                     // get a Report from the hl7 message
                     val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(

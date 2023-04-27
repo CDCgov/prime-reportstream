@@ -92,7 +92,7 @@
       jurisdictionalFilter:
         - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
-        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
     - name: default
       organizationName: ignore
@@ -188,8 +188,6 @@
       topic: full-elr
       customerStatus: active
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
-      qualityFilter:
-        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
