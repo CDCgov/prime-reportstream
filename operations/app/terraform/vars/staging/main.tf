@@ -131,6 +131,7 @@ module "function_app" {
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
+  candidate_access_key              = module.storage.candidate_access_key
   container_registry_login_server   = module.container_registry.container_registry_login_server
   primary_connection_string         = module.storage.sa_primary_connection_string
   app_service_plan                  = module.app_service_plan.service_plan_id
@@ -226,6 +227,22 @@ module "metabase" {
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
   subnets                = module.network.subnets
+}
+
+module "chatops" {
+  source                            = "../../modules/chatops"
+  environment                       = local.init.environment
+  resource_group                    = local.init.resource_group_name
+  resource_prefix                   = local.init.resource_prefix
+  location                          = local.init.location
+  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  container_registry_admin_password = module.container_registry.container_registry_admin_password
+  container_registry_login_server   = module.container_registry.container_registry_login_server
+  chatops_slack_bot_token           = data.azurerm_key_vault_secret.chatops_slack_bot_token.value
+  chatops_slack_app_token           = data.azurerm_key_vault_secret.chatops_slack_app_token.value
+  chatops_github_token              = data.azurerm_key_vault_secret.chatops_github_token.value
+  chatops_github_repo               = local.chatops.github_repo
+  chatops_github_target_branches    = local.chatops.github_target_branches
 }
 
 

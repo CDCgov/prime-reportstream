@@ -45,3 +45,18 @@ data "azurerm_key_vault_secret" "slack_email_address" {
   name         = "slack-email"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+
+data "azurerm_key_vault_secret" "chatops_slack_bot_token" {
+  name         = "chatops-slack-bot-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "chatops_slack_app_token" {
+  name         = "chatops-slack-app-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "chatops_github_token" {
+  name         = "chatops-github-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
