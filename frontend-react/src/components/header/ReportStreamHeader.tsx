@@ -61,6 +61,13 @@ export const ReportStreamHeader = () => {
                     data-attribute="hidden"
                 >
                     <span>{FeatureName.DAILY_DATA}</span>
+                </USNavLink>,
+                <USNavLink
+                    href="/data-dashboard"
+                    key="dashboard"
+                    data-attribute="hidden"
+                >
+                    <span>{FeatureName.DASHBOARD}</span>
                 </USNavLink>
             );
         }
