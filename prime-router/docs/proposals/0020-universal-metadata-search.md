@@ -54,11 +54,14 @@ erDiagram
 
 Pros:
 
--
+- Follows an existing pattern already implemented
+- Easy to understand and query against
+- Does not involve introducing any new concepts to reportstream
 
 Cons
 
--
+- Limited to just mapping an original item to a delivered item
+- Table will be quite large and hard to break up
 
 #### Use recursive queries in JOOQ to walk the lineages
 
@@ -124,11 +127,15 @@ val lineageWithinFiveDays = lineageQuery.where(
 
 Pros:
 
--
+- Allows writing queries against any part of the lineage hierarchy
+- Doesn't require capturing any new data or adjusting how report stream works
 
 Cons
 
--
+- Developers need to understand how recursive queries
+- Recursive queries tend to be hard to tune and can suffer from performance suddenly degrading if the query optimizer
+chooses the wrong index
+- Queries to join back to the metadata and report tables will be complicated
 
 #### Move the item and report data into a single document in a document store
 
@@ -182,11 +189,19 @@ Possible structure for the report store (this will likely need further fields as
 
 Pros:
 
--
+- Most flexible option as the initial schema can be custom suited to the search requirements
+- The schema can easily evolve over time as new requirements are added
+- MongoDB has an excellent support for multiple nodes which would allow the data to be sharded and scaled
+- MongoDB has excellent support for aggregates that will make writing queries from complicated questions easier
 
-Cons
+Cons:
 
--
+- Requires spinning up a new data store
+- Loses some of the internal granularity that the current lineage schemas do in terms of all the intermediate reports
+between the original and delivered one
+- Indices will need to be added to be performant which might not scale over time
+- Large documents will require a large amount of memory for the MongoDB servers
+- "Ad-hoc" searches might not perform well if an index cannot be used
 
 ### Storing metadata in a queryable and extensible fashion
 
@@ -218,11 +233,15 @@ where `value` could be either the raw FHIR bundle or a normalized version with f
 
 Pros:
 
--
+- Can use the existing datastore
+- Indices can be written for the JSONB data to support fast queries
+- JOOQ supports JSONB operators out of the box
 
-Cons
+Cons:
 
--
+- Writing aggregates will be more complicated
+- Engineers will need to have a good understanding of the postgres JSONB type
+- "Ad-hoc" queries will be very slow without a very selective initial filter
 
 #### Mongodb
 
@@ -231,11 +250,16 @@ use cases.
 
 Pros:
 
--
+- Easily supports new FHIR resource types without any changes
+- Allows splitting the data across multiple nodes easily
+- Has good support for writing aggregate queries
 
-Cons
+Cons:
 
--
+- Requires a infrastructure
+- Developers might not necessarily be familiar with MongoDB
+- Concurrent updates will be complicated; i.e. the send function fanning out and making multiple updates to the same
+original report
 
 #### Elasticsearch
 
@@ -297,24 +321,30 @@ For example:
 
 Pros:
 
--
+- Exposes a REST API so developers don't need to learn a new sytax
+- Has excellent support for fuzzy searches
+- Automatically indexes the data
+- Azure has a fully hosted version
 
-Cons
+Cons:
 
--
+- Does not work with FHIR out of the box
+- Does not fully support inserting nested objects
+- Can be expensive
 
 #### Azure cognitive search
 
-- Can't test locally
-- Likely a no go with local development
+Microsoft has its own custom search indexing offering that could be a potential solution.
 
 Pros:
 
-- 
+- Supposedly has neat features "powered" by AI
+- Exposes a REST interface
 
-Cons
+Cons:
 
-- 
+- Cannot be run locally and would require a dev instance
+- Locks ReportStream into azure
 
 ## Open Questions
 
