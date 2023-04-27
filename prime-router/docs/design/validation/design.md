@@ -113,7 +113,7 @@ ValidationResult result = validator.validateWithResult(input);
 - Enable Parser validation and check result: [#8980](https://github.com/CDCgov/prime-reportstream/issues/8980)
 - Configure FHIR parser, sender, internal, and receiver validation profiles: [#9034](https://github.com/CDCgov/prime-reportstream/issues/9034)
 - Add FHIR Receiver Validation: [#9035](https://github.com/CDCgov/prime-reportstream/issues/9035)
-- 
+- Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/pull/9165
 
 ## HL7 Validation
 ### Proposed Design
@@ -209,10 +209,11 @@ broken. We reached out to the makers of the tool previously and they said that t
 was in the works.
 
 ### Resulting Tickets
-Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 <br/>
-Create a reusable validator: https://github.com/CDCgov/prime-reportstream/issues/9164 <br/>
-Create the validation context: https://github.com/CDCgov/prime-reportstream/issues/9159 <br/>
-Create the sender validation: https://github.com/CDCgov/prime-reportstream/issues/9162 <br/>
-Create the receiver validation: https://github.com/CDCgov/prime-reportstream/issues/9163 <br/>
+- Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 
+- Create a reusable validator: https://github.com/CDCgov/prime-reportstream/issues/9164 
+- Create the validation context: https://github.com/CDCgov/prime-reportstream/issues/9159 
+- Create the sender validation: https://github.com/CDCgov/prime-reportstream/issues/9162 
+- Create the receiver validation: https://github.com/CDCgov/prime-reportstream/issues/9163
+- Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/issues/9335
 
 
