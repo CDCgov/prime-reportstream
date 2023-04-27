@@ -33,7 +33,7 @@ export default function ManagePublicKeyUploadError({
             <Grid row>
                 <Grid col="auto">
                     <Button onClick={onTryAgain} type="button">
-                        Try Again
+                        Try again
                     </Button>
                 </Grid>
             </Grid>
