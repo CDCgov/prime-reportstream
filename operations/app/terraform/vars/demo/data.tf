@@ -76,3 +76,8 @@ data "azurerm_key_vault_key" "pdh-2048-key" {
 resource "random_id" "init" {
   byte_length = 2
 }
+
+data "azurerm_key_vault_secret" "slack_email_address" {
+  name         = "slack-email"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
