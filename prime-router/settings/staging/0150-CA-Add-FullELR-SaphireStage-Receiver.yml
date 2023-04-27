@@ -4,17 +4,17 @@
   jurisdiction: "STATE"
   stateCode: "CA"
   countyName: null
-  filters: []
+  filters: [ ]
   featureFlags: null
   keys: null
-  senders: []
+  senders: [ ]
   receivers:
     - name: "full-elr-saphirestage"
       organizationName: "ca-dph"
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""
@@ -22,8 +22,8 @@
         receivingFacilityName: ""
         receivingFacilityOID: null
         messageProfileId: null
-        replaceValue: {}
-        replaceValueAwithB: {}
+        replaceValue: { }
+        replaceValueAwithB: { }
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
@@ -38,14 +38,14 @@
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
         cliaForOutOfStateTesting:
-        cliaForSender: {}
+        cliaForSender: { }
         phoneNumberFormatting: "STANDARD"
         suppressNonNPI: false
         processingModeCode: null
         replaceDiiWithOid: null
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
-        valueSetOverrides: {}
+        valueSetOverrides: { }
         nameFormat: "STANDARD"
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false

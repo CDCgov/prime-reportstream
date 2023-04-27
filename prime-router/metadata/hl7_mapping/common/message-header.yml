@@ -1,12 +1,6 @@
 elements:
-  - name: sending-application-namespace-id-with-endpoint
-    condition: '%resource.source.endpoint.exists()'
-    value: [ '%resource.source.name' ]
-    hl7Spec: [ MSH-3-1 ]
-
   - name: sending-application-namespace-id-no-endpoint
-    condition: '%resource.source.endpoint.exists().not()'
-    value: [ '%resource.source.name.split("-").first()' ]
+    value: [ '%resource.source.name.split(":").first()' ]
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id-with-endpoint

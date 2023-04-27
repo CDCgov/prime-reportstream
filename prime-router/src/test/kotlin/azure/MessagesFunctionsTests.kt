@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.InvalidCodeMessage
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
@@ -12,6 +15,7 @@ import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.messageTracker.MessageActionLog
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -207,6 +211,8 @@ class MessagesFunctionsTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test
@@ -284,7 +290,7 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageSearch(unAuthReq)
-        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
@@ -413,6 +419,8 @@ class MessagesFunctionsTests {
         assert(res.status.equals(HttpStatus.OK))
 
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
 
         // unauthorized - no claims
         val unAuthReq = MockHttpRequestMessage()
@@ -421,7 +429,7 @@ class MessagesFunctionsTests {
         )
 
         val unAuthRes = messagesFunctions.messageDetails(unAuthReq, id)
-        assert(unAuthRes.status.equals(HttpStatus.UNAUTHORIZED))
+        assertThat(unAuthRes.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // unauthorized - not an admin
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
