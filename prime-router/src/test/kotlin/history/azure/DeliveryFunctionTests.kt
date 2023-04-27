@@ -709,5 +709,27 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getBulkDeliveryFacilities(emptyMockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+
+        // no access authorization for org
+        every {
+            mockDeliveryFacade.checkAccessAuthorizationForOrg(any(), any(), any(), any())
+        } returns false // not authorized
+        response = function.getBulkDeliveryFacilities(mockRequest, "$otherOrganizationName.test-lab-2")
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        // invalid org or service
+        every {
+            function.workflowEngine.settings.findReceiver(any())
+        } returns null // not authorized
+        response = function.getBulkDeliveryFacilities(mockRequest, "$otherOrganizationName.test-lab-2")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // test for unauthorized response
+        every {
+            mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any())
+        } returns false // not authorized
+        every { AuthenticatedClaims.authenticate(any()) } returns null
+        response = function.getBulkDeliveryFacilities(mockRequest, "$otherOrganizationName.test-lab-2")
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 }
