@@ -12,7 +12,7 @@ resource "azurerm_function_app_slot" "candidate" {
   resource_group_name        = var.resource_group
   app_service_plan_id        = var.app_service_plan
   storage_account_name       = "${var.resource_prefix}candidate"
-  storage_account_access_key = var.primary_access_key
+  storage_account_access_key = var.candidate_access_key
   https_only                 = true
   os_type                    = "linux"
   version                    = var.function_runtime_version
@@ -109,9 +109,9 @@ resource "azurerm_key_vault_access_policy" "slot_candidate_client_config_access_
     "Get",
   ]
 }
-
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
   slot_name      = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[0]
 }
+
