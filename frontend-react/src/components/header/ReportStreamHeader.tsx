@@ -62,13 +62,14 @@ export const ReportStreamHeader = () => {
                 >
                     <span>{FeatureName.DAILY_DATA}</span>
                 </USNavLink>
-                // <USNavLink
-                //     href="/data-dashboard"
-                //     key="dashboard"
-                //     data-attribute="hidden"
-                // >
-                //     <span>{FeatureName.DASHBOARD}</span>
-                // </USNavLink>
+                // Will be needed when all STLT pages are developed
+                /* <USNavLink
+                    href="/data-dashboard"
+                    key="dashboard"
+                    data-attribute="hidden"
+                >
+                    <span>{FeatureName.DASHBOARD}</span>
+                 </USNavLink>*/
             );
         }
 
