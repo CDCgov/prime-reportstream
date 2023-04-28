@@ -376,7 +376,7 @@ class FhirTranslatorTests {
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
-            engine.removeUnwantedConditions(any(), any())
+            engine.pruneBundleForReceiver(any(), any())
         }
     }
 
@@ -447,7 +447,7 @@ class FhirTranslatorTests {
 
         assertThat(observations.count()).isEqualTo(5)
 
-        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
 
         observations = getResource(updatedBundle, "Observation")
 
@@ -473,7 +473,7 @@ class FhirTranslatorTests {
         assertThat(observations.count()).isEqualTo(3)
         assertThat(diagnosticReport.count()).isEqualTo(3)
 
-        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
 
         observations = getResource(updatedBundle, "Observation")
         diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
@@ -501,12 +501,50 @@ class FhirTranslatorTests {
         assertThat(observationsCount).isEqualTo(3)
         assertThat(diagnosticReportCount).isEqualTo(3)
 
-        val updatedBundle = engine.removeUnwantedConditions(bundle, endpoint)
+        val updatedBundle = with(engine) { bundle.removeUnwantedConditions(endpoint) }
 
         observations = getResource(updatedBundle, "Observation")
         diagnosticReport = getResource(updatedBundle, "DiagnosticReport")
         assertThat(observations.count()).isEqualTo(observationsCount)
         assertThat(diagnosticReport.count()).isEqualTo(diagnosticReportCount)
+    }
+
+    @Test
+    fun `Test remove provenance targets`() {
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data_multiple_targets.fhir").readText()
+        val origBundle = FhirTranscoder.decode(fhirBundle)
+        assertThat(origBundle).isNotNull()
+        val engine = makeFhirEngine()
+        val origProv = origBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(origProv).isNotNull()
+        assertThat(origProv.target.size).isEqualTo(4)
+        val origEndpoints = origProv.target.map { it.resource }.filterIsInstance<Endpoint>()
+        assertThat(origEndpoints.size).isEqualTo(3)
+
+        var bundle = origBundle.copy()
+        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(origEndpoints[0]) }
+        var provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(provenance.target.size).isEqualTo(2) // Still has all non-endpoint items
+        var endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        assertThat(endpoints.size).isEqualTo(1)
+        assertThat(endpoints[0]).isEqualTo(origEndpoints[0])
+
+        bundle = origBundle.copy()
+        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(origEndpoints[2]) }
+        provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(provenance.target.size).isEqualTo(2) // Still has all non-endpoint items
+        endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        assertThat(endpoints.size).isEqualTo(1)
+        assertThat(endpoints[0]).isEqualTo(origEndpoints[2])
+
+        bundle = origBundle.copy()
+        val otherEndpoint = origEndpoints[0].copy()
+        otherEndpoint.name += "other"
+        bundle = with(engine) { bundle.removeUnwantedProvenanceEndpoints(otherEndpoint) }
+        provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        assertThat(provenance.target.size).isEqualTo(1) // Still has all non-endpoint items
+        endpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
+        assertThat(endpoints.size).isEqualTo(0) // Removed all endpoints
     }
 
     @Test

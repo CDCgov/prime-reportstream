@@ -71,7 +71,7 @@ class FHIRTranslator(
             // We only process receivers that are active and for this pipeline.
             if (receiver != null && receiver.topic == Topic.FULL_ELR) {
                 try {
-                    val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
+                    val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
 
                     val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
 
@@ -168,15 +168,25 @@ class FHIRTranslator(
     }
 
     /**
-     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint]
+     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint] and any endpoints that are
+     * not [receiverEndpoint]
      *
-     * @return [Bundle] with the unwanted observations removed
+     * @return a copy of [bundle] with the unwanted observations/endpoints removed
      */
-    internal fun removeUnwantedConditions(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
-
+    internal fun pruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
         // Copy bundle to make sure original stays untouched
         val newBundle = bundle.copy()
+        newBundle.removeUnwantedConditions(receiverEndpoint)
+        newBundle.removeUnwantedProvenanceEndpoints(receiverEndpoint)
+        return newBundle
+    }
 
+    /**
+     * Removes observations from this bundle that are not referenced in [receiverEndpoint]
+     *
+     * @return the bundle with the unwanted observations removed
+     */
+    internal fun Bundle.removeUnwantedConditions(receiverEndpoint: Endpoint): Bundle {
         // Get observation references to keep from the receiver endpoint
         val observationsToKeep = receiverEndpoint.extension.flatMap { it.getResourceReferences() }
 
@@ -184,7 +194,7 @@ class FHIRTranslator(
         if (observationsToKeep.isNotEmpty()) {
             // Get all diagnostic reports in the bundle
             val diagnosticReports =
-                FhirPathUtils.evaluate(null, newBundle, newBundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+                FhirPathUtils.evaluate(null, this, this, "Bundle.entry.resource.ofType(DiagnosticReport)")
 
             // Get all observation references in the diagnostic reports
             val allObservations =
@@ -194,11 +204,24 @@ class FHIRTranslator(
             val observationsIdsToRemove = allObservations - observationsToKeep.toSet()
 
             // Get observation resources to be removed from the bundle
-            val observationsToRemove = newBundle.entry.filter { it.resource.id in observationsIdsToRemove }
+            val observationsToRemove = this.entry.filter { it.resource.id in observationsIdsToRemove }
 
-            observationsToRemove.forEach { newBundle.deleteResource(it.resource) }
+            observationsToRemove.forEach { this.deleteResource(it.resource) }
         }
+        return this
+    }
 
-        return newBundle
+    /**
+     * Removes endpoints from this bundle that do not match [receiverEndpoint]
+     *
+     * @return the bundle with the unwanted endpoints removed
+     */
+    internal fun Bundle.removeUnwantedProvenanceEndpoints(receiverEndpoint: Endpoint): Bundle {
+        val provenance = this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        provenance.target.map { it.resource }.filterIsInstance<Endpoint>().forEach {
+            if (it != receiverEndpoint)
+                this.deleteResource(it)
+        }
+        return this
     }
 }
