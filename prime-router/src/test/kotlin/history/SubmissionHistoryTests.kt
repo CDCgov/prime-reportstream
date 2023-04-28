@@ -531,7 +531,7 @@ class SubmissionHistoryTests {
         )
         testReceived.enrichWithSummary()
         testReceived.run {
-            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVING)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
         }

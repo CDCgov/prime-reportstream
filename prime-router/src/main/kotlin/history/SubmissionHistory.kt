@@ -163,6 +163,7 @@ class DetailedSubmissionHistory(
         ERROR("Error"),
         RECEIVED("Received"),
         NOT_DELIVERING("Not Delivering"),
+        RECEIVING("Receiving"),
         WAITING_TO_DELIVER("Waiting to Deliver"),
         PARTIALLY_DELIVERED("Partially Delivered"),
         DELIVERED("Delivered");
@@ -512,15 +513,13 @@ class DetailedSubmissionHistory(
         }
 
         if (destinations.size == 0) {
-            /**
-             * Cases where this may hit:
-             *     1) Data hasn't been processed yet (common in async submissions)
-             *     2) Very rare: No data matches any geographical location.
-             *         e.g. If both the testing tab and patient data were foreign addresses.
-             * At the moment we have NO easy way to distinguish the latter rare case,
-             * so it will be treated as status RECEIVED as well.
-             */
-            return Status.RECEIVED
+            return if (reportItemCount != 0) {
+                // Data hasn't been processed yet (common in async submissions)
+                Status.RECEIVING
+            } else {
+                // Very rare: No data matches any geographical location.
+                Status.NOT_DELIVERING
+            }
         } else if (realDestinations.isEmpty()) {
             return Status.NOT_DELIVERING
         }
