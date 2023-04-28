@@ -1,8 +1,8 @@
 package fhirengine.engine
 
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
@@ -42,7 +42,10 @@ class CustomFhirPathFunctions : FhirPathFunctions {
      * Get the function details for a given [functionName].
      * @return the function details
      */
-    override fun resolveFunction(functionName: String?): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
+    override fun resolveFunction(
+        functionName: String?,
+        additionalFunctions: FhirPathFunctions?
+    ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFhirPathFunctionNames.get(functionName)) {
 
             CustomFhirPathFunctionNames.LivdTableLookup -> {
@@ -64,7 +67,8 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     override fun executeFunction(
         focus: MutableList<Base>?,
         functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
+        additionalFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return (

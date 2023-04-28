@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
@@ -14,32 +15,10 @@ import java.time.ZoneId
 import java.util.TimeZone
 
 /**
- * This interface contains the required method signatures required to implement custom FHIR functions
- */
-interface FhirPathFunctions {
-
-    /**
-     * Get the function details for a given [functionName].
-     * @return the function details
-     */
-    fun resolveFunction(functionName: String?): FHIRPathEngine.IEvaluationContext.FunctionDetails?
-
-    /**
-     * Execute the function on a [focus] resource for a given [functionName] and [parameters].
-     * @return the function result
-     */
-    fun executeFunction(
-        focus: MutableList<Base>?,
-        functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
-    ): MutableList<Base>
-}
-
-/**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
-object CustomFHIRFunctions {
+object CustomFHIRFunctions : FhirPathFunctions {
 
     /**
      * Custom FHIR Function names used to map from the string used in the FHIR path
@@ -77,9 +56,9 @@ object CustomFHIRFunctions {
      * additional custom FHIR functions are needed.
      * @return the function details
      */
-    fun resolveFunction(
+    override fun resolveFunction(
         functionName: String?,
-        additionalFunctions: FhirPathFunctions? = null
+        additionalFunctions: FhirPathFunctions?
     ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
@@ -140,11 +119,11 @@ object CustomFHIRFunctions {
      *
      * @return the function result
      */
-    fun executeFunction(
+    override fun executeFunction(
         focus: MutableList<Base>?,
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?,
-        additionalFunctions: FhirPathFunctions? = null
+        additionalFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return (

@@ -3,12 +3,12 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
@@ -33,9 +33,10 @@ class FhirToHl7Converter(
 ) : ConfigSchemaProcessor() {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
+     * The converter will error out if [strict] is set to true and there is an error during the conversion.  If [strict]
      * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
-     * the schema validation process.
+     * the schema validation process. Additional custom FHIR path functions used to convert messages can be passed
+     * inside the [context].
      * @property terser the terser to use for building the HL7 message (use for dependency injection)
      */
     constructor(
@@ -99,7 +100,7 @@ class FhirToHl7Converter(
         schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle, additionalFhirFunctions = this.context?.fhirFunctions),
+        context: CustomContext = CustomContext(bundle, bundle, customFhirFunctions = this.context?.fhirFunctions),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -221,7 +222,7 @@ class FhirToHl7Converter(
 }
 
 /**
- * Context used for holding additional information for [FhirToHl7Converter]
+ * Context used to hold additional custom [FhirPathFunctions] used by [FhirToHl7Converter]
  */
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
