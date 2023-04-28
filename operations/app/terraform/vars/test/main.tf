@@ -136,6 +136,7 @@ module "function_app" {
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
+  candidate_access_key              = module.storage.candidate_access_key
   container_registry_login_server   = module.container_registry.container_registry_login_server
   primary_connection_string         = module.storage.sa_primary_connection_string
   app_service_plan                  = module.app_service_plan.service_plan_id

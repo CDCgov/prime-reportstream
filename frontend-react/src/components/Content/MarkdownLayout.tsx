@@ -52,7 +52,7 @@ export function MarkdownLayout({
                 a: USSmartLink,
             }}
         >
-            <GridContainer>
+            <GridContainer className="usa-prose">
                 <Grid row>
                     {sidenav ? (
                         <Nav
