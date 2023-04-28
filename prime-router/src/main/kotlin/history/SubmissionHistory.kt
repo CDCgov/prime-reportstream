@@ -163,7 +163,6 @@ class DetailedSubmissionHistory(
         ERROR("Error"),
         RECEIVED("Received"),
         NOT_DELIVERING("Not Delivering"),
-        RECEIVING("Receiving"),
         WAITING_TO_DELIVER("Waiting to Deliver"),
         PARTIALLY_DELIVERED("Partially Delivered"),
         DELIVERED("Delivered");
@@ -515,7 +514,7 @@ class DetailedSubmissionHistory(
         if (destinations.size == 0) {
             return if (reportItemCount != 0) {
                 // Data hasn't been processed yet (common in async submissions)
-                Status.RECEIVING
+                Status.RECEIVED
             } else {
                 // Very rare: No data matches any geographical location.
                 Status.NOT_DELIVERING
