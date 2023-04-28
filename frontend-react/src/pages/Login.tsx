@@ -37,7 +37,7 @@ export const Login = () => {
         dispatch({
             type: MembershipActionType.RESET,
         });
-        console.log("error logging in", err);
+        console.error("error logging in", err);
     };
 
     if (authState?.isAuthenticated) {
