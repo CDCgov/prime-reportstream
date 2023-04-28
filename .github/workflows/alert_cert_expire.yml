@@ -51,6 +51,7 @@ jobs:
           echo "LIST<<$EOF" >> $GITHUB_OUTPUT
           cat certificates.json >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
+          echo ::set-output name=certificates::$(cat certificates.json)
       
       - name: Slack Notification
         if: ${{ steps.format_out.outputs.LIST  != '2' }}
