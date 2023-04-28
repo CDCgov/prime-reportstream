@@ -184,7 +184,7 @@ class BatchFunction(
         receiver: Receiver,
         txn: Configuration?
     ) {
-        if (receiver.format.isSingleItemFormat || receiver.timing == null ||
+        if (!receiver.useBatching || receiver.timing == null ||
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately
@@ -195,7 +195,7 @@ class BatchFunction(
                 // download message
                 val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
 
-                // get a Report from the hl7 message
+                // get a Report from the message
                 val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
                     Event.EventAction.SEND,
                     bodyBytes,

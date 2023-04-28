@@ -19,6 +19,11 @@ interface TranslatorProperties {
     val format: Report.Format
 
     /**
+     * [useBatching] tells whether or not to batch the results
+     */
+    val useBatching: Boolean
+
+    /**
      * [schemaName] is the full name of the schema used in the translation
      */
     val schemaName: String
@@ -161,6 +166,9 @@ data class Hl7Configuration
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
     @get:JsonIgnore
+    override val useBatching: Boolean get() = useBatchHeaders
+
+    @get:JsonIgnore
     override val defaults: Map<String, String>
         get() {
             val receivingApplication = when {
@@ -202,6 +210,7 @@ data class Hl7Configuration
 data class FHIRConfiguration
 @JsonCreator constructor(
     override val schemaName: String = "",
+    override val useBatching: Boolean = true,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("FHIR") {
@@ -223,6 +232,9 @@ data class GAENConfiguration
     override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
 
     @get:JsonIgnore
+    override val useBatching: Boolean get() = false
+
+    @get:JsonIgnore
     override val schemaName: String get() = GAEN_SCHEMA
 
     @get:JsonIgnore
@@ -242,6 +254,7 @@ data class CustomConfiguration
 @JsonCreator constructor(
     override val schemaName: String,
     override val format: Report.Format,
+    override val useBatching: Boolean = false,
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
