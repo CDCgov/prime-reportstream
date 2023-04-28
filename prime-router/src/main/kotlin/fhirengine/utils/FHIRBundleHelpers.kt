@@ -4,6 +4,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -68,6 +69,10 @@ object FHIRBundleHelpers {
             reference.resource = endpoint
             targetList.add(reference)
         }
+
+        // Clear out any existing endpoints if they exist
+        provenanceResource.target.map { it.resource }.filterIsInstance<Endpoint>()
+            .forEach { fhirBundle.deleteResource(it) }
 
         if (targetList.isNotEmpty()) provenanceResource.target.addAll(targetList)
     }
