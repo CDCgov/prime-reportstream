@@ -48,6 +48,7 @@ import java.time.format.DateTimeParseException
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
 private const val jsonMimeType = "application/json"
+private const val organizationsFile = "settings/organizations.yml"
 
 /**
  * Base class to handle common stuff: authentication, calling, inputs and outputs.
@@ -949,11 +950,14 @@ class GetMultipleSettings : SettingCommand(
 
     val load by option(
         "-l", "--load-local",
-        help = "Load settings to local database. You will have the chance to approve or decline a diff."
+        help = "Load settings to local database with transport modified to use SFTP. " +
+            "You will have the chance to approve or decline a diff. " +
+            "If the -a (--append-to-orgs) option is used in conjunction with the load option, the modified results " +
+            "are used when appending to the organizations.yml file."
     ).flag(default = false)
 
-    val addToOrgs by option(
-        "-a", "--add-to-orgs",
+    val appendToOrgs by option(
+        "-a", "--append-to-orgs",
         help = "Append results to organizations.yml file."
     ).flag(default = false)
 
@@ -969,10 +973,15 @@ class GetMultipleSettings : SettingCommand(
         val output = getAll(environment, oktaAccessToken)
         // Write out the settings exactly as retrieved
         echo("Outputting original settings...")
-        writeOutput(yamlMapper.writeValueAsString(output))
+        val settings = yamlMapper.writeValueAsString(output)
+        writeOutput(settings)
         // Handle load option.
         if (load) {
             loadSettings(output)
+            // This is an else because if the load option is used, the appending is handled
+            // inside it so the version with modified transport can be appended to the organizations.yml
+        } else if (appendToOrgs) {
+            appendToOrgs(settings)
         }
     }
 
@@ -995,40 +1004,56 @@ class GetMultipleSettings : SettingCommand(
     }
 
     private fun loadSettings(settings: List<DeepOrganization>) {
-        // Change transports to SFTP
-        val modifiedOrgs = settings.map { org ->
-            val modifiedReceivers = org.receivers.map {
-                Receiver(
-                    it.name,
-                    it.organizationName,
-                    it.topic,
-                    it.customerStatus,
-                    it.translation,
-                    it.jurisdictionalFilter,
-                    it.qualityFilter,
-                    it.routingFilter,
-                    it.processingModeFilter,
-                    it.reverseTheQualityFilter,
-                    it.conditionFilter,
-                    it.deidentify,
-                    it.deidentifiedValue,
-                    it.timing,
-                    it.description,
-                    localTransport,
-                    it.externalName,
-                    it.timeZone,
-                    it.dateTimeFormat
-                )
+        if (settings.isNotEmpty()) {
+            // Change transports to SFTP
+            val modifiedOrgs = settings.map { org ->
+                val modifiedReceivers = org.receivers.map {
+                    Receiver(
+                        it.name,
+                        it.organizationName,
+                        it.topic,
+                        it.customerStatus,
+                        it.translation,
+                        it.jurisdictionalFilter,
+                        it.qualityFilter,
+                        it.routingFilter,
+                        it.processingModeFilter,
+                        it.reverseTheQualityFilter,
+                        it.conditionFilter,
+                        it.deidentify,
+                        it.deidentifiedValue,
+                        it.timing,
+                        it.description,
+                        localTransport,
+                        it.externalName,
+                        it.timeZone,
+                        it.dateTimeFormat
+                    )
+                }
+                DeepOrganization(org, org.senders, modifiedReceivers)
             }
-            DeepOrganization(org, org.senders, modifiedReceivers)
+            val differences = diffAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
+            if (differences.isNotEmpty()) {
+                echoDiff(differences)
+                confirm()
+            }
+            val output = putAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
+            echo("Loaded settings to local DB:")
+            echo("${output.joinToString("\n")}\n")
+            if (appendToOrgs) {
+                echo("Adding settings that were loaded to the local database to the organizations.yml file")
+                appendToOrgs(yamlMapper.writeValueAsString(modifiedOrgs))
+            }
+        } else {
+            echo("No settings fitting your parameters were returned.")
         }
-        val differences = diffAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
-        if (differences.isNotEmpty()) {
-            echoDiff(differences)
-            confirm()
+    }
+
+    private fun appendToOrgs(output: String) {
+        if (output.startsWith("---")) {
+            File(organizationsFile).appendBytes(output.replaceFirst("---", "").toByteArray())
+        } else {
+            File(organizationsFile).appendBytes(output.toByteArray())
         }
-        val output = putAll(modifiedOrgs, Environment.LOCAL, dummyAccessToken)
-        echo("Loaded settings to local DB:")
-        echo("${output.joinToString("\n")}\n")
     }
 }
