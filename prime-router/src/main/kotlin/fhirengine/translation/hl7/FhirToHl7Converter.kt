@@ -19,7 +19,8 @@ import org.hl7.fhir.r4.model.Bundle
  * Convert a FHIR bundle to an HL7 message using the [schemaRef] to perform the conversion.
  * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
  * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
- * the schema validation process.
+ * the schema validation process. Additional custom FHIR path functions used to convert messages can be passed
+ * inside the [context].
  * @property terser the terser to use for building the HL7 message (use for dependency injection)
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
