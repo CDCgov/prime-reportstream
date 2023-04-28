@@ -5,11 +5,9 @@
 ---
 ### March 2023
 
-* The ReportStream [Terms of Service](https://reportstream.cdc.gov/terms-of-service) have been updated. 
-
 #### Improvements
 
-* Usability: Widescreen grid containers are now shown on the [Daily Data](https://reportstream.cdc.gov/daily-data) and [Submissions](https://reportstream.cdc.gov/submissions) pages. Widescreen grid containers allow the user to see more data on wider screens.
+* Usability: Users can now see more data on wider screens. Tables on [Daily Data](https://reportstream.cdc.gov/daily-data) (for public health departments) and [Submissions](https://reportstream.cdc.gov/submissions) (for testing facilities) have been updated with widescreen grid containers. 
 
 You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
 
