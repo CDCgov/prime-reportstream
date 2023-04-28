@@ -31,7 +31,7 @@ runs:
       with:
         node-version-file: 'frontend-react/package.json'
 
-    - run: yarn install --ignore-platform
+    - run: yarn install --production
       working-directory: frontend-react
       shell: bash
 
