@@ -8,7 +8,7 @@ constants:
   simpleReportClia: '"CDPH000085"'
   outOfStateSimpleReportClia: '"CDPH000075"'
   simpleReportName: '"Simple Report"'
-extends: ../../ORU_R01/ORU_R01-base
+extends: ../../../ORU_R01/ORU_R01-base
 elements:
   #########################
   # ReportStream specific #
