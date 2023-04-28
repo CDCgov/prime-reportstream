@@ -7,11 +7,11 @@ import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
+import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
-import { ValidateWithAuth } from "./pages/Validate";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
 import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
 import { AdminMainWithAuth } from "./pages/admin/AdminMain";
@@ -32,10 +32,13 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import FileHandler from "./components/FileHandlers/FileHandler";
+import { FaqPage } from "./pages/support/faq/FaqPage";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
     SUBMISSIONS = "Submissions",
+    SUPPORT = "Support",
     ADMIN = "Admin",
     UPLOAD = "Upload",
 }
@@ -48,9 +51,23 @@ export const appRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/login/callback", element: <LoginCallback /> },
     { path: "/sign-tos", element: <TermsOfServiceForm /> },
-    { path: "/resources/*", element: <Resources /> },
+    {
+        path: "/resources",
+        children: [
+            { path: "", element: <ResourcesPage /> },
+            { path: "*", element: <Resources /> },
+        ],
+    },
     { path: "/product/*", element: <Product /> },
-    { path: "/support/*", element: <Support /> },
+    {
+        path: "/support",
+        children: [
+            { path: "faq", element: <FaqPage /> },
+            { path: "", element: <Support /> },
+            { path: "*", element: <Support /> },
+        ],
+    },
+    { path: "/file-handler/validate", element: <FileHandler /> },
     { path: "/daily-data", element: <DeliveriesWithAuth /> },
     {
         path: "/report-details/:reportId",
@@ -111,7 +128,6 @@ export const appRoutes = [
         path: "/resources/manage-public-key",
         element: <ManagePublicKeyWithAuth />,
     },
-    { path: "/file-handler/validate", element: <ValidateWithAuth /> },
     /* Handles any undefined route */
     { path: "*", element: <ErrorNoPage /> },
 ];

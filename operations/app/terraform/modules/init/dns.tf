@@ -18,7 +18,6 @@ resource "azurerm_network_profile" "init" {
 }
 
 resource "azurerm_container_group" "init" {
-  #checkov:skip=CKV2_AZURE_28: "Ensure Container Instance is configured with managed identity"
   name                = "${var.resource_prefix}-dns"
   location            = var.location
   resource_group_name = var.resource_group
