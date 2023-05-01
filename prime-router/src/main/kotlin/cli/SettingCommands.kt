@@ -953,7 +953,8 @@ class GetMultipleSettings : SettingCommand(
         help = "Load settings to local database with transport modified to use SFTP. " +
             "You will have the chance to approve or decline a diff. " +
             "If the -a (--append-to-orgs) option is used in conjunction with the load option, the modified results " +
-            "are used when appending to the organizations.yml file."
+            "are used when appending to the organizations.yml file. If the -o (--output) option is used, the " +
+            "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
     val appendToOrgs by option(
