@@ -269,8 +269,9 @@ class DeliveryFacadeTests {
         val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
 
         val reportId = "c3c8e304-8eff-4882-9000-3645054a30b7"
+        val now = OffsetDateTime.now()
 
-        val facilities = listOf<DeliveryFacility>(
+        val facilities = listOf(
             DeliveryFacility(
                 "Any lab USA",
                 "Kurtistown",
@@ -278,6 +279,10 @@ class DeliveryFacadeTests {
                 "43D1961163",
                 0,
                 1,
+                now,
+                "Dr. Ordermaker",
+                "SimpleReport",
+                ReportId.fromString(reportId)
             ),
             DeliveryFacility(
                 "Any lab USA",
@@ -286,6 +291,10 @@ class DeliveryFacadeTests {
                 "52D0993791",
                 0,
                 14,
+                now,
+                "Dr. Ordermaker",
+                "SimpleReport",
+                ReportId.fromString(reportId)
             ),
             DeliveryFacility(
                 "Any lab USA",
@@ -294,6 +303,10 @@ class DeliveryFacadeTests {
                 "90D6609198",
                 0,
                 1,
+                now,
+                "Dr. Ordermaker",
+                "SimpleReport",
+                ReportId.fromString(reportId)
             ),
         )
 
@@ -306,8 +319,11 @@ class DeliveryFacadeTests {
             listOf(ReportId.fromString(reportId))
         )
 
+        assertThat(facilities.first().orderingProvider).isEqualTo(result.first().orderingProvider)
+        assertThat(facilities.first().createdAt).isEqualTo(result.first().createdAt)
         assertThat(facilities.first().testingLabName).isEqualTo(result.first().testingLabName)
-        assertThat(facilities.first().location).isEqualTo(result.first().location)
+        assertThat(facilities.first().senderId).isEqualTo(result.first().senderId)
+        assertThat(facilities.first().reportId).isEqualTo(result.first().reportId)
     }
 
     @Test
