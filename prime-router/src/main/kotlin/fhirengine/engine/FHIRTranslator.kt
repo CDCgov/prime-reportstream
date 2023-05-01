@@ -111,7 +111,7 @@ class FHIRTranslator(
     }
 
     /**
-     * Returns a byteArray representation of the bundle in a format [receiver] expects, or throws an exception if the
+     * Returns a byteArray representation of the [bundle] in a format [receiver] expects, or throws an exception if the
      * expected format isn't supported.
      */
     internal fun getByteArrayFromBundle(
