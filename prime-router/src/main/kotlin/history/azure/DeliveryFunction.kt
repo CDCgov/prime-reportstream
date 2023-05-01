@@ -20,6 +20,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.json.JSONArray
+import java.time.OffsetDateTime
 
 /**
  * Deliveries API
@@ -280,12 +281,12 @@ class DeliveryFunction(
                                 "totalCount" to facilities.count()
                             ),
                             "data" to facilities.map {
-                                Facility(
+                                BulkFacility(
+                                    it.createdAt,
+                                    it.orderingProvider,
                                     it.testingLabName,
-                                    it.location,
-                                    it.testingLabClia,
-                                    it.positive,
-                                    it.countRecords
+                                    it.senderId,
+                                    it.reportId,
                                 )
                             }
                         )
@@ -346,5 +347,22 @@ class DeliveryFunction(
         val clia: String?,
         val positive: Long?,
         val total: Long?
+    )
+
+    /**
+     * Container for the output data of the Bulk endpoint for deliveries
+     *
+     * @property dateSent When the report was sent to the receiver
+     * @property orderingProvider Provider that ordered the test from the report
+     * @property performingFacility Where the test was done
+     * @property submitter Organization that submitted the report
+     * @property reportId UUID of the report
+     */
+    data class BulkFacility(
+        val dateSent: OffsetDateTime?,
+        val orderingProvider: String?,
+        val performingFacility: String?,
+        val submitter: String?,
+        val reportId: ReportId?
     )
 }
