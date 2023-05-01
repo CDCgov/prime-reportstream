@@ -3,14 +3,47 @@ import { Helmet } from "react-helmet-async";
 import React from "react";
 
 import { FeatureName } from "../../AppRouter";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { USNavLink } from "../../components/USLink";
 
-export function Dashboard() {
+function Dashboard() {
     return (
-        <GridContainer containerSize="widescreen">
-            <Helmet>
-                <title>{FeatureName.DASHBOARD}</title>
-            </Helmet>
-            <div>Dashboard!</div>
-        </GridContainer>
+        <div className="rs-data-dashboard">
+            <header className="usa-header usa-header--extended bg-primary-darker text-white">
+                <GridContainer className="margin-left-7 padding-top-8 padding-bottom-8">
+                    <div className="font-sans-lg text-blue-30 width-full">
+                        Colorado Department of Public Health and Environment
+                    </div>
+                    <div className="font-sans-2xl margin-bottom-3">
+                        Data Dashboard
+                    </div>
+                    <div className="font-sans-lg margin-bottom-3">
+                        All the labs, facilities, aggregators, etc. that have
+                        ever contributed data to your reports.
+                    </div>
+                    <div className="font-sans-2xs">
+                        Jump to:{" "}
+                        <USNavLink href="/data-dashboard/facilities-providers">
+                            All facilities & providers
+                        </USNavLink>
+                    </div>
+                </GridContainer>
+            </header>
+            <GridContainer containerSize="widescreen">
+                <Helmet>
+                    <title>{FeatureName.DASHBOARD}</title>
+                </Helmet>
+            </GridContainer>
+        </div>
+    );
+}
+
+export function DashboardWithAuth() {
+    return (
+        <AuthElement
+            element={<Dashboard />}
+            requiredUserType={MemberType.RECEIVER}
+        />
     );
 }
