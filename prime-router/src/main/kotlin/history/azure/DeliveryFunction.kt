@@ -268,18 +268,27 @@ class DeliveryFunction(
             return run {
                 val facilities = deliveryFacade.findBulkDeliveryFacilities(reportIds)
 
+                // this block is an implementation of the proposal in
+                // website-api-payload-structure.md
+                // see ticket #9346 for future work to be done on it
                 HttpUtilities.okResponse(
                     request,
                     mapper.writeValueAsString(
-                        facilities.map {
-                            Facility(
-                                it.testingLabName,
-                                it.location,
-                                it.testingLabClia,
-                                it.positive,
-                                it.countRecords
-                            )
-                        }
+                        mapOf(
+                            "meta" to mapOf(
+                                "type" to "DeliveryFacility",
+                                "totalCount" to facilities.count()
+                            ),
+                            "data" to facilities.map {
+                                Facility(
+                                    it.testingLabName,
+                                    it.location,
+                                    it.testingLabClia,
+                                    it.positive,
+                                    it.countRecords
+                                )
+                            }
+                        )
                     )
                 )
             }

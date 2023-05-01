@@ -622,8 +622,7 @@ class DeliveryFunctionTests : Logging {
             AuthenticatedClaims.generateTestClaims()
 
         // Good return
-
-        val returnBody = listOf(
+        val facadeBody = listOf(
             DeliveryFacility(
                 "Any lab USA",
                 "Kurtistown",
@@ -634,9 +633,23 @@ class DeliveryFunctionTests : Logging {
             )
         )
 
+        val returnBody = mapOf(
+            "meta" to mapOf(
+                "type" to "DeliveryFacility",
+                "totalCount" to 1
+            ),
+            "data" to mapOf(
+                "facility" to "Any lab USA",
+                "location" to "Kurtistown",
+                "clia" to "43D1961163",
+                "positive" to 0,
+                "total" to 1
+            )
+        )
+
         every {
             mockDeliveryFacade.findBulkDeliveryFacilities(any())
-        } returns returnBody
+        } returns facadeBody
 
         every {
             mockDeliveryFacade.checkAccessAuthorizationForOrg(any(), any(), any(), any())
@@ -654,12 +667,9 @@ class DeliveryFunctionTests : Logging {
 
         var response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
-        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
-        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
-        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
-        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
-        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+        var responseMap: Map<String, Any> = mapper.readValue(response.body.toString())
+        assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
+        assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
 
         // Happy path with a good UUID
         val reportFile = ReportFile()
@@ -667,24 +677,19 @@ class DeliveryFunctionTests : Logging {
         reportFile.reportId = UUID.fromString(goodUuid)
 
         every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
+
         response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        responseBody = mapper.readValue(response.body.toString())
-        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
-        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
-        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
-        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
-        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+        responseMap = mapper.readValue(response.body.toString())
+        assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
+        assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
 
         mockRequest.parameters["sortDir"] = "ASC"
         response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        responseBody = mapper.readValue(response.body.toString())
-        assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
-        assertThat(responseBody.first().location).isEqualTo(returnBody.first().location)
-        assertThat(responseBody.first().clia).isEqualTo(returnBody.first().testingLabClia)
-        assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
-        assertThat(responseBody.first().total).isEqualTo(returnBody.first().countRecords)
+        responseMap = mapper.readValue(response.body.toString())
+        assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
+        assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
 
         // bad UUID, Not found
         val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
