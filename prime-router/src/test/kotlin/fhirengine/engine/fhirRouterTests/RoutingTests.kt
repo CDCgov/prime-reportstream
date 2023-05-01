@@ -640,12 +640,12 @@ class RoutingTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
-            BlobAccess.Companion.uploadBlob(any(), any())
         }
         verify(exactly = 0) {
             queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any())
         }
     }
 
