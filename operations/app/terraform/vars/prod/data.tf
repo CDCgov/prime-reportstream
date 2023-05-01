@@ -36,12 +36,27 @@ data "azurerm_key_vault_secret" "pagerduty_url" {
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
-data "azurerm_key_vault_secret" "pagerduty_businesshours_url" {
-  name         = "pagerduty-businesshours-url"
+data "azurerm_key_vault_key" "pdh-2048-key" {
+  name         = "pdh${local.init.environment}-2048-key"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
-data "azurerm_key_vault_key" "pdh-2048-key" {
-  name         = "pdh${local.init.environment}-2048-key"
+data "azurerm_key_vault_secret" "slack_email_address" {
+  name         = "slack-email"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "chatops_slack_bot_token" {
+  name         = "chatops-slack-bot-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "chatops_slack_app_token" {
+  name         = "chatops-slack-app-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "chatops_github_token" {
+  name         = "chatops-github-token"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }

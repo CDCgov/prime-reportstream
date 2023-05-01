@@ -175,3 +175,7 @@ export const parseFileLocation = (
         fileName,
     };
 };
+
+export const removeHTMLFromString = (input: string) => {
+    return input.replace(/<(.|\n)*?>/g, "");
+};
