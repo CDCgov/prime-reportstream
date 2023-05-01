@@ -170,6 +170,74 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test trackCreatedReport (no receiver parameter)`() {
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
+        val receiver = Receiver(
+            "myService",
+            "myOrg",
+            Topic.TEST,
+            CustomerStatus.INACTIVE,
+            "CO",
+            Report.Format.CSV,
+            null,
+            null,
+            null
+        )
+        val report1 = Report(
+            schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
+            destination = receiver,
+            itemLineage = listOf(),
+            metadata = UnitTestUtils.simpleMetadata
+        )
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackCreatedReport(event1, report1, blobInfo1)
+
+        assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
+        val reportFile = actionHistory1.reportsOut[report1.id]!!
+        assertThat(reportFile.schemaName).isEqualTo("schema1")
+        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
+        assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
+        assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
+        assertThat(reportFile.blobDigest[1]).isEqualTo(34)
+        assertThat(reportFile.sendingOrg).isNull()
+        assertThat(reportFile.itemCount).isEqualTo(0)
+
+        // not allowed to track the same report twice.
+        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo1) }.isFailure()
+    }
+
+    @Test
+    fun `test trackCreatedReport (no receiver parameter, null receiver and blob)`() {
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
+        val report1 = Report(
+            schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
+            destination = null,
+            itemLineage = listOf(),
+            metadata = UnitTestUtils.simpleMetadata
+        )
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        actionHistory1.trackCreatedReport(event1, report1, null)
+
+        assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
+        val reportFile = actionHistory1.reportsOut[report1.id]!!
+        assertThat(reportFile.schemaName).isEqualTo("schema1")
+        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.receivingOrg).isNull()
+        assertThat(reportFile.receivingOrgSvc).isNull()
+        assertThat(reportFile.bodyUrl).isNull()
+        assertThat(reportFile.blobDigest).isNull()
+        assertThat(reportFile.sendingOrg).isNull()
+        assertThat(reportFile.itemCount).isEqualTo(0)
+
+        // not allowed to track the same report twice.
+        assertThat { actionHistory1.trackCreatedReport(event1, report1, null) }.isFailure()
+    }
+
+    @Test
     fun `test trackExistingInputReport`() {
         val uuid = UUID.randomUUID()
         val actionHistory1 = ActionHistory(TaskAction.send)
