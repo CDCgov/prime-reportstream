@@ -50,6 +50,7 @@ jobs:
           echo "$EOF" >> $GITHUB_OUTPUT
       
       - name: Slack Notification
+        if: ${{ steps.format_out.outputs.LIST  != '' }}
         uses: ./.github/actions/notifications
         with:
           method: slack

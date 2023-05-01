@@ -498,7 +498,7 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        blobInfo: BlobAccess.BlobInfo
+        blobInfo: BlobAccess.BlobInfo?
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -510,10 +510,15 @@ class ActionHistory(
         reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic.json_val
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
+        if (blobInfo != null) {
+            reportFile.bodyUrl = blobInfo.blobUrl
+            reportFile.bodyFormat = blobInfo.format.toString()
+            reportFile.blobDigest = blobInfo.digest
+            reportFile.itemCount = report.itemCount
+        } else {
+            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.itemCount = 0
+        }
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
