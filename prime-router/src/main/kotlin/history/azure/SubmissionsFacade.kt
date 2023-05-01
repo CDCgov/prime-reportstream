@@ -133,6 +133,7 @@ class SubmissionsFacade(
                 UUID.fromString(it),
                 DetailedSubmissionHistory::class.java
             )
+            submission.actionsPerformed = relatedSubmissions.map { submission -> submission.actionName }.distinct()
             submission.enrichWithDescendants(relatedSubmissions)
         }
 

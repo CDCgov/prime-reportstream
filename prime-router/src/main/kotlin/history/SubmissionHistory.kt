@@ -142,6 +142,9 @@ class DetailedSubmissionHistory(
      */
     var destinations = mutableListOf<Destination>()
 
+    @JsonIgnore
+    var actionsPerformed = emptyList<TaskAction>()
+
     /**
      * The step in the delivery process for a submission
      * Supported values:
@@ -512,13 +515,18 @@ class DetailedSubmissionHistory(
         }
 
         if (destinations.size == 0) {
-            return if (reportItemCount != 0) {
-                // Data hasn't been processed yet (common in async submissions)
-                Status.RECEIVED
-            } else {
-                // Very rare: No data matches any geographical location.
-                Status.NOT_DELIVERING
+            if (actionsPerformed.contains(TaskAction.route)) {
+                return Status.NOT_DELIVERING
             }
+            /**
+             * Cases where this may hit:
+             *     1) Data hasn't been processed yet (common in async submissions)
+             *     2) Very rare: No data matches any geographical location.
+             *         e.g. If both the testing tab and patient data were foreign addresses.
+             * At the moment we have NO easy way to distinguish the latter rare case,
+             * so it will be treated as status RECEIVED as well.
+             */
+            return Status.RECEIVED
         } else if (realDestinations.isEmpty()) {
             return Status.NOT_DELIVERING
         }
