@@ -205,7 +205,7 @@ data class Hl7Configuration
 }
 
 /**
- * Standard HL7 report configuration
+ * Standard FHIR report configuration
  */
 data class FHIRConfiguration
 @JsonCreator constructor(
