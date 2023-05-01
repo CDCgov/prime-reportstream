@@ -110,19 +110,23 @@ class FHIRTranslator(
         }
     }
 
+    /**
+     * Returns a byteArray representation of the bundle in a format [receiver] expects, or throws an exception if the
+     * expected format isn't supported.
+     */
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
-        updatedBundle: Bundle
+        bundle: Bundle
     ) = when (receiver.format) {
         Report.Format.FHIR -> {
             if (receiver.schemaName.isNotEmpty()) {
                 val transformer = FhirTransformer(receiver.schemaName)
-                transformer.transform(updatedBundle)
+                transformer.transform(bundle)
             }
-            FhirTranscoder.encode(updatedBundle, FhirContext.forR4().newJsonParser()).toByteArray()
+            FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
         }
         Report.Format.HL7, Report.Format.HL7_BATCH -> {
-            val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
+            val hl7Message = getHL7MessageFromBundle(bundle, receiver)
             hl7Message.encode().toByteArray()
         }
         else -> {

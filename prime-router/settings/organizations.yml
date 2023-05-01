@@ -216,7 +216,8 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<FHIR>
-        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        # Uncomment next line to verify fhir receiver transforms
+        # schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
         type: "FHIR"
       transport:
         type: SFTP
