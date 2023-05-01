@@ -482,6 +482,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Load the ItemLineage ancestry for a child with a given [reportId].
      * Includes sanity checking via a verification [itemCount] and reusable [txn]
      * Returns null if report has no item-level lineage info tracked.
+     * @param reportId report to get the lineage for
+     * @param itemCount expected minimum number of lineages
+     * @param txn an optional reusable database transaction
+     * @return List of Item Lineages for the given report
      */
     fun fetchItemLineagesForReport(
         reportId: ReportId,

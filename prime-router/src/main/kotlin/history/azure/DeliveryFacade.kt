@@ -106,6 +106,8 @@ class DeliveryFacade(
 
     /**
      * Get facilities for multiple deliveries in one call for a set of [reportIds]
+     * @param reportIds ids to check the reports for
+     * @return list of matching facilities
      */
     fun findBulkDeliveryFacilities(
         reportIds: List<ReportId>
