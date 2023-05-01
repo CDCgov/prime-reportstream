@@ -21,8 +21,7 @@ interface EnumTooltipProps {
     vals: Array<string>;
 }
 
-const copyToClipboard = (text: string) =>
-    navigator.clipboard.writeText(text).then(() => console.log("Copied"));
+const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
 const ObjectTooltip = ({ obj }: ObjectTooltipProps) => {
     return (

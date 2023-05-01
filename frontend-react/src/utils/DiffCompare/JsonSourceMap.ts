@@ -248,7 +248,7 @@ export const jsonSourceMap = (
                 }
                 break;
             default:
-                console.log("unknown type");
+                console.error("unknown type");
         }
         map(ptr, "valueEnd");
     };
