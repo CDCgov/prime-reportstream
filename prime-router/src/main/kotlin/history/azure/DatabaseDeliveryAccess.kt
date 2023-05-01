@@ -169,7 +169,11 @@ class DatabaseDeliveryAccess(
                     COVID_RESULT_METADATA.TESTING_LAB_STATE,
                     COVID_RESULT_METADATA.TESTING_LAB_CLIA,
                     positive,
-                    total
+                    total,
+                    COVID_RESULT_METADATA.CREATED_AT,
+                    COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
+                    COVID_RESULT_METADATA.SENDER_ID,
+                    COVID_RESULT_METADATA.REPORT_ID,
                 ).from(
                     COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
                         COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
@@ -181,7 +185,11 @@ class DatabaseDeliveryAccess(
                     COVID_RESULT_METADATA.TESTING_LAB_NAME,
                     COVID_RESULT_METADATA.TESTING_LAB_CITY,
                     COVID_RESULT_METADATA.TESTING_LAB_STATE,
-                    COVID_RESULT_METADATA.TESTING_LAB_CLIA
+                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
+                    COVID_RESULT_METADATA.CREATED_AT,
+                    COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
+                    COVID_RESULT_METADATA.SENDER_ID,
+                    COVID_RESULT_METADATA.REPORT_ID,
                 )
 
             query.fetchInto(DeliveryFacility::class.java)

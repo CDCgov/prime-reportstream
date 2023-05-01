@@ -114,7 +114,11 @@ data class DeliveryFacility(
     val testingLabState: String?,
     val testingLabClia: String?,
     val positive: Long?,
-    val countRecords: Long?
+    val countRecords: Long?,
+    val createdAt: OffsetDateTime? = null,
+    val orderingProvider: String? = null,
+    val senderId: String? = null,
+    val reportId: ReportId? = null
 ) {
     /**
      * This is a combination of the city and state values
