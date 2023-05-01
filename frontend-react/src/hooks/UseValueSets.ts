@@ -32,7 +32,7 @@ const findTableMetaByName = (
     );
 
     if (!filteredBody.length) {
-        console.log("Unable to find metadata for lookup table: ", tableName);
+        console.info("Unable to find metadata for lookup table: ", tableName);
         return {} as LookupTable;
     }
     return filteredBody.sort(

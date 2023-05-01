@@ -28,7 +28,7 @@ export const getReportAndDownload = (
             downloadReport(apiReport);
         })
         .catch((error) => {
-            console.log(error);
+            console.error(error);
         });
     return report;
 };

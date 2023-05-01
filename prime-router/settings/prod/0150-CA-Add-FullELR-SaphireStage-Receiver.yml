@@ -4,17 +4,17 @@
   jurisdiction: "STATE"
   stateCode: "CA"
   countyName: null
-  filters: []
+  filters: [ ]
   featureFlags: null
   keys: null
-  senders: []
+  senders: [ ]
   receivers:
     - name: "full-elr-saphirestage"
       organizationName: "ca-dph"
       topic: "full-elr"
       customerStatus: "testing"
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: ""
@@ -22,8 +22,8 @@
         receivingFacilityName: ""
         receivingFacilityOID: null
         messageProfileId: null
-        replaceValue: {}
-        replaceValueAwithB: {}
+        replaceValue: { }
+        replaceValueAwithB: { }
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
@@ -38,14 +38,14 @@
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
         cliaForOutOfStateTesting:
-        cliaForSender: {}
+        cliaForSender: { }
         phoneNumberFormatting: "STANDARD"
         suppressNonNPI: false
         processingModeCode: null
         replaceDiiWithOid: null
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
-        valueSetOverrides: {}
+        valueSetOverrides: { }
         nameFormat: "STANDARD"
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false
@@ -80,7 +80,7 @@
         - >-
           %resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()
           or (%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))
-      routingFilter: []
+      routingFilter: [ ]
       processingModeFilter:
         - "%processingId = 'T'"
       reverseTheQualityFilter: false

@@ -189,7 +189,7 @@ class AddPublicKey : SettingCommand(
 
     val doIt by option(
         "--doit",
-        help = "Save the modified Sender setting to the database (default is to just print the modified setting)"
+        help = "Save the modified Organization setting to the database (default is to just print the modified setting)"
     ).flag(default = false)
 
     override fun run() {
@@ -247,6 +247,89 @@ class AddPublicKey : SettingCommand(
 
             Nothing has been updated or changed. 
             To add the key permanently, review, then rerun this same command including the --doit option
+                """.trimIndent()
+            )
+            return
+        }
+        val response = put(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName, newOrganizationJson)
+        echo()
+        echo(response)
+        echo()
+    }
+}
+
+class RemoveKey : SettingCommand(
+    name = "removekey",
+    help = """
+    Removes a public key from an existing organization's setting
+    """.trimIndent(),
+) {
+    private val kid by option(
+        "--kid",
+        metavar = "<string key id>",
+        help = """
+            Specify desired key id for this key.  This value must be unique within the keys already added
+            for the scope.
+        """.trimIndent()
+    ).required()
+
+    private val scope by option(
+        "--scope",
+        metavar = "<desired scope>",
+        help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
+    ).required()
+
+    private val orgName by option(
+        "--orgName",
+        metavar = "<organization>",
+        help = "Specify the name of the organization to add the key to"
+    ).required()
+
+    private val useJson by jsonOption
+
+    val doIt by option(
+        "--doit",
+        help = "Save the modified Organization setting to the database (default is to just print the modified setting)"
+    ).flag(default = false)
+    override fun run() {
+        val origOrganizationJson =
+            get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
+        val origOrganization = jsonMapper.readValue(origOrganizationJson, Organization::class.java)
+        if (!Scope.isValidScope(scope, origOrganization)) {
+            echo("$scope is not valid")
+            return
+        }
+        val jwkSetForScope = origOrganization.keys?.find { jwkSet -> jwkSet.scope == scope }
+        val key = jwkSetForScope?.keys?.find { key -> key.kid == kid }
+        if (key == null) {
+            echo("Unable to find key for organization with kid: $kid and scope $scope")
+            return
+        }
+        val updatedKeys = JwkSet.removeKeyFromScope(origOrganization.keys, scope, key)
+        val newOrganization = Organization(origOrganization, updatedKeys)
+        val newOrganizationJson = jsonMapper.writeValueAsString(newOrganization)
+        echo("** Original Organization **")
+        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
+            toYaml(
+                origOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("** End Original Organization **")
+        echo("*** Modified Organization, including new key *** ")
+        if (useJson) writeOutput(newOrganizationJson) else writeOutput(
+            toYaml(
+                newOrganizationJson,
+                SettingType.ORGANIZATION
+            )
+        )
+        echo("*** End Modified Organization, after removing key *** ")
+        if (!doIt) {
+            echo(
+                """
+
+            Nothing has been updated or changed. 
+            To remove the key permanently, review, then rerun this same command including the --doit option
                 """.trimIndent()
             )
             return
