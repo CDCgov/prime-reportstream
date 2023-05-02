@@ -53,11 +53,11 @@ export function MarkdownLayout({
             }}
         >
             <GridContainer className="usa-prose">
-                <Grid row>
+                <Grid row className="flex-justify">
                     {sidenav ? (
                         <Nav
                             aria-label="side-navigation"
-                            className="tablet:grid-col-4"
+                            className="tablet:grid-col-3"
                             {...sidenavProps}
                         >
                             {sidenav}
@@ -76,3 +76,5 @@ export function MarkdownLayout({
         </MDXProvider>
     );
 }
+
+export default MarkdownLayout;

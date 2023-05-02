@@ -32,6 +32,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 
@@ -57,6 +58,7 @@ export const appRoutes = [
     {
         path: "/resources",
         children: [
+            { path: "getting-started", element: <GettingStartedPage /> },
             { path: "", element: <ResourcesPage /> },
             { path: "*", element: <Resources /> },
         ],
