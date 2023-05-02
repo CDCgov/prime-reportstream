@@ -40,7 +40,6 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrul
   description    = "Critical Alert found in Metabase WebApp logs: Service unavailable"
   enabled        = true
   query          = <<-EOT
-      // 2022-03-31: Exclude co-phd.elr-test -- this is a known error per Rick Hood
       AzureDiagnostics
       | where requestUri_s contains "metabase/api/health" and httpStatusCode_d != 200
       | where errorInfo_s == "OriginConnectionRefused"
