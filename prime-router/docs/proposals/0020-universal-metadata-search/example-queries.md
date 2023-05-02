@@ -127,6 +127,19 @@ select * from delivered_reports_for_receiver;
 - Given some report item data, I want to find other data associated with the item. See
   [Carroll Schultz](https://www.figma.com/proto/6mwI5ac6rprACKDzDo4Ady/ReportStream-Workspace-%7C-2023?node-id=1081%3A15935&scaling=min-zoom&page-id=496%3A6448&starting-point-node-id=995%3A13227&show-proto-sidebar=1).
     - I want to see when an ordering provider first reported to us, the receiver.
+        - Search the ordering provider index and get all the metadata ids
+        ```sql
+        select min(metadata.created_at) from metadata
+        where id in %metadata_ids%
+        join terminal_report_ids on(
+            terminal_report_ids.origin_report_id = metadata.report_id
+            and terminal_report_ids.origin_report_index = metadata.report_index
+        )
+        join report_file on(
+            terminal_report_ids.terminal_report_id = report_file.report_id
+        )
+       where report_file.receiving_org = %receiving_org%
+        ```
     - I want the average number of tests per report sent to us for all reports including a particular ordering provider.
     - I want the total number of items associated with a particular ordering provider.
     - I want the contact information for a particular ordering provider.
