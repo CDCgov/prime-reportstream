@@ -33,6 +33,10 @@ import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
+import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 
@@ -59,6 +63,21 @@ export const appRoutes = [
         path: "/resources",
         children: [
             { path: "getting-started", element: <GettingStartedPage /> },
+            {
+                path: "documentation",
+                children: [
+                    { path: "", element: <DocumentationPage /> },
+                    { path: "data-model", element: <DataModelPage /> },
+                    {
+                        path: "responses-from-reportstream",
+                        element: <ResponsesFromReportStreamPage />,
+                    },
+                    {
+                        path: "sample-payloads-and-output",
+                        element: <SamplePayloadsAndOutputPage />,
+                    },
+                ],
+            },
             { path: "", element: <ResourcesPage /> },
             { path: "*", element: <Resources /> },
         ],
