@@ -22,17 +22,41 @@ Tickets needed for both epics:
 ## FHIR Validation
 ### Proposed Design
 The diagram below proposes four validation "checkpoints":
-1. Upon receipt of a submission in the SenderReceiver
-2. Per bundle after debatch in the convert function
-3. After sender transforms and enrichment, also in the convert function
-4. After receiver transforms and enrichment in the translate function
 
+| Name                      | Description + Location                                              | Purpose                                                                                                      |
+|---------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| Submission                | Upon receipt of a submission in the SenderReceiver                  | Ensure data is not garbage (i.e. parseable FHIR, not a png)                                                  |
+| Pre-transform (sender)    | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)   |
+| Post-transform (sender)   | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender) | 
+| Post-transform (receiver) | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender) | 
+
+This is where they are located in the overall system:  
+TODO: update this diagram with names above & lucid access
 ![annotated-fhir-architecture-diagram.png](annotated-fhir-architecture-diagram.png)
 
 A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects 
 (i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
 
-Upon receiving a message (checkpoint 1 above), the IParser validation could likely strike an ideal balance of insurance and leniency
+#### Submission
+We currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some validation
+and raises warnings or errors (depending on how its configured).
+
+We need to investigate how the instance is currently configured and ensure it is performing validation. Ideally this
+configuration will be universal or at least binary (validation on/off vs different types) for all senders.
+
+#### Pre sender transform
+Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
+We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied.
+
+Further validation is still necessary as the assembled bundle may still be missing data that will be added.
+
+#### Post sender transform
+After applying sender transforms and enrichment, we again need to ensure that all necessary data exists and is sane.
+
+One final validation will be needed (per receiver) after applying receiver transforms and enrichment.
+
+#### Post receiver enrichment
+Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
 ### Background Information / Dev Notes
 The HAPI FHIR library represents an implementation guide using:
