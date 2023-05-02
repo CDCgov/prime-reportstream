@@ -15,9 +15,9 @@ When a message fails validation. Validation errors should show up in:
 - Notify the sender, if appropriate
 
 Tickets needed for both epics:
-- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161 <br/>
-- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036 <br/>
-- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221 <br/>
+- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161
+- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036
+- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
 
 ## FHIR Validation
 ### Proposed Design
@@ -122,6 +122,10 @@ The diagram below proposes two validation "checkpoints":
 2. Receiver Validation - will occur in the translate function, after reception, translation, and enrichment but right
    before dispatch.
 
+We want to add sender validation so that we can ensure that the data we are receiving matches the intended spec so that
+we do not send messy data.
+We want to add receiver validation so that the receiver can receive the data in the format they are expecting.  
+
 ![hl7-validation-annotated-architecture-diagram.png](annotated-hl7-architecture-diagram.png)
 
 ### Background Information/Dev Notes
@@ -204,9 +208,19 @@ An example for using conformance:
 https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidationUsingConformanceProfile.html <br/>
 
 #### NIST Validator
-This is a web tool that can be used for manual validation. However, as of the writing of this document, it is currently
-broken. We reached out to the makers of the tool previously and they said that they were aware of the issue and a fix 
-was in the works.
+The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/v2-validation <br/>
+Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
+https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
+project only has one README which does not discuss how to actually use the library. I was told that DEX uses this, but
+upon reviewing their code, did not actually find that they were making external calls to this library, it looked like
+they had their own baked in validator. https://hl7v2-gvt.nist.gov/gvt/#/doc appears to have information on the 
+validation tool and within that there is a swagger spec 
+https://hl7v2-gvt.nist.gov/gvt/apidocs/swagger-ui.html#/ but none of that appears to be for actually validating an 
+HL7 Message.
+
+From reading the code in the library, it looks like they have one ORU_R01 profile setup as an example, we would need to 
+set up any further profiles that we want. These are done in xml, then we deserialize them, pass then into the 
+HL7Validator class, along with the ValueSetLibrary, and ConformanceContext and call the validate method on the message.
 
 ### Resulting Tickets
 - Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 
