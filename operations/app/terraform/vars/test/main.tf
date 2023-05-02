@@ -136,6 +136,7 @@ module "function_app" {
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
+  candidate_access_key              = module.storage.candidate_access_key
   container_registry_login_server   = module.container_registry.container_registry_login_server
   primary_connection_string         = module.storage.sa_primary_connection_string
   app_service_plan                  = module.app_service_plan.service_plan_id
@@ -257,6 +258,7 @@ module "log_analytics_workspace" {
   storage_public_id          = module.storage.storage_public_id
   storage_partner_id         = module.storage.storage_partner_id
   action_group_slack_id      = module.application_insights.action_group_slack_id
+  action_group_metabase_id   = module.application_insights.action_group_metabase_id
   data_factory_id            = module.data_factory.data_factory_id
   sftp_instance_01_id        = module.sftp.sftp_instance_ids[0]
 }

@@ -11,18 +11,25 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LivdLookup
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.ServiceRequest
+import java.io.File
 import kotlin.test.Test
 
 class FhirToHl7ConverterTests {
@@ -394,6 +401,33 @@ class FhirToHl7ConverterTests {
 
         assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
             .hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test convert with context`() {
+        mockkObject(LivdLookup)
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+
+        val bundle = FhirTranscoder.decode(fhirData)
+        val loincCode = "906-1"
+        val pathWithValue = "Bundle.entry.resource.ofType(Observation)[0].livdTableLookup(1)"
+
+        var element = ConverterSchemaElement(
+            "name",
+            value = listOf(pathWithValue),
+            hl7Spec = listOf("MSH-11")
+        )
+        var schema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(element)
+        )
+
+        every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
+        val message = FhirToHl7Converter(schema, context = FhirToHl7Context(CustomFhirPathFunctions())).convert(bundle)
+        assertThat(message.isEmpty).isFalse()
+        assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(loincCode)
     }
 
     @Test
