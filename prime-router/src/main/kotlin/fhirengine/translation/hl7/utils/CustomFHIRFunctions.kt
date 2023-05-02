@@ -1,16 +1,13 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
-import gov.cdc.prime.router.Metadata
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.IntegerType
-import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
@@ -21,7 +18,7 @@ import java.util.TimeZone
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
-object CustomFHIRFunctions {
+object CustomFHIRFunctions : FhirPathFunctions {
 
     /**
      * Custom FHIR Function names used to map from the string used in the FHIR path
@@ -37,7 +34,6 @@ object CustomFHIRFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        LivdTableLookup,
         ChangeTimezone;
 
         companion object {
@@ -56,10 +52,14 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Get the function details for a given [functionName].
+     * Get the function details for a given [functionName] and adds the ability to provide [additionalFunctions] in case
+     * additional custom FHIR functions are needed.
      * @return the function details
      */
-    fun resolveFunction(functionName: String?): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
+    override fun resolveFunction(
+        functionName: String?,
+        additionalFunctions: FhirPathFunctions?
+    ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
@@ -101,14 +101,6 @@ object CustomFHIRFunctions {
                 )
             }
 
-            CustomFHIRFunctionNames.LivdTableLookup -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "looks up data in the LIVD table that match the information provided",
-                    1,
-                    1
-                )
-            }
-
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
                     "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
@@ -117,18 +109,21 @@ object CustomFHIRFunctions {
                 )
             }
 
-            else -> null
+            else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
 
     /**
-     * Execute the function on a [focus] resource for a given [functionName] and [parameters].
+     * Execute the function on a [focus] resource for a given [functionName] and [parameters]. [additionalFunctions] can
+     * be executed if present
+     *
      * @return the function result
      */
-    fun executeFunction(
+    override fun executeFunction(
         focus: MutableList<Base>?,
         functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
+        additionalFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return (
@@ -169,15 +164,12 @@ object CustomFHIRFunctions {
                     getIdType(focus)
                 }
 
-                CustomFHIRFunctionNames.LivdTableLookup -> {
-                    livdTableLookup(focus, parameters)
-                }
-
                 CustomFHIRFunctionNames.ChangeTimezone -> {
                     changeTimezone(focus, parameters)
                 }
 
-                else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
+                else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
+                    ?: throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
             }
             )
     }
@@ -374,80 +366,6 @@ object CustomFHIRFunctions {
             else -> null
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
-    }
-
-    /**
-     * Get the LOINC Code from the LIVD table based on the device id, equipment model id, test kit name id, or the
-     * element model name
-     * @return a list with one value denoting the LOINC Code, or an empty list
-     */
-    fun livdTableLookup(
-        focus: MutableList<Base>,
-        parameters: MutableList<MutableList<Base>>?,
-        metadata: Metadata = Metadata.getInstance()
-    ): MutableList<Base> {
-        val lookupTable = metadata.findLookupTable(name = LivdLookup.livdTableName)
-
-        if (focus.size != 1) {
-            throw SchemaException("Must call the livdTableLookup function on a single observation")
-        }
-
-        val observation = focus.first()
-        if (observation !is Observation) {
-            throw SchemaException("Must call the livdTableLookup function on an observation")
-        }
-
-        var result: String? = ""
-        // Maps to OBX 17 CWE.1 Which is coding[1].code
-        val testPerformedCode = (observation as Observation?)?.code?.coding?.firstOrNull()?.code
-        val deviceId = (observation as Observation?)?.method?.coding?.firstOrNull()?.code
-        if (!deviceId.isNullOrEmpty()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = deviceId,
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = null,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        // Maps to OBX 18 which is mapped to Device.identifier
-        val equipmentModelId = (observation.device.resource as Device?)?.identifier?.firstOrNull()?.id
-        if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = equipmentModelId,
-                testKitNameId = null,
-                equipmentModelName = null,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
-        if (!result.isNullOrBlank() && !deviceName.isNullOrBlank()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = deviceName,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        return if (result.isNullOrBlank()) {
-            mutableListOf(StringType(null))
-        } else {
-            mutableListOf(StringType(result))
-        }
     }
 
     /**

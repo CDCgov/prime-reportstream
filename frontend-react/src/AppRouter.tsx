@@ -41,6 +41,9 @@ export enum FeatureName {
     SUPPORT = "Support",
     ADMIN = "Admin",
     UPLOAD = "Upload",
+    FACILITIES_PROVIDERS = "All facilities & providers",
+    DASHBOARD = "Dashboard",
+    REPORT_DETAILS = "Report Details",
 }
 
 export const appRoutes = [

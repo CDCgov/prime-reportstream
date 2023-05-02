@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -18,7 +19,8 @@ import org.hl7.fhir.r4.model.Bundle
  * Convert a FHIR bundle to an HL7 message using the [schemaRef] to perform the conversion.
  * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
  * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
- * the schema validation process.
+ * the schema validation process. Additional custom FHIR path functions used to convert messages can be passed
+ * inside the [context].
  * @property terser the terser to use for building the HL7 message (use for dependency injection)
  * @property constantSubstitutor the constant substitutor. Should be a static instance, but is not thread safe
  */
@@ -27,24 +29,28 @@ class FhirToHl7Converter(
     private val strict: Boolean = false,
     private var terser: Terser? = null,
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
-    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor()
+    private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor(),
+    private val context: FhirToHl7Context? = null
 ) : ConfigSchemaProcessor() {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
+     * The converter will error out if [strict] is set to true and there is an error during the conversion.  If [strict]
      * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
-     * the schema validation process.
+     * the schema validation process. Additional custom FHIR path functions used to convert messages can be passed
+     * inside the [context].
      * @property terser the terser to use for building the HL7 message (use for dependency injection)
      */
     constructor(
         schema: String,
         schemaFolder: String,
         strict: Boolean = false,
-        terser: Terser? = null
+        terser: Terser? = null,
+        context: FhirToHl7Context? = null
     ) : this(
         schemaRef = converterSchemaFromFile(schema, schemaFolder),
         strict = strict,
-        terser = terser
+        terser = terser,
+        context = context
     )
 
     /**
@@ -57,14 +63,16 @@ class FhirToHl7Converter(
     constructor(
         schema: String,
         strict: Boolean = false,
-        terser: Terser? = null
+        terser: Terser? = null,
+        context: FhirToHl7Context? = null
     ) : this(
         schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
             FilenameUtils.getPathNoEndSeparator(schema)
         ),
         strict = strict,
-        terser = terser
+        terser = terser,
+        context = context
     )
 
     /**
@@ -93,7 +101,7 @@ class FhirToHl7Converter(
         schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle),
+        context: CustomContext = CustomContext(bundle, bundle, customFhirFunctions = this.context?.fhirFunctions),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -213,3 +221,10 @@ class FhirToHl7Converter(
         }
     }
 }
+
+/**
+ * Context used to hold additional custom [FhirPathFunctions] used by [FhirToHl7Converter]
+ */
+data class FhirToHl7Context(
+    val fhirFunctions: FhirPathFunctions,
+)
