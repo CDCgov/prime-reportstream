@@ -1,0 +1,3 @@
+[submodule "operations/slack-boltjs-app"]
+	path = operations/slack-boltjs-app
+	url = https://github.com/JosiahSiegel/slack-boltjs-app
