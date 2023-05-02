@@ -30,9 +30,6 @@ const testScenarios = Object.entries(enumProps).map(([key, valueList]) =>
 
 const routeUrls = [
     "",
-    "#",
-    "#asdf",
-    "##asdf",
     "/",
     "asdf",
     `//${window.location.host}/asdf`,
@@ -50,6 +47,9 @@ const nonRouteUrls = [
     "https://www.google.com",
     "http://www.google.com",
     "//www.google.com",
+    "#",
+    "#asdf",
+    "##asdf",
 ];
 
 describe("getHrefRoute", () => {

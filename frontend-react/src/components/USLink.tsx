@@ -23,6 +23,9 @@ type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
  * Attempt to parse href as URL (taking into account "//" shorthand).
  * If it errors, then assume its a relative url (aka route). If it
  * parses, then verify its an absolute route through origins.
+ *
+ * If href is a hash anchor link, return undefined so as to bypass
+ * passing through react-router.
  */
 export function getHrefRoute(href?: string): string | undefined {
     if (href === undefined) return undefined;
@@ -31,12 +34,14 @@ export function getHrefRoute(href?: string): string | undefined {
         const url = new URL(
             href.replace(/^\/\//, `${window.location.protocol}//`)
         );
+        if (url.hash) return undefined;
         if (
             url.protocol.startsWith("http") &&
             url.origin === window.location.origin
         )
             return `${url.pathname}${url.search}`;
     } catch (e: any) {
+        if (href.startsWith("#")) return undefined;
         return href;
     }
 
