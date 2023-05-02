@@ -41,6 +41,10 @@ locals {
     app_size                 = "P3v2"
     function_runtime_version = "~4"
   }
+  chatops = {
+    github_repo            = "JosiahSiegel/hubot-slack-docker"
+    github_target_branches = "temp1,demo1,demo2"
+  }
   network = {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
