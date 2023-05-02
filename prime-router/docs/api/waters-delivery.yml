@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FacilitiesList'
+                $ref: '#/components/schemas/GetBulkFacilitiesResponse'
         '400':
           description: bad request
         '401':
@@ -259,3 +259,41 @@ components:
         total:
           description: number of facilities included in the object
           type: integer
+    GetBulkFacilitiesResponse:
+      type: object
+      properties:
+        meta:
+          description: information to assist in parsing the data array
+          type: object
+          properties:
+            type:
+              description: descriptive name for the type of data returned
+              type: string
+            totalCount:
+              description: the number of resources returned
+              type: integer
+        data:
+          description: the list of facilities found by the query
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkDeliveryFacility'
+    BulkDeliveryFacility:
+      type: object
+      properties:
+        dateSent:
+          description: when the report was sent to the facility
+          type: string
+          format: date-time
+        orderingProvider:
+          description: full name of the provider that ordered the test
+          type: string
+        performingFacility:
+          description: name of the facility where the test was done
+          type: string
+        submitter:
+          description: organization that submitted the report
+          type: string
+        reportId:
+          description: the uuid for the referenced report
+          type: string
+          format: uuid
