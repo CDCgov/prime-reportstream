@@ -252,7 +252,8 @@ main {
 
 // ComponentHeading as div, with header element inside
 .usa-process-list__heading,
-.usa-alert__heading {
+.usa-alert__heading,
+.usa-process-list__heading {
     & h1,
     & h2,
     & h3,

@@ -39,6 +39,7 @@ import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers
 import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
+import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -78,6 +79,7 @@ export const appRoutes = [
                     },
                 ],
             },
+            { path: "reportstream-api", element: <ReportStreamAPIPage /> },
             { path: "", element: <ResourcesPage /> },
             { path: "*", element: <Resources /> },
         ],
