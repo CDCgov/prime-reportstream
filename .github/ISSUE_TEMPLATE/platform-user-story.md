@@ -1,3 +1,12 @@
+---
+name: Platform User Story
+about: Platform team's User Story issue template
+title: User Story Title
+labels: pipeline, platform
+assignees: ''
+
+---
+
 ### User Story
 <!--
 What is a User Story?

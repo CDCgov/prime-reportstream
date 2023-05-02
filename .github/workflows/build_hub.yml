@@ -233,6 +233,7 @@ jobs:
             -Dsonar.organization=cdcgov
             -Dsonar.skipUnchanged=false
             -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
+            -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest

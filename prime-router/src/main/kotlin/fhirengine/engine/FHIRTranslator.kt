@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
@@ -17,6 +18,7 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
@@ -131,7 +133,8 @@ class FHIRTranslator(
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
         val converter = FhirToHl7Converter(
-            receiver.schemaName
+            receiver.schemaName,
+            context = FhirToHl7Context(CustomFhirPathFunctions())
         )
         val hl7Message = converter.convert(bundle)
 
