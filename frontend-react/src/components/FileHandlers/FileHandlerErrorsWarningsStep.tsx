@@ -10,12 +10,9 @@ import { useRef } from "react";
 
 import { OverallStatus } from "../../config/endpoints/waters";
 import { ErrorType } from "../../hooks/UseFileHandler";
+import { StaticAlert, StaticAlertType } from "../StaticAlert";
 
-import {
-    FileQualityFilterDisplay,
-    RequestedChangesDisplay,
-    RequestLevel,
-} from "./FileHandlerMessaging";
+import { RequestedChangesDisplay, RequestLevel } from "./FileHandlerMessaging";
 import { FileHandlerStepProps } from "./FileHandler";
 
 const SERVER_ERROR_MESSAGING = {
@@ -85,29 +82,30 @@ export default function FileHandlerErrorsWarningsStep({
             )}
 
             {hasQualityFilterMessages && (
-                <FileQualityFilterDisplay
-                    destinations={qualityFilterMessages}
-                    heading=""
-                    message="The file does not meet the jurisdiction's schema. Please resolve the errors below."
+                <StaticAlert
+                    type={StaticAlertType.Warning}
+                    heading="Jurisdictional errors found"
+                    message="Your file does not meet the data model for the following jurisdiction(s). Resolves the errors below to ensure those jurisdictions can receive your data."
                 />
             )}
 
             <div className="display-flex margin-bottom-2">
                 <Button
-                    className="usa-button usa-button--outline"
+                    className="usa-button"
                     type="button"
                     onClick={onTestAnotherFileClick}
                 >
                     Test another file
                 </Button>
-                <Button
-                    disabled={errors.length > 0}
-                    className="usa-button"
-                    type="button"
-                    onClick={() => modalRef?.current?.toggleModal()}
-                >
-                    Continue without changes
-                </Button>
+                {!errors.length && (
+                    <Button
+                        className="usa-button"
+                        type="button"
+                        onClick={() => modalRef?.current?.toggleModal()}
+                    >
+                        Continue without changes
+                    </Button>
+                )}
             </div>
 
             <Modal id="file-validator-modal" ref={modalRef}>

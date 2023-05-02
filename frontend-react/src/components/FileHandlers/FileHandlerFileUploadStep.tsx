@@ -27,11 +27,11 @@ import { FileHandlerStepProps } from "./FileHandler";
 export const UPLOAD_PROMPT_DESCRIPTIONS = {
     [FileType.CSV]: {
         title: "Upload CSV file",
-        subtitle: "Make sure that your file has a .csv extension",
+        subtitle: "Make sure your file has a .csv extension",
     },
     [FileType.HL7]: {
         title: "Upload HL7 v2.5.1 file",
-        subtitle: "Make sure that your file has a .hl7 extension",
+        subtitle: "Make sure your file has a .hl7 extension",
     },
 };
 
