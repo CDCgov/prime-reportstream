@@ -206,6 +206,7 @@ describe("TelemetryService", () => {
                 test("calls trackEvent with the correct message and severity level", () => {
                     const message = "hello there";
 
+                    // eslint-disable-next-line no-console
                     console.log(message);
 
                     expect(appInsights?.trackEvent).toBeCalledWith({
@@ -224,6 +225,7 @@ describe("TelemetryService", () => {
                     const message = "hello there";
                     const data = { a: 1 };
 
+                    // eslint-disable-next-line no-console
                     console.log(message, data);
 
                     expect(appInsights?.trackEvent).toBeCalledWith({
