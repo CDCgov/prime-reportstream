@@ -126,6 +126,7 @@ class SubmissionsFacade(
             action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
+        submission?.actionsPerformed?.add(action.actionName)
 
         // Submissions with a report ID (means had no errors) can have a lineage
         submission?.reportId?.let {
@@ -133,7 +134,6 @@ class SubmissionsFacade(
                 UUID.fromString(it),
                 DetailedSubmissionHistory::class.java
             )
-            submission.actionsPerformed = relatedSubmissions.map { submission -> submission.actionName }.distinct()
             submission.enrichWithDescendants(relatedSubmissions)
         }
 
