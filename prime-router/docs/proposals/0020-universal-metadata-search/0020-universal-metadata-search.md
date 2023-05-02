@@ -10,7 +10,7 @@
   - date ranges
   - aggregates
 
-See the initial [requirements](./0018-universal-search.md).
+See the initial [requirements](../0018-universal-search.md).
 
 The search question in that document breakdown into a few broad categories:
 
@@ -47,8 +47,9 @@ erDiagram
     OriginToDeliver {
         string origin_report_id
         string origin_report_index
-        string delivered_report_id
-        string delivered_report_index
+        string terminal_report_id
+        string terminal_report_index
+        string terminal_report_state
     }
 ```
 
@@ -203,6 +204,13 @@ between the original and delivered one
 - Large documents will require a large amount of memory for the MongoDB servers
 - "Ad-hoc" searches might not perform well if an index cannot be used
 
+#### Recommendation
+
+Since the intermediate reports (i.e. reports between the original one sent and a terminal one that errored or was sent
+to a receiver), are not relevant from a search perspective, the easiest solution is to keep track of a mapping between 
+the terminal reports and the original.  This would enable answering all the search questions around reports without
+introducing new concepts or complexity.
+
 ### Storing metadata in a queryable and extensible fashion
 
 The metadata provided for different result types might differ and a relational table is not a great fit thus the need
@@ -321,7 +329,7 @@ For example:
 
 Pros:
 
-- Exposes a REST API so developers don't need to learn a new sytax
+- Exposes a REST API so developers don't need to learn a new syntax
 - Has excellent support for fuzzy searches
 - Automatically indexes the data
 - Azure has a fully hosted version
@@ -331,6 +339,31 @@ Cons:
 - Does not work with FHIR out of the box
 - Does not fully support inserting nested objects
 - Can be expensive
+
+#### Use the HAPI FHIR server
+
+This is an open source server that accepts FHIR data and then provides various mechanisms for searching that data and
+could serve as the tool used for querying against the items that flow through ReportStream.  The implementation already
+does a lot of work normalizing the various resource types and storing them in a way that can be easily searched.
+
+![search](./search-patient.png)
+![results](./search-results.png)
+![db](./resource-in-db.png)
+
+This approach would entail spinning up a HAPI FHIR server and then accessing the data via the defined API endpoints
+
+Pros:
+
+- Is relatively easy to get started
+- Out of the box search functionality is robust
+
+Cons:
+
+- Out of the box, `type: "message"` was not accepted by the server
+- Exposing functionality not necessarily part of HAPI FHIR server is more difficult
+- At least locally, searches were pretty slow
+- Increases the deployment complexity as another system and infrastructure needs to be maintained
+
 
 #### Azure cognitive search
 
@@ -346,13 +379,23 @@ Cons:
 - Cannot be run locally and would require a dev instance
 - Locks ReportStream into azure
 
+
+#### Recommendation
+
+The recommendation would be to use two of the solutions described above
+
 ## Open Questions
 
 - Can an item lineage be part of more than one report lineage?
+  - No
 - Does old data need to be back filled?
   - The answer is likely no
-- What does an "undelivered" report mean?
+- What does an "undelivered" or "delivered" report mean?
+  - One that does not have a successful send?
+  - Action with send_error?
 - Do we care about the reports in between sending and receiving?
   - Maybe only in the case of error or warnings?
+  - From a search perspective only the terminal reports are relevant
 - Why does the submissions page not actually show metadata?
 - Where is the expired at time stored?
+  - Reports are available for 60 days? so expiration is just 60 days from the created_at?
