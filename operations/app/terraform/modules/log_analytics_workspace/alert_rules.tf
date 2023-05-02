@@ -45,10 +45,9 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrul
       | where requestUri_s contains "metabase/api/health" and httpStatusCode_d != 200
       | where errorInfo_s == "OriginConnectionRefused"
   EOT
-
-  severity    = 0
-  frequency   = 5
-  time_window = 5
+  severity       = 0
+  frequency      = 5
+  time_window    = 5
 
   trigger {
     operator  = "GreaterThanOrEqual"
