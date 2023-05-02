@@ -532,13 +532,10 @@ class FHIRBundleHelpersTests {
         assertThat(provenance).isNotNull()
         bundle.deleteResource(provenance)
 
-        // assert
-        assertFailsWith<IllegalStateException> {
-            FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
-        }
-        assertFailsWith<IllegalStateException> {
-            FHIRBundleHelpers.addProvenanceReference(bundle)
-        }
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        assertThat(
+            bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        ).isNotNull()
     }
 
     @Test
