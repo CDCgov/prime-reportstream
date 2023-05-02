@@ -53,3 +53,4 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrul
     threshold = 1
   }
 }
+
