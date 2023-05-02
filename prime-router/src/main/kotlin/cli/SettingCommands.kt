@@ -948,8 +948,8 @@ class GetMultipleSettings : SettingCommand(
         metavar = "<filter>"
     )
 
-    val load by option(
-        "-l", "--load-local",
+    private val loadToLocal by option(
+        "-l", "--load-to-local",
         help = "Load settings to local database with transport modified to use SFTP. " +
             "You will have the chance to approve or decline a diff. " +
             "If the -a (--append-to-orgs) option is used in conjunction with the load option, the modified results " +
@@ -957,7 +957,7 @@ class GetMultipleSettings : SettingCommand(
             "original, unmodified settings will be output to that file."
     ).flag(default = false)
 
-    val appendToOrgs by option(
+    private val appendToOrgs by option(
         "-a", "--append-to-orgs",
         help = "Append results to organizations.yml file."
     ).flag(default = false)
@@ -977,8 +977,8 @@ class GetMultipleSettings : SettingCommand(
         val settings = yamlMapper.writeValueAsString(output)
         writeOutput(settings)
         // Handle load option.
-        if (load) {
-            loadSettings(output)
+        if (loadToLocal) {
+            handleLoadToLocalOption(output)
             // This is an else because if the load option is used, the appending is handled
             // inside it so the version with modified transport can be appended to the organizations.yml
         } else if (appendToOrgs) {
@@ -1004,7 +1004,7 @@ class GetMultipleSettings : SettingCommand(
         }
     }
 
-    private fun loadSettings(settings: List<DeepOrganization>) {
+    private fun handleLoadToLocalOption(settings: List<DeepOrganization>) {
         if (settings.isNotEmpty()) {
             // Change transports to SFTP
             val modifiedOrgs = settings.map { org ->
