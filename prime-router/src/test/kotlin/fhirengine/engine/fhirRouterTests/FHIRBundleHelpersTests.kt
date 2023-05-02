@@ -153,10 +153,54 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
+    fun `test adding receivers to bundle without provenance`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data_no_provenance.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        val receiversIn = listOf(oneOrganization.receivers[0])
+
+        // act
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val receiversOut = outs.map { it.resource }
+            .filterIsInstance<Endpoint>().map { it.identifier[0].value }
+        assertThat(receiversOut).isNotEmpty()
+        assertThat(receiversOut[0]).isEqualTo("co-phd.full-elr-hl7")
+    }
+
+    @Test
     fun `test adding diagnosticreport references to bundle`() {
         // set up
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // act
+        FHIRBundleHelpers.addProvenanceReference(bundle)
+
+        // assert
+        val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        val outs = provenance.target
+        val references = outs.filterNot { it.resource is Endpoint }
+            .map { it.reference as String }
+            .filter { it.substringBefore(delimiter = "/", missingDelimiterValue = "none") == "DiagnosticReport" }
+        assertThat(references).isNotEmpty()
+    }
+
+    @Test
+    fun `test adding diagnosticreport references to bundle when no original provenance`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data_no_provenance.fhir").readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
@@ -488,13 +532,10 @@ class FHIRBundleHelpersTests {
         assertThat(provenance).isNotNull()
         bundle.deleteResource(provenance)
 
-        // assert
-        assertFailsWith<IllegalStateException> {
-            FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
-        }
-        assertFailsWith<IllegalStateException> {
-            FHIRBundleHelpers.addProvenanceReference(bundle)
-        }
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        assertThat(
+            bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        ).isNotNull()
     }
 
     @Test
