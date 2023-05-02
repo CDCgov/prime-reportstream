@@ -39,7 +39,8 @@ object FHIRBundleHelpers {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
-            throw IllegalStateException("The FHIR bundle does not contain a Provenance resource")
+            addProvenanceReference(fhirBundle)
+            fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         }
 
         // Create the list of target receivers to be added to the Provenance of the bundle
@@ -84,7 +85,8 @@ object FHIRBundleHelpers {
         val provenanceResource = try {
             fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         } catch (e: NoSuchElementException) {
-            throw IllegalStateException("The FHIR bundle does not contain a Provenance resource")
+            fhirBundle.addEntry().resource = Provenance()
+            fhirBundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         }
 
         // Create the list of diagnostic reports to be added to the Provenance of the bundle
