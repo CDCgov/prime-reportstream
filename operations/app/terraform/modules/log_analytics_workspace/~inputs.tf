@@ -94,6 +94,11 @@ variable "action_group_slack_id" {
   description = "Slack action group resource id"
 }
 
+variable "action_group_metabase_id" {
+  type        = string
+  description = "Metabase healthcheck action group resource id"
+}
+
 variable "data_factory_id" {
   type        = string
   description = "Data factory resource id"
