@@ -44,7 +44,7 @@ jobs:
           terraform-version: 1.1.9
 
       - name: BEFORE APPLY - Get outputs
-        if: steps.stats1.outputs.change-count > 0
+        #if: steps.stats1.outputs.change-count > 0
         run: |
           echo "terraform-version: ${{ steps.stats1.outputs.terraform-version }}"
           echo "drift-count: ${{ steps.stats1.outputs.drift-count }}"
@@ -63,7 +63,7 @@ jobs:
 
       - name: Format outputs for slack
         id: format_out
-        if: steps.stats1.outputs.change-count > 0
+        #if: steps.stats1.outputs.change-count > 0
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "STATS<<$EOF" >> $GITHUB_OUTPUT
