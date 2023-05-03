@@ -92,7 +92,7 @@ export const RequestedChangesDisplay = ({
                         <p className="validation-section-header">{title}</p>
 
                         <Button
-                            className="usa-button usa-button--outline display-flex flex-align-center"
+                            className="usa-button usa-button--outline display-flex flex-align-center margin-0"
                             type="button"
                             onClick={handleSaveToCsvClick}
                         >
@@ -309,7 +309,7 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={[StaticAlertType.Error, StaticAlertType.Slim]}
+                type={StaticAlertType.Warning}
                 heading={heading}
                 message={message}
             />
@@ -319,7 +319,7 @@ export const FileQualityFilterDisplay = ({
                     <p className="validation-section-header">Jurisdictions</p>
 
                     <Button
-                        className="usa-button usa-button--outline display-flex flex-align-center"
+                        className="usa-button usa-button--outline display-flex flex-align-center margin-0"
                         type="button"
                         onClick={handleJurisdictionSaveToCsvClick}
                     >
