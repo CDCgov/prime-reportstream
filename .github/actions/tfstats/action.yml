@@ -65,7 +65,7 @@ runs:
     - name: Run Terraform stats
       id: local-action
       run: |
-        ../../.github/scripts/terraform_stats/tf_stats.sh \
+        ./../../../.github/scripts/terraform_stats/tf_stats.sh \
         "${{ inputs.terraform-directory }}" \
         ${{ inputs.include-no-op }} \
         "${{ inputs.add-args }}" \
