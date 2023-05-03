@@ -64,6 +64,7 @@ object FhirPathUtils : Logging {
         expression: String
     ): List<Base> {
         val retVal = try {
+            pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
             if (expressionNode == null) emptyList()
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
@@ -95,6 +96,7 @@ object FhirPathUtils : Logging {
         expression: String
     ): Boolean {
         val retVal = try {
+            pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
             val value = if (expressionNode == null) emptyList()
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
@@ -132,6 +134,7 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): String {
+        pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
         val evaluated = if (expressionNode == null) emptyList()
         else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
