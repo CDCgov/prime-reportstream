@@ -78,7 +78,7 @@ The HAPI FHIR library supports three types of validation:
   - User unfriendly error messages
   - Deprecated
 
-<b>Validators can and should be chained and cached</b><br>
+<b>Validators can and should be chained and cached</b>  
 <img src="fhir-validator.png" width="950px;" >
 
 #### LOINC validation will require loading an external code system.
@@ -221,18 +221,19 @@ The HAPI HL7 library provides the following classes to validate HL7 messages:
 - `ValidationException` - thrown when validation fails
 - `ValidationExceptionHandlerFactory` - interface that you can implement in order to control the exception handling
 
-Code Examples: <br/>
+Code Examples:
+
 A code example for custom message validation: 
-https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/CustomMessageValidation.html <br/>
+https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/CustomMessageValidation.html  
 If you want to start with something more basic for a POC, here is an example that uses a default validation context
-rather than building one from scratch: https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidation.html <br/>
+rather than building one from scratch: https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidation.html   
 Here is an example of using the ValidationRuleBuilder: 
-https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/CustomMessageValidationWithValidatingVisitor.html <br/>
+https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/CustomMessageValidationWithValidatingVisitor.html   
 An example for using conformance: 
-https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidationUsingConformanceProfile.html <br/>
+https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidationUsingConformanceProfile.html   
 
 #### NIST Validator
-The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/v2-validation <br/>
+The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/v2-validation  
 Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
 https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
 project only has one README which does not discuss how to actually use the library. I was told that DEX uses this, but
