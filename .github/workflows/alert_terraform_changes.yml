@@ -52,13 +52,13 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: These are all terraform plan changes fo Staging & Prod envs
+          title: Terraform Plan Changes
           message: |
+            "env": "prime-reportstream ${{ matrix.env }}",
             "change-count": "${{ steps.stats1.outputs.change-count }}",
             "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-            "resource-changes": "${{ env.resource-changes }}",
             "resource-drifts": "${{ env.resource-drifts }}",
-            "env": "prime-reportstream ${{ matrix.env }}"
+            "resource-changes": "${{ steps.format_out.outputs.CHANGES }}"
           icon-emoji: ':bell:'
           channel: test-tf-stats
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
