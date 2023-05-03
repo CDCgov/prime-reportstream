@@ -1,0 +1,57 @@
+name: Alert Terraform Changes
+
+on:
+  push:
+    branches:
+     - feature/7746-investigate-alert-tf-changes-action
+jobs:
+  alert_tf_changes:
+    name: Check Terraform plan for ${{ matrix.env }}
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [staging, prod]
+    environment: ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      - name: Collect Terraform stats
+        uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
+        id: stats1
+        with:
+          terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+          terraform-version: 1.2.0
+          add-args: "-refresh=false"
+      - name: Format outputs for slack
+        if: steps.stats1.outputs.change-count > 0
+        run: |
+          echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
+          echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
+      - name: Send custom JSON data to Slack workflow
+        if: steps.stats1.outputs.change-count > 0
+        id: slack
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+        with:
+          payload: |
+            {
+              "change-count": "${{ steps.stats1.outputs.change-count }}",
+              "drift-count": "${{ steps.stats1.outputs.drift-count }}",
+              "resource-changes": "${{ env.resource-changes }}",
+              "resource-drifts": "${{ env.resource-drifts }}",
+              "env": "prime-reportstream ${{ matrix.env }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

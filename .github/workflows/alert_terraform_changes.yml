@@ -3,7 +3,7 @@ name: Alert Terraform Changes
 on:
   push:
     branches:
-      - feature/7746-investigate-alert-tf-changes-action
+#     - feature/7746-investigate-alert-tf-changes-action
   # workflow_dispatch:
   # schedule:
   #   - cron: "21 12 * * *"
