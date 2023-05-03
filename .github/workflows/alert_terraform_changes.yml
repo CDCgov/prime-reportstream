@@ -57,7 +57,7 @@ jobs:
              The total number of changes is ${{ steps.stats1.outputs.change-count }}
              ${{ steps.format_out.outputs.CHANGES }}
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
+          channel: test-tf-stats
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
 
