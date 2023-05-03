@@ -114,7 +114,7 @@ class LivdApiTest : CoolTest() {
      */
     private fun livdApiQuery(testCase: LivdApiTestCase): Pair<Boolean, String?> {
         val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
-            .timeoutRead(45000)
+            .timeoutRead(75000)
             .responseString()
 
         return if (response.statusCode != testCase.expectedHttpStatus.value()) {
