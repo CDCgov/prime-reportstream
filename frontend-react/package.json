@@ -192,7 +192,7 @@
         "eslint-plugin-storybook": "^0.6.11",
         "eslint-plugin-testing-library": "^5.10.2",
         "eslint-plugin-unused-imports": "2.0.0",
-        "eslint-webpack-plugin": "^4.0.0",
+        "eslint-webpack-plugin": "^4.0.1",
         "file-loader": "^6.2.0",
         "filesize": "^10.0.7",
         "find-up": "^5.0.0",
