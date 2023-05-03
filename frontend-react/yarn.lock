@@ -2096,7 +2096,7 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.7"
 
-"@microsoft/applicationinsights-common@2.8.11", "@microsoft/applicationinsights-common@^2.8.10":
+"@microsoft/applicationinsights-common@2.8.11":
   version "2.8.11"
   resolved "https://registry.npmjs.org/@microsoft/applicationinsights-common/-/applicationinsights-common-2.8.11.tgz"
   integrity sha512-Cxu4gRajkYv9buEtrcLGHK97AqGK62feN9jH9/JSjUSiSFhbnWtYvEg1EMqMI/P4pneu53yLJloITB+TKwmK7A==
@@ -2105,13 +2105,30 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.7"
 
-"@microsoft/applicationinsights-core-js@2.8.11", "@microsoft/applicationinsights-core-js@^2.8.10":
+"@microsoft/applicationinsights-common@^2.8.12":
+  version "2.8.13"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-common/-/applicationinsights-common-2.8.13.tgz#e3457bdc54a61cbfa481494da25e55bb9156096e"
+  integrity sha512-UYLLGVtuzrWUEmGYRroMzLyTi2fHqL6SwJUlmVWPJrmdK43PGpviRix/sBW0Qs+6qjiI1Z6CiG4Xah6w/HylhA==
+  dependencies:
+    "@microsoft/applicationinsights-core-js" "2.8.13"
+    "@microsoft/applicationinsights-shims" "2.0.2"
+    "@microsoft/dynamicproto-js" "^1.1.9"
+
+"@microsoft/applicationinsights-core-js@2.8.11":
   version "2.8.11"
   resolved "https://registry.npmjs.org/@microsoft/applicationinsights-core-js/-/applicationinsights-core-js-2.8.11.tgz"
   integrity sha512-6ScXplyb9Zb0K6TQRfqStm20j5lIe/Dslf65ozows6ibDcKkWl2ZdqzFhymVJZz1WRNpSyD4aA8qnqmslIER6g==
   dependencies:
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.7"
+
+"@microsoft/applicationinsights-core-js@2.8.13", "@microsoft/applicationinsights-core-js@^2.8.12":
+  version "2.8.13"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-core-js/-/applicationinsights-core-js-2.8.13.tgz#45c2b8fff35e5aa519355dd3a69e3758293b08f4"
+  integrity sha512-PP7Xjplvy0d5G2Tk7DcSDYRmgDYRv+7n3wEiqgm63DrSoa8rEuoODavjWunhX058zPNIeKbus59NE+DusLLyZg==
+  dependencies:
+    "@microsoft/applicationinsights-shims" "2.0.2"
+    "@microsoft/dynamicproto-js" "^1.1.9"
 
 "@microsoft/applicationinsights-dependencies-js@2.8.11":
   version "2.8.11"
@@ -2133,17 +2150,17 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.7"
 
-"@microsoft/applicationinsights-react-js@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.npmjs.org/@microsoft/applicationinsights-react-js/-/applicationinsights-react-js-3.4.1.tgz"
-  integrity sha512-oosMkymmkkulUdFcUbqKc64Li0KpItmV/pClOr4DCLAxbitCjHDkKdxodvpUzMHVs1ko9cHP360oc1QVXprhXQ==
+"@microsoft/applicationinsights-react-js@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-react-js/-/applicationinsights-react-js-3.4.2.tgz#d7314f4c119161cd5c6cd52fbaf7146aef0909a6"
+  integrity sha512-9i1wIs5YQEoSKJPKoW6DY6XCrBbmc+HhMJEIl6svhxbEK6afzPTjp+Gc2yc2TS/nr7qai033LC8FyLOoZVq8sg==
   dependencies:
-    "@microsoft/applicationinsights-common" "^2.8.10"
-    "@microsoft/applicationinsights-core-js" "^2.8.10"
-    "@microsoft/applicationinsights-shims" "^2.0.1"
-    "@microsoft/dynamicproto-js" "^1.1.6"
+    "@microsoft/applicationinsights-common" "^2.8.12"
+    "@microsoft/applicationinsights-core-js" "^2.8.12"
+    "@microsoft/applicationinsights-shims" "^2.0.2"
+    "@microsoft/dynamicproto-js" "^1.1.9"
 
-"@microsoft/applicationinsights-shims@2.0.2", "@microsoft/applicationinsights-shims@^2.0.1":
+"@microsoft/applicationinsights-shims@2.0.2", "@microsoft/applicationinsights-shims@^2.0.2":
   version "2.0.2"
   resolved "https://registry.npmjs.org/@microsoft/applicationinsights-shims/-/applicationinsights-shims-2.0.2.tgz"
   integrity sha512-PoHEgsnmcqruLNHZ/amACqdJ6YYQpED0KSRe6J7gIJTtpZC1FfFU9b1fmDKDKtFoUSrPzEh1qzO3kmRZP0betg==
@@ -2162,10 +2179,10 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.7"
 
-"@microsoft/dynamicproto-js@^1.1.6", "@microsoft/dynamicproto-js@^1.1.7":
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/@microsoft/dynamicproto-js/-/dynamicproto-js-1.1.7.tgz"
-  integrity sha512-SK3D3aVt+5vOOccKPnGaJWB5gQ8FuKfjboUJHedMP7gu54HqSCXX5iFXhktGD8nfJb0Go30eDvs/UDoTnR2kOA==
+"@microsoft/dynamicproto-js@^1.1.7", "@microsoft/dynamicproto-js@^1.1.9":
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@microsoft/dynamicproto-js/-/dynamicproto-js-1.1.9.tgz#7437db7aa061162ee94e4131b69a62b8dad5dea6"
+  integrity sha512-n1VPsljTSkthsAFYdiWfC+DKzK2WwcRp83Y1YAqdX552BstvsDjft9YXppjUzp11BPsapDoO1LDgrDB0XVsfNQ==
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
