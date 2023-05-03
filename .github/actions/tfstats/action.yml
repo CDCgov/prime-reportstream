@@ -82,9 +82,9 @@ runs:
         retention-days: ${{ inputs.upload-retention-days }}
 
     - name: Create summary
-      if: |
-        steps.local-action.outputs.change-count > 0 ||
-        steps.local-action.outputs.drift-count > 0
+      # if: |
+      #   steps.local-action.outputs.change-count > 0 ||
+      #   steps.local-action.outputs.drift-count > 0
       run: |
         echo "### :construction: Terraform Stats :construction:" >> $GITHUB_STEP_SUMMARY
         if [[ ${{ steps.local-action.outputs.change-count }} > 0 ]]; then
