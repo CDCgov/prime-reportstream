@@ -55,7 +55,7 @@ jobs:
           method: slack
           title: These are all terraform plan changes fo Staging & Prod envs
           message: |
-             echo " The total number of changes is ${{ steps.stats1.outputs.change-count }}"
+             The total number of changes is ${{ steps.stats1.outputs.change-count }}"
              ${{ steps.format_out.outputs.CHANGES }}
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
