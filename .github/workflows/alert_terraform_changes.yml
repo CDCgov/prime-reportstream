@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        env: [staging, prod]
+        env: [test, prod]
     environment: ${{ matrix.env }}
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +54,7 @@ jobs:
           method: slack
           title: These are all terraform plan changes fo Staging & Prod envs
           message: |
+             ${{ steps.stats1.outputs.change-count }}
              ${{ steps.format_out.outputs.CHANGES }}
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
