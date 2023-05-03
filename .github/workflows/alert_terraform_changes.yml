@@ -1,9 +1,12 @@
 name: Alert Terraform Changes
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "21 12 * * *"
+  push:
+    branches:
+      - feature/7746-investigate-alert-tf-changes-action
+  # workflow_dispatch:
+  # schedule:
+  #   - cron: "21 12 * * *"
 
 jobs:
   alert_tf_changes:
@@ -17,6 +20,7 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -27,32 +31,73 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-      - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
+
+      - name: BEFORE APPLY - Use local action
+        uses: ./.github/actions/tfstats
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
-          terraform-version: 1.2.0
-          add-args: "-refresh=false"
-      - name: Format outputs for slack
+          add-args: -target=docker_image.nginx -target=docker_container.nginx
+          upload-plan: true
+          upload-retention-days: 0
+          plan-file: tf_stats_plan.bin
+          terraform-version: 1.1.9
+
+      - name: BEFORE APPLY - Get outputs
         if: steps.stats1.outputs.change-count > 0
         run: |
-          echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
-          echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
-      - name: Send custom JSON data to Slack workflow
+          echo "terraform-version: ${{ steps.stats1.outputs.terraform-version }}"
+          echo "drift-count: ${{ steps.stats1.outputs.drift-count }}"
+          echo "resource-drifts: ${{ steps.stats1.outputs.resource-drifts }}"
+          echo "change-count: ${{ steps.stats1.outputs.change-count }}"
+          echo "change-percent: ${{ steps.stats1.outputs.change-percent }}"
+          echo "resource-changes: ${{ steps.stats1.outputs.resource-changes }}"
+
+      # - name: Collect Terraform stats
+      #   uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
+      #   id: stats1
+      #   with:
+      #     terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+      #     terraform-version: 1.2.0
+      #     add-args: "-refresh=false"
+
+      - name: Format outputs for slack
+        id: format_out
         if: steps.stats1.outputs.change-count > 0
-        id: slack
-        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "STATS<<$EOF" >> $GITHUB_OUTPUT
+          echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> >> $GITHUB_OUTPUT
+          echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+            
+      - name: Slack Notification
+        if: ${{ steps.format_out.outputs.STATS  != '' }}
+        uses: ./.github/actions/notifications
         with:
-          payload: |
-            {
-              "change-count": "${{ steps.stats1.outputs.change-count }}",
-              "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-              "resource-changes": "${{ env.resource-changes }}",
-              "resource-drifts": "${{ env.resource-drifts }}",
-              "env": "prime-reportstream ${{ matrix.env }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
+          method: slack
+          title: These are output stats from terraform plan
+          message: |
+            ${{ steps.format_out.outputs.STATS }}
+          icon-emoji: ':bell:'
+          channel: pagerduty-alert-dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+
+      # - name: Send custom JSON data to Slack workflow
+      #   if: steps.stats1.outputs.change-count > 0
+      #   id: slack
+      #   uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+      #   with:
+      #     payload: |
+      #       {
+      #         "change-count": "${{ steps.stats1.outputs.change-count }}",
+      #         "drift-count": "${{ steps.stats1.outputs.drift-count }}",
+      #         "resource-changes": "${{ env.resource-changes }}",
+      #         "resource-drifts": "${{ env.resource-drifts }}",
+      #         "env": "prime-reportstream ${{ matrix.env }}"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
