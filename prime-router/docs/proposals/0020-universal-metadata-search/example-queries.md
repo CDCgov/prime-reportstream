@@ -1,3 +1,13 @@
+# Sample queries for analysis
+
+These are pulled from some the initial search requirements and the purpose of this document was to evaluate the
+feasibility of the solution that includes
+
+- storing the terminal report ids in a mapping table
+- storing FHIR resources in elastic search indices.
+
+It is mostly a scratch pad created as parted of teh speccing process.
+
 **1.1** As a RS sender, I want visibility into the routing of the data I send.
 ```sql
 with delivered_reports_for_senders as (select
@@ -98,32 +108,42 @@ select * from delivered_reports_for_receiver;
     select * from delivered_reports_for_receiver
     order by item_count;
     ```
-- I want to gain insight into the data I receive by querying the metadata associated with items. See
-  [All facilities & providers](https://www.figma.com/proto/6mwI5ac6rprACKDzDo4Ady/ReportStream-Workspace-%7C-2023?node-id=995%3A13474&scaling=min-zoom&page-id=496%3A6448&starting-point-node-id=995%3A13227&show-proto-sidebar=1).
-    - I want a list of all performing facilities sending data to me.
-    - I want a list of all ordering providers sending data to me.
-    - I want a list of all submitters sending data to me.
-    ```sql
-    select
-    distinct submitted.sending_org
-    from report_file delivered
-    join terminal_report_ids on terminal_report_id = delivered.report_id
-    join report_file submitted on submitted.report_id = terminal_report_ids.original_report_id
-    where delivered.transport_result is not null
-    and submitted.sending_org = %receiving_org%
-    ```
-    - I want to know the last time a particular performing facility sent data to me.
-    - I want to know the last time a particular ordering provider sent data to me.
-    - I want to know the last time a particular submitter sent data to me.
-    ```sql
-    select
-    max(submitted.created_at)
-    from report_file delivered
-    join terminal_report_ids on terminal_report_id = delivered.report_id
-    join report_file submitted on submitted.report_id = terminal_report_ids.original_report_id
-    where delivered.transport_result is not null
-    and submitted.sending_org = %receiving_org%
-    ```
+  - I want to gain insight into the data I receive by querying the metadata associated with items. See
+    [All facilities & providers](https://www.figma.com/proto/6mwI5ac6rprACKDzDo4Ady/ReportStream-Workspace-%7C-2023?node-id=995%3A13474&scaling=min-zoom&page-id=496%3A6448&starting-point-node-id=995%3A13227&show-proto-sidebar=1).
+      - I want a list of all performing facilities sending data to me.
+   
+      ???
+      - I want a list of all ordering providers sending data to me.
+  
+      ???
+      - I want a list of all submitters sending data to me.
+      ```sql
+      select
+      distinct submitted.sending_org
+      from report_file delivered
+      join terminal_report_ids on terminal_report_id = delivered.report_id
+      join report_file submitted on submitted.report_id = terminal_report_ids.original_report_id
+      where delivered.transport_result is not null
+      and submitted.sending_org = %receiving_org%
+      ```
+      - I want to know the last time a particular performing facility sent data to me.
+    
+      ??? Likely needs to have the facility index to know which receivers got it  
+
+      - I want to know the last time a particular ordering provider sent data to me.
+
+      ??? Likely needs to have the provider index to know which receivers got it
+  
+      - I want to know the last time a particular submitter sent data to me.
+      ```sql
+      select
+      max(submitted.created_at)
+      from report_file delivered
+      join terminal_report_ids on terminal_report_id = delivered.report_id
+      join report_file submitted on submitted.report_id = terminal_report_ids.original_report_id
+      where delivered.transport_result is not null
+      and submitted.sending_org = %receiving_org%
+      ```
 - Given some report item data, I want to find other data associated with the item. See
   [Carroll Schultz](https://www.figma.com/proto/6mwI5ac6rprACKDzDo4Ady/ReportStream-Workspace-%7C-2023?node-id=1081%3A15935&scaling=min-zoom&page-id=496%3A6448&starting-point-node-id=995%3A13227&show-proto-sidebar=1).
     - I want to see when an ordering provider first reported to us, the receiver.
@@ -142,7 +162,21 @@ select * from delivered_reports_for_receiver;
         ```
     - I want the average number of tests per report sent to us for all reports including a particular ordering provider.
     - I want the total number of items associated with a particular ordering provider.
+      - Search the ordering provider index and get all the metadata ids
+      ```sql
+      select count(1) from metadata
+      where id in %metadata_ids%
+      join terminal_report_ids on(
+          terminal_report_ids.origin_report_id = metadata.report_id
+          and terminal_report_ids.origin_report_index = metadata.report_index
+      )
+      join report_file on(
+          terminal_report_ids.terminal_report_id = report_file.report_id
+      )
+      where report_file.receiving_org = %receiving_org%
+        ```
     - I want the contact information for a particular ordering provider.
+    - 
     - I want the CLIA associated with a particular ordering provider.
 
 **1.4** As a member of the engagement team (RS Admin), I want visibility into the data that flows through RS so I can

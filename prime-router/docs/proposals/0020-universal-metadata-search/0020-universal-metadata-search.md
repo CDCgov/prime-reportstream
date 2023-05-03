@@ -27,7 +27,7 @@ The search question in that document breakdown into a few broad categories:
 
 ### Enhancing the ability to query reports and items
 
-The first problem to solve for is how to efficiently query how items flow from a report from a sender to a receiver.
+The first problem to solve for is how to efficiently query how items flow from a sender to a receiver.
 This is currently captured via the report and item lineages; this is a graph structure where each item and report 
 has a link to its parent.  Some example questions that a solution would need to solve for is:
  
@@ -39,7 +39,7 @@ has a link to its parent.  Some example questions that a solution would need to 
 
 There is a current solution where each child item contains a link to the origin report 
 (`origin_report_id`/`origin_report_index`) that enables quickly starting at the bottom of a lineage graph and jumping 
-back up to the original source.  A similar method could be done for going from an original report to it's delivered items
+back up to the original source.  A similar method could be done for going from an original report to it's terminal items
 by creating a new table that maps the origin report and index to a delivered report and index.
 
 ```mermaid
@@ -57,12 +57,15 @@ Pros:
 
 - Follows an existing pattern already implemented
 - Easy to understand and query against
-- Does not involve introducing any new concepts to reportstream
+- Does not involve introducing any new concepts
+- Consumers do not need to know that there is an underlying graph that is created as intermediates
+- Does not limit future use cases that do need to know about the lineage
 
 Cons
 
 - Limited to just mapping an original item to a delivered item
-- Table will be quite large and hard to break up
+- Table will be quite large and hard to break up later
+- A new solution will need to be implemented if the intermediate reports need to be queried
 
 #### Use recursive queries in JOOQ to walk the lineages
 
@@ -72,7 +75,7 @@ This functionality is also supported in JOOQ, so it would be feasible to move th
 and create some generic functions that would return the lineages; this generic function would then be the base that could
 be used for fetching information about the items and reports as they went through the system.
 
-This is an example of what a recursive query would typically look like.
+This is an example of what a recursive query would typically look like; this one walks up from a child back to the origin.
 ```sql
 WITH RECURSIVE lineage AS (
     SELECT parent_report_id, parent_index
@@ -130,8 +133,9 @@ Pros:
 
 - Allows writing queries against any part of the lineage hierarchy
 - Doesn't require capturing any new data or adjusting how report stream works
+- Is a very flexible solution for future needs
 
-Cons
+Cons:
 
 - Developers need to understand how recursive queries
 - Recursive queries tend to be hard to tune and can suffer from performance suddenly degrading if the query optimizer
@@ -143,7 +147,8 @@ chooses the wrong index
 This solution would deprecate the use of the report and item lineage tables in favor of moving them to a document
 store where they could be co-located and then also store the metadata in that same document store.
 
-Possible structure for the report store (this will likely need further fields as its iterated on)
+Possible structure for the report store (this will likely need further fields as it's iterated on).  This approach is
+flexible; the example below only includes the terminal reports, but could be updated to store the entire lineage graph.
 
 ```json
 {
@@ -188,6 +193,9 @@ Possible structure for the report store (this will likely need further fields as
 }
 ```
 
+In the above, the metadata values could be stored in a separate collection or fully or partially (subset pattern) inlined
+depending on the search requirements.
+
 Pros:
 
 - Most flexible option as the initial schema can be custom suited to the search requirements
@@ -198,18 +206,10 @@ Pros:
 Cons:
 
 - Requires spinning up a new data store
-- Loses some of the internal granularity that the current lineage schemas do in terms of all the intermediate reports
-between the original and delivered one
 - Indices will need to be added to be performant which might not scale over time
 - Large documents will require a large amount of memory for the MongoDB servers
 - "Ad-hoc" searches might not perform well if an index cannot be used
 
-#### Recommendation
-
-Since the intermediate reports (i.e. reports between the original one sent and a terminal one that errored or was sent
-to a receiver), are not relevant from a search perspective, the easiest solution is to keep track of a mapping between 
-the terminal reports and the original.  This would enable answering all the search questions around reports without
-introducing new concepts or complexity.
 
 ### Storing metadata in a queryable and extensible fashion
 
@@ -222,11 +222,12 @@ Example of a question that needs answering:
 > As a receiver, what was the last time a particular performing facility sent data?
 
 A solution will involve storing most of the metadata (potentially the entirety of the FHIR bundle) in an unstructured 
-form.
+form so that the entirety of the FHIR bundle is searchable
 
 #### A metadata table with a JSONB column
 
 This table could likely be enhanced further by extracting out more columns that would exist for every piece of metadata
+
 ```mermaid
 erDiagram
     Metadata {
@@ -237,19 +238,24 @@ erDiagram
     }
     
 ```
-where `value` could be either the raw FHIR bundle or a normalized version with fields of interest
+where `value` would be the FHIR bundle. 
+
+As requirements around search functionality is determined, [indices](https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING) 
+could be added to the `value` column to keep queries fast.
 
 Pros:
 
 - Can use the existing datastore
 - Indices can be written for the JSONB data to support fast queries
 - JOOQ supports JSONB operators out of the box
+- Joining back to the report, item and lineage data is easy
 
 Cons:
 
-- Writing aggregates will be more complicated
 - Engineers will need to have a good understanding of the postgres JSONB type
-- "Ad-hoc" queries will be very slow without a very selective initial filter
+- Does not scale to arbitrary searching of the metadata
+- Individual searches will need to be tuned to make sure an effective index is chosen
+- Inserts will get progressively more expensive as more and more indices are added 
 
 #### Mongodb
 
@@ -264,7 +270,8 @@ Pros:
 
 Cons:
 
-- Requires a infrastructure
+- Requires an infrastructure change
+- If the lineage data is still stored in postgres, requires selecting IDs and then doing a large `in` query
 - Developers might not necessarily be familiar with MongoDB
 - Concurrent updates will be complicated; i.e. the send function fanning out and making multiple updates to the same
 original report
@@ -337,14 +344,20 @@ Pros:
 Cons:
 
 - Does not work with FHIR out of the box
+- Linking back to the lineage data in postgres will be complicated, expensive and would not potentially scale to all use cases
 - Does not fully support inserting nested objects
 - Can be expensive
+- 
 
-#### Use the HAPI FHIR server
+#### Store the data in a normalized form
+
+While we could roll our own version of this (see [this](https://github.com/CDCgov/prime-reportstream/pull/7228) proposal),
+there is an existing solution in the open source [HAPI FHIR server](https://hapifhir.io/hapi-fhir/docs/) that could be
+leveraged to accomplish the same goal.  This solution supports normalizing any FHIR resource type and is a more extensible
+solution than something that is custom.
 
 This is an open source server that accepts FHIR data and then provides various mechanisms for searching that data and
-could serve as the tool used for querying against the items that flow through ReportStream.  The implementation already
-does a lot of work normalizing the various resource types and storing them in a way that can be easily searched.
+could serve as the tool used for querying against the items that flow through ReportStream.
 
 ![search](./search-patient.png)
 ![results](./search-results.png)
@@ -356,13 +369,16 @@ Pros:
 
 - Is relatively easy to get started
 - Out of the box search functionality is robust
+- Provides fantastic support for arbitrary searches
 
 Cons:
 
-- Out of the box, `type: "message"` was not accepted by the server
+- Out of the box, `type: "message"` was not accepted by the server; we would likely need to fork or at least figure out to
+get it accepted
 - Exposing functionality not necessarily part of HAPI FHIR server is more difficult
 - At least locally, searches were pretty slow
 - Increases the deployment complexity as another system and infrastructure needs to be maintained
+- Linking back to the lineage data will be complicated/inefficient
 
 
 #### Azure cognitive search
@@ -378,11 +394,35 @@ Cons:
 
 - Cannot be run locally and would require a dev instance
 - Locks ReportStream into azure
+- Linking back to the lineage data will be complicated/inefficient
 
+## Recommendation
 
-#### Recommendation
+Overall, the exact requirements around search are still fuzzy; there are a few things that receivers and senders are
+definitely interested in knowing around how data is getting routed (this is also what someone debugging the system is
+interested in), but items such as what is valuable to search in the metadata is still an unknown.
 
-The recommendation would be to use two of the solutions described above
+Due to the ambiguity, the recommended approach is:
+
+- track the origin report/items to the terminal report/items in a new column and table
+  - Specifically, we would insert a new row whenever there is no next action to be performed
+- Create a new metadata table with a JSONB column for storing the metadata
+  - After creating the internal FHIR bundle that the UP will operate on, insert that into the metadata table with 
+  origin report and index
+
+This is the simplest approach and requires no new infrastructure or concepts while still maintaining flexibility moving
+forward as requirements evolve.  The largest cons of this solution are mostly ones of scale and monitoring could be
+configured such that the team would have an early warning that one of the other more involved solutions spelled out 
+here need to be adopted
+
+## Searches be splitting into another ticket
+
+- Returning a list of "undelivered" reports
+  - There is not necessarily a convenient way to track reports that were not delivered (SFTP failed, etc) as that 
+  information is not necessarily stored in an easy to query fashion
+  - Supporting this will require a follow-up approach to update how that data is stored so that is can be retrieved
+- Returning a list of reports sorted by when they will expire
+  - Currently, expired maps to the `created_at` + 60 days 
 
 ## Open Questions
 
@@ -393,9 +433,11 @@ The recommendation would be to use two of the solutions described above
 - What does an "undelivered" or "delivered" report mean?
   - One that does not have a successful send?
   - Action with send_error?
+  - This can get deferred to a future work
 - Do we care about the reports in between sending and receiving?
   - Maybe only in the case of error or warnings?
   - From a search perspective only the terminal reports are relevant
-- Why does the submissions page not actually show metadata?
 - Where is the expired at time stored?
   - Reports are available for 60 days? so expiration is just 60 days from the created_at?
+  - Likely a hardcoded value with azure storage
+  - The value we show in the API might not be correct
