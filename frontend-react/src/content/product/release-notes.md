@@ -5,9 +5,9 @@
 ---
 ### April 2023
 
-#### New State Connections
+#### New State Connection
 
-We’re excited to announce that ReportStream has recently established connections to send and report public health data with the following state: Kansas. 
+We’re excited to announce that ReportStream can now send public health data to Kansas. 
 
 You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
 
