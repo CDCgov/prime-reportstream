@@ -34,9 +34,6 @@ import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetai
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
-import { FacilitiesProviders } from "./pages/dashboard/facilities-providers/FacilitiesProviders";
-import { ReportDetails } from "./pages/dashboard/report-details/ReportDetails";
-import { FacilityProviderSubmitterDetails } from "./pages/dashboard/facilities-providers/FacilityProviderSubmitterDetails";
 import { DashboardWithAuth } from "./pages/dashboard/Dashboard";
 
 export enum FeatureName {
@@ -88,18 +85,6 @@ export const appRoutes = [
     },
     /* Dashboard pages */
     { path: "/data-dashboard", element: <DashboardWithAuth /> },
-    {
-        path: "/data-dashboard/facilities-providers",
-        element: <FacilitiesProviders />,
-    },
-    {
-        path: "/data-dashboard/facilities-providers/:facilityProviderSubmitter",
-        element: <FacilityProviderSubmitterDetails />,
-    },
-    {
-        path: "/data-dashboard/report-details/:reportId",
-        element: <ReportDetails />,
-    },
     /* Admin pages */
     { path: "/admin/settings", element: <AdminMainWithAuth /> },
     { path: "/admin/new/org", element: <AdminOrgNewWithAuth /> },

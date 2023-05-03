@@ -803,4 +803,14 @@ pre {
             margin-left: 18px;
         }
     }
+
+    .usa-select {
+        min-width: 224px;
+        width: max-content;
+        border-color: lightgray;
+    }
+
+    .filter-container {
+        margin-bottom: 0;
+    }
 }
